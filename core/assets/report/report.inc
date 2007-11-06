@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report.inc,v 1.8 2007/03/27 01:17:56 rong Exp $
+* $Id: report.inc,v 1.9 2007/11/06 06:27:41 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,9 +106,9 @@ class Report extends Page
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib');?>/web/css/edit.css" />
 		<?php
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-		$o =& new Limbo_Outputter();
+		$o = new Limbo_Outputter();
 		$o->openSection();
-			$efns =& $this->getEditFns();
+			$efns = $this->getEditFns();
 			$efns->paintReport($this, $o, $this->getPrefix());
 		$o->closeSection();
 		$o->paintSections();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text.inc,v 1.2 2007/02/12 00:56:38 tbarrett Exp $
+* $Id: metadata_field_multiple_text.inc,v 1.3 2007/11/06 06:25:28 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Metadata_Field_Multiple_Text extends Metadata_Field
 	{
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 
-		$attribute =& new Asset_Attribute_Option_List();
+		$attribute = new Asset_Attribute_Option_List();
 
 		$default = implode($attribute->delimiter, explode('; ', $this->attr('default')));
 

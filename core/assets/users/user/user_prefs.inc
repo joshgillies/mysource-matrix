@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.12 2007/09/17 04:26:30 amiller Exp $
+* $Id: user_prefs.inc,v 1.13 2007/11/06 06:31:42 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -86,7 +86,7 @@ class User_Prefs extends Prefs
 		$this->Prefs($pref_file);
 
 		// attribute for input of SQ_COMMENT_MAX_LENGTH
-		$this->int_am_frame_width =& new Asset_Attribute_Int();
+		$this->int_am_frame_width = new Asset_Attribute_Int();
 		$this->int_am_frame_width->setParam('allow_negative', FALSE);
 		$this->int_am_frame_width->setParam('allow_empty', FALSE);
 		$this->int_am_frame_width->setParam('range_lower', $this->int_am_frame_width_default);
@@ -147,7 +147,7 @@ class User_Prefs extends Prefs
 					</li>
 					<li id="timeout">
 						<?php
-						$dur =& new Asset_Attribute_Duration(0, $session_settings['timeout']);
+						$dur = new Asset_Attribute_Duration(0, $session_settings['timeout']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS][timeout_enabled]', '1', ($session_settings['timeout'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_timeout_enabled"');
 							label(translate('session_timeout'), 'prefs_SQ_USER_SESSION_PREFS_timeout_enabled');
@@ -161,7 +161,7 @@ class User_Prefs extends Prefs
 					</li>
 					<li id="max_length">
 						<?php
-						$dur =& new Asset_Attribute_Duration(0, $session_settings['max_length']);
+						$dur = new Asset_Attribute_Duration(0, $session_settings['max_length']);
 						if ($have_lock && $is_admin) {
 							check_box('prefs[SQ_USER_SESSION_PREFS][max_length_enabled]', '1', ($session_settings['max_length'] != 0), 'toggleInputs(this.parentNode)', 'id="prefs_SQ_USER_SESSION_PREFS_max_length_enabled"');
 							label(translate('session_max_length'), 'prefs_SQ_USER_SESSION_PREFS_max_length_enabled');
@@ -316,7 +316,7 @@ class User_Prefs extends Prefs
 
 			if (is_null($pref)) $o->closeField();
 		}//end if
-		
+
 		if (is_null($pref) || $pref == 'SQ_USER_LIMBO_HIDE_FRAMES') {
 			if (is_null($pref)) $o->openField(translate($this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['name']));
 			?>
@@ -339,7 +339,7 @@ class User_Prefs extends Prefs
 			<br />
 			</div>
 			<?php
-		
+
 		}//end if
 
 
@@ -367,12 +367,12 @@ class User_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
 			$new_prefs['persist'] = !isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['persist']);
 			if (isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['timeout_enabled'])) {
-				$timeout_dur =& new Asset_Attribute_Duration();
+				$timeout_dur = new Asset_Attribute_Duration();
 				$timeout_dur->process('prefs_dur_timeout_');
 				$new_prefs['timeout'] = $timeout_dur->value;
 			}
 			if (isset($_POST['prefs']['SQ_USER_SESSION_PREFS']['max_length_enabled'])) {
-				$max_length_dur =& new Asset_Attribute_Duration();
+				$max_length_dur = new Asset_Attribute_Duration();
 				$max_length_dur->process('prefs_dur_max_length_');
 				$new_prefs['max_length'] = $max_length_dur->value;
 			}
@@ -390,7 +390,7 @@ class User_Prefs extends Prefs
 		if ($gc_min > SQ_CONF_SESSION_GC_MAXLIFETIME) {
 			// update the main conf
 			include_once(SQ_INCLUDE_PATH.'/system_config.inc');
-			$system_conf =& new System_Config();
+			$system_conf = new System_Config();
 			if (!$system_conf->canAcquireLock()) {
 				trigger_localised_error('CORE0233', E_USER_NOTICE);
 				return FALSE;
@@ -429,7 +429,7 @@ class User_Prefs extends Prefs
 				$this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['default'] = $this->int_am_frame_width_default;
 			}
 		}
-		
+
 		if (is_null($pref) || $pref == 'SQ_USER_LIMBO_HIDE_FRAMES') {
 			// hide frames in limbo  pref
 			if (isset($_POST['prefs']['SQ_USER_LIMBO_HIDE_FRAMES'])) {

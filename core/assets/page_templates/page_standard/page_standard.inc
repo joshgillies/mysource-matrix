@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.21 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: page_standard.inc,v 1.22 2007/11/06 06:26:02 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Page_Standard extends Page
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy =& new Bodycopy();
+		$bodycopy = new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$bodycopy->setAttrValue('name', 'Page Contents');
@@ -159,7 +159,7 @@ class Page_Standard extends Page
 	{
 		if (isset($_GET['sq_from_frontend'])) {
 
-			$bodycopy =& $this->getBodycopy();
+			$bodycopy = $this->getBodycopy();
 			if (is_null($bodycopy)) {
 				trigger_localised_error('CORE0016', $this->name.'"', E_USER_ERROR);
 				return FALSE;
@@ -193,13 +193,13 @@ class Page_Standard extends Page
 	*/
 	function printBody()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
-			$bodycopy =& $this->getBodycopy();
+			$bodycopy = $this->getBodycopy();
 			if (is_null($bodycopy)) return;
 			ob_start();
 				// set the keyword replacements
@@ -230,12 +230,12 @@ class Page_Standard extends Page
 	*/
 	function initLimbo()
 	{
-		$lm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+		$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 
 		if ($lm->hasLayout($this->type(), 'details')) {
 			parent::initLimbo();
 		} else {
-			$bodycopy =& $this->getBodycopy();
+			$bodycopy = $this->getBodycopy();
 			if (!is_null($bodycopy)) {
 				$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $bodycopy->id);
 				$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $bodycopy->id);
@@ -254,7 +254,7 @@ class Page_Standard extends Page
 	*/
 	function getContent()
 	{
-		$bodycopy =& $this->getBodycopy();
+		$bodycopy = $this->getBodycopy();
 		if (is_null($bodycopy)) return '';
 		$contents = $bodycopy->getRawBodycopyContent();
 
@@ -309,7 +309,7 @@ class Page_Standard extends Page
 		$null = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major');
 		if (empty($link)) return $null;
-		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $bodycopy;
 
 	}//end getBodycopy()
@@ -335,9 +335,9 @@ class Page_Standard extends Page
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$bodycopy =& $this->getBodycopy();
+					$bodycopy = $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
-					$edit =& $bodycopy->getEditFns();
+					$edit = $bodycopy->getEditFns();
 					ob_start();
 						if ($edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix())) {
 							$print_commit_button = TRUE;
@@ -375,9 +375,9 @@ class Page_Standard extends Page
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$bodycopy =& $this->getBodycopy();
+					$bodycopy = $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
-					$edit =& $bodycopy->getEditFns();
+					$edit = $bodycopy->getEditFns();
 					$edit->processBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix());
 				break;
 			}

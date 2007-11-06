@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.15 2007/03/27 00:56:01 rong Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.16 2007/11/06 06:27:21 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$owner =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_incomplete_metadata');
+		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_incomplete_metadata');
 
 		$asset_types = $owner->getAllowedAssetTypeMap();
 
@@ -92,7 +92,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			$assetid = array_shift(array_keys($job->_running_vars['todo']));
 			$asset_type = $job->_running_vars['todo'][$assetid];
 			unset($job->_running_vars['todo'][$assetid]);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				// If asset type list is empty, then none were set and therefore we do all asset
@@ -100,7 +100,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				if (empty($asset_types) || isset($asset_types[$asset->type()])) {
 					$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
 
-					$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$field_values = $mm->getMetadataFieldValues($asset->id);
 
 					$empty_fields = FALSE;
@@ -178,8 +178,8 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input =& new XML_Tree($report_path);
-		$root  =& $input->getTreeFromFile();
+		$input = new XML_Tree($report_path);
+		$root  = $input->getTreeFromFile();
 
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
@@ -217,7 +217,7 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				foreach ($missing_fields as $assetid => $fields) {
 					$asset = NULL;
 					if ($assetid) {
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 					}
 					if (is_null($asset)) {
 						$asset_type = '';

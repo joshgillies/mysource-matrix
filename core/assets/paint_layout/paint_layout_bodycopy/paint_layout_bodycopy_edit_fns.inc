@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.10 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.11 2007/11/06 06:26:44 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 		$allowed_keywords = array_keys($allowed_keywords);
 
 		$write_access = $asset->writeAccess('attributes');
-		$condition_list =& new Conditions_List($asset, 'conditional_keywords');
+		$condition_list = new Conditions_List($asset, 'conditional_keywords');
 		return $condition_list->paintConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
 
 	}//end paintConditionalKeywords()
@@ -83,7 +83,7 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 		$allowed_keywords = array_keys($allowed_keywords);
 
 		$write_access = $asset->writeAccess('attributes');
-		$condition_list =& new Conditions_List($asset, 'conditional_keywords');
+		$condition_list = new Conditions_List($asset, 'conditional_keywords');
 		return $condition_list->processConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
 
 	}//end processConditionalKeywords()

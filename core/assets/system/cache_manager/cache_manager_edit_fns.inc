@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.13 2007/02/26 05:02:55 skim Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.14 2007/11/06 06:28:13 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -331,7 +331,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$delete_all = $_POST[$prefix.'_delete_all'];
 
 			$assetid = $_POST[$prefix.'_clear_cache']['assetid'];
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
 						'assetid'		=> $assetid,
 						'level'			=> $level,
@@ -391,7 +391,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processSystemWideClearCache(&$asset, &$o, $prefix)
 	{
 		if ($_POST[$prefix.'_delete_all'] == 'yes') {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
 						'delete_all'	=> 'yes',
 					);
@@ -422,7 +422,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		$caching_on = $asset->attr('enabled');
 		if ($wa) {
 			if ($this->cronConfigured()) {
-				$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 
 				// Include Refresh Cache Cron Job
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
@@ -435,7 +435,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$cron_job =& new Cron_Job_Refresh_Cache();
+				$cron_job = new Cron_Job_Refresh_Cache();
 				$edit_fns = $cron_job->getEditFns();
 				$edit_fns->paintInLineBackend($cron_job, $o, $prefix.'_new_rc');
 				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
@@ -465,13 +465,13 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		if ($wa && $this->cronConfigured()) {
-			$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 
 			// Include Refresh Cache Cron Job
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
 
 			if ($asset->writeAccess('')) {
-				$rc =& new Cron_Job_Refresh_Cache();
+				$rc = new Cron_Job_Refresh_Cache();
 				$edit_fns = $rc->getEditFns();
 				if ($edit_fns->processInLineBackend($rc, $o, $prefix.'_new_rc')) {
 					$rc->saveAttributes();
@@ -514,7 +514,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintCurrentJobs(&$asset, &$o, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
 		$rc_jobs = $cron_mgr->getJobs('cron_job_refresh_cache');
 
@@ -551,7 +551,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 						<?php
-							$user =& $rc_job->getRunningUser();
+							$user = $rc_job->getRunningUser();
 							echo get_asset_tag_line($user->id);
 							unset($user);
 						?>
@@ -589,7 +589,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$wa = $asset->writeAccess('attributes');
 		if ($wa && $this->cronConfigured()) {
-			$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 
 			// Include Refresh Cache Cron Job
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_refresh_cache');
@@ -622,7 +622,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function cronConfigured()
 	{
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$cron_epoc = (int)$cron_mgr->attr('epoch');
 		$cron_refresh = (int)$cron_mgr->attr('refresh_time');
 

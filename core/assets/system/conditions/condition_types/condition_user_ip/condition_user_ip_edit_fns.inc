@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.10 2007/06/28 06:38:19 lwright Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.11 2007/11/06 06:28:13 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -619,7 +619,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 		$condition_data = Array('user_ip_ranges' => Array());
 		$condition_data['default_grant'] = 0;
 
-		$csv =& new CSV();
+		$csv = new CSV();
 		$csv->setFilepath($file_name);
 		$csv->import();
 		$lines = $csv->values;

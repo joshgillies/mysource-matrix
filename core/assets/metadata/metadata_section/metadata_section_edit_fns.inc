@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.41 2007/03/08 04:00:38 tbarrett Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.42 2007/11/06 06:25:29 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					</tr>
 				<?php
 				foreach ($current_links as $link_data) {
-					$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+					$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 					if (is_null($field)) continue;
 					$edit_fns = $field->getEditFns();
 					?>
@@ -163,7 +163,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$new_field_type = trim($_POST[$prefix.'_field_type']);
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_field_type);
-			$new_field =& new $new_field_type();
+			$new_field = new $new_field_type();
 
 			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 0);
 			$new_field->setAttrValue('name', $new_field_name);
@@ -211,7 +211,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
 			if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id]['value'] : NULL, $write_access)) {
@@ -241,7 +241,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field) || !$field->attr('editable')) {
 				continue;
 			}
@@ -273,7 +273,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	{
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
 			if (!$edit_fns->requiredFieldsComplete($field, (isset($values[$field->id])) ? $values[$field->id]['value'] : NULL)) {
@@ -302,7 +302,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->mm;
+		$mm = $GLOBALS['SQ_SYSTEM']->mm;
 
 		// Buffer the contents of any META tags
 		ob_start();
@@ -312,7 +312,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		$valid_fields = Array();
 		foreach ($current_links as $link) {
-			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$valid_fields[] = $field->name;
 

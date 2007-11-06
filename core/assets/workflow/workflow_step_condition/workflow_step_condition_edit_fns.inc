@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.24 2006/12/05 05:50:00 bcaldwell Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.25 2007/11/06 06:29:53 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		$cond_logic = $asset->attr('logic');
@@ -95,9 +95,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		</td>
 		<td class="sq-backend-table-cell">
 			<?php
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			if (!$write_access) {
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_a($user, 'user')) {
 					echo '&nbsp;';
 				} else {
@@ -215,7 +215,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		$logic = $asset->attr('logic');
 		$logic_num = $asset->attr('logic_num');
 
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		if (in_array($logic, $wfm->_valid_logic_with_right_operand)) {
 			$logic = $logic.(($logic_num) ? " $logic_num" : ' 0');
 		} else {

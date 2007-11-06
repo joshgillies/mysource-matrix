@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.49 2007/08/10 06:14:25 lmarchese Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.50 2007/11/06 06:25:28 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_new_section']) && trim($_POST[$prefix.'_new_section'])) {
 			$new_section_name = trim($_POST[$prefix.'_new_section']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('metadata_section');
-			$new_section =& new Metadata_Section();
+			$new_section = new Metadata_Section();
 			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1);
 			$new_section->setAttrValue('name', $new_section_name);
 			if (!$new_section->create($schema_link)) return FALSE;
@@ -135,7 +135,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		if (!$asset->writeAccess('')) return FALSE;
 
 		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('schemaids' => Array($asset->id,));
 			$hh->queueHipo('hipo_job_regenerate_metadata', $vars);
 		}
@@ -162,7 +162,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE, FALSE);
 		foreach ($current_links as $link_data) {
-			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
 
 			$o->openSection($section->name);
@@ -203,7 +203,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		// process current steps
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE, FALSE);
 		foreach ($current_links as $link_data) {
-			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if ($edit_fns->processInlineOptionInterface($section, $o)) {
@@ -243,7 +243,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		$res = FALSE;
 		foreach ($current_links as $link) {
-			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if ($edit_fns->paintInlineValueInterface($section, $o, $values, $write_access)) {
@@ -273,7 +273,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if ($edit_fns->processInlineValueInterface($section, $new_values)) {
@@ -298,7 +298,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
-			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->requiredFieldsComplete($section, $values)) {
@@ -326,7 +326,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		$frontend_option = $asset->attr('frontend');
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->mm;
+		$mm = $GLOBALS['SQ_SYSTEM']->mm;
 
 		// Buffer the contents of any META tags
 		ob_start();
@@ -336,7 +336,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', TRUE, 'major', NULL, TRUE);
 		$valid_sections = Array();
 		foreach ($current_links as $link) {
-			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$valid_sections[] = $section->name;
 

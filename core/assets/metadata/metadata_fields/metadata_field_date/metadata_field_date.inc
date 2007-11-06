@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.15 2007/02/12 00:56:21 tbarrett Exp $
+* $Id: metadata_field_date.inc,v 1.16 2007/11/06 06:25:28 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Metadata_Field_Date extends Metadata_Field
 	*/
 	function getMetadataValue(&$asset, $value_str)
 	{
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (is_null($value_str)) {
 			$value = $this->attr('default');
@@ -140,7 +140,7 @@ class Metadata_Field_Date extends Metadata_Field
 			}
 		}
 
-		$field =& new DateTime_Field($prefix.'_datetime', $value, $parameters);
+		$field = new DateTime_Field($prefix.'_datetime', $value, $parameters);
 
 		return $field;
 

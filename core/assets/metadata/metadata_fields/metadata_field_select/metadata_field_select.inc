@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.19 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_select.inc,v 1.20 2007/11/06 06:25:28 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Metadata_Field_Select extends Metadata_Field
 	{
 		require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 
-		$selection =& new Asset_Attribute_Selection();
+		$selection = new Asset_Attribute_Selection();
 		$edit_params = $this->attr('edit_params');
 		if (!empty($edit_params)) {
 			$selection->_edit_params = array_merge($selection->_edit_params, $edit_params);

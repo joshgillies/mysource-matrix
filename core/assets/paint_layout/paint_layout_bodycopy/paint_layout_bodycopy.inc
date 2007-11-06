@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.34 2006/12/29 05:31:24 tbarrett Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.35 2007/11/06 06:26:44 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,11 +103,11 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$content_file = '';
 		$required_substitution_keywords = Array();
 
-		$containers =& $this->getContainers();
+		$containers = $this->getContainers();
 		foreach (array_keys($containers) as $i) {
 			ob_start();
-				$container =& $containers[$i]; // need this by reference
-				$edit =& $container->getEditFns();
+				$container = $containers[$i]; // need this by reference
+				$edit = $container->getEditFns();
 				$edit->paint($container, FALSE, TRUE);
 				$content = ob_get_contents();
 			ob_end_clean();
@@ -161,7 +161,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$content = preg_replace($e, $with, $content);
 
 			$content_file .= '
-							$container =& $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$container->id.',  "'.$container->type().'");
+							$container = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$container->id.',  "'.$container->type().'");
 							if ($container->readAccess()) {
 								'.$php_end.$content.$php_begin.'
 							}//end if read access for container '.$container->id.'
@@ -216,7 +216,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		$ret = '';
 
-		$this->asset_to_paint =& $asset;
+		$this->asset_to_paint = $asset;
 
 		// Retrieve any assets referenced in this bodycopy, and get their urls for lookup
 		if (file_exists($this->data_path.'/.notice_links')) {
@@ -225,7 +225,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			// nothing cached out from the Bodycopy asset level (ie. not in safe edit) so
 			// need to grab our notice links ourselves
 			$linked_assets = Array();
-			$containers =& $this->getContainers();
+			$containers = $this->getContainers();
 
 			foreach ($containers as $container) {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($container->id, SQ_LINK_NOTICE);
@@ -277,7 +277,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	function _addRequiredKeywordsFromEvaluatedKeyword($evaluated_keyword, &$required_keywords)
 	{
 		// if the evaluated keyword is a logical condition, then gets the logical keywords it is relying on
-		$condition_list =& new Conditions_List($this, 'conditional_keywords');
+		$condition_list = new Conditions_List($this, 'conditional_keywords');
 		foreach ($condition_list->getRequiredKeywords($evaluated_keyword) as $required_keyword) {
 			$required_keywords[$required_keyword] = 1;
 		}
@@ -382,7 +382,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// TODO:
 		// This will make this harder once the $required_keywords will be really applied by getAssetKeywords()
 		// function, because the logical conditions may need other keywords which are not in $required_keywords
-		$condition_list =& new Conditions_List($this, 'conditional_keywords');
+		$condition_list = new Conditions_List($this, 'conditional_keywords');
 		$ret = array_merge($ret, $condition_list->evaluate($asset, $required_keywords, $ret, Array(FALSE, TRUE)));
 		return $ret;
 
@@ -436,9 +436,9 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			// 2. asset keywords (includes attributes)
 			if (!empty($asset_type_code)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type_code);
-				$asset =& new $asset_type_code();
+				$asset = new $asset_type_code();
 			} else {
-				$asset =& new Asset();
+				$asset = new Asset();
 			}
 
 			$asset_keywords = $asset->getAvailableKeywords();
@@ -456,7 +456,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			$keywords['asset_metadata_'] = translate('asset_metadata_x');
 
 			// 4. conditions
-			$condition_list =& new Conditions_List($this, 'conditional_keywords');
+			$condition_list = new Conditions_List($this, 'conditional_keywords');
 			$condition_names = $condition_list->getConditionsNames();
 
 			foreach ($condition_names as $condition_name) {

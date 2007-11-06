@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.25 2006/12/05 05:49:59 bcaldwell Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.26 2007/11/06 06:29:53 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_new_step']) && trim($_POST[$prefix.'_new_step'])) {
 			$new_step_name = trim($_POST[$prefix.'_new_step']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step');
-			$new_step =& new Workflow_Step();
+			$new_step = new Workflow_Step();
 			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1);
 			$new_step->setAttrValue('name', $new_step_name);
 			if (!$new_step->create($schema_link)) return FALSE;
@@ -116,7 +116,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
 		$i = 1;
 		foreach ($current_links as $link_data) {
-			$step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$step = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 
 			$o->openSection('Step '.$i.' - '.$step->name);
@@ -157,7 +157,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		// process current steps
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
 		foreach ($current_links as $link_data) {
-			$step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$step = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
 			if ($edit_fns->processStep($step, $o)) $updated = TRUE;
@@ -198,7 +198,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		$i = 1;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
 		foreach ($current_links as $link_data) {
-			$step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$step = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
 			$workflow_array['steps'][$i] = Array();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.40 2006/12/06 04:24:00 emcdonald Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.41 2007/11/06 06:28:13 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -310,7 +310,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 									</td>
 									<td class="sq-backend-table-cell" style="border-bottom: none">
 										<?php
-											$user =& $jobs[$i]->getRunningUser();
+											$user = $jobs[$i]->getRunningUser();
 											if ($user) {
 												echo get_asset_tag_line($user->id);
 											} else {
@@ -440,7 +440,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					  );
 
 		$value = '';
-		$field =& new DateTime_Field($prefix.'_epoch', $value, $parameters);
+		$field = new DateTime_Field($prefix.'_epoch', $value, $parameters);
 		$value = $field->unitsArrayToStr($value_arr);
 		$field->setValue($value);
 
@@ -470,7 +470,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			echo $field->format();
 		}//end if
 
-		$attr =& $asset->getAttribute('epoch');
+		$attr = $asset->getAttribute('epoch');
 		echo '<br />&nbsp;';
 		$o->note($attr->description);
 

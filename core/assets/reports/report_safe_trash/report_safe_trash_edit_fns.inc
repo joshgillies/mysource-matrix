@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_edit_fns.inc,v 1.3 2007/03/27 01:12:35 rong Exp $
+* $Id: report_safe_trash_edit_fns.inc,v 1.4 2007/11/06 06:27:21 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$owner =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_safe_trash');
+		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_safe_trash');
 
 		$asset_types = $owner->getAllowedAssetTypeMap();
 
@@ -92,7 +92,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 			$assetid = array_shift(array_keys($job->_running_vars['todo']));
 			$asset_type = $job->_running_vars['todo'][$assetid];
 			unset($job->_running_vars['todo'][$assetid]);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset) && !is_a($asset, 'root_folder')) {
 				// If asset type list is empty, then none were set and therefore we do all asset
@@ -101,13 +101,13 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 					$job_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, 'updating', 'minor');
 					if ($job_link) {
 
-						$cron_job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_link['majorid']);
+						$cron_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_link['majorid']);
 
 						bam('Job Exists: '.$cron_job->id);
 
 						$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
 
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$field_values = $mm->getMetadataFieldValues($asset->id);
 						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($asset->id);
 
@@ -200,8 +200,8 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input =& new XML_Tree($report_path);
-		$root  =& $input->getTreeFromFile();
+		$input = new XML_Tree($report_path);
+		$root  = $input->getTreeFromFile();
 
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
@@ -263,7 +263,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 				foreach ($missing_fields as $assetid => $fields) {
 					$asset_tmp = NULL;
 					if ($assetid) {
-						$asset_tmp =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+						$asset_tmp = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 					}
 					if (is_null($asset_tmp)) {
 						$asset_type = '';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.54 2007/10/29 05:40:55 lwright Exp $
+* $Id: asset_attribute.inc,v 1.55 2007/11/06 06:32:06 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -169,7 +169,7 @@ class Asset_Attribute extends MySource_Object
 	function &loadAttribute($attributeid=0, $value=NULL, $default_params=Array())
 	{
 		if ($attributeid == 0) {
-			$empty_attr =& new Asset_Attribute(0, $value, $default_params);
+			$empty_attr = new Asset_Attribute(0, $value, $default_params);
 			return $empty_attr;
 		}
 
@@ -187,7 +187,7 @@ class Asset_Attribute extends MySource_Object
 
 		$class = 'Asset_Attribute_'.$type;
 		require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
-		$attr =& new $class($attributeid, $value, $default_params);
+		$attr = new $class($attributeid, $value, $default_params);
 
 		return $attr;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.33 2007/08/08 23:00:28 hnguyen Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.34 2007/11/06 06:29:53 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	{
 		$write_access = ($asset->writeAccess('attributes') && $asset->writeAccess('links'));
 		$prefix = $asset->getPrefix();
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		$o->openField(translate('step_logic'));
@@ -98,7 +98,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 					</tr>
 				<?php
 				foreach ($current_links as $link_data) {
-					$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+					$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 					if (is_null($condition)) continue;
 					$edit_fns = $condition->getEditFns();
 					echo '<tr>';
@@ -117,7 +117,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}//end if
 
 		$o->openField(translate('require_comment_from_unlisted_users'));
-			$require_comment_attr =& $asset->getAttribute('require_comment_from_unlisted_users');
+			$require_comment_attr = $asset->getAttribute('require_comment_from_unlisted_users');
 			$require_comment_attr->paint($prefix.'_require_comment_from_unlisted_users', !$write_access);
 			$o->note(translate('require_comment_from_unlisted_users_explanation'));
 		$o->closeField();
@@ -128,12 +128,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$o->closeField();
 		}
 		$o->openField(translate('expiry_time'));
-			$comparator_attr =& $asset->getAttribute('expiry_time');
+			$comparator_attr = $asset->getAttribute('expiry_time');
 			$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
 			$o->note(translate('step_not_completed_in_time_explanation'));
 		$o->closeField();
 		$o->openField('Escalate?');
-			$comparator_attr =& $asset->getAttribute('escalate');
+			$comparator_attr = $asset->getAttribute('escalate');
 			$comparator_attr->paint($prefix.'_escalate', !$write_access);
 			$o->note(translate('escalate_note'));
 			if ($asset->attr('escalate') == TRUE) {
@@ -163,7 +163,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 								</tr>
 							<?php
 							foreach ($current_links as $link_data) {
-								$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+								$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 								if (is_null($field)) continue;
 								?>
 								<tr>
@@ -244,7 +244,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		// require comment from unlisted users
-		$require_comment_attr =& $asset->getAttribute('require_comment_from_unlisted_users');
+		$require_comment_attr = $asset->getAttribute('require_comment_from_unlisted_users');
 		$require_comment_attr->process($prefix.'_require_comment_from_unlisted_users');
 		if ($require_comment_attr->processed) {
 			$asset->setAttrValue('require_comment_from_unlisted_users', $require_comment_attr->value);
@@ -252,7 +252,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		// update expiry date
-		$expiry_time_attr =& $asset->getAttribute('expiry_time');
+		$expiry_time_attr = $asset->getAttribute('expiry_time');
 		$expiry_time_attr->process($prefix.'_expiry_time');
 		if ($expiry_time_attr->processed) {
 			$asset->setAttrValue('expiry_time', $expiry_time_attr->value);
@@ -260,7 +260,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		// update escalation
-		$escalate_attr =& $asset->getAttribute('escalate');
+		$escalate_attr = $asset->getAttribute('escalate');
 		$escalate_attr->process($prefix.'_escalate');
 		if ($escalate_attr->processed) {
 			$asset->setAttrValue('escalate', $escalate_attr->value);
@@ -284,7 +284,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_new_escalation_step']) && trim($_POST[$prefix.'_new_escalation_step'])) {
 			$new_step_name = trim($_POST[$prefix.'_new_escalation_step']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step');
-			$new_step =& new Workflow_Step();
+			$new_step = new Workflow_Step();
 			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1);
 			$new_step->setAttrValue('name', $new_step_name);
 
@@ -295,7 +295,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE, TRUE);
 		if (!empty($current_links)) {
 			foreach ($current_links as $link_data) {
-				$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+				$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 				if (is_null($condition)) continue;
 				$edit_fns = $condition->getEditFns();
 				if ($edit_fns->processStepCondition($condition, $o)) {
@@ -315,7 +315,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		// create a new condition?
 		if (isset($_POST[$prefix.'_new_condition']['assetid']) && $_POST[$prefix.'_new_condition']['assetid'] > 0) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step_condition');
-			$new_cond =& new Workflow_Step_Condition();
+			$new_cond = new Workflow_Step_Condition();
 			$step_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 1);
 			$new_cond->setAttrValue('userid', $_POST[$prefix.'_new_condition']['assetid']);
 			if ($new_cond->create($step_link)) $updated = TRUE;
@@ -362,7 +362,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE, TRUE);
 		foreach ($current_links as $link_data) {
-			$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($condition)) continue;
 			$edit_fns = $condition->getEditFns();
 			if (!$edit_fns->generateWorkflowArray($condition, $workflow_array['conditions'])) {
@@ -375,7 +375,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
 		$i = 1;
 		foreach ($current_links as $link_data) {
-			$step =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+			$step = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 			$workflow_array['escalation_steps'][$i] = Array();
 			$edit_fns = $step->getEditFns();

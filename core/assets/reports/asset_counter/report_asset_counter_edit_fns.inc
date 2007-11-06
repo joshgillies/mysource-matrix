@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.11 2007/03/27 00:58:05 rong Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.12 2007/11/06 06:27:20 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,11 +52,11 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	function generateReport(&$job, &$step_data, $prefix)
 	{
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
+		$owner = $am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
 
-		$job_vars =&  $job->_running_vars;
+		$job_vars =  $job->_running_vars;
 
 		$report_contents = '';
 
@@ -155,7 +155,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -167,8 +167,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input =& new XML_Tree($report_path);
-		$root  =& $input->getTreeFromFile();
+		$input = new XML_Tree($report_path);
+		$root  = $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
@@ -198,7 +198,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 					return;
 				}
 
-				$sort_by_attr =& $asset->getAttribute('sort_by');
+				$sort_by_attr = $asset->getAttribute('sort_by');
 				$sort_by = $sort_by_attr->value;
 
 				$row_format =

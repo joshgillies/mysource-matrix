@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.12 2007/06/19 23:57:33 rong Exp $
+* $Id: report_incomplete_metadata.inc,v 1.13 2007/11/06 06:27:21 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Report_Incomplete_Metadata extends Report
 	{
 		if (!isset($this->_tmp['getAssetMapLinks'])) {
 
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -66,8 +66,8 @@ class Report_Incomplete_Metadata extends Report
 
 			if (!is_file($report_path)) return Array();
 
-			$input =& new XML_Tree($report_path);
-			$root  =& $input->getTreeFromFile();
+			$input = new XML_Tree($report_path);
+			$root  = $input->getTreeFromFile();
 			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
@@ -139,7 +139,7 @@ class Report_Incomplete_Metadata extends Report
 
 		if (!isset($this->_tmp['getLinks'])) {
 
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -148,8 +148,8 @@ class Report_Incomplete_Metadata extends Report
 
 			if (!is_file($report_path)) return Array();
 
-			$input =& new XML_Tree($report_path);
-			$root  =& $input->getTreeFromFile();
+			$input = new XML_Tree($report_path);
+			$root  = $input->getTreeFromFile();
 			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {

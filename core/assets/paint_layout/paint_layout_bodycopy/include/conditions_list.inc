@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.12 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: conditions_list.inc,v 1.13 2007/11/06 06:26:44 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -87,7 +87,7 @@ class Conditions_List
 	*/
 	function setHost(&$host_asset, $conditions_attribute_name)
 	{
-		$this->host_asset =& $host_asset;
+		$this->host_asset = $host_asset;
 		$this->conditions_attribute_name = $conditions_attribute_name;
 
 		return $this->isValid();
@@ -120,7 +120,7 @@ class Conditions_List
 			$condition_names = array_intersect($condition_names, array_keys($conditions_info));
 
 			if (!empty($condition_names)) {
-				$current_user =& $this->_getCurrentUser();
+				$current_user = $this->_getCurrentUser();
 
 				foreach ($condition_names as $condition_name) {
 
@@ -237,7 +237,7 @@ class Conditions_List
 		$included_file .= $condition_type.'.inc';
 		require_once $included_file;
 
-		$new_condition =& new $condition_type();
+		$new_condition = new $condition_type();
 		return $new_condition;
 
 	}//end _getConditionAsset()
@@ -285,7 +285,7 @@ class Conditions_List
 	{
 		$ret = Array();
 
-		$host_asset =& $this->_getHostAsset();
+		$host_asset = $this->_getHostAsset();
 		$ret = $host_asset->attr($this->conditions_attribute_name);
 
 		return ($ret);
@@ -371,8 +371,8 @@ class Conditions_List
 
 				// let the condition paint itself
 				$condition_type = $parameters['type_code'];
-				$condition =& $this->_getConditionAsset($condition_type);
-				$condition_edit_fns =& $this->_getConditionAsset($condition_type, TRUE);
+				$condition = $this->_getConditionAsset($condition_type);
+				$condition_edit_fns = $this->_getConditionAsset($condition_type, TRUE);
 
 				// paint TRUE/FALSE bit
 				$o->openField('Keyword is true if: ');
@@ -471,8 +471,8 @@ class Conditions_List
 
 					// let the condition process itself
 					$condition_type = $parameters['type_code'];
-					$condition =& $this->_getConditionAsset($condition_type);
-					$condition_edit_fns =& $this->_getConditionAsset($condition_type, TRUE);
+					$condition = $this->_getConditionAsset($condition_type);
+					$condition_edit_fns = $this->_getConditionAsset($condition_type, TRUE);
 					$conditions_parameters_new[$new_name]['restriction']['condition_data'] = $condition_edit_fns->processEditInterface($o, $condition_prefix, $allowed_keywords);
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type;
 					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', TRUE);
