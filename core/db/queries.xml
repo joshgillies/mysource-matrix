@@ -164,4 +164,30 @@
 			</insert>
 		</primary>
 	</query>
+
+
+	<!-- //		HIPO HERDER		// -->
+
+	<query id="selectJobsForUser">
+		<!-- Return the HIPO jobs for specified user -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_hipo_job" column="code_name" />
+					<field table="sq_hipo_job" column="job_type" />
+					<field table="sq_hipo_job" column="last_updated" />
+				</fields>
+				<from>
+					<table>sq_hipo_job</table>
+				</from>
+				<where>
+					<equal table="sq_hipo_job" column="userid">:userid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+
 </queries>
+
+
