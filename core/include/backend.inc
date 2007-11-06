@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.182 2007/09/17 04:26:52 amiller Exp $
+* $Id: backend.inc,v 1.183 2007/11/06 06:06:47 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -154,7 +154,7 @@ class Backend extends MySource_Object
 
 		} else if ($_REQUEST['SQ_BACKEND_PAGE'] == 'asset_map_request') {
 			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map =& new Asset_Map();
+			$asset_map = new Asset_Map();
 			$asset_map->process($this);
 
 		} else {
@@ -163,11 +163,11 @@ class Backend extends MySource_Object
 			if (SQ_IN_LIMBO && (($_REQUEST['SQ_BACKEND_PAGE'] == 'main') && (array_get_index($_REQUEST, 'am_section', '') != 'forceably_acquire_lock'))) {
 				// use limbo outputter for main frame
 				require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-				$this->out =& new Limbo_Outputter();
+				$this->out = new Limbo_Outputter();
 			} else {
 				// use backend outputter for other frames
 				require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
-				$this->out =& new Backend_Outputter();
+				$this->out = new Backend_Outputter();
 			}
 
 			if (isset($_REQUEST['SQ_BACKEND_PAGE'])) {
@@ -226,7 +226,8 @@ class Backend extends MySource_Object
 			}
 		}
 
-		parse_str($_SERVER['QUERY_STRING'], $query_vars=Array());
+		$query_vars = Array();
+		parse_str($_SERVER['QUERY_STRING'], $query_vars);
 		if (!empty($query_vars)) {
 			// At this point, SQ_BACKEND_PAGE shouldn't be overriden other than 'main' for
 			// main frame URL. We can possibly have endlessly nested backend frames if the
@@ -1108,7 +1109,7 @@ class Backend extends MySource_Object
 				<div id="asset_map" style="position: absolute; top: 27px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
 					<?php
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-					$asset_map =& new Asset_Map();
+					$asset_map = new Asset_Map();
 					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 					$asset_map->embedAssetMap('simple', $am_width);
 					?>
@@ -1154,7 +1155,7 @@ class Backend extends MySource_Object
 				<div id="asset_map" style="position: absolute; top: 47px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
 					<?php
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-					$asset_map =& new Asset_Map();
+					$asset_map = new Asset_Map();
 					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 					$asset_map->embedAssetMap('complex', $am_width);
 					?>
@@ -1325,19 +1326,19 @@ class Backend extends MySource_Object
 		switch ($_REQUEST['backend_section']) {
 			case 'config' :
 				require_once SQ_INCLUDE_PATH.'/system_config_edit_interface.inc';
-				$cfg_ei =& new System_Config_Edit_Interface();
+				$cfg_ei = new System_Config_Edit_Interface();
 				$cfg_ei->paint($this);
 			break;
 
 			case 'tools' :
 				require_once SQ_INCLUDE_PATH.'/tools.inc';
-				$tools =& new Tools();
+				$tools = new Tools();
 				$tools->paintBackend($this);
 			break;
 
 			case 'maps' :
 				require_once SQ_SYSTEM_ROOT.'/core/maps/maps.inc';
-				$maps =& new Maps();
+				$maps = new Maps();
 				$maps->paintBackend($this);
 			break;
 
