@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.589 2007/11/07 00:35:15 bshkara Exp $
+* $Id: asset_manager.inc,v 1.590 2007/11/07 03:12:09 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.589 $
+* @version $Revision: 1.590 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -820,8 +820,12 @@ class Asset_Manager extends MySource_Object
 
 		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr a '.$where.' ORDER BY a.attrid';
 
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		try {
+			// cannot bind multiple values to a single named parameter, that's why we don't use bind vars here
+			$result = DAL::executeSqlAssoc($sql);
+		} catch (Exception $e) {
+			throw new Exception('Unable to fetch attribute info due to database error: '.$e->getMessage());
+		}
 
 		$return_result = Array();
 		foreach (array_values($result) as $row) {
