@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.588 2007/11/06 22:32:34 rong Exp $
+* $Id: asset_manager.inc,v 1.589 2007/11/07 00:35:15 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.588 $
+* @version $Revision: 1.589 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -579,10 +579,28 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a INNER JOIN sq_ast_typ_inhd at ON a.type_code = at.type_code
 				'.$where.' ORDER BY a.assetid ASC, at.inhd_type_code_lvl DESC';
 
-		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
-		assert_valid_db_result($result);
+		try {
+			$result = DAL::executeSqlGrouped($sql);
+			$inter = Array();
+			foreach ($result as $key => $value) {
+				for ($i=0; $i<count($value); $i++) {
+					if (count($value) === 1) {
+						$scalar = $value[0][0];
+					} else {
+						$inter[] = $value[$i][0];
+					}
+				}
+				$result[$key] = $inter;
+			}
 
-		$result += $shadow_results;
+			$result += $shadow_results;
+
+			// if result contains one value, return scalar rather than array
+			if ((count($result) === 1) && isset($scalar))
+				$result = $scalar;
+		} catch (Exception $e) {
+			throw new Exception('Unable to get asset type info due to database error: '.$e->getMessage());
+		}
 
 		return $result;
 
