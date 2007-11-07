@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.183 2007/11/06 06:06:47 hnguyen Exp $
+* $Id: backend.inc,v 1.184 2007/11/07 00:54:57 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.183 $
+* @version $Revision: 1.184 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -402,10 +402,11 @@ class Backend extends MySource_Object
 
 		if (!SQ_IN_LIMBO && isset($_SESSION['backend_header_last_refresh'])) {
 			// check for updates to the asset tree
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			$date = $db->quote(ts_iso8601($_SESSION['backend_header_last_refresh']));
-			if ($db->phptype == 'oci8') {
+			// TODO : HOW DO WE CHECK FOR DATABASE CONNECTION TYPE? IS IT THE SAME? 
+			if ($db->getAttribute(PDO::ATTR_CLIENT_VERSION) == 'oci8') {
 				$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:Mi:SS').')';
 			}
 
@@ -413,8 +414,12 @@ class Backend extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where;
 
-			$updated_assetids = $db->getCol($sql);
-			assert_valid_db_result($updated_assetids);
+			try {
+				$query = $db->prepare($sql);
+				$updated_assetids = MatrixDAL::executePdoAssoc($query, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get updated assetids in _printHeader due to database error: '.$e->getMessage());
+			}//end catch
 
 			if (!empty($updated_assetids)) {
 				$this->out->addOnLoad('
