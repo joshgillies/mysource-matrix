@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.62 2007/11/07 01:01:08 hnguyen Exp $
+* $Id: messaging_service.inc,v 1.63 2007/11/07 01:01:55 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -526,7 +526,7 @@ class Messaging_Service extends MySource_Object
 		} catch (Exception $e) {
 			throw new Exception('Unable to get message information due to database error: '.$e->getMessage());
 		}//end try catch
-		
+
 		for ($i = 0, $total = count($result); $i < $total; $i++) {
 			$result[$i]['sent'] = iso8601_ts($result[$i]['sent']);
 
