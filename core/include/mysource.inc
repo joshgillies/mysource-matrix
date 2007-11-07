@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.237 2007/11/02 01:20:34 inegretski Exp $
+* $Id: mysource.inc,v 1.238 2007/11/07 01:37:49 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.237 $
+* @version $Revision: 1.238 $
 * @package MySource_Matrix
 */
 class MySource
@@ -270,7 +270,7 @@ class MySource
 			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
 				define('SQ_ROLLBACK_VIEW', '0');
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
-				$ms =& $this->getMessagingService();
+				$ms = $this->getMessagingService();
 				$log = $ms->newMessage(Array(), 'system.security.alert', Array());
 				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 				$log->parameters['sessionid'] = session_id();
@@ -294,7 +294,7 @@ class MySource
 				// are using for rollback so that and stored procedures that require
 				// the rollback timestamp can acquire it
 				$then = $_SESSION['sq_rollback_view']['rollback_time'];
-				$db   =& $GLOBALS['SQ_SYSTEM']->db;
+				$db   = $GLOBALS['SQ_SYSTEM']->db;
 
 				if ($db->phptype == 'pgsql') {
 					$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quoteSmart($then).')';
@@ -356,7 +356,7 @@ class MySource
 			if ($this->user && !($this->user instanceof Public_User)) {
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
-				$this->backend =& $backend;
+				$this->backend = $backend;
 				$backend->paint();
 			} else {
 				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
@@ -374,10 +374,10 @@ class MySource
 				if ($this->am->assetInTrash($_REQUEST['a'], TRUE)) {
 					$asset = NULL;
 				} else {
-					$asset =& $this->am->getAsset($_REQUEST['a'], '', TRUE);
+					$asset = $this->am->getAsset($_REQUEST['a'], '', TRUE);
 				}
 			} else {
-				$asset =& $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
+				$asset = $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
 				if ($asset != NULL) {
 					$valid_protocols = $asset->getValidProtocols();
 					if (empty($valid_protocols)) {
@@ -402,7 +402,7 @@ class MySource
 				$protocol = current_protocol();
 				$url      = strip_url(current_url(FALSE, TRUE));
 
-				$rm =& $this->am->getSystemAsset('remap_manager');
+				$rm = $this->am->getSystemAsset('remap_manager');
 				if (!$rm->loadRemapFromURL($protocol, $url)) {
 
 					// okay, the remap manager could not remap this url, so
@@ -412,15 +412,15 @@ class MySource
 					// if we can get a site from the url,
 					// try to delegate the 404 to its not found page
 					if (!empty($root_url)) {
-						$site =& $this->am->getAsset($root_url['assetid']);
+						$site = $this->am->getAsset($root_url['assetid']);
 						if (!is_null($site)) {
-							$page =& $site->getSpecialPage('not_found');
+							$page = $site->getSpecialPage('not_found');
 							if (!is_null($page)) {
 								header('HTTP/1.0 404 Not Found');
 
 								// Send Cacheable Header based on Not Found page asset type
 								if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
-									$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+									$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 									header('Pragma: cache');
 									$cache_expiry = $cm->getExpiry($page->type());
 									header('Cache-Control: max-age='.$cache_expiry.', public');
@@ -446,7 +446,7 @@ class MySource
 
 						// Send Cacheable Header based on cache manager default setting
 						if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
-							$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+							$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 							header('Pragma: cache');
 							$cache_expiry = $cm->attr('expiry');
 							header('Cache-Control: max-age='.$cache_expiry.', public');
@@ -461,7 +461,7 @@ class MySource
 
 			}//end if is_null(asset)
 
-			$this->frontend_asset = &$asset;
+			$this->frontend_asset = $asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
 			// buffer the content and do keyword replacement
@@ -536,7 +536,7 @@ class MySource
 		header('Pragma: cache');
 
 		// save/load the cache information of this asset
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info');
 		$cache_expiry = $cm->getExpiry($asset->type());
 		header('Cache-Control: max-age='.$cache_expiry.', public');
@@ -720,7 +720,7 @@ class MySource
 		// login box.
 		$this->authRedirect();
 
-		$db =& $this->db;
+		$db = $this->db;
 		header('HTTP/1.0 403 Forbidden');
 
 		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'header') {
@@ -762,10 +762,10 @@ class MySource
 
 		if (empty($_GET['FORCE_BACKUP_LOGIN'])) {
 
-			$current_asset =& $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
+			$current_asset = $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
 			// if we can't find a current asset, use the root folder
 			if (is_null($current_asset)) {
-				$current_asset =& $this->am->getSystemAsset('root_folder');
+				$current_asset = $this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
 					trigger_localised_error('SYS0248', E_USER_ERROR);
 				}
@@ -775,10 +775,10 @@ class MySource
 
 			// we have found the design to use
 			if ($design_info) {
-				$design =& $this->am->getAsset($design_info['designid'], $design_info['type_code']);
+				$design = $this->am->getAsset($design_info['designid'], $design_info['type_code']);
 			} else {
 				// OK, use the system login form
-				$design =& $this->am->getSystemAsset('login_design');
+				$design = $this->am->getSystemAsset('login_design');
 			}
 
 			if (!is_null($design)) {
@@ -806,16 +806,16 @@ class MySource
 	*/
 	public function paintPasswordChange($heading, $msg)
 	{
-		$db =& $this->db;
+		$db = $this->db;
 
 		$GLOBALS['SQ_PASSWORD_CHANGE_FORM'] = Array('paint' => 'password_change', 'heading' => $heading, 'msg' => $msg);
 
 		if (empty($_GET['FORCE_BACKUP_PASSWORD_CHANGE'])) {
 
-			$current_asset =& $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
+			$current_asset = $this->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
 			// if we can't find a current asset, use the root folder
 			if (is_null($current_asset)) {
-				$current_asset =& $this->am->getSystemAsset('root_folder');
+				$current_asset = $this->am->getSystemAsset('root_folder');
 				if (is_null($current_asset)) {
 					trigger_localised_error('SYS0248', E_USER_ERROR);
 				}
@@ -825,10 +825,10 @@ class MySource
 
 			// we have found the design to use
 			if ($design_info) {
-				$design =& $this->am->getAsset($design_info['designid'], $design_info['type_code']);
+				$design = $this->am->getAsset($design_info['designid'], $design_info['type_code']);
 			} else {
 				// OK, use the system password change form
-				$design =& $this->am->getSystemAsset('password_change_design');
+				$design = $this->am->getSystemAsset('password_change_design');
 			}
 
 			if (!is_null($design)) {
@@ -879,7 +879,7 @@ class MySource
 			// We failed to unserialise a user from the session, but there is nevertheless a userid
 			// in the session, so the serialised version must have been stale.  So, let's load the asset
 			// from the DB using the userid and re-save to session.
-			$this->user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code']);
+			$this->user = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code']);
 			if (!is_null($this->user)) {
 				$_SESSION['user'] = serialize($this->user);
 				$_SESSION['user_serialised_ts'] = time();
@@ -1052,7 +1052,7 @@ class MySource
 				if (!is_null($login_key) && $this->loginKey() == $login_key) {
 
 					// get a list of all the installed authentication systems
-					$auth_folder =& $this->am->getSystemAsset('authentication_folder');
+					$auth_folder = $this->am->getSystemAsset('authentication_folder');
 					if (is_null($auth_folder)) {
 						trigger_localised_error('SYS0249', E_USER_ERROR);
 						return;
@@ -1062,9 +1062,9 @@ class MySource
 					$user = NULL;
 					$user_status = NULL;
 					foreach ($auth_systems as $systemid) {
-						$system =& $this->am->getAsset($systemid);
+						$system = $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
-						$user =& $system->authenticateUser($login_username, $login_password);
+						$user = $system->authenticateUser($login_username, $login_password);
 						if (!is_null($user)) $user_status = $user->status;
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
@@ -1096,10 +1096,10 @@ class MySource
 				// login fails we make sure that we're logged out
 			case 'logout' :
 				$for_real = ($this->user && !($this->user instanceof Public_User));
-				$old_user =& $this->user;
+				$old_user = $this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$stalled_hipo_array = Array();
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 				$stalled_hipo_array = $hh->getJobsForUser($current_userid);
 				if (SQ_IN_BACKEND && !empty($stalled_hipo_array)) {
@@ -1128,7 +1128,7 @@ class MySource
 			break;
 			case 'real_logout' :
 				$for_real = ($this->user && !($this->user instanceof Public_User));
-				$old_user =& $this->user;
+				$old_user = $this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$this->_clearSession();
 				$this->_loginPublicUser();
@@ -1139,7 +1139,7 @@ class MySource
 			break;
 			case 'send_security_key' :
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
-				$vars =& $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
+				$vars = $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
 
 				// are we regenerating the security key?
 				if (isset($_GET['regen_key']) && $_GET['regen_key'] == 1) {
@@ -1180,7 +1180,7 @@ class MySource
 			break;
 
 			case 'hipo' :
-				$hh =& $this->getHipoHerder();
+				$hh = $this->getHipoHerder();
 				if ($hh->processWeb()) $hh->paintWeb();
 				exit(1);
 			break;
@@ -1220,7 +1220,7 @@ class MySource
 	protected function _loginPublicUser()
 	{
 		if (empty($this->user) || !($this->user instanceof Public_User)) {
-			$this->user =& $this->getPublicUser();
+			$this->user = $this->getPublicUser();
 			$_SESSION['user_is_root']      = $this->_user_is_root      = FALSE;
 			$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin = FALSE;
 			$_SESSION['user_is_public']    = $this->_user_is_public    = TRUE;
@@ -1247,7 +1247,7 @@ class MySource
 		}
 
 		// get a list of all the installed authentication systems
-		$auth_folder =& $this->am->getSystemAsset('authentication_folder');
+		$auth_folder = $this->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
 			trigger_localised_error('SYS0249', E_USER_ERROR);
 			return;
@@ -1257,9 +1257,9 @@ class MySource
 		// try each auth system in order to see if we can load a user asset
 		$user = NULL;
 		foreach ($auth_systems as $systemid) {
-			$system =& $this->am->getAsset($systemid);
+			$system = $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
-			$user =& $system->authenticateHttpUser($http_username);
+			$user = $system->authenticateHttpUser($http_username);
 			if (!is_null($user)) return $this->loginUser($user);
 		}
 
@@ -1280,7 +1280,7 @@ class MySource
 			return;
 		}
 		// get a list of all the installed authentication systems
-		$auth_folder =& $this->am->getSystemAsset('authentication_folder');
+		$auth_folder = $this->am->getSystemAsset('authentication_folder');
 		if (is_null($auth_folder)) {
 			trigger_localised_error('SYS0249', E_USER_ERROR);
 			return;
@@ -1289,9 +1289,9 @@ class MySource
 		// try each auth system in order to see if we can load a user asset
 		$user = NULL;
 		foreach ($auth_systems as $systemid) {
-			$system =& $this->am->getAsset($systemid);
+			$system = $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
-			$user =& $system->authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
+			$user = $system->authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
 			if (!is_null($user)) return $this->loginUser($user);
 		}
 
@@ -1424,7 +1424,7 @@ class MySource
 			array_push($this->_tmp['current_user_cache'], Array($this->user->id, $this->user->type()));
 		}
 
-		$this->user = &$user;
+		$this->user = $user;
 		$this->_user_is_root = $this->userRoot($user);
 		$this->_user_is_sys_admin = $this->userSystemAdmin($user);
 		$this->_user_is_public = $this->userPublic($user);
@@ -1448,18 +1448,18 @@ class MySource
 			$user = NULL;
 		} else {
 			list($userid, $type_code) = array_pop($this->_tmp['current_user_cache']);
-			$user =& $this->am->getAsset($userid, $type_code);
+			$user = $this->am->getAsset($userid, $type_code);
 		}
 
 		// They can only become current user if they can login
 		if (is_null($user) || !$user->canSetAsCurrentUser()) {
-			$this->user =& $this->getPublicUser();
+			$this->user = $this->getPublicUser();
 			$this->_user_is_root      = FALSE;
 			$this->_user_is_sys_admin = FALSE;
 			$this->_user_is_public    = TRUE;
 
 		} else {
-			$this->user = &$user;
+			$this->user = $user;
 			$this->_user_is_root      = $this->userRoot($user);
 			$this->_user_is_sys_admin = $this->userSystemAdmin($user);
 			$this->_user_is_public    = $this->userPublic($user);
@@ -1622,7 +1622,7 @@ class MySource
 		if ($this->userPublic($this->user) && !$failed_login) {
 			return;
 		}
-		$ms =& $this->getMessagingService();
+		$ms = $this->getMessagingService();
 		$msg_reps = Array('user_name' => $this->user->name) + $extra_replacements;
 		$log = $ms->newMessage(Array(), $code, $msg_reps);
 		$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
@@ -1677,7 +1677,7 @@ class MySource
 	*/
 	public function &getPublicUser()
 	{
-		$public_user =& $this->am->getSystemAsset('public_user');
+		$public_user = $this->am->getSystemAsset('public_user');
 		return $public_user;
 
 	}//end getPublicUser()
@@ -1720,7 +1720,7 @@ class MySource
 		if (!$user->canAccessBackend()) return FALSE;
 
 		// now make sure that the user is in the system administrators group
-		$sys_admin_group =& $this->am->getSystemAsset('system_user_group');
+		$sys_admin_group = $this->am->getSystemAsset('system_user_group');
 		$sys_admins = $this->am->getLinks($sys_admin_group->id, SQ_LINK_TYPE_1);
 		foreach ($sys_admins as $data) {
 			if ($data['minorid'] == $user->id) return TRUE;
@@ -1970,7 +1970,7 @@ class MySource
 	*/
 	function &getTagManager()
 	{
-		$am =& $this->am;
+		$am = $this->am;
 		if ((!isset($this->tag_manager) || (get_class($this->tag_manager) != 'tag_manager')) && $am->isSystemAssetType('tag_manager')) {
 			$this->tag_manager = $am->getSystemAsset('tag_manager');
 		}
@@ -1989,7 +1989,7 @@ class MySource
 	*/
 	function &getTriggerManager()
 	{
-		$am =& $this->am;
+		$am = $this->am;
 		if ((!isset($this->trigger_manager) || ($am->installed('trigger_manager') && !($this->trigger_manager instanceof Trigger_Manager))) && $am->isSystemAssetType('trigger_manager')) {
 			$this->trigger_manager = $am->getSystemAsset('trigger_manager');
 		}
@@ -2007,7 +2007,7 @@ class MySource
 	*/
 	function &getLogManager()
 	{
-		$am =& $this->am;
+		$am = $this->am;
 		if ((!isset($this->log_manager) || (get_class($this->log_manager) != 'log_manager')) && $am->isSystemAssetType('log_manager')) {
 			$this->log_manager = $am->getSystemAsset('log_manager');
 		}
@@ -2389,7 +2389,7 @@ class MySource
 			if ($current_lock['userid'] == $this->currentUserid()) {
 				return $this->updateLock($lockid, $expires);
 			} else {
-				$user =& $this->am->getAsset($current_lock['userid']);
+				$user = $this->am->getAsset($current_lock['userid']);
 				return 'Cannot acquire lock, lock already held by "'.$user->name.'"';
 			}
 		}
@@ -2728,7 +2728,7 @@ class MySource
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
 			return TRUE;
 		}
-		$tm =& $this->getTriggerManager();
+		$tm = $this->getTriggerManager();
 		if (!is_null($tm)) {
 			return $tm->broadcastEvent($event_name, $broadcaster, $parameters);
 		} else {
@@ -2773,7 +2773,7 @@ class MySource
 	*/
 	function authRedirect()
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$current_url = current_url(FALSE, FALSE);
 		$current_protocol = current_protocol();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.25 2006/12/05 05:36:14 bcaldwell Exp $
+* $Id: event_manager.inc,v 1.26 2007/11/07 01:43:08 hnguyen Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -108,7 +108,7 @@ class Event_Manager extends MySource_Object
 				$this->_runtime_event_listeners[$event_name] = Array();
 			}
 			$index = count($this->_runtime_listener_objects);
-			$this->_runtime_listener_objects[] = &$listener;
+			$this->_runtime_listener_objects[] = $listener;
 			$this->_runtime_event_listeners[$event_name][$index] = true;
 		}
 		return true;
@@ -139,7 +139,7 @@ class Event_Manager extends MySource_Object
 			if (!isset($this->_runtime_listener_objects[$index])) {
 				continue;
 			}
-			$listener =& $this->_runtime_listener_objects[$index];
+			$listener = $this->_runtime_listener_objects[$index];
 			if (is_null($listener)) continue;
 			if (!method_exists($listener, $function_name)) {
 				continue;
@@ -157,7 +157,7 @@ class Event_Manager extends MySource_Object
 	*
 	* eg.
 	* <PRE>
-	* $em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+	* $em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 	* $em->broadcastEvent($asset, 'eventName', Array('assetid' => $asset->id));
 	* </PRE>
 	*
@@ -250,9 +250,9 @@ class Event_Manager extends MySource_Object
 			}// end if
 
 			foreach ($assetids as $assetid) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) continue;
-				$listeners[] =& $asset;
+				$listeners[] = $asset;
 			}
 
 		}// end foreach
@@ -261,7 +261,7 @@ class Event_Manager extends MySource_Object
 
 		$function = 'on'.$event_name;
 		for (reset($listeners); null !== ($key = key($listeners)); next($listeners)) {
-			$listener =& $listeners[$key];
+			$listener = $listeners[$key];
 			if (!method_exists($listener, $function)) {
 				trigger_localised_error('SYS0127', E_USER_WARNING, $function, $listener->type(), $asset->id);
 				return false;
@@ -294,7 +294,7 @@ class Event_Manager extends MySource_Object
 			return Array();
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 
 		$sql = 'SELECT (t2.treeid || '.$db->quote('%').')

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.75 2007/10/29 22:02:47 lwright Exp $
+* $Id: internal_message.inc,v 1.76 2007/11/07 01:39:45 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -119,7 +119,7 @@ class Internal_Message extends MySource_Object
 	function load($messageid)
 	{
 		if (!$messageid) return false;
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					msgid, userto, userfrom, subject, body, type, sent, priority, status, parameters
@@ -158,8 +158,8 @@ class Internal_Message extends MySource_Object
 
 		// lets work out what action should be conducted on this type of message
 		// ie. should it logged, mailed etc
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$lm = &$GLOBALS['SQ_SYSTEM']->lm;
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$lm = $GLOBALS['SQ_SYSTEM']->lm;
 
 		foreach ($ms->getLogTypes($this->type) as $main_type_code => $allow_log) {
 			$$main_type_code = $allow_log;
@@ -168,7 +168,7 @@ class Internal_Message extends MySource_Object
 		$user_from = null;
 		$from_name = '';
 		if ($this->from) {
-			$user_from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->from);
+			$user_from = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->from);
 			if (!is_null($user_from)) {
 				$from_name = $user_from->name;
 			} else {
@@ -375,7 +375,7 @@ class Internal_Message extends MySource_Object
 					// we are sending a message to user(s)
 
 					// prepare the message content
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 					if (is_null($user)) continue;
 					$user_locale = $user->attr('locale');
 					if (empty($user_locale)) {
@@ -451,7 +451,7 @@ class Internal_Message extends MySource_Object
 	function printBody()
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$info = $ms->getMessages($this->to[0], $this->type, Array(), Array($this->id), $this->from, null, 'name');
 		$info = $info[0];
 		?>
@@ -569,11 +569,11 @@ class Internal_Message extends MySource_Object
 								} else if (!isset($this->parameters['minorid'])) {
 									trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
 								} else {
-									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
+									$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
 									if (is_null($major)) {
 										trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['majorid'], $this->type);
 									}
-									$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
+									$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
 									if (is_null($minor)) {
 										trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['minorid'], $this->type);
 									}
@@ -592,7 +592,7 @@ class Internal_Message extends MySource_Object
 						// cant send an asset message if we dont know which asset is affected
 						trigger_localised_error('SYS0168', E_USER_WARNING, $this->type);
 					} else {
-						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
 						if (is_null($asset)) {
 							// cant send an asset message if we dont know which asset is affected
 							trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['assetid'], $this->type);
@@ -606,7 +606,7 @@ class Internal_Message extends MySource_Object
 				case 'config' :
 				case 'hipo'   :
 					// send config changes to the DEFAULT and TECH emails and to the Root User
-					$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+					$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 					$this->to += Array(0, $root_user->id);
 				break;
 
@@ -625,7 +625,7 @@ class Internal_Message extends MySource_Object
 			// skip the ZERO (system) assetid as it's already included
 			if ($assetid == 0) continue;
 
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) continue;
 
 			if (is_a($asset, 'user_group')) {
@@ -651,7 +651,7 @@ class Internal_Message extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM sq_internal_msg WHERE msgid='.$db->quote($this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -679,7 +679,7 @@ class Internal_Message extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE sq_internal_msg SET status = '.$db->quote($status).' WHERE msgid = '.$db->quote($this->id);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: asset_cache.inc,v 1.7 2006/12/05 05:36:13 bcaldwell Exp $
+*$Id: asset_cache.inc,v 1.8 2007/11/07 01:41:26 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_ASSET_CACHE_DEBUG', 0);
 * limits. They can also be manually removed by calling remove().
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Asset_Cache extends MySource_Object
@@ -154,9 +154,9 @@ class Asset_Cache extends MySource_Object
 		$ret = null;
 
 		if (isset($this->_items[$itemid])) {
-			$item_info = &$this->_items[$itemid];
+			$item_info = $this->_items[$itemid];
 
-			$ret = &$item_info['item'];
+			$ret = $item_info['item'];
 
 			if ($item_info['reference_count'] == 0) {
 				unset($this->_items_released[$itemid]);
@@ -188,7 +188,7 @@ class Asset_Cache extends MySource_Object
 	{
 		if (!isset($this->_items[$itemid])) return false;
 
-		$item_info = &$this->_items[$itemid];
+		$item_info = $this->_items[$itemid];
 
 		if ($item_info['reference_count'] <= 0) return false;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.179 2007/11/06 00:30:39 hnguyen Exp $
+* $Id: general.inc,v 1.180 2007/11/07 01:38:46 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix
 */
 
@@ -123,8 +123,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
 
 				require_once 'XML/Tree.php';
-				$output =& new XML_Tree();
-				$root =& $output->addRoot('error', $msg);
+				$output = new XML_Tree();
+				$root = $output->addRoot('error', $msg);
 				header('Content-Type: text/xml');
 				$output->dump();
 				exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
@@ -265,7 +265,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			// if they haven't put tags in the err msg assume it to be plain text
 			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 			$db_type = 'N/A';
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 			if (!is_null($db)) $db_type = $db->phptype;
 
 			$matrix_version = 'N/A';
@@ -1244,7 +1244,7 @@ function get_asset_tag_line($assetid, $screen='')
 	if (strpos($assetid, ':') !== FALSE) {
 		list($real_assetid, $shadowid) = explode(':', $assetid, 2);
 		$asset_info = Array();
-		$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$shadow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if ($shadow_asset) {
 			$asset_info['type_code'] = $shadow_asset->type();
 			$asset_info['name'] = $shadow_asset->name;
@@ -1574,7 +1574,7 @@ function replace_global_keywords(&$text)
 						}
 					}
 					if (!empty($site_assetid)) {
-						$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
 						$site_keyword = 'asset_'.substr($keyword, 13);
 						$site_replacement = $site->getKeywordReplacement($site_keyword);
 						if ($site_replacement != "%$site_keyword%") {
@@ -1594,7 +1594,7 @@ function replace_global_keywords(&$text)
 					} else {
 						$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
 						if($asset_exist === TRUE) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 							$asset_replacement = $asset->getKeywordReplacement($matches[1]);
 							if ($asset_replacement != "%$matches[1]%") {
 								$replacements[$keyword] = $asset_replacement;
@@ -1610,7 +1610,7 @@ function replace_global_keywords(&$text)
 							// is this snippet id valid and current?
 							$all_snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords(TRUE);
 							if (in_array($snippet_info[2], array_keys($all_snippets))) {
-								$snippet_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_info[2]);
+								$snippet_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_info[2]);
 								if (!is_null($snippet_asset)) {
 									// printBody will handle the permission
 									ob_start();
@@ -1652,7 +1652,7 @@ function replace_global_keywords(&$text)
 */
 function quick_hipo($callback_assetid, $callback_function, $items, $settings, $fail_on_error=FALSE)
 {
-	$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+	$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 	$vars = Array(
 				'callback_assetid'	=> $callback_assetid,
 				'callback_function'	=> $callback_function,
