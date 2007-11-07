@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.66 2007/08/28 06:25:24 lmarchese Exp $
+* $Id: listing_engine_management.inc,v 1.67 2007/11/07 22:41:45 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -157,7 +157,7 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['metadata_sort_type'] = Array(
 											'added'		=> '0.1',
 											'type'		=> 'text',
-											'default'	=> 'raw',
+											'default'	=> 'presentation',
 										  );
 
 		$this->vars['reverse_sort'] = Array(
@@ -737,7 +737,7 @@ class Listing_Engine_Management extends Asset_Management
 
 			pre_echo('Upgraded '.$upgraded_count.' Listing Engine-based assets to version 0.15');
 
-		}//end if version < 0.7
+		}//end if version < 0.15
 
 		return parent::_upgrade($current_version);
 
