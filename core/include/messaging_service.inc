@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.61 2007/11/07 00:50:19 hnguyen Exp $
+* $Id: messaging_service.inc,v 1.62 2007/11/07 01:01:08 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -519,7 +519,7 @@ class Messaging_Service extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':userid', $userid);
-			$query->bindValue(':type', $type);	
+			$query->bindValue(':type', $type);
 			$query->bindValue(':substrtype', substr($type, 0, -1).'%');
 			$result = DAL::executePdoAll($query);
 
