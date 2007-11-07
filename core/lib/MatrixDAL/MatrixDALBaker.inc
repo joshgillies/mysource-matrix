@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.4 2007/10/30 22:53:59 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.5 2007/11/07 03:04:08 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -74,7 +74,7 @@ class MatrixDALBaker extends DALBaker
         $filename = SQ_SYSTEM_ROOT.'/core/db/queries.xml';
 
         if (file_exists($filename)) {
-            parent::processQueriesFile('core', $filename);
+            self::processQueriesFile('core', $filename);
             return TRUE;
         }
 
@@ -112,7 +112,7 @@ class MatrixDALBaker extends DALBaker
         }
 
         if (file_exists($filename)) {
-            parent::processQueriesFile($package.'_package', $filename);
+            self::processQueriesFile($package.'_package', $filename);
             return TRUE;
         }
 
@@ -145,7 +145,7 @@ class MatrixDALBaker extends DALBaker
         $filename = $dir.'/db/queries.xml';
 
         if (file_exists($filename)) {
-            parent::processQueriesFile($assetType, $filename);
+            self::processQueriesFile($assetType, $filename);
             return TRUE;
         }
 
@@ -191,7 +191,10 @@ class MatrixDALBaker extends DALBaker
         $xmlFiles = FileSystem::listDirectory($ovenDir, $types, TRUE, FALSE);
         foreach ($xmlFiles as $queryName) {
             $queryName = basename($queryName, '.xml');
-            $contents .= self::bakeQueryMethod($systemName, $queryName);
+            bam($queryName);
+            if (substr($queryName, -3) !== '.rb') {
+                $contents .= self::bakeQueryMethod($systemName, $queryName);
+            }
         }
 
         $contents .= "\n\n}\n?>";
@@ -237,8 +240,19 @@ class MatrixDALBaker extends DALBaker
 
         // Get all the conditions that represent all of the query's
         // combinations, and add it to the contents.
-        $queryBody  = self::mergeQuery($systemName, $queryName);
-        $contents  .= $queryBody;
+        if (self::_queryRequiresRollback($systemName, $queryName)) {
+            $contents  .= 'if (SQ_ROLLBACK_VIEW) {'."\n";
+            $queryBody  = self::mergeQuery($systemName, $queryName.'.rb');
+            $contents  .= $queryBody;
+            $contents  .= '$query->bind(\':rbtime\', $_SESSION[\'sq_rollback_view\'][\'rollback_time\']);'."\n";
+            $contents  .= '} else {'."\n";
+            $queryBody  = self::mergeQuery($systemName, $queryName);
+            $contents  .= $queryBody;
+            $contents  .= '}';
+        } else {
+            $queryBody  = self::mergeQuery($systemName, $queryName);
+            $contents  .= $queryBody;
+        }
         $subQueries = self::printSubQueries($systemName, $queryName);
         $contents  .= $subQueries;
         $contents  .= self::_printKeywords($systemName, $queryName);
@@ -369,12 +383,14 @@ class MatrixDALBaker extends DALBaker
      */
     protected static function _queryRequiresRollback($systemName, $queryName)
     {
-        $doc = self::getQueryXML($systemName, $queryName);
+        $filePath = realpath(SQ_SYSTEM_ROOT).'/core/lib/DAL/Oven/'.$systemName.'/'.$queryName.'.xml';
+        $doc = new DOMDocument();
+        $doc->load($filePath);
         $xpath = new DOMXPath($doc);
         $nodes = $xpath->query('//query/primary/select/from/table');
         foreach ($nodes as $node) {
             $table = $node->nodeValue;
-            if (self::_tableRequiresRollback($table)) {
+            if (self::TableRequiresRollback($table)) {
                 return TRUE;
             }
         }
@@ -397,7 +413,7 @@ class MatrixDALBaker extends DALBaker
      * @since  MySource 3.18.0 RC1
      * @return boolean
      */
-    protected static function _tableRequiresRollback($table)
+    protected static function TableRequiresRollback($table)
     {
         // lop off 'sq_' prefix if it exists
         if (substr($table, 0, 3) == 'sq_') {
@@ -407,10 +423,16 @@ class MatrixDALBaker extends DALBaker
         // This might be called before anything actually is installed, so if
         // the core queries haven't yet been installed, assume that there are
         // no packages installed.
-        $ovenDir = SQ_LIB_PATH.'/DAL/Oven/core';
+        // TODO:
+        $ovenDir = SQ_LIB_PATH.'/DAL/Oven/core/coreQueries.xml';
 
         if (file_exists($ovenDir) === TRUE) {
-            $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+            try {
+                $sql = 'SELECT code_name FROM sq_pkg';
+                $packages = MatrixDAL::executeSqlAssoc($sql, 0);
+            } catch (Exception $e) {
+                $packages = Array();
+            }
         } else {
             $packages = Array();
         }
@@ -444,7 +466,7 @@ class MatrixDALBaker extends DALBaker
         // could not find a table, so return FALSE
         return FALSE;
 
-    }//end _tableRequiresRollback()
+    }//end TableRequiresRollback()
 
 
     /**
@@ -504,13 +526,124 @@ class MatrixDALBaker extends DALBaker
                     }
                 } else {
                     // New Query.
+                    $id = $child->getAttribute('id');
                     self::addQuery($systemName, $child);
+                    if (self::_queryRequiresRollback($systemName, $id)) {
+                        $rollback_child = self::_createRollbackXML($systemName, $child);
+                        $rollback_child->setAttribute('id', $id.'.rb');
+                        self::addQuery($systemName, $rollback_child);
+                    }
                 }
             }//end if
         }//end foreach childnodes
 
     }//end processQueriesFile()
 
+
+    /**
+     * Creates rollback XML for a query that requires a rollback version to be
+     * created.
+     *
+     * @param string  $systemName The system to add queries to.
+     * @param DOMNode $queryNode  The DOM node containing the
+     *
+     * @since  MySource 3.18.0 RC1
+     * @return DOMNode
+     */
+    protected static function _createRollbackXML($systemName, DOMNode $queryNode)
+    {
+        $doc = new DOMDocument();
+        $queryNode = $doc->importNode($queryNode, TRUE);
+        $doc->appendChild($queryNode);
+        $xpath = new DOMXPath($doc);
+
+        $whereNodes = $xpath->query('//query/primary/select/where');
+        if (count($whereNodes) == 0)
+        {
+            $whereNode = NULL;
+        } else {
+            $whereNode = $whereNodes->item(0);
+        }
+
+        $nodes = $xpath->query('//query/primary/select/from/table');
+        foreach ($nodes as $node) {
+            $table = $node->nodeValue;
+
+            if (self::TableRequiresRollback($table)) {
+                // TODO: replace "from" tables with 'sq_rb_'
+
+                // Add rollback where clause
+                $fieldNodes = $xpath->query('//query/primary/select/fields/field');
+                foreach ($fieldNodes as $fieldNode) {
+                    $table = $fieldNode->getAttribute('table');
+                    if (self::TableRequiresRollback($table)) {
+                        $rbTableName = substr_replace($table, 'sq_rb_', 0, 3);
+                        $fieldNode->setAttribute('table', $rbTableName);
+                    }
+                }
+
+                // Replace where attributes
+                $condNodes = $xpath->query('//query/primary/select/where//*');
+                foreach ($condNodes as $condNode) {
+                    $table = $condNode->getAttribute('table');
+                    if (self::TableRequiresRollback($table)) {
+                        $rbTableName = substr_replace($table, 'sq_rb_', 0, 3);
+                        $condNode->setAttribute('table', $rbTableName);
+                    }
+                }
+            }
+        }
+
+        // Add rollback where queries, no matter where they are found
+        $fromNodes = $xpath->query('//query/primary//select/from/table');
+        foreach ($fromNodes as $fromNode) {
+            $table = trim($fromNode->nodeValue);
+            $rollbackTable = substr_replace($table, 'sq_rb_', 0, 3);
+
+            if (self::TableRequiresRollback($table)) {
+                $fromNode->nodeValue = substr_replace($table, 'sq_rb_', 0, 3);
+
+                // Go back to the table's select node, find its where node
+                $selectNode = $fromNode->parentNode->parentNode;
+                $whereNode = NULL;
+                foreach ($selectNode->childNodes as $childNode) {
+                    if ($childNode->nodeName == 'where') {
+                        $whereNode = $childNode;
+                        break;
+                    }
+                }
+
+                // If no where node exists, create it
+                if (is_null($whereNode)) {
+                    $whereNode = $doc->createElement('where');
+                    $selectNode->appendChild($whereNode);
+                }
+
+                $lessNode    = $doc->createElement('equal-or-less', ':rbtime');
+                $lessNode->setAttribute('table', $rollbackTable);
+                $lessNode->setAttribute('column', 'sq_eff_from');
+                $whereNode->appendChild($lessNode);
+
+                $orNode      = $doc->createElement('or');
+                $whereNode->appendChild($orNode);
+
+                $greaterNode = $doc->createElement('equal-or-greater', ':rbtime');
+                $greaterNode->setAttribute('table', $rollbackTable);
+                $greaterNode->setAttribute('column', 'sq_eff_to');
+                $orNode->appendChild($greaterNode);
+
+                $nullNode    = $doc->createElement('is-null');
+                $nullFieldNode = $doc->createElement('field');
+                $nullFieldNode->setAttribute('table', $rollbackTable);
+                $nullFieldNode->setAttribute('column', 'sq_eff_to');
+                $nullNode->appendChild($nullFieldNode);
+                $orNode->appendChild($nullNode);
+            }
+        }
+
+        return $queryNode;
+
+    }//end _createRollbackXML()
 
 }
 ?>
