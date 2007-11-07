@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.6 2007/10/29 00:43:15 colivar Exp $
+* $Id: asset_manager.inc,v 1.571.2.7 2007/11/07 03:24:07 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.6 $
+* @version $Revision: 1.571.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8023,9 +8023,9 @@ class Asset_Manager extends MySource_Object
 
 		// rearrange the snippets according to asset map sort order
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$majorids = Array();
-		$bodycopies = $this->getChildren($rootid, 'bodycopy', TRUE);
-		foreach ($bodycopies as $assetid => $type_code) {
+		$majorids = Array($db->quoteSmart((string)$rootid));
+		$parent = $this->getChildren($rootid, Array('bodycopy','folder'), TRUE);
+		foreach ($parent as $assetid => $type_code) {
 			$majorids[] = $db->quoteSmart((string)$assetid);
 		}
 		$minorids = Array();
