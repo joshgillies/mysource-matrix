@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.71 2007/10/30 01:07:05 lwright Exp $
+* $Id: install.inc,v 1.72 2007/11/08 01:28:48 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1434,30 +1434,44 @@ function extract_child_nodes_from_xml($file, $root_element, $child_element, $key
 	$extracted_strings = Array();
 
 	try {
-		$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+		$doc = new DOMDocument();
+		$doc->load($file);
+		$xpath = new DOMXPath($doc);
 	} catch (Exception $e) {
 		throw new Exception('Could not open XML file "'.$file.'": '.$e->getMessage());
 	}
 
-	if ($root->getName() !== $root_element) {
-		throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting "'.$root_element.'" as document element, found "'.$root->name.'"');
+	$root_nodes = $xpath->query('/'.$root_element);
+
+	if ((count($root_nodes) !== 1) && $root_nodes->item(0)->nodeName !== $root_element) {
+		throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting "'.$root_element.'" as document element, found "'.$root->nodeName.'"');
+		return Array();
+	} else {
+		$root = $root_nodes->item(0);
+		unset($root_nodes);
+	}
+
+	// Find any non-conforming elements - ie. either not of the type we wanted,
+	// or containing the attribute that we require.
+	$non_child_elements = $xpath->evaluate('count(./*[name() != "'.$child_element.'"])', $root);
+	$missing_attributes = $xpath->evaluate('count(./*[name() = "'.$child_element.'" and not(@'.$key_attribute.')])', $root);
+
+	if (($non_child_elements > 0) || ($missing_attributes > 0)) {
+		// Failure: construct the message based on exactly what was wrong with it.
+		$msg = 'XML file "'.$file.'" does not appear to be valid.';
+		if ($non_child_elements > 0) {
+			$msg .= ' Found '.$non_child_elements.' element(s) not of the expected type "'.$child_element.'".';
+		}
+		if ($missing_attributes > 0) {
+			$msg .= ' Found '.$missing_attributes.' element(s) of type "'.$child_element.'" that do not contain the required attribute "'.$key_attribute.'".';
+		}
+		throw new Exception($msg);
 		return Array();
 	}
 
-	foreach ($root->children() as $string_node) {
-		if ($string_node->getName() != $child_element) {
-			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
-			return Array();
-		}
-
-		if (!isset($string_node->attributes()->{$key_attribute})) {
-			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
-			return Array();
-		}
-
-		}//end foreach string_node
-
-		return $root->{$child_element};
+	// File seems okay, so return the child nodes
+	$child_nodes = $xpath->query('./'.$child_element, $root);
+	return $child_nodes;
 
 }//end extract_child_nodes_from_xml()
 
@@ -1486,18 +1500,18 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
 
 	foreach ($children as $string_node) {
-		if ($string_node->getName() !== $child_element) {
-			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
+		if ($string_node->nodeName !== $child_element) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->nodeName.'"');
 			return Array();
 		}
 
-		if (!isset($string_node->attributes()->{$key_attribute})) {
+		if (!$string_node->hasAttribute($key_attribute)) {
 			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
 			return Array();
 		}
 
-		$source_code = (string)$string_node->attributes()->{$key_attribute};
-		$translation = html_entity_decode((string)$string_node);
+		$source_code = $string_node->getAttribute($key_attribute);
+		$translation = html_entity_decode($string_node->nodeValue);
 
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
@@ -1509,12 +1523,13 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 			throw new Exception('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one');
 		} else {
 
+			echo '$extracted_strings['.$source_code.'] = '.$translation."\n";
 			$extracted_strings[$source_code] = $translation;
 
-			if (isset($string_node->attributes['js']) && ($string_node->attributes['js'] == 1)) {
+			if ($string_node->hasAttribute('js') && ($string_node->getAttribute('js') == 1)) {
 				$js_strings[$source_code] = $extracted_strings[$source_code];
 			}
-			if (isset($string_node->attributes['java']) && ($string_node->attributes['java'] == 1)) {
+			if ($string_node->hasAttribute('java') && ($string_node->getAttribute('java') == 1)) {
 				$java_strings[$source_code] = $extracted_strings[$source_code];
 			}
 		}
@@ -1548,18 +1563,18 @@ function extract_errors_from_xml($file, $root_element, $child_element, $key_attr
 	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
 
 	foreach ($children as $string_node) {
-		if ($string_node->getName() != $child_element) {
-			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
+		if ($string_node->nodeName != $child_element) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->nodeName.'"');
 			return Array();
 		}
 
-		if (!isset($string_node->attributes()->{$key_attribute})) {
+		if (!$string_node->hasAttribute($key_attribute)) {
 			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
 			return Array();
 		}
 
-		$source_code = (string)$string_node->attributes()->{$key_attribute};
-		$translation = html_entity_decode((string)$string_node);
+		$source_code = $string_node->getAttribute($key_attribute);
+		$translation = html_entity_decode($string_node->nodeValue);
 
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
@@ -1603,23 +1618,23 @@ function extract_internal_messages($file)
 	$children = extract_child_nodes_from_xml($file, $root_element, $child_element, $key_attribute);
 
 	foreach ($children as $string_node) {
-		if ($string_node->getName() != $child_element) {
-			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->name.'"');
+		if ($string_node->nodeName != $child_element) {
+			throw new Exception('XML file "'.$file.'" does not appear to be valid - expecting node "'.$child_element.'", found "'.$string_node->nodeName.'"');
 			return Array();
 		}
 
-		if (!isset($string_node->attributes()->{$key_attribute})) {
+		if (!$string_node->hasAttribute($key_attribute)) {
 			throw new Exception('XML file "'.$file.'" does not appear to be valid - missing attribute "'.$key_attribute.'" in string node');
 			return Array();
 		}
 
-		$source_code = (string)$string_node->attributes()->{$key_attribute};
+		$source_code = $string_node->getAttribute($key_attribute);
 		$translation = Array();
 
-		foreach ($string_node->children() as $sub_node) {
-			$sub_node_name = $sub_node->getName();
+		foreach ($string_node->childNodes as $sub_node) {
+			$sub_node_name = $sub_node->nodeName;
 			if (($sub_node_name == 'subject') || ($sub_node_name == 'body')) {
-				$translation[$sub_node_name] = html_entity_decode((string)$sub_node);
+				$translation[$sub_node_name] = html_entity_decode($sub_node->nodeValue);
 			}
 		}
 
