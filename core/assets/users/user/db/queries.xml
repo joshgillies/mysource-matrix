@@ -1,4 +1,4 @@
-<queries id="users">
+<queries id="user">
 
 	<query id="getUserCurrentLocks">
                 <!-- Return all the locks for specified user -->

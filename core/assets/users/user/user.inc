@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.117 2007/10/29 22:45:21 lwright Exp $
+* $Id: user.inc,v 1.118 2007/11/08 01:15:39 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -842,11 +842,17 @@ class User extends Asset
 	*/
 	function getUserLocks()
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT lockid, source_lockid, userid, expires FROM sq_lock WHERE userid='.$db->quote($this->id).'';
+		$db = MatrixDAL::getDb();
+		try {
+			$bind_vars	= Array (
+							'userid'	=> $this->id,
+						  );
 
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+			$result = MatrixDAL::executeAll('user', 'getUserCurrentLocks', $bind_vars);
+		} catch (Exception $o) {
+			throw new Exception('Unable to get all locks for current user (userid #'.$this->id.') due to database error: '.$e->getMessage());
+		}//end try catch
+
 		return $result;
 
 	}//end getUserLocks()
