@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.24 2007/10/29 03:33:35 nbhradwaj Exp $
+* $Id: page_calendar_rolling.inc,v 1.25 2007/11/08 00:23:37 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,8 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -408,7 +409,7 @@ class Page_Calendar_Rolling extends Page
 				foreach ($events as $id => $event) {
 
 					// We should be able to handle our own event types from here on in (Single Calendar Events, Recurring Calendar Events, and those that inherit from these)
-					$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring    ' : $event['type_code'];
+					$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? $event['type_code'] : 'calendar_event_single';
 
 					if (!isset($type_formats[$format_type])) continue;
 
