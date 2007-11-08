@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.21 2007/11/08 03:52:03 hnguyen Exp $
+* $Id: form_question.inc,v 1.22 2007/11/08 22:53:30 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -213,7 +213,7 @@ class Form_Question extends Asset
 
 		// check against default values; we don't need to save that attribute if it is
 		foreach ($existing as $entry) {
-			if ($saved_vars[$entry['name']['value'] == $entry['default_val']) {
+			if ($saved_vars[$entry['name']['value']] == $entry['default_val']) {
 				unset($saved_vars[$entry['name']]);
 			}//end if
 		}//end foreach
