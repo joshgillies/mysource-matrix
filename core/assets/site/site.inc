@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.101 2007/10/29 23:18:57 lwright Exp $
+* $Id: site.inc,v 1.102 2007/11/08 03:19:36 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -268,7 +268,7 @@ class Site extends Folder
 
 			// We don't have it. Does anyone else?
 			if (!$found) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $save_urls[$save_urlid]['url'], TRUE, TRUE);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $save_urls[$save_urlid]['url'], TRUE, TRUE);
 				if (!is_null($asset)) {
 					trigger_localised_error('CORE0081', E_USER_WARNING, $save_urls[$save_urlid]['url'], $asset->name, $asset->id);
 
@@ -676,7 +676,7 @@ class Site extends Folder
 			return;
 		}
 
-		$index_page =& $this->getSpecialPage('index');
+		$index_page = $this->getSpecialPage('index');
 		if (is_null($index_page)) {
 			if (SQ_IN_LIMBO) {
 				// no index page is set & we are in LIMBO.
@@ -706,7 +706,7 @@ class Site extends Folder
 	*/
 	function printBody()
 	{
-		$index_page =& $this->getSpecialPage('index');
+		$index_page = $this->getSpecialPage('index');
 		if (!is_null($index_page)) $index_page->printBody();
 
 		return;
@@ -779,7 +779,7 @@ class Site extends Folder
 
 		if ($result) {
 			// we have found the design to use
-			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+			$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			if (SQ_IN_LIMBO) {
 				$this->printFrontendAsset($this, $design);
 			} else {
@@ -813,7 +813,7 @@ class Site extends Folder
 			// print this site's limbo instead of the index page
 			parent::initLimbo();
 		} else {
-			$index_page =& $this->getSpecialPage('index');
+			$index_page = $this->getSpecialPage('index');
 			if (is_null($index_page)) {
 				parent::initLimbo();
 				return;
@@ -869,7 +869,7 @@ class Site extends Folder
 			return $null;
 		}
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $asset;
 
 	}//end getSpecialPage()
@@ -890,7 +890,7 @@ class Site extends Folder
 		$network_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
 		if (empty($network_links)) return $null;
 
-		$site_network =& $GLOBALS['SQ_SYSTEM']->am->getAsset($network_links[0]['majorid'], $network_links[0]['major_type_code']);
+		$site_network = $GLOBALS['SQ_SYSTEM']->am->getAsset($network_links[0]['majorid'], $network_links[0]['major_type_code']);
 		return $site_network;
 
 	}//end getSiteNetwork()
@@ -907,7 +907,7 @@ class Site extends Folder
 	*/
 	function getNetworkPrimaryURL()
 	{
-		$site_network =& $this->getSiteNetwork();
+		$site_network = $this->getSiteNetwork();
 		if (is_null($site_network)) return '';
 		return $site_network->getPrimaryURL();
 
