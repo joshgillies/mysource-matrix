@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.5 2007/11/07 03:04:08 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.6 2007/11/08 22:55:56 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -191,7 +191,6 @@ class MatrixDALBaker extends DALBaker
         $xmlFiles = FileSystem::listDirectory($ovenDir, $types, TRUE, FALSE);
         foreach ($xmlFiles as $queryName) {
             $queryName = basename($queryName, '.xml');
-            bam($queryName);
             if (substr($queryName, -3) !== '.rb') {
                 $contents .= self::bakeQueryMethod($systemName, $queryName);
             }
