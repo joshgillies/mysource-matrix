@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.593 2007/11/08 00:22:51 bshkara Exp $
+* $Id: asset_manager.inc,v 1.594 2007/11/08 02:32:11 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593 $
+* @version $Revision: 1.594 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -926,23 +926,29 @@ class Asset_Manager extends MySource_Object
 		$in = 'assetid IN (';
 
 		for ($i = 0; $i < count($assetids); $i++) {
-			$in .= $db->quoteSmart( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
+			$in .= $db->quote( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
 		}
 
 		// First get the default values
 		$sql = 'SELECT a.assetid, at.default_val
 				FROM sq_ast a, sq_ast_attr at
 				WHERE a.type_code = at.type_code
-					AND at.name = '.$db->quote($attr_name).'
-					AND ((at.type_code = '.$db->quote($asset_type).') OR (at.owning_type_code = '.$db->quote($asset_type).'))
+					AND at.name = :attr_name
+					AND ((at.type_code = :asset_type) OR (at.owning_type_code = :asset_type))
 					AND a.'.$in;
-		$res = $db->getAssoc($sql);
-		assert_valid_db_result($res);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':attr_name', $attr_name);
+			$query->bindValue(':asset_type', $asset_type);
+			$res = DAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get default attribute values due to database error: '.$e->getMessage());
+		}
 
 		// Now get customised values where applicable
-		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = '.$db->quote($attr_name);
+		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = :attr_name';
 		if ($asset_type != 'asset') {
-			$sub_sql .= ' AND (type_code = '.$db->quote($asset_type).' OR owning_type_code = '.$db->quote($asset_type).')';
+			$sub_sql .= ' AND (type_code = :asset_type OR owning_type_code = :asset_type)';
 		}
 		$sql = 'SELECT assetid, custom_val
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
@@ -950,8 +956,14 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$custom_vals = $db->getAssoc($sql.$where);
-		assert_valid_db_result($custom_vals);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':attr_name', $attr_name);
+			$query->bindValue(':asset_type', $asset_type);
+			$custom_vals = DAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get customised attribute values due to database error: '.$e->getMessage());
+		}
 
 		// Combine the two
 		foreach ($custom_vals as $assetid => $val) {
@@ -1119,9 +1131,15 @@ class Asset_Manager extends MySource_Object
 		// single asset id
 		if (!$is_array) {
 			if ($is_empty) return FALSE;
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quoteSmart($assetids));
-			$db_assetids = $db->getOne($sql.$where);
-			assert_valid_db_result($db_assetids);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = :assetids');
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue(':assetids', $assetids);
+				$db_assetids = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to determine if asset with assetid: '.$assetids.' exists due to database error: '.$e->getMessage());
+			}
+
 			if (!empty($shadow_asset_ids)) {
 				$shadow_asset_ids[] = $db_assetids;
 			} else {
@@ -1135,12 +1153,15 @@ class Asset_Manager extends MySource_Object
 			$in = 'assetid IN (';
 
 			for ($i=0; $i<count($assetids); $i++) {
-				$in .= $db->quoteSmart( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
+				$in .= $db->quote( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);
-			$db_assetids = $db->getAll($sql.$where);
-			assert_valid_db_result($db_assetids);
+			try {
+				$db_assetids = MatrixDAL::executeSqlAll($sql.$where);
+			} catch (Exception $e) {
+				throw new Exception('Unable to determine if multipled assets exists due to database error: '.$e->getMessage());
+			}
 
 			foreach ($db_assetids as $db_id) {
 				$existing_asset_ids[] = $db_id['assetid'];
