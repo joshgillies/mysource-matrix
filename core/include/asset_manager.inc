@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.595 2007/11/08 02:38:14 bshkara Exp $
+* $Id: asset_manager.inc,v 1.596 2007/11/08 03:28:30 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.595 $
+* @version $Revision: 1.596 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1774,9 +1774,9 @@ class Asset_Manager extends MySource_Object
 							'name'				=> $source->name.' - clone',
 							'short_name'		=> $source->short_name.' - clone',
 							'status'			=> SQ_STATUS_UNDER_CONSTRUCTION,
-							'created'			=> db_extras_todate($db, ts_iso8601($now)),
+							'created'			=> db_extras_todate(DAL::getDbType(), ts_iso8601($now)),
 							'created_userid'	=> $userid,
-							'updated'			=> db_extras_todate($db, ts_iso8601($now)),
+							'updated'			=> db_extras_todate(DAL::getDbType(), ts_iso8601($now)),
 							'updated_userid'	=> $userid,
 						 );
 			$query = MatrixDAL::executeOne('core', 'insertClonedAsset', $bind_vars);
