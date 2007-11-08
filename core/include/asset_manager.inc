@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.591 2007/11/07 03:23:46 rong Exp $
+* $Id: asset_manager.inc,v 1.592 2007/11/08 00:18:32 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.591 $
+* @version $Revision: 1.592 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -134,7 +134,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$asset_types = Array();
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description, lvl
 				FROM sq_ast_typ';
 
@@ -146,7 +146,7 @@ class Asset_Manager extends MySource_Object
 			$where .= (($where) ? ' AND' : ' WHERE').' allowed_access != '.$db->quote('system');
 		}
 
-		$rows = DAL::executeSqlAll($sql.$where);
+		$rows = MatrixDAL::executeSqlAll($sql.$where);
 		foreach ($rows as $row) {
 			$asset_types[$row['type_code']] = $row;
 		}
@@ -168,7 +168,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function refreshAssetType($type_code)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation, description, lvl
 				FROM sq_ast_typ
 				WHERE type_code = :type_code';
@@ -176,7 +176,7 @@ class Asset_Manager extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
 		}
@@ -205,7 +205,7 @@ class Asset_Manager extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-			$db_parents = DAL::executePdoAssoc($query, 0);
+			$db_parents = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
 		}
@@ -217,7 +217,7 @@ class Asset_Manager extends MySource_Object
 		$type_code_level = (int) $this->getTypeInfo($type_code, 'lvl');
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($inserts as $inherited_type_code) {
@@ -233,7 +233,7 @@ class Asset_Manager extends MySource_Object
 				$query->bindValue(':inhd_type_code', $inherited_type_code,       PDO::PARAM_STR);
 				$query->bindValue(':level',          $type_code_level,           PDO::PARAM_INT);
 				$query->bindValue(':inhd_level',     $inherited_type_code_level, PDO::PARAM_INT);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
 			}
@@ -250,7 +250,7 @@ class Asset_Manager extends MySource_Object
 				$query = $db->prepare($sql);
 				$query->bindValue(':type_code',      $type_code,           PDO::PARAM_STR);
 				$query->bindValue(':inhd_type_code', $inherited_type_code, PDO::PARAM_STR);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
 			}
@@ -273,7 +273,7 @@ class Asset_Manager extends MySource_Object
 				$query->bindValue(':inhd_type_code', $inherited_type_code,       PDO::PARAM_STR);
 				$query->bindValue(':level',          $type_code_level,           PDO::PARAM_INT);
 				$query->bindValue(':inhd_level',     $inherited_type_code_level, PDO::PARAM_INT);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
 			}
@@ -341,7 +341,7 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			if (is_array($type_code)) {
 				$type_code_cond = 'IN (:type_code)';
@@ -366,7 +366,7 @@ class Asset_Manager extends MySource_Object
 			try {
 				$query = $db->prepare($sql);
 				$query->bindValue('type_code', $type_code);
-				$result = DAL::executePdoGroupedAssoc($query);
+				$result = MatrixDAL::executePdoGroupedAssoc($query);
 			} catch (Exception $e) {
 				if (is_array($type_code)) {
 					throw new Exception('Unable to get type info for multiple type codes due to database error: '.$e->getMessage());
@@ -509,7 +509,7 @@ class Asset_Manager extends MySource_Object
 		assert_type($type_code, 'array');
 		if (empty($assetids)) return Array();
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$where = '';
 
 		$shadowids = Array();
@@ -580,7 +580,7 @@ class Asset_Manager extends MySource_Object
 				'.$where.' ORDER BY a.assetid ASC, at.inhd_type_code_lvl DESC';
 
 		try {
-			$result = DAL::executeSqlGrouped($sql);
+			$result = MatrixDAL::executeSqlGrouped($sql);
 			$inter = Array();
 			foreach ($result as $key => $value) {
 				for ($i=0; $i<count($value); $i++) {
@@ -662,7 +662,7 @@ class Asset_Manager extends MySource_Object
 
 		if ($query_db || !isset($this->_asset_types[$type_code]['ancestor_types'])) {
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			$sql = 'SELECT
 						inhd_type_code
 					FROM
@@ -676,7 +676,7 @@ class Asset_Manager extends MySource_Object
 			try {
 				$query = $db->prepare($sql);
 				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-				$result = DAL::executePdoAssoc($query, 0);
+				$result = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to load type descendants of asset type "'.$type_code.'" due to database error: '.$e->getMessage());
 			}
@@ -705,7 +705,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeDescendants($type_code, $include_passed=FALSE)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$type_code_cond = '';
 		if (is_array($type_code)) {
@@ -732,7 +732,7 @@ class Asset_Manager extends MySource_Object
 		try {
 			// TODO: using plain SQL execution here - this would be changed to
 			// passing an array to DAL for type codes when queries.xml baking works
-			$result = DAL::executeSqlAssoc($sql, 0);
+			$result = MatrixDAL::executeSqlAssoc($sql, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to load type descendants of asset type "'.$type_code.'" due to database error: '.$e->getMessage());
 		}
@@ -810,7 +810,7 @@ class Asset_Manager extends MySource_Object
 		assert_type($attrids, 'array');
 		if (empty($attrids)) return Array();
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		for ($i = 0; $i < count($attrids); $i++) {
 			$attrids[$i] = $db->quote($attrids[$i]);
@@ -822,7 +822,7 @@ class Asset_Manager extends MySource_Object
 
 		try {
 			// cannot bind multiple values to a single named parameter, that's why we don't use bind vars here
-			$result = DAL::executeSqlAssoc($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 		} catch (Exception $e) {
 			throw new Exception('Unable to fetch attribute info due to database error: '.$e->getMessage());
 		}
@@ -888,7 +888,7 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!is_string($type_code)) return Array();
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
 		$sql = 'SELECT '.implode(', ', $details).' FROM sq_ast_attr
@@ -899,13 +899,13 @@ class Asset_Manager extends MySource_Object
 			$query->bindValue(':type_code', $type_code);
 
 			if (count($details) > 1) {
-				$result_x = DAL::executePdoGroupedAssoc($query);
+				$result_x = MatrixDAL::executePdoGroupedAssoc($query);
 				$result = Array();
 				foreach ($result_x as $key => $row) {
 					$result[$key] = $row[0];
 				}
 			} else {
-				$result = DAL::executePdoAssoc($query, 0);
+				$result = MatrixDAL::executePdoAssoc($query, 0);
 			}
 		} catch (Exception $e) {
 			throw new Exception('Unable to get asset info due to database error: '.$e->getMessage());
@@ -935,7 +935,7 @@ class Asset_Manager extends MySource_Object
 	function getAttributeValuesByName($attr_name, $asset_type, $assetids)
 	{
 		if (empty($assetids)) return Array();
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// IN clause fix - assetids were not being treated as strings
 		$in = 'assetid IN (';
@@ -1039,7 +1039,7 @@ class Asset_Manager extends MySource_Object
 				if (empty($type_code)) {
 					$where = 'assetid = \''.$assetid.'\'';
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-					$type_code = DAL::executeSqlOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
+					$type_code = MatrixDAL::executeSqlOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where);
 
 				}
 
@@ -1127,7 +1127,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT assetid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
 
@@ -1414,7 +1414,7 @@ class Asset_Manager extends MySource_Object
 		}
 		if (empty($assetids)) return Array();
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$shadowids = Array();
 		$normalids = Array();
@@ -1515,7 +1515,7 @@ class Asset_Manager extends MySource_Object
 				ORDER BY a.assetid';
 
 		try {
-			$result_x = DAL::executeSqlGroupedAssoc($sql);
+			$result_x = MatrixDAL::executeSqlGroupedAssoc($sql);
 
 			$result = Array();
 			foreach	($result_x as $key => $row) {
@@ -1573,7 +1573,7 @@ class Asset_Manager extends MySource_Object
 	function getTypeAssetids($type_code, $strict=TRUE, $include_type=FALSE)
 	{
 		if (!is_string($type_code)) return Array();
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		if ($strict) {
 			$where = 'type_code = :type_code';
@@ -1594,13 +1594,13 @@ class Asset_Manager extends MySource_Object
 			$query->bindValue(':type_code', $type_code);
 			if ($include_type) {
 				//$result = $db->getAssoc($sql);
-				$result_x = DAL::executePdoGroupedAssoc($query);
+				$result_x = MatrixDAL::executePdoGroupedAssoc($query);
 				$result = Array();
 				foreach ($result_x as $key => $row) {
 					$result[$key] = $row[0];
 				}
 			} else {
-				$result = DAL::executePdoAssoc($query, 0);
+				$result = MatrixDAL::executePdoAssoc($query, 0);
 			}
 		} catch (Exception $e) {
 			throw $e;
@@ -1747,11 +1747,11 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// TODO: replace with seqNextVal() in queries.xml
-		$assetid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast\');');
+		$assetid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast\');');
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -2498,7 +2498,7 @@ class Asset_Manager extends MySource_Object
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 						l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
@@ -2548,7 +2548,7 @@ class Asset_Manager extends MySource_Object
 
 		$sql .= $where.' ORDER BY l.sort_order';
 
-		$result = DAL::executeSqlAll($sql);
+		$result = MatrixDAL::executeSqlAll($sql);
 		if (!empty($result)) $result = $result[0];
 
 		return $result;
@@ -2587,7 +2587,7 @@ class Asset_Manager extends MySource_Object
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l';
 
@@ -2645,7 +2645,7 @@ class Asset_Manager extends MySource_Object
 			return $link;
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.is_dependant, l.is_exclusive, ';
 		$where = 'l.linkid = '.$db->quote((int) $linkid);
@@ -2810,7 +2810,7 @@ class Asset_Manager extends MySource_Object
 		// we have only
 		if (!empty($other_assetid)) {
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$prepared_otherids = Array();
 			foreach ($other_assetid as $id) {
@@ -2975,7 +2975,7 @@ class Asset_Manager extends MySource_Object
 				// we also need the links to real assets for this shadow asset
 				// if we are looking up the tree
 				if (($side_of_link == 'minor') && !$exclusive && !$dependant) {
-					$db = DAL::getDb();
+					$db = MatrixDAL::getDb();
 					$sql = 'SELECT
 								l.linkid,
 								l.majorid,
@@ -3049,8 +3049,8 @@ class Asset_Manager extends MySource_Object
 			// we couldnt palm the request off, so we better do it ourselves
 			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
 			if (!empty($query)) {
-				$db = DAL::getDb();
-				$result = DAL::executeSqlGroupedAssoc(implode(' ', $query));
+				$db = MatrixDAL::getDb();
+				$result = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
 				$links = $this->arrayMerge($result,$links);
 			}
 		}
@@ -3089,7 +3089,7 @@ class Asset_Manager extends MySource_Object
 				$shadow_links = $asset->getAllChildLinks($assetid, $link_type);
 			}
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$where = 'l.minorid = '.$db->quote($assetid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
@@ -3171,7 +3171,7 @@ class Asset_Manager extends MySource_Object
 
 		$link_lineages = Array();
 		$assetids = Array();
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		if (is_array($fields)) {
@@ -3262,7 +3262,7 @@ class Asset_Manager extends MySource_Object
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quoteSmart((string) $assetid).', '.
 		$db->quoteSmart((int) SQ_CONF_ASSET_TREE_SIZE).')';
 
-		if (DAL::getDbType() === 'oci') {
+		if (MatrixDAL::getDbType() === 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
 		} else {
 			$in_sql = 'SELECT * FROM '.$in_sql;
@@ -3383,7 +3383,7 @@ class Asset_Manager extends MySource_Object
 				$parents = $asset->getParents($assetid, $type_code, $strict_type_code);
 			}
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			$sql = 'SELECT
 						sl.majorid
 					FROM
@@ -3436,7 +3436,7 @@ class Asset_Manager extends MySource_Object
 
 		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access, $effective, $min_height, $max_height, $link_value_wanted);
 		if (empty($query)) return Array();
-		$result_x = DAL::executeSqlGroupedAssoc(implode(' ', $query));
+		$result_x = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
 		$result = Array();
 		foreach	($result_x as $key => $row) {
 			$result[$key] = $row[0];
@@ -3709,7 +3709,7 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// Stuff that is only needed once per design file
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$assetids  = Array();
 		$majorids_str = '';
@@ -3866,7 +3866,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetTreeids($assetid, $link_type=NULL)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		if (is_array($assetid)) {
 			$assetids_set = Array();
@@ -3922,7 +3922,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkTreeid($linkid)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		if (is_array($linkid)) {
 			$sql = 'SELECT linkid, treeid
@@ -3972,7 +3972,7 @@ class Asset_Manager extends MySource_Object
 		// lets say "Are you kidding?"
 		if ($assetid == $trash->id) return FALSE;
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// we need to work out the treeid of the trash
 		$sub_sql = 'SELECT (t.treeid || \'%\')
@@ -4041,7 +4041,7 @@ class Asset_Manager extends MySource_Object
 			return $results;
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$extra_table = '';
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
@@ -4147,7 +4147,7 @@ class Asset_Manager extends MySource_Object
 
 		// Use Master DB since we are going to change stuff
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// Can't link to the new parent if it is only in the trash
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
@@ -4202,7 +4202,7 @@ class Asset_Manager extends MySource_Object
 
 		// Change to DB to deal with the link tables
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$db = DAL::getDB();
+		$db = MatrixDAL::getDB();
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
@@ -4231,7 +4231,7 @@ class Asset_Manager extends MySource_Object
 				$query = $db->prepare($sql);
 				$query->bindValue(':majorid', $major->id);
 				$query->bindValue(':minorid', $minor->id);
-				$moving_under = DAL::executePdoOne($query);
+				$moving_under = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to determine if minor asset "'.$minor->name.'" (#'.$minor->id.') in new link is being linked underneath itself, due to database error: '.$e->getMessage());
 			}
@@ -4256,7 +4256,7 @@ class Asset_Manager extends MySource_Object
 				$sql .= ' LIMIT 1';	// TODO: will be set in queries.xml instead
 				$query = $db->prepare($sql);
 				$query->bindValue(':minorid', $major->id);
-				$existing_treeid = DAL::executePdoOne($query);
+				$existing_treeid = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to determine if major asset "'.$major->name.'" (#'.$major->id.') in new link is linked somewhere else, due to database error: '.$e->getMessage());
 			}
@@ -4285,7 +4285,7 @@ class Asset_Manager extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':majorid', $major->id);
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 			$row = $result[0];
 			unset($result);
 		} catch (Exception $e) {
@@ -4299,7 +4299,7 @@ class Asset_Manager extends MySource_Object
 
 		// Get Link ID
 		// TODO: temporary; remove and replace with seqNextVal() in queries.xml
-		$linkid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_lnk_seq\')');
+		$linkid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_lnk_seq\')');
 
 		// Update sort order for other children of the new parent
 		$sql = 'UPDATE
@@ -4315,7 +4315,7 @@ class Asset_Manager extends MySource_Object
 			$query = $db->prepare($sql);
 			$query->bindValue(':majorid', $major->id);
 			$query->bindValue(':sort_order', $sort_order);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} catch (Exception $e) {
 			throw new Exception('Unable to shift sort orders of children of "'.$major->name.'" (#'.$major->id.') up one, due to database error: '.$e->getMessage());
@@ -4363,7 +4363,7 @@ class Asset_Manager extends MySource_Object
 			$query->bindValue(':exclusive', (($exclusive) ? '1' : '0'));
 			$query->bindValue(':updated', ts_iso8601(time()));
 			$query->bindValue(':updated_userid', $GLOBALS['SQ_SYSTEM']->currentUserId());
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} catch (Exception $e) {
 			throw new Exception('Unable to add new link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4387,7 +4387,7 @@ class Asset_Manager extends MySource_Object
 				$sql .= ' LIMIT 1';	// TODO: temp until queries.xml
 				$query = $db->prepare($sql);
 				$query->bindValue(':minorid', $minor->id);
-				$result = DAL::executePdoAll($query);
+				$result = MatrixDAL::executePdoAll($query);
 				if (empty($result)) {
 					$minor_tree = Array();
 				} else {
@@ -4441,7 +4441,7 @@ class Asset_Manager extends MySource_Object
 					} else {
 						$query->bindValue(':length', SQ_CONF_ASSET_TREE_SIZE);
 					}
-					$last_treeid = DAL::executePdoOne($query);
+					$last_treeid = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
 				}
@@ -4452,7 +4452,7 @@ class Asset_Manager extends MySource_Object
 				// do a straight inert and break the loop as we are done
 				if (empty($last_treeid)) {
 					$sql = 'asset_link_treeid_convert(\'0\', \'1\', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-					$free_treeid = db_get_function_result(DAL::getDbType(), $sql);
+					$free_treeid = db_get_function_result(MatrixDAL::getDbType(), $sql);
 
 					$new_treeid = ($existing_treeid == '-') ? $free_treeid : $existing_treeid.$free_treeid;
 
@@ -4476,7 +4476,7 @@ class Asset_Manager extends MySource_Object
 						$query->bindValue(':treeid', $new_treeid);
 						$query->bindValue(':linkid', $linkid);
 						$query->bindValue(':num_kids', 0);
-						DAL::execPdoQuery($query);
+						MatrixDAL::execPdoQuery($query);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					} catch (Exception $e) {
 						throw new Exception('Unable to add new tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4489,10 +4489,10 @@ class Asset_Manager extends MySource_Object
 				// otherwise we could find a treeid on this branch, so increment it
 				// to get a free childid that we can use for our new link
 				$sql = 'asset_link_treeid_convert('.$db->quoteSmart($last_treeid).', '.$db->quoteSmart('0').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-				$child_num = db_get_function_result(DAL::getDbType(), $sql);
+				$child_num = db_get_function_result(MatrixDAL::getDbType(), $sql);
 
 				$sql = 'asset_link_treeid_convert('.$db->quoteSmart((string) ($child_num + 1)).', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-				$free_treeid = db_get_function_result(DAL::getDbType(), $sql);
+				$free_treeid = db_get_function_result(MatrixDAL::getDbType(), $sql);
 
 				// we want to try and reserve a treeid for us that we have just converted
 				// from the last treeid on the branch. So what we are doing here is inserting
@@ -4521,7 +4521,7 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':treeid', $treeid.$free_treeid.':'.$linkid);
 					$query->bindValue(':linkid', 0);
 					$query->bindValue(':num_kids', 0);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to reserve new tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4544,7 +4544,7 @@ class Asset_Manager extends MySource_Object
 					$query = $db->prepare($sql);
 					$query->bindValue(':treeid_wildcard', $treeid.$free_treeid.':%');
 					$query->bindValue(':treeid', $treeid.$free_treeid);
-					$found_treeid = DAL::executePdoOne($query);
+					$found_treeid = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
 				}
@@ -4583,7 +4583,7 @@ class Asset_Manager extends MySource_Object
 						$query->bindValue(':treeid_wildcard', $treeid.$free_treeid.':%');
 						$query->bindValue(':treeid_wildcard_1', $treeid.$free_treeid.':%');
 						$query->bindValue(':treeid', $treeid.$free_treeid);
-						DAL::execPdoQuery($query);
+						MatrixDAL::execPdoQuery($query);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					} catch (Exception $e) {
 						throw new Exception('Unable to attempt to win tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4609,7 +4609,7 @@ class Asset_Manager extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					$query->bindValue(':linkid', $treeid.$free_treeid.':'.$linkid);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to attempt to drop lost tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4643,7 +4643,7 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':treeid',     $treeid.$free_treeid);
 					$query->bindValue(':linkid',     $linkid);
 					$query->bindValue(':old_treeid', $treeid.$free_treeid.':'.$linkid);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to attempt to update won tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4667,7 +4667,7 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':linkid',   $linkid);
 					$query->bindValue(':num_kids', $minor_tree['num_kids']);
 					$query->bindValue(':treeid',   $free_treeid);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to update top-level tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4688,7 +4688,7 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':linkid',   $linkid);
 					$query->bindValue(':num_kids', $minor_tree['num_kids']);
 					$query->bindValue(':treeid',   $existing_treeid.$free_treeid);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to update tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4723,7 +4723,7 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':minorid',   $major->id);
 					$query->bindValue(':num_kids', $minor_tree['num_kids']);
 					$query->bindValue(':treeid',   $existing_treeid.$free_treeid);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4759,7 +4759,7 @@ class Asset_Manager extends MySource_Object
 				$query->bindValue(':tree_size_1', SQ_CONF_ASSET_TREE_SIZE);
 				$query->bindValue(':linkid',      $linkid);
 				$query->bindValue(':treeid',   '-');
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4800,7 +4800,7 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':minor_treeid_wildcard', $minor_tree['treeid'].'%');
 					$query->bindValue(':minor_treeid',          $minor_tree['treeid']);
 					$query->bindValue(':minor_treeid_1',        $minor_tree['treeid']);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
@@ -4893,7 +4893,7 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		// use the sq_ast_lnk sequence so that when we query any link view later
 		// on we don't have any conflicting linkids
 		$linkid = $db->nextId('sq_ast_lnk');
@@ -4982,7 +4982,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// check for web path conflicts with the new parents children
 		if ($link_type & SQ_SC_LINK_WEB_PATHS) {
@@ -5275,7 +5275,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$set_clauses = Array();
 
@@ -5376,7 +5376,7 @@ class Asset_Manager extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
@@ -5442,7 +5442,7 @@ class Asset_Manager extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
@@ -5619,7 +5619,7 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			$sql = 'DELETE FROM
 						sq_shdw_ast_lnk
 					WHERE
@@ -5636,7 +5636,7 @@ class Asset_Manager extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 			// This is a significant link
@@ -5969,7 +5969,7 @@ class Asset_Manager extends MySource_Object
 			if (isset($children['union_select'])) {
 				$children['union_select'] = 'UNION ALL SELECT sl.minorid';
 			}
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			$sql = 'SELECT
 						majorid, minorid, name, linkid, status, link_type
 					FROM
@@ -6143,7 +6143,7 @@ class Asset_Manager extends MySource_Object
 		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission.'_'.$suffix;
 		if (!isset($this->_tmp['permission_cache'][$assetid][$storage_name])) {
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$table = ($collapse_roles) ? 'ast_perm' : 'vw_ast_perm';
 			$sql = '  SELECT DISTINCT assetid, userid, granted
@@ -6156,7 +6156,7 @@ class Asset_Manager extends MySource_Object
 				$query = $db->prepare($sql.$where);
 				$query->bindValue(':assetid',    $assetid, PDO::PARAM_STR);
 				$query->bindValue(':permission', $permission, PDO::PARAM_INT);
-				$result = DAL::executePdoAll($query);
+				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get set permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
 			}
@@ -6292,7 +6292,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		switch ($db_action) {
 			case 'insert':
@@ -6332,7 +6332,7 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':userid',     $userid);
 					$query->bindValue(':permission', $permission);
 					$query->bindValue(':granted',    ($granted) ? '1' : '0');
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to '.$db_action.' permissions for asset "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
 				}
@@ -6425,7 +6425,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -6494,7 +6494,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE, $inc_dependants=TRUE)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$where = Array();
 		if (!is_null($assetid)) {
@@ -6539,7 +6539,7 @@ class Asset_Manager extends MySource_Object
 				$query->bindValue(':userid',  $userid,  PDO::PARAM_STR);
 			}
 			$query->bindValue(':dependant', 0, PDO::PARAM_INT);
-			$result = DAL::executePdoGroupedAssoc($query);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get role data due to database error: '.$e->getMessage());
 		}
@@ -6631,7 +6631,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'INSERT INTO sq_ast_role
@@ -6679,7 +6679,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$where_and = '';
 		if (!is_null($roleid)) {
@@ -6741,7 +6741,7 @@ class Asset_Manager extends MySource_Object
 			$protocol = 'http';
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$url_condition = '';
 		if ($exact_match) {
@@ -6771,7 +6771,7 @@ class Asset_Manager extends MySource_Object
 				ORDER BY LENGTH(l.url) DESC';
 		$sql .= ' LIMIT 1';
 
-		$row = DAL::executeSqlAll($sql);
+		$row = MatrixDAL::executeSqlAll($sql);
 
 		// URL not found
 		if (empty($row)) {
@@ -6807,7 +6807,7 @@ class Asset_Manager extends MySource_Object
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// so much for SQL standards...
 		$where = $db->quote($url).' LIKE (url || '.$db->quote('%').')';
@@ -6818,7 +6818,7 @@ class Asset_Manager extends MySource_Object
 				ORDER BY url DESC';
 		// TODO: replace in queries.xml with <limit> tag
 		$sql .= ' LIMIT 1';
-		$result = DAL::executeSqlAll($sql);
+		$result = MatrixDAL::executeSqlAll($sql);
 		return empty($result) ? NULL : $result[0];
 
 	}//end getRootURL()
@@ -6834,7 +6834,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getURLs($assetid)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT
 					http, https, url
 				FROM
@@ -6845,7 +6845,7 @@ class Asset_Manager extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':assetid', $assetid);
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get URLs for asset ID '.$assetid.' due to database error: '.$e->getMessage());
 		}
@@ -6877,7 +6877,7 @@ class Asset_Manager extends MySource_Object
 			$protocol = 'http';
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$non_standard_url = FALSE;
 		// get the root(site) url for this url
@@ -6978,13 +6978,13 @@ class Asset_Manager extends MySource_Object
 		$in_sql = 'sq_get_lineage_from_url(:url)';
 
 		// if we are oracle type-cast the function result to a table
-		$db_type = DAL::getDbType();
+		$db_type = MatrixDAL::getDbType();
 		if ($db_type == 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
 			try {
 				$query = $db->prepare($in_sql);
 				$query->bindValue(':url', $url.'/');
-				$result = DAL::executePdoAssoc($query, 0);
+				$result = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get lineage for URL "'.$protocol.'://'.$url.'" due to database error: '.$e->getMessage());
 			}
@@ -6999,7 +6999,6 @@ class Asset_Manager extends MySource_Object
 		} else {
 			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
-		//bam('Root URL is '.var_export($root_url, TRUE));
 		$where = 'l.root_urlid = '.(int)$root_url['urlid'].'
 				  AND l.url IN (
 								'.$in_sql.'
@@ -7034,13 +7033,10 @@ class Asset_Manager extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':url', $url.'/');
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get lineage for URL "'.$protocol.'://'.$url.'" due to database error: '.$e->getMessage());
 		}
-
-		//bam($sql);
-		//bam($result);
 
 		$url_asset =& $this->getAssetFromURL($protocol, $url);
 		$id_parts = explode(':', $url_asset->id);
@@ -7123,7 +7119,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getDesignFromURL($url, $design_name='design::system::frontend')
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT lv.value as designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -7202,7 +7198,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getValueFromURL($url, $value_name)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT lv.value
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -7242,7 +7238,7 @@ class Asset_Manager extends MySource_Object
 		$name_operator = $use_like_for_name ? 'LIKE' : '=';
 		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
 		$value_operator = $use_like_for_value ? 'LIKE' : '=';
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').'
 				FROM sq_ast_lookup l
 					JOIN sq_ast_lookup_value lv ON l.url = lv.url';
@@ -7334,7 +7330,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// now hit the database for the rest of them
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$the_rest = array_diff($assetids, array_keys($return_urls));
 
@@ -7570,7 +7566,7 @@ class Asset_Manager extends MySource_Object
 		// db_extras_bitand
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		while (!empty($paths)) {
 			$paths_string = '';
@@ -7588,10 +7584,10 @@ class Asset_Manager extends MySource_Object
 				$where .= 'AND l.minorid <> \''.(string) $ignore_assetid.'\' ';
 			}
 			$where .= 'AND p.path IN ('.$paths_string.')
-				AND '.db_extras_bitand(DAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
+				AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$used_paths = DAL::executeSqlAssoc($sql.$where);
+			$used_paths = MatrixDAL::executeSqlAssoc($sql.$where);
 
 			// if we do not need to get alternate we paths, just return
 			// the ones that are currently in use
@@ -7679,7 +7675,7 @@ class Asset_Manager extends MySource_Object
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$assetid_cond = '';
 		// TODO: queries.xml format will just send arrays unedited
@@ -7699,7 +7695,7 @@ class Asset_Manager extends MySource_Object
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 		$where  = 'l.'.$side_of_link.'id '.$assetid_cond.'
-			AND '.db_extras_bitand(DAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
+			AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
 		if (!is_null($value)) {
 			$where .= ' AND (l.value = \''.$value.'\'';
 			if ($value == '') $where .= ' OR l.value IS NULL';
@@ -7850,7 +7846,7 @@ class Asset_Manager extends MySource_Object
 	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $inc_type_code=TRUE, $min_depth=NULL, $max_depth=NULL, $direct_shadows_only=TRUE, $link_value_wanted=NULL)
 	{
 		assert_valid_assetid($asset->id);
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// if we are the root folder then we just need to select from the asset table
 		if (get_class($asset) == 'root_folder') {
@@ -8045,12 +8041,12 @@ class Asset_Manager extends MySource_Object
 	{
 		assert_valid_assetid($assetid);
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$assetid = (string) $assetid;
 
 		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(\''.$assetid.'\', \''.SQ_CONF_ASSET_TREE_SIZE.'\')';
 
-		if (DAL::getDbType() === 'oci') {
+		if (MatrixDAL::getDbType() === 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
 			$result = $db->getCol($in_sql);
 			assert_valid_db_result($result);
