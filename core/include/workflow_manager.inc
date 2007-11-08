@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.109 2007/10/29 22:15:01 lwright Exp $
+* $Id: workflow_manager.inc,v 1.110 2007/11/08 05:18:05 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -187,42 +187,26 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		switch ($db_action) {
-			case 'insert':
-				$sql = 'INSERT INTO
-						sq_ast_wflow
-						(
-							assetid,
-							schemaid,
-							wflow,
-							granted
-						)
-						VALUES
-						(
-							'.$db->quoteSmart((string)$assetid).',
-							'.$db->quoteSmart((string)$schemaid).',
-							NULL,
-							'.$db->quoteSmart(($granted) ? '1' : '0').'
-						)';
-			break;
-			case 'update':
-				$sql = 'UPDATE
-								sq_ast_wflow
-							SET
-								granted = '.$db->quoteSmart(($granted) ? '1' : '0').'
-							WHERE
-								assetid = '.$db->quoteSmart((string)$assetid).'
-							AND
-								schemaid  = '.$db->quoteSmart((string)$schemaid);
-
-			break;
+		if ($db_action == 'insert') {
+			$query_name = 'setWorkflowSchema';
+		} else if ($db_action == 'update') {
+			$query_name = 'updateWorkflowSchema';
 		}
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars = Array(
+								'assetid'	=> (string)$assetid,
+								'schemaid'	=> (string)$schemaid,
+								'wflow'		=> NULL,
+								'granted'	=> $granted ? 1 : 0,
+							  );
+			MatrixDAL::executeQuery('core', $query_name, $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception ('Unable to set workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
+		}
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -266,17 +250,18 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_ast_wflow
-				WHERE
-					schemaid	= '.$db->quoteSmart($schemaid).'
-				AND	assetid		= '.$db->quoteSmart($asset->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars = Array(
+								'assetid'	=> (string)$asset->id,
+								'schemaid'	=> (string)$schemaid,
+							  );
+			MatrixDAL::executeQuery('core', 'deleteWorkflowSchema', $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception ('Unable to delete workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
+		}
 
 		unset($this->_tmp['schemas'][(int)$assetid]);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1517,16 +1502,17 @@ class Workflow_Manager extends MySource_Object
 	function purgeWorkflow($assetid)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_ast_wflow
-				WHERE
-					assetid	= '.$db->quoteSmart($assetid);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars = Array(
+								'assetid'	=> (string)$assetid,
+							  );
+			MatrixDAL::executeQuery('core', 'purgeWorkflow', $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception ('Unable to purge workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
