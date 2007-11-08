@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.592 2007/11/08 00:18:32 bshkara Exp $
+* $Id: asset_manager.inc,v 1.593 2007/11/08 00:22:51 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.592 $
+* @version $Revision: 1.593 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -581,23 +581,8 @@ class Asset_Manager extends MySource_Object
 
 		try {
 			$result = MatrixDAL::executeSqlGrouped($sql);
-			$inter = Array();
-			foreach ($result as $key => $value) {
-				for ($i=0; $i<count($value); $i++) {
-					if (count($value) === 1) {
-						$scalar = $value[0][0];
-					} else {
-						$inter[] = $value[$i][0];
-					}
-				}
-				$result[$key] = $inter;
-			}
-
 			$result += $shadow_results;
 
-			// if result contains one value, return scalar rather than array
-			if ((count($result) === 1) && isset($scalar))
-				$result = $scalar;
 		} catch (Exception $e) {
 			throw new Exception('Unable to get asset type info due to database error: '.$e->getMessage());
 		}
