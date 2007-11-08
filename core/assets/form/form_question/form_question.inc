@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.20 2007/11/06 06:12:58 rong Exp $
+* $Id: form_question.inc,v 1.21 2007/11/08 03:52:03 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,7 +188,7 @@ class Form_Question extends Asset
 		$save_vars = Array();
 		$attr_ids  = Array();
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		// prepare for the save
 		$saved_vars = $this->vars;
@@ -200,20 +200,23 @@ class Form_Question extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// find any previous entries
-		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
 		$sql   = 'SELECT name, default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr ';
 		$where = 'type_code = '.$db->quote($this->vars['question_type_code']['value']);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$existing = $db->getAssoc($sql.$where);
-		assert_valid_db_result($existing);
+		try {
+			$query = $db->prepare($sql.$where);
+			$existing = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Can not get default val and name base on type code due to the following database error	'.$e->getMessage());
+		}//end try catch
 
 		// check against default values; we don't need to save that attribute if it is
-		foreach ($existing as $name => $default_value) {
-			if ($saved_vars[$name]['value'] == $default_value) {
-				unset($saved_vars[$name]);
-			}
-		}
+		foreach ($existing as $entry) {
+			if ($saved_vars[$entry['name']['value'] == $entry['default_val']) {
+				unset($saved_vars[$entry['name']]);
+			}//end if
+		}//end foreach
 
 		// only save the values
 		foreach ($saved_vars as $attr_id => $saved_var) {
