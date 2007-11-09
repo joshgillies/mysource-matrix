@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.24 2006/12/06 04:24:00 emcdonald Exp $
+* $Id: cron_job_future_lineage.inc,v 1.25 2007/11/09 04:21:00 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -474,7 +474,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @access public
 	* @static
 	*/
-	function &getActiveJobs(&$asset)
+	public static function &getActiveJobs(&$asset)
 	{
 		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) {
