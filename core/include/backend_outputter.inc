@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.153 2007/11/06 23:21:07 rong Exp $
+* $Id: backend_outputter.inc,v 1.154 2007/11/09 04:19:01 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -636,7 +636,7 @@ class Backend_Outputter
 		<a name="section_<?php echo $this->_nb_section_count; ?>"></a>
 		<table class="sq-backend-section-table">
 		<?php
-		if ($init_arr['heading']) {
+		if (isset($init_arr['heading']) && $init_arr['heading']) {
 			if ($this->_is_open_section) {
 				// printing a nested section - needs to look a little different
 				?>
