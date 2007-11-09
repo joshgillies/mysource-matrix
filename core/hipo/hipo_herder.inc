@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.89 2007/11/06 23:23:05 rong Exp $
+* $Id: hipo_herder.inc,v 1.90 2007/11/09 05:29:24 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -96,23 +96,26 @@ class HIPO_Herder extends MySource_Object
 			// we need to get the hipo_dir from the db so we know
 			// where to look for the include file
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT job_type, hipo_vars
-					FROM sq_hipo_job
-					WHERE code_name = '.$db->quote($code_name);
-			$hipo_vars = $db->getRow($sql);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$db = MatrixDAL::getDb();
 
-			if (!assert_valid_db_result($hipo_vars)) {
+			try {
+				$bind_vars	= Array (
+							'code_name'	=> $code_name, 
+						  );
+				$hipo_vars_all = MatrixDAL::executeAll('core', 'getHipoJobByCodeName', $bind_vars);
+				$hipo_vars = Array();
+				if (!empty($hipo_vars_all) && isset($hipo_vars_all[0])) {
+					$hipo_vars = $hipo_vars_all[0];
+				}
+			} catch (Exception $e) {
+				throw new Exception('Unable to get hipo job base on code name '.$code_name.$e->getMessage());
+			}//end try catch
+
+			if (!isset($hipo_vars['job_type']) || empty($hipo_vars['job_type'])) {
 				$null = NULL;
 				return $null;
 			}
-
 			$job_type = $hipo_vars['job_type'];
-			if (empty($job_type)) {
-				$null = NULL;
-				return $null;
-			}
 
 			$vars = unserialize($hipo_vars['hipo_vars']);
 			if (empty($vars['job_dir'])) {
