@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.22 2007/02/05 05:39:05 colivar Exp $
+* $Id: logs.inc,v 1.23 2007/11/09 04:13:56 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -43,17 +43,14 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
 
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = MatrixDAL::getDb();
+	try {
+		$log_types = MatrixDAL::executeAssoc('core', 'getLogs', 0);
+	} catch (Exception $e) {
+		throw new Exception('Failed to get log messages due to database error: '.$e->getMessage());
+	}
 
-	$sql = 'SELECT
-				DISTINCT type FROM sq_internal_msg
-			WHERE
-					userto = '.$db->quoteSmart('0').'
-				AND type LIKE '.$db->quoteSmart('asset%');
-
-	$log_types = $db->getCol($sql);
-	assert_valid_db_result($log_types);
-	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
+	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0]['type'];
 	$selected_key = NULL;
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 	$o->openSection(translate('logged_messages'));
@@ -61,7 +58,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 		$o->openRaw();
 					$type_options = Array();
-			foreach ($log_types as $type) {
+			foreach ($log_types as $types) {
+				$type = $types['type'];
 				$key = replace_query_string_vars(Array('sq_backend_log_type' => $type));
 				if ($type == $active_log_type) $selected_key = $key;
 				$type_options[$key] = ucwords(str_replace(Array('.', '_'), ' ', $type));
@@ -74,15 +72,15 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 			// if it is in limbo mode there will be already an element with sq_backend_log_type id
 			// therefore we will change the name of the combo box
-                        if (SQ_IN_LIMBO) {
+						if (SQ_IN_LIMBO) {
 			   $_combo_box_name = 'sq_backend_log_type2';
 			}
- 			combo_box($_combo_box_name, $type_options, FALSE, $selected_key);
+			combo_box($_combo_box_name, $type_options, FALSE, $selected_key);
 			echo '&nbsp;';
 			normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\''.$_combo_box_name.'\').value');
 		$o->closeRaw();
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		if (strpos($active_log_type, 'asset.linking') === 0) {
 
@@ -125,7 +123,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeRaw();
 		} else {
 			$o->openRaw();
-			$lm =& $GLOBALS['SQ_SYSTEM']->lm;
+			$lm = $GLOBALS['SQ_SYSTEM']->lm;
 				?>
 				<table class="sq-backend-table">
 					<tr>
