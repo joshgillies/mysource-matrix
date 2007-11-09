@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.63 2007/11/07 01:01:55 hnguyen Exp $
+* $Id: messaging_service.inc,v 1.64 2007/11/09 04:14:38 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -627,7 +627,7 @@ class Messaging_Service extends MySource_Object
 	* @return int
 	* @access public
 	*/
-	function sortMessages($a, $b)
+	public static function sortMessages($a, $b)
 	{
 		if ($a['sent'] == $b['sent']) return 0;
 		return ($a['sent'] > $b['sent']) ? -1 : 1;
