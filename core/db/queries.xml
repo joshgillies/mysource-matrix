@@ -256,7 +256,6 @@
 	<!-- //		ASSET STATIC SCREENS		// -->
 
 	<!-- //		history.inc		// -->
-
 	<query id="selectHistoryForPainting">
 		<!-- Return the history info of an asset from the rollback table -->
 		<primary>
@@ -275,6 +274,25 @@
 				<order-by direction="DESC">
 					<field table="sq_rb_ast" column="sq_eff_from" />
 				</order-by>
+			</select>
+		</primary>
+	</query>
+
+	<!-- //		logs.inc		// -->
+	<query id="getLogs">
+		<!-- Return the a list of internal messages to appear on log screen.' -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_internal_msg" column="type" />
+				</fields>
+				<from>
+					<table>sq_internal_msg</table>
+				</from>
+				<where>
+					<equal table="sq_internal_msg" column="userto"><value>0</value></equal>
+					<like table="sq_internal_msg" column="type"><value>asset%</value></like>
+				</where>
 			</select>
 		</primary>
 	</query>
