@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_edit_fns.inc,v 1.1 2007/07/15 23:15:38 mbrydon Exp $
+* $Id: calendar_event_multi_date_edit_fns.inc,v 1.2 2007/11/09 05:25:27 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/calendar_events/calendar_event_recurrin
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -49,9 +49,9 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for choosing dates for this event
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -108,13 +108,13 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint a row in the instances table for the supplied event
 	*
-	* @param string	$prefix			The prefix for form fields
-	* @param object	$event_asset	The event asset of the instance being represented
-	* @param object	$o				The backend outputter we are using
-	* @param bool	$write_access	Whether we have write access to the instance
+	* @param string		$prefix			The prefix for form fields
+	* @param object		$event_asset	The event asset of the instance being represented
+	* @param object		$o				The backend outputter we are using
+	* @param boolean	$write_access	Whether we have write access to the instance
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printDateRow($prefix, $event_asset, $o, $write_access)
 	{
@@ -162,7 +162,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 				?>
 			</tr>
 		<?php
-		}
+		}//end if
 
 	}//end _printDateRow()
 
@@ -173,8 +173,8 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	* @param string	$prefix	The prefix for form fields
 	* @param object	$o		The backend outputter we are using
 	*
-	* @access protected
 	* @return void
+	* @access protected
 	*/
 	function _printDateTemplate($prefix, $o)
 	{
@@ -186,10 +186,10 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 			<tr id="template" style="display: none">
 				<td style="white-space: nowrap; vertical-align: top">
 					<?php
-					radio_button($prefix.'_new_type_template', 'single', true, 'setEventType(this)', 'id="'.$prefix.'_new_type_template_single"');
+					radio_button($prefix.'_new_type_template', 'single', TRUE, 'setEventType(this)', 'id="'.$prefix.'_new_type_template_single"');
 					label('Single Instance', $prefix.'_new_type_template_single');
 					echo '<br />';
-					radio_button($prefix.'_new_type_template', 'recurring', false, 'setEventType(this)', 'id="'.$prefix.'_new_type_template_recurring"');
+					radio_button($prefix.'_new_type_template', 'recurring', FALSE, 'setEventType(this)', 'id="'.$prefix.'_new_type_template_recurring"');
 					label('Recurring Instance', $prefix.'_new_type_template_recurring');
 					echo '<br />';
 					?>
@@ -218,9 +218,9 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for choosing dates for this event
 	*
-	* @param object Asset				&$asset	the owning asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the owning asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -229,14 +229,17 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->id) {
 			// Existing instances
-			if (!$asset->writeAccess('attributes')) return false;
+			if (!$asset->writeAccess('attributes')) return FALSE;
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('calendar_event_single', 'calendar_event_recurring'));
 			foreach ($children as $id => $type) {
+
+				if (strpos($id, ':') !== FALSE) continue;
+
 				if (isset($_POST[$prefix.'_existing_'.$id.'_delete'])) {
 					$GLOBALS['SQ_SYSTEM']->am->trashAsset($id);
 				} else {
 					$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
-					$need_save = false;
+					$need_save = FALSE;
 					if ($type == 'calendar_event_single') {
 						$need_save |= $this->_tmp['single_edit_fns']->processSingleStartEndChooser($event_asset, $o, $prefix.'_existing_'.$event_asset->id);
 					} else {
@@ -277,8 +280,8 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 							'link_type'		=> SQ_LINK_TYPE_3,
 							'value'			=> '',
 							'sort_order'	=> -1,
-							'is_dependant'	=> true,
-							'is_exclusive'	=> true,
+							'is_dependant'	=> TRUE,
+							'is_exclusive'	=> TRUE,
 						);
 				if ($asset->id) {
 					$new_asset->create($link);
@@ -288,7 +291,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 				}
 			}//end if
 			$i++;
-		}
+		}//end while
 
 	}//end processDates()
 
@@ -296,9 +299,9 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for creating tables in the bodycopy
 	*
-	* @param object Page_Standard		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
@@ -306,12 +309,12 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	function redirectToBodycopy(&$asset, &$o, $prefix)
 	{
 		// get the bodycopy attached to us
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', null, '1', '0');
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '0');
+		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 
 		if (is_null($bodycopy)) {
 			trigger_localised_error('CORE0016', E_USER_ERROR, $asset->name);
-			return false;
+			return FALSE;
 		}
 
 		// redirect to the bodycopy's edit contents screen
@@ -321,7 +324,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 		// page it doesnt take them to the edit contents screen and then redirect them again
 		$_SESSION['sq_nav_history'][(count($_SESSION['sq_nav_history']) - 1)]['screen'] = 'details';
 
-		return false;
+		return FALSE;
 
 	}//end redirectToBodycopy()
 
