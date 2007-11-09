@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.251 2007/11/06 23:25:03 hnguyen Exp $
+* $Id: asset_map.inc,v 1.252 2007/11/09 05:58:33 colivar Exp $
 *
 */
 
-require_once 'XML/Tree.php';
+//require_once 'XML/Tree.php';
 
 /**
 * Asset Map
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -488,7 +488,8 @@ class Asset_Map
 	function _send($output)
 	{
 		header('Content-Type: text/xml; encoding=utf-8');
-		$output->dump();
+		//$output->dump();
+		echo $output->asXML();
 
 	}//end _send()
 
@@ -536,28 +537,19 @@ class Asset_Map
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$input = new XML_Tree('php://input');
-		$root  = $input->getTreeFromFile();
 
-		if (PEAR::isError($root)) {
-			$this->_error('AMAP0001', $root->getMessage(), $root->getUserInfo());
-			return;
-		}
+		$root = simplexml_load_file('php://input');
 
-		if ($root->name != 'command' || empty($root->attributes['action'])) {
-			$this->_error('AMAP0002');
-			return;
-		}
-
-		switch ($root->attributes['action']) {
+		switch ($root['action']) {
 			case 'get translations' :
 				$this->_getTranslations($input);
 			break;
 			case 'initialise' :
-				$this->_doInitialise($input);
+				// TODO: $this->_doInitialise($input);
+				$this->_doInitialise();
 			break;
 			case 'get assets' :
-				$this->_getAssets($input);
+				$this->_getAssets($root);
 			break;
 			case 'get url' :
 				$this->_getURL($input, $backend);
@@ -574,8 +566,8 @@ class Asset_Map
 			default :
 				$this->_error('AMAP0003', $root->attributes['action']);
 				return;
+		}
 
-		}//end switch
 
 	}//end process()
 
@@ -621,52 +613,95 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _doInitialise(&$input)
+	//function _doInitialise(&$input)
+	function _doInitialise()
 	{
-		$output = new XML_Tree();
+
+		//$output = new XML_Tree();
+		$output = simplexml_load_string('<xml></xml>');
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 
 		// get the current user and its dependants (inbox and workspace)
 		// so the asset map can create a java object for each
 		$current_user_info = $this->_getAssetInfo($current_user->id);
-		$root = $output->addRoot('current_user', '', $current_user_info);
 
-		$this->_getChildAssets($root, $current_user->id, TRUE, TRUE);
-		$current_user_xml = $root->get();
+		//$root = $output->addRoot('current_user', '', $current_user_info);
+		$root = $output->addChild('root');
+		$current_user_node = $root->addChild('current_user');
+		foreach ($current_user_info as $key => $value) {
+			if (strlen($value) == 0)  $current_user_node->addAttribute($key, ' ');
+			else $current_user_node->addAttribute($key, $value);
+		}
+
+		$current_user_node_info = $current_user_node->addChild('asset');
+		$this->_getChildAssets($current_user_node_info, $current_user->id, TRUE, TRUE);
+		$current_user_xml = $current_user_node->asXML();
 
 		// get info and children for the root folder
 		// note the hard code the assetid of the root folder because
 		// it MUST ALWAYS be the first asset created
-		$root = $output->addRoot('assets', '');
+
+		//$root = $output->addRoot('assets', '');
+		//$info = $this->_getAssetInfo('1');
+		//$child = $root->addChild('asset', '', $info);
+		$assets_node = $root->addChild('assets');
 		$info = $this->_getAssetInfo('1');
-		$child = $root->addChild('asset', '', $info);
-		$this->_getChildAssets($child, '1');
+		$root_node_info = $assets_node->addChild('asset');
+		foreach ($info as $key => $value) {
+			if (strlen($value) == 0)  $root_node_info->addAttribute($key, ' ');
+			else $root_node_info->addAttribute($key, $value);
+		}
+		//$this->getAsset($child, '1');
+		$this->_getChildAssets($root_node_info, '1');
+		$assets_xml = $assets_node->asXML();
 
 		// just get the root's XML not the tree's, because it is part of
 		// bigger things and we dont want the version info
-		$assets_xml = $root->get();
+		//$assets_xml = $root->get();
+
+		//header('Content-Type: text/xml');
+		//ob_start();
+		//	echo "<initialisation>\n";
+		//		echo "<asset_types>\n";
+		//			$dir = SQ_DATA_PATH.'/private/asset_map';
+		//			if ($d = @opendir($dir)) {
+		//				while (($file = readdir($d)) !== FALSE) {
+		//					if (substr($file, -4) == '.xml') {
+		//						@readfile($dir.'/'.$file);
+		//						@ob_flush();
+		//					}
+		//				}
+		//				closedir($d);
+		//			}
+		//		echo "</asset_types>\n";
+		//		echo $current_user_xml;
+		///		echo $assets_xml;
+		//	echo "</initialisation>\n";
+		//	$out = ob_get_contents();
+		//ob_end_clean();
+
+		//echo $out;
 
 		header('Content-Type: text/xml');
 		ob_start();
-			echo "<initialisation>\n";
-				echo "<asset_types>\n";
-					$dir = SQ_DATA_PATH.'/private/asset_map';
-					if ($d = @opendir($dir)) {
-						while (($file = readdir($d)) !== FALSE) {
-							if (substr($file, -4) == '.xml') {
-								@readfile($dir.'/'.$file);
-								@ob_flush();
-							}
-						}
-						closedir($d);
-					}
-				echo "</asset_types>\n";
-				echo $current_user_xml;
-				echo $assets_xml;
-			echo "</initialisation>\n";
-			$out = ob_get_contents();
+				echo "<initialisation>\n";
+						echo "<asset_types>\n";
+								$dir = SQ_DATA_PATH.'/private/asset_map';
+								if ($d = @opendir($dir)) {
+										while (($file = readdir($d)) !== FALSE) {
+												if (substr($file, -4) == '.xml') {
+														@readfile($dir.'/'.$file);
+														@ob_flush();
+												}
+										}
+										closedir($d);
+								}
+						echo "</asset_types>\n";
+						echo $current_user_xml;
+						echo $assets_xml;
+				echo "</initialisation>\n";
+				$out = ob_get_contents();
 		ob_end_clean();
-
 		echo $out;
 
 	}//end _doInitialise()
@@ -703,7 +738,7 @@ class Asset_Map
 	* @access private
 	*/
 	function _getAssetInfo($assetid, $linkid=0)
-	{
+	{// TODO write tests for this function
 		$attrs = Array();
 		if (FALSE !== strpos($assetid, ':')) {
 			// This is a shadow asset so we need to get info differently
@@ -739,93 +774,108 @@ class Asset_Map
 		} else {
 
 			// Not a shadow asset
+			try {
+				$db = DAL::getDb();
+				$bind_vars = Array();
 
-			$db = $GLOBALS['SQ_SYSTEM']->db;
-			$assetid = (String)$assetid;
-			$userid_cond = '';
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
-				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-					$userids[$k] = $db->quote((String)$userids[$k]);
+				$assetid = (String)$assetid;
+				$userid_cond = '';
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+					$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+					array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
+					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
+						$userids[$k] = $db->quote((String)$userids[$k]);
+					}
+					$userids_str = implode(',', $userids);
+					$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
+					$userid_cond .= ' OR r.userid IN ('.$userids_str.')) ';
 				}
-				$userids_str = implode(',', $userids);
-				$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
-				$userid_cond .= ' OR r.userid IN ('.$userids_str.')) ';
+
+				// work out what protocol we are using to get here so we can get the most
+				// relevent protocol for the preview urls
+				$primary_protocol = current_protocol();
+				if (empty($primary_protocol)) {
+					$primary_protocol = 'http';
+				}
+
+				if ($primary_protocol == 'http') {
+					$secondary_protocol = 'https';
+				} else {
+					$secondary_protocol = 'http';
+				}
+
+				$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status, u.url,
+							l.link_type, l.sort_order, ap.path,
+							(CASE u.'.$primary_protocol.'
+								WHEN '.$db->quote('1').' THEN :primary_protocol'.'
+								WHEN '.$db->quote('0').' THEN :secondary_protocol'.'
+							END) AS protocol';
+				$bind_vars['primary_protocol'] = $primary_protocol;
+				$bind_vars['secondary_protocol'] = $secondary_protocol;
+
+				if (!empty($userid_cond)) {
+					$sql .= ', p.permission AS accessible';
+				} else {
+					$sql .= ', 1 AS accessible';
+				}
+
+				$u_where = 'l.assetid = u.assetid';
+				$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
+
+				$ap_where = 'l.assetid = ap.assetid';
+				$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
+
+				$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l';
+				if (!empty($userid_cond)) {
+					$sql .= ' LEFT JOIN (SELECT p.assetid, p.permission
+											FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
+											INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
+											LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
+											WHERE l2.assetid = :assetid'.' AND (';
+					$bind_vars['assetid'] = $assetid;
+					$sql = $sql.'(
+								(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
+										p.userid <> '.$db->quote($public_userid).'
+										OR r.userid <> '.$db->quote($public_userid).'
+										OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+										OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									)
+								)
+								OR	(
+										p.permission > :SQ_PERMISSION_READ AND p.granted = 1
+									)
+							) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
+					$bind_vars['SQ_PERMISSION_READ'] = SQ_PERMISSION_READ;
+				}
+
+				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
+				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
+
+				$where = ' l.assetid = :assetid';
+				$bind_vars['assetid'] = $assetid;
+				if ($linkid && is_numeric($linkid)) {
+					$where .= ' AND l.linkid = :linkid';
+					$bind_vars['linkid'] = $linkid;
+				}
+
+				$where .=' AND l.link_type <= :SQ_LINK_TYPE_2';
+				$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
+
+				$sql .= ' '.$where;
+
+				$query = $db->prepare($sql);
+				foreach ($bind_vars as $key => $value) {
+					$query->bindValue(':'.$key, $value);
+				}
+				$assets = DAL::executePdoAll($query);
+				$asset = (!empty($assets)) ? $assets[0] : Array();
+
+			} catch (Exception $e) {
+				throw new Exception('Failed to get Asset Info due to database error: '.$e->getMessage());
 			}
-
-			// work out what protocol we are using to get here so we can get the most
-			// relevent protocol for the preview urls
-			$primary_protocol = current_protocol();
-			if (empty($primary_protocol)) {
-				$primary_protocol = 'http';
-			}
-
-			if ($primary_protocol == 'http') {
-				$secondary_protocol = 'https';
-			} else {
-				$secondary_protocol = 'http';
-			}
-
-			$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status, u.url,
-						l.link_type, l.sort_order, ap.path,
-						(CASE u.'.$primary_protocol.'
-							WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
-							WHEN '.$db->quote('0').' THEN '.$db->quote($secondary_protocol).'
-						END) AS protocol';
-			if (!empty($userid_cond)) {
-				$sql .= ', p.permission AS accessible';
-			} else {
-				$sql .= ', 1 AS accessible';
-			}
-
-			$u_where = 'l.assetid = u.assetid';
-			$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
-
-			$ap_where = 'l.assetid = ap.assetid';
-			$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
-
-			$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l';
-			if (!empty($userid_cond)) {
-			$sql .= ' LEFT JOIN (SELECT p.assetid, p.permission
-									FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
-									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
-									LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
-									WHERE l2.assetid = '.$db->quote($assetid).' AND (';
-			$sql = $sql.'(
-						(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
-								p.userid <> '.$db->quote($public_userid).'
-								OR r.userid <> '.$db->quote($public_userid).'
-								OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-								OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-							)
-						)
-						OR	(
-								p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
-							)
-					) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
-			}
-
-			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
-			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
-
-			$where = ' l.assetid = '.$db->quoteSmart((string)$assetid);
-			if ($linkid && is_numeric($linkid)) {
-				$where .= ' AND l.linkid = '.$db->quoteSmart((string)$linkid);
-			}
-
-			$where .=' AND l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
-
-			$sql .= ' '.$where;
-
-			$asset = $db->getRow($sql);
-			if (!assert_valid_db_result($asset, '', TRUE, FALSE)) {
-				return $this->_error('AMAP0004', $assetid, $asset->getMessage());
-			}
-
 			// if the asset map did a request for an asset that no longer exists
 			// then return nothing
 			if (empty($asset)) return Array();
@@ -848,15 +898,25 @@ class Asset_Map
 			if (implements_interface($asset['type_code'], 'bridge')) {
 				$num_kids = -1;
 			} else {
-				$sql = 'SELECT COUNT(*)
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
-				$where = 'majorid = '.$db->quoteSmart($assetid).' AND link_type <= '.$db->quoteSmart(SQ_LINK_TYPE_2);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
+				try {
+					$bind_vars = Array();
+					$sql = 'SELECT COUNT(*)
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
+					$where = 'majorid = :assetid AND link_type <= :SQ_LINK_TYPE_2';
+					$bind_vars['assetid'] = $assetid;
+					$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
+					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
+					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
-				$num_kids = $db->getOne($sql.' '.$where);
-				if (!assert_valid_db_result($num_kids, '', TRUE, FALSE)) {
-					return $this->_error('AMAP0004', $assetid, $num_kids->getMessage());
+					$query = $db->prepare($sql.' '.$where);
+					foreach ($bind_vars as $key => $value) {
+						$query->bindValue(':'.$key, $value);
+					}
+					$results = DAL::executePdoOne($query);
+					$num_kids = (!empty($results)) ? $results : 0;
+
+				} catch (Exception $e) {
+					throw new Exception('Failed to get kids number due to database error: '.$e->getMessage());
 				}
 			}
 
@@ -902,93 +962,121 @@ class Asset_Map
 	*/
 	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		$assetid = (String)$assetid;
-		$userid_cond = '';
-		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-			array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
-			for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-				$userids[$k] = $db->quote((String)$userids[$k]);
+		$db_result = Array();
+		$num_kids = NULL;
+		try {
+			$db = MatrixDAL::getDb();
+			$assetid = (String)$assetid;
+			$userid_cond = '';
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+				array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
+				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
+					$userids[$k] = $db->quote((String)$userids[$k]);
+				}
+				$userids_str = implode(',', $userids);
+				$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
+				$userid_cond .= ' OR r.userid IN ('.$userids_str.'))';
 			}
-			$userids_str = implode(',', $userids);
-			$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
-			$userid_cond .= ' OR r.userid IN ('.$userids_str.'))';
-		}
 
-		// work out what protocol we are using to get here so we can get the most
-		// relevent protocol for the preview urls
-		$primary_protocol = current_protocol();
-		if (empty($primary_protocol)) {
-			$primary_protocol = 'http';
-		}
+			// work out what protocol we are using to get here so we can get the most
+			// relevent protocol for the preview urls
+			$primary_protocol = current_protocol();
+			if (empty($primary_protocol)) {
+				$primary_protocol = 'http';
+			}
 
-		if ($primary_protocol == 'http') {
-			$secondary_protocol = 'https';
-		} else {
-			$secondary_protocol = 'http';
-		}
+			if ($primary_protocol == 'http') {
+				$secondary_protocol = 'https';
+			} else {
+				$secondary_protocol = 'http';
+			}
 
-		$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status,
-					l.linkid, l.link_type, l.sort_order, ap.path, u.url,
-					(CASE u.'.$primary_protocol.'
-						WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
-						WHEN '.$db->quote('0').' THEN '.$db->quote($secondary_protocol).'
-					END) AS protocol';
-		if (!empty($userid_cond)) {
-			$sql .= ', p.permission AS accessible';
-		} else {
-			$sql .= ', 1 AS accessible';
-		}
+			$bind_vars = Array();
+			$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status,
+						l.linkid, l.link_type, l.sort_order, ap.path, u.url,
+						(CASE u.'.$primary_protocol.'
+							WHEN 1 THEN :primary_protocol
+							WHEN 0 THEN :secondary_protocol
+						END) AS protocol';
+			$bind_vars['primary_protocol'] = $primary_protocol;
+			$bind_vars['secondary_protocol'] = $secondary_protocol;
 
-		$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l';
+			if (!empty($userid_cond)) {
+				$sql .= ', p.permission AS accessible';
+			} else {
+				$sql .= ', 1 AS accessible';
+			}
 
-		if (!empty($userid_cond)) {
-			$sql .= ' LEFT JOIN (SELECT p.assetid, p.permission
-									FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
-									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
-									LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
-									WHERE l2.majorid = '.$db->quote($assetid).' AND (';
-			$sql = $sql.'(
-						(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
-								p.userid <> '.$db->quote($public_userid).'
-								OR r.userid <> '.$db->quote($public_userid).'
-								OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-								OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+			$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l';
+
+			if (!empty($userid_cond)) {
+				$sql .= ' LEFT JOIN (SELECT p.assetid, p.permission
+										FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
+										INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
+										LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
+										WHERE l2.majorid = :assetid AND (';
+				$bind_vars['assetid'] = $assetid;
+				$sql = $sql.'(
+							(p.permission = :SQ_PERMISSION_READ AND (
+									p.userid <> :public_userid
+									OR r.userid <> :public_userid
+									OR (p.userid = :public_userid AND p.granted = 1)
+									OR (r.userid = :public_userid AND p.granted = 1)
+								)
 							)
-						)
-						OR	(
-								p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
-							)
-					) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
-		}
+							OR	(
+									p.permission > :SQ_PERMISSION_READ AND p.granted = 1
+								)
+						) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
+				$bind_vars['SQ_PERMISSION_READ'] = SQ_PERMISSION_READ;
+				$bind_vars['public_userid'] = $public_userid;
+			}
 
-		$u_where = 'l.assetid = u.assetid';
-		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
-		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where;
+			$u_where = 'l.assetid = u.assetid';
+			$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
+			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where;
 
-		$ap_where = 'l.assetid = ap.assetid';
-		$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
-		$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
+			$ap_where = 'l.assetid = ap.assetid';
+			$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
+			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
 
-		$where = 'l.majorid = '.$db->quote($assetid);
-		if ($dependants_only) {
-			$where .= ' AND l.is_dependant='.$db->quote('1');
-		}
-		$where .= ' AND
-					l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
+			$where = 'l.majorid = :assetid';
+			$bind_vars['assetid'] = $assetid;
+			if ($dependants_only) {
+				$where .= ' AND l.is_dependant = 1';
+			}
+			$where .= ' AND
+						l.link_type <= :SQ_LINK_TYPE_2';
+			$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
-		$sql .= ' '.$where;
-		$sql .= ' ORDER BY sort_order';
+			$sql .= ' '.$where;
+			$sql .= ' ORDER BY sort_order';
 
-		$db_result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
+			//$db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
+			$query = $db->prepare($sql);
+			foreach($bind_vars as $key => $value) {
+				$query->bindValue(':'.$key, $value);
+			}
+			$db_result_php4 = MatrixDAL::executePdoAssoc($query);
+			foreach ($db_result_php4 as $key => $value) {
+					$db_result[$value['assetid']] = Array();
+					$db_result[$value['assetid']][0] = Array();
+					foreach ($value as $key1 => $value1) {
+						if ($key1 == 'assetid') continue;
+						$db_result[$value['assetid']][0][$key1] = $value1;
+					}
+			}
 
-		if (!assert_valid_db_result($db_result, '', TRUE, FALSE)) {
-			return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
+			//if (!assert_valid_db_result($db_result, '', TRUE, FALSE)) {
+			//	return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
+			//}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get BLABLA due to database error: '.$e->getMessage());
 		}
 
 		// create the result array to be a single (assetid => asset_data)
@@ -1009,25 +1097,39 @@ class Asset_Map
 			}
 		}
 		unset($db_result);
+		unset($bind_vars);
+		try {
+			$bind_vars = Array();
+			$sql = 'SELECT majorid, COUNT(*)
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
 
+			$sub_sql = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
+			$sub_where = 'majorid = :assetid';
+			$bind_vars['assetid'] = $assetid;
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'lnk_', 'WHERE', FALSE);
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ast_', 'WHERE', FALSE);
 
-		$sql = 'SELECT majorid, COUNT(*)
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
+			$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= :SQ_LINK_TYPE_2';
+			$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
 
-		$sub_sql = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
-		$sub_where = 'majorid = '.$db->quoteSmart($assetid);
-		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'lnk_', 'WHERE', FALSE);
-		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ast_', 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', FALSE);
+			$where .= ' GROUP BY majorid ';
 
-		$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= '.$db->quote(SQ_LINK_TYPE_2);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', FALSE);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', FALSE);
-		$where .= ' GROUP BY majorid ';
-
-		$num_kids = $db->getAssoc($sql.' '.$where, FALSE, Array(), DB_FETCHMODE_DEFAULT, FALSE);
-
-		if (!assert_valid_db_result($num_kids, '', TRUE, FALSE)) {
-			return $this->_error('AMAP0005', $assetid, $num_kids->getMessage());
+			//$num_kids = $db->getAssoc($sql.' '.$where, FALSE, Array(), DB_FETCHMODE_DEFAULT, FALSE);
+			$query2 = $db->prepare($sql.' '.$where);
+			foreach($bind_vars as $key => $value) {
+				$query2->bindValue(':'.$key, $value);
+			}
+			$db_result_php4 = MatrixDAL::executePdoAssoc($query2);
+			if (!empty($db_result_php4))
+			{
+				foreach ($db_result_php4 as $key => $value) {
+					$num_kids[$value['majorid']] = $value['count'];
+				}
+			}
+		} catch (Exception $e) {
+			throw new Exception('Failed to BLABLA due to database error: '.$e->getMessage());
 		}
 
 		// gather links for shadowed assets - only if asset descends from a bridge
@@ -1169,7 +1271,12 @@ class Asset_Map
 
 			$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
-			$root->addChild('asset', '', $attrs);
+
+			$tmp_node = $root->addChild('asset');
+			foreach ($attrs as $key => $value) {
+				if (strlen($value) == 0)  $tmp_node->addAttribute($key, ' ');
+				else $tmp_node->addAttribute($key, $value);
+			}
 		}//end foreach
 
 	}//end _getChildAssets()
@@ -1237,16 +1344,40 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
-
-		if (!count($input->root->children)) {
-			$this->_error('AMAP0006');
-			return;
+		if (!count((array)$input->children())) {
+			throw new Exception('Failed to get the assets due to an empty XML');
 		}
 
-		$output = new XML_Tree();
-		$root = $output->addRoot('assets', '');
+		$output = simplexml_load_string('<xml></xml>');
+		$root = $output->addChild('assets');
+		//$output = new XML_Tree();
+		//$root = $output->addRoot('assets', '');
 
-		for ($i = 0; $i < count($input->root->children); $i++) {
+		// go through the kids and add them to the $root
+		foreach ($input->children() as $k => $v) {
+
+			// get all the attribute values
+			$tmp_info = Array();
+			foreach ($v->attributes() as $a => $b) {
+				$tmp_info[$a] = (string)$b;
+			}
+
+			if (empty($tmp_info['assetid'])) continue;
+
+			// get the information about the asset
+			$info = $this->_getAssetInfo(urldecode($tmp_info['assetid']), urldecode($tmp_info['linkid']));
+
+			// create a new node and fill out the attributes
+			$tmp_node = $root->addChild('asset');
+			foreach ($info as $info_k => $info_v) {
+				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, ' ');
+				else $tmp_node->addAttribute($info_k, $info_v);
+			}
+
+			// add the children to the newly created node
+			$this->_getChildAssets($tmp_node, $tmp_info['assetid'], FALSE, $tmp_info['start'], $tmp_info['limit']);
+		}
+		/*for ($i = 0; $i < count($input->root->children); $i++) {
 			$node = $input->root->children[$i];
 			if (empty($node->attributes['assetid'])) continue;
 			$assetid = $node->attributes['assetid'];
@@ -1256,9 +1387,9 @@ class Asset_Map
 			$info = $this->_getAssetInfo(urldecode($assetid), urldecode($linkid));
 			$child = $root->addChild('asset', '', $info);
 			$this->_getChildAssets($child, urldecode($assetid), FALSE, $start, $limit);
-		}
+		} */
 
-		$this->_send($output);
+		$this->_send($root);
 
 	}//end _getAssets()
 
