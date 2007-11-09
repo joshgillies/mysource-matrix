@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.15 2007/02/05 05:39:05 colivar Exp $
+* $Id: history.inc,v 1.16 2007/11/09 01:32:28 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -48,13 +48,13 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 
 	// note that we dont prep this query for rollback select
 	// because we are selecting directly from the rollback table
-	$sql = 'SELECT sq_eff_from AS efrom, sq_eff_to AS eto, version
-			FROM sq_rb_ast
-			WHERE assetid = '.$db->quote($owner->id).'
-			ORDER BY sq_eff_from DESC';
-
-	$result = $db->getAll($sql);
-	assert_valid_db_result($result);
+	try {
+		$assetid = $owner->id;
+		$bind_vars['assetid'] = $assetid;
+		$result = MatrixDAL::executeAll('core', 'selectHistoryForPainting', $bind_vars);
+	} catch (Exception $e) {
+		throw new Exception('Failed to get asset history due to database error: '.$e->getMessage());
+	}
 
 	$o->openSection(translate('version_history'));
 		$o->openRaw();

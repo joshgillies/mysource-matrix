@@ -253,6 +253,30 @@
 	</query>
 
 
+	<!-- //		ASSET STATIC SCREENS		// -->
+
+	<!-- //		history.inc		// -->
+
+	<query id="selectHistoryForPainting">
+		<!-- Return the history info of an asset from the rollback table -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_rb_ast" column="sq_eff_from">efrom</field>
+					<field table="sq_rb_ast" column="sq_eff_to">eto</field>
+					<field table="sq_rb_ast" column="version" />
+				</fields>
+				<from>
+					<table>sq_rb_ast</table>
+				</from>
+				<where>
+					<equal table="sq_rb_ast" column="assetid">:assetid</equal>
+				</where>
+				<order-by direction="DESC">
+					<field table="sq_rb_ast" column="sq_eff_from" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+
 </queries>
-
-
