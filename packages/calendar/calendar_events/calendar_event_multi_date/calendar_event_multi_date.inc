@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.1 2007/07/15 23:15:38 mbrydon Exp $
+* $Id: calendar_event_multi_date.inc,v 1.1.2.1 2007/11/09 05:42:57 mbrydon Exp $
 *
 */
 
@@ -21,11 +21,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Multi-Date Calendar Event
 *
 * Purpose
-* 		Allows multiple Single and Recurring Calendar instances to be combined under one event 
+* 		Allows multiple Single and Recurring Calendar instances to be combined under one event
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -238,8 +238,8 @@ class Calendar_Event_Multi_Date extends Asset
 	/**
 	* Register an asset to be created as a child of this asset when this asset is created
 	*
-	* @param object &$asset The child asset that needs creating
-	* @param array  $link   Details of the link to create the child with
+	* @param object	&$asset	The child asset that needs creating
+	* @param array	$link	Details of the link to create the child with
 	*
 	* @return void
 	* @access public

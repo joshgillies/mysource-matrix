@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_management.inc,v 1.1 2007/07/15 23:15:38 mbrydon Exp $
+* $Id: calendar_event_multi_date_management.inc,v 1.1.2.1 2007/11/09 05:42:57 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -53,17 +53,17 @@ class Calendar_Event_Multi_Date_Management extends Asset_Management
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'Summary of the dates',
-											'is_admin'		=> false,
+											'is_admin'		=> FALSE,
 										   ),
 					  );
 
 
 		$this->components = Array(
-								'name'      => Array (
+								'name'		=> Array(
 												'description'		=> 'Name',
 												'default_weighting'	=> '1',
 											   ),
-								'contents'  => Array (
+								'contents'	=> Array(
 												'description'		=> 'Contents (HTML stripped)',
 												'default_weighting'	=> '1',
 											   ),
@@ -75,8 +75,8 @@ class Calendar_Event_Multi_Date_Management extends Asset_Management
 	/**
 	* Get the web-accessible files used by this asset type
 	*
-	* @access public
 	* @return array
+	* @access public
 	*/
 	function _getFileList()
 	{
