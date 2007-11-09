@@ -205,10 +205,10 @@
 					<field>wflow</field>
 				</fields>
 				<values>
-					<value field="assetid">:assetid</value>
-					<value field="schemaid">:schemaid</value>
-					<value field="granted">:granted</value>
-					<value field="wflow">:wflow</value>
+					<value column="assetid">:assetid</value>
+					<value column="schemaid">:schemaid</value>
+					<value column="granted">:granted</value>
+					<value column="wflow">:wflow</value>
 				</values>
 			</insert>
 		</primary>
@@ -221,11 +221,11 @@
 					<field>granted</field>
 				</fields>
 				<values>
-					<value field="granted">:granted</value>
+					<value column="granted">:granted</value>
 				</values>
 				<where>
-					<equal table="sq_ast_wflow" field="assetid">:assetid</equal>
-					<equal table="sq_ast_wflow" field="schemaid">:schemaid</equal>
+					<equal table="sq_ast_wflow" column="assetid">:assetid</equal>
+					<equal table="sq_ast_wflow" column="schemaid">:schemaid</equal>
 				</where>
 			</update>
 		</primary>
@@ -235,8 +235,8 @@
 		<primary>
 			<delete>
 				<where>
-					<equal table="sq_ast_wflow" field="assetid">:assetid</equal>
-					<equal table="sq_ast_wflow" field="schemaid">:schemaid</equal>
+					<equal table="sq_ast_wflow" column="assetid">:assetid</equal>
+					<equal table="sq_ast_wflow" column="schemaid">:schemaid</equal>
 				</where>
 			</delete>
 		</primary>
@@ -246,7 +246,7 @@
 		<primary>
 			<delete>
 				<where>
-					<equal table="sq_ast_wflow" field="assetid">:assetid</equal>
+					<equal table="sq_ast_wflow" column="assetid">:assetid</equal>
 				</where>
 			</delete>
 		</primary>
