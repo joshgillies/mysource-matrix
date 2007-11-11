@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.35 2007/11/11 22:50:59 lwright Exp $
+* $Id: system_config_edit_interface.inc,v 1.36 2007/11/11 22:53:17 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -58,7 +58,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			exit();
 		}
 
-		$o = &$backend->out;
+		$o = $backend->out;
 
 		$o->setHeading(translate('system_configuration'), sq_get_icon($o->filesPath('/images/icons/header/system_config.png'), 20, 20, 'System Configuration'));
         $o->setPageTitle(translate('system_configuration'));
@@ -212,7 +212,7 @@ class System_Config_Edit_Interface extends MySource_Object
 					if (!empty($lock)) {
 						// this asset is currently locked
 						// so display message to the user
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
 						$now = time();
 
@@ -322,7 +322,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			}
 
 			if ($changed_vars) {
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$ms->openQueue();
 				foreach ($changed_vars as $var_name => $values) {
 					$msg_reps = Array(
