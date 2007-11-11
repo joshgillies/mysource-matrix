@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.596 2007/11/08 03:28:30 bshkara Exp $
+* $Id: asset_manager.inc,v 1.597 2007/11/11 22:06:45 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.596 $
+* @version $Revision: 1.597 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -365,7 +365,7 @@ class Asset_Manager extends MySource_Object
 
 			try {
 				$query = $db->prepare($sql);
-				$query->bindValue('type_code', $type_code);
+				$query->bindValue(':type_code', $type_code);
 				$result = MatrixDAL::executePdoGroupedAssoc($query);
 			} catch (Exception $e) {
 				if (is_array($type_code)) {
@@ -1774,9 +1774,9 @@ class Asset_Manager extends MySource_Object
 							'name'				=> $source->name.' - clone',
 							'short_name'		=> $source->short_name.' - clone',
 							'status'			=> SQ_STATUS_UNDER_CONSTRUCTION,
-							'created'			=> db_extras_todate(DAL::getDbType(), ts_iso8601($now)),
+							'created'			=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
 							'created_userid'	=> $userid,
-							'updated'			=> db_extras_todate(DAL::getDbType(), ts_iso8601($now)),
+							'updated'			=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
 							'updated_userid'	=> $userid,
 						 );
 			$query = MatrixDAL::executeOne('core', 'insertClonedAsset', $bind_vars);
@@ -2601,14 +2601,14 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l';
 
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
+		$where = 'l.'.$side_of_link.'id = :assetid';
 
 		if (!is_null($other_assetid)) {
 			$where .= ' AND l.'.$other_side.'id  = '.$db->quote($other_assetid);
 		}
 
 		if (!is_null($link_types)) {
-			$where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
+			$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
 		}
 
 		if (!is_null($value)) {
@@ -2618,8 +2618,13 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 
-		$result = $db->getAll($sql.$where);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':assetid', $assetid);
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get shadow link for this assetid: '.$assetid.' due to database error: '.$e->getMessage());
+		}
 
 		if (!$force_array && count($result) == 1) {
 			return $result[0];
@@ -2677,8 +2682,15 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 
-		$result = $db->getRow($sql.$where);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':linkid', (int) $linkid);
+			$query->bindValue(':assetid', $assetid);
+			$query->bindValue(':side_of_link', $side_of_link);
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get link details for asset with assetid: '.$assetid.' due to database error: '.$e->getMessage());
+		}
 
 		return $result;
 
@@ -5010,17 +5022,20 @@ class Asset_Manager extends MySource_Object
 			//// Check for exclusive ////
 			$sql = 'SELECT majorid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk ';
-			$where = 'minorid = '.$db->quote($minor->id).'
-						AND '.db_extras_bitand($db, 'link_type', SQ_SC_LINK_SIGNIFICANT).' > 0';
+			$where = 'minorid = :minor_id
+						AND '.db_extras_bitand(MatrixDAL::getDbType(), 'link_type', SQ_SC_LINK_SIGNIFICANT).' > 0';
 			if (!$exclusive) {
 				$where .= ' AND is_exclusive = '.$db->quote('1');
 			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql .= $where;
 
-			$current_majorid = $db->getOne($sql);
-			if (!assert_valid_db_result($current_majorid, '', TRUE, FALSE)) {
-				return translate('database_error');
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':minor_id', $minor->id);
+				$current_majorid = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to check that minor asset doesnt already have an exclusive link due to database error: '.$e->getMessage());
 			}
 
 			if ($current_majorid) {
