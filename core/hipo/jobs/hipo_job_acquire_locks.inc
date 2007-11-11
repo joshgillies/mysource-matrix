@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.20 2007/11/01 04:44:18 rong Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.21 2007/11/11 22:38:37 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -269,7 +269,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			$this->_running_vars['forceably_acquire'] = (bool) $this->_running_vars['forceably_acquire'];
 		}
 		
-		return call_user_func(Array(parent, 'prepare'));		
+		return call_user_func(Array('parent', 'prepare'));
 
 	}//end prepare()
 
