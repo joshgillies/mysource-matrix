@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.34 2007/04/03 03:59:16 mbrydon Exp $
+* $Id: system_config_edit_interface.inc,v 1.35 2007/11/11 22:50:59 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -119,39 +119,39 @@ class System_Config_Edit_Interface extends MySource_Object
 				switch ($active_screen) {
 					case 'system_config' :
 						require_once SQ_INCLUDE_PATH.'/system_config.inc';
-						$config =& new System_Config();
+						$config = new System_Config();
 					break;
 					case 'squiz_server_config' :
 						require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
-						$config =& new Squiz_Server_Config();
+						$config = new Squiz_Server_Config();
 					break;
 					case 'apache_config' :
 						require_once SQ_INCLUDE_PATH.'/apache_config.inc';
-						$config =& new Apache_Config();
+						$config = new Apache_Config();
 					break;
 					case 'hipo_config' :
 						require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
-						$config =& new HIPO_Config();
+						$config = new HIPO_Config();
 					break;
 					case 'external_tools_config' :
 						require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
-						$config =& new External_Tools_Config();
+						$config = new External_Tools_Config();
 					break;
 					case 'password_rules_config' :
 						require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
-						$config =& new Password_Rules_Config();
+						$config = new Password_Rules_Config();
 					break;
 					case 'session_rules_config' :
 						require_once SQ_INCLUDE_PATH.'/session_rules_config.inc';
-						$config =& new Session_Rules_Config();
+						$config = new Session_Rules_Config();
 					break;
 					case 'messaging_service_config' :
 						require_once SQ_INCLUDE_PATH.'/messaging_service_config.inc';
-						$config =& new Messaging_Service_Config();
+						$config = new Messaging_Service_Config();
 					break;
 					case 'proxy_authentication_config' :
 						require_once SQ_INCLUDE_PATH.'/proxy_authentication_config.inc';
-						$config =& new Proxy_Authentication_Config();
+						$config = new Proxy_Authentication_Config();
 					break;
 
 				}// end switch
@@ -256,7 +256,7 @@ class System_Config_Edit_Interface extends MySource_Object
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
-				$prefs =& new $pref_name();
+				$prefs = new $pref_name();
 				$prefs->paintBackend($o, $have_lock);
 			$o->closeSection();
 		}
@@ -294,7 +294,7 @@ class System_Config_Edit_Interface extends MySource_Object
 				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
 				require_once $path;
 				$pref_name = $type_code.'_Prefs';
-				$prefs =& new $pref_name();
+				$prefs = new $pref_name();
 				if ($prefs->processBackend($o, $have_lock)) {
 					$new_preferences[$type_code] = $prefs->pref_vars;
 				}
