@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.35 2007/02/16 04:25:34 rhoward Exp $
+* $Id: option_list.inc,v 1.36 2007/11/11 23:15:23 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -211,7 +211,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		foreach ($value as $i => $v) {
 			if ($v == '') unset($value[$i]);
 		}
-		$this->processed = $this->setValue(implode($this->delimiter,$value));
+
+		$processed_value = implode($this->delimiter,$value);
+		$this->processed = $this->setValue($processed_value);
 
 	}//end process()
 
