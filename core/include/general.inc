@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.180 2007/11/07 01:38:46 hnguyen Exp $
+* $Id: general.inc,v 1.181 2007/11/11 23:01:40 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix
 */
 
@@ -69,7 +69,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			echo "-> E_STRICT * {$err_msg} ({$err_file}:{$err_line})\n";
 			return;
 		}*/
-/*
+
 		if ($err_no !== E_STRICT) {
 			echo "\n";
 			echo 'backtrace:'."\n";
@@ -79,7 +79,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			if (isset($bt_entry['file']) && !(($err_file == $bt_entry['file']) && ($err_line == $bt_entry['line']))) {
 				if ($err_no !== E_STRICT) echo '-> '.array_get_index($bt_entry, 'file', '?').':'.array_get_index($bt_entry, 'line', '?')."\n";
 			}
-		}*/
+		}
 
 		if (count($bt) > 1) {
 			$real_bt_index = 0;

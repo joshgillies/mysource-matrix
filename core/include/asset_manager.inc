@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.598 2007/11/11 22:54:11 bshkara Exp $
+* $Id: asset_manager.inc,v 1.599 2007/11/11 23:01:40 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.598 $
+* @version $Revision: 1.599 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4295,7 +4295,7 @@ class Asset_Manager extends MySource_Object
 				$sql .= ' LIMIT 1';	// TODO: will be set in queries.xml instead
 				$query = $db->prepare($sql);
 				$query->bindValue(':minorid', $major->id);
-				$existing_treeid = MatrixDAL::executePdoOne($query);
+				$existing_treeid = stream_get_contents(MatrixDAL::executePdoOne($query));
 			} catch (Exception $e) {
 				throw new Exception('Unable to determine if major asset "'.$major->name.'" (#'.$major->id.') in new link is linked somewhere else, due to database error: '.$e->getMessage());
 			}
@@ -4304,7 +4304,7 @@ class Asset_Manager extends MySource_Object
 
 			// if we aren't linked anywhere we can't be linked to, sorry
 			// NOTE: exception to rule is root folder
-			if ((string) $existing_treeid == '-' && get_class($major) != 'root_folder') {
+			if ((string) $existing_treeid == '-' && get_class($major) != 'Root_Folder') {
 				trigger_localised_error('SYS0240', E_USER_WARNING, $major->name, $major->id);
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); //end db3
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); //end db2
@@ -4481,6 +4481,9 @@ class Asset_Manager extends MySource_Object
 						$query->bindValue(':length', SQ_CONF_ASSET_TREE_SIZE);
 					}
 					$last_treeid = MatrixDAL::executePdoOne($query);
+					if (!empty($last_treeid)) {
+						$last_treeid = stream_get_contents($last_treeid);
+					}
 				} catch (Exception $e) {
 					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
 				}
@@ -4491,7 +4494,7 @@ class Asset_Manager extends MySource_Object
 				// do a straight inert and break the loop as we are done
 				if (empty($last_treeid)) {
 					$sql = 'asset_link_treeid_convert(\'0\', \'1\', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-					$free_treeid = db_get_function_result(MatrixDAL::getDbType(), $sql);
+					$free_treeid = stream_get_contents(db_get_function_result(MatrixDAL::getDbType(), $sql));
 
 					$new_treeid = ($existing_treeid == '-') ? $free_treeid : $existing_treeid.$free_treeid;
 
@@ -4527,11 +4530,11 @@ class Asset_Manager extends MySource_Object
 
 				// otherwise we could find a treeid on this branch, so increment it
 				// to get a free childid that we can use for our new link
-				$sql = 'asset_link_treeid_convert('.$db->quoteSmart($last_treeid).', '.$db->quoteSmart('0').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-				$child_num = db_get_function_result(MatrixDAL::getDbType(), $sql);
+				$sql = 'asset_link_treeid_convert('.$db->quote($last_treeid).', '.$db->quote('0').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
+				$child_num = stream_get_contents(db_get_function_result(MatrixDAL::getDbType(), $sql));
 
-				$sql = 'asset_link_treeid_convert('.$db->quoteSmart((string) ($child_num + 1)).', '.$db->quoteSmart('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
-				$free_treeid = db_get_function_result(MatrixDAL::getDbType(), $sql);
+				$sql = 'asset_link_treeid_convert('.$db->quote((string) ($child_num + 1)).', '.$db->quote('1').', '.SQ_CONF_ASSET_TREE_BASE.', '.SQ_CONF_ASSET_TREE_SIZE.')';
+				$free_treeid = stream_get_contents(db_get_function_result(MatrixDAL::getDbType(), $sql));
 
 				// we want to try and reserve a treeid for us that we have just converted
 				// from the last treeid on the branch. So what we are doing here is inserting
@@ -4584,6 +4587,9 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':treeid_wildcard', $treeid.$free_treeid.':%');
 					$query->bindValue(':treeid', $treeid.$free_treeid);
 					$found_treeid = MatrixDAL::executePdoOne($query);
+					if (!empty($found_treeid)) {
+						$found_treeid = stream_get_contents($found_treeid);
+					}
 				} catch (Exception $e) {
 					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
 				}
@@ -4647,7 +4653,7 @@ class Asset_Manager extends MySource_Object
 				try {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
-					$query->bindValue(':linkid', $treeid.$free_treeid.':'.$linkid);
+					$query->bindValue(':treeid', $treeid.$free_treeid.':'.$linkid);
 					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
