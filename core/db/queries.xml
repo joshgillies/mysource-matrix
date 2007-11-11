@@ -190,6 +190,25 @@
 		</primary>
 	</query>
 
+    <query id="getHipoJobByCodeName">
+                <!-- Return all the locks for specified user -->
+                <primary>
+                        <select>
+                                <fields>
+                                        <field table="sq_hipo_job" column="job_type" />
+                                        <field table="sq_hipo_job" column="hipo_vars" />
+                                </fields>
+                                <from>
+                                        <table>sq_hipo_job</table>
+                                </from>
+                                <where>
+                                        <equal table="sq_hipo_job" column="code_name">:code_name</equal>
+                                </where>
+                        </select>
+                </primary>
+
+    </query>
+
 
 <!-- //        WORKFLOW        // -->
 
