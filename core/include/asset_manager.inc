@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.597 2007/11/11 22:06:45 bshkara Exp $
+* $Id: asset_manager.inc,v 1.598 2007/11/11 22:54:11 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.597 $
+* @version $Revision: 1.598 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2836,7 +2836,7 @@ class Asset_Manager extends MySource_Object
 
 			$prepared_otherids = Array();
 			foreach ($other_assetid as $id) {
-				$prepared_otherids[] = $db->quote($id);
+				$prepared_otherids[] = $id;
 			}
 
 			$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
@@ -2845,24 +2845,31 @@ class Asset_Manager extends MySource_Object
 						   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
-			$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
-					  AND l.'.$other_side.'id  IN ( '.implode(',', $prepared_otherids).')';
+		//	$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
+		//			  AND l.'.$other_side.'id  IN ( '.implode(',', $prepared_otherids).')';
+			$where = 'l.'.$side_of_link.'id = :assetid
+					  AND l.'.$other_side.'id  IN (:prepared_otherids)';
 
 			if (!is_null($link_types)) {
-				$where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
+				//$where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
+				$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
 			}
 			if (!is_null($value)) {
 				if (empty($value)) {
-					$where .= ' AND (l.value = '.$db->quote($value).' OR l.value IS NULL)';
+					//$where .= ' AND (l.value = '.$db->quote($value).' OR l.value IS NULL)';
+					$where .= ' AND (l.value = :value OR l.value IS NULL)';
 				} else {
-					$where .= ' AND l.value = '.$db->quote($value);
+					//$where .= ' AND l.value = '.$db->quote($value);
+					$where .= ' AND l.value = :value';
 				}
 			}
 			if (!is_null($dependant)) {
-				$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+				//$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
+				$where .= ' AND l.is_dependant = :dependant';
 			}
 			if (!is_null($exclusive)) {
-				$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+				//$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+				$where .= ' AND l.is_exclusive = :exclusive';
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
@@ -2871,8 +2878,18 @@ class Asset_Manager extends MySource_Object
 			$sql .= $where.'
 					ORDER BY l.sort_order';
 
-			$result = $db->getAll($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':assetid', $assetid);
+				$query->bindValue(':prepared_otherids', implode(',', $prepared_otherids));
+				$query->bindValue(':value', $value);
+				$query->bindValue(':dependant', ($dependant) ? '1' : '0');
+				$query->bindValue(':exclusive', ($exclusive) ? '1' : '0');
+				$result = MatrixDAL::executePdoAssoc($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get link for assetid: '.$assetid.' due to database error: '.$e->getMessage());
+			}
+
 		} else {
 			$result = Array();
 		}
