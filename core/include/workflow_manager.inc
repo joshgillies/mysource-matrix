@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.110 2007/11/08 05:18:05 lwright Exp $
+* $Id: workflow_manager.inc,v 1.111 2007/11/12 22:16:39 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -142,7 +142,7 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		if (!is_a($schema, 'workflow_schema')) {
+		if (!($schema instanceof Workflow_Schema)) {
 			trigger_localised_error('SYS0173', E_USER_WARNING, $schema->name, $schemaid);
 			return FALSE;
 		}
@@ -387,7 +387,7 @@ class Workflow_Manager extends MySource_Object
 				return FALSE;
 			}
 
-			if (!is_a($schema, 'workflow_schema')) {
+			if (!($schema instanceof Workflow_Schema)) {
 				trigger_localised_error('SYS0176', E_USER_WARNING, $schema->name, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -796,9 +796,9 @@ class Workflow_Manager extends MySource_Object
 							$can_publish_cond = Array();
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 							if ($asset->id) {
-								if (is_a($asset, 'user')) {
+								if ($asset instanceof 'user') {
 									$can_publish_cond[] = $asset->id;
-								} else if (is_a($asset, 'user_group')) {
+								} else if ($asset instanceof 'user_group') {
 									$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
 								}
 							}
@@ -1188,7 +1188,7 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		if (!is_a($schema, 'workflow_schema')) {
+		if (!($schema instanceof Workflow_Schema)) {
 			trigger_localised_error('SYS0154', E_USER_WARNING, $schema->name, $schemaid);
 			return FALSE;
 		}
