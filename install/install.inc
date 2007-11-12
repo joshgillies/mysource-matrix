@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.73 2007/11/12 03:31:22 hnguyen Exp $
+* $Id: install.inc,v 1.74 2007/11/12 04:16:12 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1523,7 +1523,6 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 			throw new Exception('Skipping translation for code "'.$source_code.'"; it has multiple occurrences of unpositioned "%s" - use positioned replacements (eg. "%1$s") when you have more than one');
 		} else {
 
-			echo '$extracted_strings['.$source_code.'] = '.$translation."\n";
 			$extracted_strings[$source_code] = $translation;
 
 			if ($string_node->hasAttribute('js') && ($string_node->getAttribute('js') == 1)) {
