@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.604 2007/11/12 05:57:06 bshkara Exp $
+* $Id: asset_manager.inc,v 1.605 2007/11/12 23:03:47 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.604 $
+* @version $Revision: 1.605 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3566,8 +3566,11 @@ class Asset_Manager extends MySource_Object
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
-		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
-		assert_valid_db_result($result);
+		try  {
+			$result = MatrixDAL::executeSqlAssoc(implode(' ', $query));
+		} catch (Exception $e) {
+			throw new Exception('Unable to get children for asset: '.$assetid.' due to database error: '.$e->getMessage());
+		}
 
 		if (!is_null($sort_by)) {
 			$children = Array();
@@ -7910,13 +7913,16 @@ class Asset_Manager extends MySource_Object
 			$where = 'l.minorid = '.$db->quote($asset->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$limit = ' LIMIT 1'; // TODO
 			$sql = 'SELECT t.treeid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-					'.$where;
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
+					'.$where.$limit;
 
-			$treeid = $db->getOne($sql);
-			assert_valid_db_result($treeid);
+			try {
+				$treeid = MatrixDAL::executeSqlOne($sql);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get treeid for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+			}
 
 			$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
