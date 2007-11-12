@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.32 2007/10/26 04:13:22 bshkara Exp $
+* $Id: linking.inc,v 1.33 2007/11/12 00:02:33 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -53,7 +53,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 	$o->openField('');
 	echo '<i>'.translate('link_types_note').'</i><br/><br/>';
 
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = MatrixDAL::getDb();
 	$assetids = Array();
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 
@@ -87,10 +87,11 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
 				';
+
 		foreach ($assetid_keys as $assetid_key_index => $assetid_key) {
-			$assetid_keys[$assetid_key_index] = $db->quoteSmart((string) $assetid_key);
+			$assetid_keys[$assetid_key_index] = $db->quote((string) $assetid_key);
 		}
-		$where = 'cl.minorid IN ('.implode(', ', $assetid_keys).')
+		$where = ' where cl.minorid IN ('.implode(', ', $assetid_keys).')
 				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
 				  AND pt.treeid <= ct.treeid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
@@ -101,9 +102,20 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 
 		$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
-		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+		try {
+			$query = $db->prepare($sql);
+			$results = MatrixDAL::executePdoAssoc($query);
 
-		assert_valid_db_result($result);
+			// convert stream into data (resource -> tree id)
+			// TODO: handle stream conversion at a higher level
+			$result = Array();
+			foreach ($results as $tmp) {
+				$tmp['parent_treeid'] = stream_get_contents($tmp['parent_treeid']);
+				$result[stream_get_contents($tmp['our_treeid'])][] = $tmp;
+			}
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
 	}//end else
 
 	foreach ($asset_links as $link_data) {
@@ -298,7 +310,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 	$o->closeSection();
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
-	$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
+	$fl_jobs = call_user_func(Array('Cron_Job_Future_Lineage', 'getActiveJobs'), Array(&$owner));
 
 	if (!empty($fl_jobs)) {
 		$created = TRUE;
@@ -371,7 +383,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 		// use the cron Job future linage asset to print the
 		// create new link screen
 
-		$fl_create =& new Cron_Job_Future_Lineage();
+		$fl_create = new Cron_Job_Future_Lineage();
 		$fl_create->setAssetInLink($owner, 'minor');
 		$edit_fns_create = $fl_create->getEditFns();
 		$edit_fns_create->paintInLineBackendCreate($fl_create, $o, $prefix.'_create');
@@ -449,13 +461,13 @@ function processLinking(&$owner, &$o, &$ei)
 		$o->addOnLoad('if (window.top.frames["sq_sidenav"] && window.top.frames["sq_sidenav"].reload_asset) window.top.frames["sq_sidenav"].reload_asset("'.$owner->id.'");');
 	}
 
-	$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 	if (!is_null($cron_mgr)) {
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
 
 		if (!empty($_POST[$prefix.'_remove_fl'])) {
-			$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
+			$fl_jobs = Cron_Job_Future_Lineage::getActiveJobs($owner);
 			if (!empty($fl_jobs)) {
 
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
@@ -476,7 +488,7 @@ function processLinking(&$owner, &$o, &$ei)
 			}// end if
 		}// end if
 
-		$fl =& new Cron_Job_Future_Lineage();
+		$fl = new Cron_Job_Future_Lineage();
 		$edit_fns = $fl->getEditFns();
 		if ($fl->setAssetInLink($owner, 'minor') && $edit_fns->processInLineBackend($fl, $o, $prefix.'_new_fl')) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -492,7 +504,7 @@ function processLinking(&$owner, &$o, &$ei)
 
 	}//end if
 
-	$fl_create =& new Cron_Job_Future_Lineage();
+	$fl_create = new Cron_Job_Future_Lineage();
 	$edit_fns_create = $fl_create->getEditFns();
 	$fl_create->setAssetInLink($owner, 'minor');
 
