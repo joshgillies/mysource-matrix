@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.602 2007/11/12 04:41:17 lwright Exp $
+* $Id: asset_manager.inc,v 1.603 2007/11/12 04:53:05 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.602 $
+* @version $Revision: 1.603 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3320,15 +3320,7 @@ class Asset_Manager extends MySource_Object
 
 		try {
 			$query = $db->prepare($sql);
-			$results = MatrixDAL::executePdoAssoc($query);
-
-			// convert stream into data (resource -> tree id)
-			// TODO: handle stream conversion at a higher level
-			$result = Array();
-			foreach ($results as $tmp) {
-				$tmp['parent_treeid'] = stream_get_contents($tmp['parent_treeid']);
-				$result[stream_get_contents($tmp['our_treeid'])][] = $tmp;
-			}
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw $e;
 		}

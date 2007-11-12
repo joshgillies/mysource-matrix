@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.33 2007/11/12 00:02:33 rong Exp $
+* $Id: linking.inc,v 1.34 2007/11/12 04:53:06 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 
@@ -104,15 +104,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 
 		try {
 			$query = $db->prepare($sql);
-			$results = MatrixDAL::executePdoAssoc($query);
-
-			// convert stream into data (resource -> tree id)
-			// TODO: handle stream conversion at a higher level
-			$result = Array();
-			foreach ($results as $tmp) {
-				$tmp['parent_treeid'] = stream_get_contents($tmp['parent_treeid']);
-				$result[stream_get_contents($tmp['our_treeid'])][] = $tmp;
-			}
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
 		}
