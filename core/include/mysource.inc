@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.238 2007/11/07 01:37:49 hnguyen Exp $
+* $Id: mysource.inc,v 1.239 2007/11/12 04:41:17 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.238 $
+* @version $Revision: 1.239 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2165,6 +2165,9 @@ class MySource
 
 				// Return field names in lowercase
 				$db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+
+				// String-ify all fetches
+				$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, TRUE);
 
 			} catch (Exception $e) {
 				throw new Exception('Could not create database connection: '.$e->getMessage());
