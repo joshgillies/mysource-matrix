@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.600 2007/11/12 00:12:38 bshkara Exp $
+* $Id: asset_manager.inc,v 1.601 2007/11/12 00:25:29 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.600 $
+* @version $Revision: 1.601 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3318,8 +3318,20 @@ class Asset_Manager extends MySource_Object
 		$sql .= $where.'
 				ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
-		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$results = MatrixDAL::executePdoAssoc($query);
+
+			// convert stream into data (resource -> tree id)
+			// TODO: handle stream conversion at a higher level
+			$result = Array();
+			foreach ($results as $tmp) {
+				$tmp['parent_treeid'] = stream_get_contents($tmp['parent_treeid']);
+				$result[stream_get_contents($tmp['our_treeid'])][] = $tmp;
+			}
+		} catch (Exception $e) {
+			throw $e;
+		}
 
 		$asset_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 
