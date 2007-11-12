@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.64 2007/11/09 04:14:38 rong Exp $
+* $Id: messaging_service.inc,v 1.65 2007/11/12 23:05:31 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -777,7 +777,7 @@ class Messaging_Service extends MySource_Object
 		$term = ($type=='text') ? "\n" : '<br />';
 
 		$header = '';
-		if (!is_null($user) && is_object($user) && is_a($user, 'user')) {
+		if (!is_null($user) && is_object($user) && ($user instanceof User)) {
 			$header = $user->name.','.$term.$term;
 		} else if (is_string($user) && $user != '') {
 			$header = $user.','.$term.$term;
