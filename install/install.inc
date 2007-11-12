@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.72 2007/11/08 01:28:48 lwright Exp $
+* $Id: install.inc,v 1.73 2007/11/12 03:31:22 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1511,7 +1511,7 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 		}
 
 		$source_code = $string_node->getAttribute($key_attribute);
-		$translation = html_entity_decode($string_node->nodeValue);
+		$translation = $string_node->nodeValue;
 
 		// have it already been set in this file?
 		if (isset($extracted_strings[$source_code])) {
