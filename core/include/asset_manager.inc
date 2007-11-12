@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.599 2007/11/11 23:01:40 lwright Exp $
+* $Id: asset_manager.inc,v 1.600 2007/11/12 00:12:38 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.599 $
+* @version $Revision: 1.600 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3026,16 +3026,16 @@ class Asset_Manager extends MySource_Object
 								'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a on l.majorid = a.assetid';
 
-					$where = 'minorid = '.$db->quoteSmart($assetid);
+					$where = 'minorid = '.$db->quote($assetid);
 					if ($type_code) {
 						if ($strict_type_code) {
-							$where .= ' AND a.type_code = '.$db->quoteSmart($type_code);
+							$where .= ' AND a.type_code = '.$db->quote($type_code);
 						} else {
 							$type_ancestors = $this->getTypeDescendants($type_code);
 							foreach ($type_ancestors as $i => $v) {
-								$type_ancestors[$i] = $db->quoteSmart($v);
+								$type_ancestors[$i] = $db->quote($v);
 							}
-							$type_ancestors[] = $db->quoteSmart($type_code);
+							$type_ancestors[] = $db->quote($type_code);
 							$where .= ' AND a.type_code IN ('.implode(', ', $type_ancestors).')';
 						}
 					}
@@ -3153,7 +3153,7 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT SUBSTR(t.treeid, '.$db->quoteSmart((int) strlen($treeid) + 1).') as treeid,
+			$sql = 'SELECT SUBSTR(t.treeid, '.$db->quote((int) strlen($treeid) + 1).') as treeid,
 							((LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').') as lvl,
 							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.is_dependant, l.is_exclusive
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
@@ -3237,7 +3237,7 @@ class Asset_Manager extends MySource_Object
 						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.majorid = a.assetid';
 
-			$where = 'l.minorid = '.$db->quoteSmart($assetid);
+			$where = 'l.minorid = '.$db->quote($assetid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
@@ -3278,7 +3278,7 @@ class Asset_Manager extends MySource_Object
 		// asset's immediate parents.
 
 		$sub_sql   = 'SELECT l.majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
-		$sub_where = 'l.minorid = '.$db->quoteSmart((string) $assetid);
+		$sub_where = 'l.minorid = '.$db->quote((string) $assetid);
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql  .= $sub_where;
 
@@ -3290,16 +3290,16 @@ class Asset_Manager extends MySource_Object
 			if (is_array($from_treeid)) {
 				$treeid_bits = Array();
 				foreach ($from_treeid as $ftid) {
-					$treeid_bits[] = '(pt.treeid LIKE '.$db->quoteSmart((string)$ftid.'%').')';
+					$treeid_bits[] = '(pt.treeid LIKE '.$db->quote((string)$ftid.'%').')';
 				}
 				$where .= ' AND ('.implode(' OR ', $treeid_bits).')';
 			} else {
-				$where .= ' AND pt.treeid LIKE '.$db->quoteSmart((string) $from_treeid.'%');
+				$where .= ' AND pt.treeid LIKE '.$db->quote((string) $from_treeid.'%');
 			}
 		}
 
-		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quoteSmart((string) $assetid).', '.
-		$db->quoteSmart((int) SQ_CONF_ASSET_TREE_SIZE).')';
+		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_lineage_treeids('.$db->quote((string) $assetid).', '.
+		$db->quote((int) SQ_CONF_ASSET_TREE_SIZE).')';
 
 		if (MatrixDAL::getDbType() === 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
@@ -3428,7 +3428,7 @@ class Asset_Manager extends MySource_Object
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 
-			$where = 'sl.minorid = '.$db->quoteSmart($assetid);
+			$where = 'sl.minorid = '.$db->quote($assetid);
 
 			if (!empty($type_code)) {
 				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
@@ -3436,13 +3436,13 @@ class Asset_Manager extends MySource_Object
 				$type_codes_quoted = Array();
 				$all_type_codes = is_array($type_code) ? $type_code : Array($type_code);
 				foreach ($all_type_codes as $tc) {
-					$type_codes_quoted[] = $db->quoteSmart($tc);
+					$type_codes_quoted[] = $db->quote($tc);
 				}
 				if (!$strict_type_code) {
 					foreach ($all_type_codes as $tc) {
 						$ancestors = $this->getTypeDescendants($tc);
 						foreach ($ancestors as $ancestor) {
-							$type_codes_quoted[] = $db->quoteSmart($ancestor);
+							$type_codes_quoted[] = $db->quote($ancestor);
 						}
 					}
 				}
@@ -3755,7 +3755,7 @@ class Asset_Manager extends MySource_Object
 
 		foreach ($majorids as $id) {
 			if (empty($tree_data[$id])) {
-				$majorids_str .= $db->quoteSmart((string) $id).',';
+				$majorids_str .= $db->quote((string) $id).',';
 			} else {
 				foreach ($tree_data[$id] as $row) {
 					$assetids[] = (int) $row['assetid'];
@@ -3767,7 +3767,7 @@ class Asset_Manager extends MySource_Object
 
 		$exclude_list_before_quote = $exclude_list;
 		for (reset($exclude_list); NULL !== ($k = key($exclude_list)); next($exclude_list)) {
-			$exclude_list[$k] = $db->quoteSmart((string) $exclude_list[$k]);
+			$exclude_list[$k] = $db->quote((string) $exclude_list[$k]);
 		}
 
 		$exclude_str = implode(',', $exclude_list);
@@ -3780,9 +3780,9 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = $db->quoteSmart($this->getSystemAssetid('public_user'));
+				$userids[] = $db->quote($this->getSystemAssetid('public_user'));
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quoteSmart((string)$userids[$i]);
+					$userids[$i] = $db->quote((string)$userids[$i]);
 				}
 				$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 			}
@@ -3911,7 +3911,7 @@ class Asset_Manager extends MySource_Object
 			$assetids_set = Array();
 			foreach ($assetid as $this_assetid) {
 				assert_valid_assetid($this_assetid);
-				$assetids_set[] = $db->quoteSmart((string)$this_assetid);
+				$assetids_set[] = $db->quote((string)$this_assetid);
 			}
 		} else {
 			assert_valid_assetid($assetid);
@@ -3930,7 +3930,7 @@ class Asset_Manager extends MySource_Object
 			$sql = 'SELECT t.treeid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid';
-			$where  = 'WHERE l.minorid = '.$db->quoteSmart($assetid);
+			$where  = 'WHERE l.minorid = '.$db->quote($assetid);
 		}
 
 		$where .= '	AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
@@ -3970,7 +3970,7 @@ class Asset_Manager extends MySource_Object
 		} else {
 			$sql = 'SELECT treeid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ';
-			$where = 'WHERE linkid  = '.$db->quoteSmart($linkid);
+			$where = 'WHERE linkid  = '.$db->quote($linkid);
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -4957,13 +4957,13 @@ class Asset_Manager extends MySource_Object
 					)
 					VALUES
 					(
-						'.$db->quoteSmart($linkid).',
-						'.$db->quoteSmart($major->id).',
-						'.$db->quoteSmart($minor->id).',
-						'.$db->quoteSmart($link_type).',
-						'.$db->quoteSmart($value).',
+						'.$db->quote($linkid).',
+						'.$db->quote($major->id).',
+						'.$db->quote($minor->id).',
+						'.$db->quote($link_type).',
+						'.$db->quote($value).',
 						'.db_extras_todate($db, ts_iso8601(time())).',
-						'.$db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserid()).'
+						'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserid()).'
 					)';
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
@@ -5375,7 +5375,7 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 
-			$set_clauses['link_type'] = $db->quoteSmart($link_type);
+			$set_clauses['link_type'] = $db->quote($link_type);
 
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$msg_reps = Array(
@@ -5395,7 +5395,7 @@ class Asset_Manager extends MySource_Object
 
 		if ($value_changed) {
 
-			$set_clauses['value'] = $db->quoteSmart($value);
+			$set_clauses['value'] = $db->quote($value);
 
 			$msg_reps = Array(
 							'linkid'			=> $linkid,
@@ -5426,7 +5426,7 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = MatrixDAL::getDb();
 
-			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$set_clauses['updated_userid']	= $db->quote($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
 
 			$set_array = Array();
@@ -5442,8 +5442,8 @@ class Asset_Manager extends MySource_Object
 					SET
 						'.$set_string.'
 					WHERE
-							linkid	= '.$db->quoteSmart($linkid).'
-						AND	majorid	= '.$db->quoteSmart($major->id);
+							linkid	= '.$db->quote($linkid).'
+						AND	majorid	= '.$db->quote($major->id);
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 
@@ -5457,7 +5457,7 @@ class Asset_Manager extends MySource_Object
 						FROM
 							sq_ast_lnk
 						WHERE
-							majorid = '.$db->quoteSmart($major->id);
+							majorid = '.$db->quote($major->id);
 
 				$row = $db->getRow($sql);
 				assert_valid_db_result($row);
@@ -5467,7 +5467,7 @@ class Asset_Manager extends MySource_Object
 					$sort_order = $max;
 				}
 
-				$set_clauses['sort_order'] = $db->quoteSmart($sort_order);
+				$set_clauses['sort_order'] = $db->quote($sort_order);
 
 				$msg_reps = Array(
 								'linkid'			=> $linkid,
@@ -5492,7 +5492,7 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = MatrixDAL::getDb();
 
-			$set_clauses['updated_userid']	= $db->quoteSmart($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$set_clauses['updated_userid']	= $db->quote($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
 
 			$set_array = Array();
@@ -5508,8 +5508,8 @@ class Asset_Manager extends MySource_Object
 					SET
 						'.$set_string.'
 					WHERE
-							linkid	= '.$db->quoteSmart($linkid).'
-						AND	majorid	= '.$db->quoteSmart($major->id);
+							linkid	= '.$db->quote($linkid).'
+						AND	majorid	= '.$db->quote($major->id);
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
@@ -5523,10 +5523,10 @@ class Asset_Manager extends MySource_Object
 							SET
 								sort_order = sort_order + 1
 							WHERE
-									majorid		= '.$db->quoteSmart($major->id).'
-								AND	linkid		<> '.$db->quoteSmart($linkid).'
-								AND	sort_order	>= '.$db->quoteSmart($sort_order).'
-								AND	sort_order	<= '.$db->quoteSmart($link['sort_order']);
+									majorid		= '.$db->quote($major->id).'
+								AND	linkid		<> '.$db->quote($linkid).'
+								AND	sort_order	>= '.$db->quote($sort_order).'
+								AND	sort_order	<= '.$db->quote($link['sort_order']);
 
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
@@ -5538,10 +5538,10 @@ class Asset_Manager extends MySource_Object
 							SET
 								sort_order = sort_order - 1
 							WHERE
-									majorid		= '.$db->quoteSmart($major->id).'
-								AND	linkid		<> '.$db->quoteSmart($linkid).'
-								AND	sort_order	>= '.$db->quoteSmart($link['sort_order']).'
-								AND	sort_order	<= '.$db->quoteSmart($sort_order);
+									majorid		= '.$db->quote($major->id).'
+								AND	linkid		<> '.$db->quote($linkid).'
+								AND	sort_order	>= '.$db->quote($link['sort_order']).'
+								AND	sort_order	<= '.$db->quote($sort_order);
 
 					$result = $db->query($sql);
 					assert_valid_db_result($result);
@@ -5671,7 +5671,7 @@ class Asset_Manager extends MySource_Object
 			$sql = 'DELETE FROM
 						sq_shdw_ast_lnk
 					WHERE
-						linkid = '.$db->quoteSmart($linkid);
+						linkid = '.$db->quote($linkid);
 
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
@@ -5772,12 +5772,12 @@ class Asset_Manager extends MySource_Object
 								THEN
 									SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.')
 								ELSE
-									'.$db->quoteSmart('-').'
+									'.$db->quote('-').'
 								END
 							FROM
 								sq_ast_lnk_tree t
 							WHERE
-								t.linkid = '.$db->quoteSmart($linkid).'
+								t.linkid = '.$db->quote($linkid).'
 						)';
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -5798,8 +5798,8 @@ class Asset_Manager extends MySource_Object
 							FROM
 								sq_ast_lnk_tree pt, sq_ast_lnk_tree ct
 							WHERE
-									pt.linkid	= '.$db->quoteSmart($linkid).'
-								AND	(ct.treeid	LIKE pt.treeid || '.$db->quoteSmart('%').'
+									pt.linkid	= '.$db->quote($linkid).'
+								AND	(ct.treeid	LIKE pt.treeid || '.$db->quote('%').'
 								OR ct.treeid	= pt.treeid)
 						)';
 
@@ -5816,8 +5816,8 @@ class Asset_Manager extends MySource_Object
 				SET
 					sort_order = sort_order - 1
 				WHERE
-						majorid		= '.$db->quoteSmart($major->id).'
-					AND	sort_order	> '.$db->quoteSmart($link['sort_order']);
+						majorid		= '.$db->quote($major->id).'
+					AND	sort_order	> '.$db->quote($link['sort_order']);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
@@ -5828,8 +5828,8 @@ class Asset_Manager extends MySource_Object
 		$sql = 'DELETE FROM
 					sq_ast_lnk
 				WHERE
-						linkid	= '.$db->quoteSmart($linkid).'
-					AND	majorid	= '.$db->quoteSmart($major->id);
+						linkid	= '.$db->quote($linkid).'
+					AND	majorid	= '.$db->quote($major->id);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
@@ -6025,8 +6025,8 @@ class Asset_Manager extends MySource_Object
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
 					WHERE
 						(
-							(link_type = '.$db->quoteSmart(SQ_LINK_TYPE_3).' OR link_type = '.$db->quoteSmart(SQ_LINK_NOTICE).') OR
-							(status >= '.$db->quoteSmart(SQ_STATUS_LIVE).')
+							(link_type = '.$db->quote(SQ_LINK_TYPE_3).' OR link_type = '.$db->quote(SQ_LINK_NOTICE).') OR
+							(status >= '.$db->quote(SQ_STATUS_LIVE).')
 						) AND
 						assetid IN ('.implode(' ', $children).')';
 			$result = $db->getAll($sql);
@@ -6480,9 +6480,9 @@ class Asset_Manager extends MySource_Object
 		$sql = 'DELETE FROM
 					sq_ast_perm
 				WHERE
-						userid		= '.$db->quoteSmart($userid).'
-					AND	permission	= '.$db->quoteSmart($permission).'
-					AND	assetid		= '.$db->quoteSmart($assetid);
+						userid		= '.$db->quote($userid).'
+					AND	permission	= '.$db->quote($permission).'
+					AND	assetid		= '.$db->quote($assetid);
 
 
 		$result = $db->query($sql);
@@ -6690,9 +6690,9 @@ class Asset_Manager extends MySource_Object
 				)
 				VALUES
 				(
-					'.$db->quoteSmart($assetid).',
-					'.$db->quoteSmart($roleid).',
-					'.$db->quoteSmart($userid).'
+					'.$db->quote($assetid).',
+					'.$db->quote($roleid).',
+					'.$db->quote($userid).'
 				)';
 
 		$result = $db->query($sql);
@@ -6731,15 +6731,15 @@ class Asset_Manager extends MySource_Object
 
 		$where_and = '';
 		if (!is_null($roleid)) {
-			$where_and .= ' AND roleid = '.$db->quoteSmart((string) $roleid);
+			$where_and .= ' AND roleid = '.$db->quote((string) $roleid);
 		}
 
 		if (!is_null($userid)) {
-			$where_and .= ' AND userid = '.$db->quoteSmart((string) $userid);
+			$where_and .= ' AND userid = '.$db->quote((string) $userid);
 		}
 
 		$sql = 'DELETE FROM sq_ast_role
-				WHERE assetid = '.$db->quoteSmart($assetid).$where_and;
+				WHERE assetid = '.$db->quote($assetid).$where_and;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -7296,8 +7296,8 @@ class Asset_Manager extends MySource_Object
 					JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid';
 		}
 		$sql .= '
-				WHERE lv.name '.$name_operator.' '.$db->quoteSmart($lookup_name_exp).'
-					AND lv.value '.$value_operator.' '.$db->quoteSmart($lookup_value_exp);
+				WHERE lv.name '.$name_operator.' '.$db->quote($lookup_name_exp).'
+					AND lv.value '.$value_operator.' '.$db->quote($lookup_value_exp);
 		if ($include_treeids) {
 			$res = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
 		} else {
@@ -7924,18 +7924,18 @@ class Asset_Manager extends MySource_Object
 
 			if (!is_null($min_depth) && !is_null($max_depth)) {
 				if ($min_depth < $max_depth) {
-					$where .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE)
-									.' AND '.$db->quoteSmart(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+					$where .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quote(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE)
+									.' AND '.$db->quote(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
 				} else if ($min_depth > $max_depth) {
-					$where .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quoteSmart(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE)
-									.' AND '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+					$where .= ' AND LENGTH(t.treeid) BETWEEN '.$db->quote(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE)
+									.' AND '.$db->quote(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
 				} else {
-					$where .= ' AND LENGTH(t.treeid) = '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+					$where .= ' AND LENGTH(t.treeid) = '.$db->quote(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
 				}
 			} else if (!is_null($min_depth)) {
-				$where .= ' AND LENGTH(t.treeid) >= '.$db->quoteSmart(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+				$where .= ' AND LENGTH(t.treeid) >= '.$db->quote(strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
 			} else if (!is_null($max_depth)) {
-				$where .= ' AND LENGTH(t.treeid) <= '.$db->quoteSmart(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+				$where .= ' AND LENGTH(t.treeid) <= '.$db->quote(strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
@@ -7944,7 +7944,7 @@ class Asset_Manager extends MySource_Object
 
 			// adding a new filter 'link value'
 			if ($link_value_wanted !== NULL) {
-				$where .= ' and l.value= '.$db->quoteSmart($link_value_wanted).' ';
+				$where .= ' and l.value= '.$db->quote($link_value_wanted).' ';
 			}
 		}//end else
 
@@ -7958,7 +7958,7 @@ class Asset_Manager extends MySource_Object
 		}
 		$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 		// if all shadow asset children should be returned
-		$union_where = 'sl.majorid = '.$db->quoteSmart($asset->id);
+		$union_where = 'sl.majorid = '.$db->quote($asset->id);
 		if (!$direct_shadows_only) {
 			$union_where = '(('.$union_where.") or (sl.majorid IN (SELECT DISTINCT l.minorid $from $where)))";
 		}
@@ -8370,14 +8370,14 @@ class Asset_Manager extends MySource_Object
 
 		// rearrange the snippets according to asset map sort order
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$majorids = Array($db->quoteSmart((string)$rootid));
+		$majorids = Array($db->quote((string)$rootid));
 		$parent = $this->getChildren($rootid, Array('bodycopy','folder'), TRUE);
 		foreach ($parent as $assetid => $type_code) {
-			$majorids[] = $db->quoteSmart((string)$assetid);
+			$majorids[] = $db->quote((string)$assetid);
 		}
 		$minorids = Array();
 		foreach ($containers as $assetid => $type_code) {
-			$minorids[] = $db->quoteSmart((string)$assetid);
+			$minorids[] = $db->quote((string)$assetid);
 		}
 		$sql = 'select
 					minorid
