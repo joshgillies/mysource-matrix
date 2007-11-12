@@ -444,11 +444,7 @@
 		</primary>
 	</query>
 
-<<<<<<< queries.xml
-</queries>
-=======
 	<!-- //     INTERNAL MESSAGE        // -->
-	
 	<query id="getMessageInfoByMessageId">
 		<!-- Return the a list of internal messages to appear on log screen.' -->
 		<primary>
@@ -476,4 +472,3 @@
 	</query>
 
 </queries>
->>>>>>> 1.10
