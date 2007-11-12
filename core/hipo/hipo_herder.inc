@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.90 2007/11/09 05:29:24 hnguyen Exp $
+* $Id: hipo_herder.inc,v 1.91 2007/11/12 00:16:40 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -936,24 +936,29 @@ class HIPO_Herder extends MySource_Object
 			$source_jobs = Array();
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			//$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 			$sql = 'SELECT source_code_name, code_name, job_type
 					FROM sq_hipo_job';
 
 			// regular users can only see own HIPO
 			if (!$hipo_admin) {
-				$sql .= ' WHERE userid = '.$db->quoteSmart($current_user_id);
+				$sql .= ' WHERE userid = :current_user_id';
 			}
-			$result = $db->query($sql);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':current_user_id', $current_user_id);
+				$result = MatrixDAL::executePdoAssoc($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get HIPO jobs for user: '.$current_user_id.' due to database error: '.$e->getMessage());
+			}
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			if (assert_valid_db_result($result)) {
-				while (DB_OK === $result->fetchInto($row)) {
-					$source_code_name = ($row['source_code_name'] == $row['code_name']) ? '' : $row['source_code_name'];
-					if (!isset($source_jobs[$source_code_name])) {
-						$source_jobs[$source_code_name] = Array();
-					}
-					$source_jobs[$source_code_name][$row['code_name']] = $row['job_type'];
+			foreach ($result as $key => $row) {
+				$source_code_name = ($row['source_code_name'] == $row['code_name']) ? '' : $row['source_code_name'];
+				if (!isset($source_jobs[$source_code_name])) {
+					$source_jobs[$source_code_name] = Array();
 				}
+				$source_jobs[$source_code_name][$row['code_name']] = $row['job_type'];
 			}
 
 			if (empty($source_jobs[''])) {
@@ -1079,7 +1084,7 @@ class HIPO_Herder extends MySource_Object
 			$o->openField('', 'new_line');
 
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-				$db = $GLOBALS['SQ_SYSTEM']->db;
+				$db = MatrixDAL::getDb();
 
 				$sql = 'SELECT code_name, source_code_name, job_type, userid, last_updated
 						FROM sq_hipo_job
@@ -1087,11 +1092,17 @@ class HIPO_Herder extends MySource_Object
 
 				// regular users can only see own HIPO
 				if (!$hipo_admin) {
-					$sql .= ' AND userid = '.$db->quoteSmart($current_user_id);
+					$sql .= ' AND userid = :current_user_id';
 				}
 
-				$orphaned_jobs = $db->getAssoc($sql);
-				assert_valid_db_result($orphaned_jobs);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':current_user_id', $current_user_id);
+					$orphaned_jobs = MatrixDAL::executePdoAssoc($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get orphaned jobs for user: '.$current_user_id.' due to database error: '.$e->getMessage());
+				}
+
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 				// no orphaned jobs, yay
