@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.77 2007/11/12 05:42:37 hnguyen Exp $
+* $Id: internal_message.inc,v 1.78 2007/11/12 05:57:56 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -390,9 +390,13 @@ class Internal_Message extends MySource_Object
 					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $body);
 
 					// log the internal message to the DB
-					$messageid = $db->nextId('sq_internal_msg');
-					assert_valid_db_result($messageid);
-
+					// TODO: replace with seqNextVal() in queries.xml
+					try {
+						$messageid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_internal_msg_seq\');');
+					} catch (Exception $e) {
+						throw new Exception("Unable to get the next messageid due to the following database error:".$e->getMessage());
+					}//end try catch
+			
 					try {
 						$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
 						$prepared->bindValue(':userto',     $userid,         PDO::PARAM_STR);
@@ -404,7 +408,7 @@ class Internal_Message extends MySource_Object
 						$prepared->bindValue(':status',     $this->status,   PDO::PARAM_STR);
 						$prepared->bindValue(':sent',       $this->sent,     PDO::PARAM_STR);
 						$prepared->bindValue(':parameters', $param_string,   PDO::PARAM_STR);
-						DAL::execPdoQuery($prepared, $values);
+						DAL::execPdoQuery($prepared);
 					} catch (Exception $e) {
 						throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
 					}
