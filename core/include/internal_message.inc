@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.76 2007/11/07 01:39:45 hnguyen Exp $
+* $Id: internal_message.inc,v 1.77 2007/11/12 05:42:37 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -526,7 +526,7 @@ class Internal_Message extends MySource_Object
 			}
 		}
 
-		if (!is_a($user, 'user')) {
+		if ($user instanceof User) {
 			return $lm->getInternalMessageBody($this->type, $tmpReplacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
 		}
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -628,9 +628,9 @@ class Internal_Message extends MySource_Object
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) continue;
 
-			if (is_a($asset, 'user_group')) {
+			if ($asset instanceof User_Group) {
 				$send_to = array_merge($send_to, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false)));
-			} else if (is_a($asset, 'user')) {
+			} else if ($asset instanceof User) {
 				$send_to[] = $assetid;
 			}
 		}
