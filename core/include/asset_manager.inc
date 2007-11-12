@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.603 2007/11/12 04:53:05 rong Exp $
+* $Id: asset_manager.inc,v 1.604 2007/11/12 05:57:06 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.603 $
+* @version $Revision: 1.604 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1757,7 +1757,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// TODO: replace with seqNextVal() in queries.xml
-		$assetid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast\');');
+		$assetid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_seq\');');
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
