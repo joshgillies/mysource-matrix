@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.602 2007/11/02 04:30:53 rong Exp $
+* $Id: asset.inc,v 1.603 2007/11/12 04:43:57 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.602 $
+* @version $Revision: 1.603 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -795,7 +795,7 @@ class Asset extends MySource_Object
 			$result = DAL::executePdoGroupedAssoc($query);
 
 			if (empty($result)) {
-				$this->vars = NULL;
+				$this->vars = Array();
 			} else {
 				$this->vars = $result;
 				foreach (array_keys($this->vars) as $name) {
@@ -803,6 +803,7 @@ class Asset extends MySource_Object
 					unset($this->vars[$name][0]);
 				}
 			}
+
 			unset($result);
 		} catch (Exception $e) {
 			throw new Exception('Unable to load variables of asset type "'.$type_code.'" due to database error: '.$e->getMessage());
