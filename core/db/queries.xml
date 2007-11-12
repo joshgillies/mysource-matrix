@@ -316,4 +316,32 @@
 		</primary>
 	</query>
 
+	<!-- //     INTERNAL MESSAGE        // -->
+	
+	<query id="getMessageInfoByMessageId">
+		<!-- Return the a list of internal messages to appear on log screen.' -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_internal_msg" column="msgid" />
+					<field table="sq_internal_msg" column="userto" />
+					<field table="sq_internal_msg" column="userfrom" />
+					<field table="sq_internal_msg" column="subject" />
+					<field table="sq_internal_msg" column="body" />
+					<field table="sq_internal_msg" column="type" />
+					<field table="sq_internal_msg" column="sent" />
+					<field table="sq_internal_msg" column="priority" />
+					<field table="sq_internal_msg" column="status" />
+					<field table="sq_internal_msg" column="parameters" />
+				</fields>
+				<from>
+					<table>sq_internal_msg</table>
+				</from>
+				<where>
+					<equal table="sq_internal_msg" column="msgid">:messageid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
 </queries>

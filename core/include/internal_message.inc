@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.78 2007/11/12 05:57:56 hnguyen Exp $
+* $Id: internal_message.inc,v 1.79 2007/11/12 23:28:12 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -119,15 +119,20 @@ class Internal_Message extends MySource_Object
 	function load($messageid)
 	{
 		if (!$messageid) return false;
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = 'SELECT
-					msgid, userto, userfrom, subject, body, type, sent, priority, status, parameters
-				FROM
-					sq_internal_msg WHERE msgid = '.$db->quoteSmart($messageid);
-
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'messageid'	=> $messageid, 
+						  );
+			$result_all	= MatrixDAL::executeAll('core', 'getMessageInfoByMessageId', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get message with messageid #'.$messageid.' due to the following database error:'.$e->getMessage());
+		}
+		$result = Array();
+		if (!empty($result_all)) {
+			$result	= $result_all[0];
+		}//end if
 
 		$this->id         = $result['msgid'];
 		$this->to         = Array($result['userto']);
