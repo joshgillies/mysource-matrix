@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.239 2007/11/12 04:41:17 lwright Exp $
+* $Id: mysource.inc,v 1.240 2007/11/12 22:12:47 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.240 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1317,7 +1317,7 @@ class MySource
 	public function loginUser(&$user)
 	{
 		if (is_null($user)) return FALSE;
-
+		
 		if (!$this->setCurrentUser($user)) return FALSE;
 
 		$old_session_id = session_id();
@@ -1695,7 +1695,7 @@ class MySource
 	{
 		if (is_null($user)) return $this->_user_is_root;
 		if (!$user->id) return FALSE;
-		if (get_class($user) == 'root_user') return TRUE;
+		if (get_class($user) == 'Root_user') return TRUE;
 		return FALSE;
 
 	}//end userRoot()
