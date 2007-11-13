@@ -10,18 +10,18 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.38 2007/01/30 00:20:30 colivar Exp $
+* $Id: details.inc,v 1.39 2007/11/13 04:29:29 colivar Exp $
 *
 */
 
-require_once 'XML/Tree.php';
+//require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -298,7 +298,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 							if ($cron_epoc > 0 && $cron_refresh > 0) {
 								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-								$fs =& new Cron_Job_Future_Status();
+								$fs = new Cron_Job_Future_Status();
 								$edit_fns = $fs->getEditFns();
 
 								if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
@@ -524,7 +524,7 @@ function processDetails(&$owner, &$o, &$ei)
 
 
 		if ($owner->writeAccess('')) {
-			$fs =& new Cron_Job_Future_Status();
+			$fs = new Cron_Job_Future_Status();
 			$edit_fns = $fs->getEditFns();
 			if ($fs->setAssetToUpdate($owner) && $edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
