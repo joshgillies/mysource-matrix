@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.45 2007/11/08 00:33:09 hnguyen Exp $
+* $Id: datetime_field.inc,v 1.46 2007/11/13 04:35:58 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -97,9 +97,9 @@ class DateTime_Field
 	*/
 	function DateTime_Field($prefix, &$value, &$parameters)
 	{
-		$this->prefix     =  $prefix;
-		$this->value      = $value;
-		$this->parameters = $parameters;
+		$this->prefix     =& $prefix;
+		$this->value      =& $value;
+		$this->parameters =& $parameters;
 
 	}//end constructor
 
@@ -114,7 +114,7 @@ class DateTime_Field
 	*/
 	function setValue(&$value)
 	{
-		$this->value = $value;
+		$this->value =& $value;
 
 	}//end setValue()
 
@@ -129,7 +129,7 @@ class DateTime_Field
 	*/
 	function setParameters(&$parameters)
 	{
-		$this->parameters = $parameters;
+		$this->parameters =& $parameters;
 
 	}//end setParameters()
 
