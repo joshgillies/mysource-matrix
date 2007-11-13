@@ -471,4 +471,22 @@
 		</primary>
 	</query>
 
+
+	<!-- //     MAPS        // -->
+	<query id="getPatchInfo">
+		<!-- Return the a list of internal messages to appear on log screen.' -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_patches" column="patchid" />
+					<field table="sq_patches" column="installed" />
+				</fields>
+				<from>
+					<table>sq_patches</table>
+				</from>
+			</select>
+		</primary>
+	</query>
+
+
 </queries>
