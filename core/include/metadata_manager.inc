@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.149 2007/10/29 22:15:37 lwright Exp $
+* $Id: metadata_manager.inc,v 1.150 2007/11/13 02:54:47 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -68,7 +68,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) continue;
-			if (!is_a($schema, 'metadata_schema')) continue;
+			if (!($schema instanceof Metadata_Schema)) continue;
 			$edit_fns = $schema->getEditFns();
 			if (!$edit_fns->requiredFieldsComplete($schema, $values)) {
 				return FALSE;
@@ -170,7 +170,7 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		if (!is_a($schema, 'metadata_schema')) {
+		if (!($schema instanceof Metadata_Schema)) {
 			trigger_localised_error('SYS0045', E_USER_WARNING, $schema->name, $schemaid);
 			return FALSE;
 		}
@@ -572,7 +572,7 @@ class Metadata_Manager extends MySource_Object
 				return $field_values;
 			}
 
-			if (!is_a($schema, 'metadata_schema')) {
+			if (!($schema instanceof Metadata_Schema)) {
 				trigger_localised_error('SYS0037', E_USER_WARNING, $schema->name, $schemaid);
 				return $field_values;
 			}
@@ -844,7 +844,7 @@ class Metadata_Manager extends MySource_Object
 				return FALSE;
 			}
 
-			if (!is_a($schema, 'metadata_schema')) {
+			if (!($schema instanceof Metadata_Schema)) {
 				trigger_localised_error('SYS0033', E_USER_WARNING, $schema->name, $schemaid);
 				return FALSE;
 			}
