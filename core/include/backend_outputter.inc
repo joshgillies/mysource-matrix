@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.155 2007/11/13 02:51:49 hnguyen Exp $
+* $Id: backend_outputter.inc,v 1.156 2007/11/13 04:30:43 hnguyen Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -601,12 +601,12 @@ class Backend_Outputter
 			if (empty($this->_section_stack)) {
 				$j = count($this->_contents);
 				$this->_contents[$j] = $init_arr;
-				$this->_section_stack[] = $this->_contents[$j];
+				$this->_section_stack[] =& $this->_contents[$j];
 			} else {
 				$i = count($this->_section_stack) - 1;
 				$j = count($this->_section_stack[$i]['areas']);
 				$this->_section_stack[$i]['areas'][$j] = $init_arr;
-				$this->_section_stack[] = $this->_section_stack[$i]['areas'][$j];
+				$this->_section_stack[] =& $this->_section_stack[$i]['areas'][$j];
 			}
 
 			return 'section_'.$this->_section_count;
@@ -746,7 +746,7 @@ class Backend_Outputter
 															'id_name'		=> $id_name,
 														   );
 
-			$this->_current_field = $this->_section_stack[$stack_i]['areas'][$i];
+			$this->_current_field =& $this->_section_stack[$stack_i]['areas'][$i];
 			ob_start();
 
 			return 'field_'.$this->_field_count;
