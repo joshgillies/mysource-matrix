@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.155 2007/10/30 23:07:38 hnguyen Exp $
+* $Id: search_manager.inc,v 1.156 2007/11/13 04:58:16 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1445,11 +1445,11 @@ class Search_Manager extends Asset
 
 					// Search by type code first; that way we will always find the
 					// closest asset type to what we are using
-					foreach ($type_hier as $type_code) {
+					foreach ($type_hier as $parent_type_code) {
 						foreach (array_keys($parents) as $parentid) {
 							if (in_array($parentid, array_keys($asset_tree_weightings))) {
 								if (isset($asset_tree_weightings[$parentid]['type_weights'])) {
-									if (in_array($type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
+									if (in_array($parent_type_code, array_keys($asset_tree_weightings[$parentid]['type_weights']))) {
 										$closest_parentid = $parentid;
 										break;
 									}
