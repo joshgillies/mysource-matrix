@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.9 2007/11/01 04:44:18 rong Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.10 2007/11/13 21:45:37 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -49,10 +49,8 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function paintConfig(&$o, $class)
+	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$write_access = $this->writeAccess();
-
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('edit_tag_threshold'));
 

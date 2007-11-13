@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.38 2007/11/01 04:44:18 rong Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.39 2007/11/13 21:45:37 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -49,10 +49,8 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function paintConfig(&$o, $class)
+	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$write_access = $this->writeAccess();
-
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('workflow_schemas_threshold'));
 

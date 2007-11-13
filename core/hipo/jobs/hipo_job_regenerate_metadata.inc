@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.33 2007/11/01 04:44:18 rong Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.34 2007/11/13 21:45:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -53,10 +53,8 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function paintConfig(&$o, $class)
+	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$write_access = $this->writeAccess();
-
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('metadata_regeneration_threshold'));
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.35 2007/10/29 22:27:02 lwright Exp $
+* $Id: hipo_config.inc,v 1.36 2007/11/13 21:45:34 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -272,8 +272,9 @@ class HIPO_Config extends Config
 						if (get_file_type($file) != 'inc') continue;
 						$type_code = substr($file, 0, strpos($file, '.'));
 
+						$write_access = $this->writeAccess();
 						if ($type_code) {
-							eval($type_code.'::paintConfig($o, $class);');
+							eval($type_code.'::paintConfig($o, $class, $write_access);');
 						}
 					}
 				}//end while

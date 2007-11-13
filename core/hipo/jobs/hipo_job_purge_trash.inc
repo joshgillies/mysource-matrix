@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.46 2007/11/01 04:44:18 rong Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.47 2007/11/13 21:45:37 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -57,10 +57,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function paintConfig(&$o, $class)
+	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$write_access = $this->writeAccess();
-
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('purge_trash_threshold'));
 
