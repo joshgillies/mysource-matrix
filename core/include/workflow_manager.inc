@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.111 2007/11/12 22:16:39 lwright Exp $
+* $Id: workflow_manager.inc,v 1.112 2007/11/13 04:26:39 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -796,9 +796,9 @@ class Workflow_Manager extends MySource_Object
 							$can_publish_cond = Array();
 							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 							if ($asset->id) {
-								if ($asset instanceof 'user') {
+								if ($asset instanceof User) {
 									$can_publish_cond[] = $asset->id;
-								} else if ($asset instanceof 'user_group') {
+								} else if ($asset instanceof User_Group) {
 									$can_publish_cond = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), FALSE));
 								}
 							}
