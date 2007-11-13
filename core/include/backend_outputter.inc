@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.154 2007/11/09 04:19:01 rong Exp $
+* $Id: backend_outputter.inc,v 1.155 2007/11/13 02:51:49 hnguyen Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -601,12 +601,12 @@ class Backend_Outputter
 			if (empty($this->_section_stack)) {
 				$j = count($this->_contents);
 				$this->_contents[$j] = $init_arr;
-				$this->_section_stack[] = &$this->_contents[$j];
+				$this->_section_stack[] = $this->_contents[$j];
 			} else {
 				$i = count($this->_section_stack) - 1;
 				$j = count($this->_section_stack[$i]['areas']);
 				$this->_section_stack[$i]['areas'][$j] = $init_arr;
-				$this->_section_stack[] = &$this->_section_stack[$i]['areas'][$j];
+				$this->_section_stack[] = $this->_section_stack[$i]['areas'][$j];
 			}
 
 			return 'section_'.$this->_section_count;
@@ -746,7 +746,7 @@ class Backend_Outputter
 															'id_name'		=> $id_name,
 														   );
 
-			$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
+			$this->_current_field = $this->_section_stack[$stack_i]['areas'][$i];
 			ob_start();
 
 			return 'field_'.$this->_field_count;
@@ -1640,7 +1640,7 @@ class Backend_Outputter
 	*/
 	function onDeleteLink(&$broadcaster, $event_data=Array())
 	{
-		if (!is_a($broadcaster, 'asset')) return;
+		if (!($broadcaster instanceof Asset)) return;
 		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
 			$this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
 			$this->_refreshing_assets[] = $broadcaster->id;
@@ -1660,7 +1660,7 @@ class Backend_Outputter
 	*/
 	function onAssetUpdate(&$broadcaster, $event_data=Array())
 	{
-		if (!is_a($broadcaster, 'asset')) return;
+		if (!($broadcaster instanceof Asset)) return;
 		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
 			$this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
 			$this->_refreshing_assets[] = $broadcaster->id;
@@ -1680,7 +1680,7 @@ class Backend_Outputter
 	*/
 	function onAssetTypeUpdate(&$broadcaster, $event_data=Array())
 	{
-		if (!is_a($broadcaster, 'asset')) return;
+		if (!($broadcaster instanceof Asset)) return;
 		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
 			if ($event_data['old_type'] != $event_data['new_type']) {
 				$this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
@@ -1702,7 +1702,7 @@ class Backend_Outputter
 	*/
 	function onAssetStatusUpdate(&$broadcaster, $event_data=Array())
 	{
-		if (!is_a($broadcaster, 'asset')) return;
+		if (!($broadcaster instanceof Asset)) return;
 		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
 			if ($event_data['old_status'] != $event_data['new_status']) {
 				$this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
