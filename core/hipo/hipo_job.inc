@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.90 2007/11/13 21:45:34 hnguyen Exp $
+* $Id: hipo_job.inc,v 1.91 2007/11/13 22:55:12 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -477,17 +477,14 @@ class HIPO_Job extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db  = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = 'SELECT
-					userid, last_updated
-				FROM
-					sq_hipo_job
-				WHERE
-					code_name = '.$db->quoteSmart($code_name);
-
-		$existing = $db->getRow($sql);
-		assert_valid_db_result($existing);
+		try {
+			$bind_vars['code_name'] = $code_name;
+			$existing = MatrixDAL::executeOne('core', 'getHipoJobsUser', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get HIPO job code name: '.$code_name.' due to database error: '.$e->getMessage());
+		}
 
 		if (!empty($existing)) {
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing['userid']);
@@ -501,58 +498,36 @@ class HIPO_Job extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$prepared = $db->prepare('INSERT INTO
-									sq_hipo_job
-									(
-										code_name,
-										job_type,
-										userid,
-										running,
-										source_code_name,
-										hipo_vars,
-										options,
-										steps,
-										running_vars,
-										last_updated
-									)
-									VALUES
-									(
-										?,
-										?,
-										?,
-										?,
-										?,
-										?,
-										?,
-										?,
-										?,
-										'.db_extras_prepare_todate($db).'
-									)'
-								);
-		assert_valid_db_result($prepared);
+		try {
+			// get timestamp for db type TODO
+			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
+			$last_updated = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+			$bind_vars = Array(
+							'code_name'			=> $code_name,
+							'job_type'			=> get_class($this),
+							'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+							'running'			=> 0,
+							'source_code_name'	=> $source_code_name,
+							'hipo_vars'			=> $hipo_vars,
+							'options'			=> $options,
+							'steps'				=> $steps,
+							'running_vars'		=> $vars,
+							'last_updated'		=> $last_updated,
+						 );
 
+			$result = MatrixDAL::executeOne('core', 'insertHipoJob', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to insert new HIPO job due to database error: '.$e->getMessage());
+		}
 
-		$values = Array(
-					$code_name,
-					get_class($this),
-					$GLOBALS['SQ_SYSTEM']->currentUserId(),
-					0,
-					$source_code_name,
-					$hipo_vars,
-					$options,
-					$steps,
-					$vars,
-					ts_iso8601($now),
-					'YYYY-MM-DD HH24:MI:SS',
-				  );
+		try {
+			$result = MatrixDAL::executeOne('core', 'getHipoJobsUser', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get HIPO job code name: '.$code_name.' due to database error: '.$e->getMessage());
+		}
 
-		$result = $db->execute($prepared, $values);
-		assert_valid_db_result($result);
-
-		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		assert_valid_db_result($result);
 
 		$this->userid       = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$this->last_updated = $now;
@@ -658,13 +633,16 @@ class HIPO_Job extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$db  = $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT job_type, userid, running, source_code_name, hipo_vars, options, steps, running_vars, last_updated
-				FROM sq_hipo_job
-				WHERE code_name = '.$db->quote($code_name);
+		$db  = MatrixDAL::getDb();
+		try {
+			$bind_vars['code_name'] = $code_name;
+			$result = MatrixDAL::executeAssoc('core', 'loadHipoVars', $bind_vars);
+			$result = $result[0];
+		} catch (Exception $e) {
+			throw new Exception('Unable to load the HIPO vars for: '.$code_name.' due to database error: '.$e->getMessage());
+		}
 
-		$result = $db->getRow($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		assert_valid_db_result($result);
 
 		if (empty($result)) return FALSE;
 
@@ -829,43 +807,35 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		// now we just do what we are told
 		if ($delete) {
-			$sql = 'DELETE FROM
-						sq_hipo_job
-					WHERE
-						code_name = '.$db->quoteSmart($this->code_name);
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars['code_name'] = $this->code_name;
+				$result = MatrixDAL::executeOne('core', 'deleteHipoJobFromCodeName', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete HIPO job with code name: '.$code_name.' due to database error: '.$e->getMessage());
+			}
 		} else {
 
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-			$prepared = $db->prepare(
-									'UPDATE
-										sq_hipo_job
-									SET
-										hipo_vars		= ?,
-										options			= ?,
-										steps			= ?,
-										running_vars	= ?,
-										last_updated	= '.db_extras_prepare_todate($db).'
-									WHERE
-										code_name	= ?');
-			assert_valid_db_result($prepared);
-
-			$values = Array(
-						serialize($this->_hipo_vars),
-						serialize($this->_options),
-						serialize($this->_steps),
-						serialize($this->_running_vars),
-						ts_iso8601($now),
-						'YYYY-MM-DD HH24:MI:SS',
-						$this->code_name,
-					  );
-			$result = $db->execute($prepared, $values);
-			assert_valid_db_result($result);
+			try {
+				// get timestamp for db type TODO
+				$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
+				$last_updated = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+				$bind_vars	= Array (
+								'hipo_vars'		=> serialize($this->_hipo_vars),
+								'options'		=> serialize($this->_options),
+								'steps'			=> serialize($this->_steps),
+								'running_vars'	=> serialize($this->_running_vars),
+								'last_updated'	=> $last_updated,
+								'code_name'		=> serialize($this->code_name),
+							  );
+				$result = MatrixDAL::executeOne('core', 'updateHipoJobVars', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update HIPO job vars due to database error: '.$e->getMessage());
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1621,7 +1591,7 @@ class HIPO_Job extends MySource_Object
 	* @access public
 	* @static
 	*/
-	function paintProgressBar($percent_done, $message='', $label_class='sq-hipo-progress-bar-label', $percent_class='sq-hipo-progress-bar-percent', $bar_main_class='sq-hipo-progress-bar-main', $bar_done_class='sq-hipo-progress-bar-done')
+	public static function paintProgressBar($percent_done, $message='', $label_class='sq-hipo-progress-bar-label', $percent_class='sq-hipo-progress-bar-percent', $bar_main_class='sq-hipo-progress-bar-main', $bar_done_class='sq-hipo-progress-bar-done')
 	{
 		?>
 		<table width="100%" border="0" cellspacing="0" cellpadding="0">

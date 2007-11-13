@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.91 2007/11/12 00:16:40 bshkara Exp $
+* $Id: hipo_herder.inc,v 1.92 2007/11/13 22:55:12 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -99,23 +99,21 @@ class HIPO_Herder extends MySource_Object
 			$db = MatrixDAL::getDb();
 
 			try {
-				$bind_vars	= Array (
-							'code_name'	=> $code_name, 
-						  );
-				$hipo_vars_all = MatrixDAL::executeAll('core', 'getHipoJobByCodeName', $bind_vars);
+				$bind_vars['code_name'] = $code_name;
+				$hipo_vars_all = MatrixDAL::executeAssoc('core', 'getHipoJobByCodeName', $bind_vars);
 				$hipo_vars = Array();
 				if (!empty($hipo_vars_all) && isset($hipo_vars_all[0])) {
 					$hipo_vars = $hipo_vars_all[0];
 				}
 			} catch (Exception $e) {
-				throw new Exception('Unable to get hipo job base on code name '.$code_name.$e->getMessage());
+				throw new Exception('Unable to get HIPO job from code name: '.$code_name.$e->getMessage());
 			}//end try catch
 
 			if (!isset($hipo_vars['job_type']) || empty($hipo_vars['job_type'])) {
 				$null = NULL;
 				return $null;
 			}
-			$job_type = $hipo_vars['job_type'];
+			$job_type = strtolower($hipo_vars['job_type']);
 
 			$vars = unserialize($hipo_vars['hipo_vars']);
 			if (empty($vars['job_dir'])) {
@@ -663,14 +661,14 @@ class HIPO_Herder extends MySource_Object
 		// hipo job table doesn't need one and doesn't want one!!
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT code_name, job_type
-				FROM sq_hipo_job
-				WHERE userid = '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).'
-				  AND running = 0';
-		$queued_jobs = $db->getAll($sql);
-
-		if (!assert_valid_db_result($queued_jobs)) return '';
+		$db = MatrixDAL::getDb();
+		try {
+			$bind_vars['current_user'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			$queued_jobs = MatrixDAL::executeAssoc('core', 'getQueuedHipoJobs', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get current queued jobs for user: '.$GLOBALS['SQ_SYSTEM']->currentUserId().' due to database error: '.$e->getMessage());
+			return '';
+		}
 
 		if (empty($queued_jobs)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -707,10 +705,15 @@ class HIPO_Herder extends MySource_Object
 
 		$sql = 'UPDATE sq_hipo_job
 				SET running = 1
-				WHERE code_name IN ('.implode(', ',$job_codes).')';
+				WHERE code_name IN (:job_codes)';
 
-		$result = $db->query($sql);
-		if (!assert_valid_db_result($result)) return '';
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':job_codes', implode(', ',$job_codes));
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update HIPO jobs table due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -936,7 +939,6 @@ class HIPO_Herder extends MySource_Object
 			$source_jobs = Array();
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
-			//$db = $GLOBALS['SQ_SYSTEM']->db;
 			$db = MatrixDAL::getDb();
 			$sql = 'SELECT source_code_name, code_name, job_type
 					FROM sq_hipo_job';
@@ -1180,7 +1182,7 @@ class HIPO_Herder extends MySource_Object
 	{
 		try {
 			$bind_vars['userid'] = $userid;
-			$jobsforuser = MatrixDAL::executeAll('core', 'selectJobsForUser', $bind_vars);
+			$jobsforuser = MatrixDAL::executeAssoc('core', 'selectJobsForUser', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Failed to get HIPO jobs for user due to database error: '.$e->getMessage());
 		}
