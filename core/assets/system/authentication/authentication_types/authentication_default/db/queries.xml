@@ -1,0 +1,45 @@
+<queries system="authentication_default">
+	<query id="locateUser">
+		<!-- Locate a user with the correct login name, that can be logged in using default authentication. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast" column="assetid" />
+					<field table="sq_ast" column="type_code" />
+				</fields>
+				<from>
+					<table>sq_ast</table>
+					<table>sq_ast_attr</table>
+					<table>sq_ast_attr_uniq_val</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_ast_attr_uniq_val" column="assetid" />
+						<field table="sq_ast" column="assetid" />
+					</join>
+					<join>
+						<field table="sq_ast_attr" column="attrid" />
+						<field table="sq_ast_attr_uniq_val" column="owning_attrid" />
+					</join>
+				</joins>
+				<where>
+					<in table="sq_ast" column="type_code">
+						<select>
+							<fields>
+								<field table="sq_ast_typ_inhd" column="type_code" />
+							</fields>
+							<from>
+								<table>sq_ast_typ_inhd</table>
+							</from>
+							<where>
+								<equal table="sq_ast_typ_inhd" column="inhd_type_code"><value>user</value></equal>
+							</where>
+						</select>
+					</in>
+					<equal table="sq_ast_attr" column="name"><value>username</value></equal>
+					<equal table="sq_ast_attr_uniq_val" column="custom_val">:user_name</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+</queries>
