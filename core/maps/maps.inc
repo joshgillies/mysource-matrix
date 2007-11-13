@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.27 2007/01/11 23:01:00 colivar Exp $
+* $Id: maps.inc,v 1.28 2007/11/13 22:56:11 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -130,12 +130,9 @@ class Maps extends MySource_Object
 	*/
 	function paintPatches(&$o)
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT patchid, installed
-				FROM sq_patches';
-
-		$db_patches = $db->getAssoc($sql);
-		if (DB::isError($db_patches)) {
+		try {
+			$db_patches = MatrixDAL::executeAssoc('core', 'getPatchInfo');
+		} catch (Exception $e) {
 			$o->openSection();
 				$o->openField(translate('warning'));
 					?>
@@ -145,7 +142,9 @@ class Maps extends MySource_Object
 					<?php
 				$o->closeField();
 			$o->closeSection();
-		}
+
+			throw new Exception("Unable to get patch information due to the following database error:".$e->getMessage());
+		}//end try catch
 
 		$new_patches = Array();
 		$installed_patches = Array();
