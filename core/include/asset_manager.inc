@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.610 2007/11/14 22:20:43 colivar Exp $
+* $Id: asset_manager.inc,v 1.611 2007/11/14 23:06:51 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.610 $
+* @version $Revision: 1.611 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4070,7 +4070,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
-	{
+	{// TODO: TOF create the unit tests for this function
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		assert_valid_assetid($assetid);
@@ -4093,7 +4093,7 @@ class Asset_Manager extends MySource_Object
 		$extra_table = '';
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
 		if ($link_types) {
-			$where .= ' AND '.db_extras_bitand($db, 'link_type', $link_types).' > 0';
+			$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'link_type', $link_types).' > 0';
 		}
 		if ($type_code) {
 			$extra_table .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast a';
@@ -4130,8 +4130,13 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l '.$extra_table.'
 				'.$where;
 
-		$result = $db->getOne($sql);
-		assert_valid_db_result($result);
+		$result = NULL;
+		try {
+			$query = $db->prepare($sql);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Could not count the links due to a DB error: '.$e->getMessage());
+		}
 
 		return $result;
 

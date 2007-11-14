@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.19 2007/10/30 03:14:51 lwright Exp $
+* $Id: db_extras.inc,v 1.20 2007/11/14 23:06:55 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -173,8 +173,8 @@ function db_extras_insert_select(&$db, $insert, $select)
 */
 function db_extras_bitand($db_type, $val1, $val2)
 {
-	if ((int) $val1 != $val1) $val1 = $db->quoteSmart($val1);
-	if ((int) $val2 != $val2) $val2 = $db->quoteSmart($val2);
+	if ((int) $val1 != $val1) $val1 = $db->quote($val1);
+	if ((int) $val2 != $val2) $val2 = $db->quote($val2);
 
 	if ($db_type == 'oci') {
 		$bit_op = 'BITAND('.$val1.', '.$val2.')';

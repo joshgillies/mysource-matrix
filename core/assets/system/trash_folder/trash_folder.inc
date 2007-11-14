@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.60 2006/12/05 23:58:08 bcaldwell Exp $
+* $Id: trash_folder.inc,v 1.61 2007/11/14 23:06:51 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -213,7 +213,7 @@ class Trash_Folder extends Folder
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
 		if (!$this->id) return FALSE;
-		if (!is_a($minor, 'Asset')) {
+		if (!($minor instanceof Asset)) {
 			return translate('minor_not_asset');
 		}
 		return TRUE;
