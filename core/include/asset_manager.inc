@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.606 2007/11/14 00:49:41 bshkara Exp $
+* $Id: asset_manager.inc,v 1.607 2007/11/14 05:47:12 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.606 $
+* @version $Revision: 1.607 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1768,18 +1768,22 @@ class Asset_Manager extends MySource_Object
 
 		try {
 			$bind_vars = Array(
-							'assetid'			=> $assetid,
-							'version'			=> $initial_version,
-							'type_code'			=> $source->type(),
-							'name'				=> $source->name.' - clone',
-							'short_name'		=> $source->short_name.' - clone',
-							'status'			=> SQ_STATUS_UNDER_CONSTRUCTION,
-							'created'			=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
-							'created_userid'	=> $userid,
-							'updated'			=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
-							'updated_userid'	=> $userid,
+							'assetid'				=> $assetid,
+							'version'				=> $initial_version,
+							'type_code'				=> $source->type(),
+							'name'					=> $source->name.' - clone',
+							'short_name'			=> $source->short_name.' - clone',
+							'status'				=> SQ_STATUS_UNDER_CONSTRUCTION,
+							'created'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'created_userid'		=> $userid,
+							'published'				=> NULL,
+							'published_userid'		=> NULL,
+							'updated'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'updated_userid'		=> $userid,
+							'status_changed'		=> NULL,
+							'status_changed_userid'	=> NULL,
 						 );
-			$query = MatrixDAL::executeOne('core', 'insertClonedAsset', $bind_vars);
+			MatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Failed to create cloned asset due to database error: '.$e->getMessage());
 		}

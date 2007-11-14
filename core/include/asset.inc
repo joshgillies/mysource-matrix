@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.603 2007/11/12 04:43:57 hnguyen Exp $
+* $Id: asset.inc,v 1.604 2007/11/14 05:47:12 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.603 $
+* @version $Revision: 1.604 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -275,60 +275,24 @@ class Asset extends MySource_Object
 			}
 		}
 
-//		$now_sql = db_extras_todate($db, ts_iso8601($now));
-		$sql = 'INSERT INTO
-					sq_ast
-				(
-					assetid,
-					version,
-					type_code,
-					name,
-					short_name,
-					status,
-					created,
-					created_userid,
-					updated,
-					updated_userid,
-					published,
-					published_userid,
-					status_changed,
-					status_changed_userid
-				)
-				VALUES
-				(
-					:assetid,
-					:version,
-					:type_code,
-					:name,
-					:short_name,
-					:status,
-					:created,
-					:created_userid,
-					:updated,
-					:updated_userid,
-					:published,
-					:published_userid,
-					:status_changed,
-					:status_changed_userid)';
-
-
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid',               $assetid,         PDO::PARAM_STR);
-			$query->bindValue(':version',               $initial_version, PDO::PARAM_STR);
-			$query->bindValue(':type_code',             $this->type(),    PDO::PARAM_STR);
-			$query->bindValue(':name',                  $name,            PDO::PARAM_STR);
-			$query->bindValue(':short_name',            $name,            PDO::PARAM_STR);
-			$query->bindValue(':status',                $initial_status,  PDO::PARAM_STR);
-			$query->bindValue(':created',               ts_iso8601($now), PDO::PARAM_STR);
-			$query->bindValue(':created_userid',        $userid,          PDO::PARAM_STR);
-			$query->bindValue(':updated',               ts_iso8601($now), PDO::PARAM_STR);
-			$query->bindValue(':updated_userid',        $userid,          PDO::PARAM_STR);
-			$query->bindValue(':published',             NULL);
-			$query->bindValue(':published_userid',      NULL);
-			$query->bindValue(':status_changed',        ts_iso8601($now), PDO::PARAM_STR);
-			$query->bindValue(':status_changed_userid', $userid,          PDO::PARAM_STR);
-			DAL::execPdoQuery($query);
+			$bind_vars = Array(
+							'assetid'				=> $assetid,
+							'version'				=> $initial_version,
+							'type_code'				=> $this->type(),
+							'name'					=> $name,
+							'short_name'			=> $name,
+							'status'				=> $initial_status,
+							'created'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'created_userid'		=> $userid,
+							'updated'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'updated_userid'		=> $userid,
+							'published'				=> NULL,
+							'published_userid'		=> NULL,
+							'status_changed'		=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'status_changed_userid'	=> $userid,
+						 );
+			MatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to create new asset  "'.$name.'" (# "'.$assetid.'") due to database error: '.$e->getMessage());
 		}
@@ -2072,7 +2036,7 @@ class Asset extends MySource_Object
 		if (in_array('data', $components) || in_array('all', $components)) {
 			// make sure we have write access before we start mucking around with files
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) && !$clone->writeAccess('attributes')) {
-				// if permission check is on, and user does not have permission 
+				// if permission check is on, and user does not have permission
 				trigger_localised_error('SYS0321', E_USER_WARNING, $clone->name);
 			} else {
 				// copy the directory (if it exists)

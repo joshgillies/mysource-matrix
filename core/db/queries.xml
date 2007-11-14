@@ -136,8 +136,8 @@
 		</primary>
 	</query>
 
-	<query id="insertClonedAsset">
-	<!-- Inserts new cloned asset -->
+	<query id="createAsset">
+	<!-- Creates a single new asset. -->
 		<primary>
 			<insert>
 				<fields table="sq_ast">
@@ -151,6 +151,10 @@
 					<field>created_userid</field>
 					<field>updated</field>
 					<field>updated_userid</field>
+					<field>published</field>
+					<field>published_userid</field>
+					<field>status_changed</field>
+					<field>status_changed_userid</field>
 				</fields>
 				<values>
 					<value column="assetid">:assetid</value>
@@ -163,6 +167,10 @@
 					<value column="created_userid">:created_userid</value>
 					<value column="updated">:updated</value>
 					<value column="updated_userid">:updated_userid</value>
+					<value column="published">:published</value>
+					<value column="published_userid">:published_userid</value>
+					<value column="status_changed">:status_changed</value>
+					<value column="status_changed_userid">:status_changed_userid</value>
 				</values>
 			</insert>
 		</primary>
