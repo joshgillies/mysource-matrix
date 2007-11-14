@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.36 2007/11/11 22:53:17 hnguyen Exp $
+* $Id: system_config_edit_interface.inc,v 1.37 2007/11/14 01:08:08 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -95,6 +95,7 @@ class System_Config_Edit_Interface extends MySource_Object
 							'password_rules_config'			=> translate('password_rules_configuration'),
 							'messaging_service_config'		=> translate('messaging_service_configuration'),
 							'proxy_authentication_config'	=> translate('proxy_configuration'),
+							'locks'							=> translate('active_locks'),
 						  );
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -175,6 +176,9 @@ class System_Config_Edit_Interface extends MySource_Object
 
 				return;
 
+			case 'locks' :
+				$this->paintActiveLocks($o);
+				return;
 			default :
 				trigger_localised_error('SYS0076', E_USER_WARNING, $active_screen);
 		}// end switch
@@ -355,6 +359,152 @@ class System_Config_Edit_Interface extends MySource_Object
 		return true;
 
 	}//end processUserPrefs()
+
+
+    /**
+    * Paint a list of active locks
+    *
+    * @param object Backend_Outputter   &$o     reference to the backend outputter
+    *
+    * @access public
+    * @return void
+    */
+    function paintActiveLocks(&$o)
+    {
+        require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+        $date = ts_iso8601(time());
+
+		try {
+			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), $date);
+			$time_val = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+			$bind_vars	= Array (
+							'expireTime'	=> $time_val,
+						  );
+			$db_locks = MatrixDAL::executeAll('core', 'getActiveLocks', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to get active locks due to the following database error:".$e->getMessage());
+		}//end try catch
+
+        if (empty($db_locks)) {
+            $o->openSection(translate('active_locks'));
+                $o->openField(translate('no_active_locks'));
+                $o->closeField();
+            $o->openSection();
+            return true;
+        }
+
+        $active_locks = Array();
+        $asset_info_ids = Array();
+        foreach ($db_locks as $lock) {
+            $lockid = $lock['lockid'];
+            if (substr($lockid, 0, 6) != 'asset.') continue;
+            $lockid = substr($lockid, 6);
+            $lock_type = substr($lockid, strrpos($lockid, '.') + 1);
+            $assetid = substr($lockid, 0, strrpos($lockid, '.'));
+            $active_locks[$lock['userid']]['locks'][$assetid][$lock_type] = $lock['expires'];
+
+            if (!isset($active_locks[$lock['userid']]['num_locks'])) $active_locks[$lock['userid']]['num_locks'] = 0;
+            $active_locks[$lock['userid']]['num_locks']++;
+
+            $asset_info_ids[$lock['userid']] = $lock['userid'];
+            $asset_info_ids[$assetid] = $assetid;
+        }
+
+        $asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_info_ids));
+
+        require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+
+        $o->openSection(translate('active_locks'));
+            $o->openField('');
+                ?>
+                <table class="sq-backend-table">
+                    <tr>
+                        <td class="sq-backend-table-header"><?php echo translate('user'); ?></td>
+                        <td class="sq-backend-table-header"><?php echo translate('lock_type'); ?></td>
+                        <td class="sq-backend-table-header"><?php echo translate('maps_held_at'); ?></td>
+                        <td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
+                    </tr>
+                <?php
+                foreach ($active_locks as $userid => $locks) {
+                    $printed_header = false;
+                    foreach ($locks['locks'] as $assetid => $lock_info) {
+                        foreach ($lock_info as $lock_type => $expires) {
+                            ?>
+                            <tr>
+                                <?php
+                                if (!$printed_header) {
+                                    ?>
+                                    <td class="sq-backend-table-cell" rowspan="<?php echo $locks['num_locks']; ?>">
+                                        <?php
+                                        if (isset($asset_info[$userid])) {
+                                            $name = $asset_info[$userid]['name'];
+                                            $type = $asset_info[$userid]['type_code'];
+                                        } else {
+                                            $asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+                                            $name = $asset->name;
+                                            $type = $asset->type();
+                                            $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+                                        }
+                                        ?>
+                                        <script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type); ?>", "16", "16", "");</script>
+                                        &nbsp;<acronym title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $userid; ?>"><?php echo $name; ?></acronym>
+                                    </td>
+                                    <?php
+                                    $printed_header = true;
+                                }
+                                ?>
+
+                                <td class="sq-backend-table-cell">
+                                    <?php echo $lock_type; ?>
+                                </td>
+                                <td class="sq-backend-table-cell">
+                                    <?php
+                                    if (isset($asset_info[$assetid])) {
+                                        $name = $asset_info[$assetid]['name'];
+                                        $type = $asset_info[$assetid]['type_code'];
+                                    } else {
+                                        $asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+                                        $name = $asset->name;
+                                        $type = $asset->type();
+                                        $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+                                    }
+                                    ?>
+                                    <script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type); ?>", "16", "16", "");</script>
+                                    &nbsp;<acronym title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $assetid; ?>"><?php echo $name; ?></acronym>
+                                </td>
+                                <td class="sq-backend-table-cell">
+                                    <?php
+                                    $expires_in = easy_time_total((strtotime($expires) - time()), true);
+                                    if (!$expires_in) $expires_in = '1 second';
+                                    echo translate('due_to_expire', $expires_in);
+                                    ?>
+                                </td>
+                            </tr>
+                            <?php
+                        }
+                    }
+                }
+                ?>
+                </table>
+                <?php
+            $o->closeField();
+        $o->closeSection();
+
+    }//end paintActiveLocks()
+
+
+    /**
+    * Processess the list of active locks
+    *
+    * @param object Backend_Outputter   &$o     reference to the backend outputter
+    *
+    * @return void
+    * @access public
+    */
+    function processActiveLocks(&$o)
+    {
+
+    }//end processActiveLocks()
 
 
 }//end class
