@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.253 2007/11/14 05:55:29 colivar Exp $
+* $Id: asset_map.inc,v 1.254 2007/11/14 22:20:43 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1756,20 +1756,20 @@ class Asset_Map
 				return;
 			}
 
-			if (($err_msg = $old_parent->isDeletableLink($link[0]['linkid'])) !== TRUE) {
+			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== TRUE) {
 				$this->_error('AMAP0033', $err_msg);
 				return;
 			}
 
 			if (is_null($asset)) {
-				$this->_error('AMAP0034', $link[0]['minorid']);
+				$this->_error('AMAP0034', $link['minorid']);
 				return;
 			}
 
 			if ($old_parent->id == $new_parent->id) {
 				$reordered_assets[$asset->id] = Array(
-													'linkid'		=> $link[0]['linkid'],
-													'sort_order'	=> $link[0]['sort_order'],
+													'linkid'		=> $link['linkid'],
+													'sort_order'	=> $link['sort_order'],
 													'parentid'		=> $old_parent->id,
 												);
 			} else {
@@ -1779,7 +1779,7 @@ class Asset_Map
 					$assets[$asset->id] = Array();
 				}
 				$assets[$asset->id][] = Array(
-											'linkid'	=> $link[0]['linkid'],
+											'linkid'	=> $link['linkid'],
 											'parentid'	=> $old_parent->id,
 										);
 			}

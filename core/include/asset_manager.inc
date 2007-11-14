@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.609 2007/11/14 06:12:58 bshkara Exp $
+* $Id: asset_manager.inc,v 1.610 2007/11/14 22:20:43 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.609 $
+* @version $Revision: 1.610 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5313,8 +5313,7 @@ class Asset_Manager extends MySource_Object
 	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
 	{
 		// First, we should try and find the link
-		$link_info = $this->getLinkById($linkid);
-		$link = $link_info[0];
+		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
 			trigger_localised_error('SYS0139', E_USER_WARNING, $linkid);
 			return FALSE;
