@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.608 2007/11/14 05:55:28 colivar Exp $
+* $Id: asset_manager.inc,v 1.609 2007/11/14 06:12:58 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.608 $
+* @version $Revision: 1.609 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1765,6 +1765,9 @@ class Asset_Manager extends MySource_Object
 		$initial_version = '0.0.0';
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		// get timestamp for db type TODO
+		$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
+		$last_updated = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
 
 		try {
 			$bind_vars = Array(
@@ -1774,11 +1777,11 @@ class Asset_Manager extends MySource_Object
 							'name'					=> $source->name.' - clone',
 							'short_name'			=> $source->short_name.' - clone',
 							'status'				=> SQ_STATUS_UNDER_CONSTRUCTION,
-							'created'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'created'				=> $last_updated,
 							'created_userid'		=> $userid,
 							'published'				=> NULL,
 							'published_userid'		=> NULL,
-							'updated'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'updated'				=> $last_updated,
 							'updated_userid'		=> $userid,
 							'status_changed'		=> NULL,
 							'status_changed_userid'	=> NULL,
@@ -2692,6 +2695,7 @@ class Asset_Manager extends MySource_Object
 			$query->bindValue(':assetid', $assetid);
 			$query->bindValue(':side_of_link', $side_of_link);
 			$result = MatrixDAL::executePdoAssoc($query);
+			$result = $result[0];
 		} catch (Exception $e) {
 			throw new Exception('Unable to get link details for asset with assetid: '.$assetid.' due to database error: '.$e->getMessage());
 		}
