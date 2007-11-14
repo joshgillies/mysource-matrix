@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.152.2.3 2007/11/13 04:55:46 mbrydon Exp $
+* $Id: search_manager.inc,v 1.152.2.4 2007/11/14 05:41:54 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152.2.3 $
+* @version $Revision: 1.152.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1462,7 +1462,7 @@ class Search_Manager extends Asset
 					}
 
 					if ($closest_parentid != 0) {
-						return $asset_tree_weightings[$closest_parentid]['type_weights'][$type_code];
+						return $asset_tree_weightings[$closest_parentid]['type_weights'][$parent_type_code];
 					}
 				}//end else strict_assetid
 			} else {
