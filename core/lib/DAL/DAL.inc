@@ -1394,7 +1394,7 @@ class DAL
      * @since  4.0.0
      * @return void
      */
-    private static function _startQueryTimer($queryid)
+    protected static function _startQueryTimer($queryid)
     {
         if (self::$_logQueries === TRUE) {
             self::$_currentQueryLog = array();
@@ -1411,7 +1411,7 @@ class DAL
      * @since  4.0.0
      * @return void
      */
-    private static function _endQueryTimer()
+    protected static function _endQueryTimer()
     {
         if (self::$_currentQueryLog !== NULL) {
             if (isset(self::$_queryLog[self::$_currentQueryLog['id']]) === FALSE) {
