@@ -472,21 +472,25 @@
 	</query>
 
 
-	<!-- //     MAPS        // -->
-	<query id="getPatchInfo">
+	<!-- //     SYSTEM CONFIG EDIT INTERFACE       // -->
+	<query id="getActiveLocks">
 		<!-- Return the a list of internal messages to appear on log screen.' -->
 		<primary>
 			<select>
 				<fields>
-					<field table="sq_patches" column="patchid" />
-					<field table="sq_patches" column="installed" />
+					<field table="sq_lock" column="userid" />
+					<field table="sq_lock" column="lockid" />
+					<field table="sq_lock" column="source_lockid" />
+					<field table="sq_lock" column="expires" />
 				</fields>
 				<from>
-					<table>sq_patches</table>
+					<table>sq_lock</table>
 				</from>
+				<where>
+					<equal-or-greater table="sq_lock" column="expires">:expireTime</equal-or-greater>
+				</where>
 			</select>
 		</primary>
 	</query>
-
 
 </queries>
