@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.184 2007/11/07 00:54:57 hnguyen Exp $
+* $Id: backend.inc,v 1.185 2007/11/14 03:05:47 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.184 $
+* @version $Revision: 1.185 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -885,15 +885,6 @@ class Backend extends MySource_Object
 											'target'	=> 'sq_main',
 											'title'		=> translate('system_configuration'),
 											'icon'		=> 'system_config.png',
-										 );
-						}
-
-						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
-							$options[] = Array(
-											'url'		=> $this->getBackendUrl('main').'&backend_section=maps',
-											'target'	=> 'sq_main',
-											'title'		=> translate('automated_patching_system'),
-											'icon'		=> 'maps.png',
 										 );
 						}
 
