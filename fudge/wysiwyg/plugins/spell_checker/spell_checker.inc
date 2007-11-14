@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.inc,v 1.10 2007/01/05 05:05:37 hnguyen Exp $
+* $Id: spell_checker.inc,v 1.11 2007/11/14 04:51:37 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to Check the spelling of the document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -153,7 +153,7 @@ class spell_checker extends wysiwyg_plugin
 	* @access public
 	* @static
 	*/
-	function check_usable()
+	public static function check_usable()
 	{
 		if (function_exists('pspell_suggest')) return TRUE;
 		return translate('wysiwyg_pspell_not_installed');

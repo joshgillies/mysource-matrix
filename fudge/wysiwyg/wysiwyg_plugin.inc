@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.19 2007/01/05 05:05:33 hnguyen Exp $
+* $Id: wysiwyg_plugin.inc,v 1.20 2007/11/14 04:51:37 hnguyen Exp $
 *
 */
 require_once dirname(__FILE__).'/../../core/include/init.inc';
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../core/include/init.inc';
 *     of wysiwyg.inc
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -398,7 +398,7 @@ class wysiwyg_plugin
  	* @access public
  	* @static
 	*/
-	function check_usable()
+	public static function check_usable()
 	{
 		return TRUE;
 
