@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.605 2007/11/12 23:03:47 bshkara Exp $
+* $Id: asset_manager.inc,v 1.606 2007/11/14 00:49:41 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.605 $
+* @version $Revision: 1.606 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2845,30 +2845,23 @@ class Asset_Manager extends MySource_Object
 						   l.type_code as '.$other_side.'_type_code, l.sort_order, l.is_dependant, l.is_exclusive
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
-		//	$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid).'
-		//			  AND l.'.$other_side.'id  IN ( '.implode(',', $prepared_otherids).')';
 			$where = 'l.'.$side_of_link.'id = :assetid
 					  AND l.'.$other_side.'id  IN (:prepared_otherids)';
 
 			if (!is_null($link_types)) {
-				//$where .= ' AND '.db_extras_bitand($db, 'l.link_type', $link_types).' > 0 ';
 				$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
 			}
 			if (!is_null($value)) {
 				if (empty($value)) {
-					//$where .= ' AND (l.value = '.$db->quote($value).' OR l.value IS NULL)';
 					$where .= ' AND (l.value = :value OR l.value IS NULL)';
 				} else {
-					//$where .= ' AND l.value = '.$db->quote($value);
 					$where .= ' AND l.value = :value';
 				}
 			}
 			if (!is_null($dependant)) {
-				//$where .= ' AND l.is_dependant = '.$db->quote(($dependant) ? '1' : '0');
 				$where .= ' AND l.is_dependant = :dependant';
 			}
 			if (!is_null($exclusive)) {
-				//$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 				$where .= ' AND l.is_exclusive = :exclusive';
 			}
 
