@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.6 2007/11/08 22:55:56 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.7 2007/11/14 00:57:57 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -389,7 +389,7 @@ class MatrixDALBaker extends DALBaker
         $nodes = $xpath->query('//query/primary/select/from/table');
         foreach ($nodes as $node) {
             $table = $node->nodeValue;
-            if (self::TableRequiresRollback($table)) {
+            if (self::_tableRequiresRollback($table)) {
                 return TRUE;
             }
         }
@@ -412,7 +412,7 @@ class MatrixDALBaker extends DALBaker
      * @since  MySource 3.18.0 RC1
      * @return boolean
      */
-    protected static function TableRequiresRollback($table)
+    protected static function _tableRequiresRollback($table)
     {
         // lop off 'sq_' prefix if it exists
         if (substr($table, 0, 3) == 'sq_') {
@@ -425,16 +425,11 @@ class MatrixDALBaker extends DALBaker
         // TODO:
         $ovenDir = SQ_LIB_PATH.'/DAL/Oven/core/coreQueries.xml';
 
-        if (file_exists($ovenDir) === TRUE) {
-            try {
-                $sql = 'SELECT code_name FROM sq_pkg';
-                $packages = MatrixDAL::executeSqlAssoc($sql, 0);
-            } catch (Exception $e) {
-                $packages = Array();
-            }
-        } else {
-            $packages = Array();
-        }
+		try {
+			$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+		} catch (Exception $e) {
+			$packages = Array();
+		}
 
         // If no packages have been installed yet, we want to at least include
         // the core package.
@@ -465,7 +460,7 @@ class MatrixDALBaker extends DALBaker
         // could not find a table, so return FALSE
         return FALSE;
 
-    }//end TableRequiresRollback()
+    }//end _tableRequiresRollback()
 
 
     /**
@@ -568,14 +563,14 @@ class MatrixDALBaker extends DALBaker
         foreach ($nodes as $node) {
             $table = $node->nodeValue;
 
-            if (self::TableRequiresRollback($table)) {
+            if (self::_tableRequiresRollback($table)) {
                 // TODO: replace "from" tables with 'sq_rb_'
 
                 // Add rollback where clause
                 $fieldNodes = $xpath->query('//query/primary/select/fields/field');
                 foreach ($fieldNodes as $fieldNode) {
                     $table = $fieldNode->getAttribute('table');
-                    if (self::TableRequiresRollback($table)) {
+                    if (self::_tableRequiresRollback($table)) {
                         $rbTableName = substr_replace($table, 'sq_rb_', 0, 3);
                         $fieldNode->setAttribute('table', $rbTableName);
                     }
@@ -585,7 +580,7 @@ class MatrixDALBaker extends DALBaker
                 $condNodes = $xpath->query('//query/primary/select/where//*');
                 foreach ($condNodes as $condNode) {
                     $table = $condNode->getAttribute('table');
-                    if (self::TableRequiresRollback($table)) {
+                    if (self::_tableRequiresRollback($table)) {
                         $rbTableName = substr_replace($table, 'sq_rb_', 0, 3);
                         $condNode->setAttribute('table', $rbTableName);
                     }
@@ -599,7 +594,7 @@ class MatrixDALBaker extends DALBaker
             $table = trim($fromNode->nodeValue);
             $rollbackTable = substr_replace($table, 'sq_rb_', 0, 3);
 
-            if (self::TableRequiresRollback($table)) {
+            if (self::_tableRequiresRollback($table)) {
                 $fromNode->nodeValue = substr_replace($table, 'sq_rb_', 0, 3);
 
                 // Go back to the table's select node, find its where node

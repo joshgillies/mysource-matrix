@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.241 2007/11/12 23:09:54 hnguyen Exp $
+* $Id: mysource.inc,v 1.242 2007/11/14 00:57:57 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.241 $
+* @version $Revision: 1.242 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1317,7 +1317,7 @@ class MySource
 	public function loginUser(&$user)
 	{
 		if (is_null($user)) return FALSE;
-		
+
 		if (!$this->setCurrentUser($user)) return FALSE;
 
 		$old_session_id = session_id();
@@ -1856,7 +1856,7 @@ class MySource
 	*/
 	public function &getMessagingService()
 	{
-		if (!isset($this->ms) || get_class($this->ms) != 'messaging_service') {
+		if (!isset($this->ms) || (get_class($this->ms) != 'Messaging_Service')) {
 			require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
 			$this->ms = new Messaging_Service();
 		}
@@ -1875,7 +1875,7 @@ class MySource
 	*/
 	public function &getFileVersioning()
 	{
-		if (!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
+		if (!isset($this->fv) || (get_class($this->fv) != 'File_Versioning')) {
 			require_once SQ_LIB_PATH.'/file_versioning/file_versioning.inc';
 			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository');
 		}
@@ -1894,9 +1894,9 @@ class MySource
 	*/
 	public function &getHipoHerder()
 	{
-		if (!isset($this->hh) || get_class($this->hh) != 'hipo_herder') {
+		if (!isset($this->hh) || (get_class($this->hh) != 'HIPO_Herder')) {
 			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_herder.inc';
-			$this->hh = new Hipo_Herder();
+			$this->hh = new HIPO_Herder();
 		}
 		return $this->hh;
 
@@ -1913,7 +1913,7 @@ class MySource
 	*/
 	public function &getMetadataManager()
 	{
-		if (!isset($this->mm) || get_class($this->mm) != 'metadata_manager') {
+		if (!isset($this->mm) || (get_class($this->mm) != 'Metadata_Manager')) {
 			require_once SQ_INCLUDE_PATH.'/metadata_manager.inc';
 			$this->mm = new Metadata_Manager();
 		}
@@ -1932,7 +1932,7 @@ class MySource
 	*/
 	function &getWorkflowManager()
 	{
-		if (!isset($this->wm) || get_class($this->wm) != 'workflow_manager') {
+		if (!isset($this->wm) || (get_class($this->wm) != 'Workflow_Manager')) {
 			require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 			$this->wm = new Workflow_Manager();
 		}
@@ -1951,7 +1951,7 @@ class MySource
 	*/
 	function &getEventManager()
 	{
-		if (!isset($this->em) || get_class($this->em) != 'event_manager') {
+		if (!isset($this->em) || (get_class($this->em) != 'Event_Manager')) {
 			require_once SQ_INCLUDE_PATH.'/event_manager.inc';
 			$this->em = new Event_Manager();
 		}
@@ -1971,7 +1971,7 @@ class MySource
 	function &getTagManager()
 	{
 		$am = $this->am;
-		if ((!isset($this->tag_manager) || (get_class($this->tag_manager) != 'tag_manager')) && $am->isSystemAssetType('tag_manager')) {
+		if ((!isset($this->tag_manager) || (get_class($this->tag_manager) != 'Tag_Manager')) && $am->isSystemAssetType('tag_manager')) {
 			$this->tag_manager = $am->getSystemAsset('tag_manager');
 		}
 		return $this->tag_manager;
@@ -2008,7 +2008,7 @@ class MySource
 	function &getLogManager()
 	{
 		$am = $this->am;
-		if ((!isset($this->log_manager) || (get_class($this->log_manager) != 'log_manager')) && $am->isSystemAssetType('log_manager')) {
+		if ((!isset($this->log_manager) || (get_class($this->log_manager) != 'Log_Manager')) && $am->isSystemAssetType('log_manager')) {
 			$this->log_manager = $am->getSystemAsset('log_manager');
 		}
 
@@ -2703,7 +2703,8 @@ class MySource
 	function getInstalledPackages()
 	{
 		try {
-			$packages = MatrixDAL::executeAll('core', 'getInstalledPackages');
+			$sql = 'SELECT code_name, version, name, description FROM sq_pkg';
+			$packages = MatrixDAL::executeSqlAll($sql);
 		} catch (DALException $e) {
 			throw new Exception ('Could not get installed packages list due to database error: '.$e->getMessage());
 		}
