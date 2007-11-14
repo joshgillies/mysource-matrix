@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.604 2007/11/14 05:47:12 lwright Exp $
+* $Id: asset.inc,v 1.605 2007/11/14 22:09:14 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.604 $
+* @version $Revision: 1.605 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -276,6 +276,10 @@ class Asset extends MySource_Object
 		}
 
 		try {
+			// TODO: Until DAL handles dates properly, get date separately
+			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
+			$now = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+
 			$bind_vars = Array(
 							'assetid'				=> $assetid,
 							'version'				=> $initial_version,
@@ -283,13 +287,13 @@ class Asset extends MySource_Object
 							'name'					=> $name,
 							'short_name'			=> $name,
 							'status'				=> $initial_status,
-							'created'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'created'				=> $now,
 							'created_userid'		=> $userid,
-							'updated'				=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'updated'				=> $now,
 							'updated_userid'		=> $userid,
 							'published'				=> NULL,
 							'published_userid'		=> NULL,
-							'status_changed'		=> db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now)),
+							'status_changed'		=> $now,
 							'status_changed_userid'	=> $userid,
 						 );
 			MatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
