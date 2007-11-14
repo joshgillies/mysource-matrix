@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.47 2007/01/30 05:35:54 colivar Exp $
+* $Id: workflow.inc,v 1.48 2007/11/14 05:48:13 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 
@@ -29,14 +29,14 @@ require_once DIRNAME(__FILE__).'/details.inc';
 /**
 * Paints the interface for viewing current workflows (used for popups etc)
 *
-* @param object	&$owner	the asset whose interface we are painting
-* @param object	&$o		the outputter class
-* @param object	&$ei	the edit interface
+* @param object	$owner	the asset whose interface we are painting
+* @param object	$o		the outputter class
+* @param object	$ei		the edit interface
 *
 * @return boolean
 * @access public
 */
-function paintInlineWorkflow(&$owner, &$o, &$ei)
+function paintInlineWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei)
 {
 	$prefix = $owner->getPrefix();
 
@@ -103,15 +103,15 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 /**
 * Paint the interface for managing metadata values
 *
-* @param object	&$owner		the asset whose interface we are painting
-* @param object	&$o			the outputter class
-* @param object	&$ei		the edit interface
+* @param object	$owner		the asset whose interface we are painting
+* @param object	$o			the outputter class
+* @param object	$ei			the edit interface
 * @param array	$keywords	the list of the keywords
 *
 * @return boolean
 * @access public
 */
-function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
+function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, $keywords=NULL)
 {
 	$root =& $ei->findScreen('static_screen_workflow');
 	if (is_null($root)) return FALSE;
@@ -477,7 +477,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 													}
 												}
 
-												if (is_a($asset, 'user')) {
+												if ($asset instanceof User) {
 													echo '&nbsp;';
 												} else {
 													echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
@@ -494,7 +494,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 															echo '<span style="color:#008800"><b>'.translate('yes').'</b></span>';
 														} else {
 															// do some extra checking
-															if (is_a($asset, 'user')) {
+															if ($asset instanceof User) {
 																echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
 															} else {
 																if ($cond_logic_num) {
@@ -783,14 +783,14 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=NULL)
 * Processes the interface for managing workflow
 * returns TRUE if there is a change
 *
-* @param object	&$owner	the asset whose interface we are painting
-* @param object	&$o		the outputter class
-* @param object	&$ei	the edit interface
+* @param object	$owner	the asset whose interface we are painting
+* @param object	$o		the outputter class
+* @param object	$ei		the edit interface
 *
 * @return boolean
 * @access public
 */
-function processWorkflow(&$owner, &$o, &$ei)
+function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei)
 {
 	$updated = FALSE;
 	$prefix = $owner->getPrefix();
@@ -927,16 +927,16 @@ function processWorkflow(&$owner, &$o, &$ei)
 /**
 * Called to paint escalation steps recursively
 *
-* @param object	&$owner			the asset whose interface we are painting
-* @param object	&$o				the outputter class
-* @param object	&$ei			the edit interface
+* @param object	$owner			the asset whose interface we are painting
+* @param object	$o				the outputter class
+* @param object	$ei			the edit interface
 * @param array	&$workflow		the workflow status array
 * @param array	$step_address	the address of the current step within the workflow array
 *
 * @return boolean
 * @access public
 */
-function _paintWorkflowStep(&$owner, &$o, &$ei, &$workflow, $step_address)
+function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, array &$workflow, array $step_address)
 {
 	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$step_data = $wfm->getCurrentStep($workflow, $step_address);
@@ -1044,7 +1044,7 @@ function _paintWorkflowStep(&$owner, &$o, &$ei, &$workflow, $step_address)
 					}
 				}
 
-				if (is_a($asset, 'user')) {
+				if ($asset instanceof User) {
 					echo '&nbsp;';
 				} else {
 					echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
@@ -1061,7 +1061,7 @@ function _paintWorkflowStep(&$owner, &$o, &$ei, &$workflow, $step_address)
 							echo '<span style="color:#008800"><b>'.translate('yes').'</b></span>';
 						} else {
 							// do some extra checking
-							if (is_a($asset, 'user')) {
+							if ($asset instanceof User) {
 								echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
 							} else {
 								if ($cond_logic_num) {

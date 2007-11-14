@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.22 2007/02/05 05:39:05 colivar Exp $
+* $Id: metadataSchemas.inc,v 1.23 2007/11/14 05:48:13 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -28,15 +28,15 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paint the interface for viewing metadata schemas (used in popups etc)
 *
-* @param object	&$owner	the asset whose interface we are painting
-* @param object	&$o		the outputter class
-* @param object	&$ei	the edit interface
+* @param object	$owner	the asset whose interface we are painting
+* @param object	$o		the outputter class
+* @param object	$ei		the edit interface
 * @param array	$keywords	the list of keywords
 *
 * @return boolean
 * @access public
 */
-function paintInlineMetadataSchemas(&$owner, &$o, &$ei, $keywords=NULL)
+function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, array $keywords=NULL)
 {
 	$prefix = $owner->getPrefix();
 
@@ -72,7 +72,7 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei, $keywords=NULL)
 				foreach ($schemaids as $schemaid) {
 					if ($schemaid) {
 						$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-						if (!$schema->id || !is_a($schema, 'metadata_schema')) {
+						if (!$schema->id || !($schema instanceof Metadata_Schema)) {
 							continue;
 						}
 					}
@@ -103,14 +103,14 @@ function paintInlineMetadataSchemas(&$owner, &$o, &$ei, $keywords=NULL)
 /**
 * Paint the interface for managing metadata schamas
 *
-* @param object	&$owner		the asset whose interface we are painting
-* @param object	&$o				the outputter class
-* @param object	&$ei			the edit interface
+* @param object	$owner		the asset whose interface we are painting
+* @param object	$o			the outputter class
+* @param object	$ei			the edit interface
 *
 * @return boolean
 * @access public
 */
-function paintMetadataSchemas(&$owner, &$o, &$ei)
+function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei)
 {
 	$prefix = $owner->getPrefix();
 
@@ -215,14 +215,14 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 *
 * It returns TRUE is there is a change, FALSE on error or no change
 *
-* @param object	&$owner	the asset whose interface we are painting
-* @param object	&$o		the outputter class
-* @param object	&$ei	the edit interface
+* @param object	$owner	the asset whose interface we are painting
+* @param object	$o		the outputter class
+* @param object	$ei		the edit interface
 *
 * @return boolean
 * @access public
 */
-function processMetadataSchemas(&$owner, &$o, &$ei)
+function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei)
 {
 	// if we dont have admin access, go away
 	if ($owner->id && !$owner->adminAccess('')) {
