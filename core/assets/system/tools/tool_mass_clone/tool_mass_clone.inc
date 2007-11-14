@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_mass_clone.inc,v 1.2 2006/12/06 00:13:03 bcaldwell Exp $
+* $Id: tool_mass_clone.inc,v 1.3 2007/11/14 04:23:22 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -55,7 +55,7 @@ class Tool_Mass_Clone extends Tool
 	* @access public
 	* @static
 	*/
-	function paintTool(&$o, $type_code)
+	public static function paintTool(&$o, $type_code)
 	{
 		$o->openSection(translate('mass_clone'));
 			$o->openField(translate('mass_clone_asset_to_clone'));
@@ -132,7 +132,7 @@ class Tool_Mass_Clone extends Tool
 	* @access protected
 	* @static
 	*/
-	function getClonableTypes()
+	public static function getClonableTypes()
 	{
 		return Array();
 
