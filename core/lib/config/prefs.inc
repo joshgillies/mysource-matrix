@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: prefs.inc,v 1.5 2006/12/05 05:11:51 bcaldwell Exp $
+* $Id: prefs.inc,v 1.6 2007/11/14 23:36:13 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the creation and editing of the user preference files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Prefs extends MySource_Object
@@ -58,7 +58,7 @@ class Prefs extends MySource_Object
 		if (is_file($this->pref_file)) {
 			include $this->pref_file;
 
-			$pref_type = substr(get_class($this), 0, -6);
+			$pref_type = substr(strtolower(get_class($this)), 0, -6);
 			if (isset($preferences[$pref_type])) {
 				foreach ($preferences[$pref_type] as $var_name => $var_data) {
 					if (!isset($this->pref_vars[$var_name])) continue;
