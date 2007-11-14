@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool.inc,v 1.4 2006/12/06 00:13:44 bcaldwell Exp $
+* $Id: tool.inc,v 1.5 2007/11/14 04:19:26 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Tool extends Asset
 	* @return void
 	* @access public
 	*/
-	function paintTool(&$o, $type_code)
+	public static function paintTool(&$o, $type_code)
 	{
 
 	}//end paintTool()
