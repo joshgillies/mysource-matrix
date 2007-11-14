@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.607 2007/11/14 05:47:12 lwright Exp $
+* $Id: asset_manager.inc,v 1.608 2007/11/14 05:55:28 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.607 $
+* @version $Revision: 1.608 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5309,7 +5309,8 @@ class Asset_Manager extends MySource_Object
 	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
 	{
 		// First, we should try and find the link
-		$link = $this->getLinkById($linkid);
+		$link_info = $this->getLinkById($linkid);
+		$link = $link_info[0];
 		if (empty($link)) {
 			trigger_localised_error('SYS0139', E_USER_WARNING, $linkid);
 			return FALSE;
@@ -5446,10 +5447,17 @@ class Asset_Manager extends MySource_Object
 					SET
 						'.$set_string.'
 					WHERE
-							linkid	= '.$db->quote($linkid).'
-						AND	majorid	= '.$db->quote($major->id);
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+							linkid	= :linkid
+							AND	majorid	= :majorid';
+
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':linkid', $linkid);
+				$query->bindValue(':majorid', $major->id);
+				MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update the link due to database error: '.$e->getMessage());
+			}
 
 			$this->forgetAsset($major);
 
@@ -5457,14 +5465,22 @@ class Asset_Manager extends MySource_Object
 
 			if ($sort_order_changed) {
 
-				$sql = 'SELECT COUNT(*) AS count, MAX(sort_order) AS max
-						FROM
-							sq_ast_lnk
-						WHERE
-							majorid = '.$db->quote($major->id);
+				$row = NULL;
+				try {
+					$sql = 'SELECT COUNT(*) AS count, MAX(sort_order) AS max
+							FROM
+								sq_ast_lnk
+							WHERE
+							majorid = :majorid';
 
-				$row = $db->getRow($sql);
-				assert_valid_db_result($row);
+					$query = $db->prepare($sql);
+					$query->bindValue(':majorid', $major->id);
+					$result = MatrixDAL::executePdoAssoc($query);
+					$row = $result[0];
+
+				} catch (Exception $e) {
+					throw new Exception('Unable to get execute the query: '.$e->getMessage());
+				}
 
 				$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
 				if ($sort_order > $max || $sort_order < 0) {
@@ -5491,13 +5507,12 @@ class Asset_Manager extends MySource_Object
 				$ms->abortLog();
 				return TRUE;
 			}
-
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = MatrixDAL::getDb();
 
 			$set_clauses['updated_userid']	= $db->quote($GLOBALS['SQ_SYSTEM']->currentUserId());
-			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
+			$set_clauses['updated']			= db_extras_todate(MatrixDAL::getDbType(), ts_iso8601(time()));
 
 			$set_array = Array();
 
@@ -5512,11 +5527,17 @@ class Asset_Manager extends MySource_Object
 					SET
 						'.$set_string.'
 					WHERE
-							linkid	= '.$db->quote($linkid).'
-						AND	majorid	= '.$db->quote($major->id);
+							linkid	= :linkid
+							AND	majorid	= :majorid';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':linkid', $linkid);
+				$query->bindValue(':majorid', $major->id);
+				MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update the link due to database error: '.$e->getMessage());
+			}
 
 			if ($sort_order_changed) {
 				// move 'em up, higher
@@ -5527,13 +5548,21 @@ class Asset_Manager extends MySource_Object
 							SET
 								sort_order = sort_order + 1
 							WHERE
-									majorid		= '.$db->quote($major->id).'
-								AND	linkid		<> '.$db->quote($linkid).'
-								AND	sort_order	>= '.$db->quote($sort_order).'
-								AND	sort_order	<= '.$db->quote($link['sort_order']);
+									majorid		= :majorid
+								AND	linkid		<> :linkid
+								AND	sort_order	>= :sort_order_1
+								AND	sort_order	<= :sort_order_2';
 
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
+					try {
+						$query = $db->prepare($sql);
+						$query->bindValue(':linkid', $linkid);
+						$query->bindValue(':majorid', $major->id);
+						$query->bindValue(':sort_order_1', $sort_order);
+						$query->bindValue(':sort_order_2', $link['sort_order']);
+						MatrixDAL::execPdoQuery($query);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update the link due to database error: '.$e->getMessage());
+					}
 
 				} else {
 
@@ -5542,13 +5571,21 @@ class Asset_Manager extends MySource_Object
 							SET
 								sort_order = sort_order - 1
 							WHERE
-									majorid		= '.$db->quote($major->id).'
-								AND	linkid		<> '.$db->quote($linkid).'
-								AND	sort_order	>= '.$db->quote($link['sort_order']).'
-								AND	sort_order	<= '.$db->quote($sort_order);
+									majorid		= :majorid
+								AND	linkid		<> :linkid
+								AND	sort_order	>= :sort_order_1
+								AND	sort_order	<= :sort_order_2';
 
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
+					try {
+						$query = $db->prepare($sql);
+						$query->bindValue(':linkid', $linkid);
+						$query->bindValue(':majorid', $major->id);
+						$query->bindValue(':sort_order_1', $link['sort_order']);
+						$query->bindValue(':sort_order_2', $sort_order);
+						MatrixDAL::execPdoQuery($query);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update the link due to database error: '.$e->getMessage());
+					}
 				}
 
 			}//end if

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.328 2007/10/29 22:05:05 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.329 2007/11/14 05:55:28 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.328 $
+* @version $Revision: 1.329 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -907,7 +907,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// if this ain't a section, or if we are printing the create interface and this section
 			// is not included in that, ignore it
-			if ($creating && empty($create_sections[$section->attributes()->name])) {
+			if ($creating && empty($create_sections[(string)$section->attributes()->name])) {
 				continue;
 			}
 
@@ -917,10 +917,10 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			// if a translated display name has been specified, use it
-			if (isset($section->attributes()->display_name)) {
-				$o->openSection($section->attributes()->display_name);
+			if (!is_null($section->attributes()->display_name)) {
+				$o->openSection((string)$section->attributes()->display_name);
 			} else {
-				$o->openSection($section->attributes()->name);
+				$o->openSection((string)$section->attributes()->name);
 			}
 
 			if (!($num_fields = count($section->children()))) {
@@ -964,15 +964,14 @@ class Asset_Edit_Interface extends MySource_Object
 					switch ($field->getName()) {
 						case 'field':
 							$display_name = '';
+							$name = '';
 							$field_note   = '';
-							$attr_tag     = NULL;
-
-							foreach ($field->children as $sub_field) {
+							$attr_tag     = NULL; // TODO: TOF what is $attr_tag
+							foreach ($field->children() as $sub_field) {
 								switch ($sub_field->name) {
 									case 'display_name':
 										$display_name = (string)$sub_field;
 									break;
-
 									case 'note':
 										$field_note = (string)$sub_field;
 									break;
@@ -1004,15 +1003,17 @@ class Asset_Edit_Interface extends MySource_Object
 
 							if (!empty($field->attributes()->attribute)) {
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-								if (($field->getName() != 'field') || ($creating && (empty($field->attributes()->attribute) || !in_array($field->attributes()->attribute, $create_sections[$section->attributes()->name])))) {
+								if (($field->getName() != 'field') || ($creating && (empty($field->attributes()->attribute) || !in_array((string)$field->attributes()->attribute, $create_sections[(string)$section->attributes()->name])))) {
 									continue;
 								}
 
+								// TODO TOF fix display_name
 								$o->openField($display_name, $field->attributes()->format, '', isset($field->attributes()->hidden));
+								$attr = $owner->getAttribute((string)$field->attributes()->attribute);
 
-								$attr = $owner->getAttribute($field->attributes()->attribute);
 								if (is_null($attr)) continue;
-								if (!$attr->setEditParams($attr_tag)) continue;
+								// TODO: TOF fix the line below
+								//if (!$attr->setEditParams($attr_tag)) continue;
 								$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE));
 								if ($field_access & SQ_EI_WRITE) {
 									$print_commit_button = TRUE;
@@ -1685,6 +1686,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$this->_determinePreviewUrl($owner, $o);
 
 		$current_screen = (empty($_REQUEST['asset_ei_screen'])) ? 'details' : $_REQUEST['asset_ei_screen'];
+
 		return $this->processInline($owner, $o, $creating, $current_screen);
 
 	}//end process()
@@ -1802,7 +1804,8 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 					}
 				} else {
-					$root = unserialize(file_get_contents($file));
+					$root_from_file = file_get_contents($file);
+					$root = $output = simplexml_load_string($root_from_file);
 				}
 			} else {
 
@@ -1833,7 +1836,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 					// if we are printing the create interface and this section
 					// is not included in that, ignore it
-					if ($creating && empty($create_sections[$section->attributes()->name])) {
+					if ($creating && empty($create_sections[(string)$section->attributes()->name])) {
 						continue;
 					}
 
@@ -1872,7 +1875,7 @@ class Asset_Edit_Interface extends MySource_Object
 					// they must just be normal fields
 					} else {
 						// Loop over the fields
-						foreach ($section->children as $field) {
+						foreach ($section->field as $field) {
 							if ($field->getName() == 'note') continue;
 
 							$child_fields = $field->children();
@@ -2231,7 +2234,8 @@ class Asset_Edit_Interface extends MySource_Object
 					$root = NULL;
 					return $root;
 				} else {
-					$root = unserialize(file_get_contents($lang_file));
+					$root_xml = file_get_contents($lang_file);
+					$root = simplexml_load_string($root_xml);
 				}
 			}
 		}
@@ -2259,7 +2263,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		try {
-			$root = new XML_Tree($create_file);
+			$root = simplexml_load_file($create_file);
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse Create screen file "'.$create_file.'": '.$e->getMessage());
 		}
@@ -2269,6 +2273,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$create_sections[(string)$section->attributes()->name] = Array();
 			// Loop over the fields
+
 			foreach ($section->children() as $field) {
 
 				switch ($field->getName()) {
@@ -2284,7 +2289,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 					case 'field' :
 						if (isset($field->attributes()->attribute)) {
-							$create_sections[$section->attributes()->name][] = (string)$field->attributes()->attribute;
+							$create_sections[(string)$section->attributes()->name][] = (string)$field->attributes()->attribute;
 						} else if (isset($field->function_call)) {
 							// There is a function call
 							if ($painting) {
@@ -2304,7 +2309,9 @@ class Asset_Edit_Interface extends MySource_Object
 			}//end for
 
 		}//end for
-		return Array($create_sections, $root->attributes['screen']);
+
+		return Array($create_sections, (string)$root->attributes()->screen);
+//		return Array($create_sections, $root->attributes['screen']);
 
 	}//end _getCreateSections()
 

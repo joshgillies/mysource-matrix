@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.23 2007/10/29 22:23:54 lwright Exp $
+* $Id: transaction_manager.inc,v 1.24 2007/11/14 05:55:28 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -124,7 +124,8 @@ class Transaction_Manager extends MySource_Object
 		$dsn = $dsn_array['dsn'];
 
 		if (empty($this->_levels[$dsn])) {
-			trigger_localised_error('SYS0219', E_USER_WARNING);
+			// TODO: -TOF- put that line back
+			//trigger_localised_error('SYS0219', E_USER_WARNING);
 			return FALSE;
 		}
 

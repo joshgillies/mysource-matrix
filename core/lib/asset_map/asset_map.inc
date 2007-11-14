@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.252 2007/11/09 05:58:33 colivar Exp $
+* $Id: asset_map.inc,v 1.253 2007/11/14 05:55:29 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -488,7 +488,6 @@ class Asset_Map
 	function _send($output)
 	{
 		header('Content-Type: text/xml; encoding=utf-8');
-		//$output->dump();
 		echo $output->asXML();
 
 	}//end _send()
@@ -538,30 +537,29 @@ class Asset_Map
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$root = simplexml_load_file('php://input');
+		$root = simplexml_load_file('php://input');//log_dump($root->asXML());
 
 		switch ($root['action']) {
 			case 'get translations' :
 				$this->_getTranslations($input);
 			break;
 			case 'initialise' :
-				// TODO: $this->_doInitialise($input);
 				$this->_doInitialise();
 			break;
 			case 'get assets' :
 				$this->_getAssets($root);
 			break;
 			case 'get url' :
-				$this->_getURL($input, $backend);
+				$this->_getURL($root, $backend);
 			break;
 			case 'clone' :
 				$this->_cloneAssets($input, $backend);
 			break;
 			case 'move asset' :
-				$this->_moveAssets($input, $backend);
+				$this->_moveAssets($root, $backend);
 			break;
 			case 'new link' :
-				$this->_newLinks($input);
+				$this->_newLinks($root);
 			break;
 			default :
 				$this->_error('AMAP0003', $root->attributes['action']);
@@ -613,11 +611,9 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	//function _doInitialise(&$input)
 	function _doInitialise()
 	{
 
-		//$output = new XML_Tree();
 		$output = simplexml_load_string('<xml></xml>');
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 
@@ -625,7 +621,6 @@ class Asset_Map
 		// so the asset map can create a java object for each
 		$current_user_info = $this->_getAssetInfo($current_user->id);
 
-		//$root = $output->addRoot('current_user', '', $current_user_info);
 		$root = $output->addChild('root');
 		$current_user_node = $root->addChild('current_user');
 		foreach ($current_user_info as $key => $value) {
@@ -640,10 +635,6 @@ class Asset_Map
 		// get info and children for the root folder
 		// note the hard code the assetid of the root folder because
 		// it MUST ALWAYS be the first asset created
-
-		//$root = $output->addRoot('assets', '');
-		//$info = $this->_getAssetInfo('1');
-		//$child = $root->addChild('asset', '', $info);
 		$assets_node = $root->addChild('assets');
 		$info = $this->_getAssetInfo('1');
 		$root_node_info = $assets_node->addChild('asset');
@@ -651,37 +642,11 @@ class Asset_Map
 			if (strlen($value) == 0)  $root_node_info->addAttribute($key, ' ');
 			else $root_node_info->addAttribute($key, $value);
 		}
-		//$this->getAsset($child, '1');
 		$this->_getChildAssets($root_node_info, '1');
 		$assets_xml = $assets_node->asXML();
 
 		// just get the root's XML not the tree's, because it is part of
 		// bigger things and we dont want the version info
-		//$assets_xml = $root->get();
-
-		//header('Content-Type: text/xml');
-		//ob_start();
-		//	echo "<initialisation>\n";
-		//		echo "<asset_types>\n";
-		//			$dir = SQ_DATA_PATH.'/private/asset_map';
-		//			if ($d = @opendir($dir)) {
-		//				while (($file = readdir($d)) !== FALSE) {
-		//					if (substr($file, -4) == '.xml') {
-		//						@readfile($dir.'/'.$file);
-		//						@ob_flush();
-		//					}
-		//				}
-		//				closedir($d);
-		//			}
-		//		echo "</asset_types>\n";
-		//		echo $current_user_xml;
-		///		echo $assets_xml;
-		//	echo "</initialisation>\n";
-		//	$out = ob_get_contents();
-		//ob_end_clean();
-
-		//echo $out;
-
 		header('Content-Type: text/xml');
 		ob_start();
 				echo "<initialisation>\n";
@@ -738,7 +703,7 @@ class Asset_Map
 	* @access private
 	*/
 	function _getAssetInfo($assetid, $linkid=0)
-	{// TODO write tests for this function
+	{
 		$attrs = Array();
 		if (FALSE !== strpos($assetid, ':')) {
 			// This is a shadow asset so we need to get info differently
@@ -1062,21 +1027,10 @@ class Asset_Map
 			foreach($bind_vars as $key => $value) {
 				$query->bindValue(':'.$key, $value);
 			}
-			$db_result_php4 = MatrixDAL::executePdoAssoc($query);
-			foreach ($db_result_php4 as $key => $value) {
-					$db_result[$value['assetid']] = Array();
-					$db_result[$value['assetid']][0] = Array();
-					foreach ($value as $key1 => $value1) {
-						if ($key1 == 'assetid') continue;
-						$db_result[$value['assetid']][0][$key1] = $value1;
-					}
-			}
+			$db_result = MatrixDAL::executePdoAssoc($query);
 
-			//if (!assert_valid_db_result($db_result, '', TRUE, FALSE)) {
-			//	return $this->_error('AMAP0005', $assetid, $db_result->getMessage());
-			//}
 		} catch (Exception $e) {
-			throw new Exception('Unable to get BLABLA due to database error: '.$e->getMessage());
+			throw new Exception('Unable to get all the children due to database error: '.$e->getMessage());
 		}
 
 		// create the result array to be a single (assetid => asset_data)
@@ -1084,16 +1038,10 @@ class Asset_Map
 		$result = Array();
 		$res_count = 0;
 		$added = 0;
-		foreach ($db_result as $db_assetid => $db_data) {
+		foreach ($db_result as $db_result_v) {
 			if ($res_count >= $start) {
-				$result[$db_assetid] = $db_data[0];
-				$result[$db_assetid]['assetid'] = $db_assetid;
-				if (($limit > 0) && ($added >= $limit-1)) {
-					break;
-				}
-				$added++;
-			} else {
-				$res_count++;
+				$result[$db_result_v['assetid']] = $db_result_v;
+				$result[$db_result_v['assetid']]['assetid'] = $db_result_v['assetid'];
 			}
 		}
 		unset($db_result);
@@ -1116,20 +1064,19 @@ class Asset_Map
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', FALSE);
 			$where .= ' GROUP BY majorid ';
 
-			//$num_kids = $db->getAssoc($sql.' '.$where, FALSE, Array(), DB_FETCHMODE_DEFAULT, FALSE);
 			$query2 = $db->prepare($sql.' '.$where);
 			foreach($bind_vars as $key => $value) {
 				$query2->bindValue(':'.$key, $value);
 			}
-			$db_result_php4 = MatrixDAL::executePdoAssoc($query2);
-			if (!empty($db_result_php4))
+			$db_result = MatrixDAL::executePdoAssoc($query2);
+			if (!empty($db_result))
 			{
-				foreach ($db_result_php4 as $key => $value) {
+				foreach ($db_result as $key => $value) {
 					$num_kids[$value['majorid']] = $value['count'];
 				}
 			}
 		} catch (Exception $e) {
-			throw new Exception('Failed to BLABLA due to database error: '.$e->getMessage());
+			throw new Exception('Failed to get the number of children due to database error: '.$e->getMessage());
 		}
 
 		// gather links for shadowed assets - only if asset descends from a bridge
@@ -1377,17 +1324,6 @@ class Asset_Map
 			// add the children to the newly created node
 			$this->_getChildAssets($tmp_node, $tmp_info['assetid'], FALSE, $tmp_info['start'], $tmp_info['limit']);
 		}
-		/*for ($i = 0; $i < count($input->root->children); $i++) {
-			$node = $input->root->children[$i];
-			if (empty($node->attributes['assetid'])) continue;
-			$assetid = $node->attributes['assetid'];
-			$start = $node->attributes['start'];
-			$limit = $node->attributes['limit'];
-			$linkid = $node->attributes['linkid'];
-			$info = $this->_getAssetInfo(urldecode($assetid), urldecode($linkid));
-			$child = $root->addChild('asset', '', $info);
-			$this->_getChildAssets($child, urldecode($assetid), FALSE, $start, $limit);
-		} */
 
 		$this->_send($root);
 
@@ -1405,19 +1341,25 @@ class Asset_Map
 	*/
 	function _getURL(&$input, &$backend)
 	{
-		$output = new XML_Tree();
-		$output->addRoot('responses');
+		/* input sample
+			<?xml version="1.0"?>
+			<command action="get url" cmd="add" parent_assetid="1" pos="5" type_code="folder"/>
+		*/
+
 		$response_count = 0;
 
 		$link  = '';
 		$frame = '';
+		$action_info = Array();
+		foreach ($input->attributes() as $k => $v) {
+			$action_info[$k] = (string)$v;
+		}
 
-		switch ($input->root->attributes['cmd']) {
+		switch ($action_info['cmd']) {
 			case 'add' :
 
-				$attr = $input->root->attributes;
-				$parent_assetid = urldecode($attr['parent_assetid']);
-				if (empty($parent_assetid) || !isset($attr['pos']) || empty($attr['type_code'])) {
+				$parent_assetid = urldecode($action_info['parent_assetid']);
+				if (empty($parent_assetid) || !isset($action_info['pos']) || empty($action_info['type_code'])) {
 					$this->_error('AMAP0007');
 					return;
 				}
@@ -1443,7 +1385,7 @@ class Asset_Map
 				$error_message = '';
 				$link_types = Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2);
 				foreach ($link_types as $link_type) {
-					if (TRUE === ($error_message = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $attr['type_code'], $link_type))) {
+					if (TRUE === ($error_message = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $action_info['type_code'], $link_type))) {
 						// use this type
 						$use_link_type = $link_type;
 						break;
@@ -1465,10 +1407,10 @@ class Asset_Map
 				$link  = current_url().'?SQ_BACKEND_PAGE=main'
 						.'&backend_section=am'
 						.'&am_section=add_asset'
-						.'&type_code='.urlencode($attr['type_code'])
+						.'&type_code='.urlencode($action_info['type_code'])
 						.'&link_type='.urlencode($use_link_type)
 						.'&parent_assetid='.$parent_assetid
-						.'&pos='.urlencode($attr['pos']);
+						.'&pos='.urlencode($action_info['pos']);
 
 				$frame = 'sq_main';
 
@@ -1479,17 +1421,24 @@ class Asset_Map
 				return;
 
 		}//end switch
-
 		if (empty($link) || empty($frame)) {
 			$this->_error('AMAP0014');
 			return;
 		}
 
-		$urlTree = new XML_Tree();
-		$urlTree->addRoot('url', $link, Array('frame' => $frame));
-		$output->insertChild(Array('responses'), $response_count++, $urlTree);
+		/* we want to return the following xml
+			<?xml version="1.0"?>
+			<responses>
+			  <url frame="sq_main">http://delta.squiz.net/colivar_dev/_admin/?SQ_BACKEND_PAGE=main&amp;backend_section=am&amp;am_section=add_asset&amp;type_code=folder&amp;link_type=1&amp;parent_assetid=1&amp;pos=5</url>
+			</responses>
+		*/
 
-		$this->_send($output);
+		$output = simplexml_load_string('<xml></xml>');
+		$responses = $output->addChild('responses');
+		$url_tree = $responses->addChild('url', htmlentities($link));
+		$url_tree->addAttribute('frame', $frame);
+
+		$this->_send($responses);
 
 	}//end _getURL()
 
@@ -1761,56 +1710,66 @@ class Asset_Map
 	*/
 	function _moveAssets($input)
 	{
-		$output = new XML_Tree();
-		$output->addRoot('responses');
+		/* EXAMPLE of input
+			<?xml version="1.0"?>
+				<command action="move asset" to_parent_assetid="10" to_parent_pos="0">
+					<asset assetid="50" linkid="49" parentid="37"/>
+				</command>
+		*/
+
+		$output = simplexml_load_string('<xml></xml>');
+		$responses = $output->addChild('responses');
+
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
-		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
+		$input->attributes()->to_parent_assetid = urlencode($input->attributes()->to_parent_assetid);
+		foreach($input->asset as $asset) {
+			$asset->attributes()->assetid = urldecode($asset->attributes()->assetid);
 		}
 
-		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
-		$new_parent_pos = $input->root->attributes['to_parent_pos'];
+
+		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->attributes()->to_parent_assetid);
+		$new_parent_pos = (string)$input->attributes()->to_parent_pos;
 
 		if (is_null($new_parent)) {
-			$this->_error('AMAP0030', $input->root->attributes['to_parent_assetid']);
+			$this->_error('AMAP0030', (string)$input->attributes()->to_parent_assetid);
 			return;
 		}
 
 		$assets = Array();
 		$reordered_assets = Array();
 
-		foreach ($input->root->children as $asset_node) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($asset_node->attributes['parentid']));
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
+		// get information about the assets to move
+		foreach ($input->asset as $asset_node) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$asset_node->attributes()->assetid);
+			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$asset_node->attributes()->parentid));
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$asset_node->attributes()->linkid, $old_parent->id);
 
 			if (is_null($old_parent)) {
-				$this->_error('AMAP0031', $input->root->attributes['from_parent_assetid']);
+				$this->_error('AMAP0031', $input->attributes()->from_parent_assetid);
 				return;
 			}
 
 			if (empty($link)) {
-				$this->_error('AMAP0032', $asset_node->attributes['linkid']);
+				$this->_error('AMAP0032', $asset_node->attributes()->linkid);
 				return;
 			}
 
-			if (($err_msg = $old_parent->isDeletableLink($link['linkid'])) !== TRUE) {
+			if (($err_msg = $old_parent->isDeletableLink($link[0]['linkid'])) !== TRUE) {
 				$this->_error('AMAP0033', $err_msg);
 				return;
 			}
 
 			if (is_null($asset)) {
-				$this->_error('AMAP0034', $link['minorid']);
+				$this->_error('AMAP0034', $link[0]['minorid']);
 				return;
 			}
 
 			if ($old_parent->id == $new_parent->id) {
 				$reordered_assets[$asset->id] = Array(
-													'linkid'		=> $link['linkid'],
-													'sort_order'	=> $link['sort_order'],
+													'linkid'		=> $link[0]['linkid'],
+													'sort_order'	=> $link[0]['sort_order'],
 													'parentid'		=> $old_parent->id,
 												);
 			} else {
@@ -1820,13 +1779,14 @@ class Asset_Map
 					$assets[$asset->id] = Array();
 				}
 				$assets[$asset->id][] = Array(
-											'linkid'	=> $link['linkid'],
+											'linkid'	=> $link[0]['linkid'],
 											'parentid'	=> $old_parent->id,
 										);
 			}
 
 		}//end foreach
 
+		// TODO: Fix reordering
 		// process the re-ordering
 		foreach ($reordered_assets as $assetid => $link_info) {
 
@@ -1853,25 +1813,28 @@ class Asset_Map
 			if ($new_parent_pos <= $link_info['sort_order']) {
 				$new_parent_pos++;
 			}
-			$successTree = new XML_Tree();
-			$successTree->addRoot('success', '', Array(
-													'linkid'	=> $link_info['linkid'],
-													'assetid'	=> $assetid,
-												 )
-								);
-			$output->insertChild(Array('responses'), $response_count++, $successTree);
+			$success_node = $responses->addChild('success');
+			$success_node->addAttribute('linkid', $link_info['linkid']);
+			$success_node->addAttribute('assetid', $assetid);
+
+			/* output when reordering
+				<responses>
+					<success linkid="64" assetid="55" />
+				</responses>
+			*/
+
 		}//end foreach
 
 		// if we have only one link, and we cant move it to the parent we dont continue further
 		if (count($assets) == 1 && count(reset($assets)) == 1) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
-			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($input->root->children[0]->attributes['parentid']));
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->children[0]->attributes['linkid']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->asset[0]->attributes()->assetid);
+			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$input->asset[0]->attributes()->parentid));
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$input->asset[0]->attributes()->linkid);
 			$link_type = array_get_index($link, 'link_type', SQ_LINK_TYPE_1);
 			$value = array_get_index($link, 'value', '');
 			$dependant = array_get_index($link, 'is_dependant', '0');
 			$exclusive = array_get_index($link, 'is_exclusive', '0');
-			$sort_order = $input->root->attributes['to_parent_pos'];
+			$sort_order = (string)$input->attributes()->to_parent_pos;
 			$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 			$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 			$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
@@ -1884,6 +1847,7 @@ class Asset_Map
 				return;
 			}
 		}
+
 
 		// Only run the HIPO if assets need to be moved from one parent to another
 		if (count($assets) > 0) {
@@ -1907,13 +1871,18 @@ class Asset_Map
 			$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 			if (!empty($url)) {
-				$urlTree = new XML_Tree();
-				$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-				$output->insertChild(Array('responses'), $response_count++, $urlTree);
+				$hipo_node = $responses->addChild('url', htmlentities($url));
+				$hipo_node->addAttribute('js_function', 'asset_map_popup');
 			}
 		}
 
-		$this->_send($output);
+		/* EXAMPLE of ouput
+			<responses>
+				<url js_function="asset_map_popup">http://mysite.com/colivar_dev/_admin/?SQ_ACTION=hipo&amp;hipo_source_code_name=hipo_job_create_links-f457c545a9ded88f18ecee47145a72c0</url>
+			</responses>
+		*/
+
+		$this->_send($responses);
 
 	}//end _moveAssets()
 
