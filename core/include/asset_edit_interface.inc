@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.329 2007/11/14 05:55:28 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.330 2007/11/15 03:39:32 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.329 $
+* @version $Revision: 1.330 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1028,7 +1028,7 @@ class Asset_Edit_Interface extends MySource_Object
 								$paint_node = $attr_tag->paint_function;
 
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-								if ($field->getName() != 'field' || ($creating && !in_array($paint_node->attributes()->name, $create_sections[$section->attributes()->name]))) {
+								if ($field->getName() != 'field' || ($creating && !in_array((string) $paint_node->attributes()->name, $create_sections[(string) $section->attributes()->name]))) {
 									continue;
 								}
 
@@ -1037,7 +1037,8 @@ class Asset_Edit_Interface extends MySource_Object
 								if (empty($paint_node->attributes()->name) || !method_exists($this->_edit_fns, $paint_node->attributes()->name)) {
 									$o->note(translate('specific_painting_function_not_found', $paint_node->attributes()->name));
 								} else {
-									if ($this->_edit_fns->{$paint_node->attributes()->name}($owner, $o, $prefix)) {
+									$method_name = (string) $paint_node->attributes()->name;
+									if ($this->_edit_fns->{$method_name}($owner, $o, $prefix)) {
 										$print_commit_button = TRUE;
 									}
 								}
@@ -2275,7 +2276,6 @@ class Asset_Edit_Interface extends MySource_Object
 			// Loop over the fields
 
 			foreach ($section->children() as $field) {
-
 				switch ($field->getName()) {
 					case 'function_call' :
 						if ($painting) {
@@ -2297,7 +2297,7 @@ class Asset_Edit_Interface extends MySource_Object
 							} else {
 								$node_name = 'process_function';
 							}
-							$fn_node = $field->{$node_name};
+							$fn_node = $field->function_call->{$node_name};
 							$create_sections[(string)$section->attributes()->name][] = (string)$fn_node->attributes()->name;
 						} else {
 							throw new Exception('Unable to parse Create screen file "'.$create_file.'": it contains a field tag without an attribute or function call specified:'.$field->asXml());
