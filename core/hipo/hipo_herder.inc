@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.93 2007/11/14 03:19:49 bshkara Exp $
+* $Id: hipo_herder.inc,v 1.94 2007/11/15 03:59:05 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -70,7 +70,7 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function &getBackendOutputter()
 	{
-		if (!isset($this->ho) || get_class($this->ho) != 'hipo_backend_outputter') {
+		if (!isset($this->ho) || get_class($this->ho) != 'Hipo_Backend_Outputter') {
 			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_backend_outputter.inc';
 			$this->ho = new Hipo_Backend_Outputter();
 		}
@@ -797,7 +797,7 @@ class HIPO_Herder extends MySource_Object
 		$hipo_admin      = $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin();
 		$current_user_id = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class_lower($this));
 		$have_lock = (!empty($lock) && ($current_user_id == $lock['userid']));
 
 		$o = $backend->out;
@@ -870,16 +870,16 @@ class HIPO_Herder extends MySource_Object
 			}// end if have lock, and removing orphaned jobs
 
 			if (!empty($_POST['sq_lock_release']) || !empty($_POST['sq_lock_release_manual'])) {
-				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
+				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class_lower($this));
 			}
 
 			// if there is no lock currently and we want it
 			if (!empty($_POST['sq_lock_acquire'])) {
-				$GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
+				$GLOBALS['SQ_SYSTEM']->acquireLock(get_class_lower($this));
 			}
 
 			// just to make sure
-			$lock      = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+			$lock      = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class_lower($this));
 			$have_lock = (!empty($lock) && ($current_user_id == $lock['userid']));
 
 		}//end if not empty herder posted
