@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.208 2007/10/30 23:04:07 hnguyen Exp $
+* $Id: search_page.inc,v 1.209 2007/11/15 05:18:22 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.208 $
+* @version $Revision: 1.209 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -397,74 +397,6 @@ class Search_Page extends Listing_Engine
 		return;
 
 	}//end filterAssetStatuses()
-
-
-	/**
-	* Takes an array of search results and modifies it according to the rules
-	* set on the Proxy Asset Types screen. Any asset set as a proxy is replaced
-	* with its children of specified type_code. The children inherit the score
-	* from the proxy
-	*
-	* @param array	&$results	Proxy Types
-	*
-	* @return array
-	* @access private
-	*/
-	function &convertProxyAssetTypes(&$results)
-	{
-		if (empty($results)) return $results;
-
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$proxy_settings = $this->attr('proxy_types');
-		if (empty($proxy_settings)) {
-			// We should be able to return the results array straight back, but
-			// we've found sometimes it returns an empty array (PHP 4.3 ref bug??).
-			// So dump it off to another variable by value and return that
-			$new_results = $results;
-			return $new_results;
-		}
-
-		$collated_types = Array();
-		$result_types = $am->getAssetInfo(array_keys($results), 'asset', FALSE, 'type_code');
-		foreach ($result_types as $result_assetid => $result_type) {
-			$collated_types[$result_type][] = $result_assetid;
-		}
-
-		$new_results = Array();
-		$this->_tmp['proxy_grouping'] = Array();
-		foreach ($collated_types as $result_type => $result_assetids) {
-			if (isset($proxy_settings[$result_type])) {
-				if (empty($proxy_settings[$result_type])) {
-					return $results;
-				}
-
-				$converted_types = Array();
-				foreach ($proxy_settings[$result_type] as $type_code => $inherit) {
-					if ($inherit) {
-						$converted_types = array_merge($am->getTypeDescendants($type_code, TRUE), $converted_types);
-					} else {
-						$converted_types[] = $type_code;
-					}
-				}
-
-				$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($result_assetids, SQ_SC_LINK_SIGNIFICANT, $converted_types);
-
-				foreach ($children as $orig_assetid => $links) {
-					foreach ($links as $link) {
-						// keep the original score
-						$new_results[$link['minorid']] = $results[$orig_assetid];
-						$this->_tmp['proxy_grouping'][$link['minorid']][] = $orig_assetid;
-					}
-				}
-
-				// filterAssetStatuses is overridden in search_page, so call it directly
-				Listing_Engine::filterAssetStatuses($new_results);
-			}
-		}
-
-		return $new_results;
-
-	}//end convertProxyAssetTypes()
 
 
 	/**
@@ -2000,43 +1932,6 @@ class Search_Page extends Listing_Engine
 		return $replaces;
 
 	}//end getResultsBodyReplacements()
-
-
-	/**
-	* Get all the parents of this asset which can be used for grouping.
-	*
-	* This function is overridden here because if we are grouping by a type
-	* that is selected as a proxy parent, then we only want to group by
-	* those parents of that type which are actually acting as proxies
-	*
-	* @param array	$child_assetid	the asset to find the parents of
-	* @param array	$restrict_types	Group type restrictions
-	*
-	* @return array
-	* @access public
-	*/
-	function getGroupableParentAssetids($child_assetid, $restrict_types)
-	{
-		$parents = parent::getGroupableParentAssetids($child_assetid, $restrict_types);
-		$proxy_settings = $this->attr('proxy_types');
-		if (!empty($proxy_settings)) {
-			$grouping_by_proxy_type = FALSE;
-			foreach ($restrict_types['type_code'] as $group_type) {
-				if (isset($proxy_settings[$group_type])) {
-					$grouping_by_proxy_type = TRUE;
-					break;
-				}
-			}
-			if ($grouping_by_proxy_type) {
-				if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
-					$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping'][$child_assetid]));
-					$parents = array_intersect($valid_parents, $parents);
-				}
-			}
-		}
-		return $parents;
-
-	}//end getGroupableParentAssetids()
 
 
 	/**

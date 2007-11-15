@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.57 2007/10/30 23:10:55 hnguyen Exp $
+* $Id: search_page_management.inc,v 1.58 2007/11/15 05:18:22 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -51,12 +51,6 @@ class Search_Page_Management extends Asset_Management
 																		   ),
 													   ),
 								  );
-
-		$this->vars['proxy_types'] = Array(
-										'added'		=> '0.15',
-										'type'		=> 'serialise',
-										'default'	=> Array(),
-									 );
 
 		$this->vars['sis_button_text'] = Array(
 											'added'			=> '0.5',
@@ -320,7 +314,7 @@ class Search_Page_Management extends Asset_Management
 						$new_params = Array();
 						$new_params['asset_type'] = $field_data['params']['searchtype'];
 
-						// [0] - name, [1] - type, [2] - id
+						// e.g. [0] - name, [1] - type, [2] - id
 						$attr_parts = explode('__', $field_data['params']['type_attr']);
 						$new_params['attrid'] = $attr_parts[2];
 
