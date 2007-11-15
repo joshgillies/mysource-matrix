@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.4 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.5 2007/11/15 03:44:51 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$options = explode("\r\n", $asset->attr('options'));
-		$multiple = (get_class($asset) == 'form_question_type_tickbox_list') ? true : false;
+		$multiple = (get_class($asset) == 'Form_Question_Type_Tickbox_List') ? true : false;
 		$defaults = $asset->attr('default');
 
 		foreach ($options as $ref => $option) {
