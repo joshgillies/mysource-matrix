@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.31 2007/10/29 05:44:27 lwright Exp $
+* $Id: config.inc,v 1.32 2007/11/15 04:32:39 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -155,7 +155,7 @@ class Config extends MySource_Object
 								'old_value'	=> var_export($values['old'], true),
 								'new_value'	=> var_export($values['new'], true),
 							);
-				$message = $ms->newMessage(Array(), 'config.'.get_class($this), $msg_reps);
+				$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this), $msg_reps);
 				$ms->enqueueMessage($message);
 			}
 			$ms->closeQueue();
@@ -206,7 +206,7 @@ class Config extends MySource_Object
 		if (!$this->canAcquireLock()) {
 			return 'You are not allowed to acquire the lock on '.$this->name;
 		}
-		return $GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
+		return $GLOBALS['SQ_SYSTEM']->acquireLock(get_class_lower($this));
 
 	}//end acquireLock()
 
@@ -234,7 +234,7 @@ class Config extends MySource_Object
 	*/
 	public function releaseLock()
 	{
-		return $GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
+		return $GLOBALS['SQ_SYSTEM']->releaseLock(get_class_lower($this));
 
 	}//end releaseLock()
 
@@ -248,7 +248,7 @@ class Config extends MySource_Object
 	*/
 	public function getLockInfo()
 	{
-		return $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+		return $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class_lower($this));
 
 	}//end getLockInfo()
 
@@ -362,8 +362,8 @@ class Config extends MySource_Object
 		$saved = FALSE;
 		if (!empty($_POST['process_form'])) {
 
-			if (!empty($_POST[get_class($this)])) {
-				$saved = $this->save($_POST[get_class($this)]);
+			if (!empty($_POST[get_class_lower($this)])) {
+				$saved = $this->save($_POST[get_class_lower($this)]);
 			}
 		}
 
