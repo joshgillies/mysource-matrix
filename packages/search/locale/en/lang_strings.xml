@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2007/01/16 04:09:09 lwright Exp $
+* $Id: lang_strings.xml,v 1.8.4.1 2007/11/15 03:45:48 rong Exp $
 *
 *
 * Search Package Localised Strings File
@@ -57,13 +57,5 @@
 
 	<string source="search_page_confirm_cat_delete">Are you sure you want to delete this category set?</string>
 	<string source="search_cat_unselected_text">Unselected Text</string>
-
-	<!-- PROXY SEARCH STRINGS -->
-	<string source="search_page_no_types_defined">There are no current types defined</string>
-	<string source="search_page_proxy_asset_types">Proxy Asset Types</string>
-	<string source="search_page_proxy_type_code">Proxy Type Code</string>
-	<string source="search_page_proxy_child_type_codes">Child Type Codes</string>
-	<string source="search_page_proxy_type_code_new">New Proxy Asset Type</string>
-	<string source="search_page_proxy_all_types_selected">All available type codes have been selected as proxies</string>
 
 </strings>
