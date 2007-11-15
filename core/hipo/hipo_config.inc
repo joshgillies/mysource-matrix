@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.36 2007/11/13 21:45:34 hnguyen Exp $
+* $Id: hipo_config.inc,v 1.37 2007/11/15 05:36:26 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -192,7 +192,7 @@ class HIPO_Config extends Config
 		parent::paintBackend($o);
 
 		$write_access = $this->writeAccess();
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		$o->openSection(translate('hipo_server_configuration'));
 
