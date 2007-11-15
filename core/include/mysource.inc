@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.242 2007/11/14 00:57:57 lwright Exp $
+* $Id: mysource.inc,v 1.243 2007/11/15 01:18:42 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1742,7 +1742,7 @@ class MySource
 	{
 		if (is_null($user)) return $this->_user_is_public;
 		if (!$user->id) return FALSE;
-		if (get_class($user) == 'public_user') return TRUE;
+		if (get_class($user) == 'Public_User') return TRUE;
 		return FALSE;
 
 	}//end userPublic()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.611 2007/11/14 23:06:51 colivar Exp $
+* $Id: asset_manager.inc,v 1.612 2007/11/15 01:14:34 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.611 $
+* @version $Revision: 1.612 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7946,7 +7946,7 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 
 		// if we are the root folder then we just need to select from the asset table
-		if (get_class($asset) == 'root_folder') {
+		if (get_class($asset) == 'Root_Folder') {
 			$select = 'SELECT a.assetid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
