@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.4 2007/11/06 22:36:46 rong Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.5 2007/11/15 03:52:02 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,7 +84,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			if (is_null($db)) return FALSE;
 			// initialise the transaction
 			// see mysource.inc::doTransaction for more info
-			if (!isset($GLOBALS['SQ_SYSTEM']->tm) || get_class($GLOBALS['SQ_SYSTEM']->tm) != 'transaction_manager') {
+			if (!isset($GLOBALS['SQ_SYSTEM']->tm) || get_class($GLOBALS['SQ_SYSTEM']->tm) != 'Transaction_Manager') {
 				require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 				$GLOBALS['SQ_SYSTEM']->tm = new Transaction_Manager();
 			}
