@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.34 2007/11/15 00:59:10 hnguyen Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.35 2007/11/15 01:00:21 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -262,7 +262,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'div_contents', 'major', TRUE);
 		if (!empty($link)) {
 			$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			$content_prefix = $prefix.'_'.get_class($content_type).'_'.$link['linkid'];
+			$content_prefix = $prefix.'_'.get_class_lower($content_type).'_'.$link['linkid'];
 		} else {
 			$content_type = NULL;
 			$content_prefix = '';
@@ -349,7 +349,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!empty($link)) {
 			$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!is_null($content_type)) {
-				$content_prefix = $prefix.'_'.get_class($content_type).'_'.$link['linkid'];
+				$content_prefix = $prefix.'_'.get_class_lower($content_type).'_'.$link['linkid'];
 				$content_edit = $content_type->getEditFns();
 				if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) {
 					if ($content_type->saveAttributes()) $updated = TRUE;
@@ -391,7 +391,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 		// if the new type is the same as the current, change nothing
-		$current_type = get_class($content_type);
+		$current_type = get_class_lower($content_type);
 		if ($current_type == $new_type) return FALSE;
 
 		// morph the content type to the new type
