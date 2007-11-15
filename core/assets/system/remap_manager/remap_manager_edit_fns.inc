@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.22 2007/11/06 22:36:45 rong Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.23 2007/11/15 22:32:44 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,14 +75,13 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('all');
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
 		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
 
-		$sql = 'SELECT url, remap_url, expires
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
-		$remap_urls = $db->getAll($sql);
-		assert_valid_db_result($remap_urls);
+		try {
+			$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
+		} catch (Exception $e) {
+			throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+		}
 
 		if (empty($remap_urls)) {
 			echo translate('no_url_remappings');
