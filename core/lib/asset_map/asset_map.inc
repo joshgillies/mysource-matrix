@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.255 2007/11/15 04:44:45 colivar Exp $
+* $Id: asset_map.inc,v 1.256 2007/11/15 23:57:19 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.256 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -540,7 +540,7 @@ class Asset_Map
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$root = simplexml_load_file('php://input');//log_dump($root->asXML());
+		$root = simplexml_load_file('php://input');
 
 		switch ($root['action']) {
 			case 'get translations' :

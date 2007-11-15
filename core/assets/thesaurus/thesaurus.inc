@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.46 2007/11/06 22:36:47 rong Exp $
+* $Id: thesaurus.inc,v 1.47 2007/11/15 23:56:27 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -184,17 +184,17 @@ class Thesaurus extends Asset
 				sq_thes_term term
 				INNER JOIN sq_thes_lnk link ON term.termid = link.minor
 			WHERE
-				term.thesid = '.$db->quoteSmart($this->id).'
+				term.thesid = :assetid
 				AND
-				link.thesid = '.$db->quoteSmart($this->id).'
+				link.thesid = :assetid
 				AND
-				major = '.$db->quoteSmart($termid).'
+				major = :termid
 		';
 
 		if ($limit_relation) {
 			$sql .= '
 				AND
-				relid = '.$db->quoteSmart($relid).'
+				relid = :relid
 			';
 		}
 
@@ -203,9 +203,19 @@ class Thesaurus extends Asset
 				term
 		';
 
-		$result = $db->getAll($sql);
+		$query = $db->prepare($sql);
+		$query->bindValue('assetid', $this->id);
+		$query->bindValue('termid', $termid);
+		if ($limit_relation) {
+			$query->bindValue('relid', $relid);
+		}//end if
 
-		assert_valid_db_result($result);
+		try {
+			$result = MatrixDAL::executeAll($query);
+		} catch (Exception $e) {
+			throw new Exception("BALB AL : " . $e->getMessage());
+		}//end
+		
 		return $result;
 
 	}//end getChildTerms()
@@ -2413,7 +2423,6 @@ class Thesaurus extends Asset
 	*/
 	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
 	{
-		//log_dump();
 
 	}//end moveLink()
 
