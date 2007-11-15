@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.38 2006/12/06 04:24:01 emcdonald Exp $
+* $Id: cron_job_future_status.inc,v 1.39 2007/11/15 22:13:54 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -255,7 +255,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function setAssetToUpdate(&$asset)
 	{
-		if (!is_a($asset, 'asset')) {
+		if (!($asset instanceof Asset)) {
 			trigger_localised_error('CRON0030', E_USER_WARNING);
 			return FALSE;
 		}
