@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.42 2007/11/06 06:35:51 rong Exp $
+* $Id: bodycopy.inc,v 1.43 2007/11/15 05:35:40 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,7 +164,7 @@ class Bodycopy extends Asset
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a bodycopy container then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'bodycopy_container') && $dependant != '1') {
+		if ($side_of_link == 'major' && ($asset instanceof Bodycopy_Container) && $dependant != '1') {
 			$dependant = '1';
 			$link_type = SQ_LINK_TYPE_2;
 			return TRUE;

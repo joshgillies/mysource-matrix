@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.22 2007/11/06 06:26:02 rong Exp $
+* $Id: page_standard.inc,v 1.23 2007/11/15 05:35:40 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,7 @@ class Page_Standard extends Page
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if a bodycopy is linking to us then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
+		if ($side_of_link == 'major' && ($asset instanceof Bodycopy) && $dependant != '1') {
 			$dependant = '1';
 			return TRUE;
 		}

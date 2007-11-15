@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.56 2007/11/06 06:06:46 rong Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.57 2007/11/15 05:35:40 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -268,7 +268,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$output = preg_replace($e, $r, $output);
 		// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
 		$e = '|\\./\\?a=([0-9]+:[^$]*)\\$|';
-		if (preg_match_all($e, $output, $matches=Array(), PREG_PATTERN_ORDER)) {
+		$matches = Array();
+		if (preg_match_all($e, $output, $matches, PREG_PATTERN_ORDER)) {
 
 			$replacements = Array();
 			foreach ($matches[1] as $shadow_assetid) {
@@ -338,8 +339,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// only matches './?a=(normal or shadow id)'
 		$shadow_reg = '|\./\?a=(\d+:\w*)|';
 		$normal_reg = '|\./\?a=(\d+)|';
-		preg_match_all($shadow_reg, $output, $shadow_matches=Array());
-		preg_match_all($normal_reg, $output, $normal_matches=Array());
+		$shadow_matches = Array();
+		$normal_matches = Array();
+		preg_match_all($shadow_reg, $output, $shadow_matches);
+		preg_match_all($normal_reg, $output, $normal_matches);
 		$shadow_matches = $shadow_matches[1];
 		$normal_matches = $normal_matches[1];
 		$replace_assetids = Array();
