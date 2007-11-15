@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_manip.inc,v 1.5 2006/12/06 05:13:57 bcaldwell Exp $
+* $Id: image_manip.inc,v 1.6 2007/11/15 23:32:36 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage Image
 */
@@ -41,10 +41,9 @@ class Image_Manip
 	* @param string	$colour_a	hex string or html colour name
 	* @param string	$colour_b	hex string or html colour name
 	*
-	* @access public
-	* @static
+	* @return boolean
 	*/
-	function gradientPalette($input, $output, $colour_a, $colour_b)
+	public static function gradientPalette($input, $output, $colour_a, $colour_b)
 	{
 		require_once dirname(__FILE__).'/../colour/colour.inc';
 
@@ -95,10 +94,9 @@ class Image_Manip
 	* @param Array	$colour_map	It find the 'key' colour in the image and replaced if with the 'value' colour. Colours are in hex string or html colour name
 	* @param float	$tolerance
 	*
-	* @access public
-	* @static
+	* @return boolean
 	*/
-	function remapColour($input, $output, $colour_map, $tolerance=0.2)
+	public static function remapColour($input, $output, $colour_map, $tolerance=0.2)
 	{
 		require_once dirname(__FILE__).'/../colour/colour.inc';
 
@@ -138,11 +136,9 @@ class Image_Manip
 	* @param int	$w			width of new image
 	* @param int	$h			height of new image
 	*
-	* @return bool
-	* @access public
-	* @static
+	* @return boolean
 	*/
-	function resize($input, $output, $w, $h)
+	public static function resize($input, $output, $w, $h)
 	{
 		// NOTE: $s_* = source image vars, $d_* = destination image vars
 		$s_img = Image_Manip::fromFile($input);
@@ -183,10 +179,8 @@ class Image_Manip
 	* @param string	$input		the input image file
 	*
 	* @return mixed image resource or false
-	* @access public
-	* @static
 	*/
-	function fromFile($input)
+	public static function fromFile($input)
 	{
 		switch (get_file_type($input)) {
 			case 'gif' :
@@ -228,10 +222,8 @@ class Image_Manip
 	* @param int		$jpeg_quality	number between 0 and 100
 	*
 	* @return boolean
-	* @access public
-	* @static
 	*/
-	function toFile($image, $output, $jpeg_quality=80)
+	public static function toFile($image, $output, $jpeg_quality=80)
 	{
 		// Output result to file
 		switch (get_file_type($output)) {
@@ -246,7 +238,7 @@ class Image_Manip
 			case 'jpg' :
 			case 'jpeg':
 				if (imageJPEG($image, $output, $jpeg_quality)) {
-					return true;
+					return TRUE;
 				}
 			break;
 
@@ -256,7 +248,7 @@ class Image_Manip
 		}
 
 		trigger_error('Unable to output image : '.$output, E_USER_WARNING);
-		return false;
+		return FALSE;
 
 	}//end toFile()
 
