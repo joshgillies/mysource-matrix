@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.2 2006/12/06 05:42:21 bcaldwell Exp $
+* $Id: export_to_xml.php,v 1.3 2007/11/15 04:18:22 hnguyen Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -414,7 +414,7 @@ echo "</actions>\n\n";
 	*/
 	function getAssetType(&$asset)
 	{
-		$class = get_class($asset);
+		$class = get_class_lower($asset);
 		return $class;
 
 	}//end getAssetType()
