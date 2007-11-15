@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.16 2006/12/06 05:15:10 bcaldwell Exp $
+* $Id: colour.inc,v 1.17 2007/11/15 23:45:24 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Colour manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage Colour
 */
@@ -37,7 +37,7 @@ class Colour
 	* @return mixed Array() or string if a specific name is passed
 	* @access public
 	*/
-	function colourPalette($name=null)
+	public static function colourPalette($name=null)
 	{
 		$palette = Array(
 					'aliceblue'				=> 'f0f8ff',
@@ -202,7 +202,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgb($r, $g, $b, $zero_to_one_range=true)
+	public static function rgb($r, $g, $b, $zero_to_one_range=true)
 	{
 
 		if ($zero_to_one_range) {
@@ -234,7 +234,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function cmyk($c, $m, $y, $k)
+	public static function cmyk($c, $m, $y, $k)
 	{
 		$output = Array(
 			'c' => (($c >= 0) ? (($c <= 100) ? (double) ( ((double)$c) / 100.0) : 1) : 0),
@@ -259,7 +259,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsv($h,$s,$v)
+	public static function hsv($h,$s,$v)
 	{
 		return Array('h' => $h, 's' => $s/100, 'v' => $v/100);
 
@@ -275,7 +275,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function cmykToRgb($input)
+	public static function cmykToRgb($input)
 	{
 		$c = $input['c'];
 		$m = $input['m'];
@@ -312,7 +312,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgbToCmyk($input)
+	public static function rgbToCmyk($input)
 	{
 		$r = $input['r'];
 		$g = $input['g'];
@@ -354,7 +354,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function cmykCorrect(&$input)
+	public static function cmykCorrect(&$input)
 	{
 		if ($input['c'] < $input['m'])
 			$min = $input['c'];
@@ -384,7 +384,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgbInvert($i)
+	public static function rgbInvert($i)
 	{
 		return Array('r' => (1 - $i['r']), 'g' => (1 - $i['g']), 'b' => (1 - $i['b']));
 
@@ -400,7 +400,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgbToHtml($input)
+	public static function rgbToHtml($input)
 	{
 		return sprintf('%02x%02x%02x', $input['r'] * 255, $input['g'] * 255, $input['b'] * 255);
 
@@ -415,7 +415,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function intToHtml($input)
+	public static function intToHtml($input)
 	{
 		return sprintf('%06x', $input);
 
@@ -432,7 +432,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function intToRgb($input, $zero_to_one_range=true)
+	public static function intToRgb($input, $zero_to_one_range=true)
 	{
 		$b = min($input % 256, 255);
 		$g = min(($input >> 8) % 256, 255);
@@ -450,7 +450,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function htmlToHex($input)
+	public static function htmlToHex($input)
 	{
 		// remove any hashes from the start
 		$input = preg_replace('/^#/', '', strtolower($input));
@@ -474,7 +474,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function htmlToRgb($input, $zero_to_one_range=true)
+	public static function htmlToRgb($input, $zero_to_one_range=true)
 	{
 		$input = Colour::htmlToHex($input);
 		return Colour::rgb(
@@ -495,7 +495,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function htmlToInt($input)
+	public static function htmlToInt($input)
 	{
 		return hexdec(Colour::htmlToHex($input));
 
@@ -510,7 +510,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgbToInt($input)
+	public static function rgbToInt($input)
 	{
 		return Colour::htmlToInt(Colour::rgbToHtml($input));
 
@@ -529,7 +529,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function rgbToHsv($input)
+	public static function rgbToHsv($input)
 	{
 		$r = max(0,min(1,$input['r']));
 		$g = max(0,min(1,$input['g']));
@@ -570,7 +570,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsvToRgb($input)
+	public static function hsvToRgb($input)
 	{
 		$h = $input['h'] % 360;
 		$s = max(0,min(1,$input['s']));
@@ -636,7 +636,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function htmlToHsv($input)
+	public static function htmlToHsv($input)
 	{
 		return Colour::rgbToHsv(Colour::htmlToRgb($input));
 
@@ -651,7 +651,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsvToHtml($input)
+	public static function hsvToHtml($input)
 	{
 		return Colour::rgbToHtml(Colour::hsvToRgb($input));
 
@@ -666,7 +666,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function contrastingShade($input)
+	public static function contrastingShade($input)
 	{
 		$c = Colour::htmlToRgb($input);
 		$weight_r    = $c['r'] * 0.75;
@@ -689,7 +689,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function twiceAsLight($input)
+	public static function twiceAsLight($input)
 	{
 		$c = Colour::htmlToRgb($input);
 		$c['r'] += ((1 - $c['r']) / 2);
@@ -708,7 +708,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function twiceAsDark($input)
+	public static function twiceAsDark($input)
 	{
 		$c = Colour::htmlToRgb($input);
 		$c['r'] /= 2;
@@ -729,7 +729,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjustBrightness($input, $amount)
+	public static function adjustBrightness($input, $amount)
 	{
 		$c = Colour::htmlToRgb($input);
 		if ($amount > 0 && $amount <= 1) { // Going up !
@@ -756,7 +756,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjustContrast($input, $amount)
+	public static function adjustContrast($input, $amount)
 	{
 		$c = Colour::htmlToRgb($input);
 		$avg = ($c['r'] + $c['g'] + $c['b']) / 3.0;
@@ -786,7 +786,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function mix($a, $b, $ratio=0.5)
+	public static function mix($a, $b, $ratio=0.5)
 	{
 		$ratio = max(0,min(1,$ratio));
 		$a = Colour::htmlToRgb($a);
@@ -810,7 +810,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function hueRotate($input,$degrees)
+	public static function hueRotate($input,$degrees)
 	{
 		return Colour::hsvAdjust($input, $degrees, 0, 0);
 
@@ -826,7 +826,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjustSaturate($input,$amount)
+	public static function adjustSaturate($input,$amount)
 	{
 		return Colour::hsvAdjust($input, 0, $amount, 0);
 
@@ -842,7 +842,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function adjustLightness($input,$amount)
+	public static function adjustLightness($input,$amount)
 	{
 		return Colour::hsvAdjust($input, 0, 0, $amount);
 
@@ -861,7 +861,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsvAdjust($input,$h,$s,$v)
+	public static function hsvAdjust($input,$h,$s,$v)
 	{
 		$hsv = Colour::htmlToHsv($input);
 		if ($h != 0) {
@@ -893,7 +893,7 @@ class Colour
 	* @see colour_remap_new_broken
 	*
 	*/
-	function hsvDifference($a, $b)
+	public static function hsvDifference($a, $b)
 	{
 		$a    = Colour::htmlToHsv($a);
 		$b    = Colour::htmlToHsv($b);
@@ -924,7 +924,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function remap($input_html,$map,$tolerance=0.2)
+	public static function remap($input_html,$map,$tolerance=0.2)
 	{
 		$tolerance = min(max($tolerance,0),1);
 		$input_hsv = Colour::htmlToHsv($input_html);
