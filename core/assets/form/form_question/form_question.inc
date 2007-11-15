@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.22 2007/11/08 22:53:30 lwright Exp $
+* $Id: form_question.inc,v 1.23 2007/11/15 03:42:56 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Form_Question extends Asset
 		// set the data paths
 		$this->_loadDataPaths();
 
-		$asset_attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes(get_class($this), Array('name', 'type','default_val','attrid'));
+		$asset_attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes(get_class_lower($this), Array('name', 'type','default_val','attrid'));
 
 		foreach ($asset_attributes as $attribute_name => $asset_attribute) {
 			$this->vars[$attribute_name]['type'] = $asset_attribute['type'];
