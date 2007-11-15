@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.8 2007/02/06 03:47:18 mbrydon Exp $
+* $Id: csv_to_xml_actions.php,v 1.9 2007/11/15 04:15:44 hnguyen Exp $
 *
 */
 
@@ -438,13 +438,13 @@ function validateMetadataField(&$metadata_field_object, $value)
 	$valid_value = FALSE;
 
 	$metadata_field_type = get_class($metadata_field_object);
-	if ($metadata_field_type == 'metadata_field_text') {
+	if ($metadata_field_type == 'Metadata_Field_Text') {
 		$valid_value = TRUE;
-	} else if ($metadata_field_type == 'metadata_field_select') {
+	} else if ($metadata_field_type == 'Metadata_Field_Select') {
 		// Verify that the intended value is available as a selection for this field
 		$selection = $metadata_field_object->getSelectionAttribute();
 		$valid_value = $selection->validateValue($value);
-	} else if ($metadata_field_type == 'metadata_field_thesaurus') {
+	} else if ($metadata_field_type == 'Metadata_Field_Thesaurus') {
 		// Ensure that the supplied value is an asset ID of an existing Thesaurus asset
 		$asset_id = (int)($value);
 		if (($asset_id == $value) && ($asset_id > 0)) {
@@ -452,7 +452,7 @@ function validateMetadataField(&$metadata_field_object, $value)
 			$asset_id = $thesaurus->id;
 		}
 		$valid_value = ($asset_id > 0);
-	} else if ($metadata_field_type == 'metadata_field_date') {
+	} else if ($metadata_field_type == 'Metadata_Field_Date') {
 		include_once $GLOBALS['SYSTEM_ROOT'].'/fudge/general/datetime.inc';
 		$valid_value = is_iso8601($value);
 	}
