@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.15 2007/10/29 22:27:15 lwright Exp $
+* $Id: squiz_server_config.inc,v 1.16 2007/11/15 04:26:13 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the squiz server config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Config extends Config
@@ -108,7 +108,7 @@ class Squiz_Server_Config extends Config
 		parent::paintBackend($o);
 
 		$write_access = $this->writeAccess();
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		$o->openSection(translate('squiz_server_configuration'));
 
