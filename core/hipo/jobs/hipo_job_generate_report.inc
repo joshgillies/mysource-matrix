@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.15 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_generate_report.inc,v 1.16 2007/11/15 04:08:55 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -171,7 +171,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	function freestyle()
 	{
 		while (empty($this->_running_vars['complete']) && !empty($this->_running_vars['assetid'])) {
-			if (!$this->processReport($this->_steps[0], get_class($this))) {
+			if (!$this->processReport($this->_steps[0], get_class_lower($this))) {
 				return FALSE;
 			}
 		}
