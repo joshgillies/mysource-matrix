@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.67 2007/11/07 22:41:45 rong Exp $
+* $Id: listing_engine_management.inc,v 1.68 2007/11/15 05:14:38 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,11 +53,11 @@ class Listing_Engine_Management extends Asset_Management
 								  );
 
 		$this->vars['list_permission'] = Array(
-										'added'			=> '0.15',
-										'type'			=> 'int',
-										'default'		=> SQ_PERMISSION_READ,
-										'description'	=> 'Only assets that the user has this access to will be listed.',
-									 );
+											'added'			=> '0.15',
+											'type'			=> 'int',
+											'default'		=> SQ_PERMISSION_READ,
+											'description'	=> 'Only assets that the user has this access to will be listed.',
+										 );
 
 		$this->vars['list_effective'] = Array(
 											'added'			=> '0.15',
@@ -155,10 +155,10 @@ class Listing_Engine_Management extends Asset_Management
 										 );
 
 		$this->vars['metadata_sort_type'] = Array(
-											'added'		=> '0.1',
-											'type'		=> 'text',
-											'default'	=> 'presentation',
-										  );
+												'added'		=> '0.1',
+												'type'		=> 'text',
+												'default'	=> 'presentation',
+											);
 
 		$this->vars['reverse_sort'] = Array(
 										'added'			=> '0.1',
@@ -374,6 +374,12 @@ class Listing_Engine_Management extends Asset_Management
 																	'allow_empty'	=> FALSE,
 																   ),
 											);
+
+		$this->vars['proxy_types'] = Array(
+										'added'		=> '0.16',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									 );
 
 	}//end constructor
 

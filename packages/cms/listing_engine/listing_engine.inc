@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.229 2007/09/17 04:49:53 nbhradwaj Exp $
+* $Id: listing_engine.inc,v 1.230 2007/11/15 05:14:37 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.229 $
+* @version $Revision: 1.230 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -611,7 +611,9 @@ class Listing_Engine extends Page
 		$keywords = $format_bodycopy->getKeywords();
 		$replacements = Array();
 
+
 		$children = $this->getAssetList();
+		$children =& $this->convertProxyAssetTypes($children);
 		$this->filterAssetList($children);
 		$num_kids = count($children);
 
@@ -673,7 +675,7 @@ class Listing_Engine extends Page
 
 		if ($result_page <= 0) $result_page = 1;
 
-		
+
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
 
@@ -854,9 +856,9 @@ class Listing_Engine extends Page
 	{
 		// If the option to sort is No sorting, just return the asset list here and don't do any sorting
 		if (isset($sort_info['name']) && $sort_info['name'] == 'No Sorting') {
-			return $asset_list;	
+			return $asset_list;
 		}//end if
-		
+
 		if (count($asset_list) == 1 || empty($sort_info)) {
 			return $asset_list;
 		}
@@ -885,10 +887,12 @@ class Listing_Engine extends Page
 		// check and prepare sorting data
 		$is_sort_by_attribute = ($sort_info['type'] == 'asset_attrib');
 		$is_sort_by_field     = ($sort_info['type'] == 'field');
-		$is_sort_by_metadata     = ($sort_info['type'] == 'metadata');
+		$is_sort_by_metadata  = ($sort_info['type'] == 'metadata');
+		$is_sort_by_keyword   = ($sort_info['type'] == 'keyword');
 
 		$sort_params =& $sort_info['params'];
 		$assetids = array_keys($asset_list);
+
 		if ($is_sort_by_attribute) {
 			$sort_by_attr = $sort_params['attribute'];
 			$sort_by_type_code = $sort_params['type_code'];
@@ -956,12 +960,12 @@ class Listing_Engine extends Page
 			} else {
 				$field_default_val = '';
 			}
-			
+
 			$presentation_value = FALSE;
 			if ($this->attr('metadata_sort_type') == 'presentation') {
 				$presentation_value = TRUE;
 			}
-			
+
 			foreach ($asset_list as $assetid => $type) {
 				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,$presentation_value);
 				$field_value = $field_default_val;
@@ -981,6 +985,19 @@ class Listing_Engine extends Page
 				$sort_assets[$assetid] = strtolower($field_value);
 			}
 
+		} else if ($is_sort_by_keyword) {
+			foreach ($asset_list as $assetid => $type) {
+				$tmp_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$replacement = $tmp_asset->getKeywordReplacement($sort_info['keyword']);
+				if (!empty($replacement)) {
+					$sort_assets[$assetid] = $replacement;
+				} else {
+					// add assets that does not have this keyword to the bottom of the list
+					$skipped_assets[] = $assetid;
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($tmp_asset);
+			}
+			$sort_numeric = FALSE;
 		} else {
 			$sort_field = $sort_params['field'];
 			$sortable_info = $this->getSortableAssetInfo();
@@ -2794,7 +2811,7 @@ class Listing_Engine extends Page
 							if (!isset($mm)) {
 								$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 							}
-							
+
 							$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
 							if (!is_null($parent_asset)) {
 								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
@@ -2853,7 +2870,7 @@ class Listing_Engine extends Page
 		}//end foreach on group level
 
 		$results = Array();
-		
+
 		$group_keys = array_keys($group_levels);
 
 
@@ -2866,7 +2883,7 @@ class Listing_Engine extends Page
 				$base =& $base[$key];
 			}
 			$base[$group_data['assetid']] = $assetids[$group_data['assetid']];
-			
+
 		}
 
 		$this->limitAssetsRecursively($results, $limit_array);
@@ -2913,11 +2930,13 @@ class Listing_Engine extends Page
 
 
 	/**
-	* Get all the parents of this asset which can be used for grouping. This
-	* function needs to be overridden in assets like Search_Page where the use
-	* of proxy search types require alternate logic to just getting ALL parents.
+	* Get all the parents of this asset which can be used for grouping.
 	*
-	* @param array		$child_assetid		the asset to find the parents of
+	* If we are grouping by a type that is selected as a proxy parent, then we
+	* only want to group by those parents of that type which are actually acting
+	* as proxies.
+	*
+	* @param int		$child_assetid		the asset to find the parents of
 	* @param array		$restrict_types		Group type restrictions
 	* @param boolean	$direct_parent_only	include the direct parent which matches the restriction type
 	*
@@ -2926,8 +2945,11 @@ class Listing_Engine extends Page
 	*/
 	function getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $direct_parent_only=FALSE)
 	{
-		$root_nodes = $this->getRootNodes(FALSE);
 
+		$proxy_settings = $this->attr('proxy_types');
+		$parent_link_assetids = Array();
+
+		$root_nodes = $this->getRootNodes(FALSE);
 		if (empty($root_nodes) || (strpos($child_assetid, ':') !== FALSE) || ($this->attr('direction') == 'up')) {
 			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($child_assetid, $this->attr('link_types'), '', TRUE, 'minor');
 			$parent_link_assetids = Array();
@@ -2937,10 +2959,100 @@ class Listing_Engine extends Page
 		} else {
 			$parent_link_assetids = $this->_getGroupableParentAssetids($child_assetid, $restrict_types, $root_nodes, $direct_parent_only);
 		}
+		// help the malfunctioning bridge a bit
+		if (empty($parent_link_assetids) && strpos($child_assetid, ':') !== FALSE && $direct_parent_only) {
+			$id_parts = explode(':', $child_assetid);
+			$parent_link_assetids[] = $id_parts[0];
+		}
+
+		$proxy_settings = $this->attr('proxy_types');
+		if (!empty($proxy_settings)) {
+			$grouping_by_proxy_type = FALSE;
+			foreach ($restrict_types['type_code'] as $group_type) {
+				if (isset($proxy_settings[$group_type])) {
+					$grouping_by_proxy_type = TRUE;
+					break;
+				}
+			}
+			if ($grouping_by_proxy_type) {
+				if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
+					$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping'][$child_assetid]));
+					$parent_link_assetids = array_intersect($valid_parents, $parent_link_assetids);
+				}
+			}
+		}
 
 		return $parent_link_assetids;
 
 	}//end getGroupableParentAssetids()
+
+
+	/**
+	* Takes an array of results and modifies it according to the rules set on
+	* the Proxy Asset Types screen. Any asset set as a proxy is replaced with
+	* its children of specified type_code. The children inherit the score from
+	* the proxy
+	*
+	* @param array	&$results	Proxy Types
+	*
+	* @return array
+	* @access private
+	*/
+	function &convertProxyAssetTypes(&$results)
+	{
+		if (empty($results)) return $results;
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$proxy_settings = $this->attr('proxy_types');
+		if (empty($proxy_settings)) {
+			// We should be able to return the results array straight back, but
+			// we've found sometimes it returns an empty array (PHP 4.3 ref bug??).
+			// So dump it off to another variable by value and return that
+			$new_results = $results;
+			return $new_results;
+		}
+
+		$collated_types = Array();
+		$result_types = $am->getAssetInfo(array_keys($results), 'asset', FALSE, 'type_code');
+		foreach ($result_types as $result_assetid => $result_type) {
+			$collated_types[$result_type][] = $result_assetid;
+		}
+
+		$new_results = Array();
+		$this->_tmp['proxy_grouping'] = Array();
+		foreach ($collated_types as $result_type => $result_assetids) {
+			if (isset($proxy_settings[$result_type])) {
+				if (empty($proxy_settings[$result_type])) {
+					return $results;
+				}
+
+				$converted_types = Array();
+				foreach ($proxy_settings[$result_type] as $type_code => $inherit) {
+					if ($inherit) {
+						$converted_types = array_merge($am->getTypeDescendants($type_code, TRUE), $converted_types);
+					} else {
+						$converted_types[] = $type_code;
+					}
+				}
+
+				$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($result_assetids, SQ_SC_LINK_SIGNIFICANT, $converted_types);
+
+				foreach ($children as $orig_assetid => $links) {
+					foreach ($links as $link) {
+						// keep the original score
+						$new_results[$link['minorid']] = $results[$orig_assetid];
+						$this->_tmp['proxy_grouping'][$link['minorid']][] = $orig_assetid;
+					}
+				}
+
+				// filterAssetStatuses is overridden in search_page, so call it directly
+				Listing_Engine::filterAssetStatuses($new_results);
+			}
+		}
+
+		return $new_results;
+
+	}//end convertProxyAssetTypes()
 
 
 	/**

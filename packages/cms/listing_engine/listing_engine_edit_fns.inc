@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.80 2007/10/18 05:54:50 nbhradwaj Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.81 2007/11/15 05:14:38 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -117,6 +117,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the asset types to list
 	*
+	* When a type is removed from the listing, the type format bodycopy is
+	* removed. We need to be able to have type formats for the children of all
+	* our proxy asset types.
+	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form elements
@@ -126,12 +130,28 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processAssetTypes(&$asset, &$o, $prefix)
 	{
+		$proxy_settings = $asset->attr('proxy_types');
+
 		if (isset($_POST[$prefix.'_types'])) {
 			$existing_types = $asset->attr('types');
+
 			$submitted_types = Array();
 			foreach ($_POST[$prefix.'_types']['type_code'] as $i => $type_code) {
 				if (!empty($type_code)) {
 					$submitted_types[$type_code] = $_POST[$prefix.'_types']['inherit'][$i];
+				}
+			}
+
+			$proxy_child_types = Array();
+			$delete_proxy_types = Array();
+			foreach ($proxy_settings as $proxy_type => $child_types) {
+				if (!empty($child_types)) {
+					if (in_array($proxy_type, array_keys($submitted_types))) {
+						$proxy_child_types = array_merge($proxy_child_types, array_keys($child_types));
+					} else {
+						$delete_proxy_types[] = $proxy_type;
+					}
+					$existing_types = array_merge($existing_types, $child_types);
 				}
 			}
 
@@ -140,7 +160,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			// See if any types have been removed
 			foreach ($existing_types as $type => $inherit) {
-				if (!isset($submitted_types[$type])) {
+				// added second condition to prevent accidental deletion of proxied children type formats
+				if (!isset($submitted_types[$type]) && !in_array($type, $proxy_child_types)) {
 					if (in_array($type, $formats)) {
 						// send the type format bodycopy to the trash
 						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type);
@@ -152,6 +173,13 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 
 			$asset->setAttrValue('types', $submitted_types);
+
+			// also remove associated proxy_types when the type is removed
+			foreach ($delete_proxy_types as $delete_proxy_type) {
+				unset($proxy_settings[$delete_proxy_type]);
+			}
+			$asset->setAttrValue('proxy_types', $proxy_settings);
+
 			return TRUE;
 		} else {
 			return FALSE;
@@ -635,9 +663,6 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 	/**
 	* Gets a list of the available asset types that can be use for type formats.
-	* The reason it's used is so that assets (such as Search_Page) don't need to
-	* override the whole paint/process functions if they've got special asset
-	* type logic (Eg. proxy asset types)
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	*
@@ -646,7 +671,16 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function _getAvailableTypes(&$asset)
 	{
-		return $asset->attr('types');
+		$types = $asset->attr('types');
+		$proxy_settings = $asset->attr('proxy_types');
+
+		foreach ($proxy_settings as $proxy_type => $proxy_children) {
+			if (!empty($proxy_children)) {
+				$types = array_merge($proxy_children, $types);
+			}
+		}
+
+		return $types;
 
 	}//end _getAvailableTypes()
 
@@ -999,9 +1033,15 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$this->_paintMetadataSortOptions($asset, $o, $prefix.'_metadata_sort_options');
 		$o->closeSection(); // end metadata
 
+		$o->openSection(('Sorting by Asset Keyword Value'));
+			$this->_paintKeywordSortOptions($asset, $o, $prefix.'_keyword_sort_options');
+		$o->closeSection(); // end keyword options
+
 		$o->openSection(translate('cms_listing_sort_by_extras'));
 			$this->_paintExtraSortOptions($asset, $o, $prefix.'_extra_sort_options');
 		$o->closeSection(); // end extra options
+
+
 
 		return $wa;
 
@@ -1026,6 +1066,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$res = $this->_processStandardFieldSortOptions($asset, $o, $prefix.'_std_sort_options') || $res;
 		$res = $this->_processAttributeSortOptions($asset, $o, $prefix.'_attr_sort_options') || $res;
 		$res = $this->_processMetadataSortOptions($asset, $o, $prefix.'_metadata_sort_options') || $res;
+		$res = $this->_processKeywordSortOptions($asset, $o, $prefix.'_keyword_sort_options') || $res;
 		$res = $this->_processExtraSortOptions($asset, $o, $prefix.'_extra_sort_options') || $res;
 
 		if ($res) {
@@ -1181,7 +1222,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Process the inteface for configuring asset-attribute sort-by options
+	* Paint the inteface for configuring asset-attribute sort-by options
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
@@ -1511,6 +1552,153 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Paint the inteface for configuring keyword sort fields
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintKeywordSortOptions(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$o->openField($wa ? translate('current') : '');
+			$keyword_datas = Array();
+			foreach ($asset->attr('sort_by') as $id => $info) {
+				if ($info['type'] == 'keyword') {
+					$keyword_datas[$id] = $info;
+				}
+			}
+
+			if (!empty($keyword_datas)) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<th style="width: 60ex"><?php echo ('Keyword'); ?></th>
+						<th><?php echo translate('display_name') ?></th>
+					<?php
+					if ($wa) {
+						?>
+						<th style="width: 12ex"><?php echo translate('remove_question'); ?></th>
+						<?php
+					}
+					?>
+					</tr>
+				<?php
+				foreach ($keyword_datas as $id => $info) {
+					?>
+					<tr>
+						<td>
+							<?php
+							if ($wa) {
+								text_box($prefix.'_current['.$id.'][keyword]', array_get_index($info,'keyword',''));
+							} else {
+								echo array_get_index($info, 'name', '');
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							if ($wa) {
+								text_box($prefix.'_current['.$id.'][name]', array_get_index($info,'name',''));
+							} else {
+								echo array_get_index($info, 'name', '');
+							}
+							?>
+						</td>
+					<?php
+					if ($wa) {
+						?>
+						<td>
+							<?php
+							check_box($prefix.'_current['.$id.'][remove]', '1');
+							?>
+						</td>
+						<?php
+					}
+					?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+				</table>
+				<?php
+			} else {
+				echo translate('cms_listing_sort_by_keyword_field_none');
+			}
+		$o->closeField();
+		if ($wa) {
+			$o->openField(translate('new'));
+				?>
+				<table class="sq-backend-table" style="width: 60ex">
+					<tr>
+						<th style="width: 20ex"><?php echo translate('keyword'); ?></th>
+						<td><?php text_box($prefix.'_new[keyword]', ''); ?></td>
+					</tr>
+					<tr>
+						<th><?php echo translate('display_name'); ?></th>
+						<td><?php text_box($prefix.'_new[name]', ''); ?></td>
+					</tr>
+				</table>
+				<?php
+			$o->closeField();
+		}
+
+	}//end _paintKeywordSortOptions()
+
+
+	/**
+	* Process the inteface for configuring keyword sort fields
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processKeywordSortOptions(&$asset, &$o, $prefix)
+	{
+		$val = $asset->attr('sort_by');
+		$res = FALSE;
+
+		if (!empty($_POST[$prefix.'_current'])) {
+			foreach ($_POST[$prefix.'_current'] as $i => $details) {
+				if (!empty($details['remove'])) {
+					unset($val[$i]);
+				} else {
+					$val[$i]['name'] = $details['name'];
+					if (!empty($details['keyword'])) {
+						$val[$i]['keyword'] = $details['keyword'];
+					}
+				}
+			}
+			$res = TRUE;
+		}
+
+		if (!empty($_POST[$prefix.'_new']['name']) && !empty($_POST[$prefix.'_new']['keyword'])) {
+			$option = Array(
+						'type'		=> 'keyword',
+						'name'		=> $_POST[$prefix.'_new']['name'],
+						'keyword'	=> $_POST[$prefix.'_new']['keyword'],
+						'params'	=> Array(),
+					  );
+			$this->_addNewSortOption($val, $option);
+			$res = TRUE;
+		}
+
+		if ($res) {
+			return $asset->setAttrValue('sort_by', $val);
+		}
+		return FALSE;
+
+
+	}//end _processKeywordSortOptions()
+
+
+	/**
 	* Paint the inteface for configuring extra sort fields
 	*
 	* @param object	&$asset	asset being painted
@@ -1661,16 +1849,16 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$sort_by = $asset->attr('metadata_sort_type');
-		
+
 		$option = Array(
-						'raw'			=> 'Raw Value',
-						'presentation'	=> 'Presentation Value',
-					  );
+					'raw'			=> 'Raw Value',
+					'presentation'	=> 'Presentation Value',
+				  );
 
 		if ($write_access) {
 			combo_box($prefix.'_metadata_sort_type', $option, FALSE, $sort_by);
 		} else {
-				echo ($sort_by == 'raw')? 'Raw Value':'Presentation Value';
+			echo ($sort_by == 'raw') ? 'Raw Value' : 'Presentation Value';
 		}
 
 		return $write_access;
@@ -2362,19 +2550,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			$o->note(translate('cms_listing_group_metadata_field_note'));
 		$o->closeField();
-		
+
 		$o->openField(translate('cms_listing_default_metadata_sort_type'));
 
 		$sort_by = array_get_index($group_by_option, 'metadata_sort_type', 'raw');
 		$option = Array(
-						'raw'			=> translate('cms_listing_raw_value'),
-						'presentation'	=> translate('cms_listing_presentation_value'),
-					  );
+					'raw'			=> translate('cms_listing_raw_value'),
+					'presentation'	=> translate('cms_listing_presentation_value'),
+				  );
 
 		if ($write_access) {
 			combo_box($prefix.'[metadata_sort_type]', $option, FALSE, $sort_by);
 		} else {
-				echo ($sort_by == 'raw')? translate('cms_listing_raw_value'):translate('cms_listing_presentation_value');
+			echo ($sort_by == 'raw') ? translate('cms_listing_raw_value') : translate('cms_listing_presentation_value');
 		}
 
 			$o->note(translate('cms_listing_default_metadata_sort_type_note'));
@@ -2412,7 +2600,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		} else {
 			$group_by_option['max_children'] = $posted_option['max_children'];
 		}
-		
+
 		if (isset($posted_option['metadata_sort_type'])) {
 			$group_by_option['metadata_sort_type'] = $posted_option['metadata_sort_type'];
 		}
@@ -2590,19 +2778,19 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if (isset($group_by_option['sort_by']) && $group_by_option['sort_by'] == 'sorting_metadata_field') {
 			$o->openField(translate('cms_listing_default_metadata_sort_type'));
-	
+
 			$sort_by = array_get_index($group_by_option, 'metadata_sort_type', 'raw');
 			$option = Array(
-							'raw'			=> translate('cms_listing_raw_value'),
-							'presentation'	=> translate('cms_listing_presentation_value'),
-						);
-	
+						'raw'			=> translate('cms_listing_raw_value'),
+						'presentation'	=> translate('cms_listing_presentation_value'),
+					  );
+
 			if ($write_access) {
 				combo_box($prefix.'[metadata_sort_type]', $option, FALSE, $sort_by);
 			} else {
-					echo ($sort_by == 'raw')? translate('cms_listing_raw_value'):translate('cms_listing_presentation_value');
+				echo ($sort_by == 'raw') ? translate('cms_listing_raw_value') : translate('cms_listing_presentation_value');
 			}
-	
+
 			$o->note(translate('cms_listing_default_metadata_sort_type_note'));
 			$o->closeField();
 		}
@@ -2649,11 +2837,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$group_by_option['direct_parent_only'] = array_get_index($posted_option, 'direct_parent_only', FALSE);
 			$group_by_option['sort_by']		= $posted_option['sort_by'];
 			$group_by_option['sort_order']	= $posted_option['sort_order'];
-			
+
 			if (isset($posted_option['metadata_sort_type'])) {
 				$group_by_option['metadata_sort_type'] = $posted_option['metadata_sort_type'];
 			}
-			
+
 			if (empty($posted_option['max_children'])) {
 				$group_by_option['max_children'] = NULL;
 			} else {
@@ -3310,9 +3498,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$perms = Array(
-					'read' => SQ_PERMISSION_READ,
-					'write' => SQ_PERMISSION_WRITE,
-					'admin' => SQ_PERMISSION_ADMIN
+					'read'	=> SQ_PERMISSION_READ,
+					'write'	=> SQ_PERMISSION_WRITE,
+					'admin'	=> SQ_PERMISSION_ADMIN,
 				 );
 
 		// translate permissions
@@ -3756,6 +3944,154 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processUseNoResultsBodycopy()
+
+
+	/**
+	* Paints the list of current proxy asset types (when one of these
+	* asset returns a list of result, the children are listed rather than the
+	* proxy itself)
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function paintProxyTypes(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current_types = $asset->attr('proxy_types');
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$o->openField(translate('cms_listing_proxy_asset_types'));
+			if (empty($current_types)) {
+				echo translate('cms_listing_no_types_defined');
+			} else {
+				?>
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('cms_listing_proxy_type_code') ?></td>
+							<td class="sq-backend-table-header"><?php echo translate('cms_listing_proxy_child_type_codes') ?></td>
+							<?php
+								if ($write_access) {
+									?><td class="sq-backend-table-header" style="width: 20px;"><?php echo translate('delete') ?></td><?php
+								}
+							?>
+
+						</tr>
+						<?php
+							foreach ($current_types as $current_type => $type_settings) {
+								?>
+								<tr>
+									<td class="sq_backend-data"><?php
+										echo get_asset_type_icon($current_type);
+										echo $am->getTypeInfo($current_type, 'name');
+									?></td>
+									<td class="sq_backend-data"><?php
+										if ($write_access) {
+											$i = 0;
+											$options = Array();
+											foreach ($type_settings as $type_code => $inherit) {
+												$options['type_code'][$i] = $type_code;
+												$options['inherit'][$i] = $inherit;
+												$i++;
+											}
+											asset_type_chooser($prefix.'_'.$current_type.'_children', TRUE, $options, NULL, TRUE, TRUE);
+										} else {
+											$type_names = $am->getTypeInfo(array_keys($type_settings), 'name');
+											?><ul style="margin: 1px 15px"><?php
+											foreach ($type_settings as $type_code => $inherits) {
+												echo '<li>';
+												echo get_asset_type_icon($type_code);
+												echo $type_names[$type_code];
+												if ($inherits) {
+													echo ' ('.strtolower(translate('cms_listing_inherits_child_types')).')';
+												}
+												echo '</li>';
+											}
+											?></ul><?php
+										}
+									?></td>
+									<?php
+										if ($write_access) {
+											?><td class="sq_backend-data"><?php check_box($prefix.'_'.$current_type.'_delete'); ?></td><?php
+										}
+									?>
+								<tr>
+								<?php
+							}//end foreach
+						?>
+					</table>
+				<?php
+			}//end else
+		$o->closeField();
+
+		$search_types = array_keys($asset->attr('types'));
+		if ($write_access && !empty($search_types)) {
+			$o->openField(translate('cms_listing_proxy_type_code_new'));
+				$types = array_diff($search_types, array_keys($current_types));
+
+				if (empty($types)) {
+					echo translate('cms_listing_proxy_all_types_selected');
+				} else {
+					echo '&nbsp;';
+					$options = Array('' => '');
+					$options += $am->getTypeInfo($types, 'name');
+					combo_box($prefix.'_new_type', $options, FALSE, count($types));
+				}
+			$o->closeField();
+		}
+
+		return $write_access;
+
+	}//end paintProxyTypes()
+
+
+	/**
+	* Processes the list of current proxy asset types
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processProxyTypes(&$asset, &$o, $prefix)
+	{
+		$current_types = $asset->attr('proxy_types');
+
+		foreach ($current_types as $current_type => $type_settings) {
+			// First check to see if any have been deleted
+			if (isset($_REQUEST[$prefix.'_'.$current_type.'_delete'])) {
+				unset($current_types[$current_type]);
+				continue;
+			}
+
+			// Set the new types or set to an empty array if they've all been cleared
+			if (!empty($_REQUEST[$prefix.'_'.$current_type.'_children'])) {
+				$children = $_REQUEST[$prefix.'_'.$current_type.'_children'];
+
+				$current_types[$current_type] = Array();
+				foreach ($children['type_code'] as $index => $type_code) {
+					if (empty($type_code)) continue;
+					$current_types[$current_type][$type_code] = (empty($children['inherit'][$index])) ? FALSE : TRUE;
+				}
+
+			} else {
+				$current_types[$current_type]['children'] = Array();
+			}
+		}
+
+		if (!empty($_REQUEST[$prefix.'_new_type'])) {
+			$current_types[$_REQUEST[$prefix.'_new_type']] = Array();
+		}
+
+		return $asset->setAttrValue('proxy_types', $current_types);
+
+	}//end processProxyTypes()
 
 
 }//end class
