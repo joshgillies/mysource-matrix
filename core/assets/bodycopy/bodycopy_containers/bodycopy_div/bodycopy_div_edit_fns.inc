@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.33 2007/11/06 06:08:41 rong Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.34 2007/11/15 00:59:10 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// so that the proper stuff gets drawn when putting out the javascript
 		// to edit.
 		if (is_a($bodycopy, 'bodycopy_div')) {
-			$containers = Array(Array('minorid'=>$bodycopy->id, 'minor_type_code'=>get_class($bodycopy)));
+			$containers = Array(Array('minorid'=>$bodycopy->id, 'minor_type_code'=>get_class_lower($bodycopy)));
 		} else {
 			$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($bodycopy->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		}
