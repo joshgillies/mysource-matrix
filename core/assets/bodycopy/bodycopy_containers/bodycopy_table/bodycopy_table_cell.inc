@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.21 2007/11/06 06:08:41 rong Exp $
+* $Id: bodycopy_table_cell.inc,v 1.22 2007/11/15 01:02:59 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -397,7 +397,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 		// if the new type is the same as the current, change nothing
-		$current_type = get_class($content_type);
+		$current_type = get_class_lower($content_type);
 		if ($current_type == $new_type) return FALSE;
 
 		// morph the content type to the new type
