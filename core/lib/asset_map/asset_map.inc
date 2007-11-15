@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.254 2007/11/14 22:20:43 colivar Exp $
+* $Id: asset_map.inc,v 1.255 2007/11/15 04:44:45 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -513,10 +513,13 @@ class Asset_Map
 			$func_args = array_slice($func_args,1);
 		}
 
-		$output = new XML_Tree();
-		$root = $output->addRoot('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
-
-		$this->_send($output);
+		$output = simplexml_load_string('<xml></xml>');
+		$responses = $output->addChild('error', $GLOBALS['SQ_SYSTEM']->lm->getErrorMessage($code, $func_args));
+		/* XML output
+			<?xml version="1.0"?>
+			<error>Unable to Move Asset, Link #64 not found [AMAP0032]</error>
+		*/
+		$this->_send($responses);
 		exit();
 
 	}//end _error()
@@ -562,7 +565,7 @@ class Asset_Map
 				$this->_newLinks($root);
 			break;
 			default :
-				$this->_error('AMAP0003', $root->attributes['action']);
+				$this->_error('AMAP0003', (string)$root->attributes()->action);
 				return;
 		}
 

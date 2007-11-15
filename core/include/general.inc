@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.183 2007/11/15 04:39:20 rong Exp $
+* $Id: general.inc,v 1.184 2007/11/15 04:44:45 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.183 $
+* @version $Revision: 1.184 $
 * @package MySource_Matrix
 */
 
@@ -122,11 +122,15 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			case 'xml' :
 				$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
 
-				require_once 'XML/Tree.php';
-				$output = new XML_Tree();
-				$root = $output->addRoot('error', $msg);
+				$root = simplexml_load_string('<xml></xml>');
+				$output = $root->addChild('error', $msg);
 				header('Content-Type: text/xml');
-				$output->dump();
+				echo $output->asXML();
+				/* XML output
+					<?xml version="1.0"?>
+						<error>Unable to Move Asset, Link #64 not found [AMAP0032]</error>
+				*/
+
 				exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
 			break;
 
