@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.74 2007/06/07 23:59:10 rong Exp $
+* $Id: search_page_edit_fns.inc,v 1.74.2.1 2007/11/15 04:19:35 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.74.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,7 +38,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	{
 		$this->Listing_Engine_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'content';
-		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
 
@@ -46,32 +46,32 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the root node selection box
 	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
-	* @param string						$category	the category we are painting for
-	*												(if blank we paint for the whole search page)
-	* @param boolean					$read_only	force read only view
+	* @param object		&$asset		asset being painted
+	* @param object		&$o			backend outputter
+	* @param string		$prefix		prefix for the html doc element name
+	* @param string		$category	the category we are painting for
+	*								(if blank we paint for the whole search page)
+	* @param boolean	$read_only	force read only view
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintRootAsset(&$asset, &$o, $prefix, $category='', $read_only=false)
+	function paintRootAsset(&$asset, &$o, $prefix, $category='', $read_only=FALSE)
 	{
 		$link_value = 'root';
 		if (!empty($category)) $link_value .= '_'.$category;
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, $link_value);
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $link_value);
 
 		if ($read_only) {
-			$write_access = false;
+			$write_access = FALSE;
 		} else {
 			$write_access = $asset->writeAccess('links');
 		}
 
 		if (!$write_access) {
-			$root_asset = null;
+			$root_asset = NULL;
 			if (!empty($root_link)) {
-				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+				$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
 			}
 			if (!is_null($root_asset)) {
 				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
@@ -90,11 +90,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the value input from root node selection box
 	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
-	* @param string						$category	the category we are processing for
-	*												(if blank we process the root node for the page)
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
 	*
 	* @return void
 	* @access public
@@ -102,32 +100,32 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processRootAsset(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_rootid']['assetid'])) {
-			return false;
+			return FALSE;
 		}
 		$new_root  = $_POST[$prefix.'_rootid']['assetid'];
 
 		// getting existing root link
 		$link_value = 'root';
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 
 		// dont process anything if the root node has not changed
 		if (!empty($root_link) && $root_link['minorid'] == $new_root) {
-			return false;
+			return FALSE;
 		}
 
-		$ok = true;
+		$ok = TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
-			$ok = false;
+			$ok = FALSE;
 		} else if ($new_root) {
-			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
-					$ok = false;
+					$ok = FALSE;
 					trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
 				}
 			}
@@ -148,13 +146,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the interface for adding and configuring search fields.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintFields(&$asset, &$o, $prefix)
 	{
@@ -214,7 +211,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							<?php
 							if ($field_datasource == 'new') {
 								if ($write_access) {
-									combo_box($prefix.'_fields['.$field_name.'][new_data_source_type]', $query_types, false,'none');
+									combo_box($prefix.'_fields['.$field_name.'][new_data_source_type]', $query_types, FALSE,'none');
 								}
 							} else {
 								$type = array_get_index($field_datasource, 'type');
@@ -239,7 +236,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											foreach (array_keys($search_types) as $this_type) {
 												$options[$this_type] = $type_names[$this_type];
 											}
-											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, false, $search_type);
+											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][asset_type]', $options, FALSE, $search_type);
 										} else {
 											echo '<strong>'.translate('asset_type').':</strong> ';
 											echo sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($search_type), 16, 16, $type_names[$search_type], $type_names[$search_type], ' align="absmiddle"');
@@ -258,7 +255,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												foreach ($asset_type_attrs as $attr_id => $attr_name) {
 													$type_attrs[$attr_id] = $attr_name;
 												}
-												combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, false, $selected_attr);
+												combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, FALSE, $selected_attr);
 											} else if ($selected_attr != '') {
 												echo '<br /><strong>'.translate('attribute').':</strong>  '.$asset_type_attrs[$selected_attr];
 											}
@@ -301,7 +298,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 													</thead>
 													<tbody>
 													<?php
-													foreach($custom_ranges as $key => $custom_range) {
+													foreach ($custom_ranges as $key => $custom_range) {
 														if ($key != max(array_keys($custom_ranges)) && (empty($custom_range) || (empty($custom_range['name']) && empty($custom_range['min']) && empty($custom_range['max'])))) {
 															continue;
 														}
@@ -327,13 +324,13 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 														?></td></tr><?php
 													}
 													?></tbody></table><?php
-												}
+												}//end if
 
-											}
-										}
+											}//end if
+										}//end if
 										?>
 										<?php
-										break;
+									break;
 
 									case 'metadata':
 										if (!isset($field_datasource['params'])) {
@@ -344,7 +341,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											asset_finder($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
 										} else {
 											if ($metadata_field > 0) {
-												$field_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
+												$field_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
 												if (!is_null($metadata_field)) {
 													echo get_asset_tag_line($field_asset->id);
 												} else {
@@ -354,7 +351,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 												echo translate('sch_page_no_metadata_field_specified');
 											}
 										}
-										break;
+									break;
 
 									case 'standard':
 										if (!isset($field_datasource['params'])) {
@@ -369,19 +366,19 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
 											$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 											$attributes = $sm->standard_date_fields + $sm->standard_text_fields;
-											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][field]', $attributes, false, $selected_attr_name);
+											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][field]', $attributes, FALSE, $selected_attr_name);
 										} else if ($selected_attr_name != '') {
 											echo translate('sch_page_field').':  '.$selected_attr_name;
 										}
-										break;
+									break;
 
 									case 'include_all':
 										echo '&nbsp;';
 										hidden_field($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params]', '');
-										break;
+									break;
 
 								}//end switch
-							}
+							}//end if
 							?>
 						</td>
 						<?php
@@ -404,7 +401,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 								<?php
 								$word_logic_options = Array('AND' => translate('sch_page_all_words'), 'OR' => translate('sch_page_any_word'));
 								if ($write_access) {
-									combo_box($prefix.'_fields['.$field_name.'][word_logic]', $word_logic_options, false, array_get_index($field_data, 'word_logic', 'AND'), 0, 'title="'.translate('sch_page_word_logic_exp').'"');
+									combo_box($prefix.'_fields['.$field_name.'][word_logic]', $word_logic_options, FALSE, array_get_index($field_data, 'word_logic', 'AND'), 0, 'title="'.translate('sch_page_word_logic_exp').'"');
 								} else {
 									echo array_get_index($field_data, 'word_logic', 'AND');
 								}
@@ -425,8 +422,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						}
 						?>
 						<?php
-					}
-				}
+					}//end foreach
+				}//end foreach
 				?>
 			</tr>
 
@@ -437,7 +434,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			echo '&nbsp;';
 			text_box($prefix.'_new_field_name', '', 15);
 		}
-		return true;
+		return TRUE;
 
 	}//end paintFields()
 
@@ -445,13 +442,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the interface for adding and configuring search fields.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processFields(&$asset, &$o, $prefix)
 	{
@@ -505,13 +501,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the interface for adding and configuring Exlude fields.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintExcludeFields(&$asset, &$o, $prefix)
 	{
@@ -567,13 +562,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the interface for adding and configuring Exclude fields.
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processExcludeFields(&$asset, &$o, $prefix)
 	{
@@ -596,13 +590,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the interface for selecting search field styles
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
-	*
 	*/
 	function paintStyles(&$asset, &$o, $prefix)
 	{
@@ -612,7 +605,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = $asset->attr('fields');
 		foreach ($fields as $field) {
 			$field_datasources = $field['data_sources'];
-			$type = null;
+			$type = NULL;
 			foreach ($field_datasources as $field_datasource) {
 				if (isset($field_datasource['type'])) {
 					$type = $field_datasource['type'];
@@ -622,12 +615,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if (!isset($field_datasource['params']['attrid'])) {
 						continue;
 					}
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
+					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
 					if (is_null($attribute)) continue;
 
 					// if this is a boolean or selection field, we want to make sure blank options are allowed
 					if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
-						$attribute->_params['allow_empty'] = true;
+						$attribute->_params['allow_empty'] = TRUE;
 					}
 
 					if (!empty($search_styles) && isset($search_styles[$attribute->id])) {
@@ -650,18 +643,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the interface for changing search page field styles
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
-	*
 	*/
 	function processStyles(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$search_styles = Array();
 
@@ -669,14 +661,17 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		foreach ($fields as $fieldname => $field) {
 			$field_datasources = $field['data_sources'];
-			$type = null;
+			$type = NULL;
 			foreach ($field_datasources as $field_datasource) {
-				if(isset($field_datasource['type']))
+				if (isset($field_datasource['type'])) {
 					$type = $field_datasource['type'];
+				}
 				if ($type == 'asset_attrib') {
 
-					if (empty($field_datasource['params']['attrid'])) continue;
-					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
+					if (empty($field_datasource['params']['attrid'])) {
+						continue;
+					}
+					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
 					$search_styles[$attribute->id] = $attribute->processEditParams($prefix.'_'.$attribute->id);
 				}
 			}
@@ -684,7 +679,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$asset->setAttrValue('search_styles', $search_styles);
 
-		return true;
+		return TRUE;
 
 	}//end processStyles()
 
@@ -695,9 +690,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the interface for managing the search categories
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -769,7 +764,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						<?php
 						if ($wa) {
 							$msg = translate('search_page_confirm_cat_delete');
-							check_box($prefix.'_category_sets_to_delete[]', $name, false, "return confirm('$msg')", 'id="'.$prefix.'_category_sets_to_delete_'.$name.'"');
+							check_box($prefix.'_category_sets_to_delete[]', $name, FALSE, "return confirm('$msg')", 'id="'.$prefix.'_category_sets_to_delete_'.$name.'"');
 							label(translate('delete'), $prefix.'_category_sets_to_delete_'.$name);
 						}
 						?>
@@ -799,7 +794,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				</tr>
 			</table>
 			<?php
-		}
+		}//end foreach
 
 	}//end paintCategories()
 
@@ -807,14 +802,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paint the interface for managing a category set's category options
 	*
-	* @param object		$asset		The asset whose categories are being managed
+	* @param object		&$asset		The asset whose categories are being managed
 	* @param string		$prefix		The prefix for form fields
 	* @param string		$set_name	The category set whose options are being managed
 	* @param array		$options	The current category options
 	* @param boolean	$wa			Whether we have write access to the field
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
 	function _paintCategoryOptions(&$asset, $prefix, $set_name, $options, $wa)
 	{
@@ -865,7 +860,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$current_root = 0;
 					if ($customised) {
 						$link_value = 'root_'.$set_name.'_'.$code_name;
-						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+						$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 						$current_root = $root_link['minorid'];
 					}
 					if ($wa) {
@@ -883,7 +878,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				?>
 				<td>
 					<?php
-					check_box($prefix.'_to_delete[]', $code_name, false);
+					check_box($prefix.'_to_delete[]', $code_name, FALSE);
 					?>
 				</td>
 				<?php
@@ -891,7 +886,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			?>
 			</tr>
 			<?php
-		}
+		}//end foreach
 		if ($wa) {
 			?>
 			<tr>
@@ -900,16 +895,16 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				</td>
 				<td>
 					<?php
-					check_box($prefix.'__new__statuses_default', '1', true, 'handleDefaultStatusClick(this)');
+					check_box($prefix.'__new__statuses_default', '1', TRUE, 'handleDefaultStatusClick(this)');
 					label('Use Default', $prefix.'__new__statuses_default');
-					$this->_paintStatusChooser($prefix.'__new__statuses', Array(), true, false);
+					$this->_paintStatusChooser($prefix.'__new__statuses', Array(), TRUE, FALSE);
 					?>
 				</td>
 				<td>
 					<?php
-					check_box($prefix.'__new__root_default', '1', true, 'handleDefaultRootClick(this)');
+					check_box($prefix.'__new__root_default', '1', TRUE, 'handleDefaultRootClick(this)');
 					label('Use Default', $prefix.'__new__root_default');
-					$this->_paintAssetChooser($prefix.'__new__root', '', true, false);
+					$this->_paintAssetChooser($prefix.'__new__root', '', TRUE, FALSE);
 					?>
 				</td>
 				<td>&nbsp</td>
@@ -931,10 +926,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* @param boolean	$editable		Whether the field is editable
 	* @param boolean	$visible		Whether the field should be css-visible initially
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
-	function _paintStatusChooser($name, $current_values, $editable=true, $visible=true)
+	function _paintStatusChooser($name, $current_values, $editable=TRUE, $visible=TRUE)
 	{
 		if (!$editable && !$visible) {
 			return;
@@ -950,7 +945,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 			foreach ($statuses as $constant => $value) {
 				$options[$value] = get_status_description($value);
 			}
-			combo_box($name, $options, true, $current_values, '', 'style="'.$style.'"');
+			combo_box($name, $options, TRUE, $current_values, '', 'style="'.$style.'"');
 		} else {
 			if (empty($current_values)) {
 				echo translate('sch_page_no_status_selected');
@@ -974,15 +969,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paint the interface for choosing a root asset for a category option
 	*
-	* @param string	$name			Name for the form field
-	* @param int	$current_value	The current root asset id for the option
+	* @param string		$name			Name for the form field
+	* @param int		$current_value	The current root asset id for the option
 	* @param boolean	$editable		Whether the field is editable
 	* @param boolean	$visible		Whether the field should be css-visible initially
 	*
-	* @access private
 	* @return void
+	* @access private
 	*/
-	function _paintAssetChooser($name, $current_value, $editable=true, $visible=true)
+	function _paintAssetChooser($name, $current_value, $editable=TRUE, $visible=TRUE)
 	{
 		if (!$editable && !$visible) {
 			return;
@@ -1001,9 +996,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the interface for managing the search categories
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1036,13 +1031,13 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	*
 	* Updates and creates notice links for category options' root nodes
 	*
-	* @param object	$asset			The asset whose categories are being managed
+	* @param object	&$asset			The asset whose categories are being managed
 	* @param string	$prefix			The prefix for form fields
 	* @param string	$set_name		The name of the category set whose options are being managed
 	* @param array	$old_options	The existing options for this category set
 	*
+	* @return array
 	* @access public
-	* @return array	New options for the specified category
 	*/
 	function _processCategoryOptions(&$asset, $prefix, $set_name, $old_options)
 	{
@@ -1074,20 +1069,20 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				// get the existing root link
 				$old_link_value = 'root_'.$set_name.'_'.$code_name;
 				$new_link_value = 'root_'.$set_name.'_'.$new_code_name;
-				$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $old_link_value);
+				$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $old_link_value);
 				if (empty($root_link) || ($old_link_value != $new_link_value) || $root_link['minorid'] != $new_root) {
 					// the root or required link value has changed, so update the link
-					$ok = true;
+					$ok = TRUE;
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					// delete old root link if any found...
 					if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
-						$ok = false;
+						$ok = FALSE;
 					} else if ($new_root) {
-						$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+						$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 						if (!is_null($root)) {
 							if (!$asset->createLink($root, SQ_LINK_NOTICE, $new_link_value)) {
-								$ok = false;
+								$ok = FALSE;
 								trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
 							}
 						}
@@ -1099,10 +1094,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					}
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				}
-			}
+			}//end if
 			$new_options[$new_code_name] = $new_option;
 
-		}
+		}//end foreach
 
 		if (!empty($_POST[$prefix.'__new__full_name'])) {
 			$new_option['full_name'] = $_POST[$prefix.'__new__full_name'];
@@ -1138,9 +1133,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the interface for adding a category set
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1150,7 +1145,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			label(translate('name').': ', $prefix.'_new_category');
 			text_box($prefix.'_new_category', '');
-			return true;
+			return TRUE;
 		}
 
 	}//end paintAddCategory()
@@ -1159,9 +1154,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the interface for adding a search category set
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1176,14 +1171,14 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$safe_name = strtolower($safe_name);
 				if (isset($cats[$safe_name])) {
 					trigger_error('New Category Set could not be added: A category set called "'.$safe_name.'" already exists.  Try another name');
-					return false;
+					return FALSE;
 				}
 				$cats[$safe_name] = Array('unselected_text' => '', 'options' => Array());
 				$asset->setAttrValue('categories', $cats);
-				return true;
+				return TRUE;
 			}
 		}
-		return false;
+		return FALSE;
 
 	}//end processAddCategory()
 
@@ -1194,9 +1189,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the interface to customise the search forms
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1206,7 +1201,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$write_access = $asset->writeAccess('links');
 
 		$search_bodycopy_link = $asset->getFormatBodycopyLink('search_form');
-		$sis_bodycopy_link    = $asset->getFormatBodycopyLink('sis_form'); //search in search
+		$sis_bodycopy_link    = $asset->getFormatBodycopyLink('sis_form'); // search in search
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
@@ -1247,23 +1242,23 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the interface to customise the search forms
 	*
-	* @param object Search_Page			&$asset	the search page asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
 	function processCustomiseSearchForms(&$asset, &$o, $prefix)
 	{
-		$format_folder = &$asset->getFormatFolder();
+		$format_folder =& $asset->getFormatFolder();
 
 		$forms = Array(
 					translate('sch_page_default_search')	=> 'search_form',
 					translate('sch_page_sis')				=> 'sis_form',
 				 );
 
-		$bodycopies_visible = false;
+		$bodycopies_visible = FALSE;
 
 		foreach ($forms as $form_name => $value) {
 			if (isset($_POST[$prefix.'_'.$value])) {
@@ -1283,13 +1278,13 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						trigger_localised_error('SCH0013', E_USER_WARNING);
-						return false;
+						return FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				}
 
-				$bodycopy = &$asset->getFormatBodycopy($value);
+				$bodycopy =& $asset->getFormatBodycopy($value);
 
 				if (is_null($bodycopy)) {
 
@@ -1306,7 +1301,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						trigger_localised_error('SCH0014', E_USER_WARNING, $form_name);
-						return false;
+						return FALSE;
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1315,18 +1310,18 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if ($bodycopy_link['link_type'] != SQ_LINK_TYPE_2) {
 						if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_2)) {
 							trigger_localised_error('SCH0014', E_USER_WARNING, $form_name);
-							return false;
+							return FALSE;
 						}
 					}
 				}
-				$bodycopies_visible = true;
+				$bodycopies_visible = TRUE;
 
 			} else {
 				$bodycopy_link = $asset->getFormatBodycopyLink($value);
 				if (!empty($bodycopy_link['link_type']) && $bodycopy_link['link_type'] != SQ_LINK_TYPE_3) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], SQ_LINK_TYPE_3)) {
 						trigger_localised_error('SCH0015', E_USER_WARNING, $form_name);
-						return false;
+						return FALSE;
 					}
 				}
 			}//end if isset
@@ -1343,11 +1338,11 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!empty($folder_link['link_type']) && $folder_link['link_type'] != $folder_link_type) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($folder_link['linkid'], $folder_link_type)) {
 				trigger_localised_error('SCH0016', E_USER_WARNING);
-				return false;
+				return FALSE;
 			}
 		}
 
-		return false;
+		return FALSE;
 
 	}//end processCustomiseSearchForms()
 
@@ -1355,9 +1350,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the thesaurus asset selection box
 	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1365,12 +1360,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function paintThesaurusAsset(&$asset, &$o, $prefix)
 	{
 		$link_value = 'thesaurus';
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, $link_value);
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $link_value);
 
 		$write_access = $asset->writeAccess('links');
 
 		if (!$write_access) {
-			$root_asset = null;
+			$root_asset = NULL;
 			if (!empty($root_link)) {
 				echo get_asset_tag_line($root_link['minorid']);
 			} else {
@@ -1388,9 +1383,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Processes the value input from thesaurus asset selection box
 	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
@@ -1398,33 +1393,33 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processThesaurusAsset(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_thesaurusid']['assetid'])) {
-			return false;
+			return FALSE;
 		}
 		$new_root  = $_POST[$prefix.'_thesaurusid']['assetid'];
 
 		// getting existing root link
 		$link_value = 'thesaurus';
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, $link_value);
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 
 		// dont process anything if the root node has not changed
 		if (!empty($root_link) && $root_link['minorid'] == $new_root) {
-			return false;
+			return FALSE;
 		}
 
-		$ok = true;
+		$ok = TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// deleting old root link if any found...
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
-			$ok = false;
+			$ok = FALSE;
 		} else if ($new_root) {
-			$root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
-					$ok = false;
+					$ok = FALSE;
 					trigger_localised_error('SCH0017', E_USER_WARNING, $root->name, $root->id);
 				}
 			}
@@ -1445,9 +1440,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	/**
 	* Paints the auto synonym search section
 	*
-	* @param object	&$asset	the asset being painted
-	* @param object	&$o		backend outputter class
-	* @param string	$prefix	prefix for the html doc element name
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
@@ -1475,7 +1470,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		}
 
 		$link_value = 'thesaurus';
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, $link_value);
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $link_value);
 
 		// No thesaurus asset set
 		if (empty($root_link)) {
@@ -1486,7 +1481,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$field = $asset->attr('auto_synonym_search_field');
 
 		if ($write_access) {
-			check_box($prefix.'_auto_synonym_search_enabled', 1, !empty($field), 'form.elements["'.$prefix.'_auto_synonym_search_field"].disabled = !this.checked; return true;');
+			check_box($prefix.'_auto_synonym_search_enabled', 1, !empty($field), 'form.elements["'.$prefix.'_auto_synonym_search_field"].disabled = !this.checked; return TRUE;');
 			echo translate('sch_auto_syn_enable');
 			$o->closeField();
 			$o->openField(translate('sch_auto_syn_use_search_field'));
@@ -1534,10 +1529,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 
 	/**
-	* Return true if the thesaurus asset type is installed
+	* Return TRUE if the thesaurus asset type is installed
 	*
-	* @param object Asset        $asset  the asset whose interface we are painting
-	* @param string                        $prefix        the prefix for this asset
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param string	$prefix	the prefix for this asset
 	*
 	* @return boolean
 	* @access public
@@ -1547,244 +1542,6 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $GLOBALS['SQ_SYSTEM']->am->installed('thesaurus');
 
 	}//end thesaurusInstalled()
-
-
-//--        PROXY SEARCHING        --//
-
-
-	/**
-	* This needs to be overriden because when a type is removed from the search
-	* page the type format bodycopy is removed. We need to be able to have type
-	* formats for the children of all our proxy asset types.
-	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processAssetTypes(&$asset, &$o, $prefix)
-	{
-		$proxy_settings = $asset->attr('proxy_types');
-
-		if (isset($_POST[$prefix.'_types'])) {
-			$existing_types = $asset->attr('types');
-
-			$proxy_child_types = Array();
-			foreach ($proxy_settings as $proxy_type => $child_types) {
-				if (!empty($child_types)) {
-					$proxy_child_types = array_merge($proxy_child_types, array_keys($child_types));
-					$existing_types = array_merge($existing_types, $child_types);
-				}
-			}
-
-			$submitted_types = Array();
-			foreach ($_POST[$prefix.'_types']['type_code'] as $i => $type_code) {
-				if (!empty($type_code)) {
-					$submitted_types[$type_code] = $_POST[$prefix.'_types']['inherit'][$i];
-				}
-			}
-
-			$folder = &$asset->getFolder('type_formats');
-			$formats = $asset->getFormats('type_formats');
-
-			// See if any types have been removed
-			foreach ($existing_types as $type => $inherit) {
-				if (!isset($submitted_types[$type])) {
-					if (in_array($type, $formats) && !in_array($type, $proxy_child_types)) {
-						// send the type format bodycopy to the trash
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
-						if (!empty($link)) {
-							$folder->deleteLink($link['linkid']);
-						}
-					}
-				}
-			}
-
-			$asset->setAttrValue('types', $submitted_types);
-			return true;
-		} else {
-			return false;
-		}
-
-	}//end processAssetTypes()
-
-
-	/**
-	* Gets a list of the available asset types that can be use for type formats.
-	* The reason it's used is so that assets (such as Search_Page) don't need to
-	* override the whole paint/process functions if they've got special asset
-	* type logic (Eg. proxy asset types)
-	*
-	* @param object Asset				&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _getAvailableTypes(&$asset)
-	{
-		$types = $asset->attr('types');
-		$proxy_settings = $asset->attr('proxy_types');
-
-		foreach ($proxy_settings as $proxy_type => $proxy_children) {
-			if (!empty($proxy_children)) {
-				$types = array_merge($proxy_children, $types);
-			}
-		}
-
-		return $types;
-
-	}//end _getAvailableTypes()
-
-
-	/**
-	* Paints the list of current proxy search asset types (when one of these
-	* asset returns a search result, the children are listed rather than the
-	* proxy itself)
-	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
-	*
-	* @return void
-	* @access public
-	*/
-	function paintProxyTypes(&$asset, &$o, $prefix)
-	{
-		$write_access = $asset->writeAccess('attributes');
-		$current_types = $asset->attr('proxy_types');
-
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-
-		$o->openField(translate('search_page_proxy_asset_types'));
-			if (empty($current_types)) {
-				echo translate('search_page_no_types_defined');
-			} else {
-				?>
-					<table class="sq-backend-table">
-						<tr>
-							<td class="sq-backend-table-header" style="width: 200px;"><?php echo translate('search_page_proxy_type_code') ?></td>
-							<td class="sq-backend-table-header"><?php echo translate('search_page_proxy_child_type_codes') ?></td>
-							<?php
-								if ($write_access) {
-									?><td class="sq-backend-table-header" style="width: 20px;"><?php echo translate('delete') ?></td><?php
-								}
-							?>
-
-						</tr>
-						<?php
-							foreach ($current_types as $current_type => $type_settings) {
-								?>
-								<tr>
-									<td class="sq_backend-data"><?php
-										echo get_asset_type_icon($current_type);
-										echo $am->getTypeInfo($current_type, 'name');
-									?></td>
-									<td class="sq_backend-data"><?php
-										if ($write_access) {
-											$i = 0;
-											$options = Array();
-											foreach ($type_settings as $type_code => $inherit) {
-												$options['type_code'][$i] = $type_code;
-												$options['inherit'][$i] = $inherit;
-												$i++;
-											}
-											asset_type_chooser($prefix.'_'.$current_type.'_children', true, $options, null, true, true);
-										} else {
-											$type_names = $am->getTypeInfo(array_keys($type_settings), 'name');
-											?><ul style="margin: 1px 15px"><?php
-											foreach($type_settings as $type_code => $inherits) {
-												echo '<li>';
-												echo get_asset_type_icon($type_code);
-												echo $type_names[$type_code];
-												if ($inherits) {
-													echo ' ('.strtolower(translate('cms_listing_inherits_child_types')).')';
-												}
-												echo '</li>';
-											}
-											?></ul><?php
-										}
-									?></td>
-									<?php
-										if ($write_access) {
-											?><td class="sq_backend-data"><?php check_box($prefix.'_'.$current_type.'_delete'); ?></td><?php
-										}
-									?>
-								<tr>
-								<?php
-							}
-						?>
-					</table>
-				<?php
-			}
-		$o->closeField();
-
-		$search_types = array_keys($asset->attr('types'));
-		if ($write_access && !empty($search_types)) {
-			$o->openField(translate('search_page_proxy_type_code_new'));
-				$types = array_diff($search_types, array_keys($current_types));
-
-				if (empty($types)) {
-					echo translate('search_page_proxy_all_types_selected');
-				} else {
-					echo '&nbsp;';
-					$options = Array('' => '');
-					$options += $am->getTypeInfo($types, 'name');
-					combo_box($prefix.'_new_type', $options, false, count($types));
-				}
-			$o->closeField();
-		}
-
-		return $write_access;
-
-	}//end paintProxyTypes()
-
-
-	/**
-	*
-	* @param object	Asset				&$rootid	asset being painted
-	* @param object Backend_Outputter	&$o			backend outputter
-	* @param string						$prefix		prefix for the html doc element name
-	*
-	* @return void
-	* @access public
-	*/
-	function processProxyTypes(&$asset, &$o, $prefix)
-	{
-		$current_types = $asset->attr('proxy_types');
-
-		foreach ($current_types as $current_type => $type_settings) {
-			// First check to see if any have been deleted
-			if (isset($_REQUEST[$prefix.'_'.$current_type.'_delete'])) {
-				unset($current_types[$current_type]);
-				continue;
-			}
-
-			// Set the new types or set to an empty array if they've all been cleared
-			if (!empty($_REQUEST[$prefix.'_'.$current_type.'_children'])) {
-				$children = $_REQUEST[$prefix.'_'.$current_type.'_children'];
-
-				$current_types[$current_type] = Array();
-				foreach ($children['type_code'] as $index => $type_code) {
-					if (empty($type_code)) continue;
-					$current_types[$current_type][$type_code] = (empty($children['inherit'][$index])) ? false : true;
-				}
-
-			} else {
-				$current_types[$current_type]['children'] = Array();
-			}
-		}
-
-		if (!empty($_REQUEST[$prefix.'_new_type'])) {
-			$current_types[$_REQUEST[$prefix.'_new_type']] = Array();
-		}
-
-		return $asset->setAttrValue('proxy_types', $current_types);
-
-	}//end processProxyTypes()
 
 
 //--        SORTING        --//
