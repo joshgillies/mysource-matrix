@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.91 2007/11/13 22:55:12 bshkara Exp $
+* $Id: hipo_job.inc,v 1.92 2007/11/15 04:01:06 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -830,12 +830,13 @@ class HIPO_Job extends MySource_Object
 								'steps'			=> serialize($this->_steps),
 								'running_vars'	=> serialize($this->_running_vars),
 								'last_updated'	=> $last_updated,
-								'code_name'		=> serialize($this->code_name),
+								'code_name'		=> $this->code_name,
 							  );
 				$result = MatrixDAL::executeOne('core', 'updateHipoJobVars', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update HIPO job vars due to database error: '.$e->getMessage());
 			}
+
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
