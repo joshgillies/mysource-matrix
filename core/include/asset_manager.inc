@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.612 2007/11/15 01:14:34 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.613 2007/11/15 02:25:22 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.612 $
+* @version $Revision: 1.613 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4091,7 +4091,7 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 
 		$extra_table = '';
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($assetid);
+		$where = 'l.'.$side_of_link.'id = :assetid';
 		if ($link_types) {
 			$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'link_type', $link_types).' > 0';
 		}
@@ -4133,6 +4133,7 @@ class Asset_Manager extends MySource_Object
 		$result = NULL;
 		try {
 			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Could not count the links due to a DB error: '.$e->getMessage());
@@ -4838,7 +4839,7 @@ class Asset_Manager extends MySource_Object
 								num_kids
 							)
 							SELECT
-								('.$case.') || :treeid || SUBSTR(ct.treeid, :minor_treeid + 1)),
+								('.$case.') || :treeid || SUBSTR(ct.treeid, :minor_treeid),
 								ct.linkid,
 								ct.num_kids
 							FROM
@@ -4853,20 +4854,16 @@ class Asset_Manager extends MySource_Object
 				try {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
-					$query->bindValue(':treeid',   $free_treeid);
-					$query->bindValue(':minorid',               $major->id);
+					$query->bindValue(':treeid', $free_treeid);
+					$query->bindValue(':minorid', $major->id);
 					$query->bindValue(':minor_treeid_wildcard', $minor_tree['treeid'].'%');
-					$query->bindValue(':minor_treeid',          $minor_tree['treeid']);
-					$query->bindValue(':minor_treeid_1',        $minor_tree['treeid']);
+					$query->bindValue(':minor_treeid', strlen($minor_tree['treeid'])+1);
+					$query->bindValue(':minor_treeid_1', $minor_tree['treeid']);
 					MatrixDAL::execPdoQuery($query);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}//end if
 
 
@@ -5717,13 +5714,12 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$db = MatrixDAL::getDb();
-			$sql = 'DELETE FROM
-						sq_shdw_ast_lnk
-					WHERE
-						linkid = '.$db->quote($linkid);
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars = Array('linkid' => $linkid);
+				$result = MatrixDAL::executeOne('core', 'deleteShadowAssetLink', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete shadow asset link with linkid: '.$linkid.' due to database error: '.$e->getMessage());
+			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -5826,12 +5822,17 @@ class Asset_Manager extends MySource_Object
 							FROM
 								sq_ast_lnk_tree t
 							WHERE
-								t.linkid = '.$db->quote($linkid).'
+								t.linkid = :linkid
 						)';
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':linkid', $linkid);
+				$result = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update the link tree for linkid: '.$linkid.' due to database error: '.$e->getMessage());
+			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			// we can delete all the links under these nodes because it will be a clean start
@@ -5847,14 +5848,19 @@ class Asset_Manager extends MySource_Object
 							FROM
 								sq_ast_lnk_tree pt, sq_ast_lnk_tree ct
 							WHERE
-									pt.linkid	= '.$db->quote($linkid).'
+									pt.linkid	= :linkid
 								AND	(ct.treeid	LIKE pt.treeid || '.$db->quote('%').'
 								OR ct.treeid	= pt.treeid)
 						)';
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':linkid', $linkid);
+				$result = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete tree links for linkid: '.$linkid.' due to database error: '.$e->getMessage());
+			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}//end if significant link
@@ -5865,24 +5871,31 @@ class Asset_Manager extends MySource_Object
 				SET
 					sort_order = sort_order - 1
 				WHERE
-						majorid		= '.$db->quote($major->id).'
-					AND	sort_order	> '.$db->quote($link['sort_order']);
+						majorid		= :majorid
+					AND	sort_order	> :sort_order';
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':majorid', $major->id);
+			$query->bindValue(':sort_order', $link['sort_order']);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update sort orders for majorid: '.$major->id.' due to database error: '.$e->getMessage());
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// Delete from the link table
-		$sql = 'DELETE FROM
-					sq_ast_lnk
-				WHERE
-						linkid	= '.$db->quote($linkid).'
-					AND	majorid	= '.$db->quote($major->id);
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'linkid'	=> $linkid,
+							'majorid'	=> $major->id,
+						  );
+			$result = MatrixDAL::executeOne('core', 'deleteLink', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete link with linkid: '.$linkid.' due to database error: '.$e->getMessage());
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// Tell the assets that they have been updated

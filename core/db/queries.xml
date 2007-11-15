@@ -116,6 +116,28 @@
 		</primary>
 	</query>
 
+	<query id="deleteShadowAssetLink">
+		<!-- Deletes shadow asset link with specified linkid -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_shdw_ast_lnk" column="linkid">:linkid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+
+	<query id="deleteLink">
+		<!-- Deletes link with specified linkid -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_ast_lnk" column="linkid">:linkid</equal>
+					<equal table="sq_ast_lnk" column="majorid">:majorid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
 
 	<!-- //		ASSET MANAGER		// -->
 
