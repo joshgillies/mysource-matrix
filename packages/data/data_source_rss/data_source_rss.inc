@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.9 2007/01/08 03:26:25 emcdonald Exp $
+* $Id: data_source_rss.inc,v 1.9.4.1 2007/11/15 03:02:17 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -88,13 +88,15 @@ class Data_Source_RSS extends Data_Source
 	{
 		$new_result = Array();
 		$result = $this->parseXML();
+		if (!$result) return Array();
+
 		$feed_reader =& $this->reader;
 		$result = $feed_reader->getItems();
 		$type = $feed_reader->getRssType();
 		foreach ($result as $index => $info) {
 			foreach ($info as $tag => $val_array) {
-				//for atom 1.30 type of rss feeds we need to add default keywords of
-				//title, description and link
+				// for atom 1.30 type of rss feeds we need to add default keywords of
+				// title, description and link
 				if ($type == 'atom_1.0') {
 					if (isset($val_array['value'])) {
 						switch ($tag) {
@@ -124,8 +126,27 @@ class Data_Source_RSS extends Data_Source
 						$new_result[$index][$tag] = $val_array['value'];
 					}
 				}
+			}//end foreach
+
+			// timestamp data source record set attribute
+			$date_f = substr($this->attr('date_field'), strlen('ds__'));
+			if (!empty($date_f)) {
+				if (isset($info[$date_f])) {
+					$date_string = $info[$date_f]['value'];
+					if ($type == 'rss_2.0') {
+						// rss 2.0 uses GMT date format
+						$timestamp = strtotime($date_string);
+					} else {
+						// atom 1.0 uses the date construct
+						$timestamp = iso8601_ts($date_string);
+					}
+					if ($timestamp) {
+						$new_result[$index]['timestamp'] = $timestamp;
+					}
+				}
 			}
-		}
+		}//end foreach
+
 		return $new_result;
 
 	}//end getItems()
@@ -171,11 +192,14 @@ class Data_Source_RSS extends Data_Source
 		$feed_reader =& new RSS_Feed_Reader();
 		$this->reader =& $feed_reader;
 		if (!empty($url)) {
-			$feed_reader->setInputFile($url);
-			$result = $feed_reader->parse();
-			return $result;
+			if ($feed_reader->setInputFile($url)) {
+				$result = $feed_reader->parse();
+				return $result;
+			} else {
+				return FALSE;
+			}
 		} else {
-			return false;
+			return FALSE;
 		}
 
 	}//end parseXML()
@@ -191,8 +215,8 @@ class Data_Source_RSS extends Data_Source
 	*/
 	function getKeywordReplacement($keyword)
 	{
-		$replacement = null;
-		if (strpos( $keyword, 'data_source_rss') === false) {
+		$replacement = NULL;
+		if (strpos( $keyword, 'data_source_rss') === FALSE) {
 			$replacement = parent::getKeywordReplacement($keyword);
 		} else {
 			$keyword = substr($keyword, strlen('data_source_rss_'));
@@ -243,7 +267,8 @@ class Data_Source_RSS extends Data_Source
 			} else {
 				$replacement = $result;
 			}
-		}
+		}//end else
+
 		return $replacement;
 
 	}//end getKeywordReplacement()

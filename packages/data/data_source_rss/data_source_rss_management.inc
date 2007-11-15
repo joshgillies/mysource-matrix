@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss_management.inc,v 1.4 2006/12/08 00:52:00 emcdonald Exp $
+* $Id: data_source_rss_management.inc,v 1.4.6.1 2007/11/15 03:02:18 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,11 +39,16 @@ class Data_Source_RSS_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-						'url'	=> Array(
-									'added'		=> '0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								   ),
+						'url'			=> Array(
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
+						'date_field'	=> Array(
+											'added'		=> '0.1.1',
+											'type'		=> 'text',
+											'default'	=> '',
+										   ),
 					  );
 
 	}//end constructor

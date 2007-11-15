@@ -13,7 +13,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2006/12/08 00:52:00 emcdonald Exp $
+* $Id: asset.xml,v 1.2.6.1 2007/11/15 03:02:17 rong Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>data</package>
 	<type_code>data_source_rss</type_code>
-	<version>0.1</version>
+	<version>0.1.1</version>
 	<name>RSS Data Source</name>
 	<description>This is used to Read The RSS Feeds</description>
 	<instantiable>yes</instantiable>
