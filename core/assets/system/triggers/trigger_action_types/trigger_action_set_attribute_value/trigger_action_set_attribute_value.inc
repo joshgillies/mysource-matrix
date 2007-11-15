@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.16 2007/11/06 22:36:46 rong Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.17 2007/11/15 03:49:35 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,9 +87,9 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			if (is_null($attr)) return FALSE;
 
 			switch (get_class($attr)) {
-				case 'asset_attribute_serialise' :
-				case 'asset_attribute_parameter_map' :
-				case 'asset_attribute_email_format' :
+				case 'Asset_Attribute_Serialise' :
+				case 'Asset_Attribute_Parameter_Map' :
+				case 'Asset_Attribute_Email_Format' :
 					if (Trigger_Action_Set_Attribute_Value::_safeToEval($value)) {
 						// set $value to be the contents of the array
 						eval('$value = '.$value.';');
@@ -286,9 +286,9 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 
 
 			switch (get_class($attr)) {
-				case 'asset_attribute_serialise' :
-				case 'asset_attribute_parameter_map' :
-				case 'asset_attribute_email_format' :
+				case 'Asset_Attribute_Serialise' :
+				case 'Asset_Attribute_Parameter_Map' :
+				case 'Asset_Attribute_Email_Format' :
 					if (!Trigger_Action_Set_Attribute_Value::_safeToEval($settings['value'])) {
 						trigger_localised_error('TRIG0002', E_USER_NOTICE);
 						$settings['value'] = '';
