@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.9 2007/11/06 22:36:46 rong Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.10 2007/11/15 03:54:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -292,7 +292,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($settings['asset_type']);
 				$dummy_asset = new $settings['asset_type'];
 				$attr = $dummy_asset->getAttribute($settings['attribute']);
-				if (is_null($attr) || (get_class($attr) != 'asset_attribute_datetime')) {
+				if (is_null($attr) || (get_class($attr) != 'Asset_Attribute_Datetime')) {
 					// selected asset type does not have an attribute with the selected name, so reset
 					$settings['attribute'] = '';
 				}
