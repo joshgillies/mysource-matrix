@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.20 2007/11/14 04:51:37 hnguyen Exp $
+* $Id: wysiwyg_plugin.inc,v 1.21 2007/11/15 04:20:55 hnguyen Exp $
 *
 */
 require_once dirname(__FILE__).'/../../core/include/init.inc';
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../core/include/init.inc';
 *     of wysiwyg.inc
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -383,7 +383,7 @@ class wysiwyg_plugin
 	*/
 	function get_popup_href($filename, $classname='')
 	{
-		if (empty($classname)) $classname = get_class($this);
+		if (empty($classname)) $classname = get_class_lower($this);
 		return $classname.'/'.$filename;
 
 	}//end get_popup_href()
