@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.92 2007/11/15 04:01:06 colivar Exp $
+* $Id: hipo_job.inc,v 1.93 2007/11/16 01:17:37 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1272,7 +1272,11 @@ class HIPO_Job extends MySource_Object
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
 				$fn = $step_data['hipo_job']['init_details_function'];
 				// First let's get the info needed to create this
-				$this->$fn($job_type='', $running_vars=Array(), $options=Array(), $hipo_vars=Array());
+				$job_type = '';
+				$running_vars = Array();
+				$options = Array();
+				$hipo_vars = Array();
+				$this->$fn($job_type, $running_vars, $options, $hipo_vars);
 
 				// so they have decided to ignore this step ? that's cool
 				if (empty($job_type)) {
