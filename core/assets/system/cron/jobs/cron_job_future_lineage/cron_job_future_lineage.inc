@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.25 2007/11/09 04:21:00 rong Exp $
+* $Id: cron_job_future_lineage.inc,v 1.26 2007/11/16 03:43:12 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,7 +191,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			return FALSE;
 		}
 
-		if (!is_a($asset, 'asset')) {
+		if (!($asset instanceof Asset)) {
 			trigger_localised_error('CRON0030', E_USER_WARNING);
 			return FALSE;
 		}
