@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.331 2007/11/15 21:56:12 hnguyen Exp $
+* $Id: asset_edit_interface.inc,v 1.332 2007/11/16 01:18:56 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.331 $
+* @version $Revision: 1.332 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1910,6 +1910,9 @@ class Asset_Edit_Interface extends MySource_Object
 								unset($revert_attr);
 
 							} else if ($last_child->getName() == 'function_call') {
+
+								// If there is no process function node at all, then skip
+								if (empty($last_child->process_function)) continue;
 
 								$process_node = $last_child->process_function;
 
