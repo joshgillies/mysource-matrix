@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.51 2007/04/13 00:47:51 lwright Exp $
+* $Id: cron_job.inc,v 1.52 2007/11/16 03:45:21 hnguyen Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -485,7 +485,7 @@ class Cron_Job extends Asset
 	* @access public
 	* @static
 	*/
-	function getWhenArr($when_str)
+	public static function getWhenArr($when_str)
 	{
 		$when_arr = Array('type' => '', 'year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '', 'duration' => '', 'period' => '');
 
