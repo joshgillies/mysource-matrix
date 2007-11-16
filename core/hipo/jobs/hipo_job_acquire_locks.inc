@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.24 2007/11/13 22:55:13 bshkara Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.25 2007/11/16 00:01:57 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -291,7 +291,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 				$assetid = $parent_assetid;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
 			} else {
-				$assetid = array_shift(array_keys($this->_running_vars['child_assetids'][$parent_assetid]));
+				$parent_assetid_keys = array_keys($this->_running_vars['child_assetids'][$parent_assetid]);
+				$assetid = array_shift($parent_assetid_keys);
 				$asset_type = $this->_running_vars['child_assetids'][$parent_assetid][$assetid];
 				unset($this->_running_vars['child_assetids'][$parent_assetid][$assetid]);
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
