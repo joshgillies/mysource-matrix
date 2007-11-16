@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.45 2007/09/18 01:17:17 colivar Exp $
+* $Id: settings.inc,v 1.46 2007/11/16 03:42:00 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$root =& $ei->findScreen('static_screen_settings');
+	$root = $ei->findScreen('static_screen_settings');
 	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
@@ -52,7 +52,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 	}
 
 	for ($i = 0; $i < count($root->children); $i++) {
-		$section =& $root->children[$i];
+		$section = $root->children[$i];
 
 		// if we are in limbo and this section is not to be printed in limbo - dont print it
 		if (is_null($keywords)) {
@@ -71,7 +71,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 		for ($j = 0; $j < $num_fields; $j++) {
-			$field =& $section->children[$j];
+			$field = $section->children[$j];
 
 			// should we print the note for the field or not
 			$print_note = TRUE;
@@ -160,7 +160,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						ob_start();
 					}
 
-					$date_field =& new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
+					$date_field = new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
 
 					if ($owner->adminAccess('all')) {
 						$date_field->printField();
@@ -378,9 +378,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							// cant morph an asset if it is not under construction
 							echo translate('only_morph_under_construction');
 						} else {
-							$db =& $GLOBALS['SQ_SYSTEM']->db;
-							$am =& $GLOBALS['SQ_SYSTEM']->am;
-							$user =& $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+							$db = $GLOBALS['SQ_SYSTEM']->db;
+							$am = $GLOBALS['SQ_SYSTEM']->am;
+							$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
 							$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
 							for ($i = 0; $i < count($types); $i++) {
@@ -706,7 +706,7 @@ function processSettings(&$owner, &$o, &$ei)
 							'print_format'	=> 'l, F jS, Y H:i:s',
 						  );
 
-			$date_field =& new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
+			$date_field = new Datetime_Field($prefix.'_date_'.$date_type, $value, $parameters);
 			$date_field->processField();
 
 			// if the date is only partially complete, then don't set the date
@@ -838,7 +838,7 @@ function processSettings(&$owner, &$o, &$ei)
 				}
 
 				if ($new_designid) {
-					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
+					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
 					if (is_null($design)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$designs_ok = FALSE;
@@ -865,7 +865,7 @@ function processSettings(&$owner, &$o, &$ei)
 				}
 
 				if ($new_override_designid) {
-					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_override_designid);
+					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_override_designid);
 					if (is_null($design)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$designs_ok = FALSE;
