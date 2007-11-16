@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.605 2007/11/14 22:09:14 lwright Exp $
+* $Id: asset.inc,v 1.606 2007/11/16 02:37:28 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.605 $
+* @version $Revision: 1.606 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -229,7 +229,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			// perform any validation before starting the create process
@@ -260,7 +260,7 @@ class Asset extends MySource_Object
 
 		// TODO: this wil be replaced in the queries.xml with a seqNextVal()
 		// call replacing the addition of the explicit sequence value
-		$assetid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_seq\')');
+		$assetid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_seq\')');
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
@@ -276,9 +276,9 @@ class Asset extends MySource_Object
 		}
 
 		try {
-			// TODO: Until DAL handles dates properly, get date separately
-			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
-			$now = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+			// TODO: Until MatrixDAL handles dates properly, get date separately
+			$ts_fragment = db_extras_todate(MatrixMatrixDAL::getDbType(), ts_iso8601($now));
+			$now = MatrixMatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
 
 			$bind_vars = Array(
 							'assetid'				=> $assetid,
@@ -296,7 +296,7 @@ class Asset extends MySource_Object
 							'status_changed'		=> $now,
 							'status_changed_userid'	=> $userid,
 						 );
-			MatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
+			MatrixMatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to create new asset  "'.$name.'" (# "'.$assetid.'") due to database error: '.$e->getMessage());
 		}
@@ -619,7 +619,7 @@ class Asset extends MySource_Object
 	*/
 	function load($assetid)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// OK, the first thing to do is check we actually exist :)
 		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages,
@@ -632,7 +632,7 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql.$where);
 			$query->bindValue(':assetid', $assetid);
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 			if (!empty($result)) {
 				$result = $result[0];
 			}
@@ -730,7 +730,7 @@ class Asset extends MySource_Object
 	*/
 	function _loadVars()
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// let's setup the data path
 		$this->_loadDataPaths();
@@ -760,7 +760,7 @@ class Asset extends MySource_Object
 			$query = $db->prepare($sql);
 			$query->bindValue(':type_code', $this->type(), PDO::PARAM_STR);
 			$query->bindValue(':assetid',   $this->id, PDO::PARAM_STR);
-			$result = DAL::executePdoGroupedAssoc($query);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
 
 			if (empty($result)) {
 				$this->vars = Array();
@@ -837,7 +837,7 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
@@ -1220,7 +1220,7 @@ class Asset extends MySource_Object
 		if ($this->id) {
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$sql = 'UPDATE
@@ -1249,10 +1249,10 @@ class Asset extends MySource_Object
 				$query->bindValue(':languages',      $this->languages,    PDO::PARAM_STR);
 				$query->bindValue(':charset',        $this->charset,      PDO::PARAM_STR);
 				$query->bindValue(':force_secure',   $this->force_secure, PDO::PARAM_STR);
-				$query->bindValue(':updated',        ts_iso8601($updated), PDO::PARAM_STR);	// TODO: fix with DAL queries.xml?
+				$query->bindValue(':updated',        ts_iso8601($updated), PDO::PARAM_STR);	// TODO: fix with MatrixDAL queries.xml?
 				$query->bindValue(':updated_userid', $updated_userid,     PDO::PARAM_STR);
 				$query->bindValue(':assetid',        $this->id,           PDO::PARAM_STR);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update asset "'.$this->_getName().'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
@@ -1403,7 +1403,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'UPDATE
 					sq_ast
@@ -1416,7 +1416,7 @@ class Asset extends MySource_Object
 			$query = $db->prepare($sql);
 			$query->bindValue(':version', $new_version, PDO::PARAM_STR);
 			$query->bindValue(':assetid', $this->id,    PDO::PARAM_STR);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to increment version of "'.$this->_getName().'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
@@ -1629,7 +1629,7 @@ class Asset extends MySource_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
@@ -2244,7 +2244,7 @@ class Asset extends MySource_Object
 		if ($new_status != $old_status) {
 			// the status has actually changed to a different one
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$sql = 'UPDATE
 						sq_ast
@@ -2261,7 +2261,7 @@ class Asset extends MySource_Object
 				$query->bindValue(':date',    ts_iso8601(time()));
 				$query->bindValue(':userid',  $GLOBALS['SQ_SYSTEM']->currentUserId());
 				$query->bindValue(':assetid', $this->id);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update status of asset "'.$this->name.'" (#'.$this->id.'), due to database error: '.$e->getMessage());
 			}
@@ -2392,7 +2392,7 @@ class Asset extends MySource_Object
 		// begin a transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'UPDATE
 					sq_ast
@@ -2407,7 +2407,7 @@ class Asset extends MySource_Object
 			$query->bindValue(':date',    ts_iso8601($time));
 			$query->bindValue(':userid',  $userid);
 			$query->bindValue(':assetid', $this->id);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update '.str_replace('_', ' ', $date_type).' date of asset "'.$this->name.'" (#'.$this->id.'), due to database error: '.$e->getMessage());
 		}
@@ -2787,7 +2787,7 @@ class Asset extends MySource_Object
 		$save_vars = Array();
 		$attr_ids  = Array();
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// open a queue for all messages we are going to be logging
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -2813,7 +2813,7 @@ class Asset extends MySource_Object
 					$query = $db->prepare($sql);
 					$query->bindValue(':name',      $var_name);
 					$query->bindValue(':type_code', $this->type());
-					$owning_attributeid = DAL::executePdoOne($query);
+					$owning_attributeid = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Cannot check for attribute value "'.$name.'" of type code "'.$this->type().'" due to atabase error: '.$e->getMessage());
 				}
@@ -2867,7 +2867,7 @@ class Asset extends MySource_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// find any previous entries
 		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
@@ -2879,7 +2879,7 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql.$where);
 			$query->bindValue(':assetid', $this->id);
-			$existing = DAL::executePdoAssoc($query, 0);
+			$existing = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get attributes for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
@@ -2906,7 +2906,7 @@ class Asset extends MySource_Object
 						$prepared_uniq->bindValue(':custom_val', $attr_value);
 						$prepared_uniq->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
 						$prepared_uniq->bindValue(':assetid',    $this->id);
-						DAL::execPdoQuery($prepared_uniq);
+						MatrixDAL::execPdoQuery($prepared_uniq);
 					} catch (Exception $e) {
 						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 					}
@@ -2916,7 +2916,7 @@ class Asset extends MySource_Object
 					$prepared->bindValue(':custom_val', $attr_value);
 					$prepared->bindValue(':attrid',     $attr_id);
 					$prepared->bindValue(':assetid',    $this->id);
-					DAL::execPdoQuery($prepared);
+					MatrixDAL::execPdoQuery($prepared);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 				}
@@ -2942,7 +2942,7 @@ class Asset extends MySource_Object
 						$prepared_uniq->bindValue(':custom_val', $attr_value);
 						$prepared_uniq->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
 						$prepared_uniq->bindValue(':assetid',    $this->id);
-						DAL::execPdoQuery($prepared_uniq);
+						MatrixDAL::execPdoQuery($prepared_uniq);
 					} catch (Exception $e) {
 						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 					}
@@ -2952,7 +2952,7 @@ class Asset extends MySource_Object
 					$prepared->bindValue(':custom_val', $attr_value);
 					$prepared->bindValue(':attrid',     $attr_id);
 					$prepared->bindValue(':assetid',    $this->id);
-					DAL::execPdoQuery($prepared);
+					MatrixDAL::execPdoQuery($prepared);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 				}
@@ -3036,7 +3036,7 @@ class Asset extends MySource_Object
 
 		// if this is a uniq attribute then let's make sure that this isn't already set
 		if ($attribute->uniq) {
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$sql = 'SELECT COUNT(*)
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
@@ -3053,7 +3053,7 @@ class Asset extends MySource_Object
 				$query->bindValue(':custom_val', $value);
 				$query->bindValue(':name',       $name);
 				$query->bindValue(':type_code',  $this->type());
-				$result = DAL::executePdoOne($query);
+				$result = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Cannot check for unique attribute value "'.$name.'" of type code "'.$this->type().'" due to atabase error: '.$e->getMessage());
 			}
@@ -3578,7 +3578,7 @@ class Asset extends MySource_Object
 	*/
 	function getEffectiveLastUpdatedTime($assetids)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$assetids[] = $this->id; // add self
 
@@ -4052,7 +4052,7 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->frontend_asset = $asset;
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$url = strip_url(current_url(FALSE, TRUE));
 
 		// No design has been passed in, so we need to find one
@@ -4106,7 +4106,7 @@ class Asset extends MySource_Object
 	{
 		if (!isset($this->_tmp['valid_protocols'])) {
 			$protocol = current_protocol();
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			$sql = 'SELECT http, https
 					FROM sq_ast_lookup
 					WHERE assetid = '.$db->quoteSmart($this->id).'
@@ -4482,7 +4482,7 @@ class Asset extends MySource_Object
 	function getWebPaths()
 	{
 		if (!isset($this->_tmp['paths'])) {
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			$where = 'assetid = :assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT path
@@ -4492,7 +4492,7 @@ class Asset extends MySource_Object
 			try {
 				$query = $db->prepare($sql);
 				$query->bindValue(':assetid', $this->id);
-				$result = DAL::executePdoAssoc($query, 0);
+				$result = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get web paths for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
@@ -4562,7 +4562,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'DELETE FROM
 					sq_ast_path
@@ -4572,7 +4572,7 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':assetid', $this->id);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete web paths for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
@@ -4597,7 +4597,7 @@ class Asset extends MySource_Object
 				$query->bindValue(':path',       $path);
 				$query->bindValue(':assetid',    $this->id);
 				$query->bindValue(':sort_order', $sort_order);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert web paths for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
@@ -4634,7 +4634,7 @@ class Asset extends MySource_Object
 	function getLookups($field='')
 	{
 		if (!isset($this->_tmp['lookups'])) {
-			$db = DAL::getDb();
+			$db = MatrixMatrixDAL::getDb();
 
 			$sql = 'SELECT url, http, https, root_urlid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup ';
@@ -4644,7 +4644,7 @@ class Asset extends MySource_Object
 			try {
 				$query = $db->prepare($sql.$where);
 				$query->bindValue(':assetid', $this->id);
-				$result = DAL::executePdoAll($query);
+				$result = MatrixMatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
@@ -4677,7 +4677,7 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['design_lookups'])) {
 			$this->_tmp['design_lookups'] = Array();
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			// Sort ascending so the override designs overwrite the array index for the normal design in the while loop below
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
@@ -4739,7 +4739,7 @@ class Asset extends MySource_Object
 	*/
 	function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE, $ignore_override_designs=FALSE)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// Return all values in sq_lookup_value, i.e. the parents
 		// Called by updateLookups()
@@ -4770,13 +4770,13 @@ class Asset extends MySource_Object
 		$sql_order_by = ' ORDER BY depth ASC ';
 
 		if (!is_null($inherited) && $inherited) {
-			$result = DAL::executeSqlAll($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where);
+			$result = MatrixDAL::executeSqlAll($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where);
 		}
 		elseif ($ignore_override_designs) {
-			$result = DAL::executeSqlAll($sql_default.$where);
+			$result = MatrixDAL::executeSqlAll($sql_default.$where);
 		}
 		else {
-			$result = DAL::executeSqlAll($sql_default.$include_override.$where);
+			$result = MatrixDAL::executeSqlAll($sql_default.$include_override.$where);
 		}
 
 		$ret_val = Array();
@@ -4810,7 +4810,7 @@ class Asset extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// Remove all the old URLs
 		// include sort order so that we can figure out which one is which
@@ -4824,7 +4824,7 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':assetid', $this->id);
-			$old_urls = DAL::executePdoAll($query);
+			$old_urls = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get old lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
@@ -4999,7 +4999,7 @@ class Asset extends MySource_Object
 							$query->bindValue(':https',   $https);
 							$query->bindValue(':urlid',   $parent_urls[$j]['root_urlid']);
 							$query->bindValue(':assetid', $this->id);
-							DAL::execPdoQuery($query);
+							MatrixDAL::execPdoQuery($query);
 							echo 'Adding lookup '.$new_url.' for asset "'.$this->name.'" (#'.$this->id.')'."\n";
 						} catch (Exception $e) {
 							throw new Exception('Unable to insert lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -5230,7 +5230,7 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
