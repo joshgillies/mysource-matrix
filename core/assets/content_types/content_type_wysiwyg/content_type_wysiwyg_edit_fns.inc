@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.41 2007/11/06 06:10:33 rong Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.42 2007/11/16 03:14:09 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -370,7 +370,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		// grab and store the last run status of htmltidy plugin
 		// to be used when we print the corresponding status icon
 		$html_tidy = $wysiwyg->get_plugin('html_tidy');
-		$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
+		if (!is_null($html_tidy)) {
+			$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
+		}//end if
 		return $asset->setAttrValue('html', $html);
 
 	}//end processBackend()
