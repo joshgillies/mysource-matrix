@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_search.inc,v 1.4 2007/11/16 03:55:58 hnguyen Exp $
+* $Id: backend_search.inc,v 1.5 2007/11/16 05:54:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Backend_Search
@@ -69,7 +69,7 @@ class Backend_Search
 	* @return array
 	* @access public
 	*/
-	function processSearch($search_terms, $restrict_statuses=Array(), $restrict_asset_types=Array())
+	public static function processSearch($search_terms, $restrict_statuses=Array(), $restrict_asset_types=Array())
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
