@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.27 2007/11/16 03:25:41 hnguyen Exp $
+* $Id: preview.inc,v 1.28 2007/11/16 06:01:14 hnguyen Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -66,9 +66,15 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$where = 'assetid = '.$db->quote($parent->id).'
 					  AND name LIKE '.$db->quote('design::%');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$parent_urls = $db->getAll($sql.' '.$where.' ORDER BY l.url');
-			assert_valid_db_result($parent_urls);
 
+			try {
+				$query		= $db->prepare($sql.' '.$where.' ORDER BY l.url');
+				$query->bindValue('ownerid', $parent->id);
+				$parent_urls	= MatrixDAL::executePdoAll($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get the design name and url for assetid #'.$owner->id.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+			
 			$url_data = array_merge($url_data, $parent_urls);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 		}
