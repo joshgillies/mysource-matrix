@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.613 2007/11/15 02:25:22 bshkara Exp $
+* $Id: asset_manager.inc,v 1.614 2007/11/16 00:39:24 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.613 $
+* @version $Revision: 1.614 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7696,8 +7696,12 @@ class Asset_Manager extends MySource_Object
 			$where .= 'AND p.path IN ('.$paths_string.')
 				AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-			$used_paths = MatrixDAL::executeSqlAssoc($sql.$where);
+			
+			try {
+				$used_paths = MatrixDAL::executeSqlAssoc($sql.$where, 0);
+			} catch (Exception $e) {
+				throw new Exception("Unable to get web paths in use due to the following database error:".$e->getMessage());
+			}//end try catch 
 
 			// if we do not need to get alternate we paths, just return
 			// the ones that are currently in use
