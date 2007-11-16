@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.149 2007/05/31 23:08:39 colivar Exp $
+* $Id: file.inc,v 1.149.2.1 2007/11/16 04:06:44 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.149.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -938,8 +938,6 @@ class File extends Asset
 				$value = $old_filename;
 				return FALSE;
 			}
-		} else if ($name == 'title') {
-			$value = htmlspecialchars($value);
 		}
 
 		return parent::setAttrValue($name, $value);
