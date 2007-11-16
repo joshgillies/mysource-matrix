@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.26 2007/08/23 04:17:42 bshkara Exp $
+* $Id: preview.inc,v 1.27 2007/11/16 03:25:41 hnguyen Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -37,18 +37,23 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = MatrixDAL::getDb();
 	$sql = 'SELECT l.url, l.http, l.https, lv.name
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url OR (l.url || \'/\' = lv.url)';
 
-	$where = 'assetid = '.$db->quote($owner->id).'
+	$where = 'assetid = :ownerid
 			  AND name LIKE '.$db->quote('design::%');
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
-	$url_data = $db->getAll($sql.' '.$where.' ORDER BY l.url');
-	assert_valid_db_result($url_data);
+	try {
+		$query		= $db->prepare($sql.' '.$where.' ORDER BY l.url');
+		$query->bindValue('ownerid', $owner->id);
+		$url_data	= MatrixDAL::executePdoAll($query);
+	} catch (Exception $e) {
+		throw new Exception('Unable to get the design name and url for assetid #'.$owner->id.' due to the following database error:'.$e->getMessage());
+	}//end try catch
 
 	if (empty($url_data)) {
 		// there is no direct URL for this assets, so
