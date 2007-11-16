@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.48 2007/11/06 06:06:08 rong Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.49 2007/11/16 05:19:31 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$url = $GLOBALS['sq_preview_url'];
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
@@ -83,8 +83,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$designid = $db->getOne($sql.$where.$order_by);
-			assert_valid_db_result($designid);
+			$query = $db->prepare($sql.$where.$order_by);
+			try { 
+				$designid = MatrixDAL::executeOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get lookup value due to the following database error:'.$e->getMessage()); 
+			}//end try catch 
 
 			if ($designid) {
 				$design = $am->getAsset($designid);
@@ -521,7 +525,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function printBodycopyIcon($onclick, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
+	public static function printBodycopyIcon($onclick, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
 	{
 		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/'.$icon.'.png';
 		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc)).'\', \''.addslashes(htmlentities($heading)).'\')"';
