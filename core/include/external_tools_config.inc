@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.23 2007/10/29 05:28:46 lwright Exp $
+* $Id: external_tools_config.inc,v 1.24 2007/11/16 02:50:20 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -150,7 +150,7 @@ class External_Tools_Config extends Config
 
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		$o->openSection(translate('active_external_tools'));
 
