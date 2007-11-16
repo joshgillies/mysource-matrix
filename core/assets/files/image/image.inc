@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.64 2007/10/29 23:41:00 lwright Exp $
+* $Id: image.inc,v 1.65 2007/11/16 01:00:14 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,29 +76,6 @@ class Image extends File
 
 	}//end saveAttributes()
 
-
-	/**
-	* Set the value for the passed variable to the passed value
-	* If the user changes the name of this file, we also need
-	* to update the file system
-	*
-	* @param string	$name	the name of the attribute
-	* @param string	$value	the new value of the attribute
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setAttrValue($name, $value)
-	{
-		switch ($name) {
-			case 'alt':
-				$value = htmlspecialchars($value);
-			break;
-		}
-
-		return parent::setAttrValue($name, $value);
-
-	}//end setAttrValue()
 
 
 	/**
