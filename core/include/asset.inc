@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.606 2007/11/16 02:37:28 bshkara Exp $
+* $Id: asset.inc,v 1.607 2007/11/16 04:42:15 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.606 $
+* @version $Revision: 1.607 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -277,8 +277,8 @@ class Asset extends MySource_Object
 
 		try {
 			// TODO: Until MatrixDAL handles dates properly, get date separately
-			$ts_fragment = db_extras_todate(MatrixMatrixDAL::getDbType(), ts_iso8601($now));
-			$now = MatrixMatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
+			$now = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
 
 			$bind_vars = Array(
 							'assetid'				=> $assetid,
@@ -296,7 +296,7 @@ class Asset extends MySource_Object
 							'status_changed'		=> $now,
 							'status_changed_userid'	=> $userid,
 						 );
-			MatrixMatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
+			MatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to create new asset  "'.$name.'" (# "'.$assetid.'") due to database error: '.$e->getMessage());
 		}
@@ -4634,7 +4634,7 @@ class Asset extends MySource_Object
 	function getLookups($field='')
 	{
 		if (!isset($this->_tmp['lookups'])) {
-			$db = MatrixMatrixDAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$sql = 'SELECT url, http, https, root_urlid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup ';
@@ -4644,7 +4644,7 @@ class Asset extends MySource_Object
 			try {
 				$query = $db->prepare($sql.$where);
 				$query->bindValue(':assetid', $this->id);
-				$result = MatrixMatrixDAL::executePdoAll($query);
+				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
