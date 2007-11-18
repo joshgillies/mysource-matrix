@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.14 2007/10/29 05:28:19 lwright Exp $
+* $Id: password_rules_config.inc,v 1.15 2007/11/18 22:20:04 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -153,7 +153,7 @@ class Password_Rules_Config extends Config
 
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		$o->openSection(translate('manage_passwd_rules'));
 
@@ -296,7 +296,7 @@ class Password_Rules_Config extends Config
 	*/
 	function processBackend(&$o)
 	{
-		$class = get_class($this);
+		$class = get_class_lower($this);
 		require_once $this->config_file;
 
 		$const = get_constant_values('SQ_PASSWD_RULE_NUM');
