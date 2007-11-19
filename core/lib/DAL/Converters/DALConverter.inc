@@ -205,6 +205,9 @@ class DALConverter
             $sql = $this->convertUpdateQuery($sqlArray);
         } else if (isset($sqlArray['DELETE']) === TRUE) {
             $sql = $this->convertDeleteQuery($sqlArray);
+		} else if (isset($sqlArray['TRUNCATE']) === TRUE) {
+			$tableName = $sqlArray['TRUNCATE']['from'];
+            $sql = $this->convertTruncateTable($tableName);
         } else if (isset($sqlArray['ALTER']) === TRUE) {
             $sql = $this->convertAlterQuery($sqlArray);
         } else if (isset($sqlArray['FUNCTION']) === TRUE) {
@@ -2185,6 +2188,54 @@ class DALConverter
         return $sql;
 
     }//end handleFunctionCoalesce()
+
+
+    /**
+     * Handles the MAX() function.
+     *
+     * @param array $args Method arguments.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionMax(array $args)
+    {
+		if (count($args) !== 1) {
+			$msg = 'The MAX() aggregate function accepts only one parameter: the expression to find the maximum value of in the table.';
+            throw new DALConverterException($msg);
+        }
+        $sql    = 'MAX(';
+        $fnArg = $this->convertSingleField($args[0]);
+
+        $sql .= $fnArg.')';
+
+        return $sql;
+
+    }//end handleFunctionMax()
+
+
+    /**
+     * Handles the MIN() function.
+     *
+     * @param array $args Method arguments.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionMin(array $args)
+    {
+		if (count($args) !== 1) {
+			$msg = 'The MIN() aggregate function accepts only one parameter: the expression to find the maximum value of in the table.';
+            throw new DALConverterException($msg);
+        }
+        $sql    = 'MIN(';
+        $fnArg = $this->convertSingleField($args[0]);
+
+        $sql .= $fnArg.')';
+
+        return $sql;
+
+    }//end handleFunctionMax()
 
 
     /**
