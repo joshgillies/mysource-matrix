@@ -178,7 +178,7 @@ class DAL
             throw new DALException('Could not load query '.$queryid.' in system '.$systemid);
         } else {
             // Get the event data for the current channel.
-			$eventData = Channels::getCurrentEventBasketData();
+            $eventData = Channels::getCurrentEventBasketData();
             return call_user_func(array($class, $function), $eventData, $bindValues);
         }
 
@@ -620,12 +620,12 @@ class DAL
 
         while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
             // If we don't know the first field yet, find out what it is
-			// because it should be the same for each row
+            // because it should be the same for each row
             if (!isset($first_field)) {
                 reset($row);
                 $first_field = key($row);
             }
-			$first_value = $row[$first_field];
+            $first_value = $row[$first_field];
 
             if (isset($result[$first_value]) === FALSE) {
                 $result[$first_value] = array();
@@ -700,7 +700,7 @@ class DAL
     {
         $dbh = self::getDb();
 
-		$query = $dbh->prepare($sql);
+        $query = $dbh->prepare($sql);
         return self::executePdoAssoc($query, $col);
 
     }//end executeSqlAssoc()
@@ -1234,7 +1234,7 @@ class DAL
      * Returns the current database connection's type.
      *
      * @param boolean $readable If true readable name will be returned.
-     *                          For example, myql => Mysql, pgsql => Postgres.
+     *                          For example, mysql => Mysql, pgsql => Postgres.
      * @param string  $conn_id  If provided, the function checks this specified connection.
      *                          If omitted, the function returns the current connection.
      *
@@ -1250,18 +1250,14 @@ class DAL
 
         //$conf = include dirname(__FILE__).'/DALConf.inc';
         $dbInfo = self::$_dbhPool[$conn_id];
-        if (isset($dbInfo['dbType']) === FALSE) {
-            throw new DALException('Could not find "type" in config.');
-        } else if (isset(self::$_dbNames[$dbInfo['dbType']]) === FALSE) {
-            $msg = $dbInfo['dbType'].' is not a valid database type.';
-            throw new DALException($msg);
-        }
+        $dbh = $dbInfo['dbh'];
+        $dbType = $dbh->getAttribute(PDO::ATTR_DRIVER_NAME);
 
         if ($readable === TRUE) {
-            return self::$_dbNames[$dbInfo['dbType']];
+            return self::$_dbNames[$dbType];
+        } else {
+            return $dbType;
         }
-
-        return $dbInfo['dbType'];
 
     }//end getDbType()
 
