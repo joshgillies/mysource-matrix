@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.23 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: metadata_schema.inc,v 1.24 2007/11/19 05:54:34 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -101,7 +101,7 @@ class Metadata_Schema extends Folder
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a metadata section then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'metadata_section') && $dependant != '1') {
+		if ($side_of_link == 'major' && ($asset instanceof Metadata_Section) && $dependant != '1') {
 			$link_type = SQ_LINK_TYPE_2;
 			$dependant = '1';
 			return TRUE;
