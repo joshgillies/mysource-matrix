@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.46 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.47 2007/11/19 05:42:16 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -198,6 +198,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 			// no schema changes, so do nothing
 			$this->_running_vars['todo_assetids'] = Array();
 		} else {
+
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$assets = $this->_running_vars['assets'];
 			$child_assets = Array();
 			for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
@@ -207,16 +209,21 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					return '';
 				}
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-				$child_assets[$assetid] = $asset->type();
+				
+				$child_assets[] = Array (
+									'minorid'	=> $assetid,
+									'type_code'	=> $asset->type(),
+								  );
+
 				unset($asset);
 			}
 			$types_with_assets = Array();
 
-			foreach ($child_assets as $assetid => $type) {
-				if (!isset($types_with_assets[$type])) {
-					$types_with_assets[$type] = Array();
+			foreach ($child_assets as $asset_info) {
+				if (!isset($types_with_assets[$asset_info['type_code']])) {
+					$type_with_assets[$asset_info['type_code']] = Array();
 				}
-				$types_with_assets[$type][$assetid] = $type;
+				$types_with_assets[$asset_info['type_code']][$asset_info['minorid']] = $asset_info['type_code'];
 			}
 
 			foreach ($types_with_assets as $type => $assetids) {
@@ -224,7 +231,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 				// I think its okay to assume that we dont need to set any schemas
 				// because nothing is ever going to get filled in - thus required
 				// fields with defaults will always be blank
-				if (!$GLOBALS['SQ_SYSTEM']->mm->allowsMetadata(reset(array_keys($assetids)))) {
+				if (!$mm->allowsMetadata(reset(array_keys($assetids)))) {
 					// if not remove assets from child asset list.
 					// What happen here if $types_with_assets is an array of array?
 					$child_assets = array_diff($child_assets, $assetids);
@@ -251,11 +258,13 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	function processSchemas(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
-			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$asset_info = array_shift($this->_running_vars['todo_assetids']);
+			$assetid = $asset_info['minorid'];
+			$asset_type = $asset_info['type_code'];
+			unset($asset_info);
+
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 			if (!is_null($asset)) {
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata')) {
