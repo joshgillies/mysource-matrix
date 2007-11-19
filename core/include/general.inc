@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.184 2007/11/15 04:44:45 colivar Exp $
+* $Id: general.inc,v 1.185 2007/11/19 03:32:13 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.184 $
+* @version $Revision: 1.185 $
 * @package MySource_Matrix
 */
 
@@ -1362,7 +1362,7 @@ function get_asset_tag_line($assetid, $screen='')
 				}
 				$lineage_names[$assetid] = $asset_info['name'];
 				?><tr>
-				<td class="sq-backend-table-cell" ><a href="#" onclick="if (self.name == 'sq_wysiwyg_popup_main') {am = self;} else if (self.name == 'hipo_job') {am = opener;} else if ((typeof sq_wysiwyg_dialog != 'undefined') && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+				<td class="sq-backend-table-cell" ><a href="#" onclick="if (self.name == 'sq_wysiwyg_popup_main') {am = self;} else if (self.name == 'hipo_job') {am = opener;} else if ((typeof sq_wysiwyg_dialog != 'undefined') && (sq_wysiwyg_dialog != null) && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 				</tr><?php
 			} else {
 				unset($lineages[$lineage_key]);
@@ -1394,7 +1394,7 @@ function get_asset_tag_line($assetid, $screen='')
 			//    => target is the popup (simple asset map), BUT need to focus it
 			// 3. Invoking from main window, no WYSWIYG popup
 			//    => target is the sidenav window, to target the main asset map
-			$lineages_onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {am = self;} else if (self.name == \'hipo_job\') {am = opener;} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog.frames[\'sq_wysiwyg_popup_main\']; am.focus(); } else { am = parent.top.frames[\'sq_sidenav\']; } am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\'); return false;';
+			$lineages_onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {am = self;} else if (self.name == \'hipo_job\') {am = opener;} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog.frames[\'sq_wysiwyg_popup_main\']; am.focus(); } else { am = parent.top.frames[\'sq_sidenav\']; } am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\'); return false;';
 			$lineages_name = translate('show_in_asset_map');
 		}
 
