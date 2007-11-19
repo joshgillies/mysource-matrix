@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.62 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.63 2007/11/19 04:47:49 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -222,7 +222,11 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 			}
 
-			$child_assets[$assetid] = $asset_info[$assetid]['type_code'];
+			$child_assets[] = Array (
+								'minorid'	=> $assetid,
+								'type_code'	=> $asset_info[$assetid]['type_code'],
+							  );
+
 		}
 
 		$child_assets = array_reverse($child_assets,true);
@@ -245,10 +249,12 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function processPermissions(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
+			$asset_info = array_shift($this->_running_vars['todo_assetids']);
+			$assetid	= $asset_info['minorid'];
+			
+			$asset_type = $asset_info['type_code'];
+			unset($asset_info);
 
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
-			unset($this->_running_vars['todo_assetids'][$assetid]);
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset) ) {
