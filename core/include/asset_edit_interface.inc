@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.332 2007/11/16 01:18:56 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.333 2007/11/19 22:38:01 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.332 $
+* @version $Revision: 1.333 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -968,7 +968,7 @@ class Asset_Edit_Interface extends MySource_Object
 							$field_note   = '';
 							$attr_tag     = NULL; // TODO: TOF what is $attr_tag
 							foreach ($field->children() as $sub_field) {
-								switch ($sub_field->name) {
+								switch ($sub_field->getName()) {
 									case 'display_name':
 										$display_name = (string)$sub_field;
 									break;
@@ -1013,7 +1013,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 								if (is_null($attr)) continue;
 								// TODO: TOF fix the line below
-								//if (!$attr->setEditParams($attr_tag)) continue;
+								if (!$attr->setEditParams($attr_tag)) continue;
 								$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE));
 								if ($field_access & SQ_EI_WRITE) {
 									$print_commit_button = TRUE;
@@ -1880,7 +1880,20 @@ class Asset_Edit_Interface extends MySource_Object
 							if ($field->getName() == 'note') continue;
 
 							$child_fields = $field->children();
-							$last_child   = $child_fields->{count($child_fields)-1};
+							// in the previous implementation of matrix the first child
+							// was the "display_name" and the second last was the "note"
+							// So the last child was the remaining element (i.e.: text, boolean, email)
+							// we are now changing it so $last_child variable contains the element which
+							// is not the "display_name" or not the "note' element
+							// $last_child   = $child_fields->{count($child_fields)-1};
+							$last_child = NULL;
+							foreach ($child_fields as $child) {
+								$child_name = $child->getName();
+								if (($child_name != 'display_name') && ($child_name != 'note')) {
+									$last_child = $child;
+									break;
+								}
+							}
 
 							$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
 							if (!($field_access & SQ_EI_WRITE)) {

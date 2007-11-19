@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.614 2007/11/16 00:39:24 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.615 2007/11/19 22:38:01 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.614 $
+* @version $Revision: 1.615 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4070,7 +4070,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
-	{// TODO: TOF create the unit tests for this function
+	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		assert_valid_assetid($assetid);

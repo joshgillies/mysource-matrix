@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.74 2007/11/12 04:16:12 lwright Exp $
+* $Id: install.inc,v 1.75 2007/11/19 22:38:01 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -782,7 +782,7 @@ function find_edit_interface_language_files($asset_type, $file_name, $locale)
 * @access public
 */
 function build_localised_screen($asset_type, $screen, $locale)
-{
+{// TODO: TOF test this function
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 
 	// get the XML for the edit interface file
@@ -810,9 +810,9 @@ function build_localised_screen($asset_type, $screen, $locale)
 		$section_found = FALSE;
 
 		foreach ($lang_root->section as $xml_section) {
+
 			foreach ($to_cache->section as $this_section) {
-				if ($this_section->attributes()->name ==
-				$xml_section->attributes()->name) {
+				if ($this_section->attributes()->name == $xml_section->attributes()->name) {
 					$section_found = TRUE;
 					break;
 				}
@@ -823,7 +823,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 			// now work through all the fields
 			foreach ($xml_section->children() as $xml_field) {
-				switch ($xml_field->name) {
+				switch ($xml_field->getName()) {
 					case 'display_name':
 						// is a display name already set?
 						if (!isset($this_section->attributes()->{'display_name'})) {
@@ -846,16 +846,16 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 						if (!isset($xml_field->attributes()->attribute)) {
 							// first, look for the function call tag in the language file
-							foreach ($xml_field->children as $child_field) {
-								if ($child_lang_field->getName() == 'function_call') {
-									$xml_paint_field = $child_lang_field;
+							foreach ($xml_field->children() as $child_field) {
+								if ($child_field->getName() == 'function_call') {
+									$xml_paint_field = $child_field;
 									break;
 								}
 							}
 
 							// now, look to see if any of the structure fields match
 							$field_found = FALSE;
-							foreach ($this_section->getChildren() as $this_field) {
+							foreach ($this_section->children() as $this_field) {
 								if (isset($this_field->{'function_call'}->{'paint_function'})) {
 									$paint_field = $this_field->{'function_call'}->{'paint_function'};
 									if ($paint_field->attributes()->name === $xml_paint_field->attributes()->name) {
@@ -883,6 +883,10 @@ function build_localised_screen($asset_type, $screen, $locale)
 							}
 
 							foreach ($xml_field->children() as $xml_sub_field) {
+								// in the previous implementation of matrix
+								// "display_name" element should be added at the first position
+								// and "note" element should be added to the second last position
+								// that might cause some problem when reading the xml from other functions
 								switch ($xml_sub_field->getName()) {
 									case 'display_name':
 									case 'note':
