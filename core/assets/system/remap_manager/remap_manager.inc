@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.33 2007/10/29 23:17:23 lwright Exp $
+* $Id: remap_manager.inc,v 1.34 2007/11/19 04:10:16 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -196,15 +196,20 @@ class Remap_Manager extends Asset
 			return 0;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT remap_url
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
-		$where = 'url = '.$db->quote($old_url);
+		$where = 'url = :url';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$remap_urls = $db->getCol($sql.$where);
-		assert_valid_db_result($remap_urls);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':url', $old_url);
+			$remap_urls = MatrixDAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get remap URLs for URL: '.$old_url.' due to database error: '.$e->getMessage());
+		}
 
 		if (in_array($new_url, $remap_urls)) return 1;
 
@@ -214,34 +219,20 @@ class Remap_Manager extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// check if the new URL is already remapping to something else, and delete it
-		$sql = 'DELETE FROM
-					sq_ast_lookup_remap
-				WHERE
-					url = '.$db->quoteSmart($new_url);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'INSERT INTO
-					sq_ast_lookup_remap
-					(
-						url,
-						remap_url,
-						expires
-					)
-					VALUES
-					(
-						'.$db->quoteSmart($old_url).',
-						'.$db->quoteSmart($new_url).',
-						'.$db->quoteSmart((is_null($expires)) ? $expires : ts_iso8601($expires)).'
-					)';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'url'		=> $old_url,
+							'remap_url'	=> $new_url,
+							'expires'	=> (is_null($expires)) ? $expires : ts_iso8601($expires),
+						  );
+			$type_codes = MatrixDAL::executeQuery('core', 'insertRemap', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to insert new remap from: '.$old_url.' to: '.$new_url.' due to database error: '. $e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -269,7 +260,7 @@ class Remap_Manager extends Asset
 
 		if (!empty($urls)) {
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			$sql = 'SELECT url, expires
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
@@ -290,8 +281,11 @@ class Remap_Manager extends Asset
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$remaps = $db->getAll($sql.$where);
-			assert_valid_db_result($remaps);
+			try {
+				$remaps = MatrixDAL::executeSqlAssoc($sql.$where);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get remap URLs for this asset: '.$asset->id.' due to database error: '.$e->getMessage());
+			}
 
 		}//end if
 

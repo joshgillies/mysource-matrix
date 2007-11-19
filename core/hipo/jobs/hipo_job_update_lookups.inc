@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.47 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.48 2007/11/19 04:10:16 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -194,7 +194,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			trigger_localised_error('HIPO0001', E_USER_WARNING);
 			return FALSE;
 		}
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$todo_normal = Array();
 		$todo_shadows = Array();
@@ -205,9 +205,12 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			if (isset($id_parts[1])) {
 				$todo_shadows = array_merge($todo_shadows, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
 			} else {
-				$todo_normal[] = $assetid;
+				$todo_normal[] = Array(
+									'minorid'	=> $assetid,
+									'length'	=> 0,
+								 );
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (is_a($asset, 'bridge')) {
+				if ($asset instanceof Bridge) {
 					if (!method_exists($asset, 'getChildren')) {
 						trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
 					} else {
@@ -215,29 +218,39 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 					}
 				}
 
-				$where = 'l.minorid = '.$db->quote($assetid);
+				$where = 'l.minorid = :assetid';
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+				$limit = ' LIMIT 1'; // TODO
 				$sql = 'SELECT t.treeid
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						'.$where;
-				$sql = $db->modifyLimitQuery($sql, 0, 1);
+						'.$where.$limit;
 
-				$treeid = $db->getOne($sql);
-				assert_valid_db_result($treeid);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':assetid', $assetid);
+					$treeid = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get treeid for minorid: '.$assetid.' due to database error: '.$e->getMessage());
+				}
 
 				$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 								 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 						';
-				$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+				$where = 't.treeid LIKE :treeid
 						  GROUP BY l.minorid ORDER BY length';
 
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-				$new_assets = $db->getCol($sql.$where);
-				assert_valid_db_result($new_assets);
+				try {
+					$query = $db->prepare($sql.$where);
+					$query->bindValue(':treeid', $treeid.'%');
+					$new_assets = MatrixDAL::executePdoAssoc($query, 0);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get minorids for treeid: '.$treeid[0]['treeid'].' due to database error: '.$e->getMessage());
+				}
 
 				$todo_normal = array_merge($todo_normal, $new_assets);
 			}//end else
@@ -249,7 +262,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			foreach (array_chunk(array_unique($todo_normal), 999) as $chunk) {
 				$quoted = Array();
 				foreach ($chunk as $id) {
-					$quoted[] = $db->quoteSmart((string) $id);
+					$quoted[] = $db->quote((string) $id);
 				}
 				$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
 			}
@@ -261,13 +274,15 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-			$todo_normal = $db->getCol($sql.$where);
-			assert_valid_db_result($todo_normal);
+			try {
+				$todo_normal = MatrixDAL::executeSqlAssoc($sql.$where, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get minorids due to database error: '.$e->getMessage());
+			}
 		}
 
 		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_normal, $todo_shadows));
 		$this->_running_vars['done_assetids'] = Array();
-
 		return parent::prepare();
 
 	}//end prepare()
@@ -286,7 +301,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$assetid = array_shift($this->_running_vars['todo_assetids']);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
 				if (!$asset->updateLookups()) return FALSE;

@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.66 2007/09/26 00:12:59 bshkara Exp $
+* $Id: site_edit_fns.inc,v 1.67 2007/11/19 04:10:16 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -277,7 +277,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		foreach ($urls as $urlid => $url_data) {
 			// Skip the new URL
@@ -288,14 +288,15 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			$run_hipo = TRUE;
 
 			// update the root url in the asset url table to the new url
-			$sql = 'UPDATE
-						sq_ast_url
-					SET
-							url = '.$db->quoteSmart(strip_url($urls[$urlid]['url'])).'
-					WHERE
-							urlid = '.$db->quoteSmart($urlid);
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars	= Array (
+								'url'			=> strip_url($urls[$urlid]['url']),
+								'urlid'			=> $urlid,
+							  );
+				$result = MatrixDAL::executeQuery('site', 'updateUrl', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update URL: '.strip_url($urls[$urlid]['url']).' for urlid: '.$urlid.' due to database error: '.$e->getMessage());
+			}
 
 			// update any urls that use this url in the lookup and lookup value tables
 			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
@@ -306,12 +307,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				$sql = 'UPDATE
 							'.$tablename.'
 						SET
-							url = '.$db->quoteSmart($urls[$urlid]['url']).' || SUBSTR(url, '.strlen($old_urls[$urlid]['url']).' + 1)
+							url = :url || SUBSTR(url, :substr_arg)
 						WHERE
-							(url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%/').')';
+							(url LIKE '.$db->quote($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quote($old_urls[$urlid]['url'].'%/').')';
+
 
 						if ($tablename == 'sq_ast_lookup') {
-							$sql .= ' AND root_urlid = '.$db->quoteSmart($urlid);
+							$sql .= ' AND root_urlid = :urlid';
 						} else if ($tablename == 'sq_ast_lookup_value') {
 							$sql .= ' AND url IN (
 										SELECT
@@ -321,11 +323,18 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 										INNER JOIN
 											sq_ast_lookup_value v ON ((l.url = v.url) OR (l.url || \'/\' = v.url))
 										WHERE
-											l.root_urlid = '.$db->quoteSmart($urlid).'
+											l.root_urlid = :urlid
 									)';
 						}
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':url', $urls[$urlid]['url']);
+					$query->bindValue(':substr_arg', strlen($old_urls[$urlid]['url'])+1);
+					$query->bindValue(':urlid', $urlid);
+					$result = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update this old URL: '.$old_urls[$urlid]['url'].' with this new URL: '.$urls[$urlid]['url'].' due to database error: '.$e->getMessage());
+				}
 			}
 		}//end foreach
 
@@ -461,23 +470,20 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintAuthURLs(&$asset, &$o, $prefix)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$write_access = $asset->writeAccess('lookups');
 
-		$sql = 'SELECT
-					urlid, url, auth_urlid
-				FROM
-					sq_ast_url
-				WHERE
-					assetid = '.$db->quote($asset->id);
-
-		$urls = $db->getAssoc($sql);
-		assert_valid_db_result($urls);
+		try {
+			$bind_vars = Array('assetid' => $asset->id);
+			$urls = MatrixDAL::executeAssoc('site', 'getUrlsFromAssetId', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get URLs for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+		}
 
 		$combo_box_urls = Array();
 
 		foreach ($urls as $urlid => $url) {
-			$combo_box_urls[$urlid] = $url['url'];
+			$combo_box_urls[$url['urlid']] = $url['url'];
 		}
 
 		$combo_box_from = $combo_box_urls;
@@ -491,20 +497,24 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			foreach ($urls as $urlid => $url) {
 				if (!empty($url['auth_urlid'])) {
 					$paint_table = TRUE;
+					$auth_urlid = $url['auth_urlid'];
 					unset($combo_box_from[$urlid]);
 					?>
 					<tr>
 					<td><?php echo $url['url'] ?></td>
 					<td><?php
 					if ($write_access) {
-						combo_box($prefix.'auth_url[change]['.$urlid.']', $combo_box_urls, FALSE, $url['auth_urlid']);
+						combo_box($prefix.'auth_url[change]['.$url['urlid'].']', $combo_box_urls, FALSE, $url['auth_urlid']);
 					} else {
-						echo $urls[$url['auth_urlid']]['url'];
+						for ($i=0; $i<count($urls); $i++) {
+							if ($urls[$i]['urlid'] === $auth_urlid)
+								echo $urls[$i]['url'];
+						}
 					}
 					?></td>
 					<?php if ($write_access) {
 					?>
-					<td><?php echo check_box($prefix.'auth_url[delete]['.$urlid.']') ?></td>
+					<td><?php echo check_box($prefix.'auth_url[delete]['.$url['urlid'].']') ?></td>
 					<?php
 					}
 					?>
@@ -523,7 +533,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 			<tr>
-				<th><?php echo translate('old_url') ?></th>
+                <th><?php echo translate('old_url') ?></th>
 				<th><?php echo translate('new_url') ?></th>
 				<?php if ($write_access) {
 					?><th>Delete?</th><?php
@@ -581,17 +591,23 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	{
 		if (!$asset->writeAccess('lookups')) return FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = 'SELECT
-					urlid, auth_urlid
-				FROM
-					sq_ast_url
-				WHERE
-					assetid = '.$db->quote($asset->id);
+		try {
+			$bind_vars = Array('assetid' => $asset->id);
+			$urls = MatrixDAL::executeAssoc('site', 'getUrlsFromAssetId', $bind_vars);
+			// transform
+			$transformed_urls = Array();
+			foreach ($urls as $key => $value) {
+				if (isset($value['urlid'])) {
+					$transformed_urls[$value['urlid']] = $value['auth_urlid'];
+				}
+			}
+			$urls = $transformed_urls;
 
-		$urls = $db->getAssoc($sql);
-		assert_valid_db_result($urls);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get authentication redirect URLs for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+		}
 		$changed_urlids = Array();
 
 		$auth_urls = $_REQUEST[$prefix.'auth_url'];
@@ -641,20 +657,21 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			}
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// save them
 			foreach (array_keys($changed_urlids) as $urlid) {
 				if (isset($diff_urls) && !in_array($urls[$urlid], $diff_urls)) {
-					$sql = 'UPDATE
-								sq_ast_url
-							SET
-								auth_urlid = '.$db->quote($urls[$urlid]).'
-							WHERE
-								urlid = '.$db->quote($urlid);
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
+					try {
+						$bind_vars	= Array (
+										'auth_urlid'	=> $urls[$urlid],
+										'urlid'			=> $urlid,
+									  );
+						$results = MatrixDAL::executeQuery('site', 'updateAuthUrlId', $bind_vars);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update auth_urlid for urlid: '.$urlid.' due to database error: '.$e->getMessage());
+					}
 				}
 			}
 
@@ -693,7 +710,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function _isCircularReference($urls)
 	{
-
 		foreach (array_keys($urls) as $from) {
 			$current_from = $from;
 			$seen = Array();

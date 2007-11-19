@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.256 2007/11/15 23:57:19 hnguyen Exp $
+* $Id: asset_map.inc,v 1.257 2007/11/19 04:10:16 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -181,7 +181,7 @@ class Asset_Map
 			$assetids = '';
 			$sort_orders = '';
 
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			$num_assets = count($asset_lineage);
 			for ($i=0; $i < $num_assets; $i++) {
@@ -202,20 +202,33 @@ class Asset_Map
 				// get the sort orders for each link
 				$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
 				INNER JOIN sq_ast_lookup u ON l.minorid = u.assetid
-				WHERE l.majorid = '.$db->quoteSmart($previd).'
-								AND l.minorid ='.$db->quoteSmart($currentid).'
-								AND u.url = '.$db->quoteSmart($asset_lineage[$i]['url']);
+				WHERE l.majorid = :previd
+								AND l.minorid = :currentid
+								AND u.url = :url';
 
-				$sort_order = $db->getOne($sql);
-				assert_valid_db_result($sort_order);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':previd', $previd);
+					$query->bindValue(':currentid', $currentid);
+					$query->bindValue(':url', $asset_lineage[$i]['url']);
+					$sort_order = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get the sort orders for URL: '.$asset_lineage[$i]['url'].' due to database error: '.$e->getMessage());
+				}
 
 				// adjust real sort order for links that are not visible on nav
 				$sql = 'SELECT count(*) FROM sq_ast_lnk
-						WHERE majorid = '.$db->quoteSmart($previd).'
-								AND sort_order <'.$db->quoteSmart($sort_order).'
+						WHERE majorid = :previd
+								AND sort_order < :sort_order
 								AND link_type > 2';
-				$count = $db->getOne($sql);
-				assert_valid_db_result($count);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':previd', $previd);
+					$query->bindValue(':sort_order', $sort_order);
+					$count = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
+				}
 				if ($count > 0) $sort_order = $sort_order - $count;
 
 				$sort_orders .= $sort_order.'|';
@@ -278,11 +291,16 @@ class Asset_Map
 					if ($i == 0) $previd = '1';
 					$currentid = $assetid;
 
-					$sql = 'SELECT l.sort_order FROM sq_ast_lnk l
-							WHERE l.majorid = '.$db->quoteSmart($previd).'
-									AND l.minorid = '.$db->quoteSmart($currentid);
-					$sort_order = $db->getOne($sql);
-					assert_valid_db_result($sort_order);
+					try {
+						$bind_vars	= Array (
+										'majorid'	=> $previd,
+										'minorid'	=> $currentid,
+									  );
+						$type_codes = MatrixDAL::executeOne('core', 'getSortOrder', $bind_vars);
+					} catch (Exception $e) {
+						throw new Exception('Unable to get sort order for majorid: '.$previd.' and minorid: '.$currentid.' due to database error: '. $e->getMessage());
+					}
+
 					$sort_orders = '|'.$sort_order.$sort_orders;
 					$i++;
 				}

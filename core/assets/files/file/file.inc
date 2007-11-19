@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.152 2007/11/16 00:59:55 rong Exp $
+* $Id: file.inc,v 1.153 2007/11/19 04:10:15 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -612,13 +612,12 @@ class File extends Asset
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
-		$sql = 'DELETE FROM
-					sq_ast_lookup
-				WHERE
-					assetid = '.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars = Array('assetid' => $this->id);
+			$result = MatrixDAL::executeQuery('core', 'deleteLookup', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
+		}
 
 		$existing = $this->getExistingFile();
 		if (!isset($existing['filename'])) {
@@ -680,27 +679,18 @@ class File extends Asset
 		}//end else - if SQ_CONF_STATIC_ROOT_URL is not empty
 
 		foreach ($save_urls as $url => $url_data) {
-
-			$sql = 'INSERT INTO
-						sq_ast_lookup
-						(
-							url,
-							assetid,
-							http,
-							https,
-							root_urlid
-						)
-						VALUES
-						(
-							'.$db->quoteSmart($url.'/'.$web_path).',
-							'.$db->quoteSmart($this->id).',
-							'.$db->quoteSmart(($this->force_secure) ? '0' : $url_data['http']).',
-							'.$db->quoteSmart($url_data['https']).',
-							'.$db->quoteSmart(0).'
-						)';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars	= Array (
+								'url'			=> $url.'/'.$web_path,
+								'assetid'		=> $this->id,
+								'http'			=> ($this->force_secure) ? '0' : $url_data['http'],
+								'https'			=> $url_data['https'],
+								'root_urlid'	=> 0,
+							  );
+				$result = MatrixDAL::executeQuery('core', 'insertLookup', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to insert lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			}
 
 			// NOTE: we are not going to update the design's lookups because no
 			//       designs can be attached to a file anyway (well not at this time)

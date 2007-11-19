@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.607 2007/11/16 04:42:15 rong Exp $
+* $Id: asset.inc,v 1.608 2007/11/19 04:10:16 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.607 $
+* @version $Revision: 1.608 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4107,12 +4107,17 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['valid_protocols'])) {
 			$protocol = current_protocol();
 			$db = MatrixDAL::getDb();
-			$sql = 'SELECT http, https
-					FROM sq_ast_lookup
-					WHERE assetid = '.$db->quoteSmart($this->id).'
-						AND url = '.$db->quoteSmart(strip_url(current_url(FALSE)));
-			$res = $db->getRow($sql);
-			assert_valid_db_result($res);
+			try {
+				$bind_vars	= Array (
+								'assetid'	=> $this->id,
+								'url'		=> strip_url(current_url(FALSE)),
+							  );
+				$result = MatrixDAL::executeAll('core', 'getValidProtocols', $bind_vars);
+				$result = $result[0];
+			} catch (Exception $e) {
+				throw new Exception('Unable to get valid protocols for asset: '.$this->id.' with this URL: '.strip_url(current_url(FALSE)).' due to database error: '.$e->getMessage());
+			}
+
 			$this->_tmp['valid_protocols'] = Array();
 			if (is_array($res)) {
 				foreach ($res as $protocol => $valid) {
@@ -4842,7 +4847,7 @@ class Asset extends MySource_Object
 		$old_web_paths = Array();
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
-			$current_urls[] = $db->quoteSmart($url);
+			$current_urls[] = $db->quote($url);
 			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid'])) {
 				// get the asset lineage and use that as the basis for indexing old URLs
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
@@ -4887,32 +4892,41 @@ class Asset extends MySource_Object
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE
-						url IN ('.implode(',', $current_urls).')';
+						url IN (:current_urls)';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':current_urls', implode(',', $current_urls));
+				$result = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete URL from lookup value table due to database error: '.$e->getMessage());
+			}
 
 			// delete rows which have override designs applied
 			for ($i=0; $i<count($current_urls); $i++) {
 				$current_urls[$i] = str_replace('\'', '', $current_urls[$i]);
 				$current_urls[$i] .= '/';
-				$current_urls[$i] = $db->quoteSmart($current_urls[$i]);
+				$current_urls[$i] = $db->quote($current_urls[$i]);
 			}
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE
-						url IN ('.implode(',', $current_urls).')';
+						url IN (:current_urls)';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':current_urls', implode(',', $current_urls));
+				$result = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete URLs with overridden designs from lookup value table due to database error: '.$e->getMessage());
+			}
 
-			$sql = 'DELETE FROM
-						sq_ast_lookup
-					WHERE
-						assetid	= '.$db->quoteSmart($this->id);
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars = Array('assetid' => $this->id);
+				$result = MatrixDAL::executeQuery('core', 'deleteLookup', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
+			}
 		}//end if
 
 		// if we have paths then do some url inserting
@@ -4974,33 +4988,15 @@ class Asset extends MySource_Object
 							continue;
 						}
 
-						$sql = 'INSERT INTO
-									sq_ast_lookup
-									(
-										url,
-										assetid,
-										http,
-										https,
-										root_urlid
-									)
-									VALUES
-									(
-										:url,
-										:assetid,
-										:http,
-										:https,
-										:urlid
-									)';
-
 						try {
-							$query = $db->prepare($sql);
-							$query->bindValue(':url',     $new_url);
-							$query->bindValue(':http',    $http);
-							$query->bindValue(':https',   $https);
-							$query->bindValue(':urlid',   $parent_urls[$j]['root_urlid']);
-							$query->bindValue(':assetid', $this->id);
-							MatrixDAL::execPdoQuery($query);
-							echo 'Adding lookup '.$new_url.' for asset "'.$this->name.'" (#'.$this->id.')'."\n";
+							$bind_vars	= Array (
+											'url'			=> $new_url,
+											'assetid'		=> $this->id,
+											'http'			=> $http,
+											'https'			=> $https,
+											'root_urlid'	=> $parent_urls[$j]['root_urlid'],
+										  );
+							$result = MatrixDAL::executeQuery('core', 'insertLookup', $bind_vars);
 						} catch (Exception $e) {
 							throw new Exception('Unable to insert lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 						}
@@ -5034,26 +5030,27 @@ class Asset extends MySource_Object
 									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
 
 									// update each affected paint layout's url
-									$sql = 'SELECT
-												url
-											FROM
-												sq_ast_lookup_value
-											WHERE
-												url LIKE '.$db->quote($tmp_old_url['url'].'%').' AND
-												name LIKE '.$db->quote('paint_layout::%');
-									$applied_layout = $db->getCol($sql);
-									assert_valid_db_result($applied_layout);
+									try {
+										$bind_vars	= Array (
+														'url'	=> $tmp_old_url['url'].'%',
+														'name'	=> 'paint_layout::%',
+													  );
+										$applied_layout = MatrixDAL::executeAssoc('core', 'getLookupValueUrlsByPattern', 0, $bind_vars);
+									} catch (Exception $e) {
+										throw new Exception('Unable to get paint layouts for URL pattern: '.$tmp_old_url['url'].'%'.' due to database error: '.$e->getMessage());
+									}
 
 									foreach ($applied_layout as $key => $old_layout_url) {
 										$new_layout_url = str_replace($tmp_old_url['url'], $new_url, $old_layout_url);
-										$sql = 'UPDATE
-													sq_ast_lookup_value
-												SET
-													url = '.$db->quoteSmart($new_layout_url).'
-												WHERE
-													url = '.$db->quoteSmart($old_layout_url);
-										$result = $db->query($sql);
-										assert_valid_db_result($result);
+										try {
+											$bind_vars	= Array (
+															'seturl'	=> $new_layout_url,
+															'whereurl'	=> $old_layout_url,
+														  );
+											$result = MatrixDAL::executeQuery('core', 'updateLookupValueUrl', $bind_vars);
+										} catch (Exception $e) {
+											throw new Exception('Unable to update lookup value table for existing URL: '.$old_layout_url.' with new URL: '.$new_layout_url.' due to database error: '.$e->getMessage());
+										}
 									}
 									break;
 								}
@@ -5073,91 +5070,85 @@ class Asset extends MySource_Object
 						$page_depth = count($exploded_url)-1;
 
 						foreach ($lookup_values as $name => $data) {
-							$sql = 'SELECT
-										url
-									FROM
-										sq_ast_lookup_value
-									WHERE
-										url = '.$db->quoteSmart($new_url).'
-										AND name = '.$db->quoteSmart($name);
-							$result = $db->getRow($sql);
-							assert_valid_db_result($result);
+							try {
+								$bind_vars	= Array (
+												'url'	=> $new_url,
+												'name'	=> $name,
+											  );
+								$result = MatrixDAL::executeAll('core', 'getLookupValueUrls', $bind_vars);
+								$result = $result[0];
+							} catch (Exception $e) {
+								throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+							}
 
 							// if the lookup value already exists, re-use it (this could happen
 							// when a file changes back from a __data url)
 							if (empty($result)) {
-								$sql = 'INSERT INTO
-											sq_ast_lookup_value
-											(
-												url,
-												name,
-												value,
-												depth
-											)
-											VALUES
-											(
-												'.$db->quoteSmart($new_url).',
-												'.$db->quoteSmart($name).',
-												'.$db->quoteSmart($data['value']).',
-												'.$db->quoteSmart($page_depth).'
-											)';
+								try {
+									$bind_vars	= Array (
+													'url'	=> $new_url,
+													'name'	=> $name,
+													'value'	=> $data['value'],
+													'depth'	=> $page_depth,
+												  );
+									$result = MatrixDAL::executeQuery('core', 'insertLookupValue', $bind_vars);
+								} catch (Exception $e) {
+									throw new Exception('Unable to insert new lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+								}
 							} else {
-								$sql = 'UPDATE
-											sq_ast_lookup_value
-										SET
-											value = '.$db->quoteSmart($data['value']).',
-										WHERE
-											url = '.$db->quoteSmart($new_url).'
-											AND name = '.$db->quoteSmart($name);
+								try {
+									$bind_vars	= Array (
+													'value'	=> $data['value'],
+													'url'	=> $new_url,
+													'name'	=> $name,
+												  );
+									$result = MatrixDAL::executeQuery('core', 'updateLookupValue', $bind_vars);
+								} catch (Exception $e) {
+									throw new Exception('Unable to update lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+								}
 							}
-
-							$result = $db->query($sql);
-							assert_valid_db_result($result);
 
 						}//end foreach
 
 						// For override designs
 						foreach ($override_lookup_values as $name => $data) {
-							$sql = 'SELECT
-										url
-									FROM
-										sq_ast_lookup_value
-									WHERE
-										url = '.$db->quoteSmart($new_url.'/').'
-										AND name = '.$db->quoteSmart($name);
-							$result = $db->getRow($sql);
-							assert_valid_db_result($result);
+							try {
+								$bind_vars	= Array (
+												'url'	=> $new_url.'/',
+												'name'	=> $name,
+											  );
+								$result = MatrixDAL::executeAll('core', 'getLookupValueUrls', $bind_vars);
+								$result = $result[0];
+							} catch (Exception $e) {
+								throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+							}
 
 							// if the lookup value already exists, re-use it (this could happen
 							// when a file changes back from a __data url)
 							if (empty($result)) {
-								$sql = 'INSERT INTO
-											sq_ast_lookup_value
-											(
-												url,
-												name,
-												value,
-												depth
-											)
-											VALUES
-											(
-												'.$db->quoteSmart($new_url.'/').',
-												'.$db->quoteSmart($name).',
-												'.$db->quoteSmart($data['value']).',
-												'.$db->quoteSmart($page_depth+1).'
-											)';
+								try {
+									$bind_vars	= Array (
+													'url'	=> $new_url.'/',
+													'name'	=> $name,
+													'value'	=> $data['value'],
+													'depth'	=> $page_depth+1,
+												  );
+									$result = MatrixDAL::executeQuery('core', 'insertLookupValue', $bind_vars);
+								} catch (Exception $e) {
+									throw new Exception('Unable to insert new lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+								}
 							} else {
-								$sql = 'UPDATE
-											sq_ast_lookup_value
-										SET
-											value = '.$db->quoteSmart($data['value']).',
-										WHERE
-											url = '.$db->quoteSmart($new_url.'/').'
-											AND name = '.$db->quoteSmart($name);
+								try {
+									$bind_vars	= Array (
+													'value'	=> $data['value'],
+													'url'	=> $new_url,
+													'name'	=> $name,
+												  );
+									$result = MatrixDAL::executeQuery('core', 'updateLookupValue', $bind_vars);
+								} catch (Exception $e) {
+									throw new Exception('Unable to update lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+								}
 							}
-
-							$result = $db->query($sql);
-							assert_valid_db_result($result);
 
 						}//end foreach
 

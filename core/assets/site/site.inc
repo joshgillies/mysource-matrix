@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.102 2007/11/08 03:19:36 hnguyen Exp $
+* $Id: site.inc,v 1.103 2007/11/19 04:10:16 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -303,11 +303,10 @@ class Site extends Folder
 						$query->bindValue(':urlid',   $save_urlid);
 						$query->bindValue(':assetid', $this->id);
 						DAL::execPdoQuery($query);
+						$updated = TRUE;
 					} catch (Exception $e) {
 						throw new Exception('Unable to update URLs for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 					}
-
-					$updated = TRUE;
 				}
 
 			} else {
@@ -341,11 +340,10 @@ class Site extends Folder
 					$query->bindValue(':urlid',   $curr_urlid);
 					$query->bindValue(':assetid', $this->id);
 					DAL::execPdoQuery($query);
+					$updated = TRUE;
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert URLs for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 				}
-
-				$updated = TRUE;
 
 			}//end if save_urlid
 
@@ -361,34 +359,31 @@ class Site extends Folder
 			$sql = 'DELETE FROM
 						sq_ast_url
 					WHERE
-						 urlid = '.$db->quote($urlid);
+						 urlid = :urlid';
 
 			try {
 				$query = $db->prepare($sql);
-				$query->bindValue(':urlid', $curr_urlid);
-				DAL::execPdoQuery($query);
+				$query->bindValue(':urlid', $urlid);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URLs from asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
 
 			// remove corresponding authentication redirects
-			$sql = 'UPDATE
-						sq_ast_url
-					SET
-						auth_urlid = NULL
-					WHERE
-						auth_urlid = '.$db->quoteSmart($urlid);
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
+			try {
+				$bind_vars = Array('urlid' => $urlid,
+									'auth_urlid'	=> NULL,);
+				MatrixDAL::executeQuery('site', 'updateAuthUrlId', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to remove authentication redirect for auth_urlid: '.$urlid.' due to database error: '.$e->getMessage());
+			}
 			$updated = TRUE;
 		}
 
 		unset($this->_tmp['urls_info']);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();log_dump(get_call_stack());
 		if ($updated) return 2;
 		return 1;
 
@@ -425,7 +420,7 @@ class Site extends Folder
 	function updateLookups()
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
@@ -462,13 +457,13 @@ class Site extends Folder
 				$query->bindValue(':name_pl', 'paint_layout::%');
 			}
 			$query->bindValue(':assetid', $this->id);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
 
 
-		// Remove all the overriden old Design
+		// Remove all the overriden old designs
 		$sql = 'DELETE FROM
 					sq_ast_lookup_value
 				WHERE
@@ -494,7 +489,7 @@ class Site extends Folder
 				$query->bindValue(':name_pl', 'paint_layout::%');
 			}
 			$query->bindValue(':assetid', $this->id);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
@@ -505,8 +500,9 @@ class Site extends Folder
 					assetid = :assetid';
 
 		try {
+			$query = $db->prepare($sql);
 			$query->bindValue(':assetid', $this->id);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
@@ -557,11 +553,11 @@ class Site extends Folder
 			try {
 				$query = $db->prepare($sql);
 				$query->bindValue(':url',     $urls[$urlid]['url']);
+				$query->bindValue(':assetid', $this->id);
 				$query->bindValue(':http',    ($this->force_secure) ? '0' : $urls[$urlid]['http']);
 				$query->bindValue(':https',   $urls[$urlid]['https']);
 				$query->bindValue(':urlid',   $urlid);
-				$query->bindValue(':assetid', $this->id);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
@@ -589,7 +585,7 @@ class Site extends Folder
 					$query->bindValue(':name',  $name);
 					$query->bindValue(':value', $designid);
 					$query->bindValue(':depth', $site_depth);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 				}
@@ -619,7 +615,7 @@ class Site extends Folder
 					$query->bindValue(':name',  $name);
 					$query->bindValue(':value', $designid);
 					$query->bindValue(':depth', $site_depth+1);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 				}
