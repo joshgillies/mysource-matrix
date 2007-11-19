@@ -199,6 +199,26 @@ class DALPostgresConverter extends DALConverter
 
 
     /**
+     * Handles a custom DAL ToDate() function call.
+     *
+     * This function will convert an ISO8601 date into a format suitable for
+     * insertion into a query.
+     *
+     * @param array $args The arguments of the function.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionToDate(array $args)
+    {
+        $iso8601_date = $this->convertSingleField($args[0]);
+        $sql = 'TO_TIMESTAMP('.$iso8601_date.', \'YYYY-MM-DD HH24:MI:SS\')';
+        return $sql;
+
+    }//end handleFunctionToDate()
+
+
+    /**
      * Converts a single CALL query.
      *
      * @param array $callQuery The structure defining the CALL query.

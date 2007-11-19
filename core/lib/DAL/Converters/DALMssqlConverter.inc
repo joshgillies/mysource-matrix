@@ -302,6 +302,29 @@ class DALMssqlConverter extends DALConverter
 
 
     /**
+     * Handles a custom DAL ToDate() function call.
+     *
+     * This function will convert an ISO8601 date into a format suitable for
+     * insertion into a query.
+     *
+     * @param array $args The arguments of the function.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionToDate(array $args)
+    {
+        $iso8601_date = $this->convertSingleField($args[0]);
+
+        // Explicitly convert using the "yyyy-mm-dd HH:mi:ss" style (which
+        // is what the '120' magic number is for).
+        $sql = 'CONVERT(DATETIME, '.$iso8601_date.', 120)';
+        return $sql;
+
+    }//end handleFunctionToDate()
+
+
+    /**
      * SQL Server needs to use UNION ALL (no hyphen) so return that here.
      *
      * @param string $type The type of the union (UNION or UNION-ALL).

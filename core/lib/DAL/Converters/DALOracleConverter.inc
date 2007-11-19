@@ -212,6 +212,26 @@ class DALOracleConverter extends DALConverter
 
 
     /**
+     * Handles a custom DAL ToDate() function call.
+     *
+     * This function will convert an ISO8601 date into a format suitable for
+     * insertion into a query.
+     *
+     * @param array $args The arguments of the function.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionToDate(array $args)
+    {
+        $iso8601_date = $this->convertSingleField($args[0]);
+        $sql = 'TO_DATE('.$iso8601_date.', \'YYYY-MM-DD HH24:MI:SS\')';
+        return $sql;
+
+    }//end handleFunctionToDate()
+
+
+    /**
      * Converts a WITH query to CONNECT BY PRIOR/START WITH query.
      *
      * @param array $withQuery Array containing the with query information.

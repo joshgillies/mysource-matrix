@@ -222,6 +222,29 @@ class DALMysqlConverter extends DALConverter
 
 
     /**
+     * Handles a custom DAL ToDate() function call.
+     *
+     * This function will convert an ISO8601 date into a format suitable for
+     * insertion into a query.
+     *
+     * @param array $args The arguments of the function.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionToDate(array $args)
+    {
+        $iso8601_date = $this->convertSingleField($args[0]);
+
+        // There does not appear to be any requirement for dates to be
+        // handled any other way than being quoted in MySQL
+        $sql = $iso8601_date;
+        return $sql;
+
+    }//end handleFunctionToDate()
+
+
+    /**
      * Converts DROP TABLE statement.
      *
      * @param string $tableName Name of the table to drop from the db.
