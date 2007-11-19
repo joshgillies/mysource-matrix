@@ -23,6 +23,7 @@ require_once 'DAL/Parsers/DALUpdateParser.inc';
 require_once 'DAL/Parsers/DALWhereParser.inc';
 require_once 'DAL/Parsers/DALGroupByParser.inc';
 require_once 'DAL/Parsers/DALOrderByParser.inc';
+require_once 'DAL/Parsers/DALTruncateParser.inc';
 require_once 'DAL/Parsers/DALUnionParser.inc';
 require_once 'DAL/DALBaker.inc';
 require_once 'XML/XML.inc';
@@ -98,6 +99,10 @@ class DALQueryParser
                 DALDeleteParser::validate($query);
                 $sql = DALDeleteParser::parse($query);
             break;
+            case 'truncate' :
+                DALTruncateParser::validate($query);
+                $sql = DALTruncateParser::parse($query);
+            break;
             case 'union' :
             case 'union-all' :
                 DALUnionParser::validate($query);
@@ -130,6 +135,7 @@ class DALQueryParser
             case 'from' :
                 $sql = DALFromParser::parse($query);
             break;
+
             default:
                 throw new DALParserException('Invalid query type:'.$type);
             break;
