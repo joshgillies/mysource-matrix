@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.117 2007/11/06 22:36:45 rong Exp $
+* $Id: design_edit_fns.inc,v 1.118 2007/11/19 04:42:30 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -867,6 +867,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
+			// we are done with this design area, release the lock
+			// otherwise we will get lock by user 0 after a full system cleanup
+			// for login form design area and password change form design area
+			@$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'parsing');
 
 		}//end foreach
 
