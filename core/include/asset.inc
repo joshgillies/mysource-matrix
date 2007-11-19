@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.608 2007/11/19 04:10:16 bshkara Exp $
+* $Id: asset.inc,v 1.609 2007/11/19 21:52:20 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.608 $
+* @version $Revision: 1.609 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4113,7 +4113,7 @@ class Asset extends MySource_Object
 								'url'		=> strip_url(current_url(FALSE)),
 							  );
 				$result = MatrixDAL::executeAll('core', 'getValidProtocols', $bind_vars);
-				$result = $result[0];
+				$res = $result[0];
 			} catch (Exception $e) {
 				throw new Exception('Unable to get valid protocols for asset: '.$this->id.' with this URL: '.strip_url(current_url(FALSE)).' due to database error: '.$e->getMessage());
 			}
