@@ -1,7 +1,7 @@
 <queries system="thesaurus">
 
 
-	<query id="getChildThesaurusTerms">
+	<query id="getChildTerms">
 		<!-- Get a list of terms that have a given term as their parent. -->
 		<primary>
 			<select>
@@ -32,7 +32,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="countChildThesaurusLinks">
+	<query id="countChildLinks">
 		<!-- Get a count of how many terms are linked directly underneath a given term. -->
 		<primary>
 			<select>
@@ -51,7 +51,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="getParentThesaurusTerms">
+	<query id="getParentTerms">
 		<!-- Get a list of terms that have a given term as their immediate child. -->
 		<primary>
 			<select>
@@ -82,7 +82,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="countParentThesaurusLinks">
+	<query id="countParentLinks">
 		<!-- Get a count of how many terms are linked directly ABOVE a given term. -->
 		<primary>
 			<select>
@@ -101,7 +101,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="countAllThesaurusLinks">
+	<query id="countAllLinks">
 		<!-- Count total number of links in a thesaurus. -->
 		<primary>
 			<select>
@@ -119,7 +119,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="deleteThesaurusLink">
+	<query id="deleteLink">
 		<!-- Delete a single thesaurus link. -->
 		<primary>
 			<delete>
@@ -130,7 +130,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="updateThesaurusTerm">
+	<query id="updateTerm">
 		<!-- Update a single thesaurus term. -->
 		<primary>
 			<update>
@@ -147,7 +147,7 @@
 			</update>
 		</primary>
 	</query>
-	<query id="getAllThesaurusTerms">
+	<query id="getAllTerms">
 		<!-- Get a list of all thesaurus terms. -->
 		<primary>
 			<select>
@@ -167,7 +167,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="getThesaurusTermById">
+	<query id="getTermById">
 		<!-- Get a single thesaurus term identified by term ID. -->
 		<primary>
 			<select>
@@ -185,7 +185,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="countAllThesaurusTerms">
+	<query id="countAllTerms">
 		<!-- Count total number of terms in a thesaurus. -->
 		<primary>
 			<select>
@@ -203,7 +203,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="deleteThesaurusTerm">
+	<query id="deleteTerm">
 		<!-- Delete a single thesaurus term. -->
 		<primary>
 			<delete>
@@ -228,7 +228,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="updateThesaurusRelationName">
+	<query id="updateRelationName">
 		<!-- Update the name of a thesaurus relation. -->
 		<primary>
 			<update>
@@ -245,7 +245,7 @@
 			</update>
 		</primary>
 	</query>
-	<query id="deleteThesaurusRelation">
+	<query id="deleteRelation">
 		<!-- Delete a thesaurus relation. -->
 		<primary>
 			<delete>
@@ -256,7 +256,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="deleteThesaurusLinksContainingRelation">
+	<query id="deleteLinksContainingRelation">
 		<!-- Delete all links that involve a certain deleted relation. -->
 		<primary>
 			<delete>
@@ -267,7 +267,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="getThesaurusLinkById">
+	<query id="getLinkById">
 		<!-- Get a link between two thesaurus terms by its link ID. -->
 		<primary>
 			<select>
@@ -328,7 +328,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="insertThesaurusTerm">
+	<query id="insertTerm">
 		<!-- Inserts a single thesaurus term. -->
 		<primary>
 			<insert>
@@ -345,7 +345,7 @@
 			</insert>
 		</primary>
 	</query>
-	<query id="getThesaurusTermIdByName">
+	<query id="getTermIdByName">
 		<!-- Get a thesaurus' term ID given the name (not case sensitive). -->
 		<primary>
 			<select>
@@ -363,7 +363,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="insertThesaurusTermNote">
+	<query id="insertTermNote">
 		<!-- Inserts a single thesaurus term. -->
 		<primary>
 			<insert>
@@ -382,7 +382,7 @@
 			</insert>
 		</primary>
 	</query>
-	<query id="getThesaurusTermNotes">
+	<query id="getTermNotes">
 		<!-- Get a thesaurus term's notes. -->
 		<primary>
 			<select>
@@ -403,7 +403,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="deleteThesaurusTermNotes">
+	<query id="deleteTermNotes">
 		<!-- Delete all of a certain thesaurus term's notes. -->
 		<primary>
 			<delete>
@@ -414,7 +414,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="insertThesaurusRelation">
+	<query id="insertRelation">
 		<!-- Inserts a single thesaurus relation. -->
 		<primary>
 			<insert>
@@ -431,7 +431,7 @@
 			</insert>
 		</primary>
 	</query>
-	<query id="getThesaurusLinkForRelation">
+	<query id="getLinkForRelation">
 		<!-- Get a linkid for a relation, given major and minor terms, and relation name. -->
 		<primary>
 			<select>
@@ -453,7 +453,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="getActiveThesaurusRelations">
+	<query id="getActiveRelations">
 		<!-- Get all active relations for a given thesaurus. -->
 		<primary>
 			<select>
@@ -473,7 +473,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="getThesaurusRelationIdByName">
+	<query id="getRelationIdByName">
 		<!-- Get a thesaurus' relation ID given the name. -->
 		<primary>
 			<select>
@@ -490,7 +490,7 @@
 			</select>
 		</primary>
 	</query>
-	<query id="insertThesaurusLink">
+	<query id="insertLink">
 		<!-- Inserts a single thesaurus link. -->
 		<primary>
 			<insert>
@@ -511,7 +511,7 @@
 			</insert>
 		</primary>
 	</query>
-	<query id="deleteAllTermsFromThesaurus">
+	<query id="deleteAllTerms">
 		<!-- Delete all of a certain thesaurus' terms. -->
 		<primary>
 			<delete>
@@ -521,7 +521,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="deleteAllLinksFromThesaurus">
+	<query id="deleteAllLinks">
 		<!-- Delete all of a certain thesaurus' links. -->
 		<primary>
 			<delete>
@@ -531,7 +531,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="deleteAllRelationsFromThesaurus">
+	<query id="deleteAllRelations">
 		<!-- Delete all of a certain thesaurus' relations. -->
 		<primary>
 			<delete>
@@ -541,7 +541,7 @@
 			</delete>
 		</primary>
 	</query>
-	<query id="getAbsoluteParentsInThesaurusRelation">
+	<query id="getAbsoluteParentsInRelation">
 		<!-- Get a list of thesaurus terms that only act as parents in a relation - thus becoming the top terms in hierarchy mode. -->
 		<primary>
 			<select>
