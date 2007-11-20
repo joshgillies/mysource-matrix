@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.258 2007/11/20 00:57:21 colivar Exp $
+* $Id: asset_map.inc,v 1.259 2007/11/20 02:10:12 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258 $
+* @version $Revision: 1.259 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -574,7 +574,7 @@ class Asset_Map
 				$this->_getURL($root, $backend);
 			break;
 			case 'clone' :
-				$this->_cloneAssets($input, $backend);
+				$this->_cloneAssets($root, $backend);
 			break;
 			case 'move asset' :
 				$this->_moveAssets($root, $backend);
@@ -1924,40 +1924,51 @@ class Asset_Map
 	*/
 	function _cloneAssets(&$input)
 	{
-		$output = new XML_Tree();
-		$output->addRoot('responses');
+
+		/* input example
+			<?xml version="1.0"?>
+			<command action="clone" to_parent_assetid="38" to_parent_pos="0">
+				<asset assetid="39" linkid="39" parentid="1"/>
+			</command>
+		*/
+
+		$output = simplexml_load_string('<xml></xml>');
+		$responses = $output->addChild('responses');
+
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
-		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
+		$input->attributes()->to_parent_assetid = urlencode((string)$input->attributes()->to_parent_assetid);
+		foreach($input->asset as $asset) {
+			$asset->attributes()->assetid = urldecode((string)$asset->attributes()->assetid);
 		}
 
-		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->attributes()->to_parent_assetid);
 
 		if (is_null($new_parent)) {
-			$this->_error('AMAP0035', $input->root->attributes['to_parent_assetid']);
+			$this->_error('AMAP0035', $input->attributes()->to_parent_assetid);
 			return;
 		}
 
-		foreach ($input->root->children as $asset_node) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_node->attributes['assetid']);
-			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($asset_node->attributes['parentid']));
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid'], $old_parent->id);
+		$assets = Array();
+
+		foreach ($input->children() as $asset_node) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$asset_node->attributes()->assetid);
+			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$asset_node->attributes()->parentid));
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$asset_node->attributes()->linkid, $old_parent->id);
 
 			if (is_null($old_parent)) {
-				$this->_error('AMAP0036', $asset_node->attributes['parentid']);
+				$this->_error('AMAP0036', (string)$asset_node->attributes()->parentid);
 				return;
 			}
 
 			if (empty($link)) {
-				$this->_error('AMAP0037', $asset_node->attributes['linkid']);
+				$this->_error('AMAP0037', (string)$asset_node->attributes()->linkid);
 				return;
 			}
 
 			if (is_null($asset)) {
-				$this->_error('AMAP0038', $asset_node->attributes['assetid']);
+				$this->_error('AMAP0038', (string)$asset_node->attributes()->assetid);
 				return;
 			}
 
@@ -1975,17 +1986,14 @@ class Asset_Map
 
 		// if we have only one asset. if we cant clone it under the new parent we dont continue further
 		if (count($assets) == 1) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->asset->attributes()->assetid);
 			$link_type = SQ_LINK_TYPE_1;
 			$value = '';
 			$dependant = FALSE;
 			$exclusive = FALSE;
-			$sort_order = $input->root->attributes['to_parent_pos'];
+			$sort_order = (string)$input->attributes()->to_parent_pos;
 			$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 			$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
-
-
-
 			$can_create = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($new_parent, $asset->type(), $link_type, $dependant, $exclusive);
 			if ($can_create !== TRUE) {
 				$this->_error('AMAP0044', $can_create);
@@ -1997,7 +2005,7 @@ class Asset_Map
 		$vars = Array(
 					'assets'			=> $assets,
 					'to_parent_assetid'	=> $new_parent->id,
-					'to_parent_pos'		=> $input->root->attributes['to_parent_pos']+1,
+					'to_parent_pos'		=> ((int)$input->attributes()->to_parent_pos)+1,
 				);
 
 		$hh->queueHipo('hipo_job_clone_assets', $vars);
@@ -2008,12 +2016,17 @@ class Asset_Map
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 		if (!empty($url)) {
-			$urlTree = new XML_Tree();
-			$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-			$output->insertChild(Array('responses'), $response_count++, $urlTree);
+			$url_tree = $responses->addChild('url', htmlentities($url));
+			$url_tree->addAttribute('js_function', 'asset_map_popup');
 		}
 
-		$this->_send($output);
+		/* example of output
+			<responses>
+				<url js_function="asset_map_popup">http://mysite/colivar/_admin/?SQ_ACTION=hipo&amp;hipo_source_code_name=hipo_job_clone_assets-66f041e16a60928b05a7e228a89c3799</url>
+			</responses>
+		*/
+
+		$this->_send($responses);
 
 	}//end _cloneAssets()
 
