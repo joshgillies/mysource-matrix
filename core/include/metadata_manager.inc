@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.150 2007/11/13 02:54:47 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.151 2007/11/20 05:59:31 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -212,38 +212,31 @@ class Metadata_Manager extends MySource_Object
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		switch ($db_action) {
-			case 'insert':
-				$sql = 'INSERT INTO
-							sq_ast_mdata
-							(
-								assetid,
-								schemaid,
-								granted
-							)
-							VALUES
-							(
-								'.$db->quoteSmart($asset->id).',
-								'.$db->quoteSmart($schemaid).',
-								'.$db->quoteSmart((($granted) ? '1' : '0')).'
-							)';
+		try {
+			switch ($db_action) {
+				case 'insert':
+					$message = 'set';
+					$bind_vars	= Array (
+									'assetid'	=> $asset->id,
+									'schemaid'	=> $schemaid,
+									'granted'	=> ($granted ? '1' : '0'),
+								  );
+					$result = MatrixDAL::executeQuery('core', 'setMetadataSchemaOnAsset', $bind_vars);
+					break;
+				case 'update':
+					$message = 'update';
+					$bind_vars	= Array (
+									'assetid'	=> $asset->id,
+									'schemaid'	=> (string) $schemaid,
+									'granted'	=> (string) ($granted ? '1' : '0'),
+								  );
+					$result = MatrixDAL::executeQuery('core', 'updateMetadataSchemaOnAsset', $bind_vars);
+					break;
+			}//end switch
 
-			break;
-			case 'update':
-				$sql = 'UPDATE
-							sq_ast_mdata
-						SET
-							granted = '.$db->quoteSmart(($granted) ? '1' : '0').'
-						WHERE
-							assetid = '.$db->quoteSmart((string)$assetid).'
-						AND
-							schemaid  = '.$db->quoteSmart((string)$schemaid);
-
-			break;
-		}
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		} catch (Exception $e) {
+				throw new Exception('Unable to '.$message.' metadata schema id #'.$schemaid.' on assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		if ($granted) {
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
@@ -285,14 +278,16 @@ class Metadata_Manager extends MySource_Object
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_ast_mdata
-				WHERE
-						schemaid	= '.$db->quoteSmart($schemaid).'
-					AND	assetid		= '.$db->quoteSmart($asset->id);
+		try {
+			$bind_vars	= Array (
+							'schemaid'	=> $schemaid,
+							'assetid'	=> $asset->id,
+						  );
+			$result	= MatrixDAL::executeQuery('core', 'deleteSchemaOnAsset', $bind_vars);
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete schemaid #'.$schemaid.' on assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'MetadataDeleted', Array('schemaid' => $schemaid));
@@ -318,21 +313,29 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getSchemaAssets($schemaid, $granted=NULL)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT DISTINCT
 					assetid, granted
 				FROM
 					'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
 
-		$where = 'schemaid = '.$db->quote($schemaid);
+		$where = 'schemaid = :schemaid';
 		if (!is_null($granted)) {
-			$where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
+			$where .= ' AND granted = :granted';
 		}
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$result = $db->getAll($sql.$where);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue('schemaid', $schemaid);
+			if (!is_null($granted)) {
+				$query->bindValue('granted', ($granted ? '1' : '0'));
+			}
+			$result = MatrixDAL::executeAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get assetid with schemaid #'.$schemaid.' applied due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		$assets = Array();
 		foreach ($result as $data) {
@@ -423,11 +426,11 @@ class Metadata_Manager extends MySource_Object
 				INNER JOIN
 					'.SQ_TABLE_RUNNING_PREFIX.'ast a ON mv.fieldid = a.assetid';
 
-		$where = '	mv.assetid = '.$db->quoteSmart($asset->id).'
+		$where = '	mv.assetid = :assetid
 				AND (';
 
 		foreach ($schemas as $schemaid) {
-			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_localised_error('SYS0044', E_USER_WARNING, $schemaid);
 				return FALSE;
@@ -445,8 +448,13 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-		$metadata = $db->getAssoc($sql.$where);
-		assert_valid_db_result($metadata);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue('assetid', $asset->id);
+			$metadata = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to metadata values for assetid #'.$asset->id.' due to the following database error'.$e->getMessage());
+		}//end try catch
 
 		return $metadata;
 
@@ -463,8 +471,8 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function _cleanupMetadataValues($assetid)
 	{
-		$db = DAL::getDb();
-		$fieldid_conds = Array('assetid = '.((string)$db->quoteSmart($assetid)));
+		$db = MatrixDAL::getDb();
+		$fieldid_conds = Array('assetid = '.((string)$db->quote($assetid)));
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
 			$fieldid_conds[] = '(fieldid NOT IN (
@@ -477,8 +485,12 @@ class Metadata_Manager extends MySource_Object
 			$sql .= 'WHERE '.implode("\n\tAND ", $fieldid_conds);
 		}
 
-		$res = $db->query($sql);
-		assert_valid_db_result($res);
+		try {
+			$res = MatrixDAL::query($sql);
+		} catch (Exception $e) {
+			throw new Exception('Unable to clean up metadata values due to the following database error:'.$e->getMessage());
+		}
+
 
 	}//end _cleanupMetadataValues()
 
@@ -588,8 +600,13 @@ class Metadata_Manager extends MySource_Object
 				$sql_parts['where'] .= ')';
 			}
 
-			$fields = $db->getAssoc(implode(' ', $sql_parts));
-			assert_valid_db_result($fields);
+			try {
+				$fields = $db->getAssoc(implode(' ', $sql_parts));
+			} catch (Exception $e) {
+				throw new Exception('Unable to get metadata field values for assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+
+
 
 			foreach ($fields as $fieldid => $type_code) {
 
@@ -694,20 +711,30 @@ class Metadata_Manager extends MySource_Object
 		foreach ($metadata as $fieldid => $details) {
 			if ($details['value'] === NULL) {
 				// we want to revert this field to default, done by deleting it from the mdata_val table
-				$delete_fieldids[] = $db->quoteSmart((string)$fieldid);
+				$delete_fieldids[] = $db->quote((string)$fieldid);
 			} else {
 				$remaining[] = $fieldid;
 			}
 		}
 
 		if (!empty($delete_fieldids)) {
-			$sql = 'DELETE FROM
+			try {
+				$bind_vars	= Array (
+								'assetid'	=> $assetid,
+								'fieldid'	=> $delete_fieldids,
+							  );
+				$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete metadata value for fieldid #'.implode(', ', $delete_fieldids).' from assetid #'.$assetid.'due to the following database error:'.$e->getMessage());
+			}//end try catch
+
+			/*$sql = 'DELETE FROM
 						sq_ast_mdata_val
 					WHERE
 						assetid = '.$db->quote($assetid).'
 						AND fieldid IN ('.implode(', ', $delete_fieldids).')';
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			$result = $db->query($sql);*/
+
 		}
 
 		if (!empty($remaining)) {
@@ -720,8 +747,14 @@ class Metadata_Manager extends MySource_Object
 			$where = '	assetid = '.$db->quote($asset->id);
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$updates = $db->getCol($sql.$where);
-			assert_valid_db_result($updates);
+
+			try {
+				$query	= $db->prepare($sql.$where);
+				$query->bindValue('assetid', $asset->id);
+				$updates	= MatrixDAL::executePdoAssoc($query, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get metadata fields ids for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+			}
 
 			$sql = 'INSERT INTO
 						sq_ast_mdata_val
@@ -753,34 +786,29 @@ class Metadata_Manager extends MySource_Object
 
 			foreach ($remaining as $fieldid) {
 				// we need to insert
-				if (!in_array($fieldid, $updates)) {
-
-					$values = Array(
-								$asset->id,
-								$fieldid,
-								$metadata[$fieldid]['value'],
+				$bind_vars	= Array (
+								'assetid'	=> $asset->id,
+								'fieldid'	=> $fieldid,
+								'value'		=> $metadata[$fieldid]['value'],
 							  );
-
-					$result = $db->execute($insert_prepared, $values);
-					assert_valid_db_result($result);
+				if (!in_array($fieldid, $updates)) {
+					try {
+						$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
+					} catch (Exception $e) {
+						throw new Exception('Unable to set metadata value '.$metadata[$fieldid]['value'].' for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+					}//end try catch
 
 				// we are updating
 				} else {
-					$values = Array(
-								$metadata[$fieldid]['value'],
-								$asset->id,
-								$fieldid,
-							  );
-
-					$result = $db->execute($update_prepared, $values);
-					assert_valid_db_result($result);
+					try {
+						$result = MatrixDAL::executeQuery('core', 'updateMetadataValueForAsset', $bind_vars);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update metadata value '.$metadata[$fieldid]['value'].' for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+					}//end try catch
 
 				}//end if
 
 			}//end for
-
-			$db->freePrepared($insert_prepared);
-			$db->freePrepared($update_prepared);
 
 		}//end if
 
@@ -1370,21 +1398,20 @@ class Metadata_Manager extends MySource_Object
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_ast_mdata
-				WHERE
-					assetid	= '.$db->quoteSmart($assetid);
+		$bind_vars	= Array (
+						'assetid'	=> $assetid,
+					  );
+		try {
+			$result = MatrixDAL::executeQuery('core', 'purgeMetadataSchema', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to purge metadata schema for assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
+		}
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'DELETE FROM
-					sq_ast_mdata_val
-				WHERE
-					assetid	= '.$db->quoteSmart($assetid);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$result = MatrixDAL::executeQuery('core', 'purgeMetadataValue', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to purge metadata value for assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1439,12 +1466,18 @@ class Metadata_Manager extends MySource_Object
 					value
 				FROM
 					'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val mdv';
-		$where = 'mdv.assetid	= '.$db->quoteSmart($assetid).'
-					AND	mdv.fieldid	= '.$db->quoteSmart($field_assetid);
+		$where = 'mdv.assetid	= :assetid
+					AND	mdv.fieldid	= :field_assetid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
-		$value = $db->getOne($sql.$where);
-		assert_valid_db_result($value);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue('assetid', $assetid);
+			$query->bindValue('field_assetid', $field_assetid);
+			$value = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get metadata interface value for assetid #'.$assetid.' due to the following database error'.$e->getMessage());
+		}//end try catch
 
 		return $value;
 
@@ -1529,12 +1562,18 @@ class Metadata_Manager extends MySource_Object
 					FROM
 						sq_ast_typ_inhd ati
 							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ati.type_code = a.type_code';
-			$where = 'a.assetid = '.$db->quoteSmart($field_assetid).'
-						AND	ati.inhd_type_code	= '.$db->quoteSmart('metadata_field');
+			$where = 'a.assetid = :field_assetid
+						AND	ati.inhd_type_code	= '.$db->quote('metadata_field');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-			$count = $db->getOne($sql.$where);
-			assert_valid_db_result($count);
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue('field_assetid', $field_assetid);
+				$count = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to determine whether the asset is a metadata field due to the following database error:'.$e->getMessage());
+			}//end try catch
+
 			$cached_tests[$field_assetid] = ($count > 0);
 		}
 
@@ -1566,12 +1605,17 @@ class Metadata_Manager extends MySource_Object
 						default_val
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val mdv';
-			$where = 'mdv.assetid = '.$db->quoteSmart($field_assetid);
+			$where = 'mdv.assetid = :field_assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
-			// if not found, getOne() will return null
-			$default_val = $db->getOne($sql.$where);
-			assert_valid_db_result($default_val);
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue('field_assetid', $field_assetid);
+				$default_val = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get metadata field default value for fieldid #'.$field_assetid.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+
 			$cached_defaults[$field_assetid] = $default_val;
 		}
 
@@ -1597,46 +1641,51 @@ class Metadata_Manager extends MySource_Object
 			trigger_localised_error('SYS0308', E_USER_WARNING, $field_assetid);
 		}
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT
 					default_val
 				FROM
 					'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val mdv';
-		$where = 'mdv.assetid = '.$db->quoteSmart($field_assetid);
+		$where = 'mdv.assetid = :field_assetid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
-		$row = $db->getRow($sql.$where);
-		assert_valid_db_result($row);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue('field_assetid', $field_assetid);
+			$row = MatrixDAL::executePdoAll($query);
+			if (isset($row[0]) && !empty($row[0])) {
+				$row = $row[0];
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to set default value for metadata fieldid:'.$field_assetid.' due to the following database error'.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// does the default value exist yet, then?
-		if (is_null($row)) {
-			$sql = 'INSERT INTO
-						sq_ast_mdata_dflt_val
-						(
-							assetid,
-							default_val
-						)
-					VALUES
-						(
-							'.$db->quoteSmart($field_assetid).',
-							'.$db->quoteSmart($value).'
-						)';
-		} else {
-			$sql = 'UPDATE
-						sq_ast_mdata_dflt_val
-					SET
-						default_val = '.$db->quoteSmart($value).'
-					WHERE
-						assetid = '.$db->quoteSmart($field_assetid);
-		}
+		try {
+			// does the default value exist yet, then?
+			if (is_null($row)) {
+				$message = 'Unable to set';
+				$bind_vars	= Array (
+								'field_assetid'	=> $field_assetid,
+								'value'			=> $value,
+							  );
+				$value = MatrixDAL::executeQuery('core', 'setMetadataFieldDefaultValue', $bind_vars);
+			} else {
+				$message = 'Unable to update';
+				$bind_vars	= Array (
+								'field_assetid'	=> $field_assetid,
+								'default_val'	=> $value,
+							  );
+				$value = MatrixDAL::executeQuery('core', 'updateMetadataFieldDefaultValue', $bind_vars);
+			}
+		} catch (Exception $e) {
+			throw new Exception($message.' metadata field '.$field_assetid.' default value due to the following database error:'.$e->getMessage());
+		}//end try catch
 
-		$value = $db->query($sql);
-		assert_valid_db_result($value);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
