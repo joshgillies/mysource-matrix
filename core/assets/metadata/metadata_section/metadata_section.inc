@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.19 2007/03/05 22:22:53 hnguyen Exp $
+* $Id: metadata_section.inc,v 1.20 2007/11/20 02:57:13 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,7 @@ class Metadata_Section extends Folder
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a metadata field then we need to make it a dependant and exclusive link
-		if ($side_of_link == 'major' && is_a($asset, 'metadata_field') && ($dependant != '1' || $exclusive == '1')) {
+		if ($side_of_link == 'major' && ($asset instanceof Metadata_Field) && ($dependant != '1' || $exclusive == '1')) {
 			$link_type = SQ_LINK_TYPE_2;
 			$dependant = '1';
 			$exclusive = '0';
