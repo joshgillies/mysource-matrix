@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.609 2007/11/19 21:52:20 hnguyen Exp $
+* $Id: asset.inc,v 1.610 2007/11/20 05:14:25 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.609 $
+* @version $Revision: 1.610 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4113,7 +4113,10 @@ class Asset extends MySource_Object
 								'url'		=> strip_url(current_url(FALSE)),
 							  );
 				$result = MatrixDAL::executeAll('core', 'getValidProtocols', $bind_vars);
-				$res = $result[0];
+				if (isset($result[0])) {
+					$res = $result[0];
+				} else
+					$res = $result;
 			} catch (Exception $e) {
 				throw new Exception('Unable to get valid protocols for asset: '.$this->id.' with this URL: '.strip_url(current_url(FALSE)).' due to database error: '.$e->getMessage());
 			}
@@ -4691,24 +4694,27 @@ class Asset extends MySource_Object
 							OR (l.url = lv.url)
 							OR (l.url || \'/\' = lv.url))
 					';
-			$where = 'l.assetid = '.$db->quote($this->id).'
+			$where = 'l.assetid = :assetid
 					  AND lv.name LIKE '.$db->quote('design::%');
 
 			$order_by = ' ORDER BY lv.depth ASC';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
-			$result = $db->query($sql.$where.$order_by);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql.$where.$order_by);
+				$query->bindValue(':assetid', $this->id);
+				$result = MatrixDAL::executePdoAssoc($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get design lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
+			}
 
-			while (NULL !== ($row = $result->fetchRow())) {
+			foreach ($result as $row) {
 				if (!isset($this->_tmp['design_lookups'][$row['url']])) {
 					$this->_tmp['design_lookups'][$row['url']] = Array();
 				}
 				$this->_tmp['design_lookups'][$row['url']][$row['name']] = $row['designid'];
 			}
-
-			$result->free();
 
 		}//end if
 
@@ -5076,7 +5082,9 @@ class Asset extends MySource_Object
 												'name'	=> $name,
 											  );
 								$result = MatrixDAL::executeAll('core', 'getLookupValueUrls', $bind_vars);
-								$result = $result[0];
+								if (isset($result[0])) {
+									$result = $result[0];
+								}
 							} catch (Exception $e) {
 								throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
 							}
@@ -5118,7 +5126,9 @@ class Asset extends MySource_Object
 												'name'	=> $name,
 											  );
 								$result = MatrixDAL::executeAll('core', 'getLookupValueUrls', $bind_vars);
-								$result = $result[0];
+								if (isset($result[0])) {
+									$result = $result[0];
+								}
 							} catch (Exception $e) {
 								throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
 							}
