@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.28 2007/07/26 06:58:05 lwright Exp $
+* $Id: metadata_field.inc,v 1.29 2007/11/20 03:05:00 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,7 +228,7 @@ class Metadata_Field extends Asset
 	* @access public
 	* @see encodeValueString()
 	*/
-	function decodeValueString($str, &$value, &$components)
+	public static function decodeValueString($str, &$value, &$components)
 	{
 
 		// First escape % characters
