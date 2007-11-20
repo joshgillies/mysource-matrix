@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.42 2007/11/06 06:25:29 rong Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.43 2007/11/20 02:30:01 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -302,7 +302,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
 
-		$mm = $GLOBALS['SQ_SYSTEM']->mm;
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// Buffer the contents of any META tags
 		ob_start();

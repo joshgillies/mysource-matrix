@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.52 2007/07/27 05:33:37 lwright Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.53 2007/11/20 02:31:15 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -365,7 +365,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$mm =& $GLOBALS['SQ_SYSTEM']->mm;
+		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
