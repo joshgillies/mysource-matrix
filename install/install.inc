@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.76 2007/11/20 00:05:53 colivar Exp $
+* $Id: install.inc,v 1.77 2007/11/20 23:45:57 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1011,19 +1011,19 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 			if (!$section_found) continue;
 
 			// now work through all the fields
-			foreach ($xml_section->children as $xml_field) {
+			foreach ($xml_section->children() as $xml_field) {
 
 				switch ($xml_field->getName()) {
 					case 'display_name':
 						// is a display name already set?
-						if (!isset($this_section->attributes()->{'display_name'})) {
+						if (is_null($this_section->attributes()->{'display_name'})) {
 							$this_section->attributes()->{'display_name'} = (string)$xml_field;
 						}
 					break;
 
 					case 'note':
 						// is a section note already set?
-						if (!isset($this_section->attributes()->note)) {
+						if (is_null($this_section->attributes()->note)) {
 							$this_section->addChild($xml_field->getName(), (string)$xml_field);
 						}
 					break;
@@ -1034,15 +1034,14 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 						// accessing an attribute, otherwise we are accessing
 						// a function call
 
-						if (!isset($xml_field->attributes()->code)) {
+						if (is_null($xml_field->attributes()->code)) {
 							throw new Exception('Failed to parse static localised screen file "'.$lang_file.'": static screen sections need a code for each field.');
 						} else {
 
 							$code_name = $xml_field->attributes()->code;
 
 							$field_found = FALSE;
-							foreach ($this_section->children as $this_field) {
-								$this_field = $this_section->children[$i];
+							foreach ($this_section->children() as $this_field) {
 								if ($this_field->attributes()->code == $code_name) {
 									$field_found = TRUE;
 									break;
@@ -1058,7 +1057,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 							$has_display_name = FALSE;
 							$has_note = FALSE;
 
-							foreach ($this_field->children as $sub_field) {
+							foreach ($this_field->children() as $sub_field) {
 								if ($sub_field->getName() == 'display_name') {
 									$has_display_name = TRUE;
 								}
@@ -1066,7 +1065,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 								if ($sub_field->getName() == 'note') $has_note = TRUE;
 							}
 
-							foreach ($xml_field->children as $xml_sub_field) {
+							foreach ($xml_field->children() as $xml_sub_field) {
 								switch ($xml_sub_field->getName()) {
 									case 'display_name':
 										if (!$has_display_name) {

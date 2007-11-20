@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.47 2007/11/20 05:35:32 bshkara Exp $
+* $Id: settings.inc,v 1.48 2007/11/20 23:45:57 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 
@@ -386,7 +386,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 									FROM sq_ast_typ
 									WHERE allowed_access '.$user_type_cond.'
 									  AND type_code '.$type_code_cond;
-						
+
 							try {
 								$result = MatrixDAL::executeSqlAssoc($sql, 0);
 							} catch (Exception $e) {
@@ -610,9 +610,10 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 			if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 				ob_start();
 			}
-			if ($print_note && isset($field['children'][1]) && (string) $field['children'][1]['name'] == 'note' && $field['children'][1]['content']) {
+			// before printing the note, we make sure that the note element exists and is not empty
+			if ($print_note && (!is_null($field->note)) && (strlen((string)$field->note) > 0)) {
 				$o->openField('&nbsp;');
-				$o->note((string) $field['children'][1]['content']);
+				$o->note((string) $field->note);
 				$o->closeField();
 			}
 			if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
