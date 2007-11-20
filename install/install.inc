@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.75 2007/11/19 22:38:01 colivar Exp $
+* $Id: install.inc,v 1.76 2007/11/20 00:05:53 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -981,7 +981,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 	}
 
 	if (count($to_cache->section) <= 0) {
-		return serialize($to_cache);
+		return $to_cache;
 	}
 
 	$lang_files = find_edit_interface_language_files($asset_type, $screen, $locale);
@@ -1070,14 +1070,14 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 								switch ($xml_sub_field->getName()) {
 									case 'display_name':
 										if (!$has_display_name) {
-											$this_field->addChild($xml_sub_field->getName, (string)$xml_sub_field);
+											$this_field->addChild($xml_sub_field->getName(), (string)$xml_sub_field);
 										}
 									break;
 
 									case 'note':
 										// want to insert this as last
 										if (!$has_note) {
-											$this_field->addChild($xml_sub_field->getName, (string)$xml_sub_field);
+											$this_field->addChild($xml_sub_field->getName(), (string)$xml_sub_field);
 										}
 									break;
 

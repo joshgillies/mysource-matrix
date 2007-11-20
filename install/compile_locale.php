@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.14 2007/11/14 05:55:29 colivar Exp $
+* $Id: compile_locale.php,v 1.15 2007/11/20 00:05:53 colivar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -297,10 +297,7 @@ foreach ($asset_types as $asset_type) {
 					$screen_xml = build_localised_screen($type_code, $screen_type['screen'], $locale);
 				}
 
-				// TODO: TOF fix the localised_screens so it works with metadata_field, metadata_section,  cron_job, cron_manager, designs_folder,  system_management_folder, tag_manager, trigger_manager, inbox, workflow_step, workflow_step_condition, login_design, public_user, password_change_design, system_user_group, root_user. remove the "if" condition
-				if (($type_code != 'metadata_field') &&  ($type_code != 'metadata_section')&&  ($type_code != 'cron_job') &&  ($type_code != 'cron_manager')&&  ($type_code != 'designs_folder') &&  ($type_code != 'system_management_folder') &&  ($type_code != 'tag_manager') &&  ($type_code != 'trigger_manager') &&  ($type_code != 'inbox') &&  ($type_code != 'workflow_step') &&  ($type_code != 'workflow_step_condition') &&  ($type_code != 'login_design') &&  ($type_code != 'password_change_design') &&  ($type_code != 'public_user') &&  ($type_code != 'system_user_group') &&  ($type_code != 'root_user')) {
-					string_to_file($screen_xml->asXML(), $local_screen_dir.'/'.$screen_type['screen'].'.'.$locale);
-				}
+				string_to_file($screen_xml->asXML(), $local_screen_dir.'/'.$screen_type['screen'].'.'.$locale);
 				echo '.';
 			}
 		}
