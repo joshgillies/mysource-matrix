@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.615 2007/11/19 22:38:01 colivar Exp $
+* $Id: asset_manager.inc,v 1.616 2007/11/20 02:41:50 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.615 $
+* @version $Revision: 1.616 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3919,7 +3919,7 @@ class Asset_Manager extends MySource_Object
 			$assetids_set = Array();
 			foreach ($assetid as $this_assetid) {
 				assert_valid_assetid($this_assetid);
-				$assetids_set[] = $db->quote((string)$this_assetid);
+				$assetids_set[] = $db->quote($this_assetid);
 			}
 		} else {
 			assert_valid_assetid($assetid);
@@ -3941,16 +3941,27 @@ class Asset_Manager extends MySource_Object
 			$where  = 'WHERE l.minorid = '.$db->quote($assetid);
 		}
 
-		$where .= '	AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
+		$where .= '	AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type).' > 0';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		if (is_array($assetid)) {
-			$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-		} else {
-			$result = $db->getCol($sql.$where);
+
+		try {
+			$query = $db->prepare($sql.' '.$where);
+			if (is_array($assetid)) {
+				/*
+				TODO RAYN: test new result array format in the following files
+					packages/calendar/lib/calendar_common.inc
+					packages/calendar/page_templates/page_calendar/page_calendar.inc
+					packages/cms/listing_engine/listing_engine.inc
+				*/
+				$result = MatrixDAL::executePdoGrouped($query);
+			} else {
+				$result = MatrixDAL::executePdoAssoc($query, 0);
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get tree ID for asset: '.$e->getMessage());
 		}
-		assert_valid_db_result($result);
 
 		return $result;
 
@@ -7696,12 +7707,12 @@ class Asset_Manager extends MySource_Object
 			$where .= 'AND p.path IN ('.$paths_string.')
 				AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_WEB_PATHS).' > 0 ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			
+
 			try {
 				$used_paths = MatrixDAL::executeSqlAssoc($sql.$where, 0);
 			} catch (Exception $e) {
 				throw new Exception("Unable to get web paths in use due to the following database error:".$e->getMessage());
-			}//end try catch 
+			}//end try catch
 
 			// if we do not need to get alternate we paths, just return
 			// the ones that are currently in use
