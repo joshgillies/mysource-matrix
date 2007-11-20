@@ -10,18 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.46 2007/11/16 03:42:00 hnguyen Exp $
+* $Id: settings.inc,v 1.47 2007/11/20 05:35:32 bshkara Exp $
 *
 */
 
-require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 
@@ -46,50 +45,39 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 	$created = FALSE;
 
-	if (empty($root->children)) {
-		$o->openSection(translate('no_asset_settings', $owner->name));
-		$o->closeSection();
-	}
-
-	for ($i = 0; $i < count($root->children); $i++) {
-		$section = $root->children[$i];
+	foreach ($root->section as $section) {
 
 		// if we are in limbo and this section is not to be printed in limbo - dont print it
 		if (is_null($keywords)) {
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+			if (SQ_IN_LIMBO && ((string) $section['name'] === 'limbo_access' || (int) $section['limbo_access'] === 0)) {
 				continue;
 			}
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes()->name)])) {
 			ob_start();
 		}
 
-		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
+		$o->openSection((is_null($section['display_name'])) ? $section['name'] : $section['display_name']);
 
-		if (!($num_fields = count($section->children))) {
-			continue;
-		}
-		for ($j = 0; $j < $num_fields; $j++) {
-			$field = $section->children[$j];
-
+		foreach ($section->children() as $field) {
 			// should we print the note for the field or not
 			$print_note = TRUE;
 
-			switch (strtolower($field->attributes['code'])) {
+			switch (strtolower((string) $field['code'])) {
 				case 'version_current_version' :
-					if ($field->children[0]->name != 'display_name') {
+					if ((string) $field['children'][0]['name'] != 'display_name') {
 						$display_name = translate('current_version');
 					} else {
-						$display_name = $field->children[0]->content;
+						$display_name = (string) $field['children'][0]['content'];
 					}
 					$o->openField($display_name);
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						ob_start();
 					}
 					echo $owner->version;
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 					$o->closeField();
@@ -99,19 +87,19 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					if ($owner->adminAccess('all')) {
 						$created = TRUE;
 
-						if ($field->children[0]->name != 'display_name') {
+						if ((string) $field['children'][0]['name'] != 'display_name') {
 							$display_name = translate('update_major_version');
 						} else {
-							$display_name = $field->children[0]->content;
+							$display_name = (string) $field['children'][0]['content'];
 						}
 						$o->openField($display_name);
-						if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 							ob_start();
 						}
 
 						check_box($prefix.'_version_update_version');
-						if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+						if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 							ob_end_flush();
 						}
 						$o->closeField();
@@ -123,7 +111,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 				case 'date_created_date' :
 				case 'date_published_date' :
 
-					$date_type = (strtolower($field->attributes['code']) == 'date_created_date') ? 'created' : 'published';
+					$date_type = (strtolower((string) $field['code']) === 'date_created_date') ? 'created' : 'published';
 					require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 					$parameters = Array(
 									'min'			=> '0000-00-00 00:00:00',
@@ -150,13 +138,13 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$userid = $owner->published_userid;
 					}
 
-					if ($field->children[0]->name != 'display_name') {
-						$display_name = translate(ucfirst($date_type).'_date');
+					if ((string) $field['children'][0]['name'] !== 'display_name') {
+						$display_name = translate($date_type.'_date');
 					} else {
-						$display_name = $field->children[0]->content;
+						$display_name = (string) $field['children'][0]['content'];
 					}
 					$o->openField($display_name);
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						ob_start();
 					}
 
@@ -219,8 +207,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 						}
 					}
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 					$o->closeField();
@@ -228,13 +216,13 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 				break;
 
 				case 'force_secure' :
-					if ($field->children[0]->name != 'display_name') {
+					if ((string) $field['children'][0]['name'] != 'display_name') {
 						$display_name = translate('force_secure');
 					} else {
-						$display_name = $field->children[0]->content;
+						$display_name = $field['children'][0]['content'];
 					}
 					$o->openField($display_name);
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						ob_start();
 					}
 					$current_langs = $owner->getLanguages();
@@ -247,8 +235,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($owner->force_secure) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 					<?php
 					}
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 					$o->closeField();
@@ -257,13 +245,13 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 				case 'intl_languages' :
 
-					if ($field->children[0]->name != 'display_name') {
+					if ($field['children'][0]['name'] != 'display_name') {
 						$display_name = translate('languages');
 					} else {
-						$display_name = $field->children[0]->content;
+						$display_name = $field['children'][0]['content'];
 					}
 
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						ob_start();
 					}
 					$o->openSection($display_name);
@@ -316,20 +304,20 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					$o->closeField();
 
 					$o->closeSection();
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 				break;
 
 				case 'intl_character_set' :
-					if ($field->children[0]->name != 'display_name') {
+					if ($field['children'][0]['name'] != 'display_name') {
 						$display_name = translate('character_set');
 					} else {
-						$display_name = $field->children[0]->content;
+						$display_name = $field['children'][0]['content'];
 					}
 
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						ob_start();
 					}
 
@@ -354,21 +342,21 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 					$o->closeField();
 					$o->closeSection();
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 				break;
 
 				case 'morph_new_type' :
-					if ($field->children[0]->name != 'display_name') {
+					if ($field['children'][0]['name'] != 'display_name') {
 						$display_name = translate('new_type');
 					} else {
-						$display_name = $field->children[0]->content;
+						$display_name = $field['children'][0]['content'];
 					}
 
 					$o->openField($display_name);
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						ob_start();
 					}
 
@@ -378,7 +366,6 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							// cant morph an asset if it is not under construction
 							echo translate('only_morph_under_construction');
 						} else {
-							$db = $GLOBALS['SQ_SYSTEM']->db;
 							$am = $GLOBALS['SQ_SYSTEM']->am;
 							$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
@@ -399,9 +386,12 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 									FROM sq_ast_typ
 									WHERE allowed_access '.$user_type_cond.'
 									  AND type_code '.$type_code_cond;
-
-							$result = $db->getCol($sql);
-							assert_valid_db_result($result);
+						
+							try {
+								$result = MatrixDAL::executeSqlAssoc($sql, 0);
+							} catch (Exception $e) {
+								throw new Exception('Unable to get type codes for these user types: '.$user_types.' due to database error: '.$e->getMessage());
+							}
 
 							if (empty($result)) {
 								echo translate('no_types_to_morph');
@@ -429,8 +419,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						echo translate('morph_no_access');
 					}
 
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 					$o->closeField();
@@ -439,7 +429,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 				//// FRONTEND AND LOGIN DESIGN OPTIONS ////
 
 				case 'designs' :
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						ob_start();
 					}
 					$system_designs = Array(
@@ -608,8 +598,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$o->closeSection();
 					}//end foreach
 
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
 
@@ -617,16 +607,16 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 			}//end switch
 
-			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+			if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 				ob_start();
 			}
-			if ($print_note && isset($field->children[1]) && $field->children[1]->name == 'note' && $field->children[1]->content) {
+			if ($print_note && isset($field['children'][1]) && (string) $field['children'][1]['name'] == 'note' && $field['children'][1]['content']) {
 				$o->openField('&nbsp;');
-				$o->note($field->children[1]->content);
+				$o->note((string) $field['children'][1]['content']);
 				$o->closeField();
 			}
-			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] .= ob_get_contents();
+			if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] .= ob_get_contents();
 						ob_end_flush();
 			}
 
@@ -634,8 +624,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 		$o->closeSection();
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower((string) $section['name'])])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower((string) $section['name'])]] = ob_get_contents();
 			ob_end_flush();
 		}
 
