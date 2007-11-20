@@ -45,7 +45,9 @@ class DALBaker
                                         'greater'          => '>',
                                         'less'             => '<',
                                         'like'             => 'LIKE',
-										'not-like'         => 'NOT LIKE',
+                                        'not-like'         => 'NOT LIKE',
+                                        'in'               => 'IN',
+                                        'not-in'           => 'NOT IN',
                                         'is-null'          => 'IS NULL',
                                         'not-null'         => 'NOT NULL',
                                        );
