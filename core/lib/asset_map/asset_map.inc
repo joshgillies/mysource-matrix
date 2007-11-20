@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.257 2007/11/19 04:10:16 bshkara Exp $
+* $Id: asset_map.inc,v 1.258 2007/11/20 00:57:21 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.257 $
+* @version $Revision: 1.258 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1807,7 +1807,6 @@ class Asset_Map
 
 		}//end foreach
 
-		// TODO: Fix reordering
 		// process the re-ordering
 		foreach ($reordered_assets as $assetid => $link_info) {
 
@@ -2036,44 +2035,52 @@ class Asset_Map
 	*/
 	function _newLinks(&$input)
 	{
-		$output = new XML_Tree();
-		$output->addRoot('responses');
+		/* input example
+			<?xml version="1.0"?>
+				<command action="new link" to_parent_assetid="38" to_parent_pos="0">
+				<asset assetid="39" linkid="39" parentid="1"/>
+			</command>
+		*/
+
+		$output = simplexml_load_string('<xml></xml>');
+		$responses = $output->addChild('responses');
+
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->root->attributes['to_parent_assetid'] = urldecode($input->root->attributes['to_parent_assetid']);
-		foreach ($input->root->children as $index =>$child) {
-			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
+		$input->attributes()->to_parent_assetid = urlencode((string)$input->attributes()->to_parent_assetid);
+		foreach($input->asset as $asset) {
+			$asset->attributes()->assetid = urldecode((string)$asset->attributes()->assetid);
 		}
 
-		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->attributes()->to_parent_assetid);
 
 		if (is_null($new_parent)) {
-			$this->_error('AMAP0040', $input->root->attributes['to_parent_assetid']);
+			$this->_error('AMAP0040', (string)$input->attributes()->to_parent_assetid);
 			return;
 		}
 
 		$assets = Array();
 
-		foreach ($input->root->children as $asset_node) {
-			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode($asset_node->attributes['parentid']));
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($asset_node->attributes['linkid']);
+		foreach ($input->asset as $asset_node) {
+			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$asset_node->attributes()->parentid));
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$asset_node->attributes()->linkid);
 			$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 			if (is_null($old_parent)) {
-				$this->_error('AMAP0041', $asset_node->attributes['parentid']);
+				$this->_error('AMAP0041', (string)$asset_node->attributes()->parentid);
 				return;
 			}
 
-			if ($trash_folder->id == $input->root->attributes['to_parent_assetid']) {
+			if ($trash_folder->id == ((string)$input->attributes()->to_parent_assetid)) {
 				$this->_error('AMAP0043');
 				return;
 			}
 
 			$link_type = array_get_index($link, 'link_type', SQ_LINK_TYPE_1);
 
-			$assets[$asset_node->attributes['assetid']] = Array(
-															'linkid'	=> $asset_node->attributes['linkid'],
+			$assets[(string)$asset_node->attributes()->assetid] = Array(
+															'linkid'	=> (string)$asset_node->attributes()->linkid,
 															'link_type'	=> $link_type,
 															'parentid'	=> $old_parent->id,
 														  );
@@ -2081,12 +2088,12 @@ class Asset_Map
 
 		// if we have only one asset. if we cant link it under the new parent we dont continue further
 		if (count($assets) == 1) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->children[0]->attributes['assetid']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$input->asset->attributes()->assetid);
 			$link_type = SQ_LINK_TYPE_1;
 			$value = '';
 			$dependant = FALSE;
 			$exclusive = FALSE;
-			$sort_order = $input->root->attributes['to_parent_pos'];
+			$sort_order = (string)$input->attributes()->to_parent_pos;
 			$asset->prepareLink($new_parent, 'minor', $link_type, $value, $sort_order, $dependant, $exclusive);
 			$new_parent->prepareLink($asset, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 			$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
@@ -2105,7 +2112,7 @@ class Asset_Map
 					'link_action'		=> 'create',
 					'assets'			=> $assets,
 					'to_parent_assetid'	=> $new_parent->id,
-					'to_parent_pos'		=> $input->root->attributes['to_parent_pos'],
+					'to_parent_pos'		=> (string)$input->attributes()->to_parent_pos,
 				);
 		$hh->queueHipo('hipo_job_create_links', $vars);
 
@@ -2115,12 +2122,17 @@ class Asset_Map
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 		if (!empty($url)) {
-			$urlTree = new XML_Tree();
-			$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-			$root = $output->insertChild('responses', $response_count++, $urlTree);
+			$url_tree = $responses->addChild('url', htmlentities($url));
+			$url_tree->addAttribute('js_function', 'asset_map_popup');
 		}
 
-		$this->_send($output);
+		/* example of output
+			<?xml version="1.0"?>
+			<responses>
+			  <url js_function="asset_map_popup">http://mysite.com/colivar/_admin/?SQ_ACTION=hipo&amp;hipo_source_code_name=hipo_job_create_links-66f041e16a60928b05a7e228a89c3799</url>
+			</responses>
+		*/
+		$this->_send($responses);
 
 	}//end _newLinks()
 
