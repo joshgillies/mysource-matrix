@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.29 2007/11/20 03:05:00 hnguyen Exp $
+* $Id: metadata_field.inc,v 1.30 2007/11/20 03:15:41 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -181,7 +181,7 @@ class Metadata_Field extends Asset
 	* @access public
 	* @see decodeValueString()
 	*/
-	function encodeValueString($value, $components)
+	public static function encodeValueString($value, $components)
 	{
 		// NOTE: need to have the 4 slashes == 2 slashes in regex == 1 slash literal being matched/printed
 		$regex   = '/([;=\\\\])/';
@@ -286,7 +286,7 @@ class Metadata_Field extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$default_val = $this->encodeValueString($this->attr('default'), $this->attr('value_components'));
+		$default_val = self::encodeValueString($this->attr('default'), $this->attr('value_components'));
 
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
