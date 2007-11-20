@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.47 2007/11/19 05:42:16 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.48 2007/11/20 23:58:15 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -209,7 +209,6 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					return '';
 				}
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-				
 				$child_assets[] = Array (
 									'minorid'	=> $assetid,
 									'type_code'	=> $asset->type(),
@@ -231,7 +230,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 				// I think its okay to assume that we dont need to set any schemas
 				// because nothing is ever going to get filled in - thus required
 				// fields with defaults will always be blank
-				if (!$mm->allowsMetadata(reset(array_keys($assetids)))) {
+				$assetids_keys = array_keys($assetids);
+				if (!$mm->allowsMetadata(reset($assetids_keys))) {
 					// if not remove assets from child asset list.
 					// What happen here if $types_with_assets is an array of array?
 					$child_assets = array_diff($child_assets, $assetids);
