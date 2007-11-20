@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.56 2007/03/08 00:03:55 tbarrett Exp $
+* $Id: cache_manager.inc,v 1.57 2007/11/20 02:58:36 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -222,14 +222,12 @@ class Cache_Manager extends Asset
 		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
 		$file_path = $group.'/'.$file_name;
 		$expiry = time() + $this->getExpiry($asset_type);
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
 
 		// replace/update existing cache entry
 		// warning: will NOT cause duplicate primary key db error
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
 		if (!is_null($cached)) {
-			$this->_updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path, $contents);
+			$this->_updateCache($cache_key, $perm_key, $url, $expiry, $file_path, $contents);
 			return TRUE;
 		}
 
@@ -251,32 +249,25 @@ class Cache_Manager extends Asset
 		umask($old_umask);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$error = FALSE;
 		// start a transaction to prevent reinsert due to concurrency issues
 		$cached = $this->_getCache($cache_key, $perm_key, $url);
 		if (is_null($cached)) {
-			$sql = 'INSERT INTO
-						sq_cache
-					(
-						cache_key,
-						perm_key,
-						url,
-						assetid,
-						expires,
-						path
-					)
-					VALUES
-					(
-						'.$db->quoteSmart($cache_key).',
-						'.$db->quoteSmart($perm_key).',
-						'.$db->quoteSmart($url).',
-						'.$db->quoteSmart($assetid).',
-						'.$expiry_sql.',
-						'.$db->quoteSmart($file_path).'
-					)';
-			$result = $db->query($sql);
+			try {
+				$bind_vars = Array(
+								'cache_key'	=> $cache_key,
+								'perm_key'	=> $perm_key,
+								'url'		=> $url,
+								'assetid'	=> $assetid,
+								'expires'	=> ts_iso8601($expiry),
+								'path'		=> $file_path,
+							 );
+				MatrixDAL::executeQuery('cache_manager', 'insertCacheEntry');
+			} catch (DALException $e) {
+				throw new Exception('Unable to cache asset ID # '.$assetid.' due to database error: '.$e->getMessage());
+			}
 			// silent the error and check for cache entry (concurrency issue)
 			if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
 				$error = TRUE;
@@ -351,25 +342,25 @@ class Cache_Manager extends Asset
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-			foreach ($assetids as $key => $assetid) {
-				$assetids[$key] = $db->quoteSmart((String)$assetid);
-			}
-
 			// break up the assets into chunks of 1000 so that oracle does not complain
-			$in_clauses = Array();
-			foreach (array_chunk($assetids, 999) as $chunk) {
-				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			//$in_clauses = Array();
+			try {
+				foreach (array_chunk($assetids, 999) as $chunk) {
+					$bind_vars = Array('assetids' => &$chunk);
+					$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'deleteCacheEntriesByAsset'));
+					//$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+				}
+			} catch (DALException $e) {
+				throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
 			}
-
+/*
 			$sql = 'DELETE FROM
 						sq_cache
 					WHERE
 						('.implode(' OR ', $in_clauses).')';
 
 			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			assert_valid_db_result($result);*/
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -390,18 +381,15 @@ class Cache_Manager extends Asset
 	{
 		if (!empty($assetids)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-			foreach ($assetids as $key => $assetid) {
-				$assetids[$key] = $db->quoteSmart((String)$assetid);
-			}
 
 			// break up the assets into chunks of 1000 so that oracle does not complain
-			$in_clauses = Array();
+			// $in_clauses = Array();
 			foreach (array_chunk($assetids, 999) as $chunk) {
-				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+				$bind_vars = Array('assetids' => &$chunk);
+				$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset'));
+				$result = array_unique($result);
 			}
-
+/*
 			$sql = 'SELECT
 						path
 					FROM
@@ -409,7 +397,7 @@ class Cache_Manager extends Asset
 					WHERE
 						('.implode(' OR ', $in_clauses).')';
 			$result = $db->getAll($sql);
-			assert_valid_db_result($result);
+			assert_valid_db_result($result);*/
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $result;
 		}
@@ -428,11 +416,11 @@ class Cache_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'DELETE FROM sq_cache';
-		$result =& $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			MatrixDAL::executeQuery('cache_manager', 'clearAllCache');
+		} catch (DALException $e) {
+			throw new Exception ('Unable to purge cache due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -451,19 +439,17 @@ class Cache_Manager extends Asset
 	function getAllFilePaths($option='')
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT DISTINCT
-					path
-				FROM
-					sq_cache
-				';
-		if ($option == 'col') {
-			$result = $db->getCol($sql);
-		} else {
-			$result = $db->getAll($sql);
+		try {
+			if ($option == 'col') {
+				$result = MatrixDAL::executeAssoc('cache_manager', 'getAllCacheFilePaths', 0);
+			} else {
+				$result = MatrixDAL::executeAll('cache_manager', 'getAllCacheFilePaths');
+			}
+		} catch (DALException $e) {
+			throw new Exception ('Unable to get all cache file paths due to database error: '.$e->getMessage());
 		}
-		assert_valid_db_result($result);
+
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
@@ -505,23 +491,20 @@ class Cache_Manager extends Asset
 				// if permission level caching is on - check read/write/admin access for this asset
 				// if the key is blank (representing a non list style asset)
 				if ($this->attr('permission_caching')) {
-					$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 					$groups = array_keys($current_user->getGroups());
-					$userids = Array($db->quote($current_user->id));
-					foreach ($groups as $groupid) {
-						$userids[] = $db->quote((string)$groupid);
-					}
+					$userids = Array((string) $current_user->id) + $groups;
 
 					// note that we dont use the cache in rollback view mode so we dont have
 					// to run this query through the rollback functions
-					$sql = 'SELECT MAX(permission) FROM sq_vw_ast_perm
-							WHERE assetid = '.$db->quote($assetid).'
-							  AND userid IN ('.implode(',', $userids).')
-							  AND granted = 1';
-
-					$permission = $db->getOne($sql);
-					assert_valid_db_result($permission);
+					try {
+						$bind_vars = Array(
+										'assetid'	=> $assetid,
+										'userids'	=> $userids,
+									 );
+						$permission = MatrixDAL::executeOne('cache_manager', 'getHighestPermissionForUsers');
+					} catch (DALException $e) {
+						throw new Exception('Unable to get maximum permission level of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+					}
 
 					switch ($permission) {
 						case SQ_PERMISSION_READ  :
@@ -666,17 +649,16 @@ class Cache_Manager extends Asset
 		// to get rid of replication lag if the system has multiple db
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT
-					expires, path
-				FROM
-					sq_cache
-				WHERE
-					cache_key = '.$db->quoteSmart($cache_key).' AND
-					perm_key = '.$db->quoteSmart($perm_key).' AND
-					url = '.$db->quoteSmart($url);
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars = Array(
+						'cache_key'	=> $cache_key,
+						'perm_key'	=> $perm_key,
+						'url'		=> $url,
+					 );
+			$result = MatrixDAL::executeAll('cache_manager', 'getCacheExpiryAndFilePath');
+		} catch (DALException $e) {
+			throw new Exception('Unable to get cache entries due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -700,15 +682,16 @@ class Cache_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM
-					sq_cache
-				WHERE
-					cache_key = '.$db->quoteSmart($cache_key).' AND
-					perm_key = '.$db->quoteSmart($perm_key).' AND
-					url = '.$db->quoteSmart($url);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars = Array(
+						'cache_key'	=> $cache_key,
+						'perm_key'	=> $perm_key,
+						'url'		=> $url,
+					 );
+			MatrixDAL::executeQuery('cache_manager', 'deleteCacheEntry');
+		} catch (DALException $e) {
+			throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -729,22 +712,24 @@ class Cache_Manager extends Asset
 	* @return void
 	* @access private
 	*/
-	function _updateCache($cache_key, $perm_key, $url, $expiry_sql, $file_path='', $updated_content='')
+	function _updateCache($cache_key, $perm_key, $url, $expiry, $file_path='', $updated_content='')
 	{
 		// update the expiry time
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'UPDATE
-					sq_cache
-				SET
-					expires = '.$expiry_sql.'
-				WHERE
-					cache_key = '.$db->quoteSmart($cache_key).' AND
-					perm_key = '.$db->quoteSmart($perm_key).' AND
-					url = '.$db->quoteSmart($url);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+		try {
+			$bind_vars = Array(
+						'expires'	=> $expiry,
+						'cache_key'	=> $cache_key,
+						'perm_key'	=> $perm_key,
+						'url'		=> $url,
+					 );
+			MatrixDAL::executeQuery('cache_manager', 'updateCacheExpiry');
+		} catch (DALException $e) {
+			throw new Exception('Unable to update cache expiry time due to database error: '.$e->getMessage());
+		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
