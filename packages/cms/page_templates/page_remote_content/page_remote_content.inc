@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.69.2.2 2007/11/20 13:40:48 sliu Exp $
+* $Id: page_remote_content.inc,v 1.69.2.3 2007/11/20 21:53:09 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.69.2.2 $
+* @version $Revision: 1.69.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -984,10 +984,6 @@ class Page_Remote_Content extends Page
 			$final_path = $url;
 		} else {
 			$path = array_get_index($parsed_fetch_url,'path','/');
-			// If base: <URL:http://a/b/c/d;p?q#f>, the relative URL is ?y
-  			// According to RFC 1808, it should be resolved as <URL:http://a/b/c/d;p?y>
-			// Refer to: http://bugs.matrix.squiz.net/view_bug.php?bug_id=2757
-			// Note: if the relative URL is g?y, it should be <URL:http://a/b/c/g?y>
 			if (substr($path,-1) != '/'  && !preg_match('/^\?/', $url)) {
 				$path = dirname($path);
 				if (strlen($path) > 1) $path .= '/';
