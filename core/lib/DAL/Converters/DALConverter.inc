@@ -121,7 +121,10 @@ class DALConverter
                                  'equal-or-less'    => '<=',
                                  'greater'          => '>',
                                  'less'             => '<',
+                                 'in'               => 'IN',
+                                 'not-in'           => 'NOT IN',
                                  'like'             => 'LIKE',
+                                 'not-like'         => 'NOT LIKE',
                                  'is-null'          => 'IS NULL',
                                  'not-null'         => 'NOT NULL',
                                 );
@@ -205,8 +208,8 @@ class DALConverter
             $sql = $this->convertUpdateQuery($sqlArray);
         } else if (isset($sqlArray['DELETE']) === TRUE) {
             $sql = $this->convertDeleteQuery($sqlArray);
-		} else if (isset($sqlArray['TRUNCATE']) === TRUE) {
-			$tableName = $sqlArray['TRUNCATE']['from'];
+        } else if (isset($sqlArray['TRUNCATE']) === TRUE) {
+            $tableName = $sqlArray['TRUNCATE']['from'];
             $sql = $this->convertTruncateTable($tableName);
         } else if (isset($sqlArray['ALTER']) === TRUE) {
             $sql = $this->convertAlterQuery($sqlArray);
@@ -2200,8 +2203,8 @@ class DALConverter
      */
     protected function handleFunctionMax(array $args)
     {
-		if (count($args) !== 1) {
-			$msg = 'The MAX() aggregate function accepts only one parameter: the expression to find the maximum value of in the table.';
+        if (count($args) !== 1) {
+            $msg = 'The MAX() aggregate function accepts only one parameter: the expression to find the maximum value of in the table.';
             throw new DALConverterException($msg);
         }
         $sql    = 'MAX(';
@@ -2224,8 +2227,8 @@ class DALConverter
      */
     protected function handleFunctionMin(array $args)
     {
-		if (count($args) !== 1) {
-			$msg = 'The MIN() aggregate function accepts only one parameter: the expression to find the maximum value of in the table.';
+        if (count($args) !== 1) {
+            $msg = 'The MIN() aggregate function accepts only one parameter: the expression to find the maximum value of in the table.';
             throw new DALConverterException($msg);
         }
         $sql    = 'MIN(';
@@ -2235,7 +2238,32 @@ class DALConverter
 
         return $sql;
 
-    }//end handleFunctionMax()
+    }//end handleFunctionMin()
+
+
+    /**
+     * Handles the COUNT() function.
+     *
+     * @param array $args Method arguments.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionCount(array $args)
+    {
+        if (count($args) != 1) {
+            $msg = 'The COUNT() aggregate function accepts exactly one parameter.';
+            throw new DALConverterException($msg);
+        }
+
+        $sql    = 'COUNT(';
+        $fnArg = $this->convertSingleField($args[0]);
+
+        $sql .= $fnArg.')';
+
+        return $sql;
+
+    }//end handleFunctionCount()
 
 
     /**
