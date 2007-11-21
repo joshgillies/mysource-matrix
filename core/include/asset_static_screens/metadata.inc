@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.35 2007/03/08 04:00:38 tbarrett Exp $
+* $Id: metadata.inc,v 1.36 2007/11/21 00:35:51 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -46,7 +46,6 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE);
-
 	$metadata_warnings = Array();
 
 	for ($i = 0; $i < count($root->children); $i++) {
@@ -175,7 +174,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 						$values = $mm->getMetadata($owner->id);
 						foreach ($schemas as $schemaid) {
-							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
 							$edit_fns = $schema->getEditFns();
 							$print_commit_button = $edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access);
@@ -212,8 +211,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 	$duplicate_field_names = Array();
 	$field_ids = $mm->getMetadataFields($schemas);
 	if (!empty($field_ids)) {
-		foreach ($field_ids as $field_id => $field_type) {
-			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($field_id);
+		foreach ($field_ids as $field_info) {
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_info['minorid']);
 			if (!isset($field_names[$field->attr('name')])) {
 				$field_names[$field->attr('name')] = 1;
 			} else {
