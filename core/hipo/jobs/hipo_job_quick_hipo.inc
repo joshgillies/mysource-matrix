@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_quick_hipo.inc,v 1.2 2006/12/05 05:39:10 bcaldwell Exp $
+* $Id: hipo_job_quick_hipo.inc,v 1.2.4.1 2007/11/21 00:15:52 inegretski Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -119,7 +119,7 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['items'])) {
+		while (!empty($this->_running_vars['todo_items'])) {
 			if (!$this->processQuickHipo($this->_steps[0], get_class($this))) {
 				return FALSE;
 			}
