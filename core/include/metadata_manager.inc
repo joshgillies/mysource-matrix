@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.152 2007/11/21 05:23:53 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.153 2007/11/21 21:58:20 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -126,7 +126,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql);
+			$query = $db->prepare($sql.$where);
 			$query->bindValue(':assetid', $assetid);
 			if (!is_null($granted)) {
 				$query->bindValue(':granted', $granted ? 1 : 0);
