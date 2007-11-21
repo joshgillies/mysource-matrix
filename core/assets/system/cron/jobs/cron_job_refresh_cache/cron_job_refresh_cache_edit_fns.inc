@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.3 2007/11/06 22:36:45 rong Exp $
+* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.4 2007/11/21 23:00:37 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,14 +52,14 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the tasks interface in a one line format
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Refresh_Cache	$asset	the owning asset
+	* @param Backend_Outputter		$o		the Backend Outputter object
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix)
+	function paintInLineBackend(Cron_Job_Refresh_Cache $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('')) {
 
@@ -102,14 +102,14 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Process the tasks interface
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Refresh_Cache	$asset	the owning asset
+	* @param Backend_Outputter		$o		the Backend Outputter object
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(&$asset, &$o, $prefix)
+	function processInLineBackend(Cron_Job_Refresh_Cache $asset, Backend_Outputter $o, $prefix)
 	{
 		$cron_job = new Cron_Job();
 		$edit_fns = $cron_job->getEditFns();
