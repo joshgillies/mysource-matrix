@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.617 2007/11/21 00:16:43 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.618 2007/11/21 05:21:49 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.617 $
+* @version $Revision: 1.618 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -146,7 +146,7 @@ class Asset_Manager extends MySource_Object
 			$where .= (($where) ? ' AND' : ' WHERE').' allowed_access != '.$db->quote('system');
 		}
 
-		$rows = MatrixDAL::executeSqlAll($sql.$where);
+		$rows = MatrixDAL::executeSqlAssoc($sql.$where);
 		foreach ($rows as $row) {
 			$asset_types[$row['type_code']] = $row;
 		}
@@ -445,13 +445,16 @@ class Asset_Manager extends MySource_Object
 			} catch (Exception $e) {
 				throw new Exception('Failed to get type code with allowed access due to database error: '. $e->getMessage());
 			}
-
 		} else {
 			$type_codes = array_keys($this->_asset_types);
 		}
 
 		$offspring = Array();
 		foreach ($type_codes as $type_code) {
+			if (is_array($type_code)) {
+				$type_code = $type_code['type_code'];
+			}
+
 			$parent = $this->_asset_types[$type_code]['parent_type'];
 			if (!isset($offspring[$parent])) {
 				$offspring[$parent] = Array();
@@ -966,8 +969,12 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// Combine the two
-		foreach ($custom_vals as $assetid => $val) {
-			$res[$assetid] = $val;
+		foreach ($custom_vals as $rowid => $row) {
+			if (isset($row['default_val'])) {
+				$res[$row['assetid']] = $row['default_val'];
+			} else {
+				$res[$row['assetid']] = $row['custom_val'];
+			}
 		}
 		return $res;
 
