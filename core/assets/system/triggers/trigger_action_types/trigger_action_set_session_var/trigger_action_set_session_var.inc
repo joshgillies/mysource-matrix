@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_session_var.inc,v 1.2 2007/11/06 22:36:46 rong Exp $
+* $Id: trigger_action_set_session_var.inc,v 1.3 2007/11/21 04:40:54 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		// check required settings
 		$var_name = @$settings['name'];

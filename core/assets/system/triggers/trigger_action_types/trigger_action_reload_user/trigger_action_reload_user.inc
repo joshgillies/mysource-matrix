@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_reload_user.inc,v 1.2 2006/12/15 00:55:29 tbarrett Exp $
+* $Id: trigger_action_reload_user.inc,v 1.3 2007/11/21 04:40:52 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * external vars
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,7 @@ class Trigger_Action_Reload_User extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		$_REQUEST['SQ_ACTION'] = '';
 		$GLOBALS['SQ_SYSTEM']->setupUser();

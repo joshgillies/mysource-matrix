@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.15 2006/12/06 00:00:30 bcaldwell Exp $
+* $Id: trigger_action_set_status.inc,v 1.16 2007/11/21 04:40:54 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		// check required settings
 		if (empty($settings['status'])) return FALSE;

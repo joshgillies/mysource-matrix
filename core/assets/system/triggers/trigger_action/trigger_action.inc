@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action.inc,v 1.7 2006/12/06 00:10:09 bcaldwell Exp $
+* $Id: trigger_action.inc,v 1.8 2007/11/21 04:40:51 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,7 +44,7 @@ class Trigger_Action extends Asset
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, $state)
+	public static function execute($settings, $state)
 	{
 		return FALSE;
 

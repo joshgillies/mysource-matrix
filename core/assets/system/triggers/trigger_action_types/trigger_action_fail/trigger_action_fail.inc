@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_fail.inc,v 1.5 2007/10/29 22:57:27 lwright Exp $
+* $Id: trigger_action_fail.inc,v 1.6 2007/11/21 04:40:52 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * This action just fails.
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,7 +44,7 @@ class Trigger_Action_Fail extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		$error_level = $settings['error_level'];
 		if (!empty($error_level)) {

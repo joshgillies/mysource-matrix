@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.5 2007/11/15 03:52:02 hnguyen Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.6 2007/11/21 04:40:52 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 
 		$use_alternative = array_get_index($settings, 'use_alternative', FALSE);

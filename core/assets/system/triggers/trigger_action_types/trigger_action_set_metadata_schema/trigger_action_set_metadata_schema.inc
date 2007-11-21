@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_schema.inc,v 1.5 2007/02/16 04:32:26 rhoward Exp $
+* $Id: trigger_action_set_metadata_schema.inc,v 1.6 2007/11/21 04:40:53 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata schema
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();

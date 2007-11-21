@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thesaurus_terms.inc,v 1.2 2006/12/06 00:00:30 bcaldwell Exp $
+* $Id: trigger_action_set_thesaurus_terms.inc,v 1.3 2007/11/21 04:40:54 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Trigger_Action_Set_Thesaurus_Terms extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		// check settings, state
 		if (empty($settings['file_path']) || !file_exists($settings['file_path'])) {

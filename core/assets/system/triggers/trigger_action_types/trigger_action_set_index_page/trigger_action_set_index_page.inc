@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 	* @return mixed array|boolean
     * @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
     {
 
     	if (!isset($settings['index_page'])) return FALSE;

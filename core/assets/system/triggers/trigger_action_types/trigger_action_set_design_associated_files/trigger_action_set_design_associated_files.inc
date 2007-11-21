@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design_associated_files.inc,v 1.3 2007/11/06 22:36:46 rong Exp $
+* $Id: trigger_action_set_design_associated_files.inc,v 1.4 2007/11/21 04:40:53 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Trigger_Action_Set_Design_Associated_Files extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		// check settings, state
 		if (empty($settings['file_path']) || !file_exists($settings['file_path'])) {

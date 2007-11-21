@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_delete_future_status.inc,v 1.2 2006/12/06 00:05:38 bcaldwell Exp $
+* $Id: trigger_action_delete_future_status.inc,v 1.3 2007/11/21 04:40:52 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		// check settings, status
 		if (empty($settings['status'])) {

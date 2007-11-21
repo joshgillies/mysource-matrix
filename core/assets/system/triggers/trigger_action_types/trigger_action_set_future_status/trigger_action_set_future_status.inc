@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.15 2007/11/06 22:36:46 rong Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.16 2007/11/21 04:40:53 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		// check settings, status
 		if (empty($settings['status'])) {
