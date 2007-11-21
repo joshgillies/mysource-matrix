@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.79 2007/11/12 23:28:12 hnguyen Exp $
+* $Id: internal_message.inc,v 1.80 2007/11/21 04:23:47 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -123,7 +123,7 @@ class Internal_Message extends MySource_Object
 
 		try {
 			$bind_vars	= Array (
-							'messageid'	=> $messageid, 
+							'messageid'	=> $messageid,
 						  );
 			$result_all	= MatrixDAL::executeAll('core', 'getMessageInfoByMessageId', $bind_vars);
 		} catch (Exception $e) {
@@ -401,7 +401,7 @@ class Internal_Message extends MySource_Object
 					} catch (Exception $e) {
 						throw new Exception("Unable to get the next messageid due to the following database error:".$e->getMessage());
 					}//end try catch
-			
+
 					try {
 						$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
 						$prepared->bindValue(':userto',     $userid,         PDO::PARAM_STR);
@@ -657,18 +657,19 @@ class Internal_Message extends MySource_Object
 	*/
 	function delete()
 	{
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM sq_internal_msg WHERE msgid='.$db->quote($this->id);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
+		try {
+			$bind_vars = Array('msgid' => $this->id);
+			$result = MatrixDAL::executeOne('core', 'deleteInternalMessage', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete this message #'.$this->id);
+		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end delete()
 
@@ -688,10 +689,8 @@ class Internal_Message extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'UPDATE sq_internal_msg SET status = '.$db->quote($status).' WHERE msgid = '.$db->quote($this->id);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$bind_vars = Array('status' => $status, 'msgid' => $this->id);
+		$result = MatrixDAL::executeOne('core', 'updateInternalMessage', $bind_vars);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
