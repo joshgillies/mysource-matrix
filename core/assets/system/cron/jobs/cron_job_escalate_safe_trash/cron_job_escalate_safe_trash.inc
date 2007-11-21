@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_escalate_safe_trash.inc,v 1.1 2007/01/08 03:07:03 lwright Exp $
+* $Id: cron_job_escalate_safe_trash.inc,v 1.2 2007/11/21 22:35:02 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,12 +172,9 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 
 			$job_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($job_assetid));
 			$job_info = $job_info[$job_assetid];
-			bam($job_info);
 
 			$trash_user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($job_info['created_userid']);
 			$trash_user_info = $trash_user_info[$job_info['created_userid']];
-			bam($trash_user_info);
-
 
 			if (!empty($job_link)) {
 				$trashing_assetid = $job_link['minorid'];
@@ -188,7 +185,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 					$trashing_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($trashing_assetid);
 					$from = '0';
 
-					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$messages = Array();
 
 					if (!empty($trash_errors['status'])) {
@@ -205,8 +202,8 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 										);
 
 						if (empty($asset_admins)) $asset_admins = Array(0);
-						$msg =& $ms->newMessage($asset_admins, $type, $replacements);
-						$messages[] =& $msg;
+						$msg = $ms->newMessage($asset_admins, $type, $replacements);
+						$messages[] = $msg;
 					}
 
 					if (!empty($trash_errors['links'])) {
@@ -227,8 +224,8 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 											);
 
 							if (empty($asset_admins)) $asset_admins = Array(0);
-							$msg =& $ms->newMessage($asset_admins, $type, $replacements);
-							$messages[] =& $msg;
+							$msg = $ms->newMessage($asset_admins, $type, $replacements);
+							$messages[] = $msg;
 						}
 
 
@@ -252,8 +249,8 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 											);
 
 							if (empty($asset_admins)) $asset_admins = Array(0);
-							$msg =& $ms->newMessage($asset_admins, $type, $replacements);
-							$messages[] =& $msg;
+							$msg = $ms->newMessage($asset_admins, $type, $replacements);
+							$messages[] = $msg;
 						}
 					}
 
