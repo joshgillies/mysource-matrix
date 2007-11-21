@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.20 2007/06/07 05:03:20 rhoward Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.21 2007/11/21 22:39:44 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,17 +46,17 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the tasks interface in a one line format
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Future_Lineage	$asset	the owning asset
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix)
+	function paintInLineBackend(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
-		$major =& $asset->getAssetInLink('major');
-		$minor =& $asset->getAssetInLink('minor');
+		$major = $asset->getAssetInLink('major');
+		$minor = $asset->getAssetInLink('minor');
 
 		$o->openSection(($asset->id) ? $asset->name : translate('cron_new_future_linking'));
 
@@ -64,7 +64,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
 			$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('cron_fl_delete_all_existing_links'));
 			foreach ($links as $link) {
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 
 				// if the link id is null we got to continue
 				// this line has been added to fix a problem when viewing the linking screen of
@@ -107,7 +107,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 		$o->openField(translate('at'));
 			$this->_paintWhenBox($asset, $o, $prefix);
-			$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 		$o->closeField();
 
@@ -121,14 +121,14 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Process the tasks interface
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Future_Lineage	$asset	the owning asset
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(&$asset, &$o, $prefix)
+	function processInLineBackend(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_delete_linkid']) && (empty($_POST[$prefix.'_link_type']) || empty($_POST[$prefix.'_major_assetid']['assetid']))) {
 			return FALSE;
@@ -152,7 +152,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		}
 
 		if (!empty($_POST[$prefix.'_major_assetid']['assetid'])) {
-			$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_major_assetid']['assetid']);
+			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_major_assetid']['assetid']);
 			if (is_null($major)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -183,14 +183,14 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the create new link section
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Future_Lineage	$asset	the owning asset
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackendCreate(&$asset, &$o, $prefix)
+	function paintInLineBackendCreate(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		// section to create a new link
 		$o->openSection(translate('create_linking'));
@@ -228,7 +228,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$o->openField(translate('at'));
 			$o->note(translate('cron_manager_create_now_or_later'));
 			$this->_paintWhenBox($asset, $o, $prefix);
-			$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 		}
@@ -242,14 +242,14 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Process the create new link section
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Future_Lineage	$asset	the owning asset
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackendCreate(&$asset, &$o, $prefix)
+	function processInLineBackendCreate(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		// if the major_assetid_create is not empty we will link this asset to the major asset
 		if ($major_id_array = array_get_index($_POST, $prefix.'_major_assetid', FALSE)) {
@@ -278,12 +278,12 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			// we do the linking now
 			if ($link_now) {
 				// we create the link immediately
-				$new_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($major_id);
+				$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($major_id);
 				$value = '';
 				$dependant = FALSE;
 				$exclusive = FALSE;
 				$sort_order = '';
-				$am =& $GLOBALS['SQ_SYSTEM']->am;
+				$am = $GLOBALS['SQ_SYSTEM']->am;
 
 				$minor_asset = $asset->getAssetInLink('minor');
 
@@ -300,7 +300,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 				// if it is a shadow asset get the bridge to get linkid, parents, etc.
 				if (isset($id_parts[1])) {
-					$bridge =& $am->getAsset($id_parts[0]);
+					$bridge = $am->getAsset($id_parts[0]);
 					$_links = $bridge->getLinks($minor_asset->id, SQ_SC_LINK_BACKEND_NAV, '', TRUE, 'minor');
 
 					// of there is no link do nothing
@@ -328,7 +328,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				}
 
 				// check if we can create a link under the new parent
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_asset->id);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_asset->id);
 				$value = '';
 				$dependant = FALSE;
 				$exclusive = FALSE;
@@ -346,11 +346,11 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 								'to_parent_pos'		=> 1,
 								'assets'			=> $_assets,
 							);
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->queueHipo('hipo_job_create_links', $hipo_var);
 
 				// check for any HIPOs that have been queued
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 				$url = $hh->runQueuedJobs();
 
@@ -361,7 +361,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				// if a time is set so we need to add a job in the cron manager
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($major_id);
+				$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($major_id);
 
 				if (is_null($major)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -395,17 +395,17 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the delete section
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Future_Lineage	$asset	the owning asset
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackendDelete(&$asset, &$o, $prefix)
+	function paintInLineBackendDelete(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
-		$major =& $asset->getAssetInLink('major');
-		$minor =& $asset->getAssetInLink('minor');
+		$major = $asset->getAssetInLink('major');
+		$minor = $asset->getAssetInLink('minor');
 
 		$o->openSection(translate('delete_link'));
 
@@ -413,7 +413,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
 		$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('cron_fl_delete_all_existing_links'));
 		foreach ($links as $link) {
-			$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (is_null($parent)) continue;
 
 			// if the link id is null we got to continue
@@ -469,7 +469,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$o->openField(translate('at'));
 			$o->note(translate('cron_manager_delete_now_or_later'));
 			$this->_paintWhenBox($asset, $o, $prefix);
-			$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 			$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun())));
 			$o->closeField();
 		}
@@ -484,14 +484,14 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	* Process the tasks interface
 	* we assume that the links id passed are not a link between an shadow asset and another shadow asset
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Future_Lineage	$asset	the owning asset
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackendDelete(&$asset, &$o, $prefix)
+	function processInLineBackendDelete(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_delete_linkid'])) {
 			return FALSE;
@@ -520,13 +520,13 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			// we delete the link immediately
 
 			// trash_folder
-			$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 
 			// get the asset manager
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			// get the hipo herder
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			// we delete all the links to the minor asset
 			if ($delete_linkid == 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS') {
@@ -572,7 +572,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 					$hh->queueHipo('hipo_job_create_links', $hipo_vars);
 
 					// check for any HIPOs that have been queued
-					$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 					$url = $hh->runQueuedJobs();
 
@@ -615,7 +615,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				$hh->queueHipo('hipo_job_create_links', $hipo_var);
 
 				// check for any HIPOs that have been queued
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 				$url = $hh->runQueuedJobs();
 

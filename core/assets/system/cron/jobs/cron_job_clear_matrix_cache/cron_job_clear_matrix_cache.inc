@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_clear_matrix_cache.inc,v 1.2 2007/08/27 04:33:23 lwright Exp $
+* $Id: cron_job_clear_matrix_cache.inc,v 1.3 2007/11/21 22:34:44 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,11 +85,11 @@ class Cron_Job_Clear_Matrix_Cache extends Cron_Job
 					'repopulate'	=> $this->attr('repopulate'),
 				);
 
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
 
 		if (empty($status_errors)) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 			if ($this->attr('type') == 'one_off') {
@@ -119,7 +119,7 @@ class Cron_Job_Clear_Matrix_Cache extends Cron_Job
 	*/
 	function getActiveJobs()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		return $cm->getJobs('cron_job_clear_matrix_cache');
 
 	}//end getActiveJobs()

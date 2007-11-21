@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_clear_matrix_cache_edit_fns.inc,v 1.1 2007/05/31 04:53:34 rong Exp $
+* $Id: cron_job_clear_matrix_cache_edit_fns.inc,v 1.2 2007/11/21 22:34:44 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -45,16 +45,16 @@ class Cron_Job_Clear_Matrix_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the tasks interface in a one line format
 	*
-	* @param object	&$asset					the owning asset
-	* @param object	&$o						the backend outputter
-	* @param string	$prefix					prefix for form elements
-	* @param string	$when					prepared when string
-	* @param string	$form_extra_elements	anything that goes into the 'extra' field
+	* @param Cron_Job_Clear_Matrix_Cache	$asset					the owning asset
+	* @param Backend_Outputter				$o						the backend outputter
+	* @param string							$prefix					prefix for form elements
+	* @param string							$when					prepared when string
+	* @param string							$form_extra_elements	anything that goes into the 'extra' field
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
+	function paintInLineBackend(Cron_Job_Clear_Matrix_Cache $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
 	{
 		$preposition = ($asset->attr('type') == 'one_off') ? translate('matrix_cache_clear_at') : translate('matrix_cache_clear_every');
 		echo translate('matrix_cache_clear_this', $preposition);
@@ -68,14 +68,14 @@ class Cron_Job_Clear_Matrix_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Process the tasks interface
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Clear_Matrix_Cache	$asset	the owning asset
+	* @param Backend_Outputter				$o		the backend outputter
+	* @param string							$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(&$asset, &$o, $prefix)
+	function processInLineBackend(Cron_Job_Clear_Matrix_Cache $asset, Backend_Outputter $o, $prefix)
 	{
 		$when = $this->_processWhenBox($asset, $o, $prefix);
 		if ($when) {
