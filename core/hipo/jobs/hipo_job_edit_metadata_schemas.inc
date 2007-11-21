@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.48 2007/11/20 23:58:15 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.49 2007/11/21 23:25:59 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -219,24 +219,13 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 			$types_with_assets = Array();
 
 			foreach ($child_assets as $asset_info) {
-				if (!isset($types_with_assets[$asset_info['type_code']])) {
-					$type_with_assets[$asset_info['type_code']] = Array();
-				}
-				$types_with_assets[$asset_info['type_code']][$asset_info['minorid']] = $asset_info['type_code'];
-			}
-
-			foreach ($types_with_assets as $type => $assetids) {
 				// if this asset does not allow the user to set metadata values then
 				// I think its okay to assume that we dont need to set any schemas
 				// because nothing is ever going to get filled in - thus required
-				// fields with defaults will always be blank
-				$assetids_keys = array_keys($assetids);
-				if (!$mm->allowsMetadata(reset($assetids_keys))) {
-					// if not remove assets from child asset list.
-					// What happen here if $types_with_assets is an array of array?
-					$child_assets = array_diff($child_assets, $assetids);
-				}
-			}
+				if (!$mm->allowsMetadata($asset_info['minorid'])) {
+					$child_assets = array_diff_assoc(array_values($child_assets), Array ($asset_info));
+				}//end if
+			}//end foreach
 
 			$this->_running_vars['todo_assetids'] = $child_assets;
 		}//end else
@@ -270,7 +259,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata')) {
 					foreach ($this->_running_vars['schema_changes'] as $set_data) {
 						if ($set_data['schemaid']) {
-							$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
+							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
 							if (is_null($schema)) {
 								$schema_name = 'Unknown Schema';
 							} else {
