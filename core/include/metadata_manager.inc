@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.153 2007/11/21 21:58:20 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.154 2007/11/21 23:26:17 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -90,7 +90,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function allowsMetadata($assetid)
 	{
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return FALSE;
 		$edit_fns = $asset->getEditFns();
 		return isset($edit_fns->static_screens['metadata']);
