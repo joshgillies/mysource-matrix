@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.36 2007/11/21 00:35:51 hnguyen Exp $
+* $Id: metadata.inc,v 1.37 2007/11/21 05:20:03 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 
@@ -48,14 +48,11 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 	$schemas = $mm->getSchemas($owner->id, TRUE);
 	$metadata_warnings = Array();
 
-	for ($i = 0; $i < count($root->children); $i++) {
-
-		$section =& $root->children[$i];
-
+	foreach ($root->section as $section) {
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
 				continue;
 			}
 		}
@@ -65,24 +62,24 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(      str_replace(' ', '_', $section->attributes['name'])     )])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', (string) $section->attributes()->name))])) {
 			ob_start();
 		}
 
-		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
-		if (!($num_fields = count($section->children))) {
+		// TODO: Fix this section->attributes() call here, don't use array get index.
+		$o->openSection(array_get_index($section->attributes, 'display_name', (string) $section->attributes()->name));
+
+		if (!($num_fields = count($section->children()))) {
 			continue;
 		}
 
-		for ($j = 0; $j < $num_fields; $j++) {
-			$field =& $section->children[$j];
+		foreach ($section->field as $field) {
 			$field_access = $ei->_getAccess($owner, $field, $prefix);
 			if (!($field_access & SQ_EI_READ)) {
 				continue;
 			}
 
-			switch (strtolower($field->attributes['code'])) {
-
+			switch (strtolower((string) $field->attributes()->code)) {
 				///// CURRENT METADATA /////
 
 				case 'metadata_current' :
@@ -193,15 +190,15 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 			}//end switch
 
-			if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-				$o->note($field->children[1]->content);
-			}
+			if (!empty($field->note)) {
+				$o->note((string) $field->note);
+			}//end if
 
 		}//end for
 		$o->closeSection();
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(          str_replace(' ', '_', $section->attributes['name'])           )])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(          str_replace(' ', '_', $section->attributes['name'])          )]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))]] = ob_get_contents();
 			ob_end_flush();
 		}
 
