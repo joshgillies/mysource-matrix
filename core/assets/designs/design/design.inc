@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.132 2007/10/29 23:38:59 lwright Exp $
+* $Id: design.inc,v 1.133 2007/11/21 23:25:21 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -311,7 +311,7 @@ class Design extends Design_Area
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
-		if (is_a($minor, 'file')) {
+		if ($minor instanceof File) {
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 			foreach ($customisation_links as $link) {
