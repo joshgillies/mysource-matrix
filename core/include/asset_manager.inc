@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.616 2007/11/20 02:41:50 rong Exp $
+* $Id: asset_manager.inc,v 1.617 2007/11/21 00:16:43 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.616 $
+* @version $Revision: 1.617 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6550,16 +6550,16 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_ast_perm
-				WHERE
-						userid		= '.$db->quote($userid).'
-					AND	permission	= '.$db->quote($permission).'
-					AND	assetid		= '.$db->quote($assetid);
-
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'userid'		=> $userid,
+							'permission'	=> $permission,
+							'assetid'		=> $assetid,
+						  );
+			$result	= MatrixDAL::executeQuery('core', 'deletePermissionForUserOnAsset', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete permission '.$permission.' of userid #'.$userid.' on assetid #'.$assetid .' due to the following database error.'.$e->getMessage());
+		}//end try catch
 
 		if (!$asset->permissionsUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
