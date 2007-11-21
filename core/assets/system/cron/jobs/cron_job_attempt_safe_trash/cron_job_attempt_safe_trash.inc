@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_attempt_safe_trash.inc,v 1.1 2007/01/08 03:07:03 lwright Exp $
+* $Id: cron_job_attempt_safe_trash.inc,v 1.2 2007/11/21 22:34:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -64,7 +64,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 			}
 
 			$link = $this->_tmp['asset_in_link'];
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
 				trigger_localised_error('CRON0017', E_USER_WARNING);
 				return FALSE;
@@ -89,7 +89,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	*/
 	function _getName($short_name=FALSE)
 	{
-		$asset =& $this->getAssetToUpdate();
+		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
 			return translate('cron_job_assetless_attempt_safe_trash');
 		} else if ($short_name) {
@@ -139,7 +139,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 		if ($this->attr('read_only')) return FALSE;
 
 		// TODO: will this restriction be allowed too?
-		$asset =& $this->getAssetToUpdate();
+		$asset = $this->getAssetToUpdate();
 		if (!is_null($asset)) return $asset->adminAccess('');
 		return FALSE;
 
@@ -172,14 +172,14 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	/**
 	* Sets the asset that this cron job will be altering the status on
 	*
-	* @param object	&$asset	a reference to the asset
+	* @param Asset	$asset	a reference to the asset
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAssetToUpdate(&$asset)
+	function setAssetToUpdate(Asset $asset)
 	{
-		if (!is_a($asset, 'asset')) {
+		if (!($asset instanceof Asset)) {
 			trigger_localised_error('CRON0030', E_USER_WARNING);
 			return FALSE;
 		}
@@ -216,7 +216,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAssetToUpdate()
+	function getAssetToUpdate()
 	{
 		// because we need to return by ref
 		$null = NULL;
@@ -246,7 +246,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	*/
 	function _exec(&$msg)
 	{
-		$asset =& $this->getAssetToUpdate();
+		$asset = $this->getAssetToUpdate();
 		if (!is_null($asset)) {
 
 			// Can we safe trash?
