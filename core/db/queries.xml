@@ -343,6 +343,18 @@
 		</primary>
 	</query>
 
+	<query id="deletePermissionForUserOnAsset">
+		<!-- Deletes permission of a user on an asset -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_ast_perm" column="userid">:userid</equal>
+					<equal table="sq_ast_perm" column="permission">:permission</equal>
+					<equal table="sq_ast_perm" column="assetid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
 
 	<!-- //		HIPO 	// -->
 
