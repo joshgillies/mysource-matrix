@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.32 2007/01/17 00:11:07 arailean Exp $
+* $Id: design_area_body.inc,v 1.33 2007/11/21 23:55:18 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class Design_Area_Body extends Design_Area
 				// so they know they have to use the system version
 				$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
 				foreach ($used_asset_ids as $used_asset_id) {
-					$used_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
+					$used_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
 					$used_asset->reload();
 				}
 				$ASSET->reload();
@@ -98,14 +98,14 @@ class Design_Area_Body extends Design_Area
 			// so they no longer think they have to use the system version
 			$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
 			foreach ($used_asset_ids as $used_asset_id) {
-				$used_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
+				$used_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
 				$used_asset->reload();
 			}
 			$ASSET->reload();
 
 			// Show the differences
 			require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/design_area_body/matrix_diff_highlighter.inc';
-			$highlighter =& new Matrix_Diff_Highlighter();
+			$highlighter = new Matrix_Diff_Highlighter();
 			echo $highlighter->process($system_version_contents, $edited_contents);
 
 		} else {
