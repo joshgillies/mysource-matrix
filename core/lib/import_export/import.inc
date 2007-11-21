@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.14 2007/07/02 00:21:27 rhoward Exp $
+* $Id: import.inc,v 1.15 2007/11/21 05:21:08 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -161,7 +161,7 @@ function execute_import_action($action, &$outputs)
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 
 	// we call execute as a static method, but instantiate for method_exists
-	$class_instance =& new $action_class;
+	$class_instance = new $action_class;
 
 	// gather settings required for the action
 	foreach ($action as $key => $value) {
