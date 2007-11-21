@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.39 2007/11/15 22:13:54 hnguyen Exp $
+* $Id: cron_job_future_status.inc,v 1.40 2007/11/21 22:53:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Cron_Job_Future_Status extends Cron_Job
 			}
 
 			$link = $this->_tmp['asset_in_link'];
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset) || !$this->setAssetToUpdate($asset)) {
 				trigger_localised_error('CRON0017', E_USER_WARNING);
 				return FALSE;
@@ -89,7 +89,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function _getName($short_name=FALSE)
 	{
-		$asset =& $this->getAssetToUpdate();
+		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
 			return translate('cron_job_asset_less_future_status');
 		} else if ($short_name) {
@@ -138,7 +138,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		// read-only?
 		if ($this->attr('read_only')) return FALSE;
 
-		$asset =& $this->getAssetToUpdate();
+		$asset = $this->getAssetToUpdate();
 		if (!is_null($asset)) return $asset->adminAccess('');
 		return FALSE;
 
@@ -248,18 +248,13 @@ class Cron_Job_Future_Status extends Cron_Job
 	/**
 	* Sets the asset that this cron job will be altering the status on
 	*
-	* @param object	&$asset	a reference to the asset
+	* @param Asset	$asset	a reference to the asset
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAssetToUpdate(&$asset)
+	function setAssetToUpdate(Asset $asset)
 	{
-		if (!($asset instanceof Asset)) {
-			trigger_localised_error('CRON0030', E_USER_WARNING);
-			return FALSE;
-		}
-
 		if ($this->id) {
 			$existing_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', TRUE, 'major', $value='updating');
 			$link_exists = FALSE;
@@ -292,7 +287,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAssetToUpdate()
+	function getAssetToUpdate()
 	{
 		// because we need to return by ref
 		$null = NULL;
@@ -322,13 +317,13 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function _exec(&$msg)
 	{
-		$asset =& $this->getAssetToUpdate();
+		$asset = $this->getAssetToUpdate();
 		if (!is_null($asset)) {
 
 			$old_status = $asset->status;
 
 			// process the status change
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $asset->id, 'new_status' => $this->attr('status'), 'dependants_only' => $this->attr('dependants_only'));
 
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
@@ -356,17 +351,17 @@ class Cron_Job_Future_Status extends Cron_Job
 	* Returns an array of active future status jobs that are to be run on the passed asset
 	* in chronological order
 	*
-	* @param object	&$asset	the asset to get the future status jobs for
+	* @param Asset	$asset	the asset to get the future status jobs for
 	*
 	* @return array
 	* @access public
 	* @static
 	*/
-	function &getActiveJobs(&$asset)
+	function &getActiveJobs(Asset $asset)
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, __CLASS__, TRUE, 'minor', 'updating');
 		$assetids = Array();
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		foreach ($links as $link) {
 			$cm_links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($cm->id, $link['majorid']);
 			if (!empty($cm_links)) {
@@ -378,7 +373,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		asort($dates, SORT_STRING);
 		$res = Array();
 		foreach ($dates as $assetid => $date) {
-			$res[] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, __CLASS__);
+			$res[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, __CLASS__);
 		}
 		return $res;
 

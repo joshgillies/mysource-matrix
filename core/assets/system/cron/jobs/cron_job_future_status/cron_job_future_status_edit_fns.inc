@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.20 2006/12/06 04:24:01 emcdonald Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.21 2007/11/21 22:53:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,18 +46,18 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the tasks interface in a one line format
 	*
-	* @param object	&$asset					the owning asset
-	* @param object	&$o						the Backend Outputter object
-	* @param string	$prefix					prefix for form elements
-	* @param string	$when					prepared when string
-	* @param string	$cascade				cascade the status change
-	* @param string	$form_extra_elements	extra form elements
-	* @param array	$exclude_status			exclude these statuses from the list
+	* @param Cron_Job_Future_Status	$asset					The owning asset
+	* @param Backend_Outputter		$o						the Backend Outputter object
+	* @param string					$prefix					prefix for form elements
+	* @param string					$when					prepared when string
+	* @param string					$cascade				cascade the status change
+	* @param string					$form_extra_elements	extra form elements
+	* @param array					$exclude_status			exclude these statuses from the list
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='', $exclude_status=Array())
+	function paintInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='', $exclude_status=Array())
 	{
 		echo translate('set_status_to');
 
@@ -87,14 +87,14 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Process the tasks interface
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job_Future_Status	$asset	The owning asset
+	* @param Backend_Outputter		$o		the Backend Outputter object
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(&$asset, &$o, $prefix)
+	function processInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_status']) && $asset->setAttrValue('status', $_POST[$prefix.'_status'])) {
 			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? FALSE : TRUE;
