@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.22 2007/03/15 23:55:58 lwright Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.23 2007/11/21 22:35:23 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -167,23 +167,20 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	*/
 	function _exec(&$msg)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT w.*, a.name
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow w
-					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
-					ON w.assetid = a.assetid
-				WHERE w.wflow IS NOT NULL
-					AND w.granted = '.$db->quote('1');
-		$rows = $db->getAll($sql);
-		assert_valid_db_result($rows);
+		try {
+			$rows = MatrixDAL::executeAll('cron_job_expired_workflow', 'getAllRunningWorkflows');
+		} catch (DALException $e) {
+			throw new Exception ('Unable to get running workflows due to database error: '.$e->getMessage());
+		}
+
 		$now = time();
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$last_run = $cm->attr('last_run');
 		foreach ($rows as $row) {
 			$workflow = unserialize($row['wflow']);
 			$schemaid = $row['schemaid'];
 
-			$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$step =& $wfm->getCurrentStep($workflow);
 
 			if (($step['started'] != 0) && ($step['expiry_time'] != 0)) {
@@ -236,7 +233,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		 if (Workflow_Manager::silentWorkflowParty($assetid)) {
 			 return;
 		 }
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$subject = 'Stale Workflow Step';
 		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'), FALSE);
 		$href = str_replace('./', '', current($hrefs));
@@ -246,7 +243,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE);
 		error_log(array_contents($admins));
 
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 		$schema_workflows = $wfm->getSchemaWorkflows($assetid);
 		$workflow =& $schema_workflows[$schemaid];
