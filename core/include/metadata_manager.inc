@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.151 2007/11/20 05:59:31 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.152 2007/11/21 05:23:53 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -755,34 +755,6 @@ class Metadata_Manager extends MySource_Object
 			} catch (Exception $e) {
 				throw new Exception('Unable to get metadata fields ids for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 			}
-
-			$sql = 'INSERT INTO
-						sq_ast_mdata_val
-						(
-							assetid,
-							fieldid,
-							value
-						)
-						VALUES
-						(
-							?,
-							?,
-							?
-						)';
-
-			$insert_prepared = $db->prepare($sql);
-			assert_valid_db_result($insert_prepared);
-
-			$sql = 'UPDATE
-						sq_ast_mdata_val
-					SET
-						value	= ?
-					WHERE
-							assetid	= ?
-						AND	fieldid	= ?';
-
-			$update_prepared = $db->prepare($sql);
-			assert_valid_db_result($update_prepared);
 
 			foreach ($remaining as $fieldid) {
 				// we need to insert
