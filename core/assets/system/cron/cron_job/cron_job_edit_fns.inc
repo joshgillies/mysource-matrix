@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.37 2007/02/16 06:34:59 colivar Exp $
+* $Id: cron_job_edit_fns.inc,v 1.38 2007/11/21 23:31:12 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,16 +55,16 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints out the cron job specific interface for the a date box that we can use
 	*
-	* @param object	&$asset					the owning asset
-	* @param object	&$o						the backend outputter
-	* @param string	$prefix					prefix for form elements
-	* @param string	$when					prepared when string
-	* @param string	$form_extra_elements	any additional elements for the form entries
+	* @param Cron_Job			$asset					the owning asset
+	* @param Backend_Outputter	$o						the backend outputter
+	* @param string				$prefix					prefix for form elements
+	* @param string				$when					prepared when string
+	* @param string				$form_extra_elements	any additional elements for the form entries
 	*
 	* @return void
 	* @access private
 	*/
-	function _paintWhenBox(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
+	function _paintWhenBox(Cron_Job $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
 	{
 		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
@@ -301,7 +301,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	* @return mixed string|boolean
 	* @access private
 	*/
-	function _processWhenBox(&$asset, &$o, $prefix)
+	function _processWhenBox(Cron_Job $asset, Backend_Outputter $o, $prefix)
 	{
 		$one_off = ($asset->attr('type') == 'one_off');
 		$repeating = !$one_off; // for easier reading

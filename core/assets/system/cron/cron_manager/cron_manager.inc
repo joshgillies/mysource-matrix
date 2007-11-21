@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.70 2007/11/06 22:36:35 rong Exp $
+* $Id: cron_manager.inc,v 1.71 2007/11/21 23:31:12 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -942,8 +942,9 @@ class Cron_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 
-		$result = $db->getAll($sql.$where);
-		if (!assert_valid_db_result($result, '', FALSE, FALSE)) {
+		try {
+			$result = MatrixDAL::executeSqlAll($sql.$where);
+		} catch (DALException $e) {
 			return Array();
 		}
 

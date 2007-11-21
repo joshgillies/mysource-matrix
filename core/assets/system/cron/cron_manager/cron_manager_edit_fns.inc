@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.41 2007/11/06 06:28:13 rong Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.42 2007/11/21 23:31:12 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,13 +72,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the jobs interface
 	*
-	* @param object	&$cron_mgr	the owning asset
-	* @param string	$one_off	whether we are after one_off options or repeating
+	* @param Cron_Manager	$cron_mgr	the owning asset
+	* @param string			$one_off	whether we are after one_off options or repeating
 	*
 	* @return array
 	* @access public
 	*/
-	function getWhenBoxHoursMins(&$cron_mgr, $one_off)
+	function getWhenBoxHoursMins(Cron_Manager $cron_mgr, $one_off)
 	{
 		$repeating = !$one_off; // for easier reading
 
@@ -151,14 +151,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the jobs interface
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintJobs(&$asset, &$o, $prefix)
+	function paintJobs(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$jobs = $asset->getJobs('cron_job', FALSE);
 		if (empty($jobs)) {
@@ -370,14 +370,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the jobs interface
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processJobs(&$asset, &$o, $prefix)
+	function processJobs(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_jobs'])) {
 			return FALSE;
@@ -402,13 +402,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* Yes getting the date time field requires it's own function because it is
 	* such a pain to set-up
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager	$asset	the asset to which we belong
+	* @param string			$prefix	prefix for form elements
 	*
 	* @return object
 	* @access private
 	*/
-	function _getEpochDateTimeField(&$asset, $prefix)
+	function _getEpochDateTimeField(Cron_Manager $asset, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 		$epoch_date = getdate((int) $asset->attr('epoch'));
@@ -452,14 +452,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for editing the cron manager's Epoch
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintEpoch(&$asset, &$o, $prefix)
+	function paintEpoch(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
 
@@ -480,14 +480,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing the cron manager's Epoch
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processEpoch(&$asset, &$o, $prefix)
+	function processEpoch(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
 
@@ -509,14 +509,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for showing when the cron manager last ran
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintLastRun(&$asset, &$o, $prefix)
+	function paintLastRun(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		echo $GLOBALS['SQ_SYSTEM']->datetime((int) $asset->attr('last_run'));
 
@@ -526,14 +526,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for showing whether the cron manager is currently running or not
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintDeadLockStatus(&$asset, &$o, $prefix)
+	function paintDeadLockStatus(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		// if we have a suspicion of being in DeadLock, then allow them to override
 		if ($asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
@@ -603,14 +603,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for showing whether the cron manager is currently running or not
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDeadLockStatus(&$asset, &$o, $prefix)
+	function processDeadLockStatus(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_force_remove_lock'])) {
 			return FALSE;
@@ -638,14 +638,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the 'excluded time' rule
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
-	* @return void
+	* @return boolean
 	* @access private
 	*/
-	function paintExcludedTime(&$asset, &$o, $prefix)
+	function paintExcludedTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$hours_array = Array(
 						0	=> '00',
@@ -706,7 +706,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach ($exclude_times as $key => $details) {
 				?>
 				<tr>
-				<?php
+				<?phpr
 				$field_prefix = $prefix.'_exlude_times['.$key.']';
 				ob_start();
 					combo_box($field_prefix.'[from]', $hours_array, FALSE, $details['from']);
@@ -767,20 +767,22 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			?></table><?php
 		}
 
+		return $write_access;
+
 	}//end paintExcludedTime()
 
 
 	/**
 	* Processes the 'excluded time' rule
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return void
 	* @access private
 	*/
-	function processExcludedTime(&$asset, &$o, $prefix)
+	function processExcludedTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$modified = FALSE;
 
