@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.155 2007/11/22 00:15:50 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.156 2007/11/22 05:44:08 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -727,13 +727,6 @@ class Metadata_Manager extends MySource_Object
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete metadata value for fieldid #'.implode(', ', $delete_fieldids).' from assetid #'.$assetid.'due to the following database error:'.$e->getMessage());
 			}//end try catch
-
-			/*$sql = 'DELETE FROM
-						sq_ast_mdata_val
-					WHERE
-						assetid = '.$db->quote($assetid).'
-						AND fieldid IN ('.implode(', ', $delete_fieldids).')';
-			$result = $db->query($sql);*/
 
 		}
 
