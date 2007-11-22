@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.72 2007/11/21 23:51:20 lwright Exp $
+* $Id: cron_manager.inc,v 1.73 2007/11/22 00:23:15 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -320,9 +320,9 @@ class Cron_Manager extends Asset
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', NULL, NULL, TRUE);
 		$jobs = Array();
 		foreach ($links as $link) {
-			$job  $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$job = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($job)) continue;
-			$jobs[]  $job;
+			$jobs[] = $job;
 		}
 
 		return $jobs;
@@ -457,10 +457,10 @@ class Cron_Manager extends Asset
 			// looping over
 			if ((int) $this->attr('run_check') >= (int) $this->attr('warn_after_num_run_checks')) {
 
-				$root_user   $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-				$sys_admins  $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+				$root_user	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+				$sys_admins	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
-				$ms  $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms  = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg = $ms->newMessage();
 				$msg_reps = Array(
 								'system_name'		=> SQ_CONF_SYSTEM_NAME,
@@ -522,8 +522,8 @@ class Cron_Manager extends Asset
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
-				$ms  $GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$am  $GLOBALS['SQ_SYSTEM']->am;
+				$ms	= $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$am = $GLOBALS['SQ_SYSTEM']->am;
 
 				// first get some times
 				$last_run = (int) $this->attr('last_run');
@@ -545,7 +545,7 @@ class Cron_Manager extends Asset
 					$remove_jobs = Array();
 					foreach ($jobs as $job_info) {
 
-						$cron_job  $am->getAsset($job_info['assetid'], $job_info['type_code']);
+						$cron_job	= $am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
 						if ($cron_job->attr('long')) {
@@ -599,9 +599,9 @@ class Cron_Manager extends Asset
 									$remove_jobs[] = $job_info;
 									$ignore_jobs[] = $cron_job->id;
 
-									$user        $cron_job->getRunningUser();
-									$root_user   $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-									$sys_admins  $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+									$user       = $cron_job->getRunningUser();
+									$root_user  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+									$sys_admins = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
 									$msg = $ms->newMessage();
 									$msg_reps = Array(
@@ -652,7 +652,7 @@ class Cron_Manager extends Asset
 						$this->setAttrValue('run_check', 0);
 						if (!empty($remove_jobs)) {
 							foreach ($remove_jobs as $job_info) {
-								$cron_job  $am->getAsset($job_info['assetid'], $job_info['type_code']);
+								$cron_job	= $am->getAsset($job_info['assetid'], $job_info['type_code']);
 								$this->removeJob($cron_job);
 								$am->forgetAsset($cron_job);
 							}
@@ -689,7 +689,7 @@ class Cron_Manager extends Asset
 
 				// process the potential long running jobs
 				foreach ($long_jobs as $job_info) {
-					$cron_job  $am->getAsset($job_info['assetid'], $job_info['type_code']);
+					$cron_job	= $am->getAsset($job_info['assetid'], $job_info['type_code']);
 					if ($cron_job->attr('long') && !$cron_job->attr('running')) {
 						$result = $cron_job->run();
 						if ($result & SQ_CRON_JOB_REMOVE) {
@@ -1009,10 +1009,10 @@ class Cron_Manager extends Asset
 		if ($terminate && empty($this->_tmp['terminate_error'])) {
 			$this->_tmp['terminate_error'] = TRUE; // stop possible recursion
 
-			$root_user   $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-			$sys_admins  $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+			$root_user	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
-			$ms  $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms  = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg = $ms->newMessage();
 			$msg_reps = Array(
 							'system_name'		=> SQ_CONF_SYSTEM_NAME,
