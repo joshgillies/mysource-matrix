@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access.inc,v 1.11 2007/11/22 22:24:00 lwright Exp $
+* $Id: condition_write_access.inc,v 1.12 2007/11/22 22:25:36 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Condition_Write_Access extends Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(Asset $asset, Array $condition_data)
+	public static function evaluate(Asset $asset, Array $condition_data)
 	{
 		// first, check if someone's logged in
 		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return FALSE;
