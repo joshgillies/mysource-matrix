@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema.inc,v 1.14 2006/12/05 05:49:59 bcaldwell Exp $
+* $Id: workflow_schema.inc,v 1.15 2007/11/22 00:49:45 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Workflow_Schema extends Folder
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a workflow step then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'workflow_step') && $dependant != '1') {
+		if ($side_of_link == 'major' && ($asset instanceof Workflow_Step) && $dependant != '1') {
 			$dependant = '1';
 			return TRUE;
 		}
