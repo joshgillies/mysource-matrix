@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.6 2007/01/30 05:35:54 colivar Exp $
+* $Id: roles.inc,v 1.7 2007/11/22 03:15:38 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -115,14 +115,12 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 	$prefix = $owner->getPrefix();
 	$admin_access = $owner->adminAccess('roles');
 
-	for ($i = 0; $i < count($root->children); $i++) {
-
-		$section =& $root->children[$i];
+	foreach ($root->section as $section) {
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
 				continue;
 			}
 		}
@@ -132,18 +130,17 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
 			ob_start();
 		}
 
-		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
+		$o->openSection(array_get_index($section->attributes(), 'display_name', $section->attributes()->name));
 
-		if (!($num_fields = count($section->children))) {
+		if (!($num_fields = count($section->children()))) {
 			continue;
 		}
 
-		for ($j = 0; $j < $num_fields; $j++) {
-			$field =& $section->children[$j];
+		foreach ($section->field as $field) {
 
 			$field_access = $ei->_getAccess($owner, $field, $prefix);
 			if (!($field_access & SQ_EI_READ)) {
@@ -151,15 +148,15 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 
 			$field_name = '';
-			if ($field->children[0]->name == 'display_name') {
-				$field_name = $field->children[0]->content;
+			if (!empty($field->display_name)) {
+				$field_name = (string) $field->display_name;
 			}
 
 			$o->openField($field_name);
-			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes()->code)])) {
 					ob_start();
 			}
-				switch (strtolower($field->attributes['code'])) {
+				switch (strtolower($field->attributes()->code)) {
 					case 'roles_current' :
 						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($owner->id);
 						if (empty($roles)) {
@@ -236,14 +233,14 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 					break;
 				}//end switch
 
-				if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-					$o->note($field->children[1]->content);
+				if (!empty($field->note)) {
+					$o->note((string) $field->note);
 				}
 
-			if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-				$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+			if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
+				$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes()->code)]] = ob_get_contents();
 				ob_end_flush();
-			}					
+			}
 			$o->closeField();
 
 		}//end for
@@ -275,8 +272,8 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))]] = ob_get_contents();
 			ob_end_flush();
 		}
 
