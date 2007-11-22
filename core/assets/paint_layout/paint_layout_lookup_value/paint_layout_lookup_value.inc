@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.7 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.8 2007/11/22 22:33:00 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	* @access public
 	* @static
 	*/
-	function lookupValueName()
+	public static function lookupValueName()
 	{
 		return 'Paint Layout';
 
@@ -52,7 +52,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	* @access public
 	* @static
 	*/
-	function namePrefix()
+	public static function namePrefix()
 	{
 		return 'paint_layout';
 
@@ -80,7 +80,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	* @access public
 	* @static
 	*/
-	function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
+	public static function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
 	{
 		$wa = ($owner->writeAccess('lookups') && $owner->writeAccess('links'));
 		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();

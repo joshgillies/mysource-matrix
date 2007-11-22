@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value.inc,v 1.6 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: lookup_value.inc,v 1.7 2007/11/22 22:33:00 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,7 @@ class Lookup_Value extends Asset
 	* @access public
 	* @static
 	*/
-	function lookupValueName()
+	public static function lookupValueName()
 	{
 		return translate('core_default_layout_name');
 
@@ -52,7 +52,7 @@ class Lookup_Value extends Asset
 	* @access public
 	* @static
 	*/
-	function namePrefix()
+	public static function namePrefix()
 	{
 		trigger_localised_error('CORE0123', E_USER_ERROR, __CLASS__, __FUNCTION__);
 
@@ -82,7 +82,7 @@ class Lookup_Value extends Asset
 	* @access public
 	* @static
 	*/
-	function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
+	public static function paintInterface(&$owner, &$o, $lookups, $lookup_values, $prefix)
 	{
 		$wa = ($owner->writeAccess('lookups'));
 
