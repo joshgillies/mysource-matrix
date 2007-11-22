@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.610 2007/11/20 05:14:25 bshkara Exp $
+* $Id: asset.inc,v 1.611 2007/11/22 22:07:33 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.610 $
+* @version $Revision: 1.611 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4835,7 +4835,7 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':assetid', $this->id);
-			$old_urls = MatrixDAL::executePdoAll($query);
+			$old_urls = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get old lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
@@ -4898,12 +4898,10 @@ class Asset extends MySource_Object
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE
-						url IN (:current_urls)';
+						url IN ('.implode(',', $current_urls).')';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':current_urls', implode(',', $current_urls));
-				$result = MatrixDAL::executePdoOne($query);
+				$result = MatrixDAL::executeSqlOne($sql);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URL from lookup value table due to database error: '.$e->getMessage());
 			}
@@ -4917,12 +4915,10 @@ class Asset extends MySource_Object
 			$sql = 'DELETE FROM
 						sq_ast_lookup_value
 					WHERE
-						url IN (:current_urls)';
+						url IN ('.implode(',', $current_urls).')';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':current_urls', implode(',', $current_urls));
-				$result = MatrixDAL::executePdoOne($query);
+				$result = MatrixDAL::executeSqlOne($sql);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URLs with overridden designs from lookup value table due to database error: '.$e->getMessage());
 			}
@@ -5081,7 +5077,7 @@ class Asset extends MySource_Object
 												'url'	=> $new_url,
 												'name'	=> $name,
 											  );
-								$result = MatrixDAL::executeAll('core', 'getLookupValueUrls', $bind_vars);
+								$result = MatrixDAL::executeAssoc('core', 'getLookupValueUrls', $bind_vars);
 								if (isset($result[0])) {
 									$result = $result[0];
 								}
@@ -5125,7 +5121,7 @@ class Asset extends MySource_Object
 												'url'	=> $new_url.'/',
 												'name'	=> $name,
 											  );
-								$result = MatrixDAL::executeAll('core', 'getLookupValueUrls', $bind_vars);
+								$result = MatrixDAL::executeAssoc('core', 'getLookupValueUrls', $bind_vars);
 								if (isset($result[0])) {
 									$result = $result[0];
 								}
