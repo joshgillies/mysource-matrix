@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.49 2007/11/22 03:08:55 hnguyen Exp $
+* $Id: workflow.inc,v 1.50 2007/11/22 03:36:20 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 
@@ -637,7 +637,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 											<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
 										</td>
 										<?php
-										if ($admin_access && $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($owner->id)) {
+										if ($wfm->isWorkflowComplete($owner->id)) {
 											?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td><?php
 										}
 										?>
@@ -656,7 +656,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 										?>
 										</td>
 										<?php
-										if ($admin_access && $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($owner->id)) {
+										if ($wfm->isWorkflowComplete($owner->id)) {
 											?><td align="center" width="100" class="sq-backend-table-cell"><?php
 											check_box($prefix.'_workflow[delete]['.$schemaid.']');
 											?></td><?php
