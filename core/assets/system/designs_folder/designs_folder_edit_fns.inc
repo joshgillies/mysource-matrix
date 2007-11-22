@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder_edit_fns.inc,v 1.9 2006/12/06 04:24:01 emcdonald Exp $
+* $Id: designs_folder_edit_fns.inc,v 1.10 2007/11/22 23:36:50 lwright Exp $
 *
 */
 
@@ -24,20 +24,22 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Designs_Folder_Edit_Fns extends Folder_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Designs_Folder_Edit_Fns()
+	function __construct()
 	{
-		$this->Folder_Edit_Fns();
+		parent::__construct();
 
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['preview']);

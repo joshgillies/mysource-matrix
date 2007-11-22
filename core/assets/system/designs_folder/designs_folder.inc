@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.27 2006/12/06 04:24:01 emcdonald Exp $
+* $Id: designs_folder.inc,v 1.28 2007/11/22 23:36:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Designs_Folder extends Folder
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Designs_Folder($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Folder($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Designs_Folder extends Folder
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -138,7 +138,7 @@ class Designs_Folder extends Folder
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type, returns linkid
 	*
-	* @param object	&$minor		the minor asset that we are linking to
+	* @param Asset	$minor		the minor asset that we are linking to
 	* @param string	$link_type	the type of link this is
 	* @param string	$value		the value that is to be associated with this link
 	* @param string	$sort_order	the position in the links list that this link should take,
@@ -151,7 +151,7 @@ class Designs_Folder extends Folder
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
+	function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
 	{
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			trigger_localised_error('CORE0117', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
@@ -219,7 +219,7 @@ class Designs_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', $assetids=Array())
+	function writeAccess($lock_type='', Array $assetids=Array())
 	{
 		// only root can write to this folder so we add this extra checking
 		// before going up to our parent to check access
@@ -228,7 +228,7 @@ class Designs_Folder extends Folder
 				return parent::writeAccess($lock_type, $assetids);
 			}
 		} else {
-			$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			if (in_array($root_user->id, $assetids)) {
 				return parent::writeAccess($lock_type, $assetids);
 			}
