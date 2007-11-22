@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.15 2007/11/20 00:05:53 colivar Exp $
+* $Id: compile_locale.php,v 1.16 2007/11/22 03:55:22 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -52,6 +52,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // only use console stuff if we're running from the command line
 if ($cli) {
@@ -78,9 +79,8 @@ if (empty($locale_list)) {
 
 // dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
-define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // get the list of functions used during install
+
 require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
