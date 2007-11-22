@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.25 2007/11/06 06:29:53 rong Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.26 2007/11/22 01:03:57 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 			} else {
-				if (is_a($user, 'user')) {
+				if (($user instanceof User)) {
 					hidden_field($prefix.'_logic', '>=');
 					hidden_field($prefix.'_logic_num', '1');
 				} else {
