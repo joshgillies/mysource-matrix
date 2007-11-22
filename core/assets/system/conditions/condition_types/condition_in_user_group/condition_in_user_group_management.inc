@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group_management.inc,v 1.3 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_in_user_group_management.inc,v 1.4 2007/11/22 23:13:12 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,12 +33,12 @@ class Condition_In_User_Group_Management extends Asset_Management
 	/**
 	* Constructor
 	*
-	* @param object	&$pm	The package manager
+	* @param Package_Manager	$pm	The package manager handling this asset
 	*
 	*/
-	function Condition_In_User_Group_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 

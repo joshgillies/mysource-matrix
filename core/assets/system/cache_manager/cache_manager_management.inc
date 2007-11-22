@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.10 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: cache_manager_management.inc,v 1.11 2007/11/22 23:12:58 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $ - 0.1
+* @version $Revision: 1.11 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,13 @@ class Cache_Manager_Management extends Asset_Management
 
 	/**
 	* Constructor
+	*
+	* @param Package_Manager	$pm	The package manager handling this asset
+	*
 	*/
-	function Cache_Manager_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'enabled'				=> Array(

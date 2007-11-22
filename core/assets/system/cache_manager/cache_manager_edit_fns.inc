@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.14 2007/11/06 06:28:13 rong Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.15 2007/11/22 23:12:58 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -39,9 +39,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
-	function Cache_Manager_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['preview']);
