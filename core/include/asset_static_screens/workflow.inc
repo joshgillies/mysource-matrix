@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.48 2007/11/14 05:48:13 lwright Exp $
+* $Id: workflow.inc,v 1.49 2007/11/22 03:08:55 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 
@@ -130,14 +130,12 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 	$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 	$can_publish = in_array($current_userid, $publishers);
 
-	for ($i = 0; $i < count($root->children); $i++) {
-
-		$section =& $root->children[$i];
+	foreach ($root->section as $section) {
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
 				continue;
 			}
 		}
@@ -147,20 +145,19 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
 			ob_start();
 		}
 
-		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
+		$o->openSection(array_get_index($section->attributes(), 'display_name', $section->attributes()->name));
 
-		if (!($num_fields = count($section->children))) {
+		if (!($num_fields = count($section->children()))) {
 			continue;
 		}
 
-		for ($j = 0; $j < $num_fields; $j++) {
-			$field =& $section->children[$j];
+		foreach ($section->field as $field) {
 
-			switch (strtolower($field->attributes['code'])) {
+			switch (strtolower($field->attributes()->code)) {
 
 				///// WORKFLOW APPROVAL/REJECTION ////
 
@@ -759,16 +756,16 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 			}//end switch
 
-			if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-				$o->note($field->children[1]->content);
+			if (!empty($field->note)) {
+				$o->note((string) $field->note);
 			}
 
 		}//end for
 
 		$o->closeSection();
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))]] = ob_get_contents();
 			ob_end_flush();
 		}
 
