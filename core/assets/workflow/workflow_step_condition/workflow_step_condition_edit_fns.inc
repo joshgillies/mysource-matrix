@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.26 2007/11/22 01:03:57 hnguyen Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.27 2007/11/22 01:05:07 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			if (!$write_access) {
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-				if (is_a($user, 'user')) {
+				if (($user instanceof User)) {
 					echo '&nbsp;';
 				} else {
 					if (isset($wfm->_valid_cond_logic[$cond_logic])) {

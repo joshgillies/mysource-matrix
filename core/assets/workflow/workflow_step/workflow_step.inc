@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step.inc,v 1.13 2007/03/13 23:22:29 emcdonald Exp $
+* $Id: workflow_step.inc,v 1.14 2007/11/22 01:06:11 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,7 +96,7 @@ class Workflow_Step extends Folder
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a step condition then we need to make it a dependant and exclusive link
-		if ($side_of_link == 'major' && is_a($asset, 'workflow_step_condition') && ($dependant != '1' || $exclusive != '1')) {
+		if ($side_of_link == 'major' && ($asset instanceof Workflow_Step_Condition) && ($dependant != '1' || $exclusive != '1')) {
 			$dependant = '1';
 			$exclusive = '1';
 			return TRUE;
