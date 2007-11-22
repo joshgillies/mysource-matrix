@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.620 2007/11/22 00:17:04 bshkara Exp $
+* $Id: asset_manager.inc,v 1.621 2007/11/22 23:58:45 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.620 $
+* @version $Revision: 1.621 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3575,7 +3575,7 @@ class Asset_Manager extends MySource_Object
 		unset($asset);
 		if (empty($query)) return Array();
 		try  {
-			$result = MatrixDAL::executeSqlAssoc(implode(' ', $query));
+			$result = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
 		} catch (Exception $e) {
 			throw new Exception('Unable to get children for asset: '.$assetid.' due to database error: '.$e->getMessage());
 		}
