@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.619 2007/11/22 00:15:16 bshkara Exp $
+* $Id: asset_manager.inc,v 1.620 2007/11/22 00:17:04 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.619 $
+* @version $Revision: 1.620 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7333,9 +7333,9 @@ class Asset_Manager extends MySource_Object
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
 				';
 
-		$where = 'lv.name = '.$db->quote($value_name).'
-					AND (('.$db->quote($url).' LIKE l.url || \'/%\')
-					OR l.url = '.$db->quote($url).')';
+		$where = 'lv.name = :value_name
+					AND ((:url LIKE l.url || \'/%\')
+					OR l.url = :url)';
 
 		$order_by = ' ORDER BY depth DESC';
 
