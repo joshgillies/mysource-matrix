@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.618 2007/11/21 05:21:49 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.619 2007/11/22 00:15:16 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.618 $
+* @version $Revision: 1.619 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7343,8 +7343,15 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql .= $where;
 
-		$result = $db->getOne($sql.$order_by);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql.$order_by);
+			$query->bindValue(':value_name', $value_name);
+			$query->bindValue(':url', $url);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get lookup value: '.$value_name.' for URL: '.$url.' due to database error: '.$e->getMessage());
+		}
+
 		return $result;
 
 	}//end getValueFromURL()
