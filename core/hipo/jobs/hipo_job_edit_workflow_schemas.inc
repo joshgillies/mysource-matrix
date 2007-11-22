@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.39 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.40 2007/11/22 03:39:53 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -211,9 +211,14 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 				} else {
 					$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 				}
-				$child_assets[$assetid] = $asset->type();
+				$child_assets[] = Array (
+									'minorid'	=> $assetid,
+									'type_code'	=> $asset->type(),
+								  );
+
 				unset($asset);
 			}
+
 			$this->_running_vars['todo_assetids'] = $child_assets;
 		}
 		return parent::prepare();
@@ -233,10 +238,12 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	function processSchemas(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
-			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset_info = array_shift($this->_running_vars['todo_assetids']);
+			$assetid = $asset_info['minorid'];
+			$asset_type = $asset_info['type_code'];
+			unset($asset_info);
+
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'workflow')) {
