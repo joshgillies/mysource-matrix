@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_escalate_safe_trash_management.inc,v 1.1 2007/01/08 03:07:03 lwright Exp $
+* $Id: cron_job_escalate_safe_trash_management.inc,v 1.2 2007/11/22 23:28:56 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,10 +33,12 @@ class Cron_Job_Escalate_Safe_Trash_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager handling this asset
+	*
 	*/
-	function Cron_Job_Escalate_Safe_Trash_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'type'	=> Array(

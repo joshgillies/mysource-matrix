@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.38 2007/11/21 23:31:12 lwright Exp $
+* $Id: cron_job_edit_fns.inc,v 1.39 2007/11/22 23:28:55 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,12 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Constructor
 	*
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Cron_Job_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
+
 		$this->static_screens = Array(
 									'details'	=> Array(
 													'name'			=> translate('details'),
@@ -66,7 +68,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _paintWhenBox(Cron_Job $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
 	{
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
 
 		if ((int) $cron_mgr->attr('refresh_time') <= 0) {
@@ -294,9 +296,9 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the cron job specific interface for the a date box that we can use
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Cron_Job			$asset	the owning asset
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return mixed string|boolean
 	* @access private
@@ -423,7 +425,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 					$interval = (int) $_POST[$prefix.'_interval_days'];
 				}
 
-				$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 				$next_run = $cron_mgr->timeOfNextRun();
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 				// default next run = next run of cron manager

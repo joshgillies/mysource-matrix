@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_escalate_safe_trash_edit_fns.inc,v 1.1 2007/01/08 03:07:03 lwright Exp $
+* $Id: cron_job_escalate_safe_trash_edit_fns.inc,v 1.2 2007/11/22 23:28:56 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,11 @@ class Cron_Job_Escalate_Safe_Trash_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Constructor
 	*
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Cron_Job_Escalate_Safe_Trash_Edit_Fns()
+	function __construct()
 	{
-		$this->Cron_Job_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.6 2007/11/21 23:00:08 lwright Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.7 2007/11/22 23:28:56 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,9 +43,9 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Job_Generate_Log_Reports($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Cron_Job($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

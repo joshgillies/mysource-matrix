@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.27 2007/11/21 22:39:44 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.28 2007/11/22 23:28:56 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Job_Future_Lineage($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Cron_Job($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -54,7 +54,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -472,7 +472,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* Returns an array of active future lineage jobs that are to be run on the passed asset
 	* returned in chronological order
 	*
-	* @param Asset	&$asset	the asset to get the future status jobs for
+	* @param Asset	$asset	the asset to get the future status jobs for
 	*
 	* @return array
 	* @access public

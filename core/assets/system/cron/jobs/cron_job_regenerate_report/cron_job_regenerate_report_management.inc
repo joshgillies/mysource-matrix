@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_regenerate_report_management.inc,v 1.2 2006/12/06 04:24:01 emcdonald Exp $
+* $Id: cron_job_regenerate_report_management.inc,v 1.3 2007/11/22 23:28:57 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,12 @@ class Cron_Job_Regenerate_Report_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager handling this asset
+	*
 	*/
-	function Cron_Job_Regenerate_Report_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'type'	=> Array(

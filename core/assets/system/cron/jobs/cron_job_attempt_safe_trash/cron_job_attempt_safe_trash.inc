@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_attempt_safe_trash.inc,v 1.2 2007/11/21 22:34:23 lwright Exp $
+* $Id: cron_job_attempt_safe_trash.inc,v 1.3 2007/11/22 23:28:55 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Job_Attempt_Safe_Trash($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Cron_Job($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

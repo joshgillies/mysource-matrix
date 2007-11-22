@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_escalate_safe_trash.inc,v 1.2 2007/11/21 22:35:02 lwright Exp $
+* $Id: cron_job_escalate_safe_trash.inc,v 1.3 2007/11/22 23:28:56 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,9 +40,9 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Job_Escalate_Safe_Trash($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Cron_Job($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -58,7 +58,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {

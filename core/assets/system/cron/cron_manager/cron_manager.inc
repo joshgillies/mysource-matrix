@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.73 2007/11/22 00:23:15 hnguyen Exp $
+* $Id: cron_manager.inc,v 1.74 2007/11/22 23:28:55 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,10 +43,10 @@ class Cron_Manager extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Manager($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 		// including these assets here as they are required to send an error
 		// message in the case that a cron job run() fails. necessary because
@@ -69,7 +69,7 @@ class Cron_Manager extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -267,7 +267,7 @@ class Cron_Manager extends Asset
 		$job->setAttrValue('running_as', $user->id);
 		$job->setAttrValue('read_only', $read_only);
 
-		$link = Array('asset' => &$this, 'link_type' => $link_type, 'is_exclusive' => '1');
+		$link = Array('asset' => $this, 'link_type' => $link_type, 'is_exclusive' => '1');
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$linkid = $job->create($link);
@@ -429,7 +429,7 @@ class Cron_Manager extends Asset
 
 		$old_log_errors = ini_set('log_errors', '1');
 		$old_error_log  = ini_set('error_log',  SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION);
-		set_error_handler(Array(&$this, '_errorHandler'));
+		set_error_handler(Array($this, '_errorHandler'));
 
 		if ($this->isExcludedTime($start_time)) {
 			trigger_localised_error('CRON0047', E_USER_NOTICE, $this->name);

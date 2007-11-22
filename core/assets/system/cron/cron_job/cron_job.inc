@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.53 2007/11/21 23:31:12 lwright Exp $
+* $Id: cron_job.inc,v 1.54 2007/11/22 23:28:54 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,9 +46,9 @@ class Cron_Job extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Job($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -63,7 +63,7 @@ class Cron_Job extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_clear_matrix_cache_management.inc,v 1.1 2007/05/31 04:53:34 rong Exp $
+* $Id: cron_job_clear_matrix_cache_management.inc,v 1.2 2007/11/22 23:28:55 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -33,10 +33,12 @@ class Cron_Job_Clear_Matrix_Cache_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager handling this asset
+	*
 	*/
-	function Cron_Job_Clear_Matrix_Cache_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'type'			=> Array(

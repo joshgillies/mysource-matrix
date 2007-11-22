@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_clear_matrix_cache_edit_fns.inc,v 1.2 2007/11/21 22:34:44 lwright Exp $
+* $Id: cron_job_clear_matrix_cache_edit_fns.inc,v 1.3 2007/11/22 23:28:55 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -34,10 +34,11 @@ class Cron_Job_Clear_Matrix_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Constructor
 	*
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Cron_Job_Clear_Matrix_Cache_Edit_Fns()
+	function __construct()
 	{
-		$this->Cron_Job_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
