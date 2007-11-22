@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.42 2007/11/21 23:31:12 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.43 2007/11/22 00:24:49 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -706,7 +706,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach ($exclude_times as $key => $details) {
 				?>
 				<tr>
-				<?phpr
+				<?php
 				$field_prefix = $prefix.'_exlude_times['.$key.']';
 				ob_start();
 					combo_box($field_prefix.'[from]', $hours_array, FALSE, $details['from']);
