@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip.inc,v 1.8 2007/03/20 23:19:25 rong Exp $
+* $Id: condition_user_ip.inc,v 1.9 2007/11/22 22:24:00 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip_edit_fns.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,9 +42,9 @@ class Condition_User_IP extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_User_IP($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Condition($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -52,13 +52,13 @@ class Condition_User_IP extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object	&$asset			the asset to evaluate against
+	* @param Asset	$asset			the asset to evaluate against
 	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset, $condition_data)
+	public static function evaluate(Asset $asset, Array $condition_data)
 	{
 		if (!isset($condition_data['user_ip_ranges'])) {
 			return FALSE;
@@ -97,7 +97,7 @@ class Condition_User_IP extends Condition
 	* @access public
 	* @static
 	*/
-	function getMatchKeywords($type_code)
+	public static function getMatchKeywords($type_code)
 	{
 		$match_options = Array(
 							'1'	=> translate($type_code.'_true'),

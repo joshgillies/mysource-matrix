@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical.inc,v 1.6 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_logical.inc,v 1.7 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * of logical keywords.
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Condition_Logical extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_Logical($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Condition($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -53,7 +53,7 @@ class Condition_Logical extends Condition
 	* @return array
 	* @access public
 	*/
-	function getLogicalKeywords(&$condition_data)
+	public static function getLogicalKeywords(Array &$condition_data)
 	{
 		return $condition_data['logical_keywords'];
 
@@ -69,7 +69,7 @@ class Condition_Logical extends Condition
 	* @return void
 	* @access public
 	*/
-	function setLogicalKeywords(&$condition_data, $logical_keywords)
+	public static function setLogicalKeywords(Array &$condition_data, Array $logical_keywords)
 	{
 		$condition_data['logical_keywords'] = $logical_keywords;
 
@@ -79,13 +79,13 @@ class Condition_Logical extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object	&$asset			the asset to evaluate against
+	* @param Asset	$asset			the asset to evaluate against
 	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset, $condition_data)
+	public static function evaluate(Asset $asset, $condition_data)
 	{
 		$ret = FALSE;
 
@@ -132,14 +132,14 @@ class Condition_Logical extends Condition
 	* @access public
 	* @static
 	*/
-	function updateKeywords($logical_keywords, &$condition_data)
+	public static function updateKeywords(Array $logical_keywords, Array &$condition_data)
 	{
-		$condition_logical_keywords = Condition_Logical::getLogicalKeywords($condition_data);
+		$condition_logical_keywords = self::getLogicalKeywords($condition_data);
 		foreach (array_keys($condition_logical_keywords) as $condition_logical_keyword_name) {
 			$condition_logical_keywords[$condition_logical_keyword_name] = isset($logical_keywords[$condition_logical_keyword_name]) ? $logical_keywords[$condition_logical_keyword_name] : '';
 		}
 
-		Condition_Logical::setLogicalKeywords($condition_data, $condition_logical_keywords);
+		self::setLogicalKeywords($condition_data, $condition_logical_keywords);
 
 	}//end updateKeywords()
 
@@ -157,9 +157,9 @@ class Condition_Logical extends Condition
 	* @access public
 	* @static
 	*/
-	function getRequiredKeywords($condition_data)
+	public static function getRequiredKeywords($condition_data)
 	{
-		return array_keys(Condition_Logical::getLogicalKeywords($condition_data));
+		return array_keys(self::getLogicalKeywords($condition_data));
 
 	}//end getRequiredKeywords()
 

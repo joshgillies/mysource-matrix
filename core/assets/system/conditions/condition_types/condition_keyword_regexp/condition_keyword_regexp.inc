@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.3 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_keyword_regexp.inc,v 1.4 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Condition_Keyword_Regexp extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_Keyword_Regexp($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Condition($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -48,13 +48,13 @@ class Condition_Keyword_Regexp extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object	&$asset			the asset to evaluate against
+	* @param Asset	$asset			the asset to evaluate against
 	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset, $condition_data)
+	public static function evaluate(Asset $asset, Array $condition_data)
 	{
 		if (!isset($condition_data['keyword_value']) || !isset($condition_data['keyword_match'])) {
 			return FALSE;
@@ -81,7 +81,7 @@ class Condition_Keyword_Regexp extends Condition
 	* @access public
 	* @static
 	*/
-	function updateKeywords($logical_keywords, &$condition_data)
+	public static function updateKeywords(Array $logical_keywords, Array &$condition_data)
 	{
 		$keyword_name = $condition_data['keyword'];
 		$condition_data['keyword_value'] = $logical_keywords[$keyword_name] ? $logical_keywords[$keyword_name] : '';
@@ -102,7 +102,7 @@ class Condition_Keyword_Regexp extends Condition
 	* @access public
 	* @static
 	*/
-	function getRequiredKeywords($condition_data)
+	public static function getRequiredKeywords(Array $condition_data)
 	{
 		return Array($condition_data['keyword']);
 

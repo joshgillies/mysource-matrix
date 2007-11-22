@@ -10,36 +10,36 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_type_edit_fns.inc,v 1.2 2006/12/18 01:09:51 bcaldwell Exp $
+* $Id: condition_user_type_edit_fns.inc,v 1.3 2007/11/22 22:24:00 lwright Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_fns.inc';
 
 /**
-* Condition_User_type_Edit_Fns
+* Condition_User_Type_Edit_Fns
 *
 * Edit functions for the user type condition
 *
 * @see Asset_Edit_Fns
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Condition_User_type_Edit_Fns extends Condition_Edit_Fns
+class Condition_User_Type_Edit_Fns extends Condition_Edit_Fns
 {
 
 
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Condition_User_type_Edit_Fns()
+	function __construct()
 	{
-		$this->Condition_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -47,15 +47,15 @@ class Condition_User_type_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
-	* @param array		&$condition_data	Array of settings for this condition
-	* @param object		&$o					Backend outputter to use
-	* @param string		$prefix				Prefix for form elements
-	* @param boolean	$write_access		Whether we have access to edit the field values
+	* @param array				&$condition_data	Array of settings for this condition
+	* @param Backend_Outputter	&$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param boolean			$write_access		Whether we have access to edit the field values
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
+	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		$user_types = array_get_index($condition_data, 'user_types', '');
 
@@ -97,13 +97,13 @@ class Condition_User_type_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object	&$o		Backend outputter to use
-	* @param string	$prefix	Prefix for form elements
+	* @param Backend_Outputter	$o		Backend outputter to use
+	* @param string				$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$o, $prefix)
+	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
 		if (!isset($_POST[$prefix]['type_list']) || empty($_POST[$prefix]['type_list'])) {
 			return Array();

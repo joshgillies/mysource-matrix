@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_simple_edit_mode_edit_fns.inc,v 1.7 2006/12/06 04:23:59 emcdonald Exp $
+* $Id: condition_simple_edit_mode_edit_fns.inc,v 1.8 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,11 +35,11 @@ class Condition_Simple_Edit_Mode_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Condition_Simple_Edit_Mode_Edit_Fns()
+	function __construct()
 	{
-		$this->Condition_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

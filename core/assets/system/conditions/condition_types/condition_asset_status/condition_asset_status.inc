@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_asset_status.inc,v 1.1 2007/09/17 06:46:24 amiller Exp $
+* $Id: condition_asset_status.inc,v 1.2 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -20,12 +20,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * Condition_Asset_Status
 *
 * Purpose
-*     This conditional checks to see if the current asset matches the 
+*     This conditional checks to see if the current asset matches the
 *     specified status
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,9 +39,9 @@ class Condition_Asset_Status extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_Asset_Status($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Condition($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -49,21 +49,21 @@ class Condition_Asset_Status extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object	&$asset			the asset to evaluate against
+	* @param Asset	$asset			the asset to evaluate against
 	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset, $condition_data)
+	public static function evaluate(Asset $asset, Array $condition_data)
 	{
 		$required_statii = explode(',', $condition_data['status']);
 		$current_status = $asset->status;
-		
+
 		$status_in_list = FALSE;
-		
+
 		foreach ($required_statii as $required_status) {
-		
+
 			if (!is_numeric($required_status)) {
 				$required_status = get_status_value(trim($required_status));
 			}//end if
@@ -71,8 +71,8 @@ class Condition_Asset_Status extends Condition
 			if ($current_status == $required_status) {
 				$status_in_list = TRUE;
 			}//end if
-		
-		
+
+
 		}//end foreach
 
 		return $status_in_list;

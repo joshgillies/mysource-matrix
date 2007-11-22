@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group.inc,v 1.5 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_in_user_group.inc,v 1.6 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Condition_In_User_Group extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_In_User_Group($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Condition($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -47,13 +47,13 @@ class Condition_In_User_Group extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object	&$asset			the asset to evaluate against
+	* @param Asset	$asset			the asset to evaluate against
 	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset, $condition_data)
+	public static function evaluate(Asset $asset, $condition_data)
 	{
 		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return FALSE;
 		if (empty($condition_data['groupids'])) return FALSE;

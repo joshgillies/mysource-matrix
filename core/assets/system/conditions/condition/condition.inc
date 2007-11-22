@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.12 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: condition.inc,v 1.13 2007/11/22 22:23:58 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Condition extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -52,7 +52,7 @@ class Condition extends Asset
 	* client class (i.e. they don't need to understand or manipulate its
 	* content).
 	*
-	* @param object	&$asset					Asset to evaluate the condition for
+	* @param Asset	$asset					Asset to evaluate the condition for
 	* @param array	&$restriction			a restriction array as returned by processEditInterface()
 	*										<pre>
 	*										Array(
@@ -65,7 +65,7 @@ class Condition extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function evaluateRestriction(&$asset, &$restriction, $condition_type_code)
+	public static function evaluateRestriction(Asset $asset, Array &$restriction, $condition_type_code)
 	{
 		$condition_data = empty($restriction['condition_data']) ? Array() : $restriction['condition_data'];
 		$evaluation_instruction = '$ret = '.$condition_type_code.'::evaluate($asset, $condition_data);';
@@ -85,13 +85,13 @@ class Condition extends Asset
 	/**
 	* Evaluate this condition
 	*
-	* @param object	&$asset			the asset to evaluate against
+	* @param Asset	$asset			the asset to evaluate against
 	* @param array	$condition_data	the condition details to use when evaluating
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset, $condition_data)
+	public static function evaluate(Asset $asset, Array $condition_data)
 	{
 		return FALSE;
 
@@ -112,7 +112,7 @@ class Condition extends Asset
 	* @access public
 	* @static
 	*/
-	function updateKeywords($logical_keywords, &$condition_data)
+	public static function updateKeywords(Array $logical_keywords, Array &$condition_data)
 	{
 		return;
 
@@ -132,7 +132,7 @@ class Condition extends Asset
 	* @access public
 	* @static
 	*/
-	function getRequiredKeywords($condition_data)
+	public static function getRequiredKeywords(Array $condition_data)
 	{
 		return Array();
 
@@ -155,7 +155,7 @@ class Condition extends Asset
 	* @access public
 	* @static
 	*/
-	function getMatchKeywords($type_code)
+	public static function getMatchKeywords($type_code)
 	{
 		$match_options = Array(
 							'1'	=> translate($type_code.'_true'),

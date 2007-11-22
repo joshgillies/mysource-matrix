@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.11 2007/11/06 06:28:13 rong Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.12 2007/11/22 22:24:00 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,11 +39,11 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Condition_User_IP_Edit_Fns()
+	function __construct()
 	{
-		$this->Condition_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -51,15 +51,15 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
-	* @param array		&$condition_data	Array of settings for this condition
-	* @param object		&$o					Backend outputter to use
-	* @param string		$prefix				Prefix for form elements
-	* @param boolean	$write_access		Whether we have access to edit the field values
+	* @param array				&$condition_data	Array of settings for this condition
+	* @param Backend_Outputter	$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param boolean			$write_access		Whether we have access to edit the field values
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
+	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		if (!isset($condition_data['user_ip_ranges'])) {
 			$condition_data['user_ip_ranges'] = Array();
@@ -116,7 +116,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 						<td>
 							<?php
 							if ($write_access) {
-								Condition_User_IP_Edit_Fns::paintIPAddressField($prefix.'['.$index.'][ip_address]', $ranges['ip_address']);
+								self::paintIPAddressField($prefix.'['.$index.'][ip_address]', $ranges['ip_address']);
 							} else {
 								echo $ranges['ip_address'];
 							}
@@ -128,7 +128,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 						<td>
 							<?php
 							if ($write_access) {
-								Condition_User_IP_Edit_Fns::paintSubnetMaskField($prefix.'['.$index.'][subnet]', $ranges['subnet']);
+								self::paintSubnetMaskField($prefix.'['.$index.'][subnet]', $ranges['subnet']);
 							} else {
 								echo $ranges['subnet'];
 							}
@@ -185,18 +185,18 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object	&$o		Backend outputter to use
-	* @param string	$prefix	Prefix for form elements
+	* @param Backend_Outputter	$o		Backend outputter to use
+	* @param string				$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$o, $prefix)
+	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
 		if (isset($_FILES[$prefix.'_import']) && ($_FILES[$prefix.'_import']['error'] == 0)) {
 			$file_name = $_FILES[$prefix.'_import']['tmp_name'];
 			if (is_uploaded_file($file_name)) {
-				$condition_data = Condition_User_IP_Edit_Fns::importRulesFromCSV($file_name);
+				$condition_data = self::importRulesFromCSV($file_name);
 				if ($condition_data !== FALSE) {
 					$condition_data['default_grant'] = $_POST[$prefix]['default_grant'];
 					return $condition_data;
@@ -214,8 +214,8 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 		foreach ($_POST[$prefix] as $index => $post_data) {
 			if (!isset($post_data['delete'])) {
 				$this_row = Array(
-								'ip_address'	=> Condition_User_IP_Edit_Fns::processIPAddressField($post_data['ip_address']),
-								'subnet'		=> Condition_User_IP_Edit_Fns::processSubnetMaskField($post_data['subnet']),
+								'ip_address'	=> self::processIPAddressField($post_data['ip_address']),
+								'subnet'		=> self::processSubnetMaskField($post_data['subnet']),
 								'grant'			=> $post_data['grant'],
 							);
 
@@ -235,7 +235,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 
 				// Check to see whether the ip address is a valid network address
 				// for the subnet mask in question
-				if (Condition_User_IP_Edit_Fns::_doesIPBeginSubnet($this_row['ip_address'], $this_row['subnet'])) {
+				if (self::_doesIPBeginSubnet($this_row['ip_address'], $this_row['subnet'])) {
 					// put grant back to where it was before and store it
 					$this_row['grant'] = $post_data['grant'];
 					$ip_ranges[] = $this_row;
@@ -265,7 +265,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public?
 	*/
-	function paintIPAddressField($prefix, $value=NULL)
+	public static function paintIPAddressField($prefix, $value=NULL)
 	{
 		if ($value == NULL) $value = '...';
 		$value = explode('.', $value);
@@ -289,7 +289,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return mixed int|boolean
 	* @access public?
 	*/
-	function processIPAddressField($octets)
+	public static function processIPAddressField($octets)
 	{
 		// if there is a blank in any field - reject the IP address
 		for ($i = 0; $i <= 3; $i++) {
@@ -323,10 +323,10 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return void
 	* @access public?
 	*/
-	function paintSubnetMaskField($prefix, $value=NULL)
+	public static function paintSubnetMaskField($prefix, $value=NULL)
 	{
 		// Save all the possible bitmasks so we can use them in a drop-down
-		$possible_bitmasks = Condition_User_IP_Edit_Fns::_getPossibleSubnetOctets();
+		$possible_bitmasks = self::_getPossibleSubnetOctets();
 
 		if ($value == NULL) $value = '255.255.255.255';
 		$value = explode('.', $value);
@@ -350,7 +350,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return mixed string|NULL
 	* @access public?
 	*/
-	function processSubnetMaskField($octets)
+	public static function processSubnetMaskField($octets)
 	{
 		// non-integer bulldust filter
 		$octets[0] = (int)$octets[0];
@@ -362,7 +362,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 		// once we've got a ZERO bit the remaining bits must be ZERO also
 		$ip_address = implode('.', $octets);
 
-		if (Condition_User_IP_Edit_Fns::_isValidSubnetMask($ip_address)) {
+		if (self::_isValidSubnetMask($ip_address)) {
 			return $ip_address;
 		} else {
 			trigger_error('Subnet mask entered is not valid', E_USER_WARNING);
@@ -386,9 +386,9 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return mixed int|boolean
 	* @access public?
 	*/
-	function convertSubnetIPtoCIDR($subnet_ip)
+	public static function convertSubnetIPtoCIDR($subnet_ip)
 	{
-		if (!Condition_User_IP_Edit_Fns::_isValidSubnetMask($subnet_ip)) {
+		if (!self::_isValidSubnetMask($subnet_ip)) {
 			return FALSE;
 		}
 
@@ -421,7 +421,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return mixed string|boolean
 	* @access public?
 	*/
-	function convertCIDRtoSubnetIP($cidr_value)
+	public static function convertCIDRtoSubnetIP($cidr_value)
 	{
 		$cidr_value = (int)$cidr_value;
 		if (($cidr_value < 0) || ($cidr_value > 32)) {
@@ -467,7 +467,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _isInSubnet($ip_address, $network_ip, $subnet_ip)
+	protected static function _isInSubnet($ip_address, $network_ip, $subnet_ip)
 	{
 		$ip_octets = explode('.', $ip_address);
 		$network_octets = explode('.', $network_ip);
@@ -493,9 +493,9 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _isValidSubnetMask($subnet_ip)
+	protected static function _isValidSubnetMask($subnet_ip)
 	{
-		$bitmasks = Condition_User_IP_Edit_Fns::_getPossibleSubnetOctets();
+		$bitmasks = self::_getPossibleSubnetOctets();
 
 		$octets = explode('.', $subnet_ip);
 		$zero_bit_found = FALSE;
@@ -527,12 +527,12 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _sortByCIDROrder($ip_ranges)
+	protected static function _sortByCIDROrder($ip_ranges)
 	{
 		$ip_ranges_by_cidr = Array();
 
 		foreach ($ip_ranges as $ip_range) {
-			$cidr_value = Condition_User_IP_Edit_Fns::convertSubnetIPtoCIDR($ip_range['subnet']);
+			$cidr_value = self::convertSubnetIPtoCIDR($ip_range['subnet']);
 			$ip_ranges_by_cidr[$cidr_value][] = $ip_range;
 		}
 
@@ -554,7 +554,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _getPossibleSubnetOctets()
+	protected static function _getPossibleSubnetOctets()
 	{
 		$bitmasks = Array(
 						0	=> '0',
@@ -584,7 +584,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _doesIPBeginSubnet($ip_address, $subnet_ip)
+	protected static function _doesIPBeginSubnet($ip_address, $subnet_ip)
 	{
 		$ip_octets = explode('.', $ip_address);
 		$subnet_octets = explode('.', $subnet_ip);
@@ -609,7 +609,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function importRulesFromCSV($file_name)
+	public static function importRulesFromCSV($file_name)
 	{
 		// minimum and maximum values allowed in each field
 		// CSV format: first 4 fields = IP octets, fifth = subnet CIDR, sixth = grant/deny
@@ -638,7 +638,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			}
 
 			$ip_address = implode('.', array_slice($line_fields, 0, 4));
-			$subnet_mask = Condition_User_IP_Edit_Fns::convertCIDRtoSubnetIP($line_fields[4]);
+			$subnet_mask = self::convertCIDRtoSubnetIP($line_fields[4]);
 			$grant = $line_fields[5];
 
 			$ip_range_field = Array(
@@ -659,7 +659,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			}
 
 			// is it a valid combination?
-			if (!Condition_User_IP_Edit_Fns::_doesIPBeginSubnet($ip_range_field['ip_address'], $ip_range_field['subnet'])) {
+			if (!self::_doesIPBeginSubnet($ip_range_field['ip_address'], $ip_range_field['subnet'])) {
 				trigger_localised_error('CORE0248', E_USER_WARNING, $ip_range_field['ip_address'], $ip_range_field['subnet']);
 				continue;
 			}

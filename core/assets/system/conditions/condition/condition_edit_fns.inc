@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_edit_fns.inc,v 1.6 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: condition_edit_fns.inc,v 1.7 2007/11/22 22:23:58 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,11 +35,11 @@ class Condition_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Condition_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -47,15 +47,15 @@ class Condition_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
-	* @param array		&$condition_data	Array of settings for this condition
-	* @param object		&$o					Backend outputter to use
-	* @param string		$prefix				Prefix for form elements
-	* @param boolean	$write_access		Whether we have access to edit the field values
+	* @param array				&$condition_data	Array of settings for this condition
+	* @param Backend_Outputter	$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param boolean			$write_access		Whether we have access to edit the field values
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
+	public static function paintEditInterface(&$condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 
 	}//end paintEditInterface()
@@ -64,13 +64,13 @@ class Condition_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object	&$o		Backend outputter to use
-	* @param string	$prefix	Prefix for form elements
+	* @param Backend_Outputter 	$o		Backend outputter to use
+	* @param string				$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$o, $prefix)
+	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
 		return Array();
 

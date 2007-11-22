@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logical_edit_fns.inc,v 1.6 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_logical_edit_fns.inc,v 1.7 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Condition_Edit_Fns
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,11 +35,11 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Condition_Logical_Edit_Fns()
+	function __construct()
 	{
-		$this->Condition_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -47,16 +47,16 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
-	* @param array		&$condition_data	Array of settings for this condition
-	* @param object		&$o					Backend outputter to use
-	* @param string		$prefix				Prefix for form elements
-	* @param boolean	$write_access		Whether we have access to edit the field values
-	* @param array		$allowed_keywords	Allowed keywords to use
+	* @param array				&$condition_data	Array of settings for this condition
+	* @param Backend_Outputter	$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param boolean			$write_access		Whether we have access to edit the field values
+	* @param array				$allowed_keywords	Allowed keywords to use
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access, $allowed_keywords)
+	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access, Array $allowed_keywords)
 	{
 		if (empty($condition_data)) {
 			$condition_data =  Array('logical_keywords' => Array('logical_keyword_1' => ''), 'operator' => 'ALL');
@@ -82,7 +82,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 						$special_option = Array('none' => '-- '.strtolower(translate('remove')).' --');
 					}
 
-					$keyword_info = $this->_getKeywordInfo($keyword, $allowed_keywords);
+					$keyword_info = self::_getKeywordInfo($keyword, $allowed_keywords);
 					?>
 					<tr>
 						<td><strong><?php echo translate('logical_keyword').' '.$i; ?></strong>&nbsp;</td>
@@ -131,14 +131,14 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object	&$o					Backend outputter to use
-	* @param string	$prefix				Prefix for form elements
-	* @param array	$allowed_keywords	Allowed keywords to use
+	* @param Backend_Outputter	$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param array				$allowed_keywords	Allowed keywords to use
 	*
 	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$o, $prefix, $allowed_keywords)
+	public static function processEditInterface(Backend_Outputter $o, $prefix, Array $allowed_keywords)
 	{
 		$logical_keywords = Array();
 
@@ -146,7 +146,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 			if (isset($_POST[$prefix]['keyword'.$i])) {
 				$keyword_name = $_POST[$prefix]['keyword'.$i];
 				if ($keyword_name != 'none') {
-					$keyword_info = $this->_getKeywordInfo($keyword_name, $allowed_keywords);
+					$keyword_info = self::_getKeywordInfo($keyword_name, $allowed_keywords);
 					if ($keyword_info['is_variable']) {
 						if (!empty($_POST[$prefix]['name_extension_'.$i])) {
 							$name_extension = trim($_POST[$prefix]['name_extension_'.$i]);
@@ -195,7 +195,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _getKeywordInfo($keyword_name, &$allowed_keywords)
+	protected static function _getKeywordInfo($keyword_name, Array &$allowed_keywords)
 	{
 		$ret = Array('is_variable' => FALSE, 'constant_part' => $keyword_name, 'variable_part' => '');
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp_edit_fns.inc,v 1.3 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_keyword_regexp_edit_fns.inc,v 1.4 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,11 +36,11 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Condition_Keyword_Regexp_Edit_Fns()
+	function __construct()
 	{
-		$this->Condition_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -48,16 +48,16 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
-	* @param array		&$condition_data	Array of settings for this condition
-	* @param object		&$o					Backend outputter to use
-	* @param string		$prefix				Prefix for form elements
-	* @param boolean	$write_access		Whether we have access to edit the field values
-	* @param array		$allowed_keywords	Allowed keywords fromg getAssetKeywords()
+	* @param array				$condition_data	Array of settings for this condition
+	* @param Backend_Outputter	&$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param boolean			$write_access		Whether we have access to edit the field values
+	* @param array				$allowed_keywords	Allowed keywords fromg getAssetKeywords()
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access, $allowed_keywords)
+	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access, Array $allowed_keywords)
 	{
 		if (empty($condition_data)) {
 			$condition_data =  Array('keyword' => '', 'operator' => 'ALL');
@@ -78,7 +78,7 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 					$i = 0;
 					if (!empty($allowed_keywords)) {
 
-						$keyword_info = $this->_getKeywordInfo($selected_keyword, $allowed_keywords);
+						$keyword_info = self::_getKeywordInfo($selected_keyword, $allowed_keywords);
 						if ($write_access) {
 							combo_box($prefix.'[keyword]', array_merge($keyword_options), FALSE, $keyword_info['constant_part']);
 							// This is a special case for generic/variable keywords (like asset_metadata_)
@@ -118,13 +118,13 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object	&$o		Backend outputter to use
-	* @param string	$prefix	Prefix for form elements
+	* @param Backend_Outputter	$o		Backend outputter to use
+	* @param string				$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$o, $prefix)
+	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
 		$results = Array(
 					'keyword'		=> $_POST[$prefix]['keyword'],
@@ -164,7 +164,7 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _getKeywordInfo($keyword_name, &$allowed_keywords)
+	protected static function _getKeywordInfo($keyword_name, Array &$allowed_keywords)
 	{
 		$ret = Array('is_variable' => FALSE, 'constant_part' => $keyword_name, 'variable_part' => '');
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency.inc,v 1.11 2006/12/06 04:23:59 emcdonald Exp $
+* $Id: condition_user_frequency.inc,v 1.12 2007/11/22 22:24:00 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *    the current user.  (It sets a cookie to keep track of this).
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,9 +39,9 @@ class Condition_User_Frequency extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_User_Frequency($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Condition($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -55,13 +55,13 @@ class Condition_User_Frequency extends Condition
 	* is resolved before returning TRUE (Session limits to 1 per day)
 	* For the rest value represents a unit of time
 	*
-	* @param object	&$asset			Reference to any asset we need to work with
+	* @param Asset	$asset			Reference to any asset we need to work with
 	* @param array	$condition_data	The data we need to evaluate this condition
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset, $condition_data)
+	public static function evaluate(Asset $asset, Array $condition_data)
 	{
 		$result = FALSE;
 

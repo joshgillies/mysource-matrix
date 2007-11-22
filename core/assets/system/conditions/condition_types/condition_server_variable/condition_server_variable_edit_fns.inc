@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_server_variable_edit_fns.inc,v 1.4 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_server_variable_edit_fns.inc,v 1.5 2007/11/22 22:23:59 lwright Exp $
 *
 */
 
@@ -18,29 +18,29 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 
 /**
-* Condition_server_variable_Edit_Fns
+* Condition_Server_Variable_Edit_Fns
 *
 * Edit functions for the user agent condition
 *
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class condition_server_variable_Edit_Fns extends Condition_Edit_Fns
+class Condition_Server_Variable_Edit_Fns extends Condition_Edit_Fns
 {
 
 
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function condition_server_variable_Edit_Fns()
+	function __construct()
 	{
-		$this->Condition_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -48,15 +48,15 @@ class condition_server_variable_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Paint the backend editing interface for this condition
 	*
-	* @param array		&$condition_data	Array of settings for this condition
-	* @param object		&$o					Backend outputter to use
-	* @param string		$prefix				Prefix for form elements
-	* @param boolean	$write_access		Whether we have access to edit the field values
+	* @param array				&$condition_data	Array of settings for this condition
+	* @param Backend_Outputter	$o					Backend outputter to use
+	* @param string				$prefix				Prefix for form elements
+	* @param boolean			$write_access		Whether we have access to edit the field values
 	*
 	* @return void
 	* @access public
 	*/
-	function paintEditInterface(&$condition_data, &$o, $prefix, $write_access)
+	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		?>
 		<table style="width: auto" class="no-borders">
@@ -94,13 +94,13 @@ class condition_server_variable_Edit_Fns extends Condition_Edit_Fns
 	/**
 	* Process the backend editing interface for this condition
 	*
-	* @param object	&$o		Backend outputter to use
-	* @param string	$prefix	Prefix for form elements
+	* @param Backend_Outputter	$o		Backend outputter to use
+	* @param string				$prefix	Prefix for form elements
 	*
 	* @return array
 	* @access public
 	*/
-	function processEditInterface(&$o, $prefix)
+	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
 		$results = Array(
 					'server_variable'		=> $_POST[$prefix]['server_variable'],
