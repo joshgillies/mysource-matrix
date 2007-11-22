@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookup_value.inc,v 1.7 2007/11/22 22:33:00 bshkara Exp $
+* $Id: lookup_value.inc,v 1.8 2007/11/22 23:25:16 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,7 +158,7 @@ class Lookup_Value extends Asset
 	* @access public
 	* @static
 	*/
-	function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
+	public static function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
 	{
 		return FALSE;
 

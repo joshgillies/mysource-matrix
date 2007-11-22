@@ -10,18 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.13 2007/08/23 04:17:42 bshkara Exp $
+* $Id: lookupValues.inc,v 1.14 2007/11/22 23:25:16 bshkara Exp $
 *
 */
 
-require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -66,7 +65,8 @@ function paintLookupValues(&$owner, &$o, &$ei, $keywords=NULL)
 
 	foreach ($lookup_values as $url => $data) {
 		foreach ($data as $value_name => $value_data) {
-			if (!preg_match('/^([^:]+)(::|$)/', $value_name, $matches=Array())) {
+			$matches = Array();
+			if (!preg_match('/^([^:]+)(::|$)/', $value_name, $matches)) {
 				continue;
 			}
 			if (!isset($values[$matches[1]])) continue; // unknown prefix..
@@ -121,7 +121,8 @@ function processLookupValues(&$owner, &$o, &$ei)
 	foreach ($lookup_value_types as $type_code) {
 		$am->includeAsset($type_code);
 		eval('$name_prefix = '.$type_code.'::namePrefix();');
-		eval('$success = '.$type_code.'::processInterface($owner, $o, $lookups, $values=Array(), $prefix.\'_lookup_values_\'.$name_prefix);');
+		$values = Array();
+		eval('$success = '.$type_code.'::processInterface($owner, $o, $lookups, $values, $prefix.\'_lookup_values_\'.$name_prefix);');
 
 		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

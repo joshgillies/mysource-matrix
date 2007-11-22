@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.8 2007/11/22 22:33:00 bshkara Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.9 2007/11/22 23:25:16 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -217,7 +217,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	* @access public
 	* @static
 	*/
-	function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
+	public static function processInterface(&$owner, &$o, $lookups, &$lookup_values, $prefix)
 	{
 		if (!isset($_POST[$prefix]) || !is_array($_POST[$prefix])) {
 			return FALSE;
