@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.39 2007/11/13 04:29:29 colivar Exp $
+* $Id: details.inc,v 1.40 2007/11/22 02:51:22 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 
@@ -57,19 +57,17 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 		$parent_asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($parent_asset_link[0]['majorid'] => 'details'));
 	}
 
-	for ($i = 0; $i < count($root->children); $i++) {
-
-		$section =& $root->children[$i];
+	foreach ($root->section as $section) {
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
 				continue;
 			}
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
 			ob_start();
 		}
 
@@ -80,19 +78,18 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 		//
 		$safe_trash_job_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'cron_job_attempt_safe_trash', TRUE, NULL, 'minor');
 
-		$avoiding_safe_trash_section = ($section->attributes['name'] == 'Safe Trash Status') && !$safe_trash_job_link;
+		$avoiding_safe_trash_section = ($section->attributes()->name == 'Safe Trash Status') && !$safe_trash_job_link;
 		if (!$avoiding_safe_trash_section) {
-			$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
+			$o->openSection(array_get_index($section->attributes(), 'display_name', $section->attributes()->name));
 		}
 
-		if (!($num_fields = count($section->children))) {
+		if (!($num_fields = count($section->children()))) {
 			continue;
 		}
 
-		for ($j = 0; $j < $num_fields; $j++) {
-			$field =& $section->children[$j];
+		foreach ($section->field as $field) {
 
-			switch (strtolower($field->attributes['code'])) {
+			switch (strtolower($field->attributes()->code)) {
 
 				case 'safe_trash' :
 
@@ -152,10 +149,11 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 				case 'status_current' :
 
-					if ($field->children[0]->name != 'display_name') {
+					if (!empty($field->display_name)) {
 						$display_name = translate('current');
 					} else {
-						$display_name = $field->children[0]->content;
+						// If we dont have a display name node then we dont have anything to say
+						$display_name = '';
 					}
 					$o->openField($display_name);
 					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
@@ -185,10 +183,11 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 					$statii = $owner->getAvailableStatii();
 					if (empty($statii)) break;
 
-					if ($field->children[0]->name != 'display_name') {
+					if (!empty($field->display_name)) {
 						$display_name = translate('change_question');
 					} else {
-						$display_name = $field->children[0]->content;
+						// If we dont have a display name node then we dont have anything to say
+						$display_name = '';
 					}
 					$o->openField($display_name);
 						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
@@ -331,10 +330,10 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 					if ($owner->writeAccess('links')) {
 
-						if ($field->children[0]->name != 'display_name') {
+						if (!empty($field->display_name)) {
 							$display_name = translate('change_question');
 						} else {
-							$display_name = $field->children[0]->content;
+							$display_name = '';
 						}
 
 						$o->openField($display_name);
@@ -356,10 +355,10 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 				case 'thumbnail_current' :
 
-					if ($field->children[0]->name != 'display_name') {
+					if (!empty($field->display_name)) {
 						$display_name = translate('current');
 					} else {
-						$display_name = $field->children[0]->content;
+						$display_name = '';
 					}
 
 					$o->openField($display_name);
@@ -387,8 +386,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 			}//end switch
 
-			if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-				$o->note($field->children[1]->content);
+			if (!empty($field->note)) {
+				$o->note((string) $field->note);
 			}
 
 		}//end for
@@ -397,8 +396,8 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeSection();
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes['name']))]] = ob_get_contents();
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(str_replace(' ', '_', $section->attributes()->name))]] = ob_get_contents();
 			ob_end_flush();
 		}
 
