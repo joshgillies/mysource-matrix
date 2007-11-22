@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.154 2007/11/21 23:26:17 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.155 2007/11/22 00:15:50 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -451,7 +451,7 @@ class Metadata_Manager extends MySource_Object
 		try {
 			$query = $db->prepare($sql.$where);
 			$query->bindValue('assetid', $asset->id);
-			$metadata = MatrixDAL::executePdoAssoc($query);
+			$metadata = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to metadata values for assetid #'.$asset->id.' due to the following database error'.$e->getMessage());
 		}//end try catch
