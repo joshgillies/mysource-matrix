@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.23 2007/11/14 05:48:13 lwright Exp $
+* $Id: metadataSchemas.inc,v 1.24 2007/11/22 02:29:53 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -301,7 +301,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 
 
 	if (!empty($schema_vars)) {
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
 		$hh->queueHipo('hipo_job_edit_metadata_schemas', $vars);
 	}
