@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.611 2007/11/22 22:07:33 bshkara Exp $
+* $Id: asset.inc,v 1.612 2007/11/22 23:23:29 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.611 $
+* @version $Revision: 1.612 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5241,10 +5241,15 @@ class Asset extends MySource_Object
 						FROM
 							sq_ast_lookup
 						WHERE
-							assetid = '.$db->quoteSmart($this->id).'
+							assetid = :assetid
 					)';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $this->id);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete lookup values for asset: '.$this->id.' due to database error: '.$e->getMessage());
+		}
 
 		$lookups = $this->getLookups('url');
 
@@ -5257,25 +5262,17 @@ class Asset extends MySource_Object
 			$page_depth = count($exploded_url)-1;
 
 			foreach ($values_data as $value_name => $value_data) {
-
-				$sql = 'INSERT INTO
-							sq_ast_lookup_value
-							(
-								url,
-								name,
-								value,
-								depth
-							)
-							VALUES
-							(
-								'.$db->quoteSmart($url).',
-								'.$db->quoteSmart($value_name).',
-								'.$db->quoteSmart($value_data['value']).',
-								'.$db->quoteSmart($page_depth).'
-							)';
-
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$bind_vars	= Array (
+									'url'	=> $url,
+									'name'	=> $value_name,
+									'value'	=> $value_data['value'],
+									'depth'	=> $page_depth,
+								  );
+					$result = MatrixDAL::executeQuery('core', 'insertLookupValue', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Unable to insert new lookup value for specified URL: '.$url.' due to database error: '.$e->getMessage());
+				}
 			}
 		}//end foreach
 
