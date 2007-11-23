@@ -284,6 +284,64 @@
 		</primary>
 	</query>
 
+
+	<!-- //		ASSET		// -->
+
+	<!-- Series of query to for delete() in asset.inc -->
+	<query id="assetDeleteAsset">
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_ast" column="assetid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="assetDeleteAssetAttrVal">
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_ast_attr_val" column="assetid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="assetDeleteAssetAttrUniqVal">
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_ast_attr_uniq_val" column="assetid">:assetid</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="assetDeleteAssetPerm">
+		<primary>
+			<delete>
+				<where>
+					<or>
+						<equal table="sq_ast_perm" column="assetid">:assetid</equal>
+						<equal table="sq_ast_perm" column="userid">:assetid</equal>
+					</or>
+				</where>
+			</delete>
+		</primary>
+	</query>
+	<query id="assetDeleteAssetRole">
+		<primary>
+			<delete>
+				<where>
+					<or>
+						<equal table="sq_ast_role" column="assetid">:assetid</equal>
+						<equal table="sq_ast_role" column="roleid">:assetid</equal>
+						<equal table="sq_ast_role" column="userid">:assetid</equal>
+					</or>
+				</where>
+			</delete>
+		</primary>
+	</query>
+
+
 	<!-- //		ASSET MANAGER		// -->
 
 	<query id="getTypeCodeWithAllowedAccess">
@@ -522,6 +580,70 @@
 					<equal table="sq_hipo_job" column="code_name">:code_name</equal>
 				</where>
 			</update>
+		</primary>
+	</query>
+
+	<query id="getPurgeTrashHipoDeleteOrder">
+		<!-- Return delete order for a purge trash hipo -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast" column="assetid" />
+					<function function="length">
+						<arg><field table="sq_ast_lnk_tree" column="treeid" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_ast</table>
+					<table>sq_ast_lnk</table>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<where>
+					<like table="sq_ast_lnk_tree" column="treeid">:treeid</like>
+				</where>
+				<joins>
+					<join>
+						<field table="sq_ast_lnk_tree" column="linkid" />
+						<field table="sq_ast_lnk" column="linkid" />
+					</join>
+					<join>
+						<field table="sq_ast" column="assetid" />
+						<field table="sq_ast_lnk" column="minorid" />
+					</join>
+				</joins>
+				<order-by>
+					<function function="length">
+						<arg><field table="sq_ast_lnk_tree" column="treeid" /></arg>
+					</function>
+				</order-by>
+			</select>
+		</primary>
+	</query>
+
+	<query id="getPurgeTrashHipoLinkCount">
+		<!-- Return the number of external links for an asset in purge trash hipo -->
+		<primary>
+			<select>
+				<fields>
+					<function function="count">
+						<arg><field table="sq_ast_lnk" column="linkid" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_ast_lnk</table>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<where>
+					<equal table="sq_ast_lnk" column="minorid">:assetid</equal>
+					<not-like table="sq_ast_lnk_tree" column="treeid">:treeid</not-like>
+				</where>
+				<joins>
+					<join>
+						<field table="sq_ast_lnk_tree" column="linkid" />
+						<field table="sq_ast_lnk" column="linkid" />
+					</join>
+				</joins>
+			</select>
 		</primary>
 	</query>
 

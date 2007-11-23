@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.612 2007/11/22 23:23:29 bshkara Exp $
+* $Id: asset.inc,v 1.613 2007/11/23 05:56:32 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.612 $
+* @version $Revision: 1.613 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -746,7 +746,7 @@ class Asset extends MySource_Object
 			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value
 					FROM sq_ast_attr atr
 					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v
-					  	ON (atr.attrid = v.attrid AND v.assetid = :assetid'
+						ON (atr.attrid = v.attrid AND v.assetid = :assetid'
 						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
 						WHERE atr.type_code = :type_code';
 		} else {
@@ -881,50 +881,17 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		// delete from the asset table
-		$sql = 'DELETE FROM
-					sq_ast
-				WHERE
-					assetid	= '.$db->quoteSmart($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		// delete the attributes
-		$sql = 'DELETE FROM
-					sq_ast_attr_val
-				WHERE
-					assetid	= '.$db->quoteSmart($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'DELETE FROM
-					sq_ast_attr_uniq_val
-				WHERE
-					assetid	= '.$db->quoteSmart($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'DELETE FROM
-					sq_ast_perm
-				WHERE
-						assetid	= '.$db->quoteSmart($this->id).'
-					OR	userid	= '.$db->quoteSmart($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'DELETE FROM
-					sq_ast_role
-				WHERE
-						assetid	= '.$db->quoteSmart($this->id).'
-					OR	roleid	= '.$db->quoteSmart($this->id).'
-					OR	userid	= '.$db->quoteSmart($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$bind_vars['assetid'] = $this->id;
+		try {
+			// delete related asset data from the DB tables
+			$result = MatrixDAL::executeQuery('core', 'assetDeleteAsset', $bind_vars);
+			$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetAttrVal', $bind_vars);
+			$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetAttrUniqVal', $bind_vars);
+			$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetPerm', $bind_vars);
+			$result = MatrixDAL::executeQuery('core', 'assetDeleteAssetRole', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Failed to delete asset (#$this->id): ".$e->getMessage());
+		}
 
 		// delete any metadata values this asset might have
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();

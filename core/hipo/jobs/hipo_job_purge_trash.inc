@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.47 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.48 2007/11/23 05:56:32 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -181,16 +181,17 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	*/
 	function prepare()
 	{
-		$trash =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+		$trash = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 		$this->_running_vars['to_delete'] = Array();
 		$this->_running_vars['trash_id'] = $trash->id;
-		$this->_running_vars['trash_treeid'] = reset($GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($trash->id));
+		$asset_tree_ids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($trash->id);
+		$this->_running_vars['trash_treeid'] = reset($asset_tree_ids);
 
 		if (!empty($this->_running_vars['purge_root_linkid'])) {
 
 			$purge_root_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['purge_root_linkid']);
 			$this->_running_vars['purge_root_id'] = $purge_root_link['minorid'];
-			$purge_root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['purge_root_id']);
+			$purge_root = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['purge_root_id']);
 
 			// is the root in the trash?
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($purge_root->id)) {
@@ -199,7 +200,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			}
 			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
 			// also delete the purge root
-			$purge_root_children[$purge_root->id] = $purge_root->type();
+			$purge_root_children[$purge_root->id][0]['type_code'] = $purge_root->type();
 			$this->_running_vars['purge_root_treeid'] = reset($GLOBALS['SQ_SYSTEM']->am->getLinkTreeId($this->_running_vars['purge_root_linkid']));
 		} else {
 			$purge_root = $trash;
@@ -207,21 +208,15 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$this->_running_vars['purge_root_treeid'] = $this->_running_vars['trash_treeid'];
 		}
 		$this->_running_vars['to_check'] = $purge_root_children;
-
 		$this->_running_vars['total_assets'] = count($this->_running_vars['to_check']);
 
-
-
-
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT a.assetid, length(t.treeid)
-				FROM sq_ast_lnk_tree t
-					INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
-					JOIN sq_ast a ON l.minorid = a.assetid
-				WHERE t.treeid like '.$db->quote($this->_running_vars['purge_root_treeid'].'%').'
-				ORDER by length(t.treeid)';
-		$this->_running_vars['delete_order'] = $db->getCol($sql);
-		assert_valid_db_result($this->_running_vars['delete_order']);
+		$db = MatrixDAL::getDb();
+		try {
+			$bind_vars['treeid'] = $this->_running_vars['purge_root_treeid'].'%';
+			$this->_running_vars['delete_order'] = MatrixDAL::executeAssoc('core', 'getPurgeTrashHipoDeleteOrder', 0, $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Failed to get delete order for purge trash HIPO: '.$e->getMessage());
+		}
 
 		return parent::prepare();
 
@@ -277,21 +272,24 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 			if (strpos($assetid, ':') === FALSE) {
 
-				$db =& $GLOBALS['SQ_SYSTEM']->db;
-				$sql = 'SELECT COUNT(l.linkid)
-						FROM sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
-						WHERE l.minorid = '.$db->quote($assetid).'
-						AND NOT t.treeid LIKE '.$db->quote($this->_running_vars['purge_root_treeid'].'%');
-				$num_external_links = $db->getOne($sql);
 
-				assert_valid_db_result($num_external_links);
+				$db = MatrixDAL::getDb();
+				try {
+					$bind_vars = Array(
+									'treeid'	=> $this->_running_vars['purge_root_treeid'].'%',
+									'assetid'	=> $assetid,
+								 );
+					$num_external_links = MatrixDAL::executeOne('core', 'getPurgeTrashHipoLinkCount', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Failed to get asset external link count for purge trash HIPO: '.$e->getMessage());
+					$num_external_links = -1;
+				}
 
 				if ($num_external_links == 0) {
 					$this->_running_vars['to_delete'][$assetid] = $type_code;
 				}
 			}
 		}
-
 		if (empty($this->_running_vars['to_check'])) {
 			$GLOBALS['SQ_PURGING_TRASH'] = FALSE;
 			$step_data['percent_done'] = 100;
@@ -327,7 +325,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				if (is_null($assetid)) break;
 			}
 			if (!is_null($assetid)) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->_running_vars['to_delete'][$assetid]);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->_running_vars['to_delete'][$assetid][0]['type_code']);
 				unset($this->_running_vars['to_delete'][$assetid]);
 
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
