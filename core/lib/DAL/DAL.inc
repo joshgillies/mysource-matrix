@@ -199,7 +199,7 @@ class DAL
         self::_startQueryTimer($dalQuery->getQueryid());
 
         $query  = $dalQuery->prepare();
-        $result = self::executePdoAssoc($query);
+        $result = self::executePdoAssoc($query, $col);
 
         self::_endQueryTimer();
 
