@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.49 2007/11/21 23:25:59 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.50 2007/11/23 00:27:28 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -209,21 +209,21 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 					return '';
 				}
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-				$child_assets[] = Array (
-									'minorid'	=> $assetid,
-									'type_code'	=> $asset->type(),
-								  );
-
+				$child_assets[$assetid]	= Array (
+											0	=> Array (
+													'type_code'	=> $asset->type(),
+												   ),
+										  );
 				unset($asset);
 			}
 			$types_with_assets = Array();
 
-			foreach ($child_assets as $asset_info) {
+			foreach ($child_assets as $assetid => $asset_info) {
 				// if this asset does not allow the user to set metadata values then
 				// I think its okay to assume that we dont need to set any schemas
 				// because nothing is ever going to get filled in - thus required
-				if (!$mm->allowsMetadata($asset_info['minorid'])) {
-					$child_assets = array_diff_assoc(array_values($child_assets), Array ($asset_info));
+				if (!$mm->allowsMetadata($assetid)) {
+					unset($child_assets[$assetid]);
 				}//end if
 			}//end foreach
 
@@ -247,10 +247,9 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	function processSchemas(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$asset_info = array_shift($this->_running_vars['todo_assetids']);
-			$assetid = $asset_info['minorid'];
-			$asset_type = $asset_info['type_code'];
-			unset($asset_info);
+			$assetid = key($this->_running_vars['todo_assetids']);
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
+			unset($this->_running_vars['todo_assetids'][$assetid]);
 
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
