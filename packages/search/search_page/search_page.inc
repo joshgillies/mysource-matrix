@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.206.2.3 2007/11/15 04:19:35 rong Exp $
+* $Id: search_page.inc,v 1.206.2.4 2007/11/23 06:28:19 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.206.2.3 $
+* @version $Revision: 1.206.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1667,7 +1667,7 @@ class Search_Page extends Listing_Engine
 						if ($i == $current_result_page) {
 							$replacement .= '<b>'.($i + 1).'</b>';
 						} else {
-							$replacement .= '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.($i + 1).'</a>';
+							$replacement .= '<a href="'.($this->attr('submit_to_page_url')?$this->getURL():current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.($i + 1).'</a>';
 						}
 					}
 				break;
@@ -1677,7 +1677,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('prev_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
+					$replacement = '<a href="'.($this->attr('submit_to_page_url')?$this->getURL():current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -1685,7 +1685,7 @@ class Search_Page extends Listing_Engine
 						$replacement = $this->attr('next_page_text');
 						break;
 					}
-					$replacement = '<a href="'.$this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
+					$replacement = '<a href="'.($this->attr('submit_to_page_url')?$this->getURL():current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
 				break;
 
 				case 'previous_result_page_href':
@@ -1693,7 +1693,7 @@ class Search_Page extends Listing_Engine
 						$replacement = '';
 						break;
 					}
-					$replacement = $this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries);
+					$replacement = ($this->attr('submit_to_page_url')?$this->getURL():current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries);
 				break;
 
 				case 'next_result_page_href':
@@ -1701,7 +1701,7 @@ class Search_Page extends Listing_Engine
 						$replacement = '';
 						break;
 					}
-					$replacement = $this->getURL().'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries);
+					$replacement = ($this->attr('submit_to_page_url')?$this->getURL():current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries);
 				break;
 
 				case 'initial_layout':
@@ -1741,7 +1741,7 @@ class Search_Page extends Listing_Engine
 						$field_name = $matches[1];
 						if (isset($this->_tmp['search_suggestions'][$field_name])) {
 							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name, '', FALSE)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
-							$spell_check_string = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
+							$spell_check_string = '<a href="'.($this->attr('submit_to_page_url')?$this->getURL():current_url()).'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($this->_tmp['search_suggestions'][$field_name]).'</a>';
 						} else {
 							$spell_check_string = '';
 						}
@@ -1763,7 +1763,7 @@ class Search_Page extends Listing_Engine
 						foreach (array_get_index($this->_tmp['search_synonyms'], $field_name, Array()) as $word => $synonyms) {
 							foreach ($synonyms as $synonym) {
 								$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name, '', FALSE)), 'queries_'.$field_name.'_query='.urlencode($synonym), $queries);
-								$synonym_string[] = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
+								$synonym_string[] = '<a href="'.($this->attr('submit_to_page_url')?$this->getURL():current_url()).'?mode='.$mode.'&current_result_page='.$current_result_page.'&results_per_page='.$results_per_page.$queries_temp.'">'.htmlspecialchars($synonym).'</a>';
 							}
 						}
 
