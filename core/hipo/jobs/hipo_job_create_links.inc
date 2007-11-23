@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.57 2007/11/20 23:55:04 hnguyen Exp $
+* $Id: hipo_job_create_links.inc,v 1.58 2007/11/23 00:01:58 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1017,16 +1017,12 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				if (isset($id_parts[1])) $bridge_id = $id_parts[0];
 
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-				$children_ids = Array();
-				foreach ($children as $child) {
-					$children_ids[] = $child['minorid'];
-				}//end foreach
 
 				// If we aren't allowed to trash this, then it's not going
 				// anywhere, so there's no point running update lookups over
 				// the children
 				if (!isset($this->_running_vars['do_not_trash'][$assetid])) {
-					$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], $children_ids);
+					$this->_running_vars['assets_children'] = array_merge($this->_running_vars['assets_children'], array_keys($children));
 				}
 
 				// delete links in which the minor is being deleted
