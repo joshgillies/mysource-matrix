@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.7 2007/11/23 02:56:53 hnguyen Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.8 2007/11/23 03:05:24 hnguyen Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -209,6 +209,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 			$assetid = key($this->_running_vars['todo_assetids']);
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				// check we can acquire lock and change roles, otherwise silently pass by
