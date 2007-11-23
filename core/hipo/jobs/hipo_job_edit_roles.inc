@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.6 2007/08/10 01:49:40 lmarchese Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.7 2007/11/23 02:56:53 hnguyen Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -179,7 +179,11 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
 			}
 
-			$child_assets[$assetid] = $asset_info[$assetid]['type_code'];
+			$child_assets[$assetid]	= Array (
+										0	=> Array (
+												'type_code'	=> $asset_info[$assetid]['type_code'],
+											   ),
+									  );
 		}
 
 		$child_assets = array_reverse($child_assets,TRUE);
@@ -202,10 +206,9 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	function processRoles(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			$assetid = key($this->_running_vars['todo_assetids']);
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				// check we can acquire lock and change roles, otherwise silently pass by
