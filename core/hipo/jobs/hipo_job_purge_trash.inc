@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.48 2007/11/23 05:56:32 rong Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.49 2007/11/25 23:56:11 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -201,7 +201,8 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
 			// also delete the purge root
 			$purge_root_children[$purge_root->id][0]['type_code'] = $purge_root->type();
-			$this->_running_vars['purge_root_treeid'] = reset($GLOBALS['SQ_SYSTEM']->am->getLinkTreeId($this->_running_vars['purge_root_linkid']));
+			$link_tree_ids = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeId($this->_running_vars['purge_root_linkid']);
+			$this->_running_vars['purge_root_treeid'] = reset($link_tree_ids);
 		} else {
 			$purge_root = $trash;
 			$purge_root_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($purge_root->id);
