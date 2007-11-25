@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.23 2007/11/04 23:10:39 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.24 2007/11/25 22:16:47 mbrydon Exp $
 *
 */
 -->
@@ -113,6 +113,12 @@
 		<field attribute="prev_page_text">
 			<display_name>Previous page link text</display_name>
 			<note>This text will appear on the link to the previous page of results (if any)</note>
+		</field>
+	</section>
+	<section name="Advanced Settings">
+		<field attribute="submit_to_page_url">
+			<display_name>Form Submission URL</display_name>
+			<note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the search form should submit to the same URL it's displayed at, or to this page's own URL.</note>
 		</field>
 	</section>
 	<section name="List Position Settings">
