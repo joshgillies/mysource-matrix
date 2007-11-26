@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.7 2007/11/21 04:40:51 gsherwood Exp $
+* $Id: trigger_action_add_url.inc,v 1.8 2007/11/26 23:24:18 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,18 +125,18 @@ class Trigger_Action_Add_Url extends Trigger_Action
 			$run_hipo = TRUE;
 
 			// update the root url in the asset url table to the new url
-			$sql = 'UPDATE
-						sq_ast_url
-					SET
-							url = '.$db->quoteSmart(strip_url($urls[$urlid]['url'])).'
-					WHERE
-							urlid = '.$db->quoteSmart($urlid);
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars	= Array (
+								'url'			=> strip_url($urls[$urlid]['url']),
+								'urlid'			=> $urlid,
+							  );
+				$result = MatrixDAL::executeQuery('site', 'updateUrl', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update URL: '.strip_url($urls[$urlid]['url']).' for urlid: '.$urlid.' due to database error: '.$e->getMessage());
+			}
 
 			// update any urls that use this url in the lookup and lookup value tables
 			foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
-
 				// Skip if the url was not changed
 				if ($urls[$urlid]['url'] == $old_urls[$urlid]['url']) {
 					continue;
@@ -144,27 +144,34 @@ class Trigger_Action_Add_Url extends Trigger_Action
 				$sql = 'UPDATE
 							'.$tablename.'
 						SET
-							url = '.$db->quoteSmart($urls[$urlid]['url']).' || SUBSTR(url, '.strlen($old_urls[$urlid]['url']).' + 1)
+							url = :url || SUBSTR(url, :substr_arg)
 						WHERE
-							url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quoteSmart($old_urls[$urlid]['url'].'%/');
+							(url LIKE '.$db->quote($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quote($old_urls[$urlid]['url'].'%/').')';
+
 
 						if ($tablename == 'sq_ast_lookup') {
-							$sql .= ' AND root_urlid = '.$db->quoteSmart($urlid);
+							$sql .= ' AND root_urlid = :urlid';
 						} else if ($tablename == 'sq_ast_lookup_value') {
-							$sql .= 'AND url IN (
+							$sql .= ' AND url IN (
 										SELECT
 											l.url
 										FROM
 											sq_ast_lookup l
 										INNER JOIN
-											sq_ast_lookup_value v ON l.url = v.url OR (l.url || \'/\' = v.url)
+											sq_ast_lookup_value v ON ((l.url = v.url) OR (l.url || \'/\' = v.url))
 										WHERE
-											l.root_urlid = '.$db->quoteSmart($urlid).'
+											l.root_urlid = :urlid
 									)';
 						}
-
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':url', $urls[$urlid]['url']);
+					$query->bindValue(':substr_arg', strlen($old_urls[$urlid]['url'])+1);
+					$query->bindValue(':urlid', $urlid);
+					$result = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update this old URL: '.$old_urls[$urlid]['url'].' with this new URL: '.$urls[$urlid]['url'].' due to database error: '.$e->getMessage());
+				}
 			}
 		}//end foreach
 
