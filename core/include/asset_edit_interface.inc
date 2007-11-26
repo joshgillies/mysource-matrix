@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.333 2007/11/19 22:38:01 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.334 2007/11/26 23:18:34 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.333 $
+* @version $Revision: 1.334 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -938,7 +938,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$o->closeField();
 				} else {
 					// if we are printing the create interface and this section is not included in that, ignore it
-					if ($creating && !in_array($paint_node->attributes()->name, $create_sections[$section->attributes()->name])) {
+					if ($creating && !in_array((string)$paint_node->attributes()->name, $create_sections[(string)$section->attributes()->name])) {
 						continue;
 					}
 
