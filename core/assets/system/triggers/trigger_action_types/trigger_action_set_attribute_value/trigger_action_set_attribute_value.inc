@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.18 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.19 2007/11/26 23:25:18 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,7 +130,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	* @return boolean
 	* @access private
 	*/
-	function _safeToEval($str)
+	private static function _safeToEval($str)
 	{
 		// first check the value contains only allowable components
 		$allowed_expressions = Array('array', '(', ')', '=>', ',', ';');
