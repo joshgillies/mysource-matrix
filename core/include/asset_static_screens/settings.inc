@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.48 2007/11/20 23:45:57 colivar Exp $
+* $Id: settings.inc,v 1.49 2007/11/26 04:02:05 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 */
 
@@ -366,6 +366,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							// cant morph an asset if it is not under construction
 							echo translate('only_morph_under_construction');
 						} else {
+							$db = MatrixDAL::getDb();
 							$am = $GLOBALS['SQ_SYSTEM']->am;
 							$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
