@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.158 2007/11/26 04:30:10 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.159 2007/11/26 04:31:27 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -607,7 +607,7 @@ class Metadata_Manager extends MySource_Object
 			}//end try catch
 
 
-			bam($fields);
+
 			foreach ($fields as $fieldid => $type_code) {
 
 				$field =& $am->getAsset($fieldid, $type_code);
