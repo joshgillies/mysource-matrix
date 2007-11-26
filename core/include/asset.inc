@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.613 2007/11/23 05:56:32 rong Exp $
+* $Id: asset.inc,v 1.614 2007/11/26 00:54:15 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.613 $
+* @version $Revision: 1.614 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1601,10 +1601,17 @@ class Asset extends MySource_Object
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
 				FROM sq_ast_typ_inhd
-				WHERE (inhd_type_code = '.$db->quote($this->type()).'  AND type_code = '.$db->quote($new_type_code).')
-				   OR (inhd_type_code = '.$db->quote($new_type_code).' AND type_code = '.$db->quote($this->type()).')';
-		$count = $db->getOne($sql);
-		assert_valid_db_result($count);
+				WHERE (inhd_type_code = :type1 AND type_code = :type2)
+				   OR (inhd_type_code = :type2 AND type_code = :type1)';
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':type1', $this->type());
+			$query->bindValue(':type2', $new_type_code);
+			$count = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get number of inherited type codes for this inherited type code: '.$this->type().' and this type code: '.$new_type_code.' due to database error: '.$e->getMessage());
+		}
+
 		if ($count == 0) {
 			trigger_localised_error('SYS0234', E_USER_WARNING, $this->name, $new_type_code, $this->type());
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1666,16 +1673,16 @@ class Asset extends MySource_Object
 				$current_id = $this->vars[$var_name]['attrid'];
 				$new_id     = $tmp->vars[$var_name]['attrid'];
 
-				$sql = 'UPDATE
-							sq_ast_attr_val
-						SET
-							attrid	= '.$db->quoteSmart($new_id).'
-						WHERE
-								assetid	= '.$db->quoteSmart($this->id).'
-							AND	attrid	= '.$db->quoteSmart($current_id);
-
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$bind_vars	= Array (
+									'newattrid'			=> $new_id,
+									'assetid'			=> $this->id,
+									'currentattrid'		=> $current_id,
+								  );
+					$result = MatrixDAL::executeQuery('core', 'updateAttrId', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update attribute id for asset: '.$this->id.' from current attribute id: '.$current_id.' to new attribute id: '.$new_id.' due to database error: '.$e->getMessage());
+				}
 			}
 		}//end if common var list
 
@@ -1685,32 +1692,37 @@ class Asset extends MySource_Object
 		if ($deletes_var_list) {
 			$deletes_attributeids = '';
 			foreach ($deletes_var_list as $var_name) {
-				$deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quoteSmart($this->vars[$var_name]['attrid']);
+				$deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attrid']);
 			}
 
 			$sql = 'DELETE FROM
 						sq_ast_attr_val
 					WHERE
-							assetid	= '.$db->quoteSmart($this->id).'
+							assetid	= :assetid
 						AND attrid IN
 						(
 							'.$deletes_attributeids.'
 						)';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':assetid', $this->id);
+				$result = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete attribute values for asset: '.$this->id.' due to database error: '.$e->getMessage());
+			}
 
 		}// end if delete var list
 
-		$sql = 'UPDATE
-					sq_ast
-				SET
-					type_code = '.$db->quote($new_type_code).'
-				WHERE
-					assetid = '.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'type_code'			=> $new_type_code,
+							'assetid'			=> $this->id,
+						  );
+			$result = MatrixDAL::executeQuery('core', 'updateAstTypeCode', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update type code for asset: '.$this->id.' due to database error: '.$e->getMessage());
+		}
 
 		// now load this new asset into the temporary
 		$tmp->load($this->id);
@@ -1737,8 +1749,6 @@ class Asset extends MySource_Object
 
 		// all is OK so override ourselves with the temporary
 		if ($all_ok) {
-			throw new Exception('Re-assigning $this here won\'t work');
-			//$this = $tmp;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
@@ -1748,8 +1758,7 @@ class Asset extends MySource_Object
 															'new_type'	=> $new_type_code,
 														  )
 			);
-
-			return TRUE;
+			return $tmp;
 
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

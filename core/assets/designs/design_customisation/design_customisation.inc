@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.49 2007/07/16 23:55:39 rhoward Exp $
+* $Id: design_customisation.inc,v 1.50 2007/11/26 00:54:15 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,7 +85,7 @@ class Design_Customisation extends Design
 	*/
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
-		if ($side_of_link == 'minor' && is_a($asset, 'design')) {
+		if ($side_of_link == 'minor' && $asset instanceof Design) {
 			$value = 'customisation';
 			return TRUE;
 		}
@@ -125,7 +125,7 @@ class Design_Customisation extends Design
 		}
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
-		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
+		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && ($minor instanceof File)) {
 
 			$design =& $this->getParentDesign();
 
@@ -162,7 +162,7 @@ class Design_Customisation extends Design
 		}//end if is_a file
 
 		// special processing if we are deleting a TYPE_2 linked CSS file (a CSS file overridding a design file)
-		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'design_css')) {
+		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && ($minor instanceof Design_Css)) {
 
 			$design =& $this->getParentDesign();
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.57 2007/11/15 05:35:40 bshkara Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.58 2007/11/26 00:54:15 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -475,23 +475,28 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$url = $GLOBALS['sq_preview_url'];
 		$url = preg_replace('|^http[s]?://|', '', $url);
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT value
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 
 		$where = 'name LIKE '.$db->quote('design::%').' AND
-					(('.$db->quote($url).' = url)
-					OR (('.$db->quote($url).' LIKE url || \'/%\')
-					AND ('.$db->quote($url).' NOT LIKE url || \'%/$\'))
+					((:url = url)
+					OR ((:url LIKE url || \'/%\')
+					AND (:url NOT LIKE url || \'%/$\'))
 					OR (('.$db->quote($url.'/').' = url)))';
 
 		$order_by = ' ORDER BY depth DESC';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$designid = $db->getOne($sql.$where.$order_by);
-		assert_valid_db_result($designid);
+		try {
+			$query = $db->prepare($sql.$where.$order_by);
+			$query->bindValue(':url', $url);
+			$designid = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get designid for URL: '.$url.' due to database error: '.$e->getMessage());
+		}
 
 		if ($designid) {
 			if (!SQ_IN_LIMBO) {

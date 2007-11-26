@@ -266,7 +266,7 @@
 	</query>
 
 	<query id="getValidProtocols">
-		<!-- Return the valid protocols for the specified URL -->
+	<!-- Return the valid protocols for the specified URL -->
 		<primary>
 			<select>
 				<fields>
@@ -1040,4 +1040,40 @@
 		</primary>
 	</query>
 
+	<!-- //     DESIGNS       // -->
+	<query id="updateAttrId">
+	<!-- Updates attribute ids for specified assetid and attrid -->
+		<primary>
+			<update>
+				<fields table="sq_ast_attr_val">
+					<field>attrid</field>
+				</fields>
+				<values>
+					<value column="attrid">:newattrid</value>
+				</values>
+				<where>
+					<equal table="sq_ast_attr_val" column="assetid">:assetid</equal>
+					<equal table="sq_ast_attr_val" column="attrid">:currentattrid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+			
+	<query id="updateAstTypeCode">
+	<!-- Updates type code for specified assetid -->
+		<primary>
+			<update>
+				<fields table="sq_ast">
+					<field>type_code</field>
+				</fields>
+				<values>
+					<value column="type_code">:type_code</value>
+				</values>
+				<where>
+					<equal table="sq_ast" column="assetid">:assetid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+			
 </queries>

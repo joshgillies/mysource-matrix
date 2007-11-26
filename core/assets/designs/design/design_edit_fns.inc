@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.118 2007/11/19 04:42:30 rong Exp $
+* $Id: design_edit_fns.inc,v 1.119 2007/11/26 00:54:15 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -554,19 +554,19 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		// Now let's morph the dupe into a design customisation
-		if (!$clone->morph('design_customisation')) {
+		if (!$cloned = $clone->morph('design_customisation')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		// and link it back to ourselves
-		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', NULL, '1')) {
+		if (!$asset->createLink($cloned, SQ_LINK_TYPE_2, 'customisation', NULL, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
-		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
+		if (!($cloned->setAttrValue('id_name', $new_name) && $cloned->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -579,7 +579,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($da_links as $link) {
 			$da = $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
-			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
+			if (!$cloned->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -590,8 +590,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$initial_path = strtolower($new_name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, TRUE);
-		if (!$clone->saveWebPaths($good_paths)) {
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $cloned->id, TRUE);
+		if (!$cloned->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -602,7 +602,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($file_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
+			if (!$cloned->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -617,7 +617,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', FALSE);
 		foreach ($css_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
+			if (!$cloned->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0161', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -628,7 +628,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$am->forgetAsset($minor);
 
 		// release the lock on the new object
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($cloned->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -658,9 +658,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if ($customisation_links) {
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
-				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
-				if (is_null($customisation)) continue;
-				echo get_asset_tag_line($customisation->id, 'details').'<br/>';
+				echo get_asset_tag_line($link['minorid'], 'details').'<br/>';
 			}
 
 		} else {
@@ -870,7 +868,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// we are done with this design area, release the lock
 			// otherwise we will get lock by user 0 after a full system cleanup
 			// for login form design area and password change form design area
-			@$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'parsing');
+			// this only occurs in CLI mode
+			if (SQ_PHP_CLI) {
+				@$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'parsing');
+			}
 
 		}//end foreach
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.45 2007/01/08 03:25:18 tbarrett Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.46 2007/11/26 00:54:15 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -430,7 +430,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	* @access private
 	* @see _paintDesignAreaList()
 	*/
-	function linkCompare($a, $b)
+	public static function linkCompare($a, $b)
 	{
 		// if they don't match, return the value
 		if ($c = strcmp($a['minor_type_code'], $b['minor_type_code'])) {

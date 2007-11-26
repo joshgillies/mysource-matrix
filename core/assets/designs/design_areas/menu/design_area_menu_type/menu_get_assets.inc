@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.2 2006/12/05 22:42:15 emcdonald Exp $
+* $Id: menu_get_assets.inc,v 1.3 2007/11/26 00:54:15 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@
 function menu_get_assets($id_name, $majorids)
 {
 
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$db = MatrixDAL::getDb();
 
 	if (!isset($GLOBALS['MENU_DATA'][$id_name])) {
 		$GLOBALS['MENU_DATA'][$id_name] = Array();
@@ -49,13 +49,13 @@ function menu_get_assets($id_name, $majorids)
 
 	static $USERIDS_COND = NULL;
 
+	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 	if (is_null($USERIDS_COND)) {
 		// if they are logged in add their parents to the list
 		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			$USERIDS_COND = '';
 		} else {
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			$userids[] = $public_userid;
 			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
@@ -66,10 +66,10 @@ function menu_get_assets($id_name, $majorids)
 			$USERIDS_COND .= 'OR r.userid  IN ('.$userids_str.')) ';
 			$USERIDS_COND .= ' AND (
 				(p.permission = '.$db->quote((Integer)SQ_PERMISSION_READ).' AND (
-						p.userid <> '.$db->quote($public_userid).'
-						OR r.userid <> '.$db->quote($public_userid).'
-						OR (p.userid = '.$db->quote($public_userid).' AND p.granted = \'1\')
-						OR (r.userid = '.$db->quote($public_userid).' AND p.granted = \'1\')
+						p.userid <> :public_userid
+						OR r.userid <> :public_userid
+						OR (p.userid = :public_userid AND p.granted = \'1\')
+						OR (r.userid = :public_userid AND p.granted = \'1\')
 					)
 				)
 				OR	(
@@ -96,7 +96,7 @@ function menu_get_assets($id_name, $majorids)
 				 LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
 	}
 	$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
-				 AND '.db_extras_bitand($db, 'l.link_type', SQ_SC_LINK_FRONTEND_NAV).' > 0 ';
+				 AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_FRONTEND_NAV).' > 0 ';
 	$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 	$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 	if (!empty($USERIDS_COND)) {
@@ -106,11 +106,16 @@ function menu_get_assets($id_name, $majorids)
 	$where .= ' '.$USERIDS_COND.'
 			   ORDER BY l.majorid, l.sort_order';
 
-	$result = $db->query($sql.$where);
-	assert_valid_db_result($result);
+	try {
+		$query = $db->prepare($sql.$where);
+		$query->bindValue(':public_userid', $public_userid);
+		$result = MatrixDAL::executePdoAssoc($query);
+	} catch (Exception $e) {
+		throw new Exception('Unable to get valid menu entries due to database error: '.$e->getMessage());
+	}
 
 	$assetids = Array();
-	while (DB_OK === $result->fetchInto($row)) {
+	foreach ($result as $row) {
 		if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
 			$menu_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($row['assetid']);
 			$read_access = $menu_asset->readAccess();
@@ -135,7 +140,6 @@ function menu_get_assets($id_name, $majorids)
 		$storage[$row['majorid']][$row['assetid']] = $row;
 
 	}
-	$result->free();
 
 	return $assetids;
 
