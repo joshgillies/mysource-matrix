@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design_associated_files.inc,v 1.4 2007/11/21 04:40:53 gsherwood Exp $
+* $Id: trigger_action_set_design_associated_files.inc,v 1.5 2007/11/26 22:53:47 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,8 +110,8 @@ class Trigger_Action_Set_Design_Associated_Files extends Trigger_Action
 					if (!clear_directory($files_dir)) return FALSE;
 
 					$result = $tar_ball->extractList($files, $files_dir, $remove_path);
-					if (PEAR::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					if (!$result) {
+						trigger_error('Failed to extract tar archive', E_USER_WARNING);
 						break;
 					} else {
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
