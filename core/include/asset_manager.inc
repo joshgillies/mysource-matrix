@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.622 2007/11/26 03:41:09 rong Exp $
+* $Id: asset_manager.inc,v 1.623 2007/11/26 04:14:10 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.622 $
+* @version $Revision: 1.623 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2702,7 +2702,9 @@ class Asset_Manager extends MySource_Object
 			$query->bindValue(':assetid', $assetid);
 			$query->bindValue(':side_of_link', $side_of_link);
 			$result = MatrixDAL::executePdoAssoc($query);
-			$result = $result[0];
+			if (isset($result[0])) {
+				$result = $result[0];
+			}
 		} catch (Exception $e) {
 			throw new Exception('Unable to get link details for asset with assetid: '.$assetid.' due to database error: '.$e->getMessage());
 		}
