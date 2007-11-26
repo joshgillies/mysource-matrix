@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.119 2007/11/26 00:54:15 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.120 2007/11/26 03:38:09 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -363,8 +363,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 						if (!clear_directory($files_dir)) return FALSE;
 
 						$result = $tar_ball->extractList($files, $files_dir, $remove_path);
-						if (PEAR::isError($result)) {
-							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+						if (!$result) {
+							trigger_error('Failed to extract tar archive', E_USER_WARNING);
 							break;
 						} else {
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
