@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.156 2007/11/22 05:44:08 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.157 2007/11/26 04:26:57 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -601,7 +601,7 @@ class Metadata_Manager extends MySource_Object
 			}
 
 			try {
-				$fields = $db->getAssoc(implode(' ', $sql_parts));
+				$fields = MatrixDAL::executeSqlAssoc(implode(' ', $sql_parts));
 			} catch (Exception $e) {
 				throw new Exception('Unable to get metadata field values for assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
 			}//end try catch
