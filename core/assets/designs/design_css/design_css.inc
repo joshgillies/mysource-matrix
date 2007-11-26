@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.34 2007/11/06 06:11:39 rong Exp $
+* $Id: design_css.inc,v 1.35 2007/11/26 03:08:16 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -181,7 +181,7 @@ class Design_Css extends Design
 		}
 
 		// special processing if we are creating a TYPE_2 linked file (inherited by customisations)
-		if (is_a($minor, 'file')) {
+		if ($minor instanceof File) {
 
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -252,7 +252,7 @@ class Design_Css extends Design
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
-		if (is_a($minor, 'file')) {
+		if ($minor instanceof File) {
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 			foreach ($customisation_links as $link) {
