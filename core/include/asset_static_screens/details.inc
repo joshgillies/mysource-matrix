@@ -10,18 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.40 2007/11/22 02:51:22 hnguyen Exp $
+* $Id: details.inc,v 1.41 2007/11/26 23:39:49 rong Exp $
 *
 */
 
-//require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 
@@ -386,8 +385,9 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 			}//end switch
 
-			if (!empty($field->note)) {
-				$o->note((string) $field->note);
+			$note = (string) $field->note;
+			if (!empty($note)) {
+				$o->note($note);
 			}
 
 		}//end for
@@ -551,6 +551,4 @@ function processDetails(&$owner, &$o, &$ei)
 	return ($is_updated);
 
 }//end processDetails()
-
-
 ?>
