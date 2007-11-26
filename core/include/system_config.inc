@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.101 2007/10/29 05:17:15 lwright Exp $
+* $Id: system_config.inc,v 1.102 2007/11/26 23:14:35 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -37,10 +37,6 @@ class System_Config extends Config
 	* @var array
 	*/
 	public $config_vars = Array(
-						'SQ_CONF_DB_DSN'						=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DB2_DSN'						=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DB3_DSN'						=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_DBCACHE_DSN'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_PEAR_PATH'						=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_BACKEND_SUFFIX'				=> Array('editable' => 1, 'default' => '_admin'),
 						'SQ_CONF_LIMBO_SUFFIX'					=> Array('editable' => 1, 'default' => '_edit'),
