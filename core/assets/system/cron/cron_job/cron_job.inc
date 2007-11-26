@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.54 2007/11/22 23:28:54 lwright Exp $
+* $Id: cron_job.inc,v 1.55 2007/11/26 22:40:32 bshkara Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -362,7 +362,7 @@ class Cron_Job extends Asset
 	* @access public
 	* @static
 	*/
-	function whenTypeName($type)
+	public static function whenTypeName($type)
 	{
 		switch ($type) {
 			case 'ET' : return translate('every_time');
