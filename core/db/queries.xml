@@ -361,6 +361,24 @@
 		</primary>
 	</query>
 
+	<query id="getLinkTreeid">
+		<!-- Returns the treeids for linkids passed in.. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lnk_tree" column="linkid" />
+					<field table="sq_ast_lnk_tree" column="treeid" />
+				</fields>
+				<from>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<where>
+					<in table="sq_ast_lnk_tree" column="linkid">:linkid</in>
+				</where>
+			</select>
+		</primary>
+	</query>
+
 	<query id="createAsset">
 	<!-- Creates a single new asset. -->
 		<primary>

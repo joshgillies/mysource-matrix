@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.621 2007/11/22 23:58:45 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.622 2007/11/26 03:41:09 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.621 $
+* @version $Revision: 1.622 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3987,25 +3987,17 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkTreeid($linkid)
 	{
+		if (!is_array($linkid)) {
+			$linkid = Array($linkid);
+		}
+
 		$db = MatrixDAL::getDb();
-
-		if (is_array($linkid)) {
-			$sql = 'SELECT linkid, treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ';
-			$where = 'WHERE linkid IN ('.implode(', ', $linkid).')';
-		} else {
-			$sql = 'SELECT treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ';
-			$where = 'WHERE linkid  = '.$db->quote($linkid);
+		try {
+			$bind_vars['linkid'] = $linkid;
+			$result = MatrixDAL::executeGrouped('core', 'getLinkTreeid', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Failed to get link tree id: '.$e->getMessage());
 		}
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		if (is_array($linkid)) {
-			$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC);
-		} else {
-			$result = $db->getCol($sql.$where);
-		}
-		assert_valid_db_result($result);
 
 		return $result;
 
