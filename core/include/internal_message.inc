@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.80 2007/11/21 04:23:47 colivar Exp $
+* $Id: internal_message.inc,v 1.81 2007/11/26 22:07:23 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -322,7 +322,11 @@ class Internal_Message extends MySource_Object
 			// new line is \n
 			$crlf = "\n";
 			$mime = new Mail_mime($crlf);
-			$mail = Mail::factory('mail', "-f$from_email");
+
+			// workaround to fix the strict standard "non-static method"
+			// $mail = Mail::factory('mail', "-f$from_email");
+			$mf = new Mail();
+			$mail = $mf->factory('mail', "-f$from_email");
 
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {

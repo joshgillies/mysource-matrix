@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.65 2007/11/12 23:05:31 hnguyen Exp $
+* $Id: messaging_service.inc,v 1.66 2007/11/26 22:07:23 colivar Exp $
 *
 */
 
@@ -29,6 +29,7 @@ define('SQ_MSG_PRIORITY_NORMAL'    , 3);
 define('SQ_MSG_PRIORITY_HIGH'      , 4);
 define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 
+
 /**
 * Messaging_Service
 *
@@ -36,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -730,7 +731,12 @@ class Messaging_Service extends MySource_Object
 				foreach ($to_emails as $subject => $bodies) {
 
 					$body = implode("\n\n".str_repeat('-', 50)."\n\n", $bodies);
-					$mail = Mail::factory('mail', "-f$from_email");
+
+					// workaround to fix the php5 strict warning
+					// $mail = Mail::factory('mail', "-f$from_email");
+					$mf = new Mail();
+					$mail = $mf->factory('mail', "-f$from_email");
+
 					$mime = new Mail_mime($crlf);
 
 					$hdrs = Array(
@@ -747,8 +753,7 @@ class Messaging_Service extends MySource_Object
 					// get() must be called before headers()
 					$body = $mime->get();
 					$hdrs = $mime->headers($hdrs);
-
-					$mail->send($to_email, $hdrs, $body);
+					@$mail->send($to_email, $hdrs, $body);
 					unset($mime);
 					unset($mail);
 				}
