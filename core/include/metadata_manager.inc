@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.159 2007/11/26 04:31:27 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.160 2007/11/26 04:40:53 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -332,7 +332,7 @@ class Metadata_Manager extends MySource_Object
 			if (!is_null($granted)) {
 				$query->bindValue('granted', ($granted ? '1' : '0'));
 			}
-			$result = MatrixDAL::executeAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get assetid with schemaid #'.$schemaid.' applied due to the following database error:'.$e->getMessage());
 		}//end try catch
@@ -600,17 +600,17 @@ class Metadata_Manager extends MySource_Object
 				$sql_parts['where'] .= ')';
 			}
 
+
 			try {
-				$fields = MatrixDAL::executeSqlAssoc(implode(' ', $sql_parts));
+				$fields = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $sql_parts));
 			} catch (Exception $e) {
 				throw new Exception('Unable to get metadata field values for assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
 			}//end try catch
 
 
-
 			foreach ($fields as $fieldid => $type_code) {
 
-				$field =& $am->getAsset($fieldid, $type_code);
+				$field =& $am->getAsset($fieldid, $type_code['0']['type_code']);
 
 				if (is_null($field)) {
 					trigger_localised_error('SYS0041', E_USER_WARNING, $schemaid);
