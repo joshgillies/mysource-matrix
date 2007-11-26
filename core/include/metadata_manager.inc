@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.160 2007/11/26 04:40:53 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.161 2007/11/26 21:53:35 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -709,7 +709,7 @@ class Metadata_Manager extends MySource_Object
 		$delete_fieldids = Array();
 		$remaining = Array();
 		foreach ($metadata as $fieldid => $details) {
-			if ($details['value'] === NULL) {
+			if ($details[0]['value'] === NULL) {
 				// we want to revert this field to default, done by deleting it from the mdata_val table
 				$delete_fieldids[] = $db->quote((string)$fieldid);
 			} else {
@@ -754,13 +754,13 @@ class Metadata_Manager extends MySource_Object
 				$bind_vars	= Array (
 								'assetid'	=> $asset->id,
 								'fieldid'	=> $fieldid,
-								'value'		=> $metadata[$fieldid]['value'],
+								'value'		=> $metadata[$fieldid][0]['value'],
 							  );
 				if (!in_array($fieldid, $updates)) {
 					try {
 						$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 					} catch (Exception $e) {
-						throw new Exception('Unable to set metadata value '.$metadata[$fieldid]['value'].' for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+						throw new Exception('Unable to set metadata value '.$metadata[$fieldid][0]['value'].' for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 					}//end try catch
 
 				// we are updating
@@ -768,7 +768,7 @@ class Metadata_Manager extends MySource_Object
 					try {
 						$result = MatrixDAL::executeQuery('core', 'updateMetadataValueForAsset', $bind_vars);
 					} catch (Exception $e) {
-						throw new Exception('Unable to update metadata value '.$metadata[$fieldid]['value'].' for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+						throw new Exception('Unable to update metadata value '.$metadata[$fieldid][0]['value'].' for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 					}//end try catch
 
 				}//end if
