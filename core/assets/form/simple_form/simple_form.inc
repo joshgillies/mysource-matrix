@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.23 2007/11/27 23:55:38 lwright Exp $
+* $Id: simple_form.inc,v 1.24 2007/11/27 23:56:19 lwright Exp $
 *
 */
 
@@ -27,11 +27,10 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-register_implementation('simple_form', 'bridge');
 class Simple_Form extends Asset implements Bridge
 {
 
