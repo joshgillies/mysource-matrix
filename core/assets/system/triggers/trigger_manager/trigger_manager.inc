@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.44 2007/10/29 22:58:31 lwright Exp $
+* $Id: trigger_manager.inc,v 1.45 2007/11/27 23:57:46 lwright Exp $
 *
 */
 
@@ -30,6 +30,7 @@ define('SQ_TRIG_RESULT_INVALID', -2);
 define('SQ_TRIG_RESULT_FAILURE',  0);
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 require_once 'hash.inc';
 
 register_implementation('trigger_manager', 'bridge');
@@ -42,11 +43,11 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Trigger_Manager extends Asset
+class Trigger_Manager extends Asset implements Bridge
 {
 
 
