@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.19 2007/11/06 06:10:33 rong Exp $
+* $Id: data_source.inc,v 1.20 2007/11/27 23:54:07 lwright Exp $
 *
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
-register_implementation('data_source', 'bridge');
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 
 /**
@@ -26,11 +26,11 @@ register_implementation('data_source', 'bridge');
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Data_Source extends Asset
+class Data_Source extends Asset implements Bridge
 {
 
 
@@ -677,6 +677,38 @@ class Data_Source extends Asset
 		return $parents;
 
 	}//end getParents()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
+
+
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+		return Array();
+
+	}//end getLineageFromURL()
 
 
 }//end class
