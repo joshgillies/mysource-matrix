@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.259 2007/11/20 02:10:12 colivar Exp $
+* $Id: asset_map.inc,v 1.260 2007/11/27 22:17:54 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.259 $
+* @version $Revision: 1.260 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -794,8 +794,8 @@ class Asset_Map
 				$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status, u.url,
 							l.link_type, l.sort_order, ap.path,
 							(CASE u.'.$primary_protocol.'
-								WHEN '.$db->quote('1').' THEN :primary_protocol'.'
-								WHEN '.$db->quote('0').' THEN :secondary_protocol'.'
+								WHEN '.$db->quote('1').' THEN :primary_protocol
+								WHEN '.$db->quote('0').' THEN :secondary_protocol
 							END) AS protocol';
 				$bind_vars['primary_protocol'] = $primary_protocol;
 				$bind_vars['secondary_protocol'] = $secondary_protocol;
@@ -818,7 +818,7 @@ class Asset_Map
 											FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
 											INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
 											LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
-											WHERE l2.assetid = :assetid'.' AND (';
+											WHERE l2.assetid = :assetid AND (';
 					$bind_vars['assetid'] = $assetid;
 					$sql = $sql.'(
 								(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
@@ -829,34 +829,30 @@ class Asset_Map
 									)
 								)
 								OR	(
-										p.permission > :SQ_PERMISSION_READ AND p.granted = 1
+										p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
 									)
 							) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
-					$bind_vars['SQ_PERMISSION_READ'] = SQ_PERMISSION_READ;
 				}
 
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
 				$where = ' l.assetid = :assetid';
-				$bind_vars['assetid'] = $assetid;
 				if ($linkid && is_numeric($linkid)) {
-					$where .= ' AND l.linkid = :linkid';
-					$bind_vars['linkid'] = $linkid;
+					$where .= ' AND l.linkid = '.$db->quote((string)$linkid);
 				}
 
-				$where .=' AND l.link_type <= :SQ_LINK_TYPE_2';
-				$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
+				$where .=' AND l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
 				$sql .= ' '.$where;
 
-				$query = $db->prepare($sql);
+				$query = $db->prepare($sql);log_dump($bind_vars);
 				foreach ($bind_vars as $key => $value) {
 					$query->bindValue(':'.$key, $value);
 				}
-				$assets = DAL::executePdoAll($query);
+				$assets = DAL::executePdoAssoc($query);
 				$asset = (!empty($assets)) ? $assets[0] : Array();
 
 			} catch (Exception $e) {
@@ -983,8 +979,8 @@ class Asset_Map
 			$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status,
 						l.linkid, l.link_type, l.sort_order, ap.path, u.url,
 						(CASE u.'.$primary_protocol.'
-							WHEN 1 THEN :primary_protocol
-							WHEN 0 THEN :secondary_protocol
+							WHEN '.$db->quote('1').' THEN :primary_protocol
+							WHEN '.$db->quote('0').' THEN :secondary_protocol
 						END) AS protocol';
 			$bind_vars['primary_protocol'] = $primary_protocol;
 			$bind_vars['secondary_protocol'] = $secondary_protocol;
@@ -1005,19 +1001,17 @@ class Asset_Map
 										WHERE l2.majorid = :assetid AND (';
 				$bind_vars['assetid'] = $assetid;
 				$sql = $sql.'(
-							(p.permission = :SQ_PERMISSION_READ AND (
-									p.userid <> :public_userid
-									OR r.userid <> :public_userid
-									OR (p.userid = :public_userid AND p.granted = 1)
-									OR (r.userid = :public_userid AND p.granted = 1)
+							(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
+									p.userid <> '.$db->quote($public_userid).'
+									OR r.userid <> '.$db->quote($public_userid).'
+									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
 								)
 							)
 							OR	(
-									p.permission > :SQ_PERMISSION_READ AND p.granted = 1
+									p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
 								)
 						) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
-				$bind_vars['SQ_PERMISSION_READ'] = SQ_PERMISSION_READ;
-				$bind_vars['public_userid'] = $public_userid;
 			}
 
 			$u_where = 'l.assetid = u.assetid';
@@ -1029,13 +1023,11 @@ class Asset_Map
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
 
 			$where = 'l.majorid = :assetid';
-			$bind_vars['assetid'] = $assetid;
 			if ($dependants_only) {
-				$where .= ' AND l.is_dependant = 1';
+				$where .= ' AND l.is_dependant = '.$db->quote('1');
 			}
 			$where .= ' AND
-						l.link_type <= :SQ_LINK_TYPE_2';
-			$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
+						l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
@@ -1043,7 +1035,6 @@ class Asset_Map
 			$sql .= ' '.$where;
 			$sql .= ' ORDER BY sort_order';
 
-			//$db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
 			$query = $db->prepare($sql);
 			foreach($bind_vars as $key => $value) {
 				$query->bindValue(':'.$key, $value);
