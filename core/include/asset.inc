@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.614 2007/11/26 00:54:15 bshkara Exp $
+* $Id: asset.inc,v 1.615 2007/11/27 00:25:59 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.614 $
+* @version $Revision: 1.615 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4738,7 +4738,7 @@ class Asset extends MySource_Object
 
 		$include_override = ' OR (l.url || \'/\' = lv.url)';
 
-		$where = 'l.assetid = \''.$this->id.'\'';
+		$where = 'l.assetid = '.$db->quote($this->id);
 
 		// Return all rows which are children, i.e. they inherit
 		// Called by lookupValues.inc to draw the lookup settings screen
@@ -4748,7 +4748,7 @@ class Asset extends MySource_Object
 				';
 
 		if ($prefix != '') {
-			$where .= ' AND lv.name '.((!$like_search) ? 'NOT' : '').' LIKE \'design::%\'';
+			$where .= ' AND lv.name '.((!$like_search) ? 'NOT' : '').' LIKE '.$db->quote('design::%');
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -4756,14 +4756,18 @@ class Asset extends MySource_Object
 
 		$sql_order_by = ' ORDER BY depth ASC ';
 
-		if (!is_null($inherited) && $inherited) {
-			$result = MatrixDAL::executeSqlAll($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where);
-		}
-		elseif ($ignore_override_designs) {
-			$result = MatrixDAL::executeSqlAll($sql_default.$where);
-		}
-		else {
-			$result = MatrixDAL::executeSqlAll($sql_default.$include_override.$where);
+		try {
+			if (!is_null($inherited) && $inherited) {
+				$result = MatrixDAL::executeSqlAssoc($sql_inherited.$include_override.$where.' UNION '.$sql_default.$where.$sql_order_by);
+			}
+			elseif ($ignore_override_designs) {
+				$result = MatrixDAL::executeSqlAssoc($sql_default.$where);
+			}
+			else {
+				$result = MatrixDAL::executeSqlAssoc($sql_default.$include_override.$where);
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get lookup values for asset: '.$this->id.' due to database error: '.$e->getMessage());
 		}
 
 		$ret_val = Array();
