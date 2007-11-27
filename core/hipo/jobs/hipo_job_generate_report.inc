@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.13 2006/12/05 05:39:09 bcaldwell Exp $
+* $Id: hipo_job_generate_report.inc,v 1.13.6.1 2007/11/27 03:02:22 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.6.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -216,6 +216,9 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	*/
 	function processReport(&$step_data, $prefix)
 	{
+		if ($step_data['complete']) {
+			$this->_running_vars['complete'] = TRUE;
+		}
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid'], $this->_running_vars['type_code']);
 		$edit_fns = $asset->getEditFns();
 
