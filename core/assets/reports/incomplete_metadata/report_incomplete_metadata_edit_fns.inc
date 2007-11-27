@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.16 2007/11/06 06:27:21 rong Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.17 2007/11/27 04:14:51 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,9 +88,9 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 		}
 
 		if (!empty($job->_running_vars['todo'])) {
-
-			$assetid = array_shift(array_keys($job->_running_vars['todo']));
-			$asset_type = $job->_running_vars['todo'][$assetid];
+			$keys = array_keys($job->_running_vars['todo']);
+			$assetid = array_shift($keys);
+			$asset_type = $job->_running_vars['todo'][$assetid][0]['type_code'];
 			unset($job->_running_vars['todo'][$assetid]);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
@@ -169,7 +169,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		$report_path = $asset->data_path.'/report.xml';
@@ -178,20 +177,21 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input = new XML_Tree($report_path);
-		$root  = $input->getTreeFromFile();
-
-		if (PEAR::isError($root)) {
-			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+		// use simple xml to parse the report file
+		try {
+			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
+		// build the info array for printing
 		$missing_fields = Array();
-		foreach ($root->children as $result) {
-			if ($result->name != 'asset') continue;
-			foreach ($result->children as $field) {
-				if ($field->name != 'field') continue;
-				$missing_fields[$result->attributes['assetid']][] = $field->content;
+		foreach ($root->asset as $node) {
+			$assetid = (int) $node->attributes()->assetid;
+			foreach ($node->field as $field) {
+				$missing_fields[$assetid][] = (string) $field;
 			}
 		}
 
