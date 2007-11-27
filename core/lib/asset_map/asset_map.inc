@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.260 2007/11/27 22:17:54 bshkara Exp $
+* $Id: asset_map.inc,v 1.261 2007/11/27 22:24:06 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.260 $
+* @version $Revision: 1.261 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -819,7 +819,6 @@ class Asset_Map
 											INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
 											LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
 											WHERE l2.assetid = :assetid AND (';
-					$bind_vars['assetid'] = $assetid;
 					$sql = $sql.'(
 								(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
 										p.userid <> '.$db->quote($public_userid).'
@@ -838,6 +837,7 @@ class Asset_Map
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
 				$where = ' l.assetid = :assetid';
+				$bind_vars['assetid'] = $assetid;
 				if ($linkid && is_numeric($linkid)) {
 					$where .= ' AND l.linkid = '.$db->quote((string)$linkid);
 				}
@@ -848,7 +848,7 @@ class Asset_Map
 
 				$sql .= ' '.$where;
 
-				$query = $db->prepare($sql);log_dump($bind_vars);
+				$query = $db->prepare($sql);
 				foreach ($bind_vars as $key => $value) {
 					$query->bindValue(':'.$key, $value);
 				}
@@ -999,7 +999,6 @@ class Asset_Map
 										INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
 										LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
 										WHERE l2.majorid = :assetid AND (';
-				$bind_vars['assetid'] = $assetid;
 				$sql = $sql.'(
 							(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
 									p.userid <> '.$db->quote($public_userid).'
@@ -1023,6 +1022,7 @@ class Asset_Map
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
 
 			$where = 'l.majorid = :assetid';
+			$bind_vars['assetid'] = $assetid;
 			if ($dependants_only) {
 				$where .= ' AND l.is_dependant = '.$db->quote('1');
 			}
