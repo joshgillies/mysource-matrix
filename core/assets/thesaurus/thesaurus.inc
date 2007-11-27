@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.47 2007/11/15 23:56:27 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.48 2007/11/27 23:58:10 lwright Exp $
 *
 */
 
@@ -18,6 +18,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 register_implementation('thesaurus', 'bridge');
 
@@ -28,11 +29,11 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Thesaurus extends Asset
+class Thesaurus extends Asset implements Bridge
 {
 
 
@@ -2631,6 +2632,23 @@ class Thesaurus extends Asset
 		return FALSE;
 
 	}//end canClone()
+
+
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+		return Array();
+
+	}//end getLineageFromURL()
 
 
 }//end class
