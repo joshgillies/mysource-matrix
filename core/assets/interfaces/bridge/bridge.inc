@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.8 2006/12/06 04:57:30 emcdonald Exp $
+* $Id: bridge.inc,v 1.9 2007/11/27 23:52:50 lwright Exp $
 *
 */
 
@@ -22,11 +22,11 @@
 *    Provides an interface bridging between the MySource system some other external system
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Bridge
+interface Bridge
 {
 
 
@@ -46,10 +46,7 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
-	{
-
-	}//end getAsset()
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE);
 
 
 	/**
@@ -73,10 +70,7 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
-	{
-
-	}//end getLinks()
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL);
 
 
 	/**
@@ -92,10 +86,7 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
-	{
-
-	}//end getParents()
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE);
 
 
 	/**
@@ -120,10 +111,7 @@ class Bridge
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
-	{
-
-	}//end getChildren()
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL);
 
 
 	/**
@@ -136,10 +124,7 @@ class Bridge
 	* @return array
 	* @access public
 	*/
-	function getLineageFromURL($assetid, $protocol, $url)
-	{
-
-	}//end getLineageFromURL()
+	function getLineageFromURL($assetid, $protocol, $url);
 
 
 	/**
@@ -162,10 +147,7 @@ class Bridge
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
-	{
-
-	}//end countLinks()
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0);
 
 
 	/**
@@ -177,26 +159,32 @@ class Bridge
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=FALSE)
-	{
-
-	}//end deleteAssetLink()
+	function deleteAssetLink($linkid, $moving=FALSE);
 
 
 	/**
 	* Get asset info for use by asset map
+	*
+	* Should return an array containing the following elements:<ul>
+	* 	<li>assetid:    ID of the asset.</li>
+	* 	<li>name:       Full name of the asset.</li>
+	*	<li>short_name: Short name of the asset.</li>
+	*	<li>version:    Asset version number.<li>
+	*	<li>status:     Current status of the asset.</li>
+	*	<li>type_code:  The type code of the shadow asset.</li>
+	*   <li>num_kids:   Number of children, if known.</li>
+	*	<li>accessible: Whether the asset should be accessible.</li>
+	*	<li>url:        URL for this lineage of the asset, if known.</li>
+	*	<li>web_path:   Web path for this lineage of the asset, if known.</li>
 	*
 	* @param string	$assetid	Full Asset id to get information for
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetMapAssetInfo($assetid)
-	{
-
-	}//end getAssetMapAssetInfo()
+	function getAssetMapAssetInfo($assetid);
 
 
-}//end class
+}//end interface
 
 ?>
