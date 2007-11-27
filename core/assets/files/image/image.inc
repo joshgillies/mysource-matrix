@@ -10,13 +10,15 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.65 2007/11/16 01:00:14 rong Exp $
+* $Id: image.inc,v 1.66 2007/11/27 23:55:04 lwright Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
+
 
 /**
 * Image
@@ -25,12 +27,11 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-register_implementation('image', 'bridge');
-class Image extends File
+class Image extends File implements Bridge
 {
 
 	/**
@@ -1282,6 +1283,21 @@ class Image extends File
 		return 0;
 
 	}//end createAssetLink()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
 
 
 }//end class
