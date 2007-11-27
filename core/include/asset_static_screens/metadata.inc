@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.37 2007/11/21 05:20:03 hnguyen Exp $
+* $Id: metadata.inc,v 1.38 2007/11/27 23:03:54 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 
@@ -208,8 +208,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 	$duplicate_field_names = Array();
 	$field_ids = $mm->getMetadataFields($schemas);
 	if (!empty($field_ids)) {
-		foreach ($field_ids as $field_info) {
-			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_info['minorid']);
+		foreach ($field_ids as $field_assetid => $field_info) {
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
 			if (!isset($field_names[$field->attr('name')])) {
 				$field_names[$field->attr('name')] = 1;
 			} else {
