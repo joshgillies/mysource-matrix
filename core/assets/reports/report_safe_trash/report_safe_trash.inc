@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash.inc,v 1.2 2007/11/06 06:27:21 rong Exp $
+* $Id: report_safe_trash.inc,v 1.3 2007/11/27 23:57:15 lwright Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
 * Report_Safe_Trash
@@ -24,12 +25,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-register_implementation('report_safe_trash', 'bridge');
-class Report_Safe_Trash extends Report
+class Report_Safe_Trash extends Report implements Bridge
 {
 
 
@@ -294,6 +294,89 @@ class Report_Safe_Trash extends Report
 		return $allowed_asset_map;
 
 	}//end getAllowedAssetTypeMap()
+
+
+	/**
+	* Return the number of links in the system that involve the specified asset
+	*
+	* Can be restricted by either link type afnd/or asset type code
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param int		$ignore_linkid		ignore the link represented by this link
+	*										id when returning the count
+	*
+	* @return int
+	* @access public
+	*/
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
+	{
+		return 0;
+
+	}//end countLinks()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
+
+
+	/**
+	* Returns a reference to the asset represented by the passed assetid
+	*
+	* This will always return NULL, because the incomplete metadata report
+	* does not deal with shadow assets, only shadow links between real assets.
+	*
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return mixed object|NULL
+	* @access public
+	* @see Asset_Manager::&getAsset()
+	*/
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	{
+		return NULL;
+
+	}//end getAsset()
+
+
+	/**
+	* Remove a link by id
+	*
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this delete is part of a move operation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteAssetLink($linkid, $moving=FALSE)
+	{
+		return FALSE;
+
+	}//end deleteAssetLink()
 
 
 }//end class
