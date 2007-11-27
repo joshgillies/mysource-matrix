@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.185 2007/11/19 03:32:13 mbrydon Exp $
+* $Id: general.inc,v 1.186 2007/11/27 23:49:55 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.185 $
+* @version $Revision: 1.186 $
 * @package MySource_Matrix
 */
 
@@ -951,6 +951,7 @@ function array_get_index($array, $index, $default=NULL)
 * @param string			$class		the class name (lowercase)
 * @param string|array	$interface	the interface(s) (all lowercase) we are implementing, either a string or an array
 *
+* @deprecated Deprecated since Matrix 3.18.0 RC1. Use PHP5 built-in interfaces instead.
 * @return void
 * @access public
 */
@@ -976,18 +977,16 @@ function register_implementation($class, $interface)
 function implements_interface($class, $interface)
 {
 	if (is_object($class)) {
-		$class = get_class($class);
+		return ($class instanceof $interface);
 	} else if (!class_exists($class)) {
 		trigger_localised_error('SYS0237', E_USER_ERROR, $class);
 	}
 
-	do {
-		if (isset($GLOBALS['SQ_IMPLEMENTATION'][$class]) && in_array($interface, $GLOBALS['SQ_IMPLEMENTATION'][$class])) {
-			return TRUE;
-		}
-	} while ($class = get_parent_class($class));
-
-	return FALSE;
+	// Must have been passed a string
+	$dummy = new $class();
+	$ret_val = ($dummy instanceof $interface);
+	unset($dummy);
+	return $ret_val;
 
 }//end implements_interface()
 
