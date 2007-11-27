@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.16 2007/11/21 04:40:53 gsherwood Exp $
+* $Id: trigger_action_set_permission.inc,v 1.17 2007/11/27 23:49:49 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -348,7 +348,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function addSettingUserid($value, $settings)
+	public static function addSettingUserid($value, $settings)
 	{
 
 		$settings['userid'] = $value;
