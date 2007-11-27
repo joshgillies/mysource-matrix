@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.12 2007/11/06 06:27:20 rong Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.13 2007/11/27 03:04:51 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,13 +53,10 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	{
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-
 		$owner = $am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
-
-		$job_vars =  $job->_running_vars;
+		$job_vars =& $job->_running_vars;
 
 		$report_contents = '';
-
 		$report_dir = $owner->data_path;
 
 		$xml_file_name = $report_dir.'/'.$this->report_name;
@@ -79,7 +76,6 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			} else {
 				// if types are not provided we search for all type codes
 				$children = $am->getChildren($this->getRootAssetid($owner));
-
 			}
 
 			// check if there is anything to do
@@ -90,8 +86,16 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 				return FALSE;
 			}
 
-			$job_vars['type_counts']     = array_count_values($children);
-			$job_vars['unique_types']    = array_unique($children);
+			// get count and type code
+			foreach ($children as $i => $info) {
+				if (!isset($job_vars['type_counts'][$info[0]['type_code']])) {
+					$job_vars['type_counts'][$info[0]['type_code']] = 1;
+				} else {
+					$job_vars['type_counts'][$info[0]['type_code']]++;
+				}
+			}
+			$job_vars['unique_types'] = array_keys($job_vars['type_counts']);
+			$job->_running_vars = $job_vars;
 
 			if (!is_dir($report_dir)) {
 				if (!create_directory($report_dir)) {
@@ -156,33 +160,32 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	function paintReport(&$asset, &$o, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-
-		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		$report_path = $asset->data_path.'/'.$this->report_name;
-
 		if (!is_file($report_path)) {
 			echo translate('report_not_generated');
 			return;
 		}
 
-		$input = new XML_Tree($report_path);
-		$root  = $input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+		// @see: unit_tests/by_file/core/assets/reports/asset_counter/test_asset_counter_report.test
+		// use simple xml to parse the report file
+		try {
+			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
+		// build the info array for printing
 		$asset_types = Array();
-		foreach ($root->children as $type_node) {
-			if ($type_node->name != 'asset_type') continue;
-
-			$type = $type_node->attributes['code'];
-
-			foreach ($type_node->children as $field) {
-				$asset_types[$type][$field->name] = $field->content;
-			}
+		foreach ($root->asset_type as $node) {
+			$type = (string)$node->attributes()->code;
+			$asset_types[$type] = Array(
+									'name'	=> (string)$node->name,
+									'count'	=> (int)$node->count,
+								  );
 		}
 
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
