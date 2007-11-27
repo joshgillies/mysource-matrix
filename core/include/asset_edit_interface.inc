@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.334 2007/11/26 23:18:34 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.335 2007/11/27 01:20:16 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.334 $
+* @version $Revision: 1.335 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2383,8 +2383,11 @@ class Asset_Edit_Interface extends MySource_Object
 		if (($file = $this->findSpecificFile($specific_file))) {
 			try {
 				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+				return $root;
 			} catch (Exception $e) {
 				throw new Exception('Unable to parse specific screen file "'.$file.'": '.$e->getMessage());
+				$root = NULL;
+				return $root;
 			}
 
 			// if empty, then just skip the searching for language files,
@@ -2461,31 +2464,24 @@ class Asset_Edit_Interface extends MySource_Object
 
 			if ($this->findFile('static_screen_'.$current_screen, FALSE)) {
 				$root = $this->findScreen('static_screen_'.$current_screen);
-				for ($i = 0; $i < count($root->children); $i++) {
-					$section = $root->children[$i];
+
+				foreach ($root->section as $section) {
 
 					// if the section should not be displayed, continue
-					if (isset($section->attributes['limbo_access']) && (int)$section->attributes['limbo_access'] == 0) {
+					if ((isset($section['limbo_access'])) && ((int) $section['limbo_access'] === 0)) {
 						continue;
 					}
 
-					$current_section_name =$section->attributes['name'];
+					$current_section_name = (string) $section['name'];
 
 					if (!isset($section_array[$current_section_name])) {
 						$section_array[$current_section_name] = Array();
 					}
 
-					if (!($num_fields = count($section->children))) {
-						continue;
-					}
-
-					for ($j = 0; $j < $num_fields; $j++) {
-						$field = $section->children[$j];
-						$keyword = array_get_index($field->attributes, 'code', 0);
+					foreach ($section->children() as $field) {
+						$keyword = (string) $field['code'];
 						if (!empty($keyword)) {
 							$section_array[$current_section_name][] = $keyword;
-
-
 						}
 					}
 
@@ -2495,26 +2491,20 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($this->findFile('screen_'.$current_screen, FALSE)) {
 				$root = $this->findScreen('screen_'.$current_screen);
 
-				for ($i = 0; $i < count($root->children); $i++) {
-					$section = $root->children[$i];
+				foreach ($root->section as $section) {
 
 					// if the section should not be displayed, continue
-					if (isset($section->attributes['limbo_access']) && (int)$section->attributes['limbo_access'] == 0) {
+					if ((isset($section['limbo_access'])) && ((int) $section['limbo_access'] === 0)) {
 						continue;
 					}
 
-					$current_section_name =$section->attributes['name'];
+					$current_section_name = (string) $section['name'];
 					if (!isset($section_array[$current_section_name])) {
 						$section_array[$current_section_name] = Array();
 					}
 
-					if (!($num_fields = count($section->children))) {
-						continue;
-					}
-
-					for ($j = 0; $j < $num_fields; $j++) {
-						$field = $section->children[$j];
-						$keyword = array_get_index($field->attributes, 'attribute', 0);
+					foreach ($section->children() as $field) {
+						$keyword = (string) $field['attribute'];
 						if (!empty($keyword)) {
 							$section_array[$current_section_name][] = $keyword;
 
@@ -2527,28 +2517,21 @@ class Asset_Edit_Interface extends MySource_Object
 
 				$root = $this->findSpecificScreen($tmpFile);
 
-				for ($i = 0; $i < count($root->children); $i++) {
-					$section = $root->children[$i];
+				foreach ($root->section as $section) {
 
 					// if the section should not be displayed, continue
-					if (isset($section->attributes['limbo_access']) && (int)$section->attributes['limbo_access'] == 0) {
+					if ((isset($section['limbo_access'])) && ((int) $section['limbo_access'] === 0)) {
 						continue;
 					}
 
-					$current_section_name =$section->attributes['name'];
+					$current_section_name = (string) $section['name'];
 
 					if (!isset($section_array[$current_section_name])) {
 						$section_array[$current_section_name] = Array();
 					}
 
-
-					if (!($num_fields = count($section->children))) {
-						continue;
-					}
-
-					for ($j = 0; $j < $num_fields; $j++) {
-						$field = $section->children[$j];
-						$keyword = array_get_index($field->attributes, 'attribute', 0);
+					foreach ($section->children() as $field) {
+						$keyword = (string) $field['attribute'];
 						if (empty($keyword)) {
 							$keyword = array_get_index($field->attributes, 'keyword', 0);
 						}
