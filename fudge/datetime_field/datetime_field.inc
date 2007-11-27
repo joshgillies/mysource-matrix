@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.47 2007/11/20 03:08:06 hnguyen Exp $
+* $Id: datetime_field.inc,v 1.48 2007/11/27 03:58:43 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -868,7 +868,8 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$d = new DateTime_Field($this->prefix.'_min', $this->getParam('min'), $p);
+		$min = $this->getParam('min');
+		$d = new DateTime_Field($this->prefix.'_min', $min, $p);
 		$d->processField();
 
 	}//end processMinField()
@@ -912,7 +913,8 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$d = new DateTime_Field($this->prefix.'_max', $this->getParam('max'), $p);
+		$max = $this->getParam('max');
+		$d = new DateTime_Field($this->prefix.'_max', $max, $p);
 		$d->processField();
 
 	}//end processMaxField()
