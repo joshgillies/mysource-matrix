@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.118 2007/11/08 01:15:39 hnguyen Exp $
+* $Id: user.inc,v 1.119 2007/11/28 22:23:34 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class User extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -92,7 +92,7 @@ class User extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -156,7 +156,7 @@ class User extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
 		$allowed[SQ_LINK_TYPE_2]['inbox']     = Array('card' => 1, 'exclusive' => TRUE);
@@ -483,7 +483,7 @@ class User extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
 
@@ -501,7 +501,7 @@ class User extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function _checkPermissionAccess($perm, $assetids=Array())
+	protected function _checkPermissionAccess($perm, Array $assetids=Array())
 	{
 		if (empty($assetids)) {
 			// root can do anything
@@ -806,7 +806,7 @@ class User extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function _catchBlankUserNamePass($username, $password)
+	protected function _catchBlankUserNamePass($username, $password)
 	{
 		return (($username != '') && ($password != ''));
 
@@ -823,7 +823,7 @@ class User extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function _catchBlankSetUserName($username)
+	protected function _catchBlankSetUserName($username)
 	{
 		if ($username === '') {
 			$this->_tmp['blank_username_caught'] = TRUE;
