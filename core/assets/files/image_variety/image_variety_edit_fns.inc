@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.18 2007/11/06 06:11:39 rong Exp $
+* $Id: image_variety_edit_fns.inc,v 1.19 2007/11/28 22:27:51 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,11 +59,9 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
-	* @access public
 	*/
-	function paintInlineInterface(&$asset, &$o, $prefix)
+	public function paintInlineInterface(&$asset, &$o, $prefix)
 	{
-		require_once 'XML/Tree/Node.php';
 		$wa = $asset->writeAccess('attributes');
 
 		if (!$asset->id && !$wa) {
@@ -73,13 +71,13 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$variety_type = $asset->attr('variety_type');
 		$constrain    = $asset->attr('constrain');
 
-		$int_edit_params = new XML_Tree_Node('int', '', Array('width' => 8));
-		$bool_edit_params = new XML_Tree_Node('boolean', '', Array('true_text' => 'Yes', 'false_text' => 'No'));
-		$sel_edit_params = new XML_Tree_Node('selection', '', Array('style' => 'box', 'columns' => '3', 'extras' => ''));
+		$int_edit_params  = new SimpleXMLElement('<int       width="8" />');
+		$bool_edit_params = new SimpleXMLElement('<boolean   true_text="yes" false_text="no" />');
+		$sel_edit_params  = new SimpleXMLElement('<selection style="box" columns="3" extras="" />');
 
 		if ($asset->name == '') {
 			$o->openField(translate('name'));
-				$text_edit_params = new XML_Tree_Node('text', '', Array('width' => 15));
+				$text_edit_params = new SimpleXMLElement('<text width="15" />');
 				$attr = $asset->getAttribute('name');
 				$attr->setEditParams($text_edit_params);
 				$attr->paint($prefix.'_'.$attr->name, !$wa);
@@ -170,9 +168,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return boolean
-	* @access public
 	*/
-	function processInlineInterface(&$asset, &$o, $prefix)
+	public function processInlineInterface(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
@@ -222,9 +219,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
-	* @access public
 	*/
-	function processUploadedFile(&$asset, $info=Array())
+	public function processUploadedFile(&$asset, $info=Array())
 	{
 		if (empty($asset->_imageid)) return FALSE;
 		if ($asset->attr('name') == '') return FALSE;
