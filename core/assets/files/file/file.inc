@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.154 2007/11/28 22:27:27 lwright Exp $
+* $Id: file.inc,v 1.155 2007/11/28 22:39:11 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.155 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,7 @@ class File extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function __construct($assetid=0)
+	function File($assetid=0)
 	{
 		parent::__construct($assetid);
 
