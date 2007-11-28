@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash.inc,v 1.3 2007/11/27 23:57:15 lwright Exp $
+* $Id: report_safe_trash.inc,v 1.4 2007/11/28 05:22:38 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,35 +58,32 @@ class Report_Safe_Trash extends Report implements Bridge
 		if (!isset($this->_tmp['getAssetMapLinks'])) {
 
 			$am = $GLOBALS['SQ_SYSTEM']->am;
-
-			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 			$report_path = $this->data_path.'/report.xml';
-
 			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = $input->getTreeFromFile();
-			if (PEAR::isError($root)) return Array();
-
-			if (!isset($root->children[0]->attributes['type_code'])) {
-				// old xml format, needs regenerating before it can act as a bridge
+			try {
+				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+			} catch (Exception $e) {
 				return Array();
 			}
 
 			$links = Array();
 			$sort_order = 0;
-			foreach ($root->children as $result) {
-				if ($result->name != 'asset') continue;
+			foreach ($root->asset as $result) {
+				if (is_null($result->attributes()->type_code)) {
+					// old xml format, needs regenerating before it can act as a bridge
+					return Array();
+				}
 
 				$links[] = Array(
-							'assetid'		=> $result->attributes['assetid'],
-							'short_name'	=> $result->attributes['short_name'],
-							'name'			=> $result->attributes['name'],
+							'assetid'		=> $result->attributes()->assetid,
+							'short_name'	=> $result->attributes()->short_name,
+							'name'			=> $result->attributes()->name,
 							'accessible'	=> 1,
-							'type_code'		=> $result->attributes['type_code'],
-							'status'		=> $result->attributes['status'],
+							'type_code'		=> $result->attributes()->type_code,
+							'status'		=> $result->attributes()->status,
 							'linkid'		=> '0',
 							'link_type'		=> SQ_LINK_TYPE_1,
 							'num_kids'		=> 0,
@@ -140,34 +137,30 @@ class Report_Safe_Trash extends Report implements Bridge
 		if (!isset($this->_tmp['getLinks'])) {
 
 			$am = $GLOBALS['SQ_SYSTEM']->am;
-
-			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
 			$report_path = $this->data_path.'/report.xml';
-
 			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = $input->getTreeFromFile();
-			if (PEAR::isError($root)) return Array();
-
-			if (!isset($root->children[0]->attributes['type_code'])) {
-				// old xml format, needs regenerating before it can act as a bridge
+			try {
+				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+			} catch (Exception $e) {
 				return Array();
 			}
 
 			$links = Array();
 			$sort_order = 0;
-			foreach ($root->children as $result) {
-				if ($result->name != 'asset') continue;
+			foreach ($root->asset as $asset) {
+				if (is_null($asset->attributes()->type_code)) {
+					// old xml format, needs regenerating before it can act as a bridge
+					return Array();
+				}
 
 				$links[] = Array(
 							'linkid'			=> 0,
-							'minorid'			=> $result->attributes['assetid'],
+							'minorid'			=> $asset->attributes()->assetid,
 							'value'				=> '',
 							'link_type'			=> SQ_LINK_TYPE_1,
-							'minor_type_code'	=> $result->attributes['type_code'],
+							'minor_type_code'	=> $asset->attributes()->type_code,
 							'sort_order'		=> $sort_order,
 							'is_dependant'		=> '0',
 							'is_exclusive'		=> '0',
