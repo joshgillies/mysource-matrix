@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.25 2007/11/16 00:01:57 hnguyen Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.26 2007/11/28 23:56:14 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -267,7 +267,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		} else {
 			$this->_running_vars['forceably_acquire'] = (bool) $this->_running_vars['forceably_acquire'];
 		}
-		
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -289,13 +289,13 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 
 			if (!in_array($parent_assetid, $this->_running_vars['done_assetids'])) {
 				$assetid = $parent_assetid;
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+				$asset =$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
 			} else {
 				$parent_assetid_keys = array_keys($this->_running_vars['child_assetids'][$parent_assetid]);
 				$assetid = array_shift($parent_assetid_keys);
 				$asset_type = $this->_running_vars['child_assetids'][$parent_assetid][$assetid];
 				unset($this->_running_vars['child_assetids'][$parent_assetid][$assetid]);
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+				$asset =$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 			}
 
 			if (!is_null($asset)) {

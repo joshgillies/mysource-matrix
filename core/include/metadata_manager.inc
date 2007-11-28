@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.163 2007/11/28 23:52:23 rong Exp $
+* $Id: metadata_manager.inc,v 1.164 2007/11/28 23:53:15 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -861,7 +861,7 @@ class Metadata_Manager extends MySource_Object
 			if (!empty($keywords)) {
 				require_once SQ_FUDGE_PATH.'/general/text.inc';
 				echo '$am = $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
-				echo '$metadata_asset = &$am->getAsset('.$asset->id.', \'\', TRUE);'."\n\n";
+				echo '$metadata_asset = $am->getAsset('.$asset->id.', \'\', TRUE);'."\n\n";
 				echo '/* 1 */', "\n";
 				echo '$metadata_replacements = Array();'."\n";
 				foreach ($keywords as $keyword) {
@@ -1227,7 +1227,7 @@ class Metadata_Manager extends MySource_Object
 						echo '$metadata_'.$perm_type.'_perms = $am->getPermission($metadata_asset->id, SQ_PERMISSION_'.strtoupper($perm_type).', TRUE, FALSE, TRUE);'."\n";
 						echo '$metadata_'.$perm_type.'_perm_info = Array();'."\n";
 						echo 'foreach ($metadata_'.$perm_type.'_perms as $userid) {'."\n";
-						echo '	$user = &$am->getAsset($userid);'."\n";
+						echo '	$user = $am->getAsset($userid);'."\n";
 						echo '	if (is_null($user) || !$am->isTypeDecendant($user->type(), \'user\')) {'."\n";
 						echo '		continue;'."\n";
 						echo '	}'."\n";
