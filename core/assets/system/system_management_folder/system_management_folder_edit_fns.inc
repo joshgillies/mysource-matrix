@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder_edit_fns.inc,v 1.7 2006/12/06 00:16:57 bcaldwell Exp $
+* $Id: system_management_folder_edit_fns.inc,v 1.8 2007/11/28 22:07:11 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,12 +35,10 @@ class System_Management_Folder_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @param int	$assetid	the asset id to be loaded
-	*
 	*/
-	function System_Management_Folder_Edit_Fns($assetid=0)
+	function __construct()
 	{
-		$this->Folder_Edit_Fns($assetid);
+		parent::__construct();
 		unset($this->static_screens['permissions']);
 		unset($this->static_screens['workflow']);
 		unset($this->static_screens['metadataSchemas']);
