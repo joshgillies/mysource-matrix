@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.58 2007/11/22 23:12:58 lwright Exp $
+* $Id: cache_manager.inc,v 1.59 2007/11/28 03:13:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -655,7 +655,7 @@ class Cache_Manager extends Asset
 						'perm_key'	=> $perm_key,
 						'url'		=> $url,
 					 );
-			$result = MatrixDAL::executeAll('cache_manager', 'getCacheExpiryAndFilePath');
+			$result = MatrixDAL::executeAll('cache_manager', 'getCacheExpiryAndFilePath', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception('Unable to get cache entries due to database error: '.$e->getMessage());
 		}
