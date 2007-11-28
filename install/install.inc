@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.78 2007/11/28 00:02:07 colivar Exp $
+* $Id: install.inc,v 1.79 2007/11/28 00:48:23 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -162,29 +162,47 @@ function uninstall_asset_types()
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		// now actually delete the types
 		foreach ($asset_types as $asset_type) {
 			// delete the types
-			$sql = 'DELETE FROM sq_ast_typ WHERE type_code = '.$db->quote($asset_type);
+			try {
+				$sql = 'DELETE FROM sq_ast_typ WHERE type_code = '.$db->quote($asset_type);
+				$query	= $db->prepare($sql);
+				$query->bindValue('type_code', $asset_type);
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+				MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+
 
 			// remove the inherited types
-			$sql = 'DELETE FROM sq_ast_typ_inhd
-					WHERE type_code = '.$db->quote($asset_type).'
-					  OR inhd_type_code = '.$db->quote($asset_type);
+			try {
+				$sql = 'DELETE FROM sq_ast_typ_inhd
+						WHERE type_code = :type_code
+						  OR inhd_type_code = :type_code';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+				$query = $db->prepare($sql);
+				$query->bindValue('type_code', $asset_type);
+
+				MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+                throw new Exception('Unable to delete inherited type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+            }//end try catch
 
 			// remove the attributes
-			$sql = 'DELETE FROM sq_ast_attr WHERE type_code = '.$db->quote($asset_type);
+			try {
+				$sql = 'DELETE FROM sq_ast_attr WHERE type_code = :type_code';
+				
+				$query = $db->prepare($sql);
+				$query->bindValue('type_code', $asset_type);
 
-			$SQ_PACKAGES_PATH = $db->query($sql);
-			assert_valid_db_result($SQ_PACKAGES_PATH);
+				MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+                throw new Exception('Unable to delete attribute with type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+            }//end try catch
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
