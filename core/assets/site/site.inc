@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.103 2007/11/19 04:10:16 bshkara Exp $
+* $Id: site.inc,v 1.104 2007/11/28 02:20:38 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -383,7 +383,7 @@ class Site extends Folder
 		unset($this->_tmp['urls_info']);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();log_dump(get_call_stack());
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		if ($updated) return 2;
 		return 1;
 
