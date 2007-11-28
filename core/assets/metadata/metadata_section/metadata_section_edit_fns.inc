@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.45 2007/11/22 02:54:08 hnguyen Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.46 2007/11/28 05:46:31 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -320,7 +320,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$tag_values[$field->name] = '';
 
 
-				if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL), $tag_values[$field->name], $keywords)) {
+				if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id]['value'] : NULL), $tag_values[$field->name], $keywords)) {
 					ob_end_clean();
 					return FALSE;
 				}
