@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.87 2007/11/28 22:27:27 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.88 2007/11/28 22:55:36 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,7 +36,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function __construct()
+	function File_Edit_Fns()
 	{
 		parent::__construct();
 		$this->static_screens['details']['lock_type'] = 'attr_links';
