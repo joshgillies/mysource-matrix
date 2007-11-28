@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.7 2007/11/28 05:57:03 bshkara Exp $
+* $Id: tool_asset_sorter.inc,v 1.8 2007/11/28 21:46:32 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -111,20 +111,25 @@ class Tool_Asset_Sorter extends Tool
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT l.linkid
 				FROM sq_ast_lnk l
 					JOIN sq_ast a ON l.minorid = a.assetid
-				WHERE majorid = '.$db->quote($parentid).'
+				WHERE majorid = :parentid
 					AND link_type IN ('.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote(SQ_LINK_TYPE_2).')
 				ORDER BY a.'.$sort_field.' '.$direction;
-		$linkids =  $db->getCol($sql);
-		assert_valid_db_result($linkids);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':parentid', $parentid);
+			$linkids = MatrixDAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get link ids for parent: '.$parentid.' due to database error: '.$e->getMessage());
+		}
 
 		// There is a limit to CASE statement size in Oracle, that limits it to
 		// 127 WHEN-THEN pairs (in theory), so limit to 127 at a time on Oracle
-		$chunk_size = ($db->phptype == 'oci8') ? 127 : 500;
+		$chunk_size = (MatrixDAL::getDbType() == 'oci') ? 127 : 500;
 
 		foreach (array_chunk($linkids, $chunk_size, TRUE) as $chunk) {
 			$cases = '';
@@ -134,8 +139,11 @@ class Tool_Asset_Sorter extends Tool
 			$sql = 'UPDATE sq_ast_lnk
 					SET sort_order = CASE '.$cases.' ELSE sort_order END
 					WHERE linkid IN ('.implode(', ', $chunk).')';
-			$res = $db->query($sql);
-			assert_valid_db_result($res);
+			try {
+				$res = MatrixDAL::executeSqlOne($sql);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update link table with new sort order due to database error: '.$e->getMessage());
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
