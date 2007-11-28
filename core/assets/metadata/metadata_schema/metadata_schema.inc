@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.24 2007/11/19 05:54:34 hnguyen Exp $
+* $Id: metadata_schema.inc,v 1.25 2007/11/28 00:36:04 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,15 +126,21 @@ class Metadata_Schema extends Folder
 	{
 		if (parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// First remove any values assets have for this field
-			$sql = 'DELETE FROM sq_ast_mdata WHERE ';
-			$sql .= 'schemaid = '.$db->quote($this->id);
+			try {
+				$sql = 'DELETE FROM sq_ast_mdata WHERE ';
+				$sql .= 'schemaid = :schemaid';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+				$query = $db->prepare($sql);
+				$query->bindValue('schemaid', $this->id);
+
+				MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete metadata schema with schemaid #'.$this->id.' due to the following database error:'.$e->getMessage());
+			}//end try catch
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
