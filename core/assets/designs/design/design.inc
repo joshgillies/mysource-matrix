@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.133 2007/11/21 23:25:21 bshkara Exp $
+* $Id: design.inc,v 1.134 2007/11/28 22:24:18 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Design extends Design_Area
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -92,7 +92,7 @@ class Design extends Design_Area
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(
@@ -119,7 +119,7 @@ class Design extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	public function printFrontend()
 	{
 
 	}//end printFrontend()
@@ -136,7 +136,7 @@ class Design extends Design_Area
 	* @access public
 	* @see Asset::moveLinkPos()
 	*/
-	function moveLinkPos($linkid, $sort_order=-1)
+	public function moveLinkPos($linkid, $sort_order=-1)
 	{
 		trigger_localised_error('CORE0168', E_USER_WARNING);
 		return FALSE;
@@ -152,7 +152,7 @@ class Design extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 		parent::linksUpdated();
 		if (isset($this->_tmp['design_areas'])) {
@@ -171,7 +171,7 @@ class Design extends Design_Area
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param Asset	$asset			the major or minor asset that we are linking to
 	* @param string	$side_of_link	the side of the link we are on (major or minor)
 	* @param string	&$link_type		the type of link we are creating
 	* @param string	&$value			the value that is to be associated with the link
@@ -184,7 +184,7 @@ class Design extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a file then we need to make it a dependant link
 		$changed = FALSE;
@@ -209,7 +209,7 @@ class Design extends Design_Area
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
-	* @param object	&$minor		the minor asset that we are linking to
+	* @param Asset	$minor		the minor asset that we are linking to
 	* @param string	$link_type	the type of link this is
 	* @param string	$value		the value that is to be associated with this link
 	* @param string	$sort_order	the position in the links list that this link should take,
@@ -222,7 +222,7 @@ class Design extends Design_Area
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
+	public function createLink($minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -295,7 +295,7 @@ class Design extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function deleteLink($linkid)
+	public function deleteLink($linkid)
 	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
@@ -360,7 +360,7 @@ class Design extends Design_Area
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAssociatedFile($filename)
+	public function getAssociatedFile($filename)
 	{
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
@@ -387,7 +387,7 @@ class Design extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getStylesheets()
+	public function getStylesheets()
 	{
 		// first get all files which end with .css
 		$file_link_ids = Array();
@@ -419,7 +419,7 @@ class Design extends Design_Area
 	* @return mixed array|NULL
 	* @access public
 	*/
-	function getDesignAreaLink($id_name='')
+	public function getDesignAreaLink($id_name='')
 	{
 		if ($id_name) {
 			return @$GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area', FALSE, $id_name);
@@ -446,7 +446,7 @@ class Design extends Design_Area
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getDesignArea($id_name)
+	public function getDesignArea($id_name)
 	{
 		if (empty($this->_tmp['design_areas'][$id_name])) {
 			if (!isset($this->_tmp['design_areas'])) {
@@ -471,7 +471,7 @@ class Design extends Design_Area
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getParentDesign()
+	public function getParentDesign()
 	{
 		return $this;
 
@@ -481,13 +481,13 @@ class Design extends Design_Area
 	/**
 	* Processes a backend submission from this asset, returns TRUE if all OK
 	*
-	* @param object	&$o		Backend Outputter
-	* @param array	&$link	information used to create the initial link
+	* @param Backend_Outputter	$o		Backend Outputter
+	* @param array				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, &$link)
+	public function processBackend(Backend_Outputter $o, Array &$link)
 	{
 		switch ($_POST['asset_action']) {
 			case 'edit' :
@@ -523,10 +523,10 @@ class Design extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function _updateCustomisations()
+	protected function _updateCustomisations()
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		foreach ($customisation_links as $link) {
 			$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($customisation)) continue;
@@ -550,7 +550,7 @@ class Design extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args)
+	public function printVar($var, $args)
 	{
 
 		switch ($var) {
@@ -817,7 +817,7 @@ echo '/*
 	/**
 	* Paints out our design
 	*
-	* @param object	&$ASSET		the asset that we are going to print the body for
+	* @param Asset	$ASSET		the asset that we are going to print the body for
 	* @param array	$FILE_URLS	an array of filename => URL to use to print files in the design
 	*							doesnt need to be passed in unless some URLs are overridden by
 	*							a customisation of the design
@@ -828,7 +828,7 @@ echo '/*
 	* @return void
 	* @access public
 	*/
-	function paint(&$ASSET, $FILE_URLS=Array(), $CSS_URLS=Array())
+	public function paint(Asset $ASSET, Array $FILE_URLS=Array(), Array $CSS_URLS=Array())
 	{
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
@@ -893,7 +893,7 @@ echo '/*
 	* @return boolean
 	* @access public
 	*/
-	function generateDesignFile($do_customisations=TRUE)
+	public function generateDesignFile($do_customisations=TRUE)
 	{
 		$this->_setupVarReferences();
 		$pre_str = $this->_getDesignFileHeader();
@@ -908,7 +908,7 @@ echo '/*
 			} else if ($item['_type'] == 'TAG') {
 				if ($item['operation'] == 'area') {
 					// defining a design area
-					$da =& $this->getDesignArea($item['attributes']['id_name']);
+					$da = $this->getDesignArea($item['attributes']['id_name']);
 					if (is_null($da)) {
 						trigger_localised_error('CORE0234', E_USER_WARNING, $item['attributes']['id_name']);
 					} else {
@@ -973,7 +973,7 @@ echo '/*
 	* @return string
 	* @access private
 	*/
-	function _getDesignFileHeader()
+	protected function _getDesignFileHeader()
 	{
 		// we are checking to see if there is a global $ASSET_LINEAGE here
 		// because we need other assets to be able to modify the lineage, for
@@ -1016,7 +1016,7 @@ echo '/*
 	* @return boolean
 	* @access private
 	*/
-	function _writeDesignFile($str)
+	protected function _writeDesignFile($str)
 	{
 		$str = preg_replace('|\?>([\s]+)?<\?php|', '', $str);
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -1065,18 +1065,18 @@ echo '/*
 	* @return void
 	* @access private
 	*/
-	function _setupVarReferences()
+	protected function _setupVarReferences()
 	{
 		$design_area_links = $this->getDesignAreaLink();
 		$var_ref_values = Array();
 		$da_refs = Array(); // REMOVE THIS SOON
 		foreach ($design_area_links as $link) {
-			$da =& $this->getDesignArea($link['value']);
+			$da = $this->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 
 			$da_var_refs = $da->getVarReferences();
 			for (reset($da_var_refs); NULL !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
-				$var_da =& $this->getDesignArea($id_name);
+				$var_da = $this->getDesignArea($id_name);
 				if (is_null($var_da)) continue;
 				if (!isset($var_ref_values[$id_name])) {
 					$var_ref_values[$id_name] = Array();
@@ -1099,7 +1099,7 @@ echo '/*
 
 		// OK, now that we have all the var reference values we can just set them for all the DA's
 		foreach ($design_area_links as $link) {
-			$da =& $this->getDesignArea($link['value']);
+			$da = $this->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 			$da->setVarReferenceValues($var_ref_values);
 		}

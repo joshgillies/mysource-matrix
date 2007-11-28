@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.615 2007/11/27 00:25:59 bshkara Exp $
+* $Id: asset.inc,v 1.616 2007/11/28 22:22:04 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.615 $
+* @version $Revision: 1.616 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -32,122 +32,122 @@ class Asset extends MySource_Object
 	* The unique ID for this asset
 	* @var int
 	*/
-	var $id = 0;
+	public $id = 0;
 
 	/**
 	* The version number of the asset (x.x.x)
 	* @var string
 	*/
-	var $version = '';
+	public $version = '';
 
 	/**
 	* String representation of this asset
 	* @var string
 	*/
-	var $name = '';
+	public $name = '';
 
 	/**
 	* Short String representation of this asset
 	* @var string
 	*/
-	var $short_name = '';
+	public $short_name = '';
 
 	/**
 	* Current status of the asset (live, under contruction etc)
 	* @var int
 	*/
-	var $status;
+	public $status;
 
 	/**
 	* Current languages set for the asset
 	* @var string
 	*/
-	var $languages = '';
+	public $languages = '';
 
 	/**
 	* Current character set of the asset
 	* @var string
 	*/
-	var $charset = '';
+	public $charset = '';
 
 	/**
 	* Whether this asset should only have secure URL lookups
 	* @var boolean
 	*/
-	var $force_secure = 0;
+	public $force_secure = 0;
 
 	/**
 	* Timestamp of when this asset was created
 	* @var int
 	*/
-	var $created;
+	public $created;
 
 	/**
 	* Assetid for the user that created this asset
 	* @var int
 	*/
-	var $created_userid;
+	public $created_userid;
 
 	/**
 	* Timestamp of when this asset was last updated
 	* @var int
 	*/
-	var $updated;
+	public $updated;
 
 	/**
 	* Assetid for the last user that updated this asset
 	* @var int
 	*/
-	var $updated_userid;
+	public $updated_userid;
 
 	/**
 	* Timestamp of when this asset was last published (ie. made LIVE)
 	* @var int
 	*/
-	var $published;
+	public $published;
 
 	/**
 	* Assetid for the user that last published this asset
 	* @var int
 	*/
-	var $published_userid;
+	public $published_userid;
 
 	/**
 	* Timestamp of when this asset was last published (ie. made LIVE)
 	* @var int
 	*/
-	var $status_changed;
+	public $status_changed;
 
 	/**
 	* Assetid for the user that last published this asset
 	* @var int
 	*/
-	var $status_changed_userid;
+	public $status_changed_userid;
 
 	/**
 	* Is this asset type able to be cached automatically by the system?
 	* @var boolean
 	*/
-	var $_is_cacheable = FALSE;
+	public $_is_cacheable = FALSE;
 
 	/**
 	* The Vars that belong to this asset
 	* @var Array('var_name' => Array('attributeid' => $attributeid, 'value' = $value))
 	*/
-	var $vars = Array();
+	public $vars = Array();
 
 	/**
 	* An array of keywords that this asset makes available for use along with a default replacement
 	* @var Array(keyword => name)
 	*/
-	var $_available_keywords = Array();
+	public $_available_keywords = Array();
 
 	/**
 	* The suffix for the data path to be used for public, private, and file versioning
 	*
 	* @var string
 	*/
-	var $data_path_suffix = '';
+	public $data_path_suffix = '';
 
 	/**
 	* The current data path for this asset
@@ -156,7 +156,7 @@ class Asset extends MySource_Object
 	*
 	* @var string
 	*/
-	var $data_path = '';
+	public $data_path = '';
 
 	/**
 	* The current unrestrcited data path for this asset
@@ -165,7 +165,7 @@ class Asset extends MySource_Object
 	*
 	* @var string
 	*/
-	var $data_path_public = '';
+	public $data_path_public = '';
 
 	/**
 	* Whether this asset has serialise attributes or not, basically a performance var
@@ -173,7 +173,7 @@ class Asset extends MySource_Object
 	*
 	* @var bool
 	*/
-	var $_ser_attrs = FALSE;
+	public $_ser_attrs = FALSE;
 
 
 	/**
@@ -220,7 +220,7 @@ class Asset extends MySource_Object
 	* @return mixed int|boolean
 	* @access public
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		if ($this->id) {
 			trigger_localised_error('CORE0268', E_USER_WARNING, $this->type());
@@ -545,7 +545,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		return TRUE;
 
@@ -572,7 +572,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		return TRUE;
 
@@ -589,7 +589,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _abortCreate($trigger_level_changed=FALSE)
+	protected function _abortCreate($trigger_level_changed=FALSE)
 	{
 		if ($trigger_level_changed) {
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -617,7 +617,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function load($assetid)
+	public function load($assetid)
 	{
 		$db = MatrixDAL::getDb();
 
@@ -708,7 +708,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	function _loadDataPaths()
+	protected function _loadDataPaths()
 	{
 		$this->data_path_suffix = asset_data_path_suffix($this->type(), $this->id);
 		$this->data_path = SQ_DATA_PATH.'/private/'.$this->data_path_suffix;
@@ -728,7 +728,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	function _loadVars()
+	protected function _loadVars()
 	{
 		$db = MatrixDAL::getDb();
 
@@ -795,7 +795,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function reload()
+	public function reload()
 	{
 		$this->_tmp = Array();
 		$this->load($this->id);
@@ -811,7 +811,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return TRUE;
 
@@ -828,7 +828,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE)
 	{
 		// check that we are in the trash
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id)) {
@@ -950,7 +950,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function useSystemVersion()
+	public function useSystemVersion()
 	{
 		if (!isset($this->_tmp['use_system_version'])) {
 			if (!($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
@@ -984,7 +984,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function loadSystemVersion()
+	public function loadSystemVersion()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -1061,7 +1061,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function clearSystemVersion()
+	public function clearSystemVersion()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -1096,7 +1096,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function revertToSystemVersion()
+	public function revertToSystemVersion()
 	{
 		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = TRUE;
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -1170,7 +1170,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=TRUE)
+	protected function _updated($update_parents=TRUE)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -1280,7 +1280,7 @@ class Asset extends MySource_Object
 	* @access private
 	* @see _updated
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' #'.$this->id;
 
@@ -1297,7 +1297,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function type()
+	public function type()
 	{
 		return strtolower(get_class($this));
 
@@ -1314,7 +1314,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see Asset_Manager::getTypeAncestors()
 	*/
-	function getTypeAncestors($include_asset=TRUE)
+	public function getTypeAncestors($include_asset=TRUE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
 
@@ -1332,7 +1332,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function incrementVersion($number='micro', $update_parents=TRUE)
+	public function incrementVersion($number='micro', $update_parents=TRUE)
 	{
 		if (!$this->id) return FALSE;
 
@@ -1429,7 +1429,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLanguages()
+	public function getLanguages()
 	{
 		$langs = trim($this->languages, ', ');
 		if ($langs == '') return Array();
@@ -1446,7 +1446,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setLanguages($languages)
+	public function setLanguages(Array $languages)
 	{
 		$set_languages = implode(',', $languages);
 		if ($set_languages == $this->languages) return FALSE;
@@ -1478,7 +1478,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setCharset($charset)
+	public function setCharset($charset)
 	{
 		if ($charset == $this->charset) return FALSE;
 		$old_charset = $this->charset;
@@ -1508,7 +1508,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setForceSecure($force_secure)
+	public function setForceSecure($force_secure)
 	{
 		if (!$this->adminAccess('settings')) {
 			trigger_localised_error('SYS0252', E_USER_WARNING);
@@ -1544,7 +1544,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function remapAssetids($map)
+	public function remapAssetids(Array $map)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -1579,7 +1579,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		$new_type_code = strtolower($new_type_code);
 		$old_type_code = $this->type();
@@ -1672,6 +1672,7 @@ class Asset extends MySource_Object
 
 				$current_id = $this->vars[$var_name]['attrid'];
 				$new_id     = $tmp->vars[$var_name]['attrid'];
+
 
 				try {
 					$bind_vars	= Array (
@@ -1778,7 +1779,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _morphCleanup($new_type_code)
+	public function _morphCleanup($new_type_code)
 	{
 		return TRUE;
 
@@ -1791,16 +1792,15 @@ class Asset extends MySource_Object
 	* We set $vars['my_keyword'] = 'my keyword desc' to tell the broadcaster
 	* what keywords are available for this asset type.
 	*
-	* @param object	&$broadcaster	the asset that triggered the event
+	* @param Asset	$broadcaster	the asset that triggered the event
 	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return void
 	* @access private
 	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
+	public function onRequestKeywords(Asset $broadcaster, Array $vars=Array())
 	{
-
 		if (!isset($vars['keywords'])) return;
 		$vars['keywords'] = array_merge($vars['keywords'], $this->getAvailableKeywords());
 
@@ -1818,7 +1818,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return TRUE;
 
@@ -1833,7 +1833,7 @@ class Asset extends MySource_Object
 	* behaviour) - if not, however, cloneComponents will report the error and attempt to
 	* continue (returning FALSE in exceptional circumstances only)
 	*
-	* @param object		&$clone		the asset object that we are turning into a clone of this one
+	* @param Asset		$clone		the asset object that we are turning into a clone of this one
 	* @param array		$components	the wanted components to clone eg.
 	* <pre>
 	* 						Array(
@@ -1854,7 +1854,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function cloneComponents(&$clone, $components, $override=FALSE)
+	public function cloneComponents(Asset $clone, Array $components, $override=FALSE)
 	{
 		if (!is_array($components) || empty($components)) {
 			return FALSE;
@@ -2066,7 +2066,7 @@ class Asset extends MySource_Object
 	* This function is being called by asset_manager after the dependants of asset
 	* have been cloned.
 	*
-	* @param object	&$clone		the clone asset shell
+	* @param Asset	$clone		the clone asset shell
 	* @param array	$components	the wanted components to clone eg.
 	*							Array(
 	*							'attributes',
@@ -2082,7 +2082,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function cloneComponentsAdditional(&$clone, $components)
+	public function cloneComponentsAdditional(Asset $clone, Array $components)
 	{
 		return TRUE;
 
@@ -2095,12 +2095,12 @@ class Asset extends MySource_Object
 	* Under the default cloning policy, this is done for notice and type 3 links only.  Notice
 	* that the linked assets are not cloned - they end up linked to both this asset and the clone.
 	*
-	* @param object	&$clone	The asset object that we are turning into a clone of this one
+	* @param Asset:OO	$clone	The asset object that we are turning into a clone of this one
 	*
 	* @return boolean
 	* @access public
 	*/
-	function cloneLinks(&$clone)
+	public function cloneLinks(Asset $clone)
 	{
 		// we do not want to clone any assets that are type_3 or type_notice linked to the asset we are
 		// cloning. Instead, we will just link them up to the cloner's original link counter parts
@@ -2122,10 +2122,10 @@ class Asset extends MySource_Object
 	/**
 	* Returns a status object for the current asset to be used for processing
 	*
-	* @return object
+	* @return Asset_Status
 	* @access public
 	*/
-	function &getStatus()
+	public function getStatus()
 	{
 		if (!isset($this->_tmp['status_object'])) {
 			// work out the name of our status file
@@ -2147,7 +2147,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getAvailableStatii()
+	public function getAvailableStatii()
 	{
 		$status = $this->getStatus();
 		$statii = $status->getAvailableStatii();
@@ -2163,7 +2163,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getStatusDescription()
+	public function getStatusDescription()
 	{
 		$status = $this->getStatus();
 		return $status->getDescription();
@@ -2181,7 +2181,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
+	public function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
 	{
 		$old_status = $this->status;
 
@@ -2310,7 +2310,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setDate($date_type, $time=NULL, $userid=NULL)
+	public function setDate($date_type, $time=NULL, $userid=NULL)
 	{
 		if (!in_array($date_type, Array('published' ,'created'))) {
 			trigger_localised_error('SYS0198', E_USER_WARNING);
@@ -2423,7 +2423,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types =  Array(
 						'settings'		=> 1,
@@ -2462,7 +2462,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function canForceablyAcquireLock($lock_type)
+	public function canForceablyAcquireLock($lock_type)
 	{
 		$current_locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE, FALSE);
 
@@ -2508,7 +2508,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getEditingLocks($keywords)
+	public function getEditingLocks($keywords)
 	{
 		return Array();
 
@@ -2531,7 +2531,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access private
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -2550,7 +2550,7 @@ class Asset extends MySource_Object
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
-	* @param object		&$minor		the minor asset that we are linking to
+	* @param Asset		$minor		the minor asset that we are linking to
 	* @param string		$link_type	the type of link this is
 	* @param string		$value		the value that is to be associated with this link
 	* @param string		$sort_order	the position in the links list that this link should take,
@@ -2565,7 +2565,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see Asset_Manager::createAssetLink()
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
+	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		if (!$this->id) return 0;
 		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
@@ -2580,7 +2580,7 @@ class Asset extends MySource_Object
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param Asset	$asset			the major or minor asset that we are linking to
 	* @param string	$side_of_link	the side of the link we are on (major or minor)
 	* @param string	&$link_type		the type of link we are creating
 	* @param string	&$value			the value that is to be associated with the link
@@ -2593,7 +2593,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		return FALSE;
 
@@ -2603,14 +2603,14 @@ class Asset extends MySource_Object
 	/**
 	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
 	*
-	* @param object	&$minor		the minor asset that we are linking to
+	* @param Asset	$minor		the minor asset that we are linking to
 	* @param string	$link_type	the type of link this is
 	* @param int	$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function canCreateLink(&$minor, $link_type, $exclusive)
+	public function canCreateLink(Asset $minor, $link_type, $exclusive)
 	{
 		if (!$this->id) return translate('asset_not_created');
 		return $GLOBALS['SQ_SYSTEM']->am->canCreateLink($this, $minor, $link_type, $exclusive);
@@ -2629,14 +2629,14 @@ class Asset extends MySource_Object
 	* Remember that this is called for the asset we are moving TO - as it would
 	* have with canCreateLink().
 	*
-	* @param object	&$minor		the minor asset that we are linking to
-	* @param object	&$old_major	the major asset that we are being moved from
+	* @param Asset	$minor		the minor asset that we are linking to
+	* @param Asset	$old_major	the major asset that we are being moved from
 	* @param string	$link_type	the type of link this is
 	*
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function canMoveLink(&$minor, &$old_major, $link_type)
+	public function canMoveLink(Asset $minor, Asset$old_major, $link_type)
 	{
 		return $this->canCreateLink($minor, $link_type, 0);
 
@@ -2651,7 +2651,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function describeLink($linkid)
+	public function describeLink($linkid)
 	{
 		return '';
 
@@ -2666,7 +2666,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function isDeletableLink($linkid)
+	public function isDeletableLink($linkid)
 	{
 		return TRUE;
 
@@ -2683,7 +2683,7 @@ class Asset extends MySource_Object
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function canDeleteLink($linkid)
+	public function canDeleteLink($linkid)
 	{
 		if (!$this->id) return translate('asset_not_created');
 		if (($err_msg = $this->isDeletableLink($linkid)) !== TRUE) {
@@ -2707,7 +2707,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see Asset_Manager::deleteAssetLink()
 	*/
-	function deleteLink($linkid)
+	public function deleteLink($linkid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
@@ -2730,7 +2730,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access protected
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 
 
@@ -2750,7 +2750,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=FALSE)
+	public function saveAttributes($dont_run_updated=FALSE)
 	{
 		if (!$this->id) return TRUE;
 		if (empty($this->_tmp['vars_set'])) return TRUE;
@@ -2987,7 +2987,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see saveAttributes()
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if (empty($this->vars[$name])) {
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
@@ -3068,7 +3068,7 @@ class Asset extends MySource_Object
 	* @return mixed string|NULL
 	* @access public
 	*/
-	function attr($name)
+	public function attr($name)
 	{
 		if (!isset($this->vars[$name])) {
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
@@ -3087,7 +3087,7 @@ class Asset extends MySource_Object
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &attrByRef($name)
+	public function &attrByRef($name)
 	{
 		if (!isset($this->vars[$name])) {
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
@@ -3109,7 +3109,7 @@ class Asset extends MySource_Object
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAttribute($name, $mute_errors=FALSE)
+	public function getAttribute($name, $mute_errors=FALSE)
 	{
 		if (!isset($this->_tmp['attributes'][$name]) || !is_object($this->_tmp['attributes'][$name])) {
 
@@ -3158,7 +3158,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getAssetKeywords($descriptions=FALSE)
+	public function getAssetKeywords($descriptions=FALSE)
 	{
 
 		$keywords = Array();
@@ -3292,7 +3292,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getAvailableKeywords()
+	public function getAvailableKeywords()
 	{
 
 		$keywords = Array();
@@ -3385,7 +3385,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see _getKeywordReplacement
 	*/
-	function getKeywordReplacement($keyword)
+	public function getKeywordReplacement($keyword)
 	{
 		$replacement = $this->_getKeywordReplacement($keyword);
 		return $replacement;
@@ -3409,7 +3409,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access private
 	*/
-	function _getKeywordReplacement($keyword)
+	protected function _getKeywordReplacement($keyword)
 	{
 		if (empty($keyword)) return '';
 		if (0 === strpos($keyword, 'globals_')) {
@@ -3488,7 +3488,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getCustomKeywordReplacements($keywords=Array())
+	public function getCustomKeywordReplacements($keywords=Array())
 	{
 
 		return Array();
@@ -3507,9 +3507,8 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function processCustomKeywords($keywords=Array())
+	public function processCustomKeywords($keywords=Array())
 	{
-
 		return TRUE;
 
 	}//end processCustomKeywords()
@@ -3521,7 +3520,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	public function getContent()
 	{
 		return '';
 
@@ -3534,7 +3533,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setContent()
+	public function setContent()
 	{
 		return FALSE;
 
@@ -3552,7 +3551,7 @@ class Asset extends MySource_Object
 	* @return int
 	* @access public
 	*/
-	function getEffectiveLastUpdatedTime($assetids)
+	public function getEffectiveLastUpdatedTime($assetids)
 	{
 		$db = MatrixDAL::getDb();
 
@@ -3564,7 +3563,7 @@ class Asset extends MySource_Object
 			if (isset($id_parts[1])) {
 				unset($assetids[$key]);
 			} else {
-				$assetids[$key] = $db->quoteSmart((string) $assetid);
+				$assetids[$key] = $db->quote((string) $assetid);
 			}
 		}
 
@@ -3602,7 +3601,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function readAccess($assetids=Array())
+	public function readAccess(Array $assetids=Array())
 	{
 		if (!$this->id) return TRUE;
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -3649,7 +3648,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=TRUE)
+	public function writeAccess($lock_type='', Array $assetids=Array(), $only_workflow=TRUE)
 	{
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 
@@ -3678,7 +3677,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function adminAccess($lock_type='', $assetids=Array())
+	public function adminAccess($lock_type='', Array $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 
@@ -3704,7 +3703,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function backendAccess()
+	public function backendAccess()
 	{
 		return $GLOBALS['SQ_SYSTEM']->user->canAccessBackend();
 
@@ -3723,7 +3722,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see canliveEdit()
 	*/
-	function liveEditAccess($lock_type)
+	public function liveEditAccess($lock_type)
 	{
 		if (empty($lock_type) || $this->canLiveEdit($lock_type)) {
 			return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type);
@@ -3745,7 +3744,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function canliveEdit($lock_type)
+	public function canliveEdit($lock_type)
 	{
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (!$this->id) return TRUE;
@@ -3785,7 +3784,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function effectiveUnrestricted()
+	public function effectiveUnrestricted()
 	{
 		// This is not readAccess() because if this is FALSE we don't refer to the writeAccess() setting
 		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
@@ -3811,7 +3810,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function checkAccess($perm, $lock_type, $assetids=Array(), $only_workflow=TRUE)
+	public function checkAccess($perm, $lock_type, Array $assetids=Array(), $only_workflow=TRUE)
 	{
 		if ($perm == SQ_PERMISSION_READ) {
 			trigger_localised_error('SYS0272', E_USER_ERROR, __CLASS__, __FUNCTION__);
@@ -3860,7 +3859,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function accessEffective()
+	public function accessEffective()
 	{
 		// if we are in a state of total approval no editing allowed
 		if ($this->status & SQ_SC_STATUS_ALL_APPROVED) {
@@ -3888,7 +3887,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
+	protected function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if (empty($assetids)) {
 
@@ -3962,7 +3961,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function permissionsUpdated()
+	public function permissionsUpdated()
 	{
 		return TRUE;
 
@@ -3979,7 +3978,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	public function printFrontend()
 	{
 		$this->printFrontendAsset($this);
 
@@ -3990,14 +3989,18 @@ class Asset extends MySource_Object
 	* Paint the passed asset on the frontend
 	* Override printFrontend() if you wish to pass a different asset to print
 	*
-	* @param object	&$asset	the asset to print in frontend
-	* @param object	$design	the design to print the asset with
+	* @param Asset	&$asset	the asset to print in frontend
+	* @param mixed	$design	the design to print the asset with
 	*
 	* @return void
 	* @access public
 	*/
-	function printFrontendAsset(&$asset, $design=NULL)
+	public function printFrontendAsset(Asset $asset, $design=NULL)
 	{
+		if (!is_null($design)) {
+			assert_is_a($design, 'design');
+		}
+
 		if (!$asset->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $asset->name));
 			return;
@@ -4078,7 +4081,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function getValidProtocols()
+	public function getValidProtocols()
 	{
 		if (!isset($this->_tmp['valid_protocols'])) {
 			$protocol = current_protocol();
@@ -4121,7 +4124,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function printHead()
+	public function printHead()
 	{
 
 	}//end printHead()
@@ -4135,7 +4138,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	public function printBody()
 	{
 
 	}//end printBody()
@@ -4147,7 +4150,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access protected
 	*/
-	function getCurrentPaintLayoutName()
+	public function getCurrentPaintLayoutName()
 	{
 		// Have they set a paint layout name that they want to view ??
 		if (!empty($_GET['SQ_PAINT_LAYOUT_NAME'])) {
@@ -4174,7 +4177,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access protected
 	*/
-	function getCurrentDesignName()
+	public function getCurrentDesignName()
 	{
 		// Have they set a design name that they want to view ??
 		if (!empty($_GET['SQ_DESIGN_NAME'])) {
@@ -4195,7 +4198,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function printBodyWithPaintLayout()
+	public function printBodyWithPaintLayout()
 	{
 		$layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
 		if (empty($layout_id)) {
@@ -4243,7 +4246,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see printLimbo
 	*/
-	function initLimbo()
+	public function initLimbo()
 	{
 		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		$o->addHiddenField('asset_action', 'limbo');
@@ -4265,7 +4268,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see initLimbo
 	*/
-	function printLimbo()
+	public function printLimbo()
 	{
 		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		if (is_null($o)) {
@@ -4280,12 +4283,12 @@ class Asset extends MySource_Object
 	/**
 	* Prints out the backend interface for the asset
 	*
-	* @param object	&$o	Backend_Outputter object
+	* @param Backend_Outputter	&$o	Backend_Outputter object
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackend(&$o)
+	public function paintBackend(Backend_Outputter $o)
 	{
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		if ($this->charset) $o->setCharset($this->charset);
@@ -4301,7 +4304,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getPrefix()
+	public function getPrefix()
 	{
 		return str_replace(':', '_', str_replace(' ', '_', $this->type().'_'.$this->id));
 
@@ -4312,13 +4315,13 @@ class Asset extends MySource_Object
 	* Processes a backend submission from this asset, returns TRUE if all OK
 	* Put's the array of processed attributes into $this->_tmp['process_attributes']
 	*
-	* @param object	&$o		Backend_Outputter object
-	* @param array	&$link	information used to create the initial link
+	* @param Backend_Outputter	$o		Backend_Outputter object
+	* @param array				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, &$link)
+	public function processBackend(Backend_Outputter $o, Array &$link)
 	{
 		$ei = $this->getEI();
 
@@ -4345,7 +4348,7 @@ class Asset extends MySource_Object
 	* @return object
 	* @access public
 	*/
-	function &getEI()
+	public function getEI()
 	{
 		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
 			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
@@ -4362,7 +4365,7 @@ class Asset extends MySource_Object
 	* @return object
 	* @access public
 	*/
-	function &getEditFns()
+	public function getEditFns()
 	{
 		if (!isset($this->_tmp['edit_fns'])) {
 			$class_name = $this->type().'_edit_fns';
@@ -4389,7 +4392,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getBackendHref($screen='', $backend_page=TRUE)
+	public function getBackendHref($screen='', $backend_page=TRUE)
 	{
 		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($this->id => $screen), $backend_page);
 		return $href[$this->id];
@@ -4407,7 +4410,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getURL($base_url=NULL, $ignore_rollback=FALSE)
+	public function getURL($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback);
 
@@ -4420,7 +4423,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getURLs()
+	public function getURLs()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getURLs($this->id);
 
@@ -4437,7 +4440,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getHref($base_url=NULL, $ignore_rollback=FALSE)
+	public function getHref($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url, $ignore_rollback);
 
@@ -4450,7 +4453,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getWebDataPath()
+	public function getWebDataPath()
 	{
 		return sq_web_path('data').'/assets/'.$this->type().'/'.get_asset_hash($this->id).'/'.$this->id;
 
@@ -4463,7 +4466,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getWebPaths()
+	public function getWebPaths()
 	{
 		if (!isset($this->_tmp['paths'])) {
 			$db = MatrixDAL::getDb();
@@ -4498,7 +4501,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function saveWebPaths($paths)
+	public function saveWebPaths($paths)
 	{
 		$current_paths = $this->getWebPaths();
 		$save_paths = Array();
@@ -4615,7 +4618,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLookups($field='')
+	public function getLookups($field='')
 	{
 		if (!isset($this->_tmp['lookups'])) {
 			$db = MatrixDAL::getDb();
@@ -4656,7 +4659,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getDesignLookups()
+	public function getDesignLookups()
 	{
 		if (!isset($this->_tmp['design_lookups'])) {
 			$this->_tmp['design_lookups'] = Array();
@@ -4724,7 +4727,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE, $ignore_override_designs=FALSE)
+	public function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE, $ignore_override_designs=FALSE)
 	{
 		$db = MatrixDAL::getDb();
 
@@ -4790,7 +4793,7 @@ class Asset extends MySource_Object
 	* @access private
 	* @see saveWebPaths()
 	*/
-	function updateLookups()
+	public function updateLookups()
 	{
 		$paths = $this->getWebPaths();
 
@@ -5200,7 +5203,7 @@ class Asset extends MySource_Object
 	* @access public
 	* @see updateLookups()
 	*/
-	function setLookupValues($values)
+	public function setLookupValues(Array $values)
 	{
 		if (!$this->writeAccess('lookups')) {
 			trigger_localised_error('SYS0265', E_USER_WARNING, $this->name, $this->id);
@@ -5270,7 +5273,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function getAssetStatusDescriptionKeywordReplacement()
+	public function getAssetStatusDescriptionKeywordReplacement()
 	{
 		return get_status_description($this->status);
 
@@ -5285,7 +5288,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function getAssetStatusColourKeywordReplacement()
+	public function getAssetStatusColourKeywordReplacement()
 	{
 		return '#'.get_status_colour($this->status);
 
@@ -5302,7 +5305,7 @@ class Asset extends MySource_Object
 	* @return string
 	* @access public
 	*/
-	function replaceKeywordsInString($string)
+	public function replaceKeywordsInString($string)
 	{
 		$replacements = Array();
 		$keyword_list = extract_keywords($string);

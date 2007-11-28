@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.153 2007/11/19 04:10:15 bshkara Exp $
+* $Id: file.inc,v 1.154 2007/11/28 22:27:27 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,7 +37,7 @@ class File extends Asset
 	* List of file extensions this asset type can handle. Empty means no restriction.
 	* @var Array(string)
 	*/
-	var $allowed_extensions = Array();
+	public $allowed_extensions = Array();
 
 
 	/**
@@ -46,9 +46,9 @@ class File extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function File($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -63,7 +63,7 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -88,7 +88,7 @@ class File extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link, $info=Array())
+	public function create(Array &$link, $info=Array())
 	{
 		$this->_tmp['file_create_data'] =& $info;
 
@@ -153,7 +153,7 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		// Save return value of acquireLock(), if it is 1 then lock was newly acquired
 		// and we have to give it back at the end, if it is 2 then it's already taken
@@ -168,7 +168,7 @@ class File extends Asset
 		// process the file upload in the middle of creation
 		$this->_tmp['uploading_file'] = 1;
 		$prefix = $this->type().'_0';
-		$o =& $GLOBALS['SQ_SYSTEM']->backend->out;
+		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		$info = $this->_tmp['file_create_data'];
 
 		$ret_val = $edit->processFileChooser($this, $o, $prefix, TRUE) || $edit->processFileUpload($this, $o, $prefix, $info, FALSE);
@@ -187,7 +187,7 @@ class File extends Asset
 	/**
 	* Processes the file upload from the source file so that file versioning cloned properly
 	*
-	* @param object		&$clone		the clone asset shell
+	* @param Asset		$clone		the clone asset shell
 	* @param array		$components	the wanted components to clone eg.
 	* <pre>
 	* 						Array(
@@ -209,7 +209,7 @@ class File extends Asset
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	function cloneComponents(&$clone, $components, $override=FALSE)
+	public function cloneComponents(Asset $clone, $components, $override=FALSE)
 	{
 		// create some information so we know where to clone the file from
 		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
@@ -231,7 +231,7 @@ class File extends Asset
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['attr_links'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -247,7 +247,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function saveSystemVersion()
+	public function saveSystemVersion()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -284,7 +284,7 @@ class File extends Asset
 		}
 
 		// store the current version of the file
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$file_info = $fv->_checkOutCheck($this->data_path_suffix.'/'.$this->name);
 		$latest_version = $file_info['version'];
 		if (!string_to_file($latest_version, $this->data_path.'/.sq_system/sq_system_version_no')) {
@@ -303,7 +303,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function revertToSystemVersion()
+	public function revertToSystemVersion()
 	{
 		// get the safe edit file name before it's lost
 		$se_name = $this->attr('name');
@@ -330,7 +330,7 @@ class File extends Asset
 			return FALSE;
 		}
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// we want to remove the safe edit file name from the repository because
 		// there's a chance someone will try and use that name later
@@ -373,9 +373,9 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$file_types = array_merge($am->getTypeAncestors($this->type(), FALSE), $am->getTypeDescendants($this->type()));
 
@@ -391,7 +391,7 @@ class File extends Asset
 					return FALSE;
 				}
 
-				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$fv->changeFvTypeCode($existing['path'], $new_type_code);
 			}
 			unset($tmp);
@@ -410,7 +410,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status)
+	public function processStatusChange($new_status)
 	{
 		// let ourselves know not to do any extra updating
 		$this->_tmp['IGNORE_UPDATE'] = TRUE;
@@ -454,7 +454,7 @@ class File extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -480,7 +480,7 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=TRUE)
+	protected function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
 
@@ -500,7 +500,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function permissionsUpdated()
+	public function permissionsUpdated()
 	{
 		return $this->_checkFileState();
 
@@ -513,7 +513,7 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _checkFileState()
+	protected function _checkFileState()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -576,7 +576,7 @@ class File extends Asset
 	* @access public
 	* @see File::updateLookups()
 	*/
-	function usePublicPath()
+	public function usePublicPath()
 	{
 		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING));
 
@@ -590,7 +590,7 @@ class File extends Asset
 	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups()
+	public function updateLookups()
 	{
 		$old_urls = $this->getURLs();
 
@@ -605,7 +605,7 @@ class File extends Asset
 
 		// Remove all the old URLs
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db =& MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
@@ -643,7 +643,7 @@ class File extends Asset
 
 			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);
 			foreach ($site_parents as $assetid => $type_code) {
-				$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($site)) continue;
 				$urls = $site->getSiteURLS();
 
@@ -720,13 +720,13 @@ class File extends Asset
 	/**
 	* Processes a backend submission from this asset, returns TRUE if all OK
 	*
-	* @param object	&$o		Backend Outputter
-	* @param array	&$link	information used to create the initial link
+	* @param Backend_Outputter	$o		Backend Outputter
+	* @param array				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, &$link)
+	public function processBackend(Backend_Outputter $o, Array $link)
 	{
 		if (in_array($_POST['asset_action'], Array('create', 'create_custom'))) {
 			$this->_tmp['uploading_file'] = 1;
@@ -756,7 +756,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function saveAttributes($dont_run_updated=FALSE)
+	public function saveAttributes($dont_run_updated=FALSE)
 	{
 		if (!$this->id) return TRUE;
 
@@ -792,7 +792,7 @@ class File extends Asset
 						// trigger_event_lookups_updated needs old status event data
 						$this->_tmp['old_status'] = $this->status;
 						unlink($this->data_path_public.'/'.$old_filename);
-						$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+						$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 						$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path_public);
 					}
 				}
@@ -809,7 +809,7 @@ class File extends Asset
 		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
 			// the unrestricted setting is being changed, so we may need to update lookups
 			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetids' => Array($this->id));
 				$hh->queueHipo('hipo_job_update_lookups', $vars);
 			}
@@ -830,10 +830,10 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _renameFile($data_path, $old_filename, $new_filename)
+	protected function _renameFile($data_path, $old_filename, $new_filename)
 	{
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// copy the file instead of a direct rename because removing the
 		// file from the repository will also remove it from the file system
@@ -878,7 +878,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? TRUE : FALSE;
 
@@ -924,7 +924,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function validFile($info)
+	public function validFile(Array $info)
 	{
 		$pre_uploaded = FALSE;
 		if (isset($info['non_uploaded_file']) && $info['non_uploaded_file']) {
@@ -956,7 +956,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function _validFileSize(&$info, $pre_uploaded=FALSE)
+	protected function _validFileSize(Array &$info, $pre_uploaded=FALSE)
 	{
 		// check the file size to ensure we are not violating any restrictions
 		$size = filesize($info['path']);
@@ -1004,7 +1004,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function _validFileExtension(&$info, $pre_uploaded=FALSE)
+	protected function _validFileExtension(Array &$info, $pre_uploaded=FALSE)
 	{
 		// check the file size to ensure we are not violating any restrictions
 		$filename = $info['filename'];
@@ -1076,7 +1076,7 @@ class File extends Asset
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	public function printFrontend()
 	{
 		// if we are in limbo, we want to show our editing interface and design
 		// instead of just sending our file over
@@ -1118,7 +1118,7 @@ class File extends Asset
 			// send cacheable headers if file asset meets the credentials
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 				&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
-				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$cache_expiry = $cm->getExpiry($this->type());
 				$last_updated = $this->getEffectiveLastUpdatedTime(Array());
 				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $cache_expiry).' GMT');
@@ -1169,7 +1169,7 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	function getURL($base_url=NULL, $ignore_rollback=FALSE)
+	public function getURL($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		if (SQ_ROLLBACK_VIEW) {
 			if (is_null($base_url)) $base_url = current_url();
@@ -1192,7 +1192,7 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	function getHref($base_url=NULL, $ignore_rollback=FALSE)
+	public function getHref($base_url=NULL, $ignore_rollback=FALSE)
 	{
 		if (SQ_ROLLBACK_VIEW) {
 			return './?a='.$this->id;
@@ -1209,7 +1209,7 @@ class File extends Asset
 	* @return array
 	* @access public
 	*/
-	function getExistingFile()
+	public function getExistingFile()
 	{
 		$existing = Array();
 		$path = '';
@@ -1225,7 +1225,7 @@ class File extends Asset
 			// safe edit, get the previous live version from the file versioning repository for public user (bug #1049)
 			if (is_file($this->data_path.'/sq_system_version_no')) {
 				$file_version = file_to_string($this->data_path.'/sq_system_version_no');
-				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$rep_file = $this->data_path_suffix.'/'.$this->name;
 				$info = $fv->_checkOutCheck($rep_file, $file_version);
 				$path = $info['source_file'];
@@ -1256,7 +1256,7 @@ class File extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return (($short_name) ? $this->attr('title') : $this->attr('name'));
 
@@ -1277,7 +1277,7 @@ class File extends Asset
 	* @return array
 	* @access public
 	*/
-	function getAvailableKeywords()
+	public function getAvailableKeywords()
 	{
 		$keywords = parent::getAvailableKeywords();
 
@@ -1295,7 +1295,7 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	function getAssetFileSizeInBytesKeywordReplacement()
+	public function getAssetFileSizeInBytesKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
 		return $existing['size'];
@@ -1309,7 +1309,7 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	function getAssetFileSizeReadableKeywordReplacement()
+	public function getAssetFileSizeReadableKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
 		return easy_filesize($existing['size']);
@@ -1327,7 +1327,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE)
 	{
 		$this->_tmp['deleting_file'] = TRUE;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');

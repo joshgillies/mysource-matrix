@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.86 2007/11/14 23:02:21 mbrydon Exp $
+* $Id: file_edit_fns.inc,v 1.87 2007/11/28 22:27:27 lwright Exp $
 *
 */
 
@@ -24,27 +24,21 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class File_Edit_Fns extends Asset_Edit_Fns
 {
 
-	/**
-	* All available protocols
-	* @var Array(string)
-	*/
-	var $protos = Array('http', 'https');
-
 
 	/**
 	* Constructor
 	*
 	*/
-	function File_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['lock_type'] = 'attr_links';
 		unset($this->static_screens['lookupValues']);
 
@@ -118,14 +112,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for form elements
+	* @param File				$asset	the file asset
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintFileUpload(&$asset, &$o, $prefix)
+	public function paintFileUpload(File $asset, Backend_Outputter $o, $prefix)
 	{
 		// We redirect the header frame to the new location only if
 		// we are in limbo, the file name has been changed and allow_unrestricted is false.
@@ -161,7 +155,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if ($this->havePreUploadedFiles($asset, $prefix)) {
 				echo '&nbsp;&nbsp;';
 				normal_button($prefix.'_choose_server_file_button', translate('core_upload_server_file_button'),
-				'document.getElementById(\''.$prefix.'_file_upload\').style.display=\'none\'; 
+				'document.getElementById(\''.$prefix.'_file_upload\').style.display=\'none\';
 				document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.style.display=\'\'');
 			}
 		}
@@ -215,16 +209,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for uploading a file
 	*
-	* @param object		&$asset				the file asset
-	* @param object		&$o					the Backend Outputter object
-	* @param string		$prefix				prefix for form elements
-	* @param array		$info				info about the uploaded file
-	* @param boolean	$redirect_in_limbo	redirect when the file name changes in limbo
+	* @param File				$asset				the file asset
+	* @param Backend_Outputter	$o					the Backend Outputter object
+	* @param string				$prefix				prefix for form elements
+	* @param array				$info				info about the uploaded file
+	* @param boolean			$redirect_in_limbo	redirect when the file name changes in limbo
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUploadPreUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=TRUE) {
+	public function processFileUploadPreUpload(File $asset, Backend_Outputter $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE) {
 		$processed = FALSE;
 
 		if (isset($_POST[$prefix.'_server_file']) && empty($_POST[$prefix.'_server_file'])){
@@ -252,16 +246,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object		&$asset				the file asset
-	* @param object		&$o					the Backend Outputter object
-	* @param string		$prefix				prefix for form elements
-	* @param array		$info				info about the uploaded file
-	* @param boolean	$redirect_in_limbo	redirect when the file name changes in limbo
+	* @param File				$asset				the file asset
+	* @param Backend_Outputter	$o					the Backend Outputter object
+	* @param string				$prefix				prefix for form elements
+	* @param array				$info				info about the uploaded file
+	* @param boolean			$redirect_in_limbo	redirect when the file name changes in limbo
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array(), $redirect_in_limbo=TRUE)
+	public function processFileUpload(File $asset, Backend_Outputter $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
@@ -302,7 +296,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->name != $name) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', NULL, 'minor');
 			for ($i = 0; $i < count($parents); $i++) {
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);
 				if (!empty($bad_paths)) {
@@ -318,7 +312,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		//// FILE VERSIONING ////
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$existing = $asset->getExistingFile();
 
 		if ($setting_filename === TRUE) {
@@ -377,7 +371,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}//end if
 		}//end if
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'ContentsUpdated');
 
 		return $asset->_updated();
@@ -390,16 +384,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Returns TRUE if a file was processed
 	*
-	* @param object		&$asset	the file asset
-	* @param object		&$o		the Backend Outputter object
-	* @param string		$prefix	prefix for form elements
-	* @param boolean	$create	TRUE if this is being called from createAdditional and should run
-	*							even though the asset is not yet created
+	* @param File				$asset	the file asset
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for form elements
+	* @param boolean			$create	TRUE if this is being called from createAdditional and should run
+	*									even though the asset is not yet created
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileChooser(&$asset, &$o, $prefix, $create=FALSE)
+	public function processFileChooser(File $asset, Backend_Outputter $o, $prefix, $create=FALSE)
 	{
 		// Unless explicitly told otherwise, don't do anything if the asset is not yet completely created
 		if (!$create && (empty($asset->id) || array_get_index($asset->_tmp, '__creating__'))) {
@@ -421,13 +415,13 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Find out if there are any pre-uploaded files we can use, returns TRUE if there is
 	*
-	* @param object	&$asset	The asset that might use the files
+	* @param Asset	$asset	The asset that might use the files
 	* @param string	$prefix	the prefix for this asset
 	*
 	* @return boolean
 	* @access protected
 	*/
-	function havePreUploadedFiles(&$asset, $prefix)
+	protected function havePreUploadedFiles(File $asset, $prefix)
 	{
 		$preuploads = $this->getPreuploadOptions($asset);
 		return !empty($preuploads);
@@ -444,12 +438,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* Subclasses can override this to restrict file types
 	* Return value format: Array(value => value to be used with combo_box)
 	*
-	* @param object	&$asset	The asset that might use the files
+	* @param Asset	$asset	The asset that might use the files
 	*
 	* @return array
 	* @access protected
 	*/
-	function getPreuploadOptions(&$asset)
+	protected function getPreuploadOptions(File $asset)
 	{
 		$options = Array();
 		foreach (list_files(SQ_TEMP_PATH) as $filename) {
@@ -464,14 +458,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Remove the old file of a file asset
 	*
-	* @param object	&$asset		the file asset we are in
-	* @param object &$existing	info about existing
-	* @param object	&$fv		the file versioning object
+	* @param File				$asset		the file asset we are in
+	* @param array 				&$existing	info about existing
+	* @param File_Versioning	$fv		the file versioning object
 	*
 	* @return void
 	* @access public
 	*/
-	function removeOldFile(&$asset, &$existing, &$fv)
+	public function removeOldFile(File $asset, &$existing, File_Versioning $fv)
 	{
 		// a new file with a new name means we need to remove the old
 		// one from the repository (NOTE that this doesnt actually 'remove' the
@@ -497,14 +491,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Get the new file of a file asset
 	*
-	* @param object	&$asset	the file asset we are in
-	* @param object $name	the new name for the file asset
-	* @param object	&$info	the info array for the new file
+	* @param File	&$asset	the file asset we are in
+	* @param string $name	the new name for the file asset
+	* @param array	&$info	the info array for the new file
 	*
 	* @return void
 	* @access public
 	*/
-	function getNewFile(&$asset, $name, &$info)
+	public function getNewFile(File $asset, $name, Array $info)
 	{
 		// copy over the new uploaded file
 		if (is_uploaded_file($info['tmp_name'])) {
@@ -535,7 +529,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access protected
 	*/
-	function getChosenFileInfo($prefix)
+	protected function getChosenFileInfo($prefix)
 	{
 		$info = Array();
 		if (isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
@@ -551,12 +545,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints info about the current uploaded file
 	*
-	* @param object	&$asset	the file asset
+	* @param File	$asset	the file asset
 	*
 	* @return void
 	* @access public
 	*/
-	function printExistingFileInfo(&$asset)
+	public function printExistingFileInfo(File $asset)
 	{
 		$existing = $asset->getExistingFile();
 		if (!empty($existing)) {
