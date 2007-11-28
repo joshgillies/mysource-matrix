@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.15 2007/11/21 04:40:51 gsherwood Exp $
+* $Id: trigger_action_create_clone.inc,v 1.16 2007/11/28 03:50:01 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$selected_assetid    = array_get_index($settings, 'assetid', 0);
@@ -253,7 +253,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$link_type_list = get_link_type_names();
 
@@ -289,7 +289,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array(
 				$state['assetid']	=> Array('all'),

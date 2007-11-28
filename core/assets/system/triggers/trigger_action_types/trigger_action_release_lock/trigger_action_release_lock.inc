@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_release_lock.inc,v 1.5 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_release_lock.inc,v 1.6 2007/11/28 03:50:02 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,7 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$interface = '';
 		$lock_type = array_get_index($settings, 'release_type', 'on_asset');
@@ -135,7 +135,7 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$release_type = array_get_index($request_data, 'release_type', FALSE);
 		if (!$release_type) return 'Release type has not been specified';
@@ -165,7 +165,7 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array($state['assetid'] => Array('permissions'));
 

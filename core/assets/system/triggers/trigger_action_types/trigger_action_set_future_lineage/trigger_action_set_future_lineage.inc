@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.11 2007/11/21 04:40:53 gsherwood Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.12 2007/11/28 03:50:04 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -157,7 +157,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// First, munge the prefix so that we can use the Cron Job interfaces to paint/process
 		$munge_prefix = str_replace('[', '_', $prefix);
@@ -264,7 +264,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$munge_prefix = $request_data['prefix'];
 		$link_type = $request_data['link_type'];

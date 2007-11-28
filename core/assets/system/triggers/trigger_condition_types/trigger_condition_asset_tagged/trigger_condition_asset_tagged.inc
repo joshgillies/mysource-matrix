@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_tagged.inc,v 1.3 2006/12/05 23:55:14 bcaldwell Exp $
+* $Id: trigger_condition_asset_tagged.inc,v 1.4 2007/11/28 03:50:06 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 
@@ -72,7 +72,7 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$tagids		= array_get_index($settings, 'tagids', Array());
@@ -124,7 +124,7 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$tagids = array_get_index($request_data, 'tagids', Array());
 		$settings['is_strict'] = (boolean) array_get_index($request_data, 'is_strict', FALSE);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.13 2006/12/05 23:53:32 bcaldwell Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.14 2007/11/28 03:50:06 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
@@ -159,7 +159,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$is_major           = array_get_index($settings, 'is_major', FALSE);
@@ -285,7 +285,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$settings['is_major']       = !empty($request_data['is_major']);
 
@@ -350,7 +350,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* @return mixed string|boolean
 	* @access public
 	*/
-	function setHash(&$settings, &$hash)
+	public static function setHash(&$settings, &$hash)
 	{
 		if (isset($settings['selector_type']) && isset($settings['is_major'])) {
 			switch ($settings['selector_type']) {
@@ -380,7 +380,7 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function allowMultiple()
+	public static function allowMultiple()
 	{
 		return TRUE;
 

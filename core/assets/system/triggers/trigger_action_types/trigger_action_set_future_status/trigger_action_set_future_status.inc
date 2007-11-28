@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.16 2007/11/21 04:40:53 gsherwood Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.17 2007/11/28 03:50:04 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// set defaults
 		$settings['status']				= array_get_index($settings, 'status', SQ_STATUS_LIVE_APPROVAL);
@@ -290,7 +290,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$prefix = $request_data['prefix'];
 

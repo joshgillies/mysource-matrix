@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.45 2007/11/27 23:57:46 lwright Exp $
+* $Id: trigger_manager.inc,v 1.46 2007/11/28 03:50:07 colivar Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1003,16 +1003,16 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access private
 	*/
 	function _lookupCandidateTriggers($state_hash=NULL)
-	{
+	{// TODO TOF TEST THIS
 		// if no state_hash, then fail
 		if (empty($state_hash)) return Array();
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$PROPAGATE      = $db->quoteSmart(SQ_TRIG_TREE_PROPAGATE);
-		$NO_PROPAGATE   = $db->quoteSmart(SQ_TRIG_TREE_NO_PROPAGATE);
+		$PROPAGATE      = $db->quote(SQ_TRIG_TREE_PROPAGATE);
+		$NO_PROPAGATE   = $db->quote(SQ_TRIG_TREE_NO_PROPAGATE);
 
 		// compose the link_tree SQL block
-		$treeid_sql_array[] = 'treeid = '.$db->quoteSmart('-1');
+		$treeid_sql_array[] = 'treeid = '.$db->quote('-1');
 		if (empty($state_hash['treeid'])) {
 			$state_hash['treeid'] = Array();
 		}
@@ -1021,8 +1021,8 @@ class Trigger_Manager extends Asset implements Bridge
 			if (empty($current_treeid)) continue;
 
 			$tree_length = strlen($current_treeid) - SQ_CONF_ASSET_TREE_SIZE;
-			$tree_length = $db->quoteSmart($tree_length);
-			$current_treeid = $db->quoteSmart($current_treeid);
+			$tree_length = $db->quote($tree_length);
+			$current_treeid = $db->quote($current_treeid);
 
 			$treeid_sql_array[] = '
 						(
@@ -1043,15 +1043,15 @@ class Trigger_Manager extends Asset implements Bridge
 
 		$parents = $state_hash['parents'];
 		foreach ($parents as $id => $type) {
-			$parent_id_array[]   = $db->quoteSmart($id);
-			$parent_type_array[$type] = $db->quoteSmart($type);
+			$parent_id_array[]   = $db->quote($id);
+			$parent_type_array[$type] = $db->quote($type);
 		}
 
 		// parent IDs
-		$parent_id_sql = 'parentid = '.$db->quoteSmart('-1');
+		$parent_id_sql = 'parentid = '.$db->quote('-1');
 		if (!empty($parent_id_array)) {
 			for (reset($parent_id_array); NULL !== ($k = key($parent_id_array)); next($parent_id_array)) {
-				$parent_id_array[$k] = $db->quoteSmart((string) $parent_id_array[$k]);
+				$parent_id_array[$k] = $db->quote((string) $parent_id_array[$k]);
 			}
 
 			foreach (array_chunk($parent_id_array, 200) as $chunk) {
@@ -1060,20 +1060,20 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 
 		// parent types
-		$parent_type_sql = 'parent_type = '.$db->quoteSmart('-1');
+		$parent_type_sql = 'parent_type = '.$db->quote('-1');
 		if (!empty($parent_type_array)) {
 			$parent_type_sql .= ' OR parent_type IN ('.implode(',', $parent_type_array).')';
 		}
 
 
 		//// CHILDREN
-		$child_id_sql   = 'childid = '.$db->quoteSmart('-1');
-		$child_type_sql = 'child_type = '.$db->quoteSmart('-1');
+		$child_id_sql   = 'childid = '.$db->quote('-1');
+		$child_type_sql = 'child_type = '.$db->quote('-1');
 
 		if (!empty($state_hash['treeid'])) {
 			// children will always be the same, regardless which treeid is used, so just choose the first one off the top
 			$treeid        = reset($state_hash['treeid']);
-			$quoted_treeid = $db->quoteSmart($treeid);
+			$quoted_treeid = $db->quote($treeid);
 
 			// get all the immediate children
 			$child_fromwhere_sql = '
@@ -1081,7 +1081,7 @@ class Trigger_Manager extends Asset implements Bridge
 					(sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid)
 					INNER JOIN sq_ast a ON l.minorid = a.assetid
 				WHERE
-					t.treeid LIKE '.$db->quoteSmart($treeid.'%').'
+					t.treeid LIKE '.$db->quote($treeid.'%').'
 					AND t.treeid > '.$quoted_treeid.'
 					AND LENGTH(t.treeid) <= LENGTH('.$quoted_treeid.') + 4
 			';
@@ -1104,21 +1104,21 @@ class Trigger_Manager extends Asset implements Bridge
 		}//end if
 
 		// event
-		$event_sql = 'event = '.$db->quoteSmart('-1');
+		$event_sql = 'event = '.$db->quote('-1');
 		if (!is_null($state_hash['event'])) {
-			$event_sql .= ' OR event = '.$db->quoteSmart($state_hash['event']);
+			$event_sql .= ' OR event = '.$db->quote($state_hash['event']);
 		}
 
 		// broadcaster's asset ID
-		$assetid_sql = 'assetid = '.$db->quoteSmart('-1');
+		$assetid_sql = 'assetid = '.$db->quote('-1');
 		if (!is_null($state_hash['assetid'])) {
-			$assetid_sql .= ' OR assetid = '.$db->quoteSmart($state_hash['assetid']);
+			$assetid_sql .= ' OR assetid = '.$db->quote($state_hash['assetid']);
 		}
 
 		// broadcaster's asset Type
-		$asset_type_sql = 'asset_type = '.$db->quoteSmart('-1');
+		$asset_type_sql = 'asset_type = '.$db->quote('-1');
 		if (!is_null($state_hash['asset_type'])) {
-			$asset_type_sql .= ' OR asset_type = '.$db->quoteSmart($state_hash['asset_type']);
+			$asset_type_sql .= ' OR asset_type = '.$db->quote($state_hash['asset_type']);
 		}
 
 		// compose query
@@ -1133,11 +1133,13 @@ class Trigger_Manager extends Asset implements Bridge
 					AND ('.$child_id_sql.')
 					AND ('.$child_type_sql.')';
 
-		// query the database
-		$result = $db->getCol($sql);
-
-		// check result
-		assert_valid_db_result($result);
+		$result = NULL;
+		 try {
+			$query = $db->prepare($sql);
+			$result = MatrixDAL::executePdoAssoc($query, 0);
+		 } catch (Exception $e) {
+			 throw new Exception('unable to get the candidate triggers: '.$e->getMessage());
+		 }
 
 		return $result;
 
@@ -1330,132 +1332,127 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access private
 	*/
 	function _saveTrigger($trigger)
-	{
+	{//TODO TOF: write unit tests
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return TRUE;
 		if (empty($trigger)) return FALSE;
 
-		// start transaction
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		try {
+			// start transaction
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db = MatrixDAL::getDb();
+			$status = TRUE;
+			$new    = FALSE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$status = TRUE;
-		$new    = FALSE;
+			// lack of id means it is a new trigger
+			// this bit gets all ids to come from the sequence, manual entries will make db inconsistent
+			if (!isset($trigger['id'])) {
+				$new = TRUE;
+				// TODO: this wil be replaced in the queries.xml with a seqNextVal()
+				// call replacing the addition of the explicit sequence value
+				$tr_id = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_trig_id_seq\')');
 
-		// lack of id means it is a new trigger
-		// this bit gets all ids to come from the sequence, manual entries will make db inconsistent
-		if (!isset($trigger['id'])) {
-			$new = TRUE;
-			$tr_id = $db->nextId('sq_trig_id');
-			assert_valid_db_result($tr_id);
-			$trigger['id'] = $tr_id;
-		}
+				$trigger['id'] = $tr_id;
+			}
 
-		if ($new) {
+			if ($new) {
 
-			$sql = 'INSERT INTO
-						sq_trig
-						(
-							id,
-							data,
-							active,
-							description,
-							name
-						)
-						VALUES
-						(
-							?,
-							?,
-							?,
-							?,
-							?
-						)';
+				$sql = 'INSERT INTO
+							sq_trig
+							(
+								id,
+								data,
+								active,
+								description,
+								name
+							)
+							VALUES
+							(
+								:id,
+								:data,
+								:active,
+								:desc,
+								:name
+							)';
 
-			$prepared = $db->prepare($sql);
-			assert_valid_db_result($prepared);
+				$prepared = $db->prepare($sql);
+				$prepared->bindValue(':id', $trigger['id']);
+				$prepared->bindValue(':data', serialize($trigger['data']));
+				$prepared->bindValue(':active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
+				$prepared->bindValue(':desc', $trigger['description']);
+				$prepared->bindValue(':name', $trigger['name']);
+				$result = MatrixDAL::execPdoQuery($prepared);
 
-			$values = Array(
-						$trigger['id'],
-						serialize($trigger['data']),
-						array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT),
-						$trigger['description'],
-						$trigger['name'],
-					  );
+			} else {
 
-			$result = $db->execute($prepared, $values);
-			assert_valid_db_result($result);
+				$sql = 'UPDATE
+							sq_trig
+						SET
+							data		= :data,
+							active		= :active,
+							description	= :desc,
+							name		= :name
+						WHERE
+						id = :id';
 
-		} else {
+				$prepared = $db->prepare($sql);
+				$prepared->bindValue(':id', $trigger['id']);
+				$prepared->bindValue(':data', serialize($trigger['data']));
+				$prepared->bindValue(':active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
+				$prepared->bindValue(':desc', $trigger['description']);
+				$prepared->bindValue(':name', $trigger['name']);
+				$result = MatrixDAL::execPdoQuery($prepared);
+			}
 
-			$sql = 'UPDATE
-						sq_trig
-					SET
-						data		= ?,
-						active		= ?,
-						description	= ?,
-						name		= ?
-					WHERE
-						id = ?';
+			$this->_deleteTriggerHash($trigger['id']);
 
-			$prepared = $db->prepare($sql);
-			assert_valid_db_result($prepared);
+			// prepare and save the hash
+			// the edit interface can set the optional 'save_hash' index to false, which will cause
+			// the hash not to be saved for this trigger, for whatever reason
+			if ($status && array_get_index($trigger, 'save_hash', TRUE) && $trigger['active']) {
 
-			$values = Array(
-						serialize($trigger['data']),
-						array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT),
-						$trigger['description'],
-						$trigger['name'],
-						$trigger['id'],
-					  );
+				$hash = $this->_getHashObject();
+				$hash->setTriggerId($trigger['id']);
 
-			$result = $db->execute($prepared, $values);
-			assert_valid_db_result($result);
-		}
-
-		$this->_deleteTriggerHash($trigger['id']);
-
-		// prepare and save the hash
-		// the edit interface can set the optional 'save_hash' index to false, which will cause
-		// the hash not to be saved for this trigger, for whatever reason
-		if ($status && array_get_index($trigger, 'save_hash', TRUE) && $trigger['active']) {
-
-			$hash = $this->_getHashObject();
-			$hash->setTriggerId($trigger['id']);
-
-			// update the hash
-			if (isset($trigger['data'])) {
-				if (isset($trigger['data']['events'])) {
-					foreach ($trigger['data']['events'] as $event) {
-						$hash->setEvent($event);
+				// update the hash
+				if (isset($trigger['data'])) {
+					if (isset($trigger['data']['events'])) {
+						foreach ($trigger['data']['events'] as $event) {
+							$hash->setEvent($event);
+						}
 					}
-				}
-				if (isset($trigger['data']['conditions'])) {
-					foreach ($trigger['data']['conditions'] as $condition) {
-						if ($GLOBALS['SQ_SYSTEM']->am->installed(array_get_index($condition, 'type', ''))) {
-							if ($this->_loadComponent($condition['type'])) {
-								if (isset($condition['data'])) {
-									$settings =& $condition['data'];
-									call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, &$hash));
+					if (isset($trigger['data']['conditions'])) {
+						foreach ($trigger['data']['conditions'] as $condition) {
+							if ($GLOBALS['SQ_SYSTEM']->am->installed(array_get_index($condition, 'type', ''))) {
+								if ($this->_loadComponent($condition['type'])) {
+									if (isset($condition['data'])) {
+										$settings =& $condition['data'];
+										call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, &$hash));
+									}
 								}
 							}
 						}
 					}
 				}
+
+				$status = $status && $this->_saveTriggerHash($hash);
 			}
 
-			$status = $status && $this->_saveTriggerHash($hash);
-		}
+			// now try to save the trigger itself
+			if ($status) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return $trigger['id'];
+			} else {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
 
-		// now try to save the trigger itself
-		if ($status) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return $trigger['id'];
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
+		} catch (Exception $e)
+		{
+			throw new Exception('Unable to save the trigger due to database error: '.$e->getMessage());
 		}
 
 	}//end _saveTrigger()
@@ -1470,14 +1467,14 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access private
 	*/
 	function _saveTriggerHash($hash=NULL)
-	{
+	{// TODO TOF TEST
 		if (empty($hash)) return FALSE;
 
 		$hash_combinations = $hash->getHashCombinations();
 		if (empty($hash_combinations)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($hash_combinations as $combination) {
@@ -1487,7 +1484,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 			foreach ($combination as $hash_id => $hash_data) {
 				$field_array[] = $hash_id;
-				$value_array[] = $db->quoteSmart($hash_data);
+				$value_array[] = $db->quote($hash_data);
 			}
 
 			$sql = 'INSERT INTO
@@ -1500,10 +1497,16 @@ class Trigger_Manager extends Asset implements Bridge
 							'.implode($value_array, ', ').'
 						)';
 
-			$result = $db->query($sql);
+			$result = NULL;
+			try {
+				$query = $db->prepare($sql);
+				$result = MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('could not create the trigger hash due to database error: '.$e->getMessage());
+			}
 
 			// check result
-			if (!assert_valid_db_result($result, NULL, FALSE, FALSE)) {
+			if ($result === FALSE) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -1571,16 +1574,17 @@ class Trigger_Manager extends Asset implements Bridge
 	function _deleteTrigger($trigger_id)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_trig
-				WHERE
-					id = '.$db->quoteSmart($trigger_id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$result  = NULL;
+		try {
+			$bind_vars	= Array (
+									'trigger_id'			=> $trigger_id,
+								);
+			$result  = MatrixDAL::executeQuery('core', 'deleteTriggerId', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable delete the Trigger'.$trigger_id.':  due to database error: '.$e->getMessage());
+		}
 
 		$success = $this->_deleteTriggerHash($trigger_id);
 
@@ -1601,20 +1605,25 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access private
 	*/
 	function _deleteTriggerHash($trigger_id)
-	{
+	{// TODO TOF TEST THIS FUNCTION
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		try {
+			$db = MatrixDAL::getDb();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_trig_hash
-				WHERE
-					triggerid = '.$db->quoteSmart($trigger_id);
+			$sql = 'DELETE FROM
+						sq_trig_hash
+					WHERE
+					triggerid = :triggerid';
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+			$query = $db->prepare($sql);
+			$query->bindValue(':triggerid', $trigger_id);
+			$result = MatrixDAL::execPdoQuery($query);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} catch(Exception $e) {
+			throw new Exception("Failed to delete the hash (#$trigger_id): ".$e->getMessage());
+		}
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
@@ -1634,19 +1643,8 @@ class Trigger_Manager extends Asset implements Bridge
 	* @see Trigger_Manager::getTrigger()
 	*/
 	function &getTriggerList()
-	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$query = 'SELECT
-					id,
-					name,
-					data,
-					description,
-					active
-				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'trig';
-
-		$trigger_db = $db->getAll($query);
-		assert_valid_db_result($trigger_db);
+	{// TODO TOF TEST THIS FUNCTION
+		$trigger_db = MatrixDAL::executeAll('core', 'getTriggerList');
 
 		if (empty($trigger_db)) {
 			foreach ($trigger_db as $trigger_data) {
@@ -1777,25 +1775,32 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access private
 	*/
 	function _loadTrigger($trigger_id=NULL)
-	{
+	{// TODO TOF: test this function
 		if (!isset($trigger_id)) return NULL;
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$trigger_db = NULL;
+		try {
+			$db = MatrixDAL::getDb();
 
-		$select = 'SELECT
-					id,
-					name,
-					data,
-					description,
-					active
-				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'trig';
+			$select = 'SELECT
+						id,
+						name,
+						data,
+						description,
+						active
+					FROM
+						'.SQ_TABLE_RUNNING_PREFIX.'trig';
 
-		$where  = 'id = '.$db->quoteSmart($trigger_id);
-		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		$query = $select.' '.$where;
-		$trigger_db = $db->getRow($query);
-		assert_valid_db_result($trigger_db);
+			$where  = 'id = :id';
+			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$query = $db->prepare($select.' '.$where);
+			$query->bindValue(':id', $trigger_id);
+			$trigger_db = MatrixDAL::executePdoAll($query);
+			if (!empty($trigger_db)) {
+				$trigger_db = $trigger_db[0];
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable get the information from the trigger table due to database error: '.$e->getMessage());
+		}
 
 		if (empty($trigger_db)) {
 			// trigger_localised_error('CORE0133', E_USER_WARNING, $trigger_id);
@@ -1992,19 +1997,18 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access private
 	*/
 	function _isEventListenedFor($event)
-	{
+	{// TODO TOF TEST THIS
 		// Check the trigger hash table to see whether any active triggers are listening for this event
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = '
-				SELECT
-					COUNT(triggerid)
-				FROM
-					sq_trig_hash
-				WHERE
-					event = '.$db->quoteSmart($event).'
-			';
-		$trigger_count = $db->getOne($sql);
-		assert_valid_db_result($trigger_count);
+		$trigger_count  = NULL;
+		try {
+			$bind_vars	= Array (
+									'event'			=> $event,
+								);
+			$trigger_count  = MatrixDAL::executeQuery('core', 'getNbOfTriggerHash', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable get the number of trigger hashes:  due to database error: '.$e->getMessage());
+		}
+
 
 		return !empty($trigger_count);
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.7 2006/12/06 00:11:16 bcaldwell Exp $
+* $Id: trigger.inc,v 1.8 2007/11/28 03:49:59 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -178,7 +178,8 @@ class Trigger extends Asset
 
 		// possibly not the best way to do this, but we need
 		// to set our status / name and the trigger manager id
-		$id = end(explode(':', $this->id));
+		$this_id = explode(':', $this->id);
+		$id = $this_id[1];
 		$load_result = $this->load($this->tmid, $id);
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();

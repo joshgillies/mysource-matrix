@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_access_permission.inc,v 1.2 2006/12/05 23:56:41 bcaldwell Exp $
+* $Id: trigger_condition_access_permission.inc,v 1.3 2007/11/28 03:50:05 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Trigger_Condition_Access_Permission extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
@@ -92,7 +92,7 @@ class Trigger_Condition_Access_Permission extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$perm = Array(
 					SQ_PERMISSION_READ	=> translate('read').' '.translate('permission'),
@@ -141,7 +141,7 @@ class Trigger_Condition_Access_Permission extends Trigger_Condition
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$settings['perm'] = array_get_index($request_data, 'perm', SQ_PERMISSION_READ);
 		$settings['grant'] = array_get_index($request_data, 'grant', 1);

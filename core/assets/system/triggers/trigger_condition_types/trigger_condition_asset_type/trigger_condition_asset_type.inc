@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.15 2006/12/05 23:55:14 bcaldwell Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.16 2007/11/28 03:50:06 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
@@ -103,7 +103,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_types = array_get_index($settings, 'asset_type', Array('page'));
 
@@ -149,7 +149,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
 			return translate('trigger_input_data_error');
@@ -181,7 +181,7 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 	* @return mixed string|boolean
 	* @access public
 	*/
-	function setHash(&$settings, &$hash)
+	public static function setHash(&$settings, &$hash)
 	{
 		if (isset($settings['asset_type']) && isset($settings['descendants'])) {
 			foreach ($settings['asset_type'] as $key => $type) {

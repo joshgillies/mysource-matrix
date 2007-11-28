@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,15 +46,15 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 	* @param array	&$state		the state that describes the asset the action is executing on
 	*
 	* @return mixed array|boolean
-    * @access public
+	* @access public
 	*/
 	public static function execute($settings, &$state)
-    {
+	{
 
-    	if (!isset($settings['index_page'])) return FALSE;
-    	if ($settings['index_page'] == '') return FALSE;
+		if (!isset($settings['index_page'])) return FALSE;
+		if ($settings['index_page'] == '') return FALSE;
 
-    	$selected_asset_id = array_get_index($settings, 'index_page', 0);
+		$selected_asset_id = array_get_index($settings, 'index_page', 0);
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -67,7 +67,7 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 		if (is_null($state['asset'])) return FALSE;
 
 		$link_value = 'index';
-    	$field_name = $state['asset']->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
+		$field_name = $state['asset']->getPrefix().'_'.str_replace(' ', '_', strtolower($link_value));
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($state['asset']->id, SQ_LINK_NOTICE, '', FALSE, $link_value);
 
@@ -115,10 +115,10 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-    function getInterface($settings, $prefix, $write_access=FALSE)
-    {
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
+	{
 
-   		if (empty($settings['index_page'])) {
+		if (empty($settings['index_page'])) {
 			// set to default
 			$selected_assetid = '0';
 		} else {
@@ -169,8 +169,8 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-    function processInterface(&$settings, $request_data)
-    {
+	public static function processInterface(&$settings, $request_data)
+	{
 
 		// make sure the assetid isn't blank
 		if (empty($request_data['index_page']['assetid'])) {
@@ -194,14 +194,14 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-    function getLocks($settings, &$state)
-    {
+	public static function getLocks($settings, &$state)
+	{
 
-        return Array(
+		return Array(
 				$state['assetid']	=> Array('all'),
 			   );
 
-    }//end getLocks()
+	}//end getLocks()
 
 
 }//end class

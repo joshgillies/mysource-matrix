@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.15 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_set_design.inc,v 1.16 2007/11/28 03:50:03 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,7 +147,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (empty($settings['assetid'])) {
 			// set to default
@@ -214,7 +214,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		// make sure the assetid isn't blank
 		if (empty($request_data['assetid']['assetid'])) {
@@ -242,7 +242,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array(
 				$state['assetid']	=> Array(

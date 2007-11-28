@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_user_sysadmin.inc,v 1.2 2006/12/15 04:25:19 tbarrett Exp $
+* $Id: trigger_condition_user_sysadmin.inc,v 1.3 2007/11/28 03:50:07 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,7 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		$res = ($GLOBALS['SQ_SYSTEM']->userSystemAdmin() == $settings['is_sysadmin']);
 		return $res;
@@ -64,7 +64,7 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
 			$options = Array(0 => translate('is_not'), 1 => translate('is'));
@@ -91,7 +91,7 @@ class Trigger_Condition_User_Sysadmin extends Trigger_Condition
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
 			return translate('trigger_input_data_error');

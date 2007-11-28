@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.17 2007/11/27 23:49:49 hnguyen Exp $
+* $Id: trigger_action_set_permission.inc,v 1.18 2007/11/28 03:50:04 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 
 	// due to "access for" being the only stable text in this interface
@@ -251,7 +251,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
 
@@ -312,7 +312,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @return void
 	* @access private
 	*/
-	function _getPermissionList()
+	public static function _getPermissionList()
 	{
 		return Array(
 				SQ_PERMISSION_READ	=> 'read',
@@ -332,7 +332,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array($state['assetid'] => Array('permissions'));
 

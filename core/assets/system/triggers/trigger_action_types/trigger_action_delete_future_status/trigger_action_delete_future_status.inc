@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_delete_future_status.inc,v 1.3 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_delete_future_status.inc,v 1.4 2007/11/28 03:50:02 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,7 +110,7 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (empty($settings['status'])) {
 			// set to default
@@ -149,7 +149,7 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		// status
 		$status = array_get_index($request_data, 'status', NULL);

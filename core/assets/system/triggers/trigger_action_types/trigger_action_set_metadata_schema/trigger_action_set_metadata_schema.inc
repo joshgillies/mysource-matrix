@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_schema.inc,v 1.6 2007/11/21 04:40:53 gsherwood Exp $
+* $Id: trigger_action_set_metadata_schema.inc,v 1.7 2007/11/28 03:50:04 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata schema
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,7 +123,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$current_schemaid = array_get_index($settings, 'schemaid', 0);
 		$granted = array_get_index($settings, 'granted', 1);
@@ -178,7 +178,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$schema_info = array_get_index($request_data, 'schemaid', Array('assetid' => 0));
 		$settings['schemaid'] = array_get_index($schema_info, 'assetid', 0);
@@ -198,7 +198,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array($state['assetid'] => Array('metadata'));
 

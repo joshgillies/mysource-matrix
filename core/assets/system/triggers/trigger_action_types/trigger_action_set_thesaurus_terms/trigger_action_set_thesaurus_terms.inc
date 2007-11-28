@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thesaurus_terms.inc,v 1.3 2007/11/21 04:40:54 gsherwood Exp $
+* $Id: trigger_action_set_thesaurus_terms.inc,v 1.4 2007/11/28 03:50:05 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Trigger_Action_Set_Thesaurus_Terms extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$file_path = array_get_index($settings, 'file_path', '');
 		$append = array_get_index($settings, 'append', FALSE);
@@ -159,7 +159,7 @@ class Trigger_Action_Set_Thesaurus_Terms extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$file_path = array_get_index($request_data, 'file_path', '');
 		$file_path = trim($file_path);
@@ -185,7 +185,7 @@ class Trigger_Action_Set_Thesaurus_Terms extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array(
 				$state['assetid']	=> Array(

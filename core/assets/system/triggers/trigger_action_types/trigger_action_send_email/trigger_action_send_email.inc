@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.13 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_send_email.inc,v 1.14 2007/11/28 03:50:03 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,8 +127,8 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			$paramater_map_email = $atr_parameter_map->getParameterValue('user_email');
 
 			$unserialised = unserialize($email_format_value);
-			$unserialised['to'] = array_merge($unserialised['to'],$paramater_map_email);
-			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],$paramater_map_assetid);
+			$unserialised['to'] = array_merge($unserialised['to'],(array)$paramater_map_email);
+			$unserialised['to_assetids'] = array_merge($unserialised['to_assetids'],(array)$paramater_map_assetid);
 			$email_format_value = serialize($unserialised);
 		}
 
@@ -181,7 +181,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
 		$to_owner = array_get_index($settings, 'to_owner', 0);
@@ -288,7 +288,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 
 		// save other settings
@@ -340,7 +340,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array($state['assetid'] => Array('lookups'));
 

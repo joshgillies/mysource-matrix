@@ -1091,6 +1091,55 @@
 		</primary>
 	</query>
 
+	<!-- //     TRIGGER MANAGER SYSTEM       // -->
+	<query id="getTriggerList">
+		<!-- Returns a list of all installed packages. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_trig" column="id" />
+					<field table="sq_trig" column="name" />
+					<field table="sq_trig" column="data" />
+					<field table="sq_trig" column="description" />
+					<field table="sq_trig" column="active" />
+				</fields>
+				<from>
+					<table>sq_trig</table>
+				</from>
+			</select>
+		</primary>
+	</query>
+
+	<query id="getNbOfTriggerHash">
+		<!-- Return the number of trigger hash -->
+		<primary>
+			<select>
+				<fields>
+					<function function="count">
+						<arg><field table="sq_trig_hash" column="triggerid" /></arg>
+					</function>
+				</fields>
+				<from>
+					<table>sq_trig_hash</table>
+				</from>
+				<where>
+					<equal table="sq_trig_hash" column="event">:event</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+	<query id="deleteTriggerId">
+		<!-- Deletes Trigger asset with specified triggerid -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_trig" column="id">:trigger_id</equal>
+				</where>
+			</delete>
+		</primary>
+	</query>
+
 	<!-- //     DESIGNS       // -->
 	<query id="updateAttrId">
 	<!-- Updates attribute ids for specified assetid and attrid -->

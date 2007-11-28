@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role.inc,v 1.5 2007/11/21 04:40:53 gsherwood Exp $
+* $Id: trigger_action_set_role.inc,v 1.6 2007/11/28 03:50:05 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,7 +160,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// check settings, set defaults if necessary
 		$selected_roleid       = array_get_index($settings, 'roleid', 0);
@@ -246,7 +246,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$link_type_list = get_link_type_names();
 
@@ -294,7 +294,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array(
 				$state['assetid']	=> Array('all'),

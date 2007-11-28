@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.626 2007/11/28 03:14:00 bshkara Exp $
+* $Id: asset_manager.inc,v 1.627 2007/11/28 03:50:07 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.626 $
+* @version $Revision: 1.627 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3055,8 +3055,13 @@ class Asset_Manager extends MySource_Object
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-					$result = $db->getAll($sql.$where);
-					assert_valid_db_result($result);
+					$result = NULL;
+					$query = $db->prepare($sql.$where);
+					try {
+						$result = MatrixDAL::executePdoAll($query);
+					} catch (Exception $e) {
+						throw new Exception('Could not get the '.$e->getMessage());
+					}//end
 
 					$shdw_links = Array();
 					foreach ($result as $shdw_link) {
@@ -3254,8 +3259,9 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-			$result = $db->getAssoc($sql.$where);
-			assert_valid_db_result($result);
+			$result = NULL;
+			$query = $db->prepare($sql.$where);
+			$result = MatrixDAL::executePdoGrouped($query);
 
 			// get the lineage of the real assets that this shadow asset is linked under
 			// and then append the lineage of that real asset to its lineages

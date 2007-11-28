@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_replace_file_asset.inc,v 1.2 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_replace_file_asset.inc,v 1.3 2007/11/28 03:50:03 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,7 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$file_path = array_get_index($settings, 'file_path', '');
 		ob_start();
@@ -129,7 +129,7 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		if (!empty($request_data['file_path'])) {
 			$settings['file_path'] = $request_data['file_path'];

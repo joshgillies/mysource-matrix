@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_clear_cache.inc,v 1.7 2007/11/21 04:40:51 gsherwood Exp $
+* $Id: trigger_action_clear_cache.inc,v 1.8 2007/11/28 03:50:01 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,7 +103,7 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// munge the prefix so that we can use the Cache Manager interfaces to paint/process
 		$new_prefix = str_replace('[', '_', $prefix);
@@ -242,7 +242,7 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$new_prefix = $request_data['prefix'];
 		$settings['prefix'] = $new_prefix;
@@ -286,7 +286,7 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array($state['assetid'] => Array('lookups'));
 

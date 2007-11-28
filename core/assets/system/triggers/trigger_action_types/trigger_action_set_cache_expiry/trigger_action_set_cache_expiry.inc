@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.6 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.7 2007/11/28 03:50:03 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -157,7 +157,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$output = parent::getInterface($settings, $prefix, $write_access);
 		$output .= Trigger_Action_Set_Cache_Expiry::_paintTimeUnit($settings, $prefix, $write_access);
@@ -180,7 +180,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		parent::processInterface($settings, $request_data);
 

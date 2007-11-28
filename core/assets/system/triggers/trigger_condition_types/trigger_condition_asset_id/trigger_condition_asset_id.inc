@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_id.inc,v 1.8 2006/12/05 23:56:41 bcaldwell Exp $
+* $Id: trigger_condition_asset_id.inc,v 1.9 2007/11/28 03:50:06 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,7 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
@@ -80,7 +80,7 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_assetid = array_get_index($settings, 'assetid', 0);
 
@@ -125,7 +125,7 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	* @return mixed string|boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
 			return 'There was an error with input data';
@@ -153,7 +153,7 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	* @return mixed string|boolean
 	* @access public
 	*/
-	function setHash(&$settings, &$hash)
+	public static function setHash(&$settings, &$hash)
 	{
 		if (isset($settings['assetid'])) {
 			$hash->setAssetID($settings['assetid']);

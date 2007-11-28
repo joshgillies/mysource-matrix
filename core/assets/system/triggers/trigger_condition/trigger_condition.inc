@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition.inc,v 1.7 2006/12/05 23:58:43 bcaldwell Exp $
+* $Id: trigger_condition.inc,v 1.8 2007/11/28 03:50:05 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,7 +40,7 @@ class Trigger_Condition extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		return FALSE;
 
@@ -57,7 +57,7 @@ class Trigger_Condition extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// create HTML
 		// populate HTML with settings
@@ -93,7 +93,7 @@ class Trigger_Condition extends Asset
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		// decompose interface
 		// populate the settings
@@ -116,7 +116,7 @@ class Trigger_Condition extends Asset
 	* @return mixed string|boolean
 	* @access public
 	*/
-	function setHash(&$settings, &$hash)
+	public static function setHash(&$settings, &$hash)
 	{
 		return FALSE;
 
@@ -130,7 +130,7 @@ class Trigger_Condition extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function allowMultiple()
+	public static function allowMultiple()
 	{
 		// default to to disallow
 		return FALSE;

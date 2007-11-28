@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_workflow_schema.inc,v 1.4 2007/11/21 04:40:54 gsherwood Exp $
+* $Id: trigger_action_set_workflow_schema.inc,v 1.5 2007/11/28 03:50:05 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a workflow schema
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,7 +130,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$current_schemaid      = array_get_index($settings, 'schemaid', 0);
 		$granted               = array_get_index($settings, 'granted', 1);
@@ -193,7 +193,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$schema_info = array_get_index($request_data, 'schemaid', Array('assetid' => 0));
 		$settings['schemaid'] = array_get_index($schema_info, 'assetid', 0);
@@ -218,7 +218,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array($state['assetid'] => Array('workflow'));
 

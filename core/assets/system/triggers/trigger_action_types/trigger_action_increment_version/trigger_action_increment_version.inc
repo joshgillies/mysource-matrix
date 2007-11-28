@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_increment_version.inc,v 1.4 2007/11/21 04:40:52 gsherwood Exp $
+* $Id: trigger_action_increment_version.inc,v 1.5 2007/11/28 03:50:02 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,7 +84,7 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (empty($settings['version'])) {
 			// set to default
@@ -127,7 +127,7 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$version = array_get_index($request_data, 'version', FALSE);
 		if (!$version) return 'Version has not been specified';

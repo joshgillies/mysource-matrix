@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_value.inc,v 1.7 2007/11/06 22:36:47 rong Exp $
+* $Id: trigger_condition_attribute_value.inc,v 1.8 2007/11/28 03:50:06 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		if (empty($settings['asset_type'])) return FALSE;
 		if (empty($settings['attribute'])) return FALSE;
@@ -108,7 +108,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_type = array_get_index($settings, 'asset_type', 'page');
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -195,7 +195,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		if (empty($request_data)) {
 			return translate('trigger_input_data_error');

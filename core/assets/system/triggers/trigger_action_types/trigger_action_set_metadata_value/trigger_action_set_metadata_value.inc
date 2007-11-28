@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.15 2007/11/21 04:40:53 gsherwood Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.16 2007/11/28 03:50:04 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,7 +132,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$output					= '';
 		$metadata_fieldid		= array_get_index($settings, 'fieldid', 0);
@@ -191,7 +191,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		// process fieldid
 		$fieldid_data = array_get_index($request_data, 'fieldid', 0);
@@ -243,7 +243,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array($state['assetid'] => Array('all'));
 

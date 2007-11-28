@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_url_matches.inc,v 1.6 2007/09/04 23:51:17 rong Exp $
+* $Id: trigger_condition_url_matches.inc,v 1.7 2007/11/28 03:50:07 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function evaluate($settings, &$state)
+	public static function evaluate($settings, &$state)
 	{
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
@@ -91,7 +91,7 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		if (!$write_access) {
 			$form_element_extras = 'disabled="disabled"';
@@ -134,7 +134,7 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$pattern = array_get_index($request_data, 'pattern', FALSE);
 		if (!$pattern) {

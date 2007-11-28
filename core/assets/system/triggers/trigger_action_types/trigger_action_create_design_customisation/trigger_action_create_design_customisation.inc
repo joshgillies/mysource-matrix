@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,7 +191,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// How to get a list of keyword if there is no asset to get it from?
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('design');
@@ -229,7 +229,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		// make sure the assetid isn't blank
 		if (empty($request_data['customisation_name'])) {
@@ -252,7 +252,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return	Array (
 					$state['assetid']	=> Array('all'),

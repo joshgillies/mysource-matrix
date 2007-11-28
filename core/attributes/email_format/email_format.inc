@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.37 2007/11/06 22:37:41 rong Exp $
+* $Id: email_format.inc,v 1.38 2007/11/28 03:50:07 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -430,7 +430,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$from_addr = preg_replace('|.*\<(.*)\>|', '\\1', $from);
 
-		$mail = Mail::factory('mail', "-f$from_addr");
+		$tmp_mail = new Mail();
+		$mail = $tmp_mail->factory('mail', "-f$from_addr");
 
 		$hdrs = Array(
 					'From'			=> $from,
@@ -466,7 +467,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			$body = $mime->get($params);
 
 			$hdrs = $mime->headers($hdrs);
-			$msg = $mail->send($to_email, $hdrs, $body);
+			$msg = @$mail->send($to_email, $hdrs, $body);
 
 		}//end foreach
 
