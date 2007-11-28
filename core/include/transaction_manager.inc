@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.24 2007/11/14 05:55:28 colivar Exp $
+* $Id: transaction_manager.inc,v 1.25 2007/11/28 04:00:13 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -75,7 +75,7 @@ class Transaction_Manager extends MySource_Object
 	*
 	* Only does a real begin if this is the first begin
 	*
-	* @param object	&$db	the database object on which to begin the transaction
+	* @param string	$db_name	the DAL connection pool identifier
 	*
 	* @return boolean
 	* @access public
@@ -113,7 +113,7 @@ class Transaction_Manager extends MySource_Object
 	*
 	* Only does a real commit if this is the last commit
 	*
-	* @param object	&$db	the database object on which to perform the commit
+	* @param string	$db_name	the DAL connection pool identifier
 	*
 	* @return boolean
 	* @access public
@@ -160,7 +160,7 @@ class Transaction_Manager extends MySource_Object
 	*
 	* Only does a real rollback if this is the last rollback
 	*
-	* @param object	&$db	the database object on which to perform the rollback
+	* @param string	$db_name	the DAL connection pool identifier
 	*
 	* @return boolean
 	* @access public
@@ -172,11 +172,11 @@ class Transaction_Manager extends MySource_Object
 
 		if (empty($this->_levels[$dsn])) {
 			trigger_localised_error('SYS0231', E_USER_WARNING);
-			return false;
+			return FALSE;
 		}
 
 		// set the rollback flag
-		$this->_rollback[$dsn] = true;
+		$this->_rollback[$dsn] = TRUE;
 		$this->_levels[$dsn]--;
 
 		if ($this->_levels[$dsn] == 0) {
@@ -189,9 +189,10 @@ class Transaction_Manager extends MySource_Object
 			}
 
 			// clear the rollback flag as there is no more transaction block
-			$this->_rollback[$dsn] = false;
+			$this->_rollback[$dsn] = FALSE;
 		}
-		return true;
+
+		return TRUE;
 
 	}//end rollback()
 
