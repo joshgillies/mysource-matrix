@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.13 2007/11/06 22:36:45 rong Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.14 2007/11/28 22:02:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,12 +36,12 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @see Asset_Edit_Fns::Asset_Edit_Fns
+	* @see Asset_Edit_Fns::__construct()
 	*/
-	function Layout_Manager_Edit_Fns()
+	function __construct()
 	{
 		$this->static_screens['details']['force_unlock'] = FALSE;
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['preview']);
@@ -63,14 +63,14 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
-	* @param object	&$asset	the asset of the layout manager
-	* @param object	&$o		the Backend Outputter class
-	* @param string	$prefix	a unique prefix for variables
+	* @param Layout_Manager		$asset	the asset of the layout manager
+	* @param Backend_Outputter	$o		the Backend Outputter class
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAddLayout(&$asset, &$o, $prefix)
+	public function paintAddLayout(Layout_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
@@ -85,14 +85,14 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
-	* @param object	&$asset	the asset of the layout manager
-	* @param object	&$o		the Backend Outputter class
-	* @param string	$prefix	a unique prefix for variables
+	* @param Layout_Manager		$asset	the asset of the layout manager
+	* @param Backend_Outputter	$o		the Backend Outputter class
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAddLayout(&$asset, &$o, $prefix)
+	public function processAddLayout(Layout_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_layouts']) && !empty($_POST[$prefix.'_layouts'])) {
 			$layouts = $asset->attr('layouts');
@@ -114,14 +114,14 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new screens to type_codes and layouts to screens
 	*
-	* @param object	&$asset	the asset of the layout manager
-	* @param object	&$o		the Backend Outputter class
-	* @param string	$prefix	a unique prefix for variables
+	* @param Layout_Manager		$asset	the asset of the layout manager
+	* @param Backend_Outputter	$o		the Backend Outputter class
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintEditLayouts(&$asset, &$o, $prefix)
+	public function paintEditLayouts(Layout_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
 
@@ -243,14 +243,14 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add new screens to type_codes, and layouts to screens
 	*
-	* @param object	&$asset	the asset of the layout manager
-	* @param object	&$o		the Backend Outputter class
-	* @param string	$prefix	a unique prefix for variables
+	* @param Layout_Manager		$asset	the asset of the layout manager
+	* @param Backend_Outputter	$o		the Backend Outputter class
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processEditLayouts(&$asset, &$o, $prefix)
+	public function processEditLayouts(Layout_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$save = FALSE;
 

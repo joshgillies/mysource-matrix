@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.16 2007/02/08 01:12:52 tbarrett Exp $
+* $Id: layout_manager.inc,v 1.17 2007/11/28 22:02:05 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Layout_Manager extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -91,7 +91,7 @@ class Layout_Manager extends Asset
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -104,7 +104,7 @@ class Layout_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -117,7 +117,7 @@ class Layout_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -141,7 +141,7 @@ class Layout_Manager extends Asset
 	* @return object
 	* @access public
 	*/
-	function &getLayout($type_code, $screen='')
+	public function getLayout($type_code, $screen='')
 	{
 		$null = NULL; // for returning a reference
 
@@ -166,9 +166,9 @@ class Layout_Manager extends Asset
 		if ($screen == '') {
 			$layout = Array();
 			foreach ($layouts[$type_code] as $screen => $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'layout');
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, 'layout');
 				if (is_null($asset)) continue;
-				$layout[$screen] =& $asset;
+				$layout[$screen] = $asset;
 			}
 			if (empty($layout)) return $null;
 		} else {
@@ -177,7 +177,7 @@ class Layout_Manager extends Asset
 			}
 			$layout = NULL;
 			if (!empty($layouts[$type_code][$screen])) {
-				$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($layouts[$type_code][$screen], 'layout');
+				$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layouts[$type_code][$screen], 'layout');
 			}
 			return $layout;
 		}
@@ -195,7 +195,7 @@ class Layout_Manager extends Asset
 	* @return string
 	* @access public
 	*/
-	function getAncestorLayoutTypeCode($type_code, $screen='')
+	public function getAncestorLayoutTypeCode($type_code, $screen='')
 	{
 		$layouts = $this->attr('layouts');
 		$ancestor_type_code = '';
@@ -224,7 +224,7 @@ class Layout_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function hasLayout($type_code, $screen='details')
+	public function hasLayout($type_code, $screen='details')
 	{
 		$layouts = $this->attr('layouts');
 		if (!isset($layouts[$type_code][$screen])) {

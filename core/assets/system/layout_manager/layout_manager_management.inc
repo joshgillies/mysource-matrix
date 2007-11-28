@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_management.inc,v 1.7 2007/04/04 05:52:27 amiller Exp $
+* $Id: layout_manager_management.inc,v 1.8 2007/11/28 22:02:05 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $ - 0.1
+* @version $Revision: 1.8 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,13 @@ class Layout_Manager_Management extends Asset_Management
 
 	/**
 	* Constructor
+	*
+	* @param Package_Manager	$pm	The package manager handling this asset
+	*
 	*/
-	function Layout_Manager_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'layouts'	=> Array(
