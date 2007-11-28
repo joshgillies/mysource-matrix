@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.31 2007/11/28 00:13:39 hnguyen Exp $
+* $Id: metadata_field.inc,v 1.32 2007/11/28 00:16:42 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,7 @@ class Metadata_Field extends Asset
 	*/
 	function getDefaultValue()
 	{
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		return $mm->getMetadataFieldDefaultValue($this->id);
 
 	}//end getDefaultValue()
@@ -133,7 +133,7 @@ class Metadata_Field extends Asset
 	function getMetadataValue(&$asset, $value_str)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// get the default value
 		if (is_null($value_str)) {
@@ -288,7 +288,7 @@ class Metadata_Field extends Asset
 
 		$default_val = self::encodeValueString($this->attr('default'), $this->attr('value_components'));
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (!$mm->setMetadataFieldDefaultValue($this->id, $default_val)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
