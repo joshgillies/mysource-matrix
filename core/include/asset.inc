@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.616 2007/11/28 22:22:04 lwright Exp $
+* $Id: asset.inc,v 1.617 2007/11/28 23:56:10 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.616 $
+* @version $Revision: 1.617 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1170,7 +1170,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	protected function _updated($update_parents=TRUE)
+	public function _updated($update_parents=TRUE)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -2531,7 +2531,7 @@ class Asset extends MySource_Object
 	* @return array
 	* @access private
 	*/
-	protected function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
