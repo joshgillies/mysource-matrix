@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_mass_clone.inc,v 1.3 2007/11/14 04:23:22 hnguyen Exp $
+* $Id: tool_mass_clone.inc,v 1.4 2007/11/28 05:57:03 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -97,7 +97,7 @@ class Tool_Mass_Clone extends Tool
 	* @access public
 	* @static
 	*/
-	function processTool(&$o, $type_code)
+	public static function processTool(&$o, $type_code)
 	{
 		if (!isset($_REQUEST['asset_to_clone']) || empty($_REQUEST['asset_to_clone']['assetid'])) {
 			trigger_localised_error('CORE0253', E_USER_WARNING);
@@ -148,7 +148,7 @@ class Tool_Mass_Clone extends Tool
 	* @access protected
 	* @static
 	*/
-	function getHipoRunningVars($type_code)
+	public static function getHipoRunningVars($type_code)
 	{
 		$original_id = $_REQUEST['asset_to_clone']['assetid'];
 		$num_clones = $_REQUEST['number_of_clones'];
@@ -176,7 +176,7 @@ class Tool_Mass_Clone extends Tool
 	* @access public
 	* @static
 	*/
-	function finaliseClone(&$clone, &$running_vars)
+	public static function finaliseClone(&$clone, &$running_vars)
 	{
 		// child classes can override
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool.inc,v 1.5 2007/11/14 04:19:26 hnguyen Exp $
+* $Id: tool.inc,v 1.6 2007/11/28 05:57:03 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,7 @@ class Tool extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function processTool(&$o, $type_code)
+	public static function processTool(&$o, $type_code)
 	{
 		return TRUE;
 

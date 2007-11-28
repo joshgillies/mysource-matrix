@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.6 2007/11/14 04:23:22 hnguyen Exp $
+* $Id: tool_asset_sorter.inc,v 1.7 2007/11/28 05:57:03 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -95,7 +95,7 @@ class Tool_Asset_Sorter extends Tool
 	* @access public
 	* @static
 	*/
-	function processTool(&$o, $type_code)
+	public static function processTool(&$o, $type_code)
 	{
 		$parentid = $_REQUEST[$type_code.'_parent']['assetid'];
 		if (empty($parentid)) return FALSE;
