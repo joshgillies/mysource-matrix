@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.336 2007/11/27 22:54:09 hnguyen Exp $
+* $Id: asset_edit_interface.inc,v 1.337 2007/11/28 04:31:30 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.336 $
+* @version $Revision: 1.337 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2103,14 +2103,14 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function getAllowedScreens(&$owner)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		// get all the user groups that we exist in
 		$groups = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 		if (empty($groups)) return Array(); // all screens allowed
 
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) {
-			$groups[$k] = $db->quoteSmart((string) $groups[$k]);
+			$groups[$k] = $db->quote((string) $groups[$k]);
 		}
 
 		$sql = 'SELECT screen, section
@@ -2118,17 +2118,21 @@ class Asset_Edit_Interface extends MySource_Object
 		$where = 'userid IN ('.implode(',', $groups).')';
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$where .= ' AND (type_code = '.$db->quoteSmart('0').'
+		$where .= ' AND (type_code = '.$db->quote('0').'
 					OR type_code IN (
 									SELECT inhd_type_code
 									FROM sq_ast_typ_inhd
-									WHERE type_code = '.$db->quoteSmart($owner->type()).'
+									WHERE type_code = '.$db->quote($owner->type()).'
 									))';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$allowed_screens = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-
-		assert_valid_db_result($allowed_screens);
+		try {
+			$query = $db->prepare($sql.$where);
+			$query->bindValue(':type_code', $owner->type());
+			$allowed_screens = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get allowed screens for type code: '.$owner->type().' due to database error: '.$e->getMessage());
+		}
 		return $allowed_screens;
 
 	}//end getAllowedScreens()
