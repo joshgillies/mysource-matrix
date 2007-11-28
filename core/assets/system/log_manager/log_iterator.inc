@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.6 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: log_iterator.inc,v 1.7 2007/11/28 22:16:23 lwright Exp $
 *
 */
 
@@ -22,17 +22,17 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Log_Iterator
 {
 
 
-	var $offset;
-	var $logname;
-	var $rotation_index;
-	var $total_size;
+	protected $offset;
+	protected $logname;
+	protected $rotation_index;
+	protected $total_size;
 
 
 	/**
@@ -42,15 +42,19 @@ class Log_Iterator
 	* @param int	$rotation_index	the rotation index of the log to act on, NULL to act on the current log
 	*
 	*/
-	function Log_Iterator($logname, $rotation_index=NULL)
+	function __construct($logname, $rotation_index=NULL)
 	{
 		$this->offset     = 0;
 		$this->logname    = $logname;
 		$this->rotation_index = $rotation_index;
-		$this->total_size = $GLOBALS['SQ_SYSTEM']->log_manager->getLogSize($this->logname, $this->rotation_index);
+
+		$log_manager = $GLOBALS['SQ_SYSTEM']->getSystemAsset('log_manager');
+		$this->total_size = $log_manager->getLogSize($this->logname, $this->rotation_index);
+
 		if (empty($this->total_size)) {
 			$this->total_size = 0;
 		}
+
 	}//end constructor
 
 
@@ -62,10 +66,11 @@ class Log_Iterator
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function getNextEntry()
+	public function getNextEntry()
 	{
 		if ($this->offset < $this->total_size) {
-			$line =& $GLOBALS['SQ_SYSTEM']->log_manager->getLogLine($this->logname, $this->rotation_index, $this->offset);
+			$log_manager = $GLOBALS['SQ_SYSTEM']->getSystemAsset('log_manager');
+			$line =& $log_manager->getLogLine($this->logname, $this->rotation_index, $this->offset);
 			$line_offset = array_get_index($line, 'offset', FALSE);
 
 			if ($line_offset != FALSE && $line_offset >= 0) {
@@ -95,7 +100,7 @@ class Log_Iterator
 	* @return array
 	* @access private
 	*/
-	function &getCurrentProgress()
+	protected function &getCurrentProgress()
 	{
 		$result = Array(
 					'current'	=> $this->offset,

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.25 2007/11/06 22:36:45 rong Exp $
+* $Id: log_manager.inc,v 1.26 2007/11/28 22:16:24 lwright Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,26 +23,28 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Log_Manager extends Asset
 {
 
-	var $log_level_map;
+	protected $log_level_map;
 
-	var $min_tail_lines = 10;
+	protected $min_tail_lines = 10;
 
 
 	/**
 	* Constructor
 	*
+	* @param int	$assetid	the asset id to be loaded
+	*
 	*/
-	function Log_Manager($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -58,7 +60,7 @@ class Log_Manager extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -93,7 +95,7 @@ class Log_Manager extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -111,7 +113,7 @@ class Log_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -127,7 +129,7 @@ class Log_Manager extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -160,7 +162,7 @@ class Log_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function getLogs()
+	public function getLogs()
 	{
 		$files = glob(SQ_LOG_PATH.'/*.log');
 		$logs = $this->attr('logs');
@@ -189,7 +191,7 @@ class Log_Manager extends Asset
 	* @return mixed boolean|string
 	* @access private
 	*/
-	function _getLogPrefixFromFileName($file)
+	protected function _getLogPrefixFromFileName($file)
 	{
 		preg_match('/^'.preg_quote(SQ_LOG_PATH.'/', '/').'(\S*).log$/', $file, $matches);
 		if (isset($matches[1]) && !empty($matches[1])) {
@@ -209,7 +211,7 @@ class Log_Manager extends Asset
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function getLogSettings($logname)
+	public function getLogSettings($logname)
 	{
 		$logs = $this->getLogs();
 		if (isset($logs[$logname]) && !empty($logs[$logname])) {
@@ -234,7 +236,7 @@ class Log_Manager extends Asset
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function &getLogLine($logname, $rotation_index=NULL, $offset=0)
+	public function &getLogLine($logname, $rotation_index=NULL, $offset=0)
 	{
 		$rotation_suffix = (!is_null($rotation_index) && is_numeric($rotation_index)) ? '.'.$rotation_index : '';
 
@@ -259,7 +261,7 @@ class Log_Manager extends Asset
 	* @return int
 	* @access private
 	*/
-	function getLogSize($logname, $rotation_index=NULL)
+	public function getLogSize($logname, $rotation_index=NULL)
 	{
 		$rotation_suffix = (!is_null($rotation_index) && is_numeric($rotation_index)) ? '.'.$rotation_index : '';
 		return $this->_getFileSize(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION.$rotation_suffix);
@@ -276,7 +278,7 @@ class Log_Manager extends Asset
 	* @return object
 	* @access private
 	*/
-	function &getLogIterator($logname, $rotation_index=NULL)
+	public function getLogIterator($logname, $rotation_index=NULL)
 	{
 		include_once 'log_iterator.inc';
 		// start up the generate report HIPO
@@ -295,7 +297,7 @@ class Log_Manager extends Asset
 	* @return array
 	* @access private
 	*/
-	function _setLogDefaults($log=Array())
+	protected function _setLogDefaults($log=Array())
 	{
 		$rotation = array_get_index($log, 'rotation', Array());
 
@@ -330,7 +332,7 @@ class Log_Manager extends Asset
 	* @return mixed boolean|array
 	* @access private
 	*/
-	function _decodeLine($line)
+	protected function _decodeLine($line)
 	{
 		if (empty($line)) return FALSE;
 
@@ -389,7 +391,7 @@ class Log_Manager extends Asset
 	* @return mixed boolean|array
 	* @access private
 	*/
-	function _readLineFromFile($file, $offset=0)
+	protected function _readLineFromFile($file, $offset=0)
 	{
 		if (empty($file)) return FALSE;
 
@@ -426,7 +428,7 @@ class Log_Manager extends Asset
 	* @return int
 	* @access private
 	*/
-	function _getFileSize($file)
+	protected function _getFileSize($file)
 	{
 		if (empty($file)) return FALSE;
 
@@ -450,7 +452,7 @@ class Log_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function rotateLogs()
+	public function rotateLogs()
 	{
 		$logs = $this->getLogs();
 		$status = FALSE;
@@ -488,7 +490,7 @@ class Log_Manager extends Asset
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function rotateLog($logname, &$log_data)
+	public function rotateLog($logname, &$log_data)
 	{
 		$rotation       = array_get_index($log_data, 'rotation', Array());
 		$interval       = array_get_index($rotation, 'interval');
@@ -530,7 +532,7 @@ class Log_Manager extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _rotateLogFiles($file, $rotation_index)
+	protected function _rotateLogFiles($file, $rotation_index)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (file_exists($file)) {
@@ -551,7 +553,7 @@ class Log_Manager extends Asset
 	* @return void
 	* @access public
 	*/
-	function getCommunicatorUrl()
+	public function getCommunicatorUrl()
 	{
 		return $this->getBackendHref().'&'.$this->getPrefix().'_direct_connection=true&ignore_frames=1';
 
@@ -561,12 +563,12 @@ class Log_Manager extends Asset
 	/**
 	* Backend Painter
 	*
-	* @param object	&$o	the Backend Outputter class
+	* @param Backend_Outputter	$o	the Backend Outputter class
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackend(&$o)
+	public function paintBackend(Backend_Outputter $o)
 	{
 		$prefix = $this->getPrefix();
 
@@ -592,7 +594,7 @@ class Log_Manager extends Asset
 	* @return void
 	* @access public
 	*/
-	function _directCommunicator()
+	protected function _directCommunicator()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 

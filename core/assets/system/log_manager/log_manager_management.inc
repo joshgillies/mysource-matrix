@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager_management.inc,v 1.4 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: log_manager_management.inc,v 1.5 2007/11/28 22:16:24 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,12 @@ class Log_Manager_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager handling this asset
+	*
 	*/
-	function Log_Manager_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'enabled'	=> Array(
