@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports_edit_fns.inc,v 1.4 2007/11/22 23:28:57 lwright Exp $
+* $Id: cron_job_generate_log_reports_edit_fns.inc,v 1.5 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Cron_Job_Generate_Log_Reports_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintNull()
+	public function paintNull()
 	{
 		return TRUE;
 
@@ -62,7 +62,7 @@ class Cron_Job_Generate_Log_Reports_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processNull()
+	public function processNull()
 	{
 		return TRUE;
 

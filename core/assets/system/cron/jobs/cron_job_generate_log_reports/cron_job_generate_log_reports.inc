@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.7 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.8 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(Array &$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -97,7 +97,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return translate('cron_job_generate_log_reports');
 
@@ -110,7 +110,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -127,7 +127,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @access public
 	* @see Asset::morph()
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -143,7 +143,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -162,7 +162,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		// set the UMASK to u=rw,g=rw,o=r (0002), so that the system can write to the the logfiles the cronjob creates
 		if (substr(PHP_OS, 0, 3) != 'WIN') umask(0113);
@@ -190,7 +190,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function generateReports(Array $target_logs)
+	public function generateReports(Array $target_logs)
 	{
 		if (empty($target_logs)) return FALSE;
 
@@ -229,7 +229,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function generateReportFromLog($logname, Array &$log_reports, $rotation_index=NULL)
+	public function generateReportFromLog($logname, Array &$log_reports, $rotation_index=NULL)
 	{
 		if (empty($log_reports)) return FALSE;
 
@@ -263,7 +263,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	* @return int
 	* @access public
 	*/
-	function run()
+	public function run()
 	{
 		$res = parent::run();
 		if ($res & SQ_CRON_JOB_REMOVE) {

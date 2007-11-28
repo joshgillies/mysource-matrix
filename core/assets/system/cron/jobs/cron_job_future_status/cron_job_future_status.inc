@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.41 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_future_status.inc,v 1.42 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(Array &$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -87,7 +87,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
@@ -108,7 +108,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
 
@@ -131,7 +131,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		if (parent::canDelete()) return TRUE;
 
@@ -154,7 +154,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		switch ($name) {
 			case 'status' :
@@ -184,7 +184,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @access private
 	* @static
 	*/
-	function _getAllStatii()
+	protected static function _getAllStatii()
 	{
 		return Array(
 				SQ_STATUS_ARCHIVED				=> 'ARCHIVED',
@@ -206,13 +206,13 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @access private
 	* @static
 	*/
-	function _getAllStatiiDescs()
+	protected static function _getAllStatiiDescs()
 	{
 		static $descs = Array();
 
 		if (empty($descs)) {
 			$descs['']  = '[Select Status]';
-			$statii = Cron_Job_Future_Status::_getAllStatii();
+			$statii = self::_getAllStatii();
 			foreach ($statii as $value => $code) {
 				$code = strtolower($code);
 				$status_code = 'asset_status_'.$code;
@@ -232,10 +232,10 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @return string
 	* @access public
 	*/
-	function statusName()
+	public function statusName()
 	{
 		if (!$this->attr('status')) return '[ No Status Set ]';
-		$statii = Cron_Job_Future_Status::_getAllStatii();
+		$statii = self::_getAllStatii();
 		$code = strtolower($statii[$this->attr('status')]);
 		$status_code = 'asset_status_'.$code;
 		require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
@@ -253,7 +253,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function setAssetToUpdate(Asset $asset)
+	public function setAssetToUpdate(Asset $asset)
 	{
 		if ($this->id) {
 			$existing_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', TRUE, 'major', $value='updating');
@@ -287,7 +287,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function getAssetToUpdate()
+	public function getAssetToUpdate()
 	{
 		// because we need to return by ref
 		$null = NULL;
@@ -315,7 +315,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		$asset = $this->getAssetToUpdate();
 		if (!is_null($asset)) {
@@ -357,7 +357,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @access public
 	* @static
 	*/
-	function &getActiveJobs(Asset $asset)
+	public static function &getActiveJobs(Asset $asset)
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, __CLASS__, TRUE, 'minor', 'updating');
 		$assetids = Array();

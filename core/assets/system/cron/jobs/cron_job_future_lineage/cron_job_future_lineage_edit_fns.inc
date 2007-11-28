@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.22 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.23 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
+	public function paintInLineBackend(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		$major = $asset->getAssetInLink('major');
 		$minor = $asset->getAssetInLink('minor');
@@ -129,7 +129,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
+	public function processInLineBackend(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_delete_linkid']) && (empty($_POST[$prefix.'_link_type']) || empty($_POST[$prefix.'_major_assetid']['assetid']))) {
 			return FALSE;
@@ -191,7 +191,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackendCreate(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
+	public function paintInLineBackendCreate(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		// section to create a new link
 		$o->openSection(translate('create_linking'));
@@ -250,7 +250,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackendCreate(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
+	public function processInLineBackendCreate(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		// if the major_assetid_create is not empty we will link this asset to the major asset
 		if ($major_id_array = array_get_index($_POST, $prefix.'_major_assetid', FALSE)) {
@@ -403,7 +403,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackendDelete(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
+	public function paintInLineBackendDelete(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		$major = $asset->getAssetInLink('major');
 		$minor = $asset->getAssetInLink('minor');
@@ -492,7 +492,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackendDelete(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
+	public function processInLineBackendDelete(Cron_Job_Future_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_delete_linkid'])) {
 			return FALSE;

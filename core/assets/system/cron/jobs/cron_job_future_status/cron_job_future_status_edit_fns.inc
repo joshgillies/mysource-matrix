@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.22 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.23 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='', $exclude_status=Array())
+	public function paintInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='', Array $exclude_status=Array())
 	{
 		echo translate('set_status_to');
 
@@ -95,7 +95,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix)
+	public function processInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_status']) && $asset->setAttrValue('status', $_POST[$prefix.'_status'])) {
 			$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? FALSE : TRUE;

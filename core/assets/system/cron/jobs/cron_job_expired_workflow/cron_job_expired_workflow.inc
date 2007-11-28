@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.24 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.25 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(Array &$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -98,7 +98,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return translate('cron_job_expired_workflow');
 
@@ -111,7 +111,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -129,7 +129,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @access public
 	* @see Asset::morph()
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -145,7 +145,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -165,7 +165,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		try {
 			$rows = MatrixDAL::executeAll('cron_job_expired_workflow', 'getAllRunningWorkflows');
@@ -228,7 +228,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @return void
 	* @access private
 	*/
-	function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $schemaid, $step_data)
+	protected function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $schemaid, $step_data)
 	{
 		 if (Workflow_Manager::silentWorkflowParty($assetid)) {
 			 return;
@@ -278,7 +278,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	* @return int
 	* @access public
 	*/
-	function run()
+	public function run()
 	{
 		$res = parent::run();
 		if ($res & SQ_CRON_JOB_REMOVE) {

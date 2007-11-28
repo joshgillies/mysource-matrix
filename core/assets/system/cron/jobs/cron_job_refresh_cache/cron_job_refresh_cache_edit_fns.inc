@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.5 2007/11/22 23:28:57 lwright Exp $
+* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.6 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(Cron_Job_Refresh_Cache $asset, Backend_Outputter $o, $prefix)
+	public function paintInLineBackend(Cron_Job_Refresh_Cache $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('')) {
 
@@ -110,7 +110,7 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(Cron_Job_Refresh_Cache $asset, Backend_Outputter $o, $prefix)
+	public function processInLineBackend(Cron_Job_Refresh_Cache $asset, Backend_Outputter $o, $prefix)
 	{
 		$cron_job = new Cron_Job();
 		$edit_fns = $cron_job->getEditFns();

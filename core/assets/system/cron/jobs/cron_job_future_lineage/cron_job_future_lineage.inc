@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.28 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.29 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(Array &$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -88,7 +88,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		$minor = $this->getAssetInLink('minor');
 		if (is_null($minor)) {
@@ -109,7 +109,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
 
@@ -131,7 +131,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		if (parent::canDelete()) return TRUE;
 
@@ -151,7 +151,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		switch ($name) {
 			case 'type':
@@ -184,7 +184,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function setAssetInLink(Asset $asset, $side_of_link)
+	public function setAssetInLink(Asset $asset, $side_of_link)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_localised_error('CRON0033', E_USER_WARNING, $side_of_link);
@@ -217,7 +217,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAssetInLink($side_of_link)
+	public function getAssetInLink($side_of_link)
 	{
 		$null = NULL; // because we need to return by ref
 		if ($side_of_link != 'major' && $side_of_link != 'minor') {
@@ -243,7 +243,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return string
 	* @access public
 	*/
-	function readableDescription()
+	public function readableDescription()
 	{
 		$minor = $this->getAssetInLink('minor');
 		if (is_null($minor)) {
@@ -290,7 +290,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		// we can be removed because the error is beyound our control
 		$failed_ret_val = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
@@ -445,7 +445,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @return boolean
 	* @access private
 	*/
-	function _execDeleteLink($linkid)
+	protected function _execDeleteLink($linkid)
 	{
 		$delete_ok = FALSE;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_regenerate_report.inc,v 1.4 2007/11/22 23:28:57 lwright Exp $
+* $Id: cron_job_regenerate_report.inc,v 1.5 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *   Else a one off job wil be scheduled
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Cron_Job_Regenerate_Report extends Cron_Job
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		$id = $this->attr('asset');
 		if ($GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
@@ -81,7 +81,7 @@ class Cron_Job_Regenerate_Report extends Cron_Job
 	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		$this->setAttrValue('running', TRUE);
 		$this->saveAttributes();
@@ -114,7 +114,7 @@ class Cron_Job_Regenerate_Report extends Cron_Job
 	* @return int
 	* @access public
 	*/
-	function run()
+	public function run()
 	{
 		$res = parent::run();
 		if ($res & SQ_CRON_JOB_COMPLETED) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_escalate_safe_trash.inc,v 1.3 2007/11/22 23:28:56 lwright Exp $
+* $Id: cron_job_escalate_safe_trash.inc,v 1.4 2007/11/28 21:53:59 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(Array &$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -94,7 +94,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return translate('cron_job_escalate_safe_trash');
 
@@ -107,7 +107,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -125,7 +125,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @access public
 	* @see Asset::morph()
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -141,7 +141,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -161,7 +161,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		$cron_mgr_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('cron_manager');
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($cron_mgr_assetid, SQ_LINK_TYPE_3, 'cron_job_attempt_safe_trash');
@@ -275,7 +275,7 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 	* @return int
 	* @access public
 	*/
-	function run()
+	public function run()
 	{
 		$res = parent::run();
 		if ($res & SQ_CRON_JOB_REMOVE) {

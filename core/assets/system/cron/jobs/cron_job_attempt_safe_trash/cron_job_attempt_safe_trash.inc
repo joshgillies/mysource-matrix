@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_attempt_safe_trash.inc,v 1.3 2007/11/22 23:28:55 lwright Exp $
+* $Id: cron_job_attempt_safe_trash.inc,v 1.4 2007/11/28 21:53:58 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(Array &$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -87,7 +87,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		$asset = $this->getAssetToUpdate();
 		if (is_null($asset)) {
@@ -108,7 +108,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
 
@@ -131,7 +131,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		if (parent::canDelete()) return TRUE;
 
@@ -155,7 +155,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		switch ($name) {
 			case 'type' :
@@ -177,7 +177,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function setAssetToUpdate(Asset $asset)
+	public function setAssetToUpdate(Asset $asset)
 	{
 		if (!($asset instanceof Asset)) {
 			trigger_localised_error('CRON0030', E_USER_WARNING);
@@ -216,7 +216,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function getAssetToUpdate()
+	public function getAssetToUpdate()
 	{
 		// because we need to return by ref
 		$null = NULL;
@@ -244,7 +244,7 @@ class Cron_Job_Attempt_Safe_Trash extends Cron_Job
 	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		$asset = $this->getAssetToUpdate();
 		if (!is_null($asset)) {
