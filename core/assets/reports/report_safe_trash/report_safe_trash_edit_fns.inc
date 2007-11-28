@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_edit_fns.inc,v 1.5 2007/11/28 05:04:59 rong Exp $
+* $Id: report_safe_trash_edit_fns.inc,v 1.6 2007/11/28 23:05:36 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,6 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 				return FALSE;
 			}
 		}
-
 		if (!empty($job->_running_vars['todo'])) {
 
 			$keys = array_keys($job->_running_vars['todo']);
@@ -152,7 +151,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 
 		}//end if
 
-		if (empty($job->_running_vars['todo'])) {
+		if (empty($job->_running_vars['todo']) && !$job->_running_vars['complete']) {
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
 
