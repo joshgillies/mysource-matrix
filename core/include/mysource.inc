@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.243 2007/11/15 01:18:42 hnguyen Exp $
+* $Id: mysource.inc,v 1.244 2007/11/28 22:29:46 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.243 $
+* @version $Revision: 1.244 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1402,12 +1402,12 @@ class MySource
 	* SHOULD BE USED WITH CAUTION - no authentication is done inside here
 	* This is generally to be used by scripts etc - the session is not updated with the new user's details
 	*
-	* @param object	&$user	the user to make current
+	* @param User	$user	the user to make current
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function setCurrentUser(&$user)
+	public function setCurrentUser(User $user)
 	{
 		if (!($user instanceof User)) {
 			trigger_localised_error('SYS0171', E_USER_WARNING);
