@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.55 2007/11/26 22:40:32 bshkara Exp $
+* $Id: cron_job.inc,v 1.56 2007/11/28 21:56:42 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Cron_Job extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(Array &$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -84,7 +84,7 @@ class Cron_Job extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -102,7 +102,7 @@ class Cron_Job extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -119,7 +119,7 @@ class Cron_Job extends Asset
 	* @access public
 	* @see Asset::morph()
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -138,7 +138,7 @@ class Cron_Job extends Asset
 	* @access public
 	* @see Asset::moveLinkPos()
 	*/
-	function moveLinkPos($linkid, $sort_order=-1)
+	public function moveLinkPos($linkid, $sort_order=-1)
 	{
 		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -155,7 +155,7 @@ class Cron_Job extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canForceablyAcquireLock($lock_type)
+	public function canForceablyAcquireLock($lock_type)
 	{
 		return FALSE;
 
@@ -171,7 +171,7 @@ class Cron_Job extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if ($name == 'when') {
 
@@ -310,7 +310,7 @@ class Cron_Job extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		// read-only?
 		if ($this->attr('read_only')) return FALSE;
@@ -341,7 +341,7 @@ class Cron_Job extends Asset
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function getRunningUser()
+	public function getRunningUser()
 	{
 		$null = NULL; // because we need to return by ref
 		$userid = $this->attr('running_as');
@@ -390,7 +390,7 @@ class Cron_Job extends Asset
 	* @access public
 	* @static
 	*/
-	function whenWeekDayName($wday)
+	public static function whenWeekDayName($wday)
 	{
 		switch ((int) $wday) {
 			case 0 : return translate('sunday');
@@ -416,7 +416,7 @@ class Cron_Job extends Asset
 	* @return string
 	* @access public
 	*/
-	function readableWhen($inc_type=TRUE)
+	public function readableWhen($inc_type=TRUE)
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
 		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' '.strtolower(translate('at')).' ' : '';
@@ -570,7 +570,7 @@ class Cron_Job extends Asset
 	* @return int
 	* @access public
 	*/
-	function run()
+	public function run()
 	{
 		$this->_tmp['running_errors'] = '';
 		set_error_handler(Array(&$this, '_errorHandler'));
@@ -720,7 +720,7 @@ class Cron_Job extends Asset
 	* @access private
 	* @see run()
 	*/
-	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	protected function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
@@ -819,7 +819,7 @@ class Cron_Job extends Asset
 	* @access private
 	* @see run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		trigger_localised_error('CRON0028', E_USER_WARNING, $this->name, $this->id);
 		// we can be removed because we haven't been done
@@ -837,9 +837,8 @@ class Cron_Job extends Asset
 	*
 	* @return int
 	* @access public
-	* @static
 	*/
-	function getNextRun($when_str, $start_ts=NULL)
+	public function getNextRun($when_str, $start_ts=NULL)
 	{
 		$when = Cron_Job::getWhenArr($when_str);
 
@@ -969,9 +968,8 @@ class Cron_Job extends Asset
 	*
 	* @return void
 	* @access public
-	* @static
 	*/
-	function setNextRun()
+	public function setNextRun()
 	{
 		if ($this->attr('type') == 'repeating') {
 			$when_str = $this->attr('when');
@@ -1038,9 +1036,8 @@ class Cron_Job extends Asset
 	*
 	* @return boolean
 	* @access public
-	* @static
 	*/
-	function removeJob()
+	public static function removeJob()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		// if we are type2 linked under the manager, don't worry.

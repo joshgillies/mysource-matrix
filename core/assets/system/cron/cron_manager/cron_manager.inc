@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.74 2007/11/22 23:28:55 lwright Exp $
+* $Id: cron_manager.inc,v 1.75 2007/11/28 21:56:42 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Cron_Manager extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(Array &$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -105,7 +105,7 @@ class Cron_Manager extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -119,7 +119,7 @@ class Cron_Manager extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => TRUE)),
@@ -137,7 +137,7 @@ class Cron_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['attr_links'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -152,7 +152,7 @@ class Cron_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -169,7 +169,7 @@ class Cron_Manager extends Asset
 	* @access public
 	* @see Asset::morph()
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -188,7 +188,7 @@ class Cron_Manager extends Asset
 	* @access public
 	* @see Asset::moveLinkPos()
 	*/
-	function moveLinkPos($linkid, $sort_order=-1)
+	public function moveLinkPos($linkid, $sort_order=-1)
 	{
 		trigger_localised_error('CRON0041', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -205,7 +205,7 @@ class Cron_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			trigger_localised_error('CRON0025', E_USER_WARNING, $name, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
@@ -262,7 +262,7 @@ class Cron_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function addJob(Cron_Job $job, User $user, $link_type=SQ_LINK_TYPE_3, $read_only=FALSE)
+	public function addJob(Cron_Job $job, User $user, $link_type=SQ_LINK_TYPE_3, $read_only=FALSE)
 	{
 		$job->setAttrValue('running_as', $user->id);
 		$job->setAttrValue('read_only', $read_only);
@@ -286,7 +286,7 @@ class Cron_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function removeJob(Cron_Job $job)
+	public function removeJob(Cron_Job $job)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_3);
 		if (empty($link)) return FALSE;
@@ -315,7 +315,7 @@ class Cron_Manager extends Asset
 	* @access public
 	* @see Asset::getLinks()
 	*/
-	function getJobs($type_code='cron_job', $strict_type_code=TRUE)
+	public function getJobs($type_code='cron_job', $strict_type_code=TRUE)
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', NULL, NULL, TRUE);
 		$jobs = Array();
@@ -336,7 +336,7 @@ class Cron_Manager extends Asset
 	* @return int
 	* @access public
 	*/
-	function timeOfNextRun()
+	public function timeOfNextRun()
 	{
 		return max((int) $this->attr('last_run'), (int) $this->attr('epoch')) + (int) $this->attr('refresh_time');
 
@@ -349,7 +349,7 @@ class Cron_Manager extends Asset
 	* @return string
 	* @access public
 	*/
-	function readableRefreshTime()
+	public function readableRefreshTime()
 	{
 		$refresh_time = (int) $this->attr('refresh_time');
 		if ($refresh_time >= 86400) {
@@ -377,7 +377,7 @@ class Cron_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function isExcludedTime($start_time)
+	public function isExcludedTime($start_time)
 	{
 
 		$days_array = Array(
@@ -423,7 +423,7 @@ class Cron_Manager extends Asset
 	* @return void
 	* @access public
 	*/
-	function run()
+	public function run()
 	{
 		$start_time = time();
 
@@ -726,7 +726,7 @@ class Cron_Manager extends Asset
 	* @return string
 	* @access private
 	*/
-	function _clob2Str($expression)
+	protected function _clob2Str($expression)
 	{
 		if (MatrixDAL::getDbType() === 'oci') {
 			return 'DBMS_LOB.SUBSTR('.$expression.', DBMS_LOB.GETLENGTH('.$expression.'), 1)';
@@ -747,7 +747,7 @@ class Cron_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function getJobsToRun($start_ts, $end_ts, $ignore_jobs=Array())
+	public function getJobsToRun($start_ts, $end_ts, $ignore_jobs=Array())
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
@@ -957,7 +957,7 @@ class Cron_Manager extends Asset
 	* @access private
 	* @see run()
 	*/
-	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	protected function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
