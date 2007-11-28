@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.11 2007/11/15 23:55:34 hnguyen Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.12 2007/11/28 05:52:03 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,6 +100,12 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) return;
+		$thesaurus = $asset->getThesaurusRef();
+
+		if ($thesaurus == FALSE) {
+			echo translate('source_thesaurus_not_set');
+			return;
+		}//end if
 
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -116,7 +122,6 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			Metadata_Field::decodeValueString($value_str, $value, $value_components);
 		}
 
-		$thesaurus =& $asset->getThesaurusRef();
 
 		if (empty($value)) {
 			$values = Array();
@@ -186,10 +191,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				echo '</div>';
 
 			} else {
-
 				multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
 				hidden_field($prefix.'_terms_submitted', 1);
-
 			}
 
 		} else {
