@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_edit_fns.inc,v 1.4 2007/11/06 06:27:21 rong Exp $
+* $Id: report_safe_trash_edit_fns.inc,v 1.5 2007/11/28 05:04:59 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,12 +89,13 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 
 		if (!empty($job->_running_vars['todo'])) {
 
-			$assetid = array_shift(array_keys($job->_running_vars['todo']));
-			$asset_type = $job->_running_vars['todo'][$assetid];
+			$keys = array_keys($job->_running_vars['todo']);
+			$assetid = array_shift($keys);
+			$asset_type = $job->_running_vars['todo'][$assetid][0]['type_code'];
 			unset($job->_running_vars['todo'][$assetid]);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
-			if (!is_null($asset) && !is_a($asset, 'root_folder')) {
+			if (!is_null($asset) && !($asset instanceof Root_Folder)) {
 				// If asset type list is empty, then none were set and therefore we do all asset
 				// types. If set, then it needs to be a key in the $asset_types
 				if (empty($asset_types) || isset($asset_types[$asset->type()])) {
@@ -102,16 +103,12 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 					if ($job_link) {
 
 						$cron_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_link['majorid']);
-
-						bam('Job Exists: '.$cron_job->id);
-
 						$step_data['message'] = translate('core_checking_for_metadata', $asset->name);
 
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$field_values = $mm->getMetadataFieldValues($asset->id);
 						$trash_errors = $GLOBALS['SQ_SYSTEM']->am->canSafeTrashAsset($asset->id);
 
-						bam($trash_errors);
 						flush();
 
 						$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlspecialchars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'" marked_since="'.$cron_job->created.'">';
@@ -191,52 +188,38 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
 			echo translate('report_not_generated');
 			return;
 		}
 
-		$input = new XML_Tree($report_path);
-		$root  = $input->getTreeFromFile();
-
-		if (PEAR::isError($root)) {
-			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+		try {
+			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
-		$cron_jobs = Array();
-		foreach ($root->children as $result) {
-			if ($result->name != 'asset') continue;
-			foreach ($result->attributes as $attr_name => $attr_value) {
-				if ($attr_name == 'marked_since') {
-						$missing_fields[$result->attributes['assetid']]['since'] = $attr_value;
+		$missing_fields = Array();
+
+		foreach ($root->asset as $result) {
+			$id = (int) $result->attributes()->assetid;
+			$missing_fields[$id]['since'] = (string) $result->attributes()->marked_since;
+
+			foreach ($result->unsafe_children as $unsafe_children) {
+				foreach ($unsafe_children->assetid as $unsafe_assetid) {
+					$missing_fields[$id]['children'][] = (int) $unsafe_assetid;
 				}
 			}
-
-			foreach ($result->children as $child_node) {
-				switch ($child_node->name) {
-					case 'unsafe_links':
-						$missing_fields[$result->attributes['assetid']]['links'] = Array();
-
-						foreach ($child_node->children as $asset_node) {
-							$missing_fields[$result->attributes['assetid']]['links'][] = $asset_node->content;
-						}
-					break;
-
-					case 'unsafe_children':
-						$missing_fields[$result->attributes['assetid']]['children'] = Array();
-
-						foreach ($child_node->children as $asset_node) {
-							$missing_fields[$result->attributes['assetid']]['children'][] = $asset_node->content;
-						}
-					break;
-				}//end switch
+			foreach ($result->unsafe_links as $unsafe_links) {
+				foreach ($unsafe_links->assetid as $unsafe_assetid) {
+					$missing_fields[$id]['links'][] = (int) $unsafe_assetid;
+				}
 			}
-		}
+		}//end foreach
 
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 			echo '<b>Note</b> The current safe trash report is shown below. You can regenerate this report on the <a href="'.$asset->getBackendHref('details').'">details screen</a>.';
