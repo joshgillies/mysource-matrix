@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.33 2007/10/29 05:55:33 lwright Exp $
+* $Id: file_versioning.inc,v 1.34 2007/11/28 04:33:50 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -144,7 +144,7 @@ class File_Versioning
 	*/
 	function _getFileInfoAtVersion($fileid, $version=null)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT f.fileid, f.path, f.filename,
 						h.version, h.from_date, h.to_date, h.file_size, h.md5, h.sha1, h.removal, h.extra_info
@@ -158,7 +158,7 @@ class File_Versioning
 			if (!is_null($version)) {
 				$query->bindValue(':version', $version);
 			}
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAssoc($query);
 			if (!empty($result)) {
 				$result = $result[0];
 			}
@@ -246,7 +246,7 @@ class File_Versioning
 	*/
 	function _getFileInfoFromPath($file_path, $version=null)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT fileid
 				FROM sq_file_vers_file
 				WHERE path = :path
@@ -256,7 +256,7 @@ class File_Versioning
 			$query = $db->prepare($sql);
 			$query->bindValue(':path',     dirname($file_path));
 			$query->bindValue(':filename', basename($file_path));
-			$fileid = DAL::executePdoOne($query);
+			$fileid = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get file versioning information for file "'.hide_system_root($file_path).'" due to database error: '.$e->getMessage());
 		}
@@ -279,7 +279,7 @@ class File_Versioning
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$select = 'SELECT COUNT(*)
 					FROM sq_file_vers_lock
@@ -300,7 +300,7 @@ class File_Versioning
 		for ($i = 0; $i < $this->num_lock_attempts; $i++) {
 
 			try {
-				$result = DAL::executePdoOne($select_query);
+				$result = MatrixDAL::executePdoOne($select_query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to select file versioning locking information for file ID "'.$fileid.'" due to database error: '.$e->getMessage());
 			}
@@ -308,7 +308,7 @@ class File_Versioning
 			if (empty($result)) {
 
 				try {
-					DAL::execPdoQuery($insert_query);
+					MatrixDAL::execPdoQuery($insert_query);
 					// If it makes it this far, then the INSERT worked (ie.
 					// no duplicate key)
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -345,14 +345,14 @@ class File_Versioning
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'DELETE FROM sq_file_vers_lock
 		WHERE fileid = :fileid';
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':fileid', $fileid);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to unlock file ID "'.$fileid.'" due to database error: '.$e->getMessage());
 		}
@@ -377,7 +377,7 @@ class File_Versioning
 	*/
 	function add($rep_path, $real_file, $extra_info='')
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// make sure we can get to the file
 		if (!is_file($real_file) || !is_readable($real_file)) {
@@ -438,7 +438,7 @@ class File_Versioning
 				$query = $db->prepare($sql);
 				$query->bindValue(':path_wildcard', $rep_path.'/'.basename($real_file).'%');
 				$query->bindValue(':path',          $rep_path.'/'.basename($real_file));
-				$fileid = DAL::executePdoOne($query);
+				$fileid = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get file versioning information for file "'.hide_system_root($file_path).'" due to database error: '.$e->getMessage());
 			}
@@ -452,12 +452,12 @@ class File_Versioning
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// if there is no current file we need to insert the new DB record
 		if (empty($current_info)) {
 			// TODO: needs to be changed to seqNextVal() in queries.xml
-			$fileid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_file_vers_file_seq\')');
+			$fileid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_file_vers_file_seq\')');
 			$fileid = (int) $fileid;
 
 			$sql = 'INSERT INTO sq_file_vers_file (fileid, path, filename)
@@ -468,7 +468,7 @@ class File_Versioning
 				$query->bindValue(':fileid',   $fileid);
 				$query->bindValue(':path',     $rep_path);
 				$query->bindValue(':filename', $filename);
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert new file versioning information for file "'.$filename.'" due to database error: '.$e->getMessage());
 			}
@@ -522,7 +522,7 @@ class File_Versioning
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
 				FROM sq_file_vers_history
@@ -531,14 +531,14 @@ class File_Versioning
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':fileid', $fileid);
-			$version = DAL::executePdoOne($query);
+			$version = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get version information for file ID '.$fileid.' due to database error: '.$e->getMessage());
 		}
 
 		$now = time();
 		$date = ts_iso8601($now);
-		if (DAL::getDbType() == 'oci') {
+		if (MatrixDAL::getDbType() == 'oci') {
 			// TODO:
 			$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
@@ -553,7 +553,7 @@ class File_Versioning
 			$query = $db->prepare($sql);
 			$query->bindValue(':fileid', $fileid);
 			$query->bindValue(':date',   $date);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
 		}
@@ -587,7 +587,7 @@ class File_Versioning
 			$query->bindValue(':sha1',       $sha1);
 			$query->bindValue(':removal',    $removal);
 			$query->bindValue(':extra_info', $extra_info);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to insert version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
 		}
@@ -678,7 +678,7 @@ class File_Versioning
 	*/
 	function _checkOutCheck($rep_file, $version=null, $date=null)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$info = $this->_getFileInfoFromPath($rep_file);
 		if (empty($info)) {
@@ -725,7 +725,7 @@ class File_Versioning
 				$query->bindValue(':date',   $date);
 				$query->bindValue(':date_1', $date);
 
-				$result = DAL::executePdoAll($query);
+				$result = MatrixDAL::executePdoAll($query);
 				if (!empty($result)) {
 					$ver_info = $result[0];
 				} else {
@@ -754,7 +754,7 @@ class File_Versioning
 				$query->bindValue(':fileid', $info['fileid']);
 				$query->bindValue(':version', $version);
 
-				$result = DAL::executePdoAll($query);
+				$result = MatrixDAL::executePdoAll($query);
 				if (!empty($result)) {
 					$ver_info = $result[0];
 				} else {
@@ -906,30 +906,25 @@ class File_Versioning
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-			$sql = 'UPDATE
-						sq_file_vers_history
-					SET
-						md5= '.$db->quote($md5).',
-						sha1='.$db->quote($sha1).',
-						file_size='.$db->quote($filesize).'
-					WHERE
-						fileid='.$db->quote($fileid).'
-						AND version='.$db->quote($version);
-
-			$result = $db->query($sql);
-
-		// close transaction accordingly
-		if (assert_valid_db_result($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return true;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
-		}
+			$db = MatrixDAL::getDb();
+			try {
+				$bind_vars	= Array (
+								'md5'	=> $md5,
+								'sha1'	=> $sha1,
+								'file_size'	=> $filesize,
+								'fileid'	=> $fileid,
+								'version'	=> $version,
+							  );
+				$result = MatrixDAL::executeQuery('core', 'updateFileVersHistory', $bind_vars);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return TRUE;
+			} catch (Exception $e) {
+				throw new Exception('Unable to update the filesize and hash information for fileid: '.$fileid.' with version: '.$version.' due to database error: '.$e->getMessage());
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
 	}//end _updateFileVersion()
 
 
@@ -1327,11 +1322,16 @@ class File_Versioning
 		$old_path = $info['path'];
 		$new_path = preg_replace('%/[^/]*/%', '/'.$new_type_code.'/', $old_path);
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'UPDATE sq_file_vers_file
-				set path = '.$db->quote($new_path).'
-				WHERE path = '.$db->quote($old_path);
-		$result = $db->query($sql);
+		$db = MatrixDAL::getDb();
+		try {
+			$bind_vars	= Array (
+							'new_path'	=> $new_path,
+							'old_path'	=> $old_path,
+						  );
+			$result = MatrixDAL::executeQuery('core', 'updateReposFilePath', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update pathname to: "'.$new_path.'" for previous path: "'.$old_path.'" due to database error: '.$e->getMessage());
+		}
 
 		$new_dir = $this->_dir.'/assets/'.$new_type_code;
 
