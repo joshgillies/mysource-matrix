@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user.inc,v 1.6 2006/12/06 04:40:09 emcdonald Exp $
+* $Id: public_user.inc,v 1.7 2007/11/28 21:59:54 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,9 +39,9 @@ class Public_User extends User
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Public_User($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->User($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Public_User extends User
 	* @return mixed int|boolean
 	* @access public
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -96,7 +96,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		// trying to morph an unprivileged public user... why would you bother?
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
@@ -111,7 +111,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -124,7 +124,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -138,7 +138,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function canLogin()
+	public function canLogin()
 	{
 		return FALSE;
 
@@ -154,7 +154,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function canSetAsCurrentUser()
+	public function canSetAsCurrentUser()
 	{
 		return TRUE;
 
@@ -170,7 +170,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if ($name == 'username') {
 			trigger_localised_error('CORE0113', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
@@ -194,7 +194,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function _catchBlankUserNamePass($username, $password)
+	protected function _catchBlankUserNamePass($username, $password)
 	{
 		return TRUE;
 
@@ -212,7 +212,7 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	function _catchBlankSetUserName($username)
+	protected function _catchBlankSetUserName($username)
 	{
 		return TRUE;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.28 2007/11/22 23:36:50 lwright Exp $
+* $Id: designs_folder.inc,v 1.29 2007/11/28 22:00:39 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Designs_Folder extends Folder
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(Array &$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -89,7 +89,7 @@ class Designs_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -106,7 +106,7 @@ class Designs_Folder extends Folder
 	* @access public
 	* @see Asset::morph()
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		trigger_localised_error('CORE0091', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -123,7 +123,7 @@ class Designs_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if ($name == 'name') {
 			trigger_localised_error('CORE0111', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
@@ -151,7 +151,7 @@ class Designs_Folder extends Folder
 	* @return int
 	* @access public
 	*/
-	function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
+	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
 	{
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			trigger_localised_error('CORE0117', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
@@ -172,7 +172,7 @@ class Designs_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function deleteLink($linkid)
+	public function deleteLink($linkid)
 	{
 		trigger_localised_error('CORE0118', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		return FALSE;
@@ -186,7 +186,7 @@ class Designs_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -200,7 +200,7 @@ class Designs_Folder extends Folder
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array('design' => Array('card' => 'M', 'exclusive' => TRUE)));
 
@@ -219,7 +219,7 @@ class Designs_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', Array $assetids=Array())
+	public function writeAccess($lock_type='', Array $assetids=Array())
 	{
 		// only root can write to this folder so we add this extra checking
 		// before going up to our parent to check access

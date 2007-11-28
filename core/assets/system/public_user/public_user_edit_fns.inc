@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user_edit_fns.inc,v 1.3 2006/12/06 04:40:09 emcdonald Exp $
+* $Id: public_user_edit_fns.inc,v 1.4 2007/11/28 21:59:54 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Public_User_Edit_Fns extends User_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Public_User_Edit_Fns()
+	function __construct()
 	{
-		$this->User_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

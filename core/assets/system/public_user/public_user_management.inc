@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user_management.inc,v 1.7 2007/10/29 23:17:39 lwright Exp $
+* $Id: public_user_management.inc,v 1.8 2007/11/28 21:59:54 lwright Exp $
 *
 */
 
@@ -33,10 +33,12 @@ class Public_User_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager handling this asset
+	*
 	*/
-	function Public_User_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 
