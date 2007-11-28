@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.44 2007/11/22 23:28:55 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.45 2007/11/28 21:56:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,7 +79,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	function getWhenBoxHoursMins(Cron_Manager $cron_mgr, $one_off)
+	public function getWhenBoxHoursMins(Cron_Manager $cron_mgr, $one_off)
 	{
 		$repeating = !$one_off; // for easier reading
 
@@ -159,7 +159,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintJobs(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function paintJobs(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$jobs = $asset->getJobs('cron_job', FALSE);
 		if (empty($jobs)) {
@@ -378,7 +378,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processJobs(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function processJobs(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_jobs'])) {
 			return FALSE;
@@ -409,7 +409,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return object
 	* @access private
 	*/
-	function _getEpochDateTimeField(Cron_Manager $asset, $prefix)
+	protected function _getEpochDateTimeField(Cron_Manager $asset, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 		$epoch_date = getdate((int) $asset->attr('epoch'));
@@ -460,7 +460,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintEpoch(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function paintEpoch(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
 
@@ -488,7 +488,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processEpoch(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function processEpoch(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
 
@@ -517,7 +517,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintLastRun(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function paintLastRun(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		echo $GLOBALS['SQ_SYSTEM']->datetime((int) $asset->attr('last_run'));
 
@@ -534,7 +534,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintDeadLockStatus(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function paintDeadLockStatus(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		// if we have a suspicion of being in DeadLock, then allow them to override
 		if ($asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
@@ -611,7 +611,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processDeadLockStatus(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function processDeadLockStatus(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_force_remove_lock'])) {
 			return FALSE;
@@ -646,7 +646,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function paintExcludedTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function paintExcludedTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$hours_array = Array(
 						0	=> '00',
@@ -783,7 +783,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function processExcludedTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	public function processExcludedTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$modified = FALSE;
 
