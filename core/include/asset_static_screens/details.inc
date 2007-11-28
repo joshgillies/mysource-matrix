@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.41 2007/11/26 23:39:49 rong Exp $
+* $Id: details.inc,v 1.42 2007/11/28 23:54:10 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 
@@ -41,7 +41,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 	// no static details screen fields relevant to an uncreated asset
 	if (empty($owner->id)) return;
 
-	$root =& $ei->findScreen('static_screen_details');
+	$root = $ei->findScreen('static_screen_details');
 	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
@@ -195,7 +195,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 						// if this asset is in workflow we do not let the change the status here
 						// because they need to go off to the workflow screen
-						$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 						if (!empty($running_schemas)) {
 							$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
@@ -247,7 +247,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 							</tr>
 							<?php
 							for ($k = 0; $k < count($fs_links); $k++) {
-								$fs_job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fs_links[$k]['majorid'], 'cron_job_future_status');
+								$fs_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($fs_links[$k]['majorid'], 'cron_job_future_status');
 								?>
 								<tr>
 									<td class="sq-backend-table-cell">
@@ -290,7 +290,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 					if ($owner->writeAccess()) {
 						$o->openField(translate('add_new_future_status'), 'new_line');
-							$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+							$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 							$cron_epoc = (int)$cron_mgr->attr('epoch');
 							$cron_refresh = (int)$cron_mgr->attr('refresh_time');
 							if ($cron_epoc > 0 && $cron_refresh > 0) {
@@ -367,7 +367,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 
 						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'image', FALSE, 'thumbnail');
 						if (!empty($link)) {
-							$thumbnail =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+							$thumbnail = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 							$edit_fns = $thumbnail->getEditFns();
 							$edit_fns->printExistingFileInfo($thumbnail);
 
@@ -457,7 +457,7 @@ function _processStatusChange(&$owner, &$o, $prefix)
 				$new_status = $_POST[$prefix.'_change_status'];
 			}
 
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $owner->id, 'new_status' => $new_status, 'dependants_only' => $dependants_only);
 			$hh->queueHipo('hipo_job_edit_status', $vars);
 		}
@@ -486,7 +486,7 @@ function processDetails(&$owner, &$o, &$ei)
 	///// IMMEDIATE STATUS CHANGES ////
 
 	// process a status change on this screen if workflow is NOT running
-	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 	if (empty($running_schemas)) {
 		_processStatusChange($owner, $o, $prefix);
@@ -494,12 +494,12 @@ function processDetails(&$owner, &$o, &$ei)
 
 	///// FUTURE STATUS CHANGES ////
 
-	$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 	if (!is_null($cron_mgr)) {
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 
 		if (!empty($_POST[$prefix.'_remove_fs'])) {
-			$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
+			$fs_jobs = Cron_Job_Future_Status::getActiveJobs($owner);
 			if (!empty($fs_jobs)) {
 
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {

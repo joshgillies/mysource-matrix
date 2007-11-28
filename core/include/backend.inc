@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.185 2007/11/14 03:05:47 hnguyen Exp $
+* $Id: backend.inc,v 1.186 2007/11/28 23:49:16 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.185 $
+* @version $Revision: 1.186 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -82,7 +82,7 @@ class Backend extends MySource_Object
 				if (isset($_REQUEST['assetid'])) {
 					$_REQUEST['limbo_assetid'] = $_REQUEST['assetid'];
 				} else {
-					$limbo_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+					$limbo_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
 					if (is_null($limbo_asset)) return;
 					$_REQUEST['limbo_assetid'] = $limbo_asset->id;
 				}
@@ -102,7 +102,7 @@ class Backend extends MySource_Object
 		}
 		if (isset($_REQUEST['assetid'])) {
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
-			$printing_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
+			$printing_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
 			if (is_null($printing_asset)) {
 				trigger_localised_error('SYS0195', E_USER_WARNING, $printing_assetid);
 				return;
@@ -122,7 +122,7 @@ class Backend extends MySource_Object
 		}
 
 		if (isset($_REQUEST['a'])) {
-			$frontend_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
+			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
 				trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
 				return;
@@ -220,7 +220,7 @@ class Backend extends MySource_Object
 	{
 		$main_extras = '';
 		if (!isset($_REQUEST['assetid'])) {
-			$url_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), NULL, TRUE, TRUE);
+			$url_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), NULL, TRUE, TRUE);
 			if (!is_null($url_asset)) {
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
 			}
@@ -405,7 +405,7 @@ class Backend extends MySource_Object
 			$db = MatrixDAL::getDb();
 
 			$date = $db->quote(ts_iso8601($_SESSION['backend_header_last_refresh']));
-			// TODO : HOW DO WE CHECK FOR DATABASE CONNECTION TYPE? IS IT THE SAME? 
+			// TODO : HOW DO WE CHECK FOR DATABASE CONNECTION TYPE? IS IT THE SAME?
 			if ($db->getAttribute(PDO::ATTR_CLIENT_VERSION) == 'oci8') {
 				$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:Mi:SS').')';
 			}
@@ -449,10 +449,10 @@ class Backend extends MySource_Object
 			$url_match = FALSE;
 
 			// check for a url first
-			$searched_asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($_POST['asset_search'], TRUE), TRUE, TRUE);
+			$searched_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($_POST['asset_search'], TRUE), TRUE, TRUE);
 			if (is_null($searched_asset) && assert_valid_assetid($_POST['asset_search'], '', TRUE, FALSE)) {
 				// check for assetid second
-				$searched_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', TRUE);
+				$searched_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', TRUE);
 				if (!is_null($searched_asset)) $assetid_match = TRUE;
 			} else {
 				$url_match = TRUE;
@@ -621,7 +621,7 @@ class Backend extends MySource_Object
 			 //  HIPO STALLED JOBS MESSAGE  //
 			/////////////////////////////////
 
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$alljobs = $hh->getJobsForUser($GLOBALS['SQ_SYSTEM']->user->id);
 
 			// determine how many jobs have been running for more than 5 minutes
@@ -643,7 +643,7 @@ class Backend extends MySource_Object
 			 //  INTERNAL MESSAGE POPUP  //
 			//////////////////////////////
 
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : NULL;
 			$from = time() - 28800;
@@ -1158,13 +1158,13 @@ class Backend extends MySource_Object
 				</div>
 				<div id="my_space" style="position: absolute; top: 44px; left: 0px; visibility: hidden;">
 					<?php
-					$user =& $GLOBALS['SQ_SYSTEM']->user;
+					$user = $GLOBALS['SQ_SYSTEM']->user;
 					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
 
 					if (empty($inbox_link)) {
 						$inbox_url = '';
 					} else {
-						$inbox_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
+						$inbox_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
 						$inbox_url       = $inbox_asset->getBackendHref('details');
 						$new_message_url = $inbox_asset->getBackendHref('new_message');
 						$sent_url        = $inbox_asset->getBackendHref('sent');
@@ -1175,7 +1175,7 @@ class Backend extends MySource_Object
 
 					// get all unread messages and read messages that are less than 8 hours old
 					if (!empty($inbox_url)) {
-						$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$from = time() - 28800; // 8 hours ago
 						$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_READ), Array(), $from, NULL, 'short_name');
 						$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, 'short_name');
@@ -1339,7 +1339,7 @@ class Backend extends MySource_Object
 			break;
 
 			case 'hipo_herder' :
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->paintBackend($this);
 			break;
 
