@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.67 2007/11/28 22:39:11 lwright Exp $
+* $Id: image.inc,v 1.68 2007/11/28 22:42:38 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,7 @@ class Image extends File implements Bridge
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function __construct($assetid=0)
+	function Image($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
