@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.77 2007/11/20 23:45:57 colivar Exp $
+* $Id: install.inc,v 1.78 2007/11/28 00:02:07 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -812,7 +812,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 		foreach ($lang_root->section as $xml_section) {
 
 			foreach ($to_cache->section as $this_section) {
-				if ($this_section->attributes()->name == $xml_section->attributes()->name) {
+				if (strcmp(((string)$this_section->attributes()->name), ((string)$xml_section->attributes()->name)) === 0) {
 					$section_found = TRUE;
 					break;
 				}
@@ -820,7 +820,6 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 			// not found
 			if (!$section_found) continue;
-
 			// now work through all the fields
 			foreach ($xml_section->children() as $xml_field) {
 				switch ($xml_field->getName()) {
@@ -838,12 +837,12 @@ function build_localised_screen($asset_type, $screen, $locale)
 						}
 					break;
 
-					case 'field':
+				case 'field':
+					// TODO TOF: write unit tests
 						// as in the current painting of the interface,
 						// the existence of an attribute name means we are
 						// accessing an attribute, otherwise we are accessing
 						// a function call
-
 						if (!isset($xml_field->attributes()->attribute)) {
 							// first, look for the function call tag in the language file
 							foreach ($xml_field->children() as $child_field) {
@@ -858,7 +857,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 							foreach ($this_section->children() as $this_field) {
 								if (isset($this_field->{'function_call'}->{'paint_function'})) {
 									$paint_field = $this_field->{'function_call'}->{'paint_function'};
-									if ($paint_field->attributes()->name === $xml_paint_field->attributes()->name) {
+									if (strcmp((string)$paint_field->attributes()->name, (string)$xml_paint_field->paint_function->attributes()->name) == 0) {
 										$field_found = TRUE;
 										break;
 									}
@@ -867,7 +866,6 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 							// not found
 							if (!$field_found) continue;
-
 							// check to see whether we already have a display
 							// name or note, because we don't want to double
 							// them up
