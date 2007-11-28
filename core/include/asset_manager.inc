@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.628 2007/11/28 04:49:24 bshkara Exp $
+* $Id: asset_manager.inc,v 1.629 2007/11/28 22:31:05 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.628 $
+* @version $Revision: 1.629 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -840,7 +840,7 @@ class Asset_Manager extends MySource_Object
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAttribute($attrid, $value=NULL, $mute_errors=FALSE)
+	function getAttribute($attrid, $value=NULL, $mute_errors=FALSE)
 	{
 		if (!isset($this->_attributes[$attrid]) || !is_object($this->_attributes[$attrid]['object'])) {
 
@@ -998,7 +998,7 @@ class Asset_Manager extends MySource_Object
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$this->_get_asset_history[] = $assetid;
 
@@ -1357,7 +1357,7 @@ class Asset_Manager extends MySource_Object
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getSystemAsset($name, $mute_errors=FALSE)
+	function getSystemAsset($name, $mute_errors=FALSE)
 	{
 		$assetid = ($mute_errors) ? @$this->getSystemAssetid($name) : $this->getSystemAssetid($name);
 
@@ -1740,7 +1740,7 @@ class Asset_Manager extends MySource_Object
 	* @return mixed object|NULL
 	* @access private
 	*/
-	function &_cloneAsset(&$source, &$link, &$clone_map, $components, $cloning_dependent=FALSE)
+	function _cloneAsset(&$source, &$link, &$clone_map, $components, $cloning_dependent=FALSE)
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
@@ -1944,7 +1944,10 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Acquires a lock on an asset
+	* Links a cloned asset the under its new parent
+	*
+	* This function also handles [links] locking of the new parent to
+	* accommodate the new link.
 	*
 	* @param object	&$clone		the new clone
 	* @param string	&$link		the link object
@@ -3060,7 +3063,7 @@ class Asset_Manager extends MySource_Object
 					try {
 						$result = MatrixDAL::executePdoAll($query);
 					} catch (Exception $e) {
-						throw new Exception('Could not get the '.$e->getMessage());
+						throw new Exception('Could not get shadow links of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
 					}//end
 
 					$shdw_links = Array();
@@ -3259,9 +3262,13 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-			$result = NULL;
-			$query = $db->prepare($sql.$where);
-			$result = MatrixDAL::executePdoGrouped($query);
+			try {
+				$result = NULL;
+				$query = $db->prepare($sql.$where);
+				$result = MatrixDAL::executePdoGrouped($query);
+			} catch (DALException $e) {
+				throw new Exception('Could not get shadow links of minor asset ID '.$assetid.' due to database error: '.$e->getMessage());
+			}
 
 			// get the lineage of the real assets that this shadow asset is linked under
 			// and then append the lineage of that real asset to its lineages
@@ -4151,13 +4158,12 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l '.$extra_table.'
 				'.$where;
 
-		$result = NULL;
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':assetid', $assetid);
 			$result = MatrixDAL::executePdoOne($query);
-		} catch (Exception $e) {
-			throw new Exception('Could not count the links due to a DB error: '.$e->getMessage());
+		} catch (DALException $e) {
+			throw new Exception ('Unable to count '.$link_type.' links from asset ID #'.$assetid.' due to database error: '.$e->getMessage());
 		}
 
 		return $result;
@@ -4170,8 +4176,8 @@ class Asset_Manager extends MySource_Object
 	*
 	* It returns the linkid of the created link
 	*
-	* @param object		&$major		the major asset that we are linking from
-	* @param object		&$minor		the minor asset that we are linking to
+	* @param Asset		$major		the major asset that we are linking from
+	* @param Asset		$minor		the minor asset that we are linking to
 	* @param string		$link_type	the type of link this is
 	* @param string		$value		the value that is to be associated with this link
 	* @param string		$sort_order	the position in the links list that this link should take,
@@ -4183,7 +4189,7 @@ class Asset_Manager extends MySource_Object
 	* @return int
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
+	function createAssetLink(Asset $major, Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		// Initial Checks
 		if (!$major->id) return 0;
@@ -4954,15 +4960,15 @@ class Asset_Manager extends MySource_Object
 	*
 	* It returns the linkid of the created link
 	*
-	* @param object	&$major		the major asset that we are linking from
-	* @param object	&$minor		the minor asset that we are linking to
+	* @param Asset	$major		the major asset that we are linking from
+	* @param Asset	$minor		the minor asset that we are linking to
 	* @param string	$link_type	the type of link this is
 	* @param string	$value		the value that is to be associated with this link
 	*
 	* @return int
 	* @access public
 	*/
-	function createShadowAssetLink(&$major, &$minor, $link_type, $value='')
+	function createShadowAssetLink(Asset $major, Asset $minor, $link_type, $value='')
 	{
 		// we are linking a shadow asset under a normal asset
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -5011,8 +5017,8 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns TRUE if the supplied assets can be linked in the specified way
 	*
-	* @param object	&$major		the major asset in the proposed link
-	* @param object	&$minor		the minor asset in the proposed link
+	* @param Asset	$major		the major asset in the proposed link
+	* @param Asset	$minor		the minor asset in the proposed link
 	* @param string	$link_type	the type of link that is proposed
 	* @param int	$exclusive	(0|1) whether this will be the only significant link
 	*							with $minor as the minor asset
@@ -5020,7 +5026,7 @@ class Asset_Manager extends MySource_Object
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function canCreateLink(&$major, &$minor, $link_type, $exclusive)
+	function canCreateLink(Asset $major, Asset $minor, $link_type, $exclusive)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		if (!$major->id) return FALSE;
@@ -5109,7 +5115,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns TRUE if the supplied asset can have assets of the specified type linked under it
 	*
-	* @param object	&$major			the major asset that we are linking to
+	* @param Asset	$major			the major asset that we are linking to
 	* @param string	$type_code		the type code of the proposed link
 	* @param string	$link_type		the type of the proposed link
 	* @param int	$ignore_linkid	if it gets down to the checking of the cardinality,
@@ -5120,7 +5126,7 @@ class Asset_Manager extends MySource_Object
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function canLinkToType(&$major, $type_code, $link_type, $ignore_linkid=0, $exclusive=0)
+	function canLinkToType(Asset $major, $type_code, $link_type, $ignore_linkid=0, $exclusive=0)
 	{
 		// type checking
 		if (!($major instanceof Asset)) {
@@ -7678,7 +7684,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of the passed web paths that are currently in use by any the children of the major asset
 	*
-	* @param object		&$major					the major asset, whose children we are to check
+	* @param Asset		$major					the major asset, whose children we are to check
 	* @param array		$paths					array of web paths to check
 	* @param int		$ignore_assetid			ignore this assetid when checking
 	* @param boolean	$return_alternatives	return all paths but replace the bad paths
@@ -7687,7 +7693,7 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access protected
 	*/
-	function webPathsInUse(&$major, $paths, $ignore_assetid=0, $return_alternatives=FALSE)
+	function webPathsInUse(Asset $major, $paths, $ignore_assetid=0, $return_alternatives=FALSE)
 	{
 		if (empty($paths)) return Array();
 		$return_paths = Array();
