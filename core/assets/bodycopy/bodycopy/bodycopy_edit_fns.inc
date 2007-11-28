@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.50 2007/11/16 05:24:21 bshkara Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.51 2007/11/28 22:25:11 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,12 +83,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			try { 
+			try {
 				$query = $db->prepare($sql.$where.$order_by);
 				$designid = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
-				throw new Exception('Unable to get lookup value due to the following database error:'.$e->getMessage()); 
-			}//end try catch 
+				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
+			}//end try catch
 
 			if ($designid) {
 				$design = $am->getAsset($designid);
