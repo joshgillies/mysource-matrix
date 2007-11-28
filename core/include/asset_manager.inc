@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.629 2007/11/28 22:31:05 lwright Exp $
+* $Id: asset_manager.inc,v 1.630 2007/11/28 22:55:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.629 $
+* @version $Revision: 1.630 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1362,7 +1362,7 @@ class Asset_Manager extends MySource_Object
 		$assetid = ($mute_errors) ? @$this->getSystemAssetid($name) : $this->getSystemAssetid($name);
 
 		if ($assetid !== FALSE) {
-			$asset =& $this->getAsset($assetid, $name, $mute_errors);
+			$asset = $this->getAsset($assetid, $name, $mute_errors);
 			return $asset;
 		} else {
 			$null = NULL;
@@ -3091,7 +3091,7 @@ class Asset_Manager extends MySource_Object
 			// we are not getting links for a shadow asset, so if we are getting child links of
 			// an asset that handles shadow assets, palm the request off to it
 			if ($side_of_link == 'major') {
-				$asset =& $this->getAsset($assetid);
+				$asset = $this->getAsset($assetid);
 				if (is_null($asset)) return Array();
 				if (implements_interface($asset, 'bridge')) {
 					$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by, $dependant, $exclusive);
