@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.13 2007/11/27 03:04:51 rong Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.14 2007/11/28 05:19:21 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,6 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 				}
 			}
 			$job_vars['unique_types'] = array_keys($job_vars['type_counts']);
-			$job->_running_vars = $job_vars;
 
 			if (!is_dir($report_dir)) {
 				if (!create_directory($report_dir)) {
