@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.24 2007/11/27 02:37:46 bshkara Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.25 2007/11/28 22:29:00 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
-	function Remap_Manager_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'all';
@@ -64,14 +64,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
-	* @param object	&$asset	the remap manager
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	a unique prefix for variables
+	* @param Remap_Manager		$asset	the remap manager
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintEditRemapURLs(&$asset, &$o, $prefix)
+	public function paintEditRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('all');
 
@@ -226,42 +226,28 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
-	* @param object	&$asset	the remap manager
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	a unique prefix for variables
+	* @param Remap_Manager		$asset	the remap manager
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processEditRemapURLs(&$asset, &$o, $prefix)
+	public function processEditRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('all')) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-
 		if (isset($_POST[$prefix.'_delete_remap'])) {
-			$deletes = Array();
-			foreach ($_POST[$prefix.'_delete_remap'] as $url => $on) {
-				$deletes[] = $db->quote($url);
-			}
-
-
-
-			$sql = 'DELETE FROM
-						sq_ast_lookup_remap
-					WHERE
-						url IN
-							(
-								'.implode(',', $deletes).'
-							)';
+			$urls = array_keys($_POST[$prefix.'_delete_remap']);
 
 			try {
-				$result = MatrixDAL::executeSqlOne($sql);
-			} catch (Exception $e) {
-				throw new Exception('Unable to delete remap URLs from remap lookup table due to database error: '.$e->getMessage());
+				$bind_vars = Array('urls' => $urls);
+				MatrixDAL::executeQuery('remap_manager', 'deleteRemapsByURL', $bind_vars);
+			} catch (DALException $e) {
+				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 			}
 		}
 
@@ -276,14 +262,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface to add new type_codes to define layouts for
 	*
-	* @param object	&$asset	the remap manager
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	a unique prefix for variables
+	* @param Remap_Manager		$asset	the remap manager
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAddRemapURLs(&$asset, &$o, $prefix)
+	public function paintAddRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$o->note(translate('url_remap_explanation'));
 		$o->closeField();
@@ -315,14 +301,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Accepts requests to add a type_code to define layouts for
 	*
-	* @param object	&$asset	the remap manager
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	a unique prefix for variables
+	* @param Remap_Manager		$asset	the remap manager
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAddRemapURLs(&$asset, &$o, $prefix)
+	public function processAddRemapURLs(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('all')) return FALSE;
 
@@ -382,14 +368,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the root node selection box
 	*
-	* @param object	&$asset	the remap manager
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	a unique prefix for variables
+	* @param Remap_Manager		$asset	the remap manager
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAddPageNotFoundRemap(&$asset, &$o, $prefix)
+	public function paintAddPageNotFoundRemap(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, '404');
 		$write_access = $asset->writeAccess('links');
@@ -412,14 +398,14 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the value input from root node selection box
 	*
-	* @param object	&$asset	the remap manager
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	a unique prefix for variables
+	* @param Remap_Manager		$asset	the remap manager
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	a unique prefix for variables
 	*
 	* @return void
 	* @access public
 	*/
-	function processAddPageNotFoundRemap(&$asset, &$o, $prefix)
+	public function processAddPageNotFoundRemap(Remap_Manager $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_404asset']['assetid'])) {
 			return FALSE;

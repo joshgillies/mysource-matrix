@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.34 2007/11/19 04:10:16 bshkara Exp $
+* $Id: remap_manager.inc,v 1.35 2007/11/28 22:29:00 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Remap_Manager extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -91,7 +91,7 @@ class Remap_Manager extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -105,7 +105,7 @@ class Remap_Manager extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		// added for root node
@@ -121,7 +121,7 @@ class Remap_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -134,7 +134,7 @@ class Remap_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -149,7 +149,7 @@ class Remap_Manager extends Asset
 	* @return string
 	* @access public
 	*/
-	function describeLink($linkid)
+	public function describeLink($linkid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
@@ -176,7 +176,7 @@ class Remap_Manager extends Asset
 	* @return int
 	* @access public
 	*/
-	function addRemapURL($old_url, $new_url, $expires=NULL)
+	public function addRemapURL($old_url, $new_url, $expires=NULL)
 	{
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
@@ -250,7 +250,7 @@ class Remap_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function getRemapURLs(&$asset)
+	public function getRemapURLs(Asset $asset)
 	{
 		$null = NULL;
 		if (is_null($asset)) return $null;
@@ -305,17 +305,16 @@ class Remap_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function remapAllURLs($assetid, $new_url, $expires=NULL)
+	public function remapAllURLs($assetid, $new_url, $expires=NULL)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT url, http, https
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup';
-		$where = 'assetid = '.$db->quote($assetid);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		$urls = $db->getAll($sql.$where);
+		try {
+			$bind_vars = Array('assetid' => $assetid);
+			$urls = MatrixDAL::executeAll('core', 'getLookupUrlsByAssetId', $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception('Unable to remap all URLs; could not get existing lookups for asset ID #'.$assetid.' due to database error: '.$e->getMessage);
+		}
 		assert_valid_db_result($urls);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -358,7 +357,7 @@ class Remap_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function loadRemapFromURL($protocol=NULL, $url=NULL)
+	public function loadRemapFromURL($protocol=NULL, $url=NULL)
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -368,18 +367,16 @@ class Remap_Manager extends Asset
 		}
 
 		$url = $protocol.'://'.$url;
-		$db  =& $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT
-					remap_url
-				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
-
-		$where = 'url = \''.$url.'\'
-			AND (expires IS NULL OR expires > \''.ts_iso8601(time()).'\')';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		$remap_url = MatrixDAL::executeSqlOne($sql.$where);
+		try {
+			$bind_vars = Array(
+							'url'  => $url,
+							'time' => time(),
+						 );
+			$remap_url = MatrixDAL::executeOne('remap_manager', 'getCurrentRemapURL', $bind_vars);
+		} catch (DALException $e) {
+			throw new Exception('Unable to get current remap URL for "'.$url.'" due to database error: '.$e->getMessage());
+		}
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
@@ -401,7 +398,7 @@ class Remap_Manager extends Asset
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getPageNotFoundAsset()
+	public function getPageNotFoundAsset()
 	{
 		// searching for the root asset
 		$link_to_404 = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, '404');
@@ -409,7 +406,7 @@ class Remap_Manager extends Asset
 		if (empty($link_to_404)) {
 			$asset = NULL;
 		} else {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
 		}
 
 		return $asset;
@@ -427,9 +424,9 @@ class Remap_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function paintPageNotFoundRemap()
+	public function paintPageNotFoundRemap()
 	{
-		$asset =& $this->getPageNotFoundAsset();
+		$asset = $this->getPageNotFoundAsset();
 		if (is_null($asset)) return FALSE;
 
 		// send a 404 header
@@ -441,13 +438,13 @@ class Remap_Manager extends Asset
 		global $ASSET_LINEAGE;
 		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(NULL, $asset_url);
 
-		$design =& $this->getDesign($asset, $url);
+		$design = $this->getDesign($asset, $url);
 		if (!is_null($design)) {
 			$design->paint($asset);
 			return TRUE;
 		}
 		// get the first design for this asset
-		$design =& $this->getDesign($asset);
+		$design = $this->getDesign($asset);
 		if (!is_null($design)) {
 			$design->paint($asset);
 			return TRUE;
@@ -467,18 +464,18 @@ class Remap_Manager extends Asset
 	* Pass in NULL as $url to return the first design asset associated
 	* with the asset's id
 	*
-	* @param object	&$asset	the asset to get the design for
+	* @param Asset	$asset	the asset to get the design for
 	* @param string	$url	the url of the asset
 	*
 	* @return object
 	* @access public
 	*/
-	function &getDesign(&$asset, $url=NULL)
+	public function getDesign(Asset $asset, $url=NULL)
 	{
 		$null = NULL;
 		if (is_null($asset)) return $null;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		// get original design or inherited design if no override design
 		$sql = 'SELECT lv.value as designid, a.type_code
@@ -497,13 +494,16 @@ class Remap_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.$order_by;
-		$sql = $db->modifyLimitQuery($sql, 0, 1);
+		$sql .= ' LIMIT 1'; // TODO
 
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
+		try {
+			$result = MatrixDAL::executeSqlAll($sql);
+		} catch (DALException $e) {
+			throw new Exception('Unable to select design of remapped asset "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
+		}
 
 		if ($result) {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($result[0]['designid'], $result[0]['type_code']);
 		}
 		return $null;
 

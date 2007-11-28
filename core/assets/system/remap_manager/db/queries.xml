@@ -1,0 +1,34 @@
+<queries system="remap_manager">
+
+	<query id="deleteRemapsByURL">
+		<!-- Removes remaps for a passed (starting) URL. -->
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_ast_lookup_remap" column="url">:urls</in>
+				</where>
+			</delete>
+		</primary>
+	</query>
+
+	<query id="getCurrentRemapURL">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lookup_remap" column="remap_url" />
+				</fields>
+				<from>
+					<table>sq_ast_lookup_remap</table>
+				</from>
+				<where>
+					<equal table="sq_ast_lookup_remap" column="url">:url</equal>
+					<or>
+						<is-null><field table="sq_ast_lookup_remap" column="expires" /></is-null>
+						<greater table="sq_ast_lookup_remap" column="expires">:time</greater>
+					</or>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+</queries>
