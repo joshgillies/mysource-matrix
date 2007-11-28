@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.624 2007/11/26 04:34:06 bshkara Exp $
+* $Id: asset_manager.inc,v 1.625 2007/11/28 00:59:12 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.624 $
+* @version $Revision: 1.625 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6085,31 +6085,23 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// check the same thing for all children
-		// generate the get children query
-		$children = $this->generateGetChildrenQuery($asset, '', TRUE, FALSE);
+		$children = $this->getChildren($assetid, '', TRUE, FALSE);
+
 		if (!empty($children)) {
-			// modify the selection so that we only get 1 column
-			$children['select'] = '(SELECT DISTINCT l.minorid';
-			if (isset($children['union_select'])) {
-				$children['union_select'] = 'UNION ALL SELECT sl.minorid';
+			try {
+				$children_ids = array_keys($children);
+				$bind_vars = Array(
+								'link_type'	=> Array(SQ_LINK_TYPE_3, SQ_LINK_NOTICE),
+								'status'	=> SQ_STATUS_LIVE,
+								'assetid'	=> $children_ids,
+							 );
+				$result = MatrixDAL::executeAssoc('core', 'canSafeTrashAsset', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to check safe trash condition: '.$e->getMessage());
 			}
-			$db = MatrixDAL::getDb();
-			$sql = 'SELECT
-						majorid, minorid, name, linkid, status, link_type
-					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk lnk
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
-					WHERE
-						(
-							(link_type = '.$db->quote(SQ_LINK_TYPE_3).' OR link_type = '.$db->quote(SQ_LINK_NOTICE).') OR
-							(status >= '.$db->quote(SQ_STATUS_LIVE).')
-						) AND
-						assetid IN ('.implode(' ', $children).')';
-			$result = $db->getAll($sql);
-			assert_valid_db_result($result);
+
 			if (!empty($result)) {
 				$used_minorids = Array();
-
 				// Reduce the children array so there is only one entry for
 				// each violating asset
 				foreach (array_keys($result) as $result_key) {
@@ -6119,7 +6111,6 @@ class Asset_Manager extends MySource_Object
 					} else {
 						$used_minorids[] = $minorid;
 					}//end if
-
 				}
 
 				$trash_errors['children'] = $result;

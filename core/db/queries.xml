@@ -432,6 +432,39 @@
 		</primary>
 	</query>
 
+	<query id="canSafeTrashAsset">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lnk" column="majorid" />
+					<field table="sq_ast_lnk" column="minorid" />
+					<field table="sq_ast"     column="name" />
+					<field table="sq_ast_lnk" column="linkid" />
+					<field table="sq_ast"     column="status" />
+					<field table="sq_ast_lnk" column="link_type" />
+				</fields>
+				<from>
+					<table>sq_ast_lnk</table>
+					<table>sq_ast</table>
+				</from>
+				<where>
+					<or>
+						<in table="sq_ast_lnk" column="link_type">:link_type</in>
+						<equal-or-greater table="sq_ast" column="status">:status</equal-or-greater>
+					</or>
+					<in table="sq_ast" column="assetid">:assetid</in>
+				</where>
+				<joins>
+					<join>
+						<field table="sq_ast_lnk" column="minorid" />
+						<field table="sq_ast" column="assetid" />
+					</join>
+				</joins>
+			</select>
+		</primary>
+	</query>
+
+
 	<!-- //		HIPO 	// -->
 
 	<query id="selectJobsForUser">
@@ -1076,7 +1109,7 @@
 			</update>
 		</primary>
 	</query>
-			
+
 	<query id="updateAstTypeCode">
 	<!-- Updates type code for specified assetid -->
 		<primary>
@@ -1093,5 +1126,5 @@
 			</update>
 		</primary>
 	</query>
-			
+
 </queries>
