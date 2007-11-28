@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.55 2007/11/06 06:32:06 rong Exp $
+* $Id: asset_attribute.inc,v 1.56 2007/11/28 22:29:24 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -318,7 +318,7 @@ class Asset_Attribute extends MySource_Object
 	* Takes an XML_Tree_Node from an edit interface XML file and creates
 	* the params array from it
 	*
-	* @param object	&$node	XML_Tree_Node
+	* @param object	&$node	SimpleXMLElement
 	*
 	* @return boolean
 	* @access public
