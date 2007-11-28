@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.630 2007/11/28 22:55:53 lwright Exp $
+* $Id: asset_manager.inc,v 1.631 2007/11/28 23:30:34 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.630 $
+* @version $Revision: 1.631 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -539,7 +539,7 @@ class Asset_Manager extends MySource_Object
 
 			// make each bridge get its info
 			foreach ($shadowids as $assetid => $shadows) {
-				$asset =& $this->getAsset($assetid);
+				$asset = $this->getAsset($assetid);
 				if (method_exists($asset, 'getAssetInfo')) {
 					$shadow_results += $asset->getAssetTypeInfo($shadows, $type_code, $strict_type_code);
 				}
@@ -1011,7 +1011,7 @@ class Asset_Manager extends MySource_Object
 		}//end if
 
 		assert_valid_assetid($assetid);
-		$asset =& $this->_asset_cache->get($assetid);
+		$asset = $this->_asset_cache->get($assetid);
 		if (!empty($asset) && !empty($type_code)) {
 			if ($asset->type() != $type_code) {
 				if (!$mute_errors) {
@@ -1027,7 +1027,7 @@ class Asset_Manager extends MySource_Object
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
 				$real_assetid = $id_parts[0];
-				$bridge =& $this->getAsset($real_assetid, '', TRUE);
+				$bridge = $this->getAsset($real_assetid, '', TRUE);
 				if (is_null($bridge)) {
 					// bridge is unknown, we cannot return anything from it
 					$asset = NULL;
@@ -1035,7 +1035,7 @@ class Asset_Manager extends MySource_Object
 				} else if (!method_exists($bridge, 'getAsset')) {
 					trigger_localised_error('SYS0203', E_USER_WARNING, $asset->name);
 				} else {
-					$asset =& $bridge->getAsset($assetid, '', $mute_errors);
+					$asset = $bridge->getAsset($assetid, '', $mute_errors);
 				}
 				$this->forgetAsset($bridge);
 
@@ -1124,7 +1124,7 @@ class Asset_Manager extends MySource_Object
 		// pipe it off to the real asset
 		if (!empty($shadows)) {
 			foreach ($shadows as $shadow_id => $shadow) {
-				$asset =& $this->getAsset($shadow_id);
+				$asset = $this->getAsset($shadow_id);
 				if (method_exists($asset,'assetExists')) {
 					$shadow_asset_ids += $asset->assetExists($shadow);
 				}
@@ -1454,7 +1454,7 @@ class Asset_Manager extends MySource_Object
 
 			// make each bridge get its info
 			foreach ($shadowids as $assetid => $shadows) {
-				$asset =& $this->getAsset($assetid, '', TRUE);
+				$asset = $this->getAsset($assetid, '', TRUE);
 				if ($asset && method_exists($asset, 'getAssetInfo')) {
 					$shadow_results += $asset->getAssetInfo($shadows, $type_code, $strict_type_code, $field);
 				}
@@ -1647,7 +1647,7 @@ class Asset_Manager extends MySource_Object
 		$contents = Array();
 
 		foreach ($children as $child_id) {
-			$child =& $this->getAsset($child_id);
+			$child = $this->getAsset($child_id);
 			$dependants_children = array_keys($this->getDependantChildren($child_id));
 
 			// find out if our dependent children are in the children list, otherwise
@@ -1685,7 +1685,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function setEditableContents($assetid, $content)
 	{
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 
 		if (is_null($asset)) return FALSE;
 
@@ -1799,7 +1799,7 @@ class Asset_Manager extends MySource_Object
 			throw new Exception('Failed to create cloned asset due to database error: '.$e->getMessage());
 		}
 
-		$clone =& $this->getAsset($assetid, $source->type());
+		$clone = $this->getAsset($assetid, $source->type());
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2065,7 +2065,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$clone =& $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent);
+		$clone = $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2092,7 +2092,7 @@ class Asset_Manager extends MySource_Object
 					// then just link it to the new clone of ourselves
 					if (isset($clone_map[$data['minorid']])) {
 
-						$cloned_child =& $this->getAsset($clone_map[$data['minorid']], $data['minor_type_code']);
+						$cloned_child = $this->getAsset($clone_map[$data['minorid']], $data['minor_type_code']);
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2108,7 +2108,7 @@ class Asset_Manager extends MySource_Object
 
 					// otherwise clone and link
 					} else {
-						$child =& $this->getAsset($data['minorid'], $data['minor_type_code']);
+						$child = $this->getAsset($data['minorid'], $data['minor_type_code']);
 						if (is_null($child)) continue;
 
 						// skip shadow assets
@@ -2121,7 +2121,7 @@ class Asset_Manager extends MySource_Object
 						$create_link['is_exclusive']	= $data['is_exclusive'];
 						$new_component = Array();
 
-						$cloned_child =& $this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependents, TRUE);
+						$cloned_child = $this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependents, TRUE);
 
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2193,7 +2193,7 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		// Instead of throwing a fatal error, we just return false here, getAsset has already given a warning if the asset does not exists.
 		if (is_null($asset)) return FALSE;
 
@@ -2231,11 +2231,11 @@ class Asset_Manager extends MySource_Object
 				}
 
 				// send an internal message
-				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$ms->openQueue();
 				$ms->openLog();
 
-				$user =& $this->getAsset($lock['userid']);
+				$user = $this->getAsset($lock['userid']);
 
 				$locked_assetids = Array((int) $assetid);
 				foreach ($lock['chained_assets'] as $row) {
@@ -2243,7 +2243,7 @@ class Asset_Manager extends MySource_Object
 				}
 
 				foreach ($locked_assetids as $locked_assetid) {
-					$locked_asset =& $this->getAsset($locked_assetid);
+					$locked_asset = $this->getAsset($locked_assetid);
 
 					// create a new message object and populate it, before adding to
 					// the message queue in the internal messaging system to sending later
@@ -2273,7 +2273,7 @@ class Asset_Manager extends MySource_Object
 
 			// is this asset already locked
 			if (!empty($lock)) {
-				$user =& $this->getAsset($lock['userid']);
+				$user = $this->getAsset($lock['userid']);
 				trigger_localised_error('SYS0101', E_USER_NOTICE, $lock_type, $asset->name, $user->name);
 				$success = FALSE;
 				break;
@@ -2318,7 +2318,7 @@ class Asset_Manager extends MySource_Object
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE);
 		if (empty($current_locks)) return TRUE;
 
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		assert_not_null($asset);
 
 		$success = TRUE;
@@ -2330,7 +2330,7 @@ class Asset_Manager extends MySource_Object
 
 			// is this asset already locked by someone else and we can't forceably acquire it, error
 			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
-				$user =& $this->getAsset($lock['userid']);
+				$user = $this->getAsset($lock['userid']);
 				trigger_localised_error('SYS0264', E_USER_WARNING, $lock_type, $asset->name, $user->name);
 				$success = FALSE;
 				continue;
@@ -2450,7 +2450,7 @@ class Asset_Manager extends MySource_Object
 		}//end if
 
 		if (!isset($this->_tmp['lock_types'][$assetid])) {
-			$asset =& $this->getAsset($assetid);
+			$asset = $this->getAsset($assetid);
 			// If the asset is null, just return an empty array, throwing fatal error is a bit over done.
 			if (is_null($asset)) return Array();
 			$this->_tmp['lock_types'][$assetid] = $asset->lockTypes();
@@ -2512,7 +2512,7 @@ class Asset_Manager extends MySource_Object
 		// if its a shadow assetid pipe it off to bridge
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
-			$asset =& $this->getAsset($id_parts[0]);
+			$asset = $this->getAsset($id_parts[0]);
 			$link =  $asset->getLink($assetid, $link_type, $type_code, $strict_type_code, $value, $side_of_link, $exclusive);
 			$this->forgetAsset($asset);
 			return $link;
@@ -2672,7 +2672,7 @@ class Asset_Manager extends MySource_Object
 
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1])) {
-			$bridge =& $this->getAsset($id_parts[0]);
+			$bridge = $this->getAsset($id_parts[0]);
 			$link = $bridge->getLinkById($linkid, $assetid, $side_of_link);
 			$this->forgetAsset($bridge);
 			return $link;
@@ -2828,7 +2828,7 @@ class Asset_Manager extends MySource_Object
 					if (!empty($major_shadow_parts)) {
 						// major is shadow asset, use bridge
 						$link = Array();
-						$asset =& $this->getAsset($major_shadow_parts['bridgeid']);
+						$asset = $this->getAsset($major_shadow_parts['bridgeid']);
 						if (!is_null($asset)) {
 							// Always force an array in this case, and merge it in
 							$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
@@ -3021,7 +3021,7 @@ class Asset_Manager extends MySource_Object
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
 				$real_assetid = $id_parts[0];
-				$asset =& $this->getAsset($real_assetid);
+				$asset = $this->getAsset($real_assetid);
 				if (is_null($asset)) continue;
 
 				$links[$assetid] = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by, $dependant, $exclusive);
@@ -3136,14 +3136,14 @@ class Asset_Manager extends MySource_Object
 		if (!isset($this->_tmp['child_links'][$assetid])) {
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
-				$asset =& $this->getAsset($id_parts[0]);
+				$asset = $this->getAsset($id_parts[0]);
 				$links = $asset->getAllChildLinks($assetid, $link_type);
 				$this->forgetAsset($asset);
 				return $links;
 			}
 
 			// So it is not a shadow asset, but it could be a bridge
-			$asset =& $this->getAsset($assetid);
+			$asset = $this->getAsset($assetid);
 			$shadow_links = Array();
 			if (implements_interface($asset, 'bridge')) {
 				$shadow_links = $asset->getAllChildLinks($assetid, $link_type);
@@ -3445,7 +3445,7 @@ class Asset_Manager extends MySource_Object
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
-			$asset =& $this->getAsset($real_assetid);
+			$asset = $this->getAsset($real_assetid);
 
 			$parents = Array();
 			if (!$ignore_bridge) {
@@ -3566,7 +3566,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			$children = Array();
 			$real_assetid = $id_parts[0];
-			$asset =& $this->getAsset($real_assetid);
+			$asset = $this->getAsset($real_assetid);
 			if (!is_null($asset)) {
 				if (!method_exists($asset, 'getChildren')) {
 					trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
@@ -3581,7 +3581,7 @@ class Asset_Manager extends MySource_Object
 		}
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		if (is_null($asset)) return Array();
 		if (implements_interface($asset, 'bridge')) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
@@ -3631,7 +3631,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$children = Array();
 
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		if (!is_null($asset)) {
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', NULL, 1);
@@ -3679,7 +3679,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$parents = Array();
 
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		if (!is_null($asset)) {
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', NULL, 1);
@@ -3890,7 +3890,7 @@ class Asset_Manager extends MySource_Object
 		$assetids = Array();
 		while (DB_OK === $result->fetchInto($row)) {
 			if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
-				$asset =& $this->getAsset($row['assetid']);
+				$asset = $this->getAsset($row['assetid']);
 				$read_access = $asset->readAccess();
 
 				$row['name'] = $asset->name;
@@ -4041,7 +4041,7 @@ class Asset_Manager extends MySource_Object
 		if (FALSE !== strpos($assetid, ':')) {
 			return $this->assetInTrash(strtok($assetid, ':'), $exclusively);
 		}
-		$trash =& $this->getSystemAsset('trash_folder');
+		$trash = $this->getSystemAsset('trash_folder');
 
 		// if we are being asked "Is the trash in the trash"
 		// lets say "Are you kidding?"
@@ -4109,7 +4109,7 @@ class Asset_Manager extends MySource_Object
 		// shadow asset found, pipe the request off to the bridge
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
-			$asset =& $this->getAsset($real_assetid);
+			$asset = $this->getAsset($real_assetid);
 			$results = $asset->countLinks($assetid, $side_of_link, $link_types, $type_code, $strict_type_code, $ignore_linkid);
 
 			$this->forgetAsset($asset);
@@ -4214,7 +4214,7 @@ class Asset_Manager extends MySource_Object
 			// minor is a shadow
 			if (isset($majorid_parts[1]) || ($majorid_parts[0] == $minorid_parts[0])) {
 				// major is a shadow or the minor's bridge, so get the bridge to handle the linking
-				$bridge =& $this->getAsset($majorid_parts[0]);
+				$bridge = $this->getAsset($majorid_parts[0]);
 				$linkid = $bridge->createAssetLink($major, $minor, $link_type, $value, $sort_order, $dependant, $exclusive, $moving);
 				$this->forgetAsset($bridge);
 			} else {
@@ -4910,7 +4910,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// Send Internal Message
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'major_name'	=> $major->name,
 						'minor_name'	=> $minor->name,
@@ -4922,7 +4922,7 @@ class Asset_Manager extends MySource_Object
 		$message->send();
 
 		// Broadcast Event
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($major, 'CreateLink', Array('linkid' => $linkid));
 
 		// Fire Triggers
@@ -5099,7 +5099,7 @@ class Asset_Manager extends MySource_Object
 			}
 
 			if ($current_majorid) {
-				$current_major =& $this->getAsset($current_majorid);
+				$current_major = $this->getAsset($current_majorid);
 				return translate('cannot_create_link_exclusive_link', $minor->name, $minor->id, $major->name, $major->id, $current_major->name, $current_majorid);
 			}
 
@@ -5229,7 +5229,7 @@ class Asset_Manager extends MySource_Object
 			return 0;
 		}
 
-		$old_parent =& $this->getAsset($link['majorid'], $link['major_type_code']);
+		$old_parent = $this->getAsset($link['majorid'], $link['major_type_code']);
 		if (is_null($old_parent)) {
 			trigger_localised_error('SYS0226', E_USER_WARNING, $link['majorid']);
 			return 0;
@@ -5243,7 +5243,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// now the new parent
-		$new_parent =& $this->getAsset($to_parentid, '', TRUE);
+		$new_parent = $this->getAsset($to_parentid, '', TRUE);
 		if (is_null($new_parent)) {
 			trigger_localised_error('SYS0224', E_USER_WARNING, $to_parentid);
 			$this->forgetAsset($old_parent);
@@ -5259,7 +5259,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// this is the asset we are moving
-		$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
+		$minor = $this->getAsset($link['minorid'], $link['minor_type_code']);
 		if (!$minor->id) {
 			trigger_localised_error('SYS0222', E_USER_WARNING, $link['minorid']);
 			$this->forgetAsset($old_parent);
@@ -5353,7 +5353,7 @@ class Asset_Manager extends MySource_Object
 		// shadow asset found, pipe the request of to the bridge
 		if (isset($id_parts[1])) {
 
-			$bridge =& $this->getAsset($id_parts[0]);
+			$bridge = $this->getAsset($id_parts[0]);
 			$result =  $bridge->updateLink($linkid, $link_type, $value, $sort_order);
 			$this->forgetAsset($bridge);
 			return $result;
@@ -5372,10 +5372,10 @@ class Asset_Manager extends MySource_Object
 		$link_type  = (int) $link_type;
 		$sort_order = (int) $sort_order;
 
-		$major =& $this->getAsset((int) $link['majorid'], $link['major_type_code']);
-		$minor =& $this->getAsset((int) $link['minorid'], $link['minor_type_code']);
+		$major = $this->getAsset((int) $link['majorid'], $link['major_type_code']);
+		$minor = $this->getAsset((int) $link['minorid'], $link['minor_type_code']);
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
 		if ($link_type_changed) {
@@ -5665,7 +5665,7 @@ class Asset_Manager extends MySource_Object
 		// before anything else is done, check if this is a shadow link, i.e. a link that is managed by a bridge
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1])) {
-			$bridge =& $this->getAsset($id_parts[0]);
+			$bridge = $this->getAsset($id_parts[0]);
 			$result = $bridge->deleteAssetLink($linkid);
 			$this->forgetAsset($bridge);
 			return $result;
@@ -5681,8 +5681,8 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$major =& $this->getAsset($link['majorid'], $link['major_type_code']);
-		$minor =& $this->getAsset($link['minorid'], $link['minor_type_code']);
+		$major = $this->getAsset($link['majorid'], $link['major_type_code']);
+		$minor = $this->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($major) || is_null($minor)) {
 			return FALSE;
 		}
@@ -5800,7 +5800,7 @@ class Asset_Manager extends MySource_Object
 						return FALSE;
 					}
 
-					$trash_folder =& $this->getSystemAsset('trash_folder');
+					$trash_folder = $this->getSystemAsset('trash_folder');
 					if (is_null($trash_folder)) {
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
@@ -5940,7 +5940,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// Send Internal Message
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'major_name'	=> $major->name,
 						'minor_name'	=> $minor->name,
@@ -5952,7 +5952,7 @@ class Asset_Manager extends MySource_Object
 		$message->send();
 
 		// Broadcast Event
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
 
 		// Fire triggers
@@ -6016,7 +6016,7 @@ class Asset_Manager extends MySource_Object
 		$msgs = Array();
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		foreach ($parent_links as $id => $link_details) {
-			$asset =& $this->getAsset($link_details['majorid']);
+			$asset = $this->getAsset($link_details['majorid']);
 			if (TRUE !== ($msg = $asset->canDeleteLink($link_details['linkid']))) {
 				$msgs[$link_details['linkid']] = $msg;
 			}
@@ -6044,7 +6044,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canSafeTrashAsset($assetid, $ignore_linkid=0, $ignore_other_links=TRUE)
 	{
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 
 		$trash_errors = Array();
 
@@ -6157,7 +6157,7 @@ class Asset_Manager extends MySource_Object
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		$locked = Array();
 		foreach ($parent_links as $link_details) {
-			$asset =& $this->getAsset($link_details['majorid']);
+			$asset = $this->getAsset($link_details['majorid']);
 			// try to acquire the lock
 			if ($this->acquireLock($link_details['majorid'], 'links')) {
 				$locked[] = $link_details['majorid'];
@@ -6240,7 +6240,7 @@ class Asset_Manager extends MySource_Object
 
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
-			$asset =& $this->getAsset($real_assetid);
+			$asset = $this->getAsset($real_assetid);
 
 			if (!is_null($asset)) {
 				if (method_exists($asset, 'getPermission')) {
@@ -6312,7 +6312,7 @@ class Asset_Manager extends MySource_Object
 
 				// if we are expanding user groups and we aren't public access
 				if ($expand_groups && $data['userid']) {
-					$user =& $this->getAsset($data['userid']);
+					$user = $this->getAsset($data['userid']);
 					if (!is_null($user)) {
 						if ($user instanceof User_Group) {
 							$ret_val = array_merge($ret_val, array_keys($this->getChildren($user->id, Array('user'), FALSE)));
@@ -6361,7 +6361,7 @@ class Asset_Manager extends MySource_Object
 
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
-			$asset =& $this->getAsset($real_assetid);
+			$asset = $this->getAsset($real_assetid);
 
 			$ret_val = NULL;
 			if (is_null($asset)) continue;
@@ -6373,7 +6373,7 @@ class Asset_Manager extends MySource_Object
 			return $ret_val;
 		}
 
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		if (is_null($asset)) return FALSE;
 		if (!$asset->adminAccess('permissions')) {
 			trigger_localised_error('SYS0111', E_USER_WARNING, $asset->name);
@@ -6389,7 +6389,7 @@ class Asset_Manager extends MySource_Object
 		// if we dont have an userid, we are granting public access
 		if (!empty($userid)) {
 			// check that the passed userid is a user or user_group
-			$user =& $this->getAsset($userid, '', TRUE);
+			$user = $this->getAsset($userid, '', TRUE);
 			if (!$user->id) {
 				trigger_localised_error('SYS0112', E_USER_WARNING);
 				return FALSE;
@@ -6481,7 +6481,7 @@ class Asset_Manager extends MySource_Object
 
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		$msg_reps = Array(
 						'perm_name'		=> permission_type_name($permission),
@@ -6517,7 +6517,7 @@ class Asset_Manager extends MySource_Object
 
 		if (isset($id_parts[1])) {
 			$real_assetid = $id_parts[0];
-			$asset =& $this->getAsset($real_assetid);
+			$asset = $this->getAsset($real_assetid);
 
 			if (is_null($asset)) continue;
 
@@ -6527,7 +6527,7 @@ class Asset_Manager extends MySource_Object
 			return $ret_val;
 		}
 
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		if (is_null($asset)) return FALSE;
 		if (!$asset->adminAccess('permissions')) {
 			trigger_localised_error('SYS0104', E_USER_WARNING, $asset->name);
@@ -6584,7 +6584,7 @@ class Asset_Manager extends MySource_Object
 
 		// log the action
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		$msg_reps = Array(
 						'perm_name'		=> permission_type_name($permission),
@@ -6745,7 +6745,7 @@ class Asset_Manager extends MySource_Object
 	function setRole($assetid, $roleid, $userid)
 	{
 		// check if we have permission to set roles
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		if (is_null($asset)) return FALSE;
 		if (!$asset->adminAccess('roles')) {
 			trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
@@ -6799,7 +6799,7 @@ class Asset_Manager extends MySource_Object
 	function deleteRole($assetid, $roleid=NULL, $userid=NULL)
 	{
 		// check if we have permission to set roles
-		$asset =& $this->getAsset($assetid);
+		$asset = $this->getAsset($assetid);
 		if (is_null($asset)) return FALSE;
 		if (!$asset->adminAccess('roles')) {
 			trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
@@ -6912,7 +6912,7 @@ class Asset_Manager extends MySource_Object
 
 		} else {
 			$row = $row[0];
-			$asset =& $this->getAsset($row['assetid'], '', $mute_errors);
+			$asset = $this->getAsset($row['assetid'], '', $mute_errors);
 			return $asset;
 		}//end if
 
@@ -7014,7 +7014,7 @@ class Asset_Manager extends MySource_Object
 			$found = FALSE;
 			$non_standard_url = TRUE;
 			// We want to check if this is an asset (file) with a publicly served url
-			$fancy_asset =& $this->getAssetFromURL($protocol, $url, TRUE, TRUE);
+			$fancy_asset = $this->getAssetFromURL($protocol, $url, TRUE, TRUE);
 			if (empty($fancy_asset)) {
 				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 				trigger_localised_error('SYS0247', E_USER_WARNING, $fancy_url);
@@ -7026,7 +7026,7 @@ class Asset_Manager extends MySource_Object
 			$all_sites = $this->getParents($fancy_asset->id, 'site');
 			$valid_sites = Array();
 			foreach ($all_sites as $id => $type_code) {
-				$current_site =& $this->getAsset($id);
+				$current_site = $this->getAsset($id);
 				if (!is_object($current_site)) continue;
 				$site_url = $original_site_url = $current_site->getUrl();
 				$original_site_url = $site_url = str_replace(Array('http://', 'https://'), '', $site_url);
@@ -7078,7 +7078,7 @@ class Asset_Manager extends MySource_Object
 
 			$link = $this->getLinkById($link_id);
 			if (empty($link)) return Array();
-			$parent =& $this->getAsset($link['majorid']);
+			$parent = $this->getAsset($link['majorid']);
 			if (empty($parent)) return Array();
 			$parent_url = $parent->getUrl();
 
@@ -7166,12 +7166,12 @@ class Asset_Manager extends MySource_Object
 			throw new Exception('Unable to get lineage for URL "'.$protocol.'://'.$url.'" due to database error: '.$e->getMessage());
 		}
 
-		$url_asset =& $this->getAssetFromURL($protocol, $url);
+		$url_asset = $this->getAssetFromURL($protocol, $url);
 		$id_parts = explode(':', $url_asset->id);
 		if (isset($id_parts[1])) {
 
 			$real_assetid = $id_parts[0];
-			$asset =& $this->getAsset($real_assetid);
+			$asset = $this->getAsset($real_assetid);
 			if (!method_exists($asset, 'getLineageFromURL')) {
 				trigger_localised_error('SYS0205', E_USER_WARNING, $asset->name);
 				return Array();
@@ -7191,7 +7191,7 @@ class Asset_Manager extends MySource_Object
 			// if there is only one entry then this is the site root, so for completeness
 			// we will manually add in the index page to the index
 			if (count($result) == 1) {
-				$site =& $this->getAsset($result[0]['assetid'], $result[0]['type_code']);
+				$site = $this->getAsset($result[0]['assetid'], $result[0]['type_code']);
 				if (is_null($site)) return Array();
 				$index_page = $site->getSpecialPage('index');
 				if (!is_null($index_page)) {
@@ -7212,7 +7212,7 @@ class Asset_Manager extends MySource_Object
 		// Check whether the asset is in Safe edit. If it is, load the save version of asset.
 		// for name and short_name attribute
 		foreach ($result as $key => $entry) {
-			$asset =& $this->getAsset($entry['assetid']);
+			$asset = $this->getAsset($entry['assetid']);
 			if ($asset->useSystemVersion()) {
 				$asset->_loadDataPaths();
 				$original_asset = $asset;
@@ -7291,7 +7291,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getInheritedDesignValueFromURL($url, $design_name='design::system::frontend')
 	{
-		$asset =& $this->getAssetFromURL(NULL, $url, TRUE, TRUE);
+		$asset = $this->getAssetFromURL(NULL, $url, TRUE, TRUE);
 		$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $design_name);
 
 		while (empty($design_link) && ($url != '')) {
@@ -7299,7 +7299,7 @@ class Asset_Manager extends MySource_Object
 			if ($slash_pos === FALSE) $slash_pos = 0;
 			$url = substr_replace($url, '', $slash_pos);
 
-			$asset =& $this->getAssetFromURL(NULL, $url, TRUE, TRUE);
+			$asset = $this->getAssetFromURL(NULL, $url, TRUE, TRUE);
 			if (empty($asset)) break;
 
 			$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $design_name);
@@ -7431,12 +7431,12 @@ class Asset_Manager extends MySource_Object
 		if (!$ignore_rollback && SQ_ROLLBACK_VIEW) {
 			if ($return_array) {
 				foreach ($assetids as $assetid) {
-					$asset =& $this->getAsset($assetid);
+					$asset = $this->getAsset($assetid);
 					$return_urls[$assetid] = $asset->getURL($base_url, TRUE);
 				}
 				return $return_urls;
 			} else {
-				$asset =& $this->getAsset($assetids[0]);
+				$asset = $this->getAsset($assetids[0]);
 				return $asset->getURL($base_url, TRUE);
 			}
 		}
@@ -7558,12 +7558,12 @@ class Asset_Manager extends MySource_Object
 		if (!$ignore_rollback && SQ_ROLLBACK_VIEW) {
 			if ($return_array) {
 				foreach ($assetids as $assetid) {
-					$asset =& $this->getAsset($assetid);
+					$asset = $this->getAsset($assetid);
 					$return_hrefs[$assetid] = $asset->getHref($base_url, TRUE);
 				}
 				return $return_hrefs;
 			} else {
-				$asset =& $this->getAsset($assetids[0]);
+				$asset = $this->getAsset($assetids[0]);
 				return $asset->getHref($base_url, TRUE);
 			}
 		}
@@ -8463,7 +8463,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// rearrange the snippets according to asset map sort order
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$majorids = Array($db->quote((string)$rootid));
 		$parent = $this->getChildren($rootid, Array('bodycopy','folder'), TRUE);
 		foreach ($parent as $assetid => $type_code) {
@@ -8490,12 +8490,12 @@ class Asset_Manager extends MySource_Object
 		// generate list of snippet name and content
 		$keywords = Array();
 		foreach ($results as $id) {
-			$container =& $this->getAsset($id);
+			$container = $this->getAsset($id);
 			if (is_null($container)) continue;
 			// only list what the current user has access to
 			if ($container->readAccess()) {
 				if (method_exists($container, 'getContentType')) {
-					$content_type =& $container->getContentType();
+					$content_type = $container->getContentType();
 					if ($content_type->type() == 'content_type_snippet') {
 						// exclude all snippet content type
 						continue;
