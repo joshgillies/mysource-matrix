@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.112 2007/11/13 04:26:39 colivar Exp $
+* $Id: workflow_manager.inc,v 1.113 2007/11/28 04:27:46 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -79,7 +79,7 @@ class Workflow_Manager extends MySource_Object
 	{
 		$storage_access = ((is_null($granted)) ? 2 : (int) $granted);
 		if (!isset($this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running])) {
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$sql = '  SELECT DISTINCT schemaid, granted
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
@@ -96,7 +96,7 @@ class Workflow_Manager extends MySource_Object
 				if (!is_null($granted)) {
 					$query->bindValue(':granted', $granted ? 1 : 0, PDO::PARAM_INT);
 				}
-				$result = DAL::executePdoAll($query);
+				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get workflow schemas for asset ID #'.$assetid.' due to database error: '.$e->getMessage());
 			}
@@ -298,26 +298,32 @@ class Workflow_Manager extends MySource_Object
 
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
 
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			$sql = 'SELECT
 						schemaid, wflow
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 
-			$where = 'assetid = '.$db->quote($assetid).'
+			$where = 'assetid = :assetid
 						AND granted = 1';
 
 			if ($schemaid != 'all') {
-				$where .= ' AND schemaid = '.$db->quote($schemaid);
+				$where .= ' AND schemaid = :schemaid';
 			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$workflows = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC);
-			assert_valid_db_result($workflows);
+			try {
+				$query = $db->prepare($sql.$where);
+				$query->bindValue(':assetid', $assetid);
+				$query->bindValue(':schemaid', $schemaid);
+				$results = MatrixDAL::executePdoGroupedAssoc($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get workflow schema(s) for asset: '.$assetid.' due to database error: '.$e->getMessage());
+			}
 
-			for (reset($workflows); NULL !== ($k = key($workflows)); next($workflows)) {
-				$workflows[$k] = (is_null($workflows[$k])) ? '' : unserialize($workflows[$k]);
+			foreach ($results as $assetid => $serialized_wflow) {
+				$workflows[$assetid] = (empty($serialized_wflow[0]['wflow']) ? '' : unserialize($serialized_wflow[0]['wflow']));
 			}
 
 			if ($schemaid == 'all') {
@@ -364,19 +370,8 @@ class Workflow_Manager extends MySource_Object
 		if (empty($schemas)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$sql = 'UPDATE
-					sq_ast_wflow
-				SET
-					wflow	= ?
-				WHERE
-						assetid		= ?
-					AND	schemaid	= ?';
-
-		$prepared = $db->prepare($sql);
-		assert_valid_db_result($prepared);
 
 		foreach ($schemas as $schemaid) {
 			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -396,14 +391,16 @@ class Workflow_Manager extends MySource_Object
 
 			if (!isset($workflow[$schema->name])) continue;
 
-			$values = Array(
-						serialize($workflow[$schema->name]),
-						$asset->id,
-						$schema->id,
-					  );
-
-			$result = $db->execute($prepared, $values);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars = Array(
+									'wflow'		=> serialize($workflow[$schema->name]),
+									'assetid'	=> $asset->id,
+									'schemaid'	=> $schema->id,
+								  );
+				MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
+			}
 
 			$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow[$schema->name];
 		}
@@ -735,8 +732,9 @@ class Workflow_Manager extends MySource_Object
 				$step_data =& $step_array[$stepid];
 
 				// 'load' the current step
-
-				$last_key = end(array_keys($workflow['current_step']));
+				
+				$step_keys = array_keys($workflow['current_step']);
+				$last_key = end($step_keys);
 				$workflow['current_step'][$last_key] = $stepid;
 
 				if ($step_data['expired']) {
@@ -843,7 +841,8 @@ class Workflow_Manager extends MySource_Object
 
 
 			// we've been through all the siblings at the current level, and they're all complete.
-			$last_key = end(array_keys($workflow['current_step']));
+			$step_keys = array_keys($workflow['current_step']);
+			$last_key = end($step_keys);
 			if ($workflow['current_step'][$last_key] == count($step_array) && $current_step_found == FALSE) {
 
 				// if we're at the top level of workflow, we can't unescalate, we're cooked
@@ -902,19 +901,8 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$sql = 'UPDATE
-					sq_ast_wflow
-				SET
-					wflow	= ?
-				WHERE
-						assetid		= ?
-					AND	schemaid	= ?';
-
-		$prepared = $db->prepare($sql);
-		assert_valid_db_result($prepared);
 
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
@@ -923,15 +911,16 @@ class Workflow_Manager extends MySource_Object
 			if ($this->_recordPublish($workflow, $publisher, $assetid)) {
 				$new_workflow = serialize($workflow);
 
-				$values = Array(
-							$new_workflow,
-							$assetid,
-							$schemaid,
-						  );
-
-				$result = $db->execute($prepared, $values);
-
-				assert_valid_db_result($result);
+				try {
+					$bind_vars = Array(
+										'wflow'		=> $new_workflow,
+										'assetid'	=> $assetid,
+										'schemaid'	=> $schemaid,
+									  );
+					MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
+				}
 
 				// updated cached version of this workflow
 				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
@@ -1141,7 +1130,8 @@ class Workflow_Manager extends MySource_Object
 						$current_step['started'] = time();
 					}
 					// if this is not the first step in this workflow,
-					$last_key = end(array_keys($workflow['current_step']));
+					$step_keys = array_keys($workflow['current_step']);
+					$last_key = end($step_keys);
 					if ($workflow['current_step'][$last_key] > 1) {
 						$previous_step_address = $workflow['current_step'];
 						$previous_step_address[$last_key]--;
@@ -1228,32 +1218,25 @@ class Workflow_Manager extends MySource_Object
 		if (empty($schemas)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$sql = 'UPDATE
-					sq_ast_wflow
-				SET
-					wflow	= ?
-				WHERE
-						assetid		= ?
-					AND	schemaid	= ?';
-
-		$prepared = $db->prepare($sql);
-		assert_valid_db_result($prepared);
 
 		foreach ($schemas as $schemaid) {
 			$workflow = $this->generateWorkflowArray($assetid, $schemaid);
 			if (empty($workflow['steps'])) continue;
 			$workflow = serialize($workflow);
 
-			$values = Array(
-						$workflow,
-						$assetid,
-						$schemaid,
-					  );
-			$result = $db->execute($prepared, $values);
-			assert_valid_db_result($result);
+			try {
+				$bind_vars = Array(
+									'wflow'		=> $workflow,
+									'assetid'	=> $assetid,
+									'schemaid'	=> $schemaid,
+								  );
+				MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
+			}
+
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1462,7 +1445,7 @@ class Workflow_Manager extends MySource_Object
 	function _clearWorkflow($assetid)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'UPDATE
@@ -1470,15 +1453,15 @@ class Workflow_Manager extends MySource_Object
 				SET
 					wflow = NULL
 				WHERE
-					assetid	 = ?';
+					assetid	 = :assetid';
 
-		$prepared = $db->prepare($sql);
-		assert_valid_db_result($prepared);
-
-		$values = Array($assetid);
-
-		$result = $db->execute($prepared, $values);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (DALException $e) {
+			throw new Exception ('Unable to clear workflow for asset: '.$assetid.' due to database error: '.$e->getMessage());
+		}
 
 		unset($this->_tmp['schemas'][$assetid]);
 		unset($this->_tmp['schema_workflows'][$assetid]);
@@ -1629,30 +1612,21 @@ class Workflow_Manager extends MySource_Object
 
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'UPDATE
-					sq_ast_wflow
-				SET
-					wflow	= ?
-				WHERE
-						assetid		= ?
-					AND	schemaid	= ?';
-
-		$prepared = $db->prepare($sql);
-		assert_valid_db_result($prepared);
 		$new_workflow = serialize($workflow);
+		try {
+			$bind_vars = Array(
+								'wflow'		=> $new_workflow,
+								'assetid'	=> $assetid,
+								'schemaid'	=> $schemaid,
+							  );
+			MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
+		}
 
-		$values = Array(
-					$new_workflow,
-					$assetid,
-					$schemaid,
-				  );
-
-		$result = $db->execute($prepared, $values);
-
-		assert_valid_db_result($result);
 		$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
 		if (isset($this->_tmp['schema_workflows'][$assetid]['all'][$schemaid])) {
 			$this->_tmp['schema_workflows'][$assetid]['all'][$schemaid] = $workflow;

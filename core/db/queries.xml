@@ -758,7 +758,23 @@
 			</delete>
 		</primary>
 	</query>
-
+	<query id="updateWorkflow">
+	<!-- Updates the worflow table to start the workflow process. -->
+		<primary>
+			<update>
+				<fields table="sq_ast_wflow">
+					<field>wflow</field>
+				</fields>
+				<values>
+					<value column="wflow">:wflow</value>
+				</values>
+				<where>
+					<equal table="sq_ast_wflow" column="assetid">:assetid</equal>
+					<equal table="sq_ast_wflow" column="schemaid">:schemaid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
 
 	<!-- //		ASSET STATIC SCREENS		// -->
 
@@ -1171,6 +1187,44 @@
 				</values>
 				<where>
 					<equal table="sq_ast" column="assetid">:assetid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+			
+	<!-- //     FILE VERSIONING       // -->
+	<query id="updateReposFilePath">
+	<!-- Updates pathname when it is morphed -->
+		<primary>
+			<update>
+				<fields table="sq_file_vers_file">
+					<field>path</field>
+				</fields>
+				<values>
+					<value column="path">:new_path</value>
+				</values>
+				<where>
+					<equal table="sq_file_vers_file" column="path">:old_path</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+	<query id="updateFileVersHistory">
+	<!-- Updates filesize and hash info for specified file and version -->
+		<primary>
+			<update>
+				<fields table="sq_file_vers_history">
+					<field>path</field>
+				</fields>
+				<values>
+					<value column="md5">:md5</value>
+					<value column="sha1">:sha1</value>
+					<value column="file_size">:file_size</value>
+				</values>
+				<where>
+					<equal table="sq_file_vers_history" column="fileid">:fileid</equal>
+					<equal table="sq_file_vers_history" column="version">:version</equal>
 				</where>
 			</update>
 		</primary>
