@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.69 2007/05/01 13:52:43 gnoel Exp $
+* $Id: asset_edit_fns.inc,v 1.70 2007/11/28 02:32:25 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -502,7 +502,7 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function isWorkflowComplete(&$asset)
 	{
-		return $GLOBALS['SQ_SYSTEM']->wm->isWorkflowComplete($asset->id);
+		return $GLOBALS['SQ_SYSTEM']->getWorkflowManager()->isWorkflowComplete($asset->id);
 
 	}//end isWorkflowComplete()
 
