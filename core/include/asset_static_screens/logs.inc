@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.23 2007/11/09 04:13:56 rong Exp $
+* $Id: logs.inc,v 1.24 2007/11/28 05:44:37 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 */
 
@@ -50,16 +50,15 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		throw new Exception('Failed to get log messages due to database error: '.$e->getMessage());
 	}
 
-	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0]['type'];
+	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
 	$selected_key = NULL;
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 	$o->openSection(translate('logged_messages'));
 
 
 		$o->openRaw();
-					$type_options = Array();
-			foreach ($log_types as $types) {
-				$type = $types['type'];
+			$type_options = Array();
+			foreach ($log_types as $type) {
 				$key = replace_query_string_vars(Array('sq_backend_log_type' => $type));
 				if ($type == $active_log_type) $selected_key = $key;
 				$type_options[$key] = ucwords(str_replace(Array('.', '_'), ' ', $type));
