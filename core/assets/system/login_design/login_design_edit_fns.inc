@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design_edit_fns.inc,v 1.5 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: login_design_edit_fns.inc,v 1.6 2007/11/28 22:02:31 lwright Exp $
 *
 */
 
@@ -24,11 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Login_Design_Edit_Fns extends Design_Edit_Fns
 {
+
+
+	/**
+	* Constructor
+	*
+	* @see Asset_Edit_Fns::__construct()
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
 }//end class
 ?>

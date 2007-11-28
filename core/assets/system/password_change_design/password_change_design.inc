@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_change_design.inc,v 1.4 2006/12/06 04:40:09 emcdonald Exp $
+* $Id: password_change_design.inc,v 1.5 2007/11/28 22:04:08 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,9 +39,9 @@ class Password_Change_Design extends Design
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Password_Change_Design($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Design($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -57,7 +57,7 @@ class Password_Change_Design extends Design
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -91,7 +91,7 @@ class Password_Change_Design extends Design
 	* @return boolean
 	* @access public
 	*/
-	function restoreChangePasswordDesign()
+	public function restoreChangePasswordDesign()
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -140,7 +140,7 @@ class Password_Change_Design extends Design
 
 		// add the parse.txt file to the repository
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		if (!$file_exists) {
 			// attempt to add the file to the repository
@@ -221,7 +221,7 @@ class Password_Change_Design extends Design
 
 		$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id);
 		foreach ($dependants as $dependantid => $dependant_type_code) {
-			$dep_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
+			$dep_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dep_asset->id, 'permissions')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -251,7 +251,7 @@ class Password_Change_Design extends Design
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		$ret_val = parent::_getAllowedLinks();
 		// can't have any customisations

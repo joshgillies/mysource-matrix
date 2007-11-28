@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.16 2006/12/06 04:40:08 emcdonald Exp $
+* $Id: login_design.inc,v 1.17 2007/11/28 22:02:31 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Login_Design extends Design
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Login_Design($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Design($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Login_Design extends Design
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -90,7 +90,7 @@ class Login_Design extends Design
 	* @return boolean
 	* @access public
 	*/
-	function restoreLoginDesign()
+	public function restoreLoginDesign()
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -139,7 +139,7 @@ class Login_Design extends Design
 
 		// add the parse.txt file to the repository
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		if (!$file_exists) {
 			// attempt to add the file to the repository
@@ -221,7 +221,7 @@ class Login_Design extends Design
 
 		$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id);
 		foreach ($dependants as $dependantid => $dependant_type_code) {
-			$dep_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
+			$dep_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dep_asset->id, 'permissions')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -251,7 +251,7 @@ class Login_Design extends Design
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	protected function _getAllowedLinks()
 	{
 		$ret_val = parent::_getAllowedLinks();
 		// can't have any customisations
