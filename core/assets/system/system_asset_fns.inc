@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.12 2007/10/29 23:12:35 lwright Exp $
+* $Id: system_asset_fns.inc,v 1.13 2007/11/28 21:58:22 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -29,12 +29,12 @@
 /**
 * Called before a create to ensure that there is only one version of this type of asset
 *
-* @param object	&$asset	the system asset that we are attempting to create
+* @param Asset	$asset	the system asset that we are attempting to create
 *
 * @return boolean
 * @access public
 */
-function system_asset_fns_create_pre_check(&$asset)
+function system_asset_fns_create_pre_check(Asset $asset)
 {
 	$db = DAL::getDb();
 
@@ -66,12 +66,12 @@ function system_asset_fns_create_pre_check(&$asset)
 /**
 * Called at the end of a create to remove any general asset stuff that we don't want as "System Assets"
 *
-* @param object	&$asset	the system asset that we are attempting to create
+* @param Asset	$asset	the system asset that we are attempting to create
 *
 * @return boolean
 * @access public
 */
-function system_asset_fns_create_cleanup(&$asset)
+function system_asset_fns_create_cleanup(Asset $asset)
 {
 	// remove any write and admin permissions that have been set on this asset and it's dependants
 	$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
