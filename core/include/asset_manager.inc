@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.627 2007/11/28 03:50:07 colivar Exp $
+* $Id: asset_manager.inc,v 1.628 2007/11/28 04:49:24 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.627 $
+* @version $Revision: 1.628 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -741,8 +741,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function isTypeDecendant($type_code1, $type_code2)
 	{
-		$decendants = $this->getTypeDescendants($type_code2, TRUE);
 		// get_class in PHP5 preserves capitalisation unlike PHP4
+		$decendants = $this->getTypeDescendants(strtolower($type_code2), TRUE);
 		return in_array(strtolower($type_code1), $decendants);
 
 	}//end isTypeDecendant()
