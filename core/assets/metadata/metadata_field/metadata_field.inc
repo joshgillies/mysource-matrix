@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.30 2007/11/20 03:15:41 hnguyen Exp $
+* $Id: metadata_field.inc,v 1.31 2007/11/28 00:13:39 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -325,23 +325,34 @@ class Metadata_Field extends Asset
 	{
 		if (parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// First remove any values assets have for this field
-			$sql = 'DELETE FROM sq_ast_mdata_val WHERE ';
-			$sql .= 'fieldid = '.$db->quote($this->id);
+			try {
+				$sql = 'DELETE FROM sq_ast_mdata_val WHERE ';
+				$sql .= 'fieldid = :fieldid';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+				$query = $db->prepare($sql);
+				$query->bindValue('fieldid', $this->id);
+				MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete metadata value for fieldid #'.$this->id.' due to the following database error:'.$e->getMessage());
+			}//end try catch
+
 
 			// Now we have to delete the default value information
-			$sql = 'DELETE FROM sq_ast_mdata_dflt_val WHERE ';
-			$sql .= 'assetid = '.$db->quote($this->id);
+			try {
+				$sql = 'DELETE FROM sq_ast_mdata_dflt_val WHERE ';
+				$sql .= 'assetid = :assetid';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+				$query = $db->prepare($sql);
+				$query->bindValue('assetid', $this->id);
+				MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete metadata default value for assetid #'.$this->id.' due to the following database error:'.$e->getMessage());
+			}//end try catch
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
