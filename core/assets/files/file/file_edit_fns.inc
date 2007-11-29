@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.88 2007/11/28 22:55:36 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.89 2007/11/29 00:06:11 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -218,7 +218,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processFileUploadPreUpload(File $asset, Backend_Outputter $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE) {
+	public function processFileUploadPreUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE) {
 		$processed = FALSE;
 
 		if (isset($_POST[$prefix.'_server_file']) && empty($_POST[$prefix.'_server_file'])){
@@ -255,7 +255,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processFileUpload(File $asset, Backend_Outputter $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
+	public function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
@@ -393,7 +393,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processFileChooser(File $asset, Backend_Outputter $o, $prefix, $create=FALSE)
+	public function processFileChooser(File $asset, $o, $prefix, $create=FALSE)
 	{
 		// Unless explicitly told otherwise, don't do anything if the asset is not yet completely created
 		if (!$create && (empty($asset->id) || array_get_index($asset->_tmp, '__creating__'))) {

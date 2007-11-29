@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.155 2007/11/28 22:39:11 lwright Exp $
+* $Id: file.inc,v 1.156 2007/11/29 00:06:11 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -454,7 +454,7 @@ class File extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	protected function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -480,7 +480,7 @@ class File extends Asset
 	* @return boolean
 	* @access private
 	*/
-	protected function _updated($update_parents=TRUE)
+	public function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
 
