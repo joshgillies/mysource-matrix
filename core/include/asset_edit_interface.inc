@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.337 2007/11/28 04:31:30 bshkara Exp $
+* $Id: asset_edit_interface.inc,v 1.338 2007/11/29 22:47:35 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.337 $
+* @version $Revision: 1.338 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2318,7 +2318,9 @@ class Asset_Edit_Interface extends MySource_Object
 								$node_name = 'process_function';
 							}
 							$fn_node = $field->function_call->{$node_name};
-							$create_sections[(string)$section->attributes()->name][] = (string)$fn_node->attributes()->name;
+							if (isset($fn_node['name'])) {
+								$create_sections[(string)$section->attributes()->name][] = (string)$fn_node->attributes()->name;
+							}
 						} else {
 							throw new Exception('Unable to parse Create screen file "'.$create_file.'": it contains a field tag without an attribute or function call specified:'.$field->asXml());
 						} //end if
