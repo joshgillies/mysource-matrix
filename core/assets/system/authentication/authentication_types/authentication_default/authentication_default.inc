@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.17 2007/11/13 23:32:24 lwright Exp $
+* $Id: authentication_default.inc,v 1.18 2007/11/29 00:15:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,7 @@ class Authentication_Default extends Authentication
 		}
 
 		if (isset($result['assetid']) && !empty($result['assetid'])) {
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
 
 			if (is_null($user)) {
 				// no user was found with that username
@@ -100,7 +100,7 @@ class Authentication_Default extends Authentication
 	*/
 	function &authenticateUser($username, $password)
 	{
-		$user =& $this->locateUser($username);
+		$user = $this->locateUser($username);
 		if (is_null($user)) {
 			// no user was found with that username
 		} else if (!$user->comparePassword($password)) {
@@ -147,7 +147,7 @@ class Authentication_Default extends Authentication
 
 			if (!is_null($user) && $user->canLogin()) {
 				// pretend to be the root user so we can lock the account
-				$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+				$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 					$success          = FALSE;
 					$changed_runlevel = FALSE;
@@ -174,7 +174,7 @@ class Authentication_Default extends Authentication
 					// we need to do this here because before we restore the current user
 					// we are actually logged in as ROOT
 					if ($success) {
-						$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$name = $user->name.' (Id: #'.$user->id.')';
 						$msg_reps = Array(
 										'user_name'		=> $name,
@@ -219,7 +219,7 @@ class Authentication_Default extends Authentication
 
 		$user = NULL;
 		if ($result['assetid']) {
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
 		}
 		return $user;
 
