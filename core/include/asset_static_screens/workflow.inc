@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.50 2007/11/22 03:36:20 hnguyen Exp $
+* $Id: workflow.inc,v 1.51 2007/11/29 01:12:47 rong Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 
@@ -756,8 +756,9 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 			}//end switch
 
-			if (!empty($field->note)) {
-				$o->note((string) $field->note);
+			$note = (string) $field->note;
+			if (!empty($note)) {
+				$o->note($note);
 			}
 
 		}//end for
