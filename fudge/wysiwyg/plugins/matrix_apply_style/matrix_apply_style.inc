@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.18 2007/03/29 04:02:31 tbarrett Exp $
+* $Id: matrix_apply_style.inc,v 1.19 2007/11/29 04:26:25 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -55,7 +55,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 
 		if (isset($GLOBALS['sq_bodycopy_cssids'])) {
 			foreach ($GLOBALS['sq_bodycopy_cssids'] as $css_assetid) {
-				$css = &$GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
+				$css = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 				$css_file = $css->getExistingFile();
 				$stylesheet_src = '';
 				if (!empty($css_file)) {
