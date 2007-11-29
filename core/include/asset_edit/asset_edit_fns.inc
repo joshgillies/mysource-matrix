@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.70 2007/11/28 02:32:25 bshkara Exp $
+* $Id: asset_edit_fns.inc,v 1.71 2007/11/29 04:48:47 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -646,7 +646,7 @@ class Asset_Edit_Fns extends MySource_Object
 			}
 
 			if ($success && !empty($_POST[$field_name]['assetid'])) {
-				$selected_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
+				$selected_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$field_name]['assetid']);
 				if (!is_null($selected_asset)) {
 					$success = (bool) $asset->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
 				}
