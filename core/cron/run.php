@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.22 2007/07/05 01:23:02 rhoward Exp $
+* $Id: run.php,v 1.23 2007/11/29 03:33:38 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 
@@ -36,7 +36,7 @@ define('SQ_IN_CRON', 1);
 require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 ini_set('memory_limit', SQ_CONF_CRON_MEMORY_LIMIT.'M');
 
-$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (is_null($root_user)) {
 	trigger_localised_error('CRON0023', E_USER_ERROR);
 }
@@ -45,7 +45,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_localised_error('CRON0022', E_USER_ERROR);
 }
 
-$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 if (is_null($cron_mgr)) {
 	trigger_localised_error('CRON0021', E_USER_ERROR);
 }

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.28 2007/11/13 21:45:36 hnguyen Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.29 2007/11/29 03:38:30 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -236,7 +236,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$step_data = Array();
 
 		// skip the confirmation screen, go straight into locking
@@ -392,7 +392,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function paintCloneOptions(&$step_data, &$o, $prefix)
 	{
-		$to_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$to_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 		$o->openSection(translate('cloning_confirmation'));
 			$o->openField(translate('confirm'));
@@ -461,14 +461,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$assetid = key($this->_running_vars['clone_assets']);
 
-		$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
 		if (is_null($parent_asset)) {
 			trigger_localised_error('HIPO0030', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
 			return FALSE;
 		}
 
-		$orig =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$orig = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		if (is_null($orig)) {
 			trigger_localised_error('HIPO0029', E_USER_WARNING, $assetid);
@@ -503,7 +503,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$step_data['message'] = 'Cloning "'.htmlentities($orig->name).'" to "'.htmlentities($parent_asset->name).'".';
 
-		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, TRUE);
+		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, TRUE);
 
 		if (is_null($clone)) {
 			trigger_localised_error('HIPO0028', E_USER_WARNING);
@@ -572,7 +572,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		$assetid = key($this->_running_vars['remap']);
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$map = $this->_running_vars['remap'][$assetid];
 		unset($this->_running_vars['remap'][$assetid]);
 
@@ -613,7 +613,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function paintInterface(&$step_data, &$o, $prefix)
 	{
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		if (is_null($hh)) return FALSE;
 
 		$assets = $this->_running_vars['assets'];
@@ -626,7 +626,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$o->addHiddenField('link_parentid', $this->_running_vars['to_parent_assetid']);
 
-		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
+		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 		if (is_null($parent)) {
 			trigger_localised_error('HIPO0018', E_USER_WARNING, $this->_running_vars['to_parent_assetid']);
 			return FALSE;
@@ -652,7 +652,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_select', htmlentities($parent->name)); ?></p>
 				<p><?php echo translate('hipo_permission_workflow_metadata_cascade_none'); ?></p>
 				<?php
-				$ei =& $parent->getEI();
+				$ei = $parent->getEI();
 
 				$ei->includeStaticScreen('permissions');
 				$pe = paintInlinePermissions($parent, $o, $ei);
