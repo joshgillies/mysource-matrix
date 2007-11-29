@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.23 2006/12/27 21:52:17 lwright Exp $
+* $Id: matrix_embed_movie.inc,v 1.24 2007/11/29 03:40:06 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -243,7 +243,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 			} else {
 				if (!isset($movie_vars['fileid'])) continue;
 				$fileid = $movie_vars['fileid'];
-				$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($fileid, 'file');
+				$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($fileid, 'file');
 				if (is_null($file)) continue;
 
 				$filename = $file->name;
