@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.9 2007/11/22 23:25:16 bshkara Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.10 2007/11/29 23:42:13 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -162,7 +162,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 						if ($data['value'] == '') {
 							echo translate('none');
 						} else {
-							$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', TRUE);
+							$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', TRUE);
 							if (!is_null($layout)) {
 								echo get_asset_tag_line($layout->id);
 								if ($data['inhd']) {
