@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.57 2007/10/29 23:38:59 lwright Exp $
+* $Id: design_area_edit_fns.inc,v 1.58 2007/11/29 00:14:04 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -522,7 +522,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// Now iterate through each variable that is setable and doesn't exist in the parse file,
 		// find and retrieve its attribute and set its current value to the default
 		foreach ($set_to_default as $i => $attr_name) {
-			$attr_to_set =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($asset->vars[$attr_name]['attrid']);
+			$attr_to_set = $GLOBALS['SQ_SYSTEM']->am->getAttribute($asset->vars[$attr_name]['attrid']);
 			$default_val = $attr_to_set->_default_value;
 			if ($attr_to_set instanceof Asset_Attribute_Serialise) {
 				$default_val = unserialize($default_val);

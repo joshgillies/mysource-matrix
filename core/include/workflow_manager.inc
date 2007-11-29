@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.113 2007/11/28 04:27:46 bshkara Exp $
+* $Id: workflow_manager.inc,v 1.114 2007/11/29 00:13:02 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -467,7 +467,7 @@ class Workflow_Manager extends MySource_Object
 		// we dont have to notify people for silent workflow assets
 		if ($this->silentWorkflowParty($assetid)) return TRUE;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0180', E_USER_WARNING, $assetid);
 			return FALSE;
@@ -732,7 +732,7 @@ class Workflow_Manager extends MySource_Object
 				$step_data =& $step_array[$stepid];
 
 				// 'load' the current step
-				
+
 				$step_keys = array_keys($workflow['current_step']);
 				$last_key = end($step_keys);
 				$workflow['current_step'][$last_key] = $stepid;
@@ -1520,7 +1520,7 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function silentWorkflowParty($assetid)
 	{
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
 		if (is_null($asset)) return TRUE;
 		$edit_fns = $asset->getEditFns();
 		return !isset($edit_fns->static_screens['workflow']);

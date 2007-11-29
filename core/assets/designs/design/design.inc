@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.135 2007/11/29 00:06:29 lwright Exp $
+* $Id: design.inc,v 1.136 2007/11/29 00:14:03 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -457,7 +457,7 @@ class Design extends Design_Area
 			if (empty($link)) {
 				$this->_tmp['design_areas'][$id_name] = NULL;
 			} else {
-				$this->_tmp['design_areas'][$id_name] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				$this->_tmp['design_areas'][$id_name] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			}
 		}
 		return $this->_tmp['design_areas'][$id_name];
