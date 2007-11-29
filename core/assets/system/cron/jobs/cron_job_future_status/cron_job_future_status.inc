@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.43 2007/11/29 00:06:31 lwright Exp $
+* $Id: cron_job_future_status.inc,v 1.44 2007/11/29 22:51:15 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,7 +206,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	* @access private
 	* @static
 	*/
-	protected static function _getAllStatiiDescs()
+	public static function _getAllStatiiDescs()
 	{
 		static $descs = Array();
 
