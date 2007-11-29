@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record_edit_fns.inc,v 1.2 2006/12/05 05:53:08 emcdonald Exp $
+* $Id: data_record_edit_fns.inc,v 1.3 2007/11/29 04:32:38 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Data_Record_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Data_Record_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

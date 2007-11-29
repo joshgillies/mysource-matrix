@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record.inc,v 1.2 2006/12/05 05:53:08 emcdonald Exp $
+* $Id: data_record.inc,v 1.3 2007/11/29 04:32:38 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Data_Record extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Data_Record($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Data_Record extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -79,7 +79,7 @@ class Data_Record extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 

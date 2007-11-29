@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record_management.inc,v 1.2 2006/12/05 05:53:08 emcdonald Exp $
+* $Id: data_record_management.inc,v 1.3 2007/11/29 04:32:38 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,12 @@ class Data_Record_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager relevant to this particular asset
+	*
 	*/
-	function Data_Record_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'name'	=> Array(
