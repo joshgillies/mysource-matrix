@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.41 2007/11/23 00:34:05 hnguyen Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.42 2007/11/29 01:10:09 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -201,7 +201,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 			$assets = $this->_running_vars['assets'];
 			$child_assets = Array();
 			for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0009', E_USER_WARNING, $assetid);
 					return '';
@@ -249,7 +249,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'workflow')) {
 					foreach ($this->_running_vars['schema_changes'] as $set_data) {
 						if ($set_data['schemaid']) {
-							$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
+							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
 							if (is_null($schema)) {
 								$schema_name = 'Unknown Schema';
 							} else {
@@ -259,7 +259,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 							continue;
 						}
 
-						$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 						if ($set_data['previous_access'] === null) {
 							// to edit this schema, there must not currently be a schema set

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.114 2007/11/29 00:13:02 lwright Exp $
+* $Id: workflow_manager.inc,v 1.115 2007/11/29 01:10:09 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -136,7 +136,7 @@ class Workflow_Manager extends MySource_Object
 		$granted  = (bool) $granted;
 		$db_action = 'insert';
 
-		$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
 			trigger_localised_error('SYS0175', E_USER_WARNING, $schemaid);
 			return FALSE;
@@ -147,7 +147,7 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0174', E_USER_WARNING, $assetid);
 			return FALSE;
@@ -231,7 +231,7 @@ class Workflow_Manager extends MySource_Object
 		$assetid  = (int) $assetid;
 		$schemaid = (int) $schemaid;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0153', E_USER_WARNING, $assetid);
 			return FALSE;
@@ -355,7 +355,7 @@ class Workflow_Manager extends MySource_Object
 	{
 		$assetid = (int) $assetid;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0177', E_USER_WARNING, $assetid);
 			return FALSE;
@@ -374,7 +374,7 @@ class Workflow_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		foreach ($schemas as $schemaid) {
-			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_localised_error('SYS0174', E_USER_WARNING, $schemaid);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -483,7 +483,7 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
 			foreach ($conditions as $cond_id => $type_code) {
-				$condition =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
+				$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
 				if (is_null($condition)) continue;
 				if ($condition->attr('notify')) {
 					// check if this is a roleid rather than a user_groupid or userid
@@ -516,7 +516,7 @@ class Workflow_Manager extends MySource_Object
 
 		if (!empty($notify)) {
 			$notify = array_unique($notify);
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 			$msg = $ms->newMessage($notify);
 			$msg->type    = 'asset.status.notify';
@@ -557,7 +557,7 @@ class Workflow_Manager extends MySource_Object
 	{
 		if ($this->silentWorkflowParty($assetid)) return FALSE;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			// TODO: Check error
 			trigger_localised_error('SYS0180', E_USER_WARNING, $assetid);
@@ -581,7 +581,7 @@ class Workflow_Manager extends MySource_Object
 			}
 
 			// get the current step for this schema
-			$current_step =& $this->getCurrentStep($schema_workflows[$schemaid]);
+			$current_step = $this->getCurrentStep($schema_workflows[$schemaid]);
 			// is the user listed in the conditions?
 			$listed_user = FALSE;
 
@@ -632,13 +632,13 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function _whoCanPublishWorkflow($assetid, $schemaid)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		// these will be the people who can approve this asset at this point in the workflow
 		$can_publish = Array();
 		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
 		if (!isset($workflow['steps'])) return Array();
 
-		$step_data =& $this->getCurrentStep($workflow);
+		$step_data = $this->getCurrentStep($workflow);
 		if (empty($step_data)) return Array();
 
 		for (reset($step_data['conditions']);
@@ -660,7 +660,7 @@ class Workflow_Manager extends MySource_Object
 				$can_publish_cond = Array();
 
 				// work out who can publish right now
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 				if ($asset->id) {
 					$asset_class = get_class($asset);
 					// Note that the order of IF statements is important, because roles are
@@ -792,7 +792,7 @@ class Workflow_Manager extends MySource_Object
 						if ($cond_data['logic'] == 'all') {
 							// lets work out what number 'ALL' represents
 							$can_publish_cond = Array();
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 							if ($asset->id) {
 								if ($asset instanceof User) {
 									$can_publish_cond[] = $asset->id;
@@ -861,7 +861,7 @@ class Workflow_Manager extends MySource_Object
 
 				// ideally we don't want to set complete and start times for steps in here, but we
 				// need to indicate somehow that we've just checked out the escalation workflow and it's all done
-				$step_array =& $this->getCurrentStepArray($workflow);
+				$step_array = $this->getCurrentStepArray($workflow);
 				$current_step_id = end($workflow['current_step']);
 				$step_array[$current_step_id]['completed'] = time();
 
@@ -883,7 +883,7 @@ class Workflow_Manager extends MySource_Object
 	function recordPublish($assetid, $publisher)
 	{
 		$assetid = (int) $assetid;
-		$asset   =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset   = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0160', E_USER_WARNING, $assetid);
 			return FALSE;
@@ -906,7 +906,7 @@ class Workflow_Manager extends MySource_Object
 
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
-			$workflow =& $schema_workflows[$schemaid];
+			$workflow = $schema_workflows[$schemaid];
 			if ($workflow['complete'] == TRUE) continue;
 			if ($this->_recordPublish($workflow, $publisher, $assetid)) {
 				$new_workflow = serialize($workflow);
@@ -932,8 +932,8 @@ class Workflow_Manager extends MySource_Object
 
 		// send an internal message to let people know someone has approved
 		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
-		$user       =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-		$ms         =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$user       = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$ms         = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 		$log = $ms->newMessage();
 		$msg_reps = Array(
@@ -970,10 +970,10 @@ class Workflow_Manager extends MySource_Object
 					// send internal messages to everyone in the next step who can now publish the asset
 					$msg = $ms->newMessage($publishers);
 
-					$workflow =& $schema_workflows[$schemaid];
-					$previous_step =& $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+					$workflow = $schema_workflows[$schemaid];
+					$previous_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
 					$previous_step_name =& $previous_step['step_name'];
-					$current_step =& $this->getCurrentStep($workflow, $step);
+					$current_step = $this->getCurrentStep($workflow, $step);
 					$current_step_name =& $current_step['step_name'];
 
 					$msg_reps = Array(
@@ -1064,7 +1064,7 @@ class Workflow_Manager extends MySource_Object
 	*/
 	function _recordPublish(&$workflow, $publisherid, $assetid)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$workflow_updated = FALSE;
 
 		// safety code for blank workflows
@@ -1072,14 +1072,14 @@ class Workflow_Manager extends MySource_Object
 			$workflow_updated = TRUE;
 			$workflow['steps'] = Array();
 		} else {
-			$step_data =& $this->getCurrentStep($workflow);
+			$step_data = $this->getCurrentStep($workflow);
 			for (reset($step_data['conditions']);
 					NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 
 				$cond_data =& $step_data['conditions'][$pub];
 				// work out who can publish this condition
 				$can_publish = Array();
-				$publisher =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				$publisher = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 				if ($publisher->id) {
 					$asset_class = get_class($publisher);
 
@@ -1125,7 +1125,7 @@ class Workflow_Manager extends MySource_Object
 						$workflow['steps'][$num_steps]['completed'] = time();
 					}
 				} else {
-					$current_step =& $this->getCurrentStep($workflow);
+					$current_step = $this->getCurrentStep($workflow);
 					if (!$current_step['started']) {
 						$current_step['started'] = time();
 					}
@@ -1135,7 +1135,7 @@ class Workflow_Manager extends MySource_Object
 					if ($workflow['current_step'][$last_key] > 1) {
 						$previous_step_address = $workflow['current_step'];
 						$previous_step_address[$last_key]--;
-						$previous_step =& $this->getCurrentStep($workflow, $previous_step_address);
+						$previous_step = $this->getCurrentStep($workflow, $previous_step_address);
 						if (!$previous_step['completed']) {
 							$previous_step['completed'] = time();
 						}
@@ -1166,13 +1166,13 @@ class Workflow_Manager extends MySource_Object
 		$assetid  = (int) $assetid;
 		$schemaid = (int) $schemaid;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0155', E_USER_WARNING, $assetid);
 			return FALSE;
 		}
 
-		$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
 			trigger_localised_error('SYS0156', E_USER_WARNING, $schemaid);
 			return FALSE;
@@ -1206,13 +1206,13 @@ class Workflow_Manager extends MySource_Object
 	function startWorkflow($assetid, $auto_approve=TRUE, $msg=NULL)
 	{
 		$assetid  = (int) $assetid;
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0179', E_USER_WARNING, $assetid);
 			return FALSE;
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$schemas = $this->getSchemas($assetid, TRUE, FALSE);
 
 		if (empty($schemas)) return FALSE;
@@ -1258,7 +1258,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		// send internal messages to everyone who can now publish the asset
-		$ms   =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$publishers = $this->whoCanPublish($asset->id);
 
 		if (!$this->silentWorkflowParty($asset->id)) {
@@ -1269,7 +1269,7 @@ class Workflow_Manager extends MySource_Object
 
 			// complete any missing internal message fields that have not been supplied
 			if (empty($msg->replacements)) {
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 				$msg_reps = Array(
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1361,7 +1361,7 @@ class Workflow_Manager extends MySource_Object
 	function cancelWorkflow($assetid, $msg=NULL)
 	{
 		$assetid = (int) $assetid;
-		$asset   =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset   = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0146', E_USER_WARNING, $assetid);
 			return FALSE;
@@ -1375,7 +1375,7 @@ class Workflow_Manager extends MySource_Object
 
 		// send internal messages to everyone who could approve before to let them know that someone cancelled
 		if (!$this->silentWorkflowParty($asset->id)) {
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 			// create a new internal message if we have not been supplied with one
 			if (is_null($msg)) $msg = $ms->newMessage();
@@ -1384,7 +1384,7 @@ class Workflow_Manager extends MySource_Object
 
 			// complete any missing internal message fields that have not been supplied
 			if (empty($msg->replacements)) {
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 				$msg_reps = Array(
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1423,7 +1423,7 @@ class Workflow_Manager extends MySource_Object
 	function completeWorkflow($assetid)
 	{
 		$assetid = (int) $assetid;
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0150', E_USER_WARNING, $assetid);
 			return FALSE;
@@ -1542,19 +1542,19 @@ class Workflow_Manager extends MySource_Object
 	function escalateWorkflow($assetid, $schemaid)
 	{
 		$assetid = (int) $assetid;
-		$asset   =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset   = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_localised_error('SYS0160', E_USER_WARNING, $assetid);
 			return FALSE;
 		}
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
-		$workflow =& $schema_workflows[$schemaid];
+		$workflow = $schema_workflows[$schemaid];
 
 
 		// mark the current step as escalated
-		$current_step =& $this->getCurrentStep($workflow);
+		$current_step = $this->getCurrentStep($workflow);
 
 		// we'll need these for later to check if any workflow has changed steps
 		$step_before = $current_step;
@@ -1605,7 +1605,7 @@ class Workflow_Manager extends MySource_Object
 
 		// we may have gone deeper in workflow. If so, mark the current step as started.,
 
-		$current_step =& $this->getCurrentStep($workflow);
+		$current_step = $this->getCurrentStep($workflow);
 		if (!$current_step['started']) {
 			$current_step['started'] = time();
 		}
@@ -1635,7 +1635,7 @@ class Workflow_Manager extends MySource_Object
 
 		// send an internal message to let people know workflow has been escalated
 		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
-		$user       =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$user       = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 
 
 		$log = $ms->newMessage();
@@ -1753,7 +1753,7 @@ class Workflow_Manager extends MySource_Object
 		if ($current_step == NULL) {
 			$current_step = $workflow['current_step'];
 		}
-		$steps =& $this->getCurrentStepArray($workflow, $current_step);
+		$steps = $this->getCurrentStepArray($workflow, $current_step);
 
 		return $steps[end($current_step)];
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.50 2007/11/23 00:27:28 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.51 2007/11/29 01:10:09 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -203,7 +203,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 			$assets = $this->_running_vars['assets'];
 			$child_assets = Array();
 			for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
 					return '';
@@ -268,7 +268,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							continue;
 						}
 
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 						if ($set_data['previous_access'] === NULL) {
 							// to edit this schema, there must not currently be a schema set
