@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.244 2007/11/28 22:29:46 lwright Exp $
+* $Id: mysource.inc,v 1.245 2007/11/29 05:27:04 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.245 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2151,8 +2151,8 @@ class MySource
 
 			try {
 				// TODO: parse DSN
-				$this->_db_conns[$conn] = DAL::dbConnect($dsn_array, $conn);
-				$db = DAL::getDb($conn);
+				$this->_db_conns[$conn] = MatrixDAL::dbConnect($dsn_array, $conn);
+				$db = MatrixDAL::getDb($conn);
 
 				// Turn off auto-commit, and ensure column names are
 				// returned in lowercase (important for Oracle)
@@ -2194,7 +2194,7 @@ class MySource
 			*/
 		}
 
-		DAL::changeDb($conn);
+		MatrixDAL::changeDb($conn);
 
 	}//end changeDatabaseConnection()
 
@@ -2207,7 +2207,7 @@ class MySource
 	*/
 	function restoreDatabaseConnection()
 	{
-		DAL::restoreDb();
+		MatrixDAL::restoreDb();
 
 	}//end restoreDatabaseConnection()
 
@@ -2240,7 +2240,7 @@ class MySource
 		// error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		// }
 
-		$current_db = DAL::getCurrentDbId();
+		$current_db = MatrixDAL::getCurrentDbId();
 
 		switch (strtolower($type)) {
 			case 'begin':
@@ -2406,13 +2406,13 @@ class MySource
 		}
 
 		//$expires = $this->db->quote($expires);
-		if (DAL::getDbType() == 'oci') {
+		if (MatrixDAL::getDbType() == 'oci') {
 			$expires = 'TO_DATE('.$expires.', '.$this->db->quote('YYYY-MM-DD HH24:MI:SS').')';
 		}
 
 		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'INSERT INTO sq_lock
 				(lockid, source_lockid, userid, expires)
@@ -2425,7 +2425,7 @@ class MySource
 			$query->bindValue(':source_lockid', $source_lockid);
 			$query->bindValue(':userid',        $this->currentUserId());
 			$query->bindValue(':expires',       $expires);
-			DAL::execPdoQuery($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
 			// of returning an error message for now
@@ -2456,7 +2456,7 @@ class MySource
 
 		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'DELETE FROM sq_lock
 			WHERE source_lockid = :source_lockid';
@@ -2464,7 +2464,7 @@ class MySource
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':source_lockid', $current_lock['source_lockid']);
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
 			// of returning an error message for now
@@ -2497,7 +2497,7 @@ class MySource
 	*/
 	function updateLock($lockid, $expires=0)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$current_lock = $this->getLockInfo($lockid);
 		if (empty($current_lock) || empty($current_lock['expires'])) {
@@ -2520,7 +2520,7 @@ class MySource
 			$query = $db->prepare($sql);
 			$query->bindValue(':expires',       $expires);
 			$query->bindValue(':source_lockid', $current_lock['source_lockid']);
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
 			// of returning an error message for now
@@ -2549,7 +2549,7 @@ class MySource
 	function getLockInfo($lockid, $full_chain=FALSE, $check_expires=TRUE)
 	{
 		$this->changeDatabaseConnection('db3');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT lockid, source_lockid, userid, expires
 				FROM sq_lock
@@ -2558,7 +2558,7 @@ class MySource
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':lockid', $lockid);
-			$result = DAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAssoc($query);
 			if (!empty($result)) {
 				$result = $result[0];
 			}
@@ -2588,7 +2588,7 @@ class MySource
 					$query = $db->prepare($sql);
 					$query->bindValue(':source_lockid', $result['source_lockid']);
 					$query->bindValue(':lockid', $lockid);
-					$chain = DAL::executePdoAll($query);
+					$chain = MatrixDAL::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get lock chain information for source lock ID "'.$result['source_lockid'].'" due to database error: '.$e->getMessage());
 				}
