@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.104 2007/11/28 02:20:38 colivar Exp $
+* $Id: site.inc,v 1.105 2007/11/29 05:16:14 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,7 +154,7 @@ class Site extends Folder
 	*/
 	function getSiteURLs()
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		if (!isset($this->_tmp['urls_info'])) {
 			$sql = 'SELECT urlid, url, http, https
@@ -167,7 +167,7 @@ class Site extends Folder
 			try {
 				$query = $db->prepare($sql);
 				$query->bindValue(':assetid', $this->id);
-				$result_x = DAL::executePdoGroupedAssoc($query);
+				$result_x = MatrixDAL::executePdoGroupedAssoc($query);
 
 				// TODO: DAL always , whereas I THINK this depends on PEAR DB's
 				// ability to - so need to convert - need better way of doing this...
@@ -203,7 +203,7 @@ class Site extends Folder
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$updated = FALSE;
@@ -302,7 +302,7 @@ class Site extends Folder
 						$query->bindValue(':https',   $save_urls[$save_urlid]['https']);
 						$query->bindValue(':urlid',   $save_urlid);
 						$query->bindValue(':assetid', $this->id);
-						DAL::execPdoQuery($query);
+						MatrixDAL::execPdoQuery($query);
 						$updated = TRUE;
 					} catch (Exception $e) {
 						throw new Exception('Unable to update URLs for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -312,7 +312,7 @@ class Site extends Folder
 			} else {
 				// we are a new one
 				// TODO: replace with seqNextVal() in queries.xml
-				$curr_urlid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_url_seq\');');
+				$curr_urlid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_url_seq\');');
 
 				$sql = 'INSERT INTO
 							sq_ast_url
@@ -339,7 +339,7 @@ class Site extends Folder
 					$query->bindValue(':https',   $save_urls[$save_urlid]['https']);
 					$query->bindValue(':urlid',   $curr_urlid);
 					$query->bindValue(':assetid', $this->id);
-					DAL::execPdoQuery($query);
+					MatrixDAL::execPdoQuery($query);
 					$updated = TRUE;
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert URLs for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -748,24 +748,30 @@ class Site extends Folder
 		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
 
 		if (empty($result)) {
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 			// try and find the default design used by the asset we are painting (i.e. not our default design)
 			$sql = 'SELECT lv.value as designid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 					';
-			$where ='l.assetid  = '.$db->quote($asset->id).'
-					  AND lv.url  LIKE '.$db->quote($url.'%').'
+			$where ='l.assetid  = :assetid
+					  AND lv.url  LIKE :url
 					  AND lv.name    = '.$db->quote('design::system::frontend');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$sql .= $where;
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
+			$limit = ' LIMIT 1 ';
+			$sql .= $where.$limit;
 
-			$result = $db->getRow($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':assetid', $asset->id);
+				$query->bindValue(':url', $url.'%');
+				$result = MatrixDAL::executePdoAssoc($query, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get default design for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+			}
 		}
 
 		global $ASSET_LINEAGE;
