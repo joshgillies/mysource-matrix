@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.9 2006/12/05 05:42:29 bcaldwell Exp $
+* $Id: duration.inc,v 1.10 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -73,10 +73,10 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TO TEST
 		if (!parent::setEditParams($node)) return FALSE;
-		$biggest	=  $this->units[$node->attributes['biggest_units']];
-		$smallest	= $this->units[$node->attributes['smallest_units']];
+		$biggest	=  $this->units[(string)$node->attributes()->biggest_units];
+		$smallest	= $this->units[(string)$node->attributes()->smallest_units];
 		$this->_edit_params['biggest_units']	= max($biggest, $smallest);
 		$this->_edit_params['smallest_units']	= min($biggest, $smallest);
 		return TRUE;

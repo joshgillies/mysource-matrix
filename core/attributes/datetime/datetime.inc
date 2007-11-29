@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.41 2007/11/06 22:37:41 rong Exp $
+* $Id: datetime.inc,v 1.42 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -100,44 +100,44 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST IMPORTANT
 		if (!parent::setEditParams($node)) return FALSE;
 
-		if (!empty($node->attributes['min'])) {
-			$this->_edit_params['min'] = $node->attributes['min'];
+		if (!empty($node->attributes()->min)) {
+			$this->_edit_params['min'] = (string)$node->attributes()->min;
 		}
-		if (!empty($node->attributes['max'])) {
-			$this->_edit_params['max'] = $node->attributes['max'];
+		if (!empty($node->attributes()->max)) {
+			$this->_edit_params['max'] = (string)$node->attributes()->max;
 		}
-		if (!empty($node->attributes['allow_circa'])) {
-			$this->_edit_params['allow_circa'] = $node->attributes['allow_circa'];
+		if (!empty($node->attributes()->allow_circa)) {
+			$this->_edit_params['allow_circa'] = (string)$node->attributes()->allow_circa;
 		}
-		if (!empty($node->attributes['print_format'])) {
-			$this->_edit_params['print_format'] = $node->attributes['print_format'];
+		if (!empty($node->attributes()->print_format)) {
+			$this->_edit_params['print_format'] = (string)$node->attributes()->print_format;
 		}
 
 		// what to print and how to show it (textbox or select box)
 		// need to do some more intense looking around for these options :)
 		$this->_edit_params['show']  = Array();
 		$this->_edit_params['style'] = Array();
-		foreach ($node->children as $c => $child) {
-			if ($child->name == 'show') {
-				foreach ($child->children as $i => $format) {
-					$this->_edit_params['show'][] = $format->name;
-					$this->_edit_params['style'][$format->name] = $format->attributes['style'];
-					if (isset($format->attributes['allow_null']) && $format->attributes['allow_null']) {
-						$this->_edit_params['null'][] = $format->name;
+		foreach ($node->children() as $c => $child) {
+			if ($child->getName() == 'show') {
+				foreach ($child->children() as $i => $format) {
+					$this->_edit_params['show'][] = $format->getName();
+					$this->_edit_params['style'][$format->name] = (string)$format->attributes()->style;
+					if (isset($format->attributes()->allow_null) && (string)$format->attributes()->allow_null) {
+						$this->_edit_params['null'][] = $format->getName();
 					}
 				}
 				break;
 			}
 		}
 
-		if (isset($node->attributes['allow_period']) && $node->attributes['allow_period']) {
+		if (isset($node->attributes()->allow_period) && (string)$node->attributes()->allow_period) {
 			$this->_edit_params['allow_period'] = TRUE;
 		}
 
-		if (isset($node->attributes['use_picker']) && $node->attributes['use_picker']) {
+		if (isset($node->attributes()->use_picker) && (string)$node->attributes()->use_picker) {
 			$this->_edit_params['use_picker'] = TRUE;
 		}
 

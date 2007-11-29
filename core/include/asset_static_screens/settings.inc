@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.49 2007/11/26 04:02:05 bshkara Exp $
+* $Id: settings.inc,v 1.50 2007/11/29 00:45:23 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 
@@ -44,6 +44,11 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 	$prefix = $owner->getPrefix();
 
 	$created = FALSE;
+
+	if (count($root->children()) == 0) {
+		$o->openSection(translate('no_asset_settings', $owner->name));
+		$o->closeSection();
+	}
 
 	foreach ($root->section as $section) {
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.5 2007/02/09 03:46:25 arailean Exp $
+* $Id: trigger_edit_fns.inc,v 1.6 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -818,7 +818,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		$tm =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tmid, 'trigger_manager');
+		$tm = $GLOBALS['SQ_SYSTEM']->am->getAsset($tmid, 'trigger_manager');
 		if (!is_null($tm) && empty($asset->tmid)) {
 			$asset->setTriggerManager($tmid);
 		}

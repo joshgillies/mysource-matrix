@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.37 2006/12/05 05:41:18 bcaldwell Exp $
+* $Id: int.inc,v 1.38 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -81,9 +81,9 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST
 		if (!parent::setEditParams($node)) return FALSE;
-		$this->_edit_params['width']  = (int) $node->attributes['width'];
+		$this->_edit_params['width']  = (int) $node->attributes()->width;
 
 		return TRUE;
 

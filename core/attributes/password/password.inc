@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.26 2006/12/05 05:41:18 bcaldwell Exp $
+* $Id: password.inc,v 1.27 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -59,10 +59,10 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST
 		if (!parent::setEditParams($node)) return false;
 
-		$this->_edit_params['min_length'] = isset($node->attributes['min_length']) ? (int) $node->attributes['min_length'] : 0;
+		$this->_edit_params['min_length'] = isset($node->attributes()->min_length) ? (int) $node->attributes()->min_length : 0;
 
 		return true;
 

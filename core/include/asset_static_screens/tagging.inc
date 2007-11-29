@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.20 2007/01/30 05:35:54 colivar Exp $
+* $Id: tagging.inc,v 1.21 2007/11/29 00:45:23 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 
@@ -37,22 +37,19 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @access public
 */
 function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
-{
+{// TODO TOF TEST
 	$root =& $ei->findScreen('static_screen_tagging');
 	if (is_null($root)) return FALSE;
 	$write_access = $owner->writeAccess('menu');
 	$prefix = $owner->getPrefix();
 	$print_commit_button = FALSE;
 
-
-	for ($i = 0; $i < count($root->children); $i++) {
-
-		$section =& $root->children[$i];
+	foreach ($root->children() as $section) {
 
 		// only do this if we are not painting a layout
 		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) {
+			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || ((int)$section->attributes()->limbo_access) == 0)) {
 				continue;
 			}
 		}
@@ -62,32 +59,32 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(   str_replace(' ', '_', $section->attributes['name'])    )])) {
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(   str_replace(' ', '_', (string)$section->attributes()->name)    )])) {
 			ob_start();
 		}
 
-		$o->openSection(array_get_index($section->attributes, 'display_name', $section->attributes['name']));
+		$section_name = isset($section->attributes()->display_name) ? $section->attributes()->display_name : $section->attributes()->name;
+		$o->openSection($section_name);
 
-		if (!($num_fields = count($section->children))) {
+		if (!($num_fields = count($section->children()))) {
 			continue;
 		}
 
-		for ($j = 0; $j < $num_fields; $j++) {
-			$field =& $section->children[$j];
+		foreach ($section->children() as $field) {
 
 			$field_access = $ei->_getAccess($owner, $field, $prefix);
 			if (!($field_access & SQ_EI_READ)) {
 				continue;
 			}
 
-			switch (strtolower($field->attributes['code'])) {
+			switch (strtolower((string)$field->attributes()->code)) {
 
 				case 'suggest_tags' :
-				
-				
+
+
 
 					$o->openField('');
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
 						ob_start();
 					}
 
@@ -106,8 +103,8 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 						ob_end_flush();
 					}
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string)$field->attributes()->code)]] = ob_get_contents();
 						ob_end_flush();
 					}
 					$o->closeField();
@@ -116,10 +113,10 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 				case 'tags' :
 
 					$o->openField('');
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
 						ob_start();
 					}
-					
+
 					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					ob_start();
@@ -150,12 +147,12 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 					}
 
-					if (isset($field->children[1]) && $field->children[1]->name == 'note' && $field->children[1]->content) {
-						$o->note($field->children[1]->content);
+					if (isset($field->note) && (strlen((string)$field->note) > 0)) {
+						$o->note((string)$field->note);
 					}
 					ob_end_flush();
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string)$field->attributes()->code)]] = ob_get_contents();
 						ob_end_flush();
 					}
 					$o->closeField();
@@ -166,7 +163,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					$o->openField('');
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
 						ob_start();
 					}
 
@@ -182,16 +179,16 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 					}
 
-					if (isset($field->children[1]) && $field->children[1]->name == 'note' && $field->children[1]->content) {
-						$o->note($field->children[1]->content);
+					if (isset($field->note) && (strlen((string)$field->note) > 0)) {
+						$o->note((string)$field->note);
 					}
 
 					ob_end_flush();
 
-					if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string)$field->attributes()->code)]] = ob_get_contents();
 						ob_end_flush();
-					}					
+					}
 					$o->closeField();
 				break;
 
@@ -199,12 +196,12 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 					if ($write_access) {
 						$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id, Array(), FALSE, FALSE);
 						$kiddies = array_filter($kiddies);
-						if (count($kiddies)) {						
-							if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
+						if (count($kiddies)) {
+							if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
 								ob_start();
-							}							
-							
-							$o->openSection(translate('cascade_options'));								
+							}
+
+							$o->openSection(translate('cascade_options'));
 								$o->openField('Note');
 									echo translate('action_affects_assets_below_this', count($kiddies), $owner->name);
 								$o->closeField();
@@ -223,11 +220,11 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 								$o->closeField();
 
 							$o->closeSection();
-							if (!is_null($keywords) && isset($keywords['fields'][strtolower($field->attributes['code'])])) {
-								$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower($field->attributes['code'])]] = ob_get_contents();
+							if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string)$field->attributes()->code)]] = ob_get_contents();
 								ob_end_flush();
-							}			
-							
+							}
+
 
 						}
 					}
@@ -238,9 +235,9 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 		}//end for
 
 		$o->closeSection();
-		
-		if (!is_null($keywords) && isset($keywords['sections'][strtolower(    str_replace(' ', '_', $section->attributes['name'])        )])) {
-			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(             str_replace(' ', '_', $section->attributes['name'])            )]] = ob_get_contents();
+
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower(    str_replace(' ', '_', (string)$section->attributes()->name)        )])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower(             str_replace(' ', '_', (string)$section->attributes()->name)            )]] = ob_get_contents();
 			ob_end_flush();
 		}
 	}//end for

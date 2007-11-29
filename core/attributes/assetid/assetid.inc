@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.16 2007/11/29 00:21:57 lwright Exp $
+* $Id: assetid.inc,v 1.17 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *	based on lineage. (A|D|I) -> Ancestors, Descendants or Only Itself
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -69,8 +69,8 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 		if (!parent::setEditParams($node)) return FALSE;
 
 		$this->_edit_params['type_codes'] = Array();
-		if (isset($node->attributes['type_codes'])) {
-			$codes = explode(',', $node->attributes['type_codes']);
+		if (isset($node->attributes()->type_codes)) {
+			$codes = explode(',', (string)$node->attributes()->type_codes);
 			foreach ($codes as $code_name) {
 				list($code, $flag) = explode(':', $code_name);
 				$this->_edit_params['type_codes'][$code] = $flag;

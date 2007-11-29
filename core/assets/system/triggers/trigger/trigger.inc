@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.8 2007/11/28 03:49:59 colivar Exp $
+* $Id: trigger.inc,v 1.9 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -78,7 +78,7 @@ class Trigger extends Asset
 	{
 		if (empty($tmid)) return FALSE;
 
-		$tm =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tmid, 'trigger_manager');
+		$tm = $GLOBALS['SQ_SYSTEM']->am->getAsset($tmid, 'trigger_manager');
 		if (!is_null($tm)) {
 			// this is our new trigger manager
 			$this->tmid = $tmid;
@@ -99,7 +99,7 @@ class Trigger extends Asset
 	{
 		$asset = NULL;
 		if (isset($this->tmid) && !empty($this->tmid)) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->tmid, 'trigger_manager');
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->tmid, 'trigger_manager');
 		}
 		return $asset;
 

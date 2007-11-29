@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.36 2006/12/05 05:40:21 bcaldwell Exp $
+* $Id: text.inc,v 1.37 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <text width="40" height="4" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -134,14 +134,14 @@ class Asset_Attribute_Text extends Asset_Attribute
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST
 		if (!parent::setEditParams($node)) return false;
 
-		if (isset($node->attributes['width'])) {
-			$this->_edit_params['width']  = (int) $node->attributes['width'];
+		if (isset($node->attributes()->width)) {
+			$this->_edit_params['width']  = (int) $node->attributes()->width;
 		}
-		if (isset($node->attributes['height'])) {
-			$this->_edit_params['height'] = (int) $node->attributes['height'];
+		if (isset($node->attributes()->height)) {
+			$this->_edit_params['height'] = (int) $node->attributes()->height;
 		}
 
 		return true;

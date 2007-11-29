@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: float.inc,v 1.23 2006/12/05 05:41:18 bcaldwell Exp $
+* $Id: float.inc,v 1.24 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <float width="40" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -63,7 +63,7 @@ class Asset_Attribute_Float extends Asset_Attribute
 	function setEditParams(&$node)
 	{
 		if (!parent::setEditParams($node)) return false;
-		$this->_edit_params['width'] = (int) $node->attributes['width'];
+		$this->_edit_params['width'] = (int) $node->attributes()->width;
 
 		return true;
 

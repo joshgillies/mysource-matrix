@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.38 2007/11/28 03:50:07 colivar Exp $
+* $Id: email_format.inc,v 1.39 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -64,11 +64,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST
 		if (!parent::setEditParams($node)) return FALSE;
 		foreach ($this->_edit_params as $field => $val) {
-			if (isset($node->attributes[$field])) {
-				$this->_edit_params[$field] = (bool)$node->attributes[$field];
+			if (isset($node->attributes()->$field)) {
+				$this->_edit_params[$field] = (bool)$node->attributes()->field;
 			}
 		}
 		return TRUE;

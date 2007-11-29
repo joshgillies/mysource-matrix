@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.17 2006/12/05 05:48:39 emcdonald Exp $
+* $Id: content_type.inc,v 1.18 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,7 +201,7 @@ class Content_Type extends Asset
 		$bc_container_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, NULL, 'minor');
 
 		if (!empty($bc_container_link)) {
-			$bc_container =& $am->getAsset($bc_container_link['majorid']);
+			$bc_container = $am->getAsset($bc_container_link['majorid']);
 			$bc_link = $am->getLink($bc_container->id, SQ_LINK_TYPE_2, 'paint_layout_bodycopy', TRUE, NULL, 'minor');
 
 			if (!empty($bc_link)) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.26 2006/12/18 03:18:18 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.27 2007/11/29 00:45:23 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -64,12 +64,12 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST
 		if (!parent::setEditParams($node)) return false;
 
-		if (isset($node->attributes['style']))  $this->_edit_params['style']  = $node->attributes['style'];
-		if (isset($node->attributes['width']))  $this->_edit_params['width']  = $node->attributes['width'];
-		if (isset($node->attributes['height'])) $this->_edit_params['height'] = $node->attributes['height'];
+		if (isset($node->attributes()->style))  $this->_edit_params['style']  = (string)$node->attributes()->style;
+		if (isset($node->attributes()->width))  $this->_edit_params['width']  = (string)$node->attributes()->width;
+		if (isset($node->attributes()->height)) $this->_edit_params['height'] = (string)$node->attributes()->height;
 
 		return true;
 

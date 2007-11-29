@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: url.inc,v 1.8 2006/12/05 05:40:13 bcaldwell Exp $
+* $Id: url.inc,v 1.9 2007/11/29 00:45:23 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    <url width="40" protocols="http,https,ftp,mailto" />
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -136,11 +136,11 @@ class Asset_Attribute_Url extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		if (isset($node->attributes['width'])) {
-			$this->_edit_params['width']  = (int) $node->attributes['width'];
+		if (isset($node->attributes()->width)) {
+			$this->_edit_params['width']  = (int) $node->attributes()->width;
 		}
-		if (isset($node->attributes['protocols'])) {
-			$protocols = str_replace(' ', '', $node->attributes['protocols']);
+		if (isset($node->attributes()->protocols)) {
+			$protocols = str_replace(' ', '', (string)$node->attributes()->protocols);
 			$this->_edit_params['protocols'] = explode(',', $protocols);
 		}
 

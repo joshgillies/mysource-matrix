@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: slider_bar.inc,v 1.4 2006/12/05 05:40:29 bcaldwell Exp $
+* $Id: slider_bar.inc,v 1.5 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 * (NB slow and fast are localised string codes)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -86,12 +86,12 @@ class Asset_Attribute_Slider_Bar extends Asset_Attribute_Int
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST
 		if (!Asset_Attribute::setEditParams($node)) {
 			return FALSE;
 		}
-		$this->_edit_params['lower_text']  = translate($node->attributes['lower_text']);
-		$this->_edit_params['upper_text']  = translate($node->attributes['upper_text']);
+		$this->_edit_params['lower_text']  = translate((string)$node->attributes()->lower_text);
+		$this->_edit_params['upper_text']  = translate((string)$node->attributes()->upper_text);
 		return TRUE;
 
 	}//end setEditParams()

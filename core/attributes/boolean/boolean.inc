@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.36 2006/12/05 05:42:29 bcaldwell Exp $
+* $Id: boolean.inc,v 1.37 2007/11/29 00:45:22 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -72,16 +72,16 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{
+	{// TODO TOF TEST
 		if (!parent::setEditParams($node)) return false;
-		if (isset($node->attributes['true_text'])) {
-			$this->_edit_params['true_text']  = translate($node->attributes['true_text']);
+		if (isset($node->attributes()->true_text)) {
+			$this->_edit_params['true_text']  = translate((string)$node->attributes()->true_text);
 		}
-		if (isset($node->attributes['false_text'])) {
-			$this->_edit_params['false_text'] = translate($node->attributes['false_text']);
+		if (isset($node->attributes()->false_text)) {
+			$this->_edit_params['false_text'] = translate((string)$node->attributes()->false_text);
 		}
-		if (isset($node->attributes['empty_text'])) {
-			$this->_edit_params['empty_text'] = translate($node->attributes['empty_text']);
+		if (isset($node->attributes()->empty_text)) {
+			$this->_edit_params['empty_text'] = translate((string)$node->attributes()->empty_text);
 		}
 		return true;
 
