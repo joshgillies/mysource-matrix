@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.21 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: asset_status.inc,v 1.22 2007/11/29 04:01:29 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -61,7 +61,7 @@ class Asset_Status extends MySource_Object
 	* @access public
 	* @static
 	*/
-	function getDescription()
+	public static function getDescription()
 	{
 		return 'Unknown Status';
 

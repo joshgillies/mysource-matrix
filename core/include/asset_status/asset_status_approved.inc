@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.21 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: asset_status_approved.inc,v 1.22 2007/11/29 04:01:29 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    APPROVED -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class Asset_Status_Approved extends Asset_Status
@@ -54,7 +54,7 @@ class Asset_Status_Approved extends Asset_Status
 	* @access public
 	* @static
 	*/
-	function getDescription()
+	public static function getDescription()
 	{
 		return 'Approved To Go Live';
 
