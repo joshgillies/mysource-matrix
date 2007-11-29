@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.11 2007/06/28 05:35:34 hnguyen Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.12 2007/11/29 02:23:55 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -332,7 +332,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldUrls($asset_info)
 	{
 		$value = '';
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
 		$urls = $asset->getLookups();
 		if (!empty($urls)) {
 			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
@@ -361,7 +361,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldDesigns($asset_info)
 	{
 		$value = '';
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
 		$designs = $asset->getDesignLookups();
 		ksort($designs);
 		/*
@@ -385,7 +385,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 		*/
 		foreach ($designs as $url => $data) {
 			// store all design applied to this URL to the report
-			$value .= "<design url=\"$url\">\n";
+			$value .= '<design url="'.$url.'">'."\n";
 			foreach ($data as $type => $id) {
 				$value .= '<design_type>';
 				$value .= '<type>'.$this->_cData($type).'</type>';
@@ -410,7 +410,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldMetadataSchemas($asset_info)
 	{
 		$value = '';
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($asset_info['assetid'], TRUE);
 		foreach ($schemas as $schemaid) {
 			// get the name of the schema, put it into the tag pre-formatted
@@ -432,7 +432,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	function _generateFieldWorkflowSchemas($asset_info)
 	{
 		$value = '';
-		$wm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wm->getSchemas($asset_info['assetid'], TRUE);
 		foreach ($schemas as $schemaid) {
 			// get the name of the schema, put it into the tag pre-formatted
@@ -489,10 +489,9 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	*/
 	function generateReport(&$job, &$step_data, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		$owner =& $am->getAsset($job->_running_vars['assetid']);
+		$owner = $am->getAsset($job->_running_vars['assetid']);
 
 		if (!isset($job->_running_vars['assets_to_list'])) {
 			// this is the first step
@@ -526,19 +525,17 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 			$job->_running_vars['assets_skipped'] = Array();
 
 			// find the total number of children that we will eventually process
-			$root_treeid = reset($am->getAssetTreeids($root_id));
+			$asset_treeids = $am->getAssetTreeids($root_id);
+			$root_treeid = reset($asset_treeids);
 
-			$sql = 'SELECT
-						count(*)
-					FROM
-						sq_ast_lnk_tree
-					WHERE
-						treeid LIKE '.$db->quote($root_treeid.'_%').'
-					AND
-						linkid != 0
-					';
-			$total = $db->getOne($sql);
-			assert_valid_db_result($total);
+			try {
+				$bind_vars['treeid'] = $root_treeid.'_%';
+				$total = MatrixDAL::executeOne('core', 'structureAssetReportLinkTreeCount', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get link tree count for "'.$root_treeid.'": '.$e->getMessage());
+				$total = 0;
+			}
+
 			// double the number of steps to-do because two steps are required for each asset
 			$job->_running_vars['total'] = $total*2;
 			$job->_running_vars['done'] = 0;
@@ -835,7 +832,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 		// print the table header row
 
-		$field_selector =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($asset->vars['selected_asset_fields']['attrid']);
+		$field_selector = $GLOBALS['SQ_SYSTEM']->am->getAttribute($asset->vars['selected_asset_fields']['attrid']);
 		$field_name_translation = $field_selector->getOptions();
 
 		echo '<tr>';
@@ -1254,25 +1251,16 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	*/
 	function getTreeid($assetid, $parent_treeid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT
-					t.treeid
-				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-					INNER JOIN
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-					ON
-						l.linkid = t.linkid
-				WHERE
-					l.minorid = '.$db->quoteSmart($assetid).'
-				AND
-					t.treeid LIKE '.$db->quote($parent_treeid.'_%').'
-				ORDER BY
-					LENGTH(t.treeid)
-				';
+		try {
+			$bind_vars = Array(
+							'assetid'	=> $assetid,
+							'treeid'	=> $parent_treeid.'_%',
+						 );
+			$treeid = MatrixDAL::executeOne('core', 'structureAssetReportGetTreeid', $bind_vars);
+		} catch (Exception $e) {
+			$treeid = '';
+		}
 
-		$treeid = $db->getOne($sql);
-		assert_valid_db_result($treeid);
 		return $treeid;
 
 	}//end getTreeid()
