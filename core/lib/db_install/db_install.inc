@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.48 2007/10/30 03:03:18 hnguyen Exp $
+* $Id: db_install.inc,v 1.49 2007/11/29 05:52:57 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -387,7 +387,7 @@ function get_database_tables()
 		$sql = 'SELECT c.relname
 					FROM pg_class c, pg_user u
 					WHERE c.relowner = u.usesysid
-					AND c.relkind = \'R\'
+					AND c.relkind = \'r\'
 					AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
 					AND c.relname !~ :pattern
 				UNION
