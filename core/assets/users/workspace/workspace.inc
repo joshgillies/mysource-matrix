@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.31 2006/12/05 06:04:34 bcaldwell Exp $
+* $Id: workspace.inc,v 1.32 2007/11/29 22:48:54 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,12 +50,12 @@ class Workspace extends Folder
 	* @return object
 	* @access private
 	*/
-	function &_getUser()
+	function _getUser()
 	{
 		$user = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', FALSE, '', 'minor', '1');
 		if (empty($link)) return $user;
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 		return $user;
 
 	}//end _getUser()
@@ -87,7 +87,7 @@ class Workspace extends Folder
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$user =& $this->_getUser();
+		$user = $this->_getUser();
 
 		if (is_null($user)) {
 			return parent::_checkPermissionAccess($perm, $assetids);

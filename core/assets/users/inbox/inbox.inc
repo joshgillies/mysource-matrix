@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.32 2007/08/29 03:55:55 lwright Exp $
+* $Id: inbox.inc,v 1.33 2007/11/29 22:48:55 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,13 +66,13 @@ class Inbox extends Asset
 	* @return object
 	* @access private
 	*/
-	function &_getUser()
+	function _getUser()
 	{
 		$user = NULL;
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', FALSE, '', 'minor', '1');
 		if (!empty($link)) {
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 		}
 
 		return $user;
@@ -106,7 +106,7 @@ class Inbox extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$user =& $this->_getUser();
+		$user = $this->_getUser();
 		if (is_null($user)) {
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
@@ -139,17 +139,17 @@ class Inbox extends Asset
 	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
-	* @param object	&$o	the Backend Outputter object
+	* @param object	$o	the Backend Outputter object
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackend(&$o)
+	function paintBackend($o)
 	{
 		if (isset($_REQUEST['gettrash'])) {
-			$user =& $this->_getUser();
+			$user = $this->_getUser();
 
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$messages = $ms->getMessages($user->id, NULL, Array(SQ_MSG_DELETED), Array(), NULL, NULL, 'name');
 			echo '<root>';
 			foreach ($messages as $key => $message) {
@@ -181,7 +181,7 @@ class Inbox extends Asset
 			// they want to print all mail
 			if (!SQ_IN_BACKEND) {
 				$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'mail');
-				$user =& $this->_getUser();
+				$user = $this->_getUser();
 				?>
 				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/general.js"></script>
 				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/html_form/html_form.js"></script>
