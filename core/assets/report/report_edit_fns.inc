@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.16 2006/12/06 02:59:54 emcdonald Exp $
+* $Id: report_edit_fns.inc,v 1.17 2007/11/29 00:07:32 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,7 +89,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 		}
 
 		$user = $GLOBALS['SQ_SYSTEM']->user;
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assetid'			=> $asset->id,
 					'userid'			=> $user->id,
@@ -173,7 +173,7 @@ class Report_Edit_Fns extends Page_Edit_Fns
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 			$ok = FALSE;
 		} else if ($new_root) {
-			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;

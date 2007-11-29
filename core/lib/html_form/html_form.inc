@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.132 2007/06/07 04:18:42 arailean Exp $
+* $Id: html_form.inc,v 1.133 2007/11/29 00:07:32 rong Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -757,7 +757,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 
 	$label = '';
 	if ($assetid) {
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		if (is_null($asset)) {
 			$assetid = 0;
 		} else {
@@ -1329,7 +1329,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	}
 
 	if (!is_null($permission) && !($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
-		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		foreach ($child_links as $treeid => $data) {
 			$perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($data['assetid'], $permission, NULL, TRUE, TRUE);
 			if (!in_array($GLOBALS['SQ_SYSTEM']->user->id, $perms) && !in_array($public_user->id, $perms)) {
