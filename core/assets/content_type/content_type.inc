@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.18 2007/11/29 00:45:22 colivar Exp $
+* $Id: content_type.inc,v 1.19 2007/11/29 03:40:33 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -166,7 +166,7 @@ class Content_Type extends Asset
 			// Yep, so we need to (re)generate our bodycopy container's content file
 			$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
 			if (!empty($bc_container_link)) {
-				$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+				$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
 				$edit_fns = $container->getEditFns();
 				$edit_fns->generateContentFile($container);
 			}
