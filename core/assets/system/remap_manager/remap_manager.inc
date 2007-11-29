@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.36 2007/11/29 00:06:32 lwright Exp $
+* $Id: remap_manager.inc,v 1.37 2007/11/29 04:58:02 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -369,9 +369,11 @@ class Remap_Manager extends Asset
 		$url = $protocol.'://'.$url;
 
 		try {
+			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601(time()));
+			$time = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment);
 			$bind_vars = Array(
 							'url'  => $url,
-							'time' => time(),
+							'time' => $time,
 						 );
 			$remap_url = MatrixDAL::executeOne('remap_manager', 'getCurrentRemapURL', $bind_vars);
 		} catch (DALException $e) {
