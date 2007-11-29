@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.136 2007/11/29 00:14:03 lwright Exp $
+* $Id: design.inc,v 1.137 2007/11/29 01:09:01 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -988,7 +988,7 @@ echo '/*
 		$SQ_SITE_NETWORK = NULL;
 
 		if (isset($ASSET_LINEAGE[0])) {
-			$site =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[0][\'assetid\'], $ASSET_LINEAGE[0][\'type_code\']);
+			$site = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[0][\'assetid\'], $ASSET_LINEAGE[0][\'type_code\']);
 			if (!is_null($site)) {
 				$SQ_SITE_NETWORK =& $site->getSiteNetwork();
 				if (!is_null($SQ_SITE_NETWORK)) {
