@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.32 2007/05/29 23:35:26 skim Exp $
+* $Id: dev.inc,v 1.33 2007/11/29 04:09:56 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package Fudge
 * @subpackage dev
 */
@@ -427,7 +427,7 @@ function get_calling_func()
 * @return array
 * @access public
 */
-function get_call_stack()
+function get_backtrace()
 {
 	$bt = debug_backtrace();
 	// remove this function call from the stack
@@ -452,7 +452,7 @@ function get_call_stack()
 	}
 	return $stack;
 
-}//end get_call_stack()
+}//end get_backtrace()
 
 
 /**
