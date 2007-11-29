@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.617 2007/11/28 23:56:10 lwright Exp $
+* $Id: asset.inc,v 1.618 2007/11/29 03:59:20 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.617 $
+* @version $Revision: 1.618 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4026,9 +4026,9 @@ class Asset extends MySource_Object
 		}
 
 		$original_asset = NULL;
-		if ($asset->id != $GLOBALS['SQ_SYSTEM']->frontend_asset->id) {
+		if (is_null($GLOBALS['SQ_SYSTEM']->frontend_asset) || $asset->id != $GLOBALS['SQ_SYSTEM']->frontend_asset->id) {
 			$original_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
-			$GLOBALS['SQ_SYSTEM']->frontend_asset = $asset;
+			$GLOBALS['SQ_SYSTEM']->frontend_asset = &$asset;
 		}
 
 		$db = MatrixDAL::getDb();
@@ -4069,7 +4069,7 @@ class Asset extends MySource_Object
 		}
 
 		if (!is_null($original_asset)) {
-			$GLOBALS['SQ_SYSTEM']->frontend_asset = $original_asset;
+			$GLOBALS['SQ_SYSTEM']->frontend_asset = &$original_asset;
 		}
 
 	}//end printFrontendAsset()
@@ -4218,15 +4218,15 @@ class Asset extends MySource_Object
 			// into thinking we are printing the frontend of that asset
 			$switched_frontend = FALSE;
 			if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
-				$current_frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
-				$GLOBALS['SQ_SYSTEM']->frontend_asset = $this;
+				$current_frontend_asset = &$GLOBALS['SQ_SYSTEM']->frontend_asset;
+				$GLOBALS['SQ_SYSTEM']->frontend_asset = &$this;
 				$switched_frontend = TRUE;
 			}
 			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
 			$layout->paint($this);
 
 			if ($switched_frontend) {
-				$GLOBALS['SQ_SYSTEM']->frontend_asset = $current_frontend_asset;
+				$GLOBALS['SQ_SYSTEM']->frontend_asset = &$current_frontend_asset;
 			}
 		} else {
 			// we can't find a layout, oh well let's just print out our body
