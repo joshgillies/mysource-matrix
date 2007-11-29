@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.71 2007/11/29 04:48:47 hnguyen Exp $
+* $Id: asset_edit_fns.inc,v 1.72 2007/11/29 05:00:55 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -166,7 +166,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		$admin_access = $asset->adminAccess('lookups');
 
-		$remap_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$remap_urls = $remap_manager->getRemapURLs($asset);
 
 		if (empty($remap_urls)) {
