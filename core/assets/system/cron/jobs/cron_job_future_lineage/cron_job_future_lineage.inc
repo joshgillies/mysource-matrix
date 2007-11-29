@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.29 2007/11/28 21:53:59 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.30 2007/11/29 00:06:30 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	protected function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
 

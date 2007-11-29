@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.119 2007/11/28 22:23:34 lwright Exp $
+* $Id: user.inc,v 1.120 2007/11/29 00:06:32 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,7 +156,7 @@ class User extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	protected function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
 		$allowed[SQ_LINK_TYPE_2]['inbox']     = Array('card' => 1, 'exclusive' => TRUE);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.35 2007/11/28 22:29:00 lwright Exp $
+* $Id: remap_manager.inc,v 1.36 2007/11/29 00:06:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,7 +105,7 @@ class Remap_Manager extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	protected function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		// added for root node

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.17 2007/11/28 22:02:31 lwright Exp $
+* $Id: login_design.inc,v 1.18 2007/11/29 00:06:31 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -251,7 +251,7 @@ class Login_Design extends Design
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	protected function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$ret_val = parent::_getAllowedLinks();
 		// can't have any customisations
