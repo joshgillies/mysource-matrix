@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.10 2007/06/13 01:46:59 arailean Exp $
+* $Id: data_source_record_set.inc,v 1.11 2007/11/29 04:32:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -37,7 +37,7 @@ class Data_Source_Record_Set extends Asset
 	*
 	* @var int
 	*/
-	var $_data_sourceid = 0;
+	protected $_data_sourceid = 0;
 
 
 	/**
@@ -47,7 +47,7 @@ class Data_Source_Record_Set extends Asset
 	* @param array	$data	the record details for this record. contains all info like the field names and the values
 	*
 	*/
-	function Data_Source_Record_Set($data_sourceid=0, $data=Array())
+	function __construct($data_sourceid=0, Array $data=Array())
 	{
 		$this->_ser_attrs = TRUE;
 		$this->_loadVars();
@@ -56,7 +56,7 @@ class Data_Source_Record_Set extends Asset
 			return;
 		}
 
-		$data_source =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_sourceid);
+		$data_source = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_sourceid);
 		if (is_null($data_source)) return;
 
 		$this->_data_sourceid = $data_sourceid;
@@ -94,7 +94,7 @@ class Data_Source_Record_Set extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array();
 
@@ -110,7 +110,7 @@ class Data_Source_Record_Set extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $this->name;
 
@@ -131,7 +131,7 @@ class Data_Source_Record_Set extends Asset
 	* @return array
 	* @access public
 	*/
-	function getAvailableKeywords()
+	public function getAvailableKeywords()
 	{
 		$keywords = Array();
 		if (empty($this->vars)) {
@@ -164,7 +164,7 @@ class Data_Source_Record_Set extends Asset
 	* @return string
 	* @access public
 	*/
-	function getKeywordReplacement($keyword)
+	public function getKeywordReplacement($keyword)
 	{
 		$replacement = NULL;
 		if (strpos($keyword, 'data_source_record_set_') !== FALSE) {
@@ -207,9 +207,9 @@ class Data_Source_Record_Set extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function readAccess($assetids=Array())
+	public function readAccess($assetids=Array())
 	{
-		$parent =& $this->_getBridge();
+		$parent = $this->_getBridge();
 		if (!is_null($parent)) {
 			$result = $parent->readAccess($assetids);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
@@ -239,9 +239,9 @@ class Data_Source_Record_Set extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', $assetids=Array(), $only_workflow=TRUE)
+	public function writeAccess($lock_type='', $assetids=Array(), $only_workflow=TRUE)
 	{
-		$parent =& $this->_getBridge();
+		$parent = $this->_getBridge();
 		if (!is_null($parent)) {
 			$result = $parent->writeAccess($lock_type, $assetids, $only_workflow);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
@@ -259,10 +259,10 @@ class Data_Source_Record_Set extends Asset
 	* @return mixed object|NULL
 	* @access private
 	*/
-	function &_getBridge()
+	protected function _getBridge()
 	{
 		list($bridgeid, $childid) = explode(':', $this->id);
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 		return $asset;
 
 	}//end _getBridge()

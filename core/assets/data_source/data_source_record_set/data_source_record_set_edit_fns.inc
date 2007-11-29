@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set_edit_fns.inc,v 1.5 2006/12/05 05:53:09 emcdonald Exp $
+* $Id: data_source_record_set_edit_fns.inc,v 1.6 2007/11/29 04:32:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -37,9 +37,9 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Data_Source_Record_Set_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -47,14 +47,14 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for editing user details
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Data_Source_Record_Set	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function paintDetails(&$asset, &$o, $prefix)
+	public function paintDetails(Data_Source_Record_Set $asset, Backend_Outputter $o, $prefix)
 	{
 		$vars = $asset->vars;
 		?>
@@ -84,14 +84,14 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for editing user details
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Data_Source_Record_Set	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDetails(&$asset, &$o, $prefix)
+	public function processDetails(Data_Source_Record_Set $asset, Backend_Outputter $o, $prefix)
 	{
 		return FALSE;
 
