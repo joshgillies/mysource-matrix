@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.12 2007/02/20 03:35:06 colivar Exp $
+* $Id: dependants.inc,v 1.13 2007/11/29 05:18:52 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -126,7 +126,7 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 	$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'major', NULL, 1);
 	$num_kids = count($dependant_links);
 	for ($i = 0; $i < $num_kids; $i++) {
-		$dep_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid'], $dependant_links[$i]['minor_type_code']);
+		$dep_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid'], $dependant_links[$i]['minor_type_code']);
 		$end = ($i == $num_kids - 1);
 		$stalk = 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
 		$bg = ($end) ? '' : $stalk;
