@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_assetid_remap.inc,v 1.4 2007/11/28 03:50:00 colivar Exp $
+* $Id: trigger_action_add_assetid_remap.inc,v 1.5 2007/11/30 00:45:57 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 		$tiny_urls = Array();
 		foreach (array_keys($sites) as $site_id) {
 
-			$site =& $am->getAsset($site_id);
+			$site = $am->getAsset($site_id);
 			$site_urls = $site->getSiteURLs();
 
 			if (empty($site_urls)) {
@@ -118,29 +118,23 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 
 			// Remove the previous remapped URLs already exist
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$old_urls = array_keys($mapped_tiny_urls);
-			$sql = 'DELETE FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap
-					WHERE url IN';
 
-			$quoted_old_urls = Array();
-			foreach ($old_urls as $old_url) {
-				$quoted_old_urls[] = $db->quoteSmart($old_url);
-			}
-			$sql .= ' ('.implode(',', $quoted_old_urls).')';
-			$db_result = $db->query($sql);
-			assert_valid_db_result($db_result);
+			try {
+				$bind_vars	= Array (
+								'urls'	=> $old_urls,
+							  );
+				MatrixDAL::executeQuery('core', 'deleteRemapUrls', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete remap urls due to the following database error:'.$e->getMessage());
+			}//end try catch
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			$remap_urls = $db->query($sql);
-			assert_valid_db_result($remap_urls);
-
-			$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+			$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 			foreach ($mapped_tiny_urls as $old_url => $new_url) {
 				$remap_result = $rm->addRemapURL($old_url, $new_url);
 				switch ($remap_result) {
