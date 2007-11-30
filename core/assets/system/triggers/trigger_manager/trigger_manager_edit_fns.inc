@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.24 2006/12/05 23:44:44 bcaldwell Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.25 2007/11/30 02:55:54 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,7 +154,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		<?php
 
 		foreach ($list as $trigger) {
-			$trigger_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset(implode(':', Array($tm->id, $trigger['id'])));
+			$trigger_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(implode(':', Array($tm->id, $trigger['id'])));
 			if (is_null($trigger_asset)) continue;
 
 			$trigger_url = $trigger_asset->getBackendHref('details');
@@ -268,14 +268,14 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($propagate) {
 			$all_targets = $GLOBALS['SQ_SYSTEM']->am->getChildren($target_id);
 		}
-		$target_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($target_id);
+		$target_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($target_id);
 		$all_targets[$target_id] = $target_asset->type();
 
 		// convert from id->type to index->id
 		$all_targets = array_keys($all_targets);
 
 		// start up the HIPO
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'				=> $all_targets,
 					'events'				=> $events,

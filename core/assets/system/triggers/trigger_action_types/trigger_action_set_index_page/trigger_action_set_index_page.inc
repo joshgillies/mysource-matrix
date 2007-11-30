@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,7 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 		}
 
 		if ($success && !empty($selected_asset_id)) {
-			$selected_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_asset_id);
+			$selected_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_asset_id);
 			if (!is_null($selected_asset)) {
 				$success = (bool) $state['asset']->createLink($selected_asset, SQ_LINK_NOTICE, $link_value);
 			}

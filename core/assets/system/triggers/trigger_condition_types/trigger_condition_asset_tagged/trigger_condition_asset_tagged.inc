@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_tagged.inc,v 1.4 2007/11/28 03:50:06 colivar Exp $
+* $Id: trigger_condition_asset_tagged.inc,v 1.5 2007/11/30 02:54:53 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 	*/
 	public static function evaluate($settings, &$state)
 	{
-		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 
 		$assetid	= $state['assetid']; // event broadcaster
 		$tagids		= array_get_index($settings, 'tagids');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role.inc,v 1.6 2007/11/28 03:50:05 colivar Exp $
+* $Id: trigger_action_set_role.inc,v 1.7 2007/11/30 02:50:24 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$major =& $am->getAsset($settings['roleid']);
+		$major = $am->getAsset($settings['roleid']);
 		$minor =& $state['asset'];
 
 		$role_vars = Array();
@@ -97,7 +97,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 
 		if (!empty($role_vars)) {
 			if ($cascade || $cascade_to_dependents) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array(
 							'assets'		=> Array(
 												$state['asset']->id	=> Array(

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.17 2007/11/28 03:50:05 colivar Exp $
+* $Id: trigger_action_set_status.inc,v 1.18 2007/11/30 02:50:55 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -84,7 +84,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 				// returns Array(0 => Assetid), so flip the array
 				$target_assets = array_flip($target_assets);
 				foreach ($target_assets as $assetid => $null) {
-					$target_assets[$assetid] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$target_assets[$assetid] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				}
 			}
 		}
@@ -108,7 +108,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 				}
 
 				// need to use a hipo job to set status (handles dependant children)
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array(
 							'assetid'		=> $target_assetid,
 							'new_status'	=> $settings['status'],

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_schema.inc,v 1.7 2007/11/28 03:50:04 colivar Exp $
+* $Id: trigger_action_set_metadata_schema.inc,v 1.8 2007/11/30 02:49:43 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata schema
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		// check required settings
 		if (empty($settings['schemaid'])) return FALSE;
@@ -62,7 +62,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $am->getAsset($state['assetid']);
+				$state['asset'] = $am->getAsset($state['assetid']);
 			}
 		}
 
@@ -71,7 +71,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 		$granted = array_get_index($settings, 'granted', TRUE);
 		$cascade = array_get_index($settings, 'cascade', FALSE);
 
-		$schema =& $am->getAsset($settings['schemaid']);
+		$schema = $am->getAsset($settings['schemaid']);
 		if (is_null($schema)) return FALSE;
 		if ($schema->type() != 'metadata_schema') return FALSE;
 
@@ -93,7 +93,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 						'schema_changes'	=> $schema_vars,
 					  );
 
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$errors = $hh->freestyleHIPO('hipo_job_edit_metadata_schemas', $vars);
 			$result = empty($errors);
 		}

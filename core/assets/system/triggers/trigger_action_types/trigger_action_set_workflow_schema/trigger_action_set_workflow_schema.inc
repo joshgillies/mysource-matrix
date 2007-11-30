@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_workflow_schema.inc,v 1.5 2007/11/28 03:50:05 colivar Exp $
+* $Id: trigger_action_set_workflow_schema.inc,v 1.6 2007/11/30 02:52:16 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a workflow schema
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 		// check required settings
 		if (empty($settings['schemaid'])) return FALSE;
@@ -63,7 +63,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $am->getAsset($state['assetid']);
+				$state['asset'] = $am->getAsset($state['assetid']);
 			}
 		}
 
@@ -73,7 +73,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 		$cascade_to_dependents = array_get_index($settings, 'cascade_to_dependents', FALSE);
 		$cascade               = array_get_index($settings, 'cascade', FALSE);
 
-		$schema =& $am->getAsset($settings['schemaid']);
+		$schema = $am->getAsset($settings['schemaid']);
 		if (is_null($schema)) return FALSE;
 		if ($schema->type() != 'workflow_schema') return FALSE;
 
@@ -99,7 +99,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 			} else if ($cascade) {
 				$vars['dependants_only'] = 0;
 			}
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$errors = $hh->freestyleHIPO('hipo_job_edit_workflow_schemas', $vars);
 			$result = empty($errors);
 		}

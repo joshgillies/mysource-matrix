@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_changed.inc,v 1.4 2007/11/28 03:50:06 colivar Exp $
+* $Id: trigger_condition_attribute_changed.inc,v 1.5 2007/11/30 02:55:25 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,7 @@ class Trigger_Condition_Attribute_Changed extends Trigger_Condition_Asset_Type
 		}
 
 		if (empty($state['asset'])) {
-			$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 		}
 
 		if (!isset($state['asset_type'])) {
