@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.16 2007/11/28 03:50:01 colivar Exp $
+* $Id: trigger_action_create_clone.inc,v 1.17 2007/11/30 00:57:08 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		$major =& $am->getAsset($settings['assetid']);
+		$major = $am->getAsset($settings['assetid']);
 		$minor =& $state['asset'];
 
 		if ($disallow_duplicates) {
@@ -121,7 +121,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		// old -> new asset id mapping
 		$clone_map = Array();
 
-		$clone =& $am->cloneAsset($minor, $link, $clone_map, Array('all'));
+		$clone = $am->cloneAsset($minor, $link, $clone_map, Array('all'));
 		if (is_null($clone)) {
 			trigger_localised_error('CORE0138', E_USER_WARNING);
 			return FALSE;
