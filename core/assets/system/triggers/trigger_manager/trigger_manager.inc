@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.47 2007/11/30 01:02:07 hnguyen Exp $
+* $Id: trigger_manager.inc,v 1.48 2007/11/30 03:41:40 bshkara Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -819,7 +819,7 @@ class Trigger_Manager extends Asset implements Bridge
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return TRUE;
 		if (!$this->attr('enabled')) return TRUE;
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// include the event asset
 		if (!$this->_loadComponent($event_name)) {
@@ -851,7 +851,7 @@ class Trigger_Manager extends Asset implements Bridge
 			$status  = $this->_executeTrigger($trigger['data'], $state);
 
 			// get settings
-			$trigger_settings =& $trigger['data']['settings'];
+			$trigger_settings = $trigger['data']['settings'];
 			$is_blocking      = array_get_index($trigger['data']['settings'], 'blocking', FALSE);
 
 			// prepare message data
@@ -919,13 +919,13 @@ class Trigger_Manager extends Asset implements Bridge
 	function _calculateState($event_type, &$event_broadcaster, $parameters=NULL)
 	{
 		// calculate the environment state
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// for use by the trigger
 		$state['event']['name'] = $event_type;
 		$state['event']['data'] = $parameters;
 
-		$state['asset']         =& $event_broadcaster;
+		$state['asset']         = $event_broadcaster;
 		$state['assetid']       = $event_broadcaster->id;
 		$state['asset_type']    = $event_broadcaster->type();
 
@@ -1170,7 +1170,7 @@ class Trigger_Manager extends Asset implements Bridge
 			$is_blocking = FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// check each condition
 		foreach ($conditions as $condition) {
@@ -1426,7 +1426,7 @@ class Trigger_Manager extends Asset implements Bridge
 						foreach ($trigger['data']['conditions'] as $condition) {
 							if ($GLOBALS['SQ_SYSTEM']->am->installed(array_get_index($condition, 'type', ''))) {
 								if ($this->_loadComponent($condition['type'])) {
-									if (isset($condition['data'])) {
+									if (isset($condition['data'])) {log_dump($condition['data']);
 										$settings =& $condition['data'];
 										call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, &$hash));
 									}
@@ -1725,7 +1725,7 @@ class Trigger_Manager extends Asset implements Bridge
 		// $s contains the status - if any part of $trigger fails the checking,
 		// $s will stop further checks from happening
 		$s  = TRUE;
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// basic elements
 		$s = $s && isset($trigger['name']);
@@ -1873,7 +1873,7 @@ class Trigger_Manager extends Asset implements Bridge
 	{
 		if (empty($type)) return Array();
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$component_types = $am->getTypeDescendants($type);
 		$component_info  = $am->getTypeInfo($component_types, 'name');
@@ -1941,7 +1941,7 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function _loadComponent($type_code)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if ($am->installed($type_code)) {
 			$am->includeAsset($type_code);

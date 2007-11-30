@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_changed.inc,v 1.5 2007/11/30 02:55:25 hnguyen Exp $
+* $Id: trigger_condition_attribute_changed.inc,v 1.6 2007/11/30 03:41:41 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,7 @@ class Trigger_Condition_Attribute_Changed extends Trigger_Condition_Asset_Type
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$selected_type = array_get_index($settings, 'asset_type', 'page');
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// asset type selector
 		ob_start();

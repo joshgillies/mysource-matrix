@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_workflow_schema.inc,v 1.6 2007/11/30 02:52:16 hnguyen Exp $
+* $Id: trigger_action_set_workflow_schema.inc,v 1.7 2007/11/30 03:41:41 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a workflow schema
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 		// check required settings

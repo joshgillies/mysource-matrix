@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.13 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.14 2007/11/30 03:45:50 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -232,7 +232,7 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		}
 
 		$current_event = array_pop($this->_running_vars['current_events']);
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['current_assetid']);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['current_assetid']);
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent($current_event, $asset);
 
 		$step_data['message'] = translate('hipo_broadcast_event', $current_event, $this->_running_vars['current_assetid']);

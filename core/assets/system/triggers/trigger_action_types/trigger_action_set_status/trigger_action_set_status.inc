@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.18 2007/11/30 02:50:55 hnguyen Exp $
+* $Id: trigger_action_set_status.inc,v 1.19 2007/11/30 03:41:41 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		}
 
 		if (empty($target_assets) || !$settings['dependant_parents']) {
-			$target_assets[$state['asset']->id] =& $state['asset'];
+			$target_assets[$state['asset']->id] = $state['asset'];
 		}
 
 

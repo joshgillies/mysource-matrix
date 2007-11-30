@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thesaurus_terms.inc,v 1.5 2007/11/30 02:51:37 hnguyen Exp $
+* $Id: trigger_action_set_thesaurus_terms.inc,v 1.6 2007/11/30 03:41:41 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Trigger_Action_Set_Thesaurus_Terms extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 
-		$asset =& $state['asset'];
+		$asset = $state['asset'];
 
 		// copy over the new uploaded file
 		if (is_readable($settings['file_path'])) {
