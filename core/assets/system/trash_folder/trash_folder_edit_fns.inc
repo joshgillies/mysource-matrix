@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.40 2006/12/05 23:58:08 bcaldwell Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.41 2007/11/30 00:51:25 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_purge_trash']) && $_POST[$prefix.'_purge_trash']) {
 			//// START HIPO PROCESSING ////
 			$on_complete = $_SERVER['REQUEST_URI'].'&'.$prefix.'_purge_complete=1';
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 			$purge_root_linkid = $_POST[$prefix.'_purge_root']['linkid'];
 			$hh->queueHipo('hipo_job_purge_trash', Array('purge_root_linkid' => $purge_root_linkid), $on_complete);
