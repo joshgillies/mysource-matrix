@@ -1,4 +1,18 @@
 <?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: import_asset_csv_to_matrix.php,v 1.2 2007/11/30 03:26:52 mbrydon Exp $
+*
+*/
 
 /**
 * CSV-to-Matrix Asset Import Script
