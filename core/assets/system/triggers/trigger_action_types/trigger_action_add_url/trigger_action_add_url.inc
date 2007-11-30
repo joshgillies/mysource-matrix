@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.9 2007/11/28 03:50:00 colivar Exp $
+* $Id: trigger_action_add_url.inc,v 1.10 2007/11/30 00:54:48 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		foreach ($urls as $urlid => $url_data) {
 			// Skip the new URL
@@ -184,7 +184,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 
 
 		if ($run_hipo) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetids' => Array($state['asset']->id));
 			$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		}//end if
