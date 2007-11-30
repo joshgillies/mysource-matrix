@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.9 2007/11/29 00:45:22 colivar Exp $
+* $Id: trigger.inc,v 1.10 2007/11/30 00:19:22 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -119,7 +119,7 @@ class Trigger extends Asset
 	{
 		// is our trigger manager the real thing?
 		if (!$this->setTriggerManager($tmid)) return FALSE;
-		$tm =& $this->getTriggerManager();
+		$tm = $this->getTriggerManager();
 
 		// we use the trigger manager function to load the trigger
 		$trigger_info = $tm->_loadTrigger($id);
@@ -182,8 +182,8 @@ class Trigger extends Asset
 		$id = $this_id[1];
 		$load_result = $this->load($this->tmid, $id);
 
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$tm =& $this->getTriggerManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$tm = $this->getTriggerManager();
 
 		// hopefully the asset map is listening
 		$em->broadcastEvent($tm, 'CreateLink', Array('linkid' => $this->id));
@@ -241,14 +241,14 @@ class Trigger extends Asset
 			$trigger_info['save_hash'] = FALSE;
 		}
 
-		$tm =& $this->getTriggerManager();
+		$tm = $this->getTriggerManager();
 		if (is_null($tm)) return FALSE;
 
 		// use trigger manager to save
 		if ($id = $tm->_saveTrigger($trigger_info)) {
 			$this->id = implode(':', Array($this->tmid, $id));
 
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate', Array('short_name'));
 
 			return TRUE;
