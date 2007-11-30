@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_management.inc,v 1.4 2007/11/22 23:13:13 lwright Exp $
+* $Id: condition_user_ip_management.inc,v 1.5 2007/11/30 00:08:40 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/condition_user_ip_edit_fns.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Condition_User_IP_Management extends Asset_Management
 			$users = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('user', FALSE, TRUE);
 			pre_echo('Updating User restrictions - '.count($users).' asset(s)...');
 			foreach ($users as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				$restrictions = $asset->attr('restrictions');
@@ -106,7 +106,7 @@ class Condition_User_IP_Management extends Asset_Management
 			$pl_bodycopies = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('paint_layout_bodycopy', FALSE, TRUE);
 			pre_echo('Updating Paint Layout Bodycopy conditions - '.count($pl_bodycopies).' asset(s)...');
 			foreach ($pl_bodycopies as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				$conditional_keywords = $asset->attr('conditional_keywords');

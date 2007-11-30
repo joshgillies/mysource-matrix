@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_folder.inc,v 1.12 2006/12/06 04:23:56 emcdonald Exp $
+* $Id: authentication_folder.inc,v 1.13 2007/11/30 00:07:48 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,7 +228,7 @@ class Authentication_Folder extends Folder
 				return parent::writeAccess($lock_type, $assetids);
 			}
 		} else {
-			$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			if (in_array($root_user->id, $assetids)) {
 				return parent::writeAccess($lock_type, $assetids);
 			}

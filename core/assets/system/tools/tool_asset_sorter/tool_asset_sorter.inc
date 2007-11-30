@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.8 2007/11/28 21:46:32 bshkara Exp $
+* $Id: tool_asset_sorter.inc,v 1.9 2007/11/30 00:11:59 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -99,7 +99,7 @@ class Tool_Asset_Sorter extends Tool
 	{
 		$parentid = $_REQUEST[$type_code.'_parent']['assetid'];
 		if (empty($parentid)) return FALSE;
-		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 		if (is_null($parent)) return FALSE;
 
 		$sort_field = $_REQUEST[$type_code.'_field'];
@@ -147,7 +147,7 @@ class Tool_Asset_Sorter extends Tool
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($parent, 'AssetUpdate', Array());
 
 		$o->openSection('Asset Sorting Complete');

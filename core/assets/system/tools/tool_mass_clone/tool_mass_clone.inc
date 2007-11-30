@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_mass_clone.inc,v 1.4 2007/11/28 05:57:03 bshkara Exp $
+* $Id: tool_mass_clone.inc,v 1.5 2007/11/30 00:12:37 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -116,7 +116,7 @@ class Tool_Mass_Clone extends Tool
 			return FALSE;
 		}
 		$vars = call_user_func(Array($type_code, 'getHipoRunningVars'), $type_code);
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_clone_assets', $vars);
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
