@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.3 2007/11/30 03:43:58 mbrydon Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.4 2007/11/30 04:18:27 mbrydon Exp $
 *
 */
 
@@ -107,6 +107,8 @@ function printStdErr($string)
 */
 function createAssets($source_csv_filename, $asset_type_code, $parent_id, $schema_id, $metadata_mapping, $attribute_mapping)
 {
+	$num_assets_imported = 0;
+
 	$csv_fd = fopen($source_csv_filename, 'r');
 	if (!$csv_fd) {
 		printUsage();
@@ -129,7 +131,6 @@ function createAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 		$num_fields = count($data);
 
 		$asset_spec = Array();
-		printStdErr('- Importing Asset...'."\n");
 
 		foreach ($data as $key => $val) {
 			if ($header_line) {
@@ -142,11 +143,22 @@ function createAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 		if ($header_line) {
 			$header_line = FALSE;
 		} else {
-			createAsset($asset_spec, $asset_type_code, $parent_asset, $schema_id, $metadata_mapping, $attribute_mapping);
+			$asset_info = createAsset($asset_spec, $asset_type_code, $parent_asset, $schema_id, $metadata_mapping, $attribute_mapping);
+			$asset_id = 0;
+			if (is_array($asset_info)) {
+				$asset_id = reset($asset_info);
+			}
+
+			if ($asset_id) {
+				echo key($asset_info).','.$asset_id."\n";
+				$num_assets_imported++;
+			}
 		}
 	}
 
 	fclose($csv_fd);
+
+	return $num_assets_imported;
 
 }//end createAssets()
 
@@ -223,7 +235,7 @@ function createAsset($asset_spec, $asset_type_code, &$parent_asset, $schema_id, 
 	$GLOBALS['SQ_SYSTEM']->mm->setSchema($asset->id, $schema_id, TRUE);
 
 	foreach ($metadata_mapping as $supplied_field_name => $metadata_field_id) {
-		if (isset($user_spec[$supplied_field_name])) {
+		if (isset($asset_spec[$supplied_field_name])) {
 			$metadata = Array($metadata_field_id => Array('value' => $asset_spec[$supplied_field_name]));
 
 			$GLOBALS['SQ_SYSTEM']->mm->setMetadata($asset->id, $metadata);
@@ -236,7 +248,7 @@ function createAsset($asset_spec, $asset_type_code, &$parent_asset, $schema_id, 
 
 	printStdErr(' => asset ID '.$asset->id."\n");
 
-	echo $asset_spec[$first_attr_name].','.$asset->id."\n";
+	return Array($asset_spec[$first_attr_name] => $asset->id);
 
 }//end createAsset()
 
@@ -352,8 +364,11 @@ fclose($csv_fd);
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-createAssets($source_csv_filename, $asset_type_code, $parent_id, $schema_id, $metadata_mapping, $attribute_mapping);
+$num_assets_imported = createAssets($source_csv_filename, $asset_type_code, $parent_id, $schema_id, $metadata_mapping, $attribute_mapping);
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+printStdErr("\n- All done\n");
+printStdErr('  Assets imported : '.$num_assets_imported."\n");
 
 ?>
