@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.2 2007/11/30 03:26:52 mbrydon Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.3 2007/11/30 03:43:58 mbrydon Exp $
 *
 */
 
@@ -65,14 +65,14 @@
 function printUsage()
 {
 	printStdErr("CSV to Matrix importer\n\n");
-	printStdErr("Usage: import_asset_csv_to_matrix [system root] [csv file] [parent id] [schema id] [mapping file]\n");
+	printStdErr("Usage: import_asset_csv_to_matrix [system root] [type code] [csv import file] [parent id] [schema id] [meta map file] [attr map file]\n");
 	printStdErr("system root            : The Matrix System root directory\n");
-	printStdErr("asset type code		: The Matrix Asset Type Code of the assets to import\n");
-	printStdErr("xml file               : An XML file containing the user records to import\n");
+	printStdErr("type code              : The Matrix Asset Type Code of the assets to import\n");
+	printStdErr("csv import file        : A CSV file containing the records to import as Matrix assets\n");
 	printStdErr("parent id              : The asset ID of a Folder etc. under which the assets are to reside\n");
 	printStdErr("schema id              : The asset ID of the Metadata Schema to apply to each asset\n");
-	printStdErr("mapping file           : A CSV file containing attribute name-to-metadata field ID associations\n");
-	printStdErr("attribute mapping file : A CSV file containing attribute name-to-asset attribute field associations\n");
+	printStdErr("meta map file          : A CSV file containing attribute name-to-metadata field ID associations\n");
+	printStdErr("attr map file          : A CSV file containing attribute name-to-asset attribute field associations\n");
 
 }//end printUsage()
 
