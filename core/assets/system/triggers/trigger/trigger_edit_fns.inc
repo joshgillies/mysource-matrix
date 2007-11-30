@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.6 2007/11/29 00:45:22 colivar Exp $
+* $Id: trigger_edit_fns.inc,v 1.7 2007/11/30 00:52:16 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -238,7 +238,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			//]]>
 		</script><?php
 
-		$tm =& $this->_getTriggerManager($asset);
+		$tm = $this->_getTriggerManager($asset);
 		if (is_null($tm)) return FALSE;
 
 		// get event types
@@ -360,7 +360,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$tm =& $this->_getTriggerManager($asset);
+		$tm = $this->_getTriggerManager($asset);
 		if (is_null($tm)) return FALSE;
 
 		// get event types
@@ -490,7 +490,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		if (!$write_access) return FALSE;
 
-		$tm =& $this->_getTriggerManager($asset);
+		$tm = $this->_getTriggerManager($asset);
 		if (is_null($tm)) return FALSE;
 
 		$edit_data = array_get_index($_REQUEST, $prefix);
@@ -586,7 +586,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$tm =& $this->_getTriggerManager($asset);
+		$tm = $this->_getTriggerManager($asset);
 		if (is_null($tm)) return FALSE;
 
 		// get event types
@@ -709,7 +709,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		if (!$write_access) return FALSE;
 
-		$tm =& $this->_getTriggerManager($asset);
+		$tm = $this->_getTriggerManager($asset);
 		if (is_null($tm)) return FALSE;
 
 		$edit_data = array_get_index($_REQUEST, $prefix);
