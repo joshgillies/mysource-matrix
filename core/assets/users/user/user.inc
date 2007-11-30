@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.120 2007/11/29 00:06:32 lwright Exp $
+* $Id: user.inc,v 1.121 2007/11/30 01:23:18 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -501,7 +501,7 @@ class User extends Asset
 	* @return boolean
 	* @access public
 	*/
-	protected function _checkPermissionAccess($perm, Array $assetids=Array())
+	public function _checkPermissionAccess($perm, Array $assetids=Array())
 	{
 		if (empty($assetids)) {
 			// root can do anything
