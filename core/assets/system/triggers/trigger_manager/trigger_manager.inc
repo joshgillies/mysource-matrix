@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.46 2007/11/28 03:50:07 colivar Exp $
+* $Id: trigger_manager.inc,v 1.47 2007/11/30 01:02:07 hnguyen Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -239,7 +239,7 @@ class Trigger_Manager extends Asset implements Bridge
 		$majorid = $bridge_id;
 
 		// use existing trigger manager functions to get our triggers
-		$linked_triggers =& $this->getTriggerList();
+		$linked_triggers = $this->getTriggerList();
 
 		// build a list of triggers that we can use to sort
 		$trigger_map = Array();
@@ -356,7 +356,7 @@ class Trigger_Manager extends Asset implements Bridge
 		$majorid = $bridge_id;
 
 		// use existing trigger manager functions to get our triggers
-		$linked_triggers =& $this->getTriggerList();
+		$linked_triggers = $this->getTriggerList();
 
 		$links = Array();
 		foreach ($linked_triggers as $trigger) {
@@ -890,7 +890,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 			if (!empty($msg_type)) {
 				// log message using messaging service
-				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
 				$message->send();
@@ -1836,21 +1836,25 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function _getTriggerInfoList()
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$select = 'SELECT
-						id,
-						name,
-						description,
-						active
-					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'trig';
+		try {
+			$select = 'SELECT
+							id,
+							name,
+							description,
+							active
+						FROM
+							'.SQ_TABLE_RUNNING_PREFIX.'trig';
 
-		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause();
-		$order  = 'ORDER BY active DESC , name ASC';
+			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause();
+			$order  = 'ORDER BY active DESC , name ASC';
 
-		$result = $db->getAll($select.' '.$where.' '.$order);
-		assert_valid_db_result($result);
+			$query	= $db->prepare($select.' '.$where.' '.$order);
+			$result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get trigger info list due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		return $result;
 
