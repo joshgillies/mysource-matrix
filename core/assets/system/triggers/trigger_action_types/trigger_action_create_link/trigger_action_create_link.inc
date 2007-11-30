@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.19 2007/11/28 03:50:02 colivar Exp $
+* $Id: trigger_action_create_link.inc,v 1.20 2007/11/30 02:40:52 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,9 +91,9 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		// determine major/minor from settings
 		if ($settings['is_major']) {
 			$major = $state['asset'];
-			$minor =& $am->getAsset($settings['assetid']);
+			$minor = $am->getAsset($settings['assetid']);
 		} else {
-			$major =& $am->getAsset($settings['assetid']);
+			$major = $am->getAsset($settings['assetid']);
 			$minor = $state['asset'];
 		}
 

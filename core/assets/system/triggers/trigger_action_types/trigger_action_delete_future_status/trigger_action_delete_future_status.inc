@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_delete_future_status.inc,v 1.4 2007/11/28 03:50:02 colivar Exp $
+* $Id: trigger_action_delete_future_status.inc,v 1.5 2007/11/30 02:41:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,12 +62,12 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 		$assetid = $state['asset']->id;
 
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
 
 		// nothing to process

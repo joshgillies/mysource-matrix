@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_clear_cache.inc,v 1.8 2007/11/28 03:50:01 colivar Exp $
+* $Id: trigger_action_clear_cache.inc,v 1.9 2007/11/30 02:40:18 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,7 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 		// tricky: empty string means include all asset types
 		$type_code = empty($settings['asset_types']) ? '' : $settings['asset_types'];
 
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 		foreach ($todo_assetids as $id) {
 			$vars = Array(
