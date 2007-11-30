@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.618 2007/11/29 03:59:20 hnguyen Exp $
+* $Id: asset.inc,v 1.619 2007/11/30 02:55:46 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.618 $
+* @version $Revision: 1.619 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -996,8 +996,9 @@ class Asset extends MySource_Object
 
 		$real_status = $this->status;
 
-		throw new Exception('Re-assigning $this here won\'t work');
-		//$this = unserialize(file_to_string($this->data_path.'/.object_data'));
+		foreach (get_object_vars(unserialize(file_to_string($this->data_path.'/.object_data'))) as $key => $value) {
+			$this->$key = $value;
+		}
 		$this->status = $real_status;
 		return TRUE;
 
@@ -1144,8 +1145,9 @@ class Asset extends MySource_Object
 		}
 
 		// ITS ALIVE... ITS ALIVE...
-		throw new Exception('Re-assigning $this here won\'t work');
-		//$this = $old_version;
+		foreach (get_object_vars($old_version) as $key => $value) {
+			$this->$key = $value;
+		}
 
 		// save this old version to the db
 		$this->_updated();
