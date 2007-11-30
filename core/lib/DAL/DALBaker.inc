@@ -1498,7 +1498,9 @@ class DALBaker
         $fileName = $id.'.qob';
         $path     = DAL::getQueryStorePath().'/'.$fileName;
         if (file_exists($path) === TRUE) {
-            throw new DALException('Query object already exists');
+            if (unlink($path) === FALSE) {
+				throw new DALException('Query object already exists, and was unable to be removed');
+			}
         }
 
         file_put_contents($path, $objData);
