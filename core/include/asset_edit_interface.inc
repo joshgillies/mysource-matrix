@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.338 2007/11/29 22:47:35 bshkara Exp $
+* $Id: asset_edit_interface.inc,v 1.339 2007/11/30 00:05:38 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338 $
+* @version $Revision: 1.339 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1273,7 +1273,7 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 
 			} else {
-				$root = unserialize(file_get_contents($file));
+				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
 			}
 
 			if ($root) {
