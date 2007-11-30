@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.16 2007/11/28 03:50:03 colivar Exp $
+* $Id: trigger_action_set_design.inc,v 1.17 2007/11/30 02:46:22 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -115,7 +115,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 
 		// create a link between the asset (major) and the design (minor)
 		if (!$link_already_created) {
-			$design =& $am->getAsset($settings['assetid']);
+			$design = $am->getAsset($settings['assetid']);
 			$link_create_status = $am->createAssetLink($state['asset'], $design, SQ_LINK_NOTICE, $design_final_name);
 
 			if (!$link_create_status) {
@@ -125,7 +125,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		}
 
 		// Do it by HIPO so that the children assets are also affected.
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($state['asset']->id));
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		return Array(
