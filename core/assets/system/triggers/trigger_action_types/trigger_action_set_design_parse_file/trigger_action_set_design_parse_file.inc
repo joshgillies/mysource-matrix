@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design_parse_file.inc,v 1.4 2007/11/28 03:50:03 colivar Exp $
+* $Id: trigger_action_set_design_parse_file.inc,v 1.5 2007/11/30 02:47:43 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -78,7 +78,7 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 		$changes     = FALSE;
 		$new_version = FALSE;
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		// delete existing parse file if it exists
 		if (is_file($parse_file)) {
