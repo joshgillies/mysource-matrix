@@ -1,4 +1,18 @@
 <?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: import_folder_structure.php,v 1.2 2007/11/30 03:27:26 mbrydon Exp $
+*
+*/
 
 /**
 * Directory structure to Folder Asset Import Script
@@ -67,6 +81,30 @@ function printStdErr($string)
 
 
 /**
+* Formats a value for output to a CSV file by double quoting any double quote characters.
+* Numeric values remain untouched apart from a slight trim()
+*
+* @param string	$string	The string to be formatted
+*
+* @return string
+* @access public
+*/
+function formatCSVValue($string)
+{
+	$string = trim($string);
+
+	if (!is_numeric($string)) {
+		// Double quote double quotes
+		$string = str_replace('"', '""', $string);
+		$string = '"'.$string.'"';
+	}
+
+	return $string;
+
+}//end formatCSVValue()
+
+
+/**
 * Creates a simple "TYPE 1" link between assets
 *
 * @param object	&$parent_asset	The parent asset
@@ -123,7 +161,7 @@ function createFolder($name, &$parent_folder)
 
 	printStdErr(' => asset ID '.$folder->id."\n");
 
-	echo $name.','.$folder->id;
+	echo formatCSVValue($name).','.$folder->id;
 
 	return $folder->id;
 
