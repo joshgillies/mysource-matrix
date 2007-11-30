@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.22 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status.inc,v 1.23 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object
@@ -44,11 +44,11 @@ class Asset_Status extends MySource_Object
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status(&$owner)
+	function Asset_Status($owner)
 	{
-		$this->owner =& $owner;
+		$this->owner = $owner;
 		$this->MySource_Object();
 
 	}//end constructor

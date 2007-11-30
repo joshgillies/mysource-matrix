@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.46 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status_under_construction.inc,v 1.47 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -39,9 +39,9 @@ class Asset_Status_Under_Construction extends Asset_Status
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status_Under_Construction(&$owner)
+	function Asset_Status_Under_Construction($owner)
 	{
 		$this->Asset_Status($owner);
 		$this->status_tag = SQ_STATUS_UNDER_CONSTRUCTION;
@@ -82,7 +82,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 			$statii[SQ_STATUS_ARCHIVED] = translate('status_change_archive');
 		}
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
 		if (!empty($running_schemas)) {
@@ -97,7 +97,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				if ($this->owner->adminAccess('')) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
 						if (!isset($this->_tmp['metadata_complete'])) {
-							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 							$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
 						}
 					} else {
@@ -113,7 +113,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 
 				// we also need to check what if all the required metadata fields are completed
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 
@@ -146,7 +146,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 	function getStatusChangeMessage()
 	{
 		if (!isset($this->_tmp['metadata_complete'])) {
-			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$this->_tmp['metadata_complete'] = $mm->requiredFieldsComplete($this->owner->id);
 		}
 		if (!$this->_tmp['metadata_complete']) {
@@ -177,7 +177,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 		// do some workflow stuff if we are changing to PENDING APPROVAL
 		switch ($new_status) {
 			case SQ_STATUS_PENDING_APPROVAL:
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 				// we are going to make this asset live by starting the workflow process
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -188,8 +188,8 @@ class Asset_Status_Under_Construction extends Asset_Status
 				}
 
 				// log a message to let people know that workflow has started
-				$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name');
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
@@ -218,7 +218,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 			case SQ_STATUS_LIVE:
 				// notify people that the asset has gone live
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
 					return false;
 				}

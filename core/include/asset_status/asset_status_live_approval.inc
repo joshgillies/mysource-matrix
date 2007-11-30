@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.47 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status_live_approval.inc,v 1.48 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -42,9 +42,9 @@ class Asset_Status_Live_Approval extends Asset_Status
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status_Live_Approval(&$owner)
+	function Asset_Status_Live_Approval($owner)
 	{
 		$this->Asset_Status($owner);
 		$this->status_tag = SQ_STATUS_LIVE_APPROVAL;
@@ -84,7 +84,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 			$statii[SQ_STATUS_EDITING] = translate('status_change_safe_edit');
 		}
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
 		if (!empty($running_schemas)) {
@@ -101,7 +101,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 
 				// we also need to check what if all the required metadata fields are completed
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 					if ($wf_complete && $m_complete) {
@@ -146,7 +146,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 			return false;
 		}
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		if ($new_status == SQ_STATUS_EDITING) {
@@ -154,9 +154,9 @@ class Asset_Status_Live_Approval extends Asset_Status
 			$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 			if (!empty($running_schemas)) {
 				// someone has rejected the approval, so we need to cancel the workflow
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$msg = $ms->newMessage();
 				$msg_reps     = Array(
 									'user_name'		=> $user->name,
@@ -189,8 +189,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 			// send an internal message
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 
 			if (!$wfm->silentWorkflowParty($this->owner->id)) {
 				$log = $ms->newMessage();
@@ -224,7 +224,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// in the workflow process - sounds weird (I know) but this could be a plain old
 				// admin that is trying to approve because metadata is now complete.
 				// the result is that this workflow process may already be complete
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$m_complete = !$mm->allowsMetadata($this->owner->id) || $mm->requiredFieldsComplete($this->owner->id) || $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
@@ -251,7 +251,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				if ($new_status == SQ_STATUS_LIVE) {
 					// notify people that the asset has gone live
-					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
 						return false;
 					}
@@ -262,8 +262,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 					}
 
 					// log an internal message
-					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 
 					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();

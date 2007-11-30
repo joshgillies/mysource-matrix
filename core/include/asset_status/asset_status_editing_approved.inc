@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.19 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status_editing_approved.inc,v 1.20 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_approved.inc';
 *    EDITING_APPROVED -> EDITING if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approved extends Asset_Status_Approved
@@ -37,9 +37,9 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status_Editing_Approved(&$owner)
+	function Asset_Status_Editing_Approved($owner)
 	{
 		$this->Asset_Status_Approved($owner);
 		$this->status_tag = SQ_STATUS_EDITING_APPROVED;

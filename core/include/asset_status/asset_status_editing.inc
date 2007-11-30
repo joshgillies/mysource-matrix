@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.39 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status_editing.inc,v 1.40 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -40,9 +40,9 @@ class Asset_Status_Editing extends Asset_Status
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status_Editing(&$owner)
+	function Asset_Status_Editing($owner)
 	{
 		Asset_Status::Asset_Status($owner);
 		$this->status_tag = SQ_STATUS_EDITING;
@@ -81,7 +81,7 @@ class Asset_Status_Editing extends Asset_Status
 		// any editor can cancel the safe edit
 		$statii[SQ_STATUS_LIVE] = translate('status_change_cancel_safe_edit');
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
 		if (!empty($running_schemas)) {
@@ -90,7 +90,7 @@ class Asset_Status_Editing extends Asset_Status
 			bam('FIXME: SOMETHING HAS GONE WRONG HERE');
 		} else {
 			// workflow is not currently running for this asset
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			if ($mm->allowsMetadata($this->owner->id) && !$GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id)) {
 				if ($mm->requiredFieldsComplete($this->owner->id)) {
 					// metadata is complete
@@ -135,7 +135,7 @@ class Asset_Status_Editing extends Asset_Status
 	*/
 	function getStatusChangeMessage()
 	{
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if ($mm->allowsMetadata($this->owner->id) && !$mm->requiredFieldsComplete($this->owner->id)) {
 			return translate('cannot_approve_metadata_incomplete', '<a href="'.replace_query_string_vars(Array('asset_ei_screen' => 'metadata')).'">'.strtolower(translate('metadata')).'</a>');
 		}
@@ -169,9 +169,9 @@ class Asset_Status_Editing extends Asset_Status
 				}
 
 				// send an internal message
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
@@ -194,7 +194,7 @@ class Asset_Status_Editing extends Asset_Status
 
 			case SQ_STATUS_EDITING_APPROVAL :
 
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 				// we are going to make this asset live by starting the workflow process
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -205,8 +205,8 @@ class Asset_Status_Editing extends Asset_Status
 				}
 
 				// send an internal message
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();

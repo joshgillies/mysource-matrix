@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.22 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status_approved.inc,v 1.23 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    APPROVED -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Asset_Status_Approved extends Asset_Status
@@ -37,9 +37,9 @@ class Asset_Status_Approved extends Asset_Status
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status_Approved(&$owner)
+	function Asset_Status_Approved($owner)
 	{
 		$this->Asset_Status($owner);
 		$this->status_tag = SQ_STATUS_APPROVED;
@@ -75,7 +75,7 @@ class Asset_Status_Approved extends Asset_Status
 		// cant do anything without admin access
 		if (!$this->owner->adminAccess('')) return $statii;
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
 		if (!empty($running_schemas)) {
@@ -111,7 +111,7 @@ class Asset_Status_Approved extends Asset_Status
 
 		if ($new_status == SQ_STATUS_LIVE) {
 			// notify people that the asset has gone live
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
 				return false;
 			}

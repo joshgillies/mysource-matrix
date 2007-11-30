@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.34 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status_live.inc,v 1.35 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -39,9 +39,9 @@ class Asset_Status_Live extends Asset_Status
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status_Live(&$owner)
+	function Asset_Status_Live($owner)
 	{
 		$this->Asset_Status($owner);
 		$this->status_tag = SQ_STATUS_LIVE;
@@ -77,7 +77,7 @@ class Asset_Status_Live extends Asset_Status
 		// cant do anything without write access
 		if (!$this->owner->writeAccess('')) return $statii;
 
-		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
 
 		if (!empty($running_schemas)) {
@@ -119,16 +119,16 @@ class Asset_Status_Live extends Asset_Status
 			case SQ_STATUS_LIVE_APPROVAL :
 				// up for review basically means that we need to start
 				// the workflow process and get this asset re-approved
-				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 				// send an internal message
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 
 				$schemas = $wfm->getSchemas($this->owner->id, true);
 				if (!empty($schemas)) {
-					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$msg = $ms->newMessage();
 					$msg->subject = 'Asset Up For Review';
 					$msg->type = 'asset.workflow.review';

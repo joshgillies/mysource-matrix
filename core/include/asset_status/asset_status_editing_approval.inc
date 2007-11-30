@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approval.inc,v 1.16 2007/11/29 04:01:29 bshkara Exp $
+* $Id: asset_status_editing_approval.inc,v 1.17 2007/11/30 01:24:52 bshkara Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_pending_approval.inc';
 *                                         there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
@@ -42,9 +42,9 @@ class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval
 	/**
 	* Constructor
 	*
-	* @param object Asset	&$owner	the asset that this status belongs to
+	* @param object Asset	$owner	the asset that this status belongs to
 	*/
-	function Asset_Status_Editing_Approval(&$owner)
+	function Asset_Status_Editing_Approval($owner)
 	{
 		$this->Asset_Status_Pending_Approval($owner);
 		$this->status_tag = SQ_STATUS_EDITING_APPROVAL;
