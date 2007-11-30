@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.78 2007/10/29 05:31:42 lwright Exp $
+* $Id: general_occasional.inc,v 1.79 2007/11/30 01:26:15 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 
@@ -173,7 +173,11 @@ function get_status_description($status)
 	$status_code = 'asset_status_'.strtolower($status_code);
 
 	require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-	$status_object = new $status_code($this);
+	if (isset($this)) {
+		$status_object = new $status_code($this);
+	} else {
+		$status_object = new $status_code(NULL);
+	}
 	return $status_object->getDescription();
 
 }//end get_status_description()
