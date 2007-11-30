@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.10 2007/06/06 06:55:54 colivar Exp $
+* $Id: import_files.php,v 1.11 2007/11/30 00:14:52 mbrydon Exp $
 *
 */
 
@@ -55,7 +55,7 @@
 * fourth argument is equals to 1 allow unrestricted access will be set to be true
 *
 * @author Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -84,6 +84,10 @@ $GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('pdf_file');
 $GLOBALS['SQ_SYSTEM']->am->includeAsset('word_doc');
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('excel_doc');
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('powerpoint_doc');
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('rtf_file');
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('text_file');
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
@@ -133,8 +137,8 @@ function createFolder($folder_destination_id, $new_folder_name)
 * If the matrix is equal to zero it will make sure create the folder
 * it will also make sure that all the parent folders are created in matrix
 *
-* @param string	$folder_path		folder's path
-* @param array	&$matrix_ids		array containing all the matrix ids
+* @param string	$folder_path	folder's path
+* @param array	&$matrix_ids	array containing all the matrix ids
 *
 * @return int
 * @access private
@@ -196,9 +200,9 @@ foreach ($import_dirs as $import_dir) {
 	$import_path = $import_home_dir.'/'.$import_dir;
 
 	if (empty($matrix_root_assetid)) {
-		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($import_dir));
+		$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($import_dir));
 	} else {
-		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(getMatrixFolderId(trim($import_dir), $matrix_ids));
+		$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset(getMatrixFolderId(trim($import_dir), $matrix_ids));
 		// overwrite the import path because we are using fullpath
 		$import_path = $import_dir;
 	}
@@ -206,7 +210,7 @@ foreach ($import_dirs as $import_dir) {
 		trigger_error("New parent asset #$parent_assetid does not exist\n", E_USER_ERROR);
 	}
 
-	$import_link = Array('asset' => &$parent_asset, 'link_type' => SQ_LINK_TYPE_1);
+	$import_link = Array('asset' => $parent_asset, 'link_type' => SQ_LINK_TYPE_1);
 
 	// get a list of all files in the import directory
 	$files = list_files($import_path);
@@ -225,6 +229,18 @@ foreach ($import_dirs as $import_dir) {
 			case 'png' :
 				$new_asset_type = 'image';
 			break;
+			case 'xls' :
+				$new_asset_type = 'excel_doc';
+			break;
+			case 'ppt' :
+				$new_asset_type = 'powerpoint_doc';
+			break;
+			case 'rtf' :
+				$new_asset_type = 'rtf_file';
+			break;
+			case 'txt' :
+				$new_asset_type = 'text_file';
+			break;
 			default :
 				$new_asset_type = 'file';
 			break;
@@ -233,7 +249,7 @@ foreach ($import_dirs as $import_dir) {
 		// create an asset under the new parent of the correct type
 		$temp_info = Array('name' => $filename, 'tmp_name' => $import_path.'/'.$filename, 'non_uploaded_file' => TRUE);
 
-		$new_file = new $new_asset_type();
+		$new_file =& new $new_asset_type();
 		$new_file->_tmp['uploading_file'] = TRUE;
 		$new_file->setAttrValue('name', $filename);
 		$new_file->setAttrValue('allow_unrestricted', $allow_unrestricted_access);
@@ -241,7 +257,7 @@ foreach ($import_dirs as $import_dir) {
 		if (!$new_file->create($import_link, $temp_info)) {
 			trigger_error('Failed to import '.$new_asset_type.' '.$filename, E_USER_WARNING);
 		} else {
-			bam('New '.$new_file->type().' asset created for file '.$filename.' - asset ID #'.$new_file->id);
+			echo 'New '.$new_file->type().' asset created for file '.$filename.' - asset ID #'.$new_file->id."\n";
 		}
 	}//end foreach
 }//end foreach
