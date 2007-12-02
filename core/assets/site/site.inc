@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.105 2007/11/29 05:16:14 bshkara Exp $
+* $Id: site.inc,v 1.106 2007/12/02 23:52:39 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Site extends Folder
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Site($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Folder($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -51,7 +51,7 @@ class Site extends Folder
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['attr_links'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -69,7 +69,7 @@ class Site extends Folder
 	* @access public
 	* @see Asset::updateLookups()
 	*/
-	function getWebPaths($url=FALSE)
+	public function getWebPaths($url=FALSE)
 	{
 		// because we never have paths, we can only return the urls
 		return Array();
@@ -86,7 +86,7 @@ class Site extends Folder
 	* @access public
 	* @see Asset::updateLookups()
 	*/
-	function addWebPath($url)
+	public function addWebPath($url)
 	{
 		return FALSE;
 
@@ -102,7 +102,7 @@ class Site extends Folder
 	* @access public
 	* @see Asset::updateLookups()
 	*/
-	function deleteWebPath($url)
+	public function deleteWebPath($url)
 	{
 		return FALSE;
 
@@ -119,7 +119,7 @@ class Site extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE)
 	{
 		$this->_tmp['deleting_site'] = TRUE;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -152,7 +152,7 @@ class Site extends Folder
 	* @return array
 	* @access public
 	*/
-	function getSiteURLs()
+	public function getSiteURLs()
 	{
 		$db = MatrixDAL::getDb();
 
@@ -199,7 +199,7 @@ class Site extends Folder
 	* @return int
 	* @access public
 	*/
-	function saveWebURLs($save_urls)
+	public function saveWebURLs(Array $save_urls)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -399,7 +399,7 @@ class Site extends Folder
 	* @return boolean
 	* @access private
 	*/
-	function _morphCleanup($new_type_code)
+	protected function _morphCleanup($new_type_code)
 	{
 		$current_urls = $this->getSiteURLs();
 		if (!empty($current_urls)) {
@@ -417,7 +417,7 @@ class Site extends Folder
 	* @access private
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function updateLookups()
+	public function updateLookups()
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
@@ -639,7 +639,7 @@ class Site extends Folder
 	* @return string
 	* @access public
 	*/
-	function describeLink($linkid)
+	public function describeLink($linkid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		switch (strtolower($link['value'])) {
@@ -664,7 +664,7 @@ class Site extends Folder
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	public function printFrontend()
 	{
 		// check that the user has read access to the site
 		if (!$this->readAccess()) {
@@ -700,7 +700,7 @@ class Site extends Folder
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	public function printBody()
 	{
 		$index_page = $this->getSpecialPage('index');
 		if (!is_null($index_page)) $index_page->printBody();
@@ -722,7 +722,7 @@ class Site extends Folder
 	* @return void
 	* @access public
 	*/
-	function paintAsset(&$asset)
+	public function paintAsset(Asset $asset)
 	{
 		if (is_null($asset)) return;
 
@@ -809,7 +809,7 @@ class Site extends Folder
 	* @return void
 	* @access public
 	*/
-	function initLimbo()
+	public function initLimbo()
 	{
 		if (isset($_GET['limbo_assetid']) && $_GET['limbo_assetid'] == $this->id) {
 			// print this site's limbo instead of the index page
@@ -838,7 +838,7 @@ class Site extends Folder
 	* @return array
 	* @access public
 	*/
-	function getSpecialPageLink($page)
+	public function getSpecialPageLink($page)
 	{
 		switch ($page) {
 			case 'index'     :
@@ -863,7 +863,7 @@ class Site extends Folder
 	* @return object
 	* @access public
 	*/
-	function &getSpecialPage($page)
+	public function getSpecialPage($page)
 	{
 		$link = $this->getSpecialPageLink($page);
 		if (empty($link)) {
@@ -885,7 +885,7 @@ class Site extends Folder
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getSiteNetwork()
+	public function getSiteNetwork()
 	{
 		$null = NULL;
 
@@ -907,7 +907,7 @@ class Site extends Folder
 	* @return string
 	* @access public
 	*/
-	function getNetworkPrimaryURL()
+	public function getNetworkPrimaryURL()
 	{
 		$site_network = $this->getSiteNetwork();
 		if (is_null($site_network)) return '';
