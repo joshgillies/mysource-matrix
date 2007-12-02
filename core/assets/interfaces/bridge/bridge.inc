@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.9 2007/11/27 23:52:50 lwright Exp $
+* $Id: bridge.inc,v 1.10 2007/12/02 22:31:32 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Provides an interface bridging between the MySource system some other external system
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,7 @@ interface Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE);
+	public function getAsset($shadowid, $type_code='', $mute_errors=FALSE);
 
 
 	/**
@@ -70,7 +70,7 @@ interface Bridge
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL);
+	public function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL);
 
 
 	/**
@@ -86,7 +86,7 @@ interface Bridge
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=TRUE);
+	public function getParents($assetid, $type_code='', $strict_type_code=TRUE);
 
 
 	/**
@@ -111,7 +111,7 @@ interface Bridge
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL);
+	public function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL);
 
 
 	/**
@@ -124,7 +124,7 @@ interface Bridge
 	* @return array
 	* @access public
 	*/
-	function getLineageFromURL($assetid, $protocol, $url);
+	public function getLineageFromURL($assetid, $protocol, $url);
 
 
 	/**
@@ -147,7 +147,7 @@ interface Bridge
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0);
+	public function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0);
 
 
 	/**
@@ -159,7 +159,7 @@ interface Bridge
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=FALSE);
+	public function deleteAssetLink($linkid, $moving=FALSE);
 
 
 	/**
@@ -182,7 +182,7 @@ interface Bridge
 	* @return array
 	* @access public
 	*/
-	function getAssetMapAssetInfo($assetid);
+	public function getAssetMapAssetInfo($assetid);
 
 
 }//end interface
