@@ -1,5 +1,48 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.3
+
+Featured Changes
+-----------------------------------
+
+Proxy Asset Feature Extended from Search Page to All Asset Listings
+
+    The Proxy Asset functionality has been moved to the Listing Engine asset, allowing all listing-type assets to potentially use this feature. This feature allows a listing to match a certain asset type, but list another related asset type instead.
+
+
+Listing Engine: Sort By Keyword
+
+    The Listing Engine can now be sorted by any specified asset keyword. If an asset has this keyword, it will be sorted according to its value, otherwise it will be added to the bottom of the list.
+
+
+RSS Data Source Timestamp Field
+
+    You can select one field, out of those fields RSS Data Source believes to be a date field (any field with "date" or "publish" in its name), can be selected to be a "timestamp" field. This is converted into a UNIX timestamp (ie. the number of seconds since epoch) and is accessible from the %ds__timestamp% keyword.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2749: Snippet gives error when not linked under bodycopy
+* Fixed bug #2758: File asset types convert & to &amp; in File asset title
+* Fixed bug #2760: Non-image file types cannot be uploaded without a "Friendly Title"
+* Fixed bug #2763: WYSIWYG JS interferes with Binoculars JS
+
+CMS
+
+* Fixed bug #2750: Search Page -> Default Metadata Sort Type changed value? (Listing Engine)
+* Fixed bug #2752: Source string not found (Account Manager)
+* Fixed bug #2757: Relative URLs not properly conterted for remote page (Remote Content Page)
+* Fixed bug #2769: Online Poll - spelling mistake for keyword replacement (Online Poll)
+
+Calendar
+
+* Fixed bug #2748: Rolling Calendar page does not display event types that inherit from Recurring Calendar Event (Rolling Calendar Page)
+
+
+
 VERSION 3.16.2
 
 Featured Changes
