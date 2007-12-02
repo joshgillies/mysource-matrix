@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.48 2007/11/27 23:58:10 lwright Exp $
+* $Id: thesaurus.inc,v 1.49 2007/12/02 22:31:51 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -216,7 +216,7 @@ class Thesaurus extends Asset implements Bridge
 		} catch (Exception $e) {
 			throw new Exception("BALB AL : " . $e->getMessage());
 		}//end
-		
+
 		return $result;
 
 	}//end getChildTerms()
@@ -1504,7 +1504,7 @@ class Thesaurus extends Asset implements Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 

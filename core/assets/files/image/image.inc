@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.68 2007/11/28 22:42:38 lwright Exp $
+* $Id: image.inc,v 1.69 2007/12/02 22:30:21 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -511,7 +511,7 @@ class Image extends File implements Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $assetid);
