@@ -53,6 +53,11 @@ Ability to View and Edit Link Values
     The Linking screen of an asset has been updated to provide new advanced options relating to link values. Those links whose type is editable (essentially, TYPE_1 and TYPE_2 links) also offer the ability to edit the values of those links.
 
 
+Asset Listing: Filter By Link Value
+
+    This new feature allows assets to be filtered by the link value relation with their immediate parent (or child, if "up the tree" is chosen). This works best when "Direct Links Only" is turned on.
+
+
 Search as Public User
 
     When turned ON, this option forces the Search Page to search as the Public User, even when someone is logged in.
