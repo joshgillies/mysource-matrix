@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -45,7 +45,7 @@ if (!$root_user->comparePassword($root_password)) {
     echo "ERROR: The root password entered was incorrect\n";
     exit();
 }
-$GLOBALS['SQ_SYSTEM']->am->setCurrentUser($root_user);
+$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 echo "\n";
 
