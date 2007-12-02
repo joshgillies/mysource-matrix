@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: excel_doc_management.inc,v 1.1 2006/12/18 05:29:29 arailean Exp $
+* $Id: excel_doc_management.inc,v 1.2 2007/12/02 22:30:45 lwright Exp $
 *
 */
 
@@ -23,12 +23,25 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Excel_Doc_Management extends Asset_Management
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param Package_Manager	$pm	The package manager relevant to this particular asset
+	*
+	*/
+	function __construct(Package_Manager $pm)
+	{
+		Asset_Management::__construct($pm);
+
+	}//end constructor
 
 
 }//end class

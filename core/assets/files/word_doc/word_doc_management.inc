@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_management.inc,v 1.5 2006/12/05 23:14:15 emcdonald Exp $
+* $Id: word_doc_management.inc,v 1.6 2007/12/02 22:30:46 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,13 @@ class Word_Doc_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager relevant to this particular asset
+	*
 	*/
-	function Word_Doc_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
+
 		$this->components = Array(
 								'contents'	=> Array(
 												'description'		=> 'Contents (text format)',

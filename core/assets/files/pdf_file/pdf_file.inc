@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.28 2007/08/09 05:32:28 rong Exp $
+* $Id: pdf_file.inc,v 1.29 2007/12/02 22:30:45 lwright Exp $
 *
 */
 
@@ -26,29 +26,30 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class PDF_File extends File
 {
 
+
 	/**
 	* All allowed extensions for an image
 	* @var Array(string)
 	*/
-	var $allowed_extensions = Array('pdf');
+	public $allowed_extensions = Array('pdf');
 
 
 	/**
 	* Constructor
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* @param int    $assetid    the asset id to be loaded
 	*
 	*/
-	function PDF_File($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->File($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

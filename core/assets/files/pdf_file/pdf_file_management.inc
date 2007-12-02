@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file_management.inc,v 1.6 2006/12/05 23:14:14 emcdonald Exp $
+* $Id: pdf_file_management.inc,v 1.7 2007/12/02 22:30:45 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,10 +34,12 @@ class PDF_File_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager relevant to this particular asset
+	*
 	*/
-	function PDF_File_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 		$this->vars = Array(
 						'password'	=> Array(
 										'added'			=> '0.2',

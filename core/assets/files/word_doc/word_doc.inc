@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.19 2006/12/18 05:18:02 arailean Exp $
+* $Id: word_doc.inc,v 1.20 2007/12/02 22:30:46 lwright Exp $
 *
 */
 
@@ -26,29 +26,30 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Word_Doc extends File
 {
 
+
 	/**
 	* All allowed extensions for a word doc (document and template recognised)
 	* @var Array(string)
 	*/
-	var $allowed_extensions = Array('doc', 'dot');
+	public $allowed_extensions = Array('doc', 'dot');
 
 
 	/**
 	* Constructor
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* @param int    $assetid    the asset id to be loaded
 	*
 	*/
-	function Word_Doc($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->File($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

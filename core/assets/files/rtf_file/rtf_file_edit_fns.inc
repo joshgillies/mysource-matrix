@@ -10,7 +10,8 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rtf_file_edit_fns.inc,v 1.1 2007/10/15 05:51:27 bshkara Exp $
+* $Id: rtf_file_edit_fns.inc,v 1.2 2007/12/02 22:30:45 lwright Exp $
+*
 */
 
 
@@ -23,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -31,15 +32,15 @@ class Rtf_File_Edit_Fns extends File_Edit_Fns
 {
 
 
-    /**
-    * Constructor
-    *
-    */
-    function Rtf_File_Edit_Fns()
-    {
-        $this->File_Edit_Fns();
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
 
-    }//end constructor
+	}//end constructor
 
 
 }//end class

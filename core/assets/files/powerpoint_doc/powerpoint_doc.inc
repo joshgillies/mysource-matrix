@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: powerpoint_doc.inc,v 1.1 2007/01/11 05:53:33 arailean Exp $
+* $Id: powerpoint_doc.inc,v 1.2 2007/12/02 22:30:45 lwright Exp $
 *
 */
 
@@ -25,18 +25,32 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Powerpoint_Doc extends File
 {
 
+
 	/**
 	* All allowed extensions for a word doc (document and template recognised)
 	* @var Array(string)
 	*/
-	var $allowed_extensions = Array('ppt');
+	public $allowed_extensions = Array('ppt');
+
+
+	/**
+	* Constructor
+	*
+	* @param int    $assetid    the asset id to be loaded
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 }//end class

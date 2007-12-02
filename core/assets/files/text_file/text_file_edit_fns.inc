@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file_edit_fns.inc,v 1.5 2007/07/17 01:14:26 lwright Exp $
+* $Id: text_file_edit_fns.inc,v 1.6 2007/12/02 22:30:45 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 * Text_File_Edit_Fns
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -30,20 +30,31 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Paint the interface for editing the parse file
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Text_File			$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintEditFile(&$asset, &$o, $prefix)
+	function paintEditFile(Text_File $asset, Backend_Outputter $o, $prefix)
 	{
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of the parse file
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $asset->data_path_suffix.'/'.$asset->name;
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = @$fv->_checkOutCheck($rep_file, NULL, $then);
@@ -72,14 +83,14 @@ class Text_File_Edit_Fns extends File_Edit_Fns
 	/**
 	* Processes the interface for the editing the parse file
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Text_File			$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processEditFile(&$asset, &$o, $prefix)
+	function processEditFile(Text_File $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (isset($_POST[$prefix.'_new_file'])) {
