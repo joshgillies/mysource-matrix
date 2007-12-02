@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_edit_fns.inc,v 1.6 2007/06/13 01:48:03 arailean Exp $
+* $Id: data_source_edit_fns.inc,v 1.7 2007/12/02 22:34:13 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Data_Source_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -46,24 +46,24 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for entering the name of the shadow asset
 	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Data_Source		$asset	the asset we are handling
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	prefix for form elements
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
-	function paintShadow(&$asset, &$o, $prefix)
+	public function paintShadow(Data_Source $asset, Backend_Outputter $o, $prefix)
 	{
 		$name = $asset->attr('shadow_name');
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
 			text_box('shadow_name', !empty($name) ? $name : '', 80);
-			return TRUE;
-		} else if (!empty($name)) {
-			echo $name;
-			return FALSE;
+		} else {
+			if (!empty($name)) echo $name;
 		}
+
+		return $wa;
 
 	}//end paintShadow()
 
@@ -71,15 +71,17 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for entering and changin the where clause.
 	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Data_Source		$asset	the asset we are handling
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processShadow(&$asset, &$o, $prefix)
+	public function processShadow(Data_Source $asset, Backend_Outputter $o, $prefix)
 	{
+		if ($asset->writeAccess('attributes')) return FALSE;
+
 		$new_name = NULL;
 		$name = $asset->attr('shadow_name');
 		if (!empty($_POST['shadow_name'])) {
@@ -98,16 +100,16 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the interface for entering the name of the shadow asset
 	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Data_Source		$asset	the asset we are handling
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function paintKeywords(&$asset, &$o, $prefix)
+	public function paintKeywords(Data_Source $asset, Backend_Outputter $o, $prefix)
 	{
-		$shadow_asset =& $asset->getAsset($asset->id.':0');
+		$shadow_asset = $asset->getAsset($asset->id.':0');
 		if (is_null($shadow_asset)) {
 			echo '<strong>'.translate('data_source_no_keywords').'</strong>';
 			return;
@@ -152,14 +154,14 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for entering and changin the where clause.
 	*
-	* @param object	&$asset	the search page asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Data_Source		$asset	the asset we are handling
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processKeywords(&$asset, &$o, $prefix)
+	public function processKeywords(Data_Source $asset, Backend_Outputter $o, $prefix)
 	{
 		return FALSE;
 
@@ -169,13 +171,13 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Find out if there are any tables selected or not
 	*
-	* @param object	&$asset	The asset that might use the files
-	* @param string	$prefix	the prefix for this asset
+	* @param Data_Source	$asset	The asset that might use the files
+	* @param string			$prefix	the prefix for this asset
 	*
 	* @return boolean
 	* @access protected
 	*/
-	function resultSetExists(&$asset, $prefix)
+	protected function resultSetExists(&$asset, $prefix)
 	{
 		$result = $asset->getResultSet();
 		return !empty($result);

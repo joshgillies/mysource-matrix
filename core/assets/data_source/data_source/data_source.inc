@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.20 2007/11/27 23:54:07 lwright Exp $
+* $Id: data_source.inc,v 1.21 2007/12/02 22:34:13 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,10 +40,10 @@ class Data_Source extends Asset implements Bridge
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Data_Source($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -58,7 +58,7 @@ class Data_Source extends Asset implements Bridge
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -81,7 +81,7 @@ class Data_Source extends Asset implements Bridge
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return ($this->attr('name'));
 
@@ -95,7 +95,7 @@ class Data_Source extends Asset implements Bridge
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array();
 
@@ -108,7 +108,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getFieldNamesFromRecordSet()
+	public function getFieldNamesFromRecordSet()
 	{
 		return Array();
 
@@ -123,7 +123,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getResultSet($result_id='')
+	public function getResultSet($result_id='')
 	{
 		return $this->getCachedResultSet($result_id);
 
@@ -138,7 +138,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getCachedResultSet($cache_key='')
+	public function getCachedResultSet($cache_key='')
 	{
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, FALSE);
@@ -163,7 +163,7 @@ class Data_Source extends Asset implements Bridge
 	* @return void
 	* @access public
 	*/
-	function setResultSet($result, $result_id='')
+	public function setResultSet(Array $result, $result_id='')
 	{
 		$this->cacheResultSet($result, $cache_key='');
 
@@ -179,7 +179,7 @@ class Data_Source extends Asset implements Bridge
 	* @return void
 	* @access public
 	*/
-	function cacheResultSet($result, $cache_key='')
+	public function cacheResultSet(Array $result, $cache_key='')
 	{
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
@@ -207,7 +207,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
+	public function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
 		return Array();
 
@@ -225,7 +225,7 @@ class Data_Source extends Asset implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function setPermission($assetid, $data_source_record_setid, $permission, $granted)
+	public function setPermission($assetid, $data_source_record_setid, $permission, $granted)
 	{
 		return FALSE;
 
@@ -242,7 +242,7 @@ class Data_Source extends Asset implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function deletePermission($assetid, $data_source_record_setid, $permission)
+	public function deletePermission($assetid, $data_source_record_setid, $permission)
 	{
 		return FALSE;
 
@@ -263,7 +263,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
+	public function getAssetInfo(Array $assetids, $type_code=Array(), $strict_type_code=TRUE, $field='')
 	{
 		$info = Array();
 		foreach ($assetids as $assetid) {
@@ -315,7 +315,7 @@ class Data_Source extends Asset implements Bridge
 	* @return mixed boolean|array
 	* @access public
 	*/
-	function assetExists($assetids)
+	public function assetExists($assetids)
 	{
 		return FALSE;
 
@@ -343,7 +343,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
+	public function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
 	{
 		return Array();
 
@@ -361,7 +361,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getLinkById($linkid, $assetid=0, $side_of_link='major')
+	public function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
 		return Array();
 
@@ -389,7 +389,7 @@ class Data_Source extends Asset implements Bridge
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
+	public function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
 		return 0;
 
@@ -416,7 +416,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
+	public function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
 		return Array();
 
@@ -432,7 +432,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getAllChildLinks($assetid, $link_type=0)
+	public function getAllChildLinks($assetid, $link_type=0)
 	{
 		return Array();
 
@@ -453,7 +453,7 @@ class Data_Source extends Asset implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
+	public function updateLink($linkid, $link_type=NULL, $value=NULL, $sort_order=NULL)
 	{
 		return FALSE;
 
@@ -469,7 +469,7 @@ class Data_Source extends Asset implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=FALSE)
+	public function deleteAssetLink($linkid, $moving=FALSE)
 	{
 		return FALSE;
 
@@ -479,8 +479,8 @@ class Data_Source extends Asset implements Bridge
 	/**
 	* Create a link between the two supplied assets
 	*
-	* @param object		&$major		the major asset that we are linking from
-	* @param object		&$minor		the minor asset that we are linking to
+	* @param Asset		$major		the major asset that we are linking from
+	* @param Asset		$minor		the minor asset that we are linking to
 	* @param string		$link_type	the type of link this is
 	* @param string		$value		the value that is to be associated with this link
 	* @param string		$sort_order	the position in the links list that this link should take,
@@ -492,7 +492,7 @@ class Data_Source extends Asset implements Bridge
 	* @return int
 	* @access public
 	*/
-	function createAssetLink(&$major, &$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
+	public function createAssetLink(Asset $major, Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0', $moving=FALSE)
 	{
 		return 0;
 
@@ -520,7 +520,7 @@ class Data_Source extends Asset implements Bridge
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
+	public function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 		if (!($link_types & SQ_LINK_TYPE_1)) {
 			return Array();
@@ -592,7 +592,7 @@ class Data_Source extends Asset implements Bridge
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
+	public function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		// now that we have an array in the format we wanted (sorted or not)
 		// we can go through and construct our children array
@@ -625,7 +625,7 @@ class Data_Source extends Asset implements Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	public function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$shadowid = array_pop(explode(':', $assetid));
 		$asset = NULL;
@@ -667,7 +667,7 @@ class Data_Source extends Asset implements Bridge
 	* @access public
 	* @see generateGetParentsQuery()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL)
+	public function getParents($assetid, $type_code='', $strict_type_code=TRUE, $sort_by=NULL, $access=NULL)
 	{
 		// get its own (datasource's) parents first
 		$id_parts = explode(':', $assetid);
@@ -687,7 +687,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getAssetMapAssetInfo($assetid)
+	public function getAssetMapAssetInfo($assetid)
 	{
 		return Array();
 
@@ -704,7 +704,7 @@ class Data_Source extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getLineageFromURL($assetid, $protocol, $url)
+	public function getLineageFromURL($assetid, $protocol, $url)
 	{
 		return Array();
 
