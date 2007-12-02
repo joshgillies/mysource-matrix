@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design_parse_file.inc,v 1.6 2007/11/30 03:41:41 bshkara Exp $
+* $Id: trigger_action_set_design_parse_file.inc,v 1.7 2007/12/02 23:18:56 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,7 @@ class Trigger_Action_Set_Design_Parse_File extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 
-		$asset = $state['asset'];
+		$asset =& $state['asset'];
 		$edit_fns = $asset->getEditFns();
 
 		$parse_file  = $asset->data_path.'/parse.txt';

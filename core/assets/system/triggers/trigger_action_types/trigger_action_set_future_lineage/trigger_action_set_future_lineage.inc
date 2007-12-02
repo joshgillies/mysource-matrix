@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.13 2007/11/30 03:41:41 bshkara Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.14 2007/12/02 23:18:56 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 

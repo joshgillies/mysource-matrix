@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.17 2007/11/30 03:41:42 bshkara Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.18 2007/12/02 23:18:56 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 

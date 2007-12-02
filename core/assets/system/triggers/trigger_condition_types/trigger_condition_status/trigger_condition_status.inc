@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.12 2007/11/30 03:41:41 bshkara Exp $
+* $Id: trigger_condition_status.inc,v 1.13 2007/12/02 23:18:57 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 

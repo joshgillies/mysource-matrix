@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.15 2007/11/30 03:41:41 bshkara Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.16 2007/12/02 23:18:57 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,7 +198,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			$settings['propagate'] = SQ_TRIG_TREE_NO_PROPAGATE;
 		}
 
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if (!$am->assetExists($assetid)) {
 			return translate('selected_asset_does_not_exist');
