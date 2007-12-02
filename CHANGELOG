@@ -1,5 +1,24 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.14.7
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2758: File asset types convert & to &amp; in File asset title
+* Fixed bug #2760: Non-image file types cannot be uploaded without a "Friendly Title"
+* Fixed bug #2763: WYSIWYG JS interferes with Binoculars JS
+
+CMS
+
+* Fixed bug #2750: Search Page -> Default Metadata Sort Type changed value? (Listing Engine)
+* Fixed bug #2757: Relative URLs not properly conterted for remote page (Remote Content Page)
+* Fixed bug #2769: Online Poll - spelling mistake for keyword replacement (Online Poll)
+
+
+
 VERSION 3.14.6
 
 Complete Changelog
