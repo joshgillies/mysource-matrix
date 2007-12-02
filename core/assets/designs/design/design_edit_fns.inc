@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.120 2007/11/26 03:38:09 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.121 2007/12/02 23:49:02 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1365,7 +1365,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$all_treeids = Array();
 		foreach ($treeids as $assetid => $asset_treeids) {
-			foreach ($asset_treeids as $asset_treeid) {
+			foreach ($asset_treeids[0] as $asset_treeid) {
 				$all_treeids[$asset_treeid] = $assetid;
 			}
 		}

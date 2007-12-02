@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.631 2007/11/28 23:30:34 rong Exp $
+* $Id: asset_manager.inc,v 1.632 2007/12/02 23:49:02 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.631 $
+* @version $Revision: 1.632 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7368,7 +7368,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp, $include_treeids)
-	{
+	{// TODO TOF TEST
 		$use_like_for_name = ((FALSE !== strpos($lookup_name_exp, '?')) || (FALSE !== strpos($lookup_name_exp, '%')));
 		$name_operator = $use_like_for_name ? 'LIKE' : '=';
 		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
@@ -7385,12 +7385,24 @@ class Asset_Manager extends MySource_Object
 		$sql .= '
 				WHERE lv.name '.$name_operator.' '.$db->quote($lookup_name_exp).'
 					AND lv.value '.$value_operator.' '.$db->quote($lookup_value_exp);
+
+		$res = NULL;
 		if ($include_treeids) {
-			$res = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+			try {
+				$query = $db->prepare($sql);
+				$res = MatrixDAL::executePdoGrouped($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get asset ids: '.$e->getMessage());
+			}
 		} else {
-			$res = $db->getCol($sql);
+			try {
+				$query = $db->prepare($sql);
+				$res = MatrixDAL::executePdoAssoc($sql, 0);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get asset ids: '.$e->getMessage());
+			}
 		}
-		assert_valid_db_result($res);
+
 		return $res;
 
 	}//end getAssetidsByLookupValue()

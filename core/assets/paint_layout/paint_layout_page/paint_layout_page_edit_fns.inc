@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.9 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.10 2007/12/02 23:49:02 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,7 +300,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	{
 		$all_treeids = Array();
 		foreach ($treeids as $assetid => $asset_treeids) {
-			foreach ($asset_treeids as $asset_treeid) {
+			foreach ($asset_treeids[0] as $asset_treeid) {
 				$all_treeids[$asset_treeid] = $assetid;
 			}
 		}
