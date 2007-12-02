@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set_edit_fns.inc,v 1.6 2007/11/29 04:32:05 lwright Exp $
+* $Id: data_source_record_set_edit_fns.inc,v 1.7 2007/12/02 22:37:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -51,7 +51,7 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	* @param Backend_Outputter		$o		the outputter class
 	* @param string					$prefix	prefix for the form elements
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	public function paintDetails(Data_Source_Record_Set $asset, Backend_Outputter $o, $prefix)
@@ -76,7 +76,9 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 			}
 			?>
 		</table>
-	<?php
+		<?php
+
+		return FALSE;
 
 	}//end paintDetails()
 
