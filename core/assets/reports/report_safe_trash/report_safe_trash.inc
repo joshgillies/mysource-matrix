@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash.inc,v 1.4 2007/11/28 05:22:38 rong Exp $
+* $Id: report_safe_trash.inc,v 1.5 2007/12/02 23:38:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -349,7 +349,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		return NULL;
 

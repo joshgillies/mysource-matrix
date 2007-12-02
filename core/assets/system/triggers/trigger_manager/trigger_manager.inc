@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.49 2007/12/02 23:18:58 bshkara Exp $
+* $Id: trigger_manager.inc,v 1.50 2007/12/02 23:38:16 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -204,7 +204,7 @@ class Trigger_Manager extends Asset implements Bridge
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 
