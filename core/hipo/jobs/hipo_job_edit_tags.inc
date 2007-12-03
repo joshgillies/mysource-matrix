@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.10 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.11 2007/12/03 22:11:45 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -204,7 +204,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 			$assets = $this->_running_vars['assets'];
 			$child_assets = Array();
 			for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) {
 					trigger_localised_error('HIPO0016', E_USER_WARNING, $assetid);
 					return '';
@@ -237,12 +237,12 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	function processTags(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
-			$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+			$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
 
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'links')) {

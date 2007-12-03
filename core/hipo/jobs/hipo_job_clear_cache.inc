@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.25 2007/11/13 21:45:36 hnguyen Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.26 2007/12/03 22:10:23 hnguyen Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -250,7 +250,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 
 		if (isset($this->_running_vars['delete_all']) && $this->_running_vars['delete_all'] == 'no') {
 			// so we have an assetid to start with, make sure it is a valid assetid
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 			if (is_null($asset)) {
 				trigger_localised_error('HIPO0032', E_USER_WARNING, $this->_running_vars['assetid']);
 				return FALSE;
@@ -310,7 +310,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	*/
 	function processClearCacheTable(&$step_data, $prefix)
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 		if ($this->_running_vars['delete_all'] === 'yes' || $this->_running_vars['delete_all'] === TRUE) {
 			// get all unique filepaths, and clear all system cache
@@ -396,7 +396,7 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_repopulate'])) {
 			$current_assetid = array_pop($this->_running_vars['todo_repopulate']);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_assetid);
 			$urls_info = $asset->getURLs();
 			$urls = Array();
 			if (!empty($urls_info)) {

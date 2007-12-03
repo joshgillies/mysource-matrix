@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.34 2007/11/13 21:45:37 hnguyen Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.35 2007/12/03 22:09:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -192,7 +192,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 			return FALSE;
 		}
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$this->_running_vars['todo_assetids'] = Array();
 		$this->_running_vars['done_assetids'] = Array();
@@ -230,9 +230,9 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		}
 
 		if (!empty($this->_running_vars['process_metadata'])) {
-			$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$assetid = array_shift($this->_running_vars['process_metadata']);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
 				// try to acquire lock
