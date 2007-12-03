@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.633 2007/12/03 03:37:52 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.634 2007/12/03 23:15:56 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633 $
+* @version $Revision: 1.634 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3862,7 +3862,7 @@ class Asset_Manager extends MySource_Object
 				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_perm p ON a.assetid = p.assetid ';
 		}
 		$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
-					 AND ('.db_extras_bitand($db, 'l.link_type', $link_type).' > 0) ';
+					 AND ('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type).' > 0) ';
 		if (!empty($exclude_list)) {
 			$where .= 'AND a.assetid NOT IN ('.$exclude_str.')';
 		}
@@ -3883,12 +3883,16 @@ class Asset_Manager extends MySource_Object
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
 		$where .= ' '.$USERIDS_COND.'
 				   ORDER BY l.majorid, l.sort_order';
-		$result = $db->query($sql.$where);
-		assert_valid_db_result($result);
+
+		try {
+			$result = MatrixDAL::executeSqlAssoc($sql.$where);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get order of assets as they propogate from passed majorid(s): '.bam($majorids).' due to database error: '.$e->getMessage());
+		}
 
 
 		$assetids = Array();
-		while (DB_OK === $result->fetchInto($row)) {
+		foreach ($result as $row) {
 			if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
 				$asset = $this->getAsset($row['assetid']);
 				$read_access = $asset->readAccess();
@@ -3912,7 +3916,6 @@ class Asset_Manager extends MySource_Object
 			$tree_data[$row['majorid']][$row['assetid']] = $row;
 
 		}
-		$result->free();
 
 		if (!empty($assetids) && ($levels > 1 || is_null($levels))) {
 			$levels--;
