@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.41 2007/08/23 04:17:41 bshkara Exp $
+* $Id: image_variety.inc,v 1.42 2007/12/03 23:42:08 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Image_Variety extends Asset
 		if (!$assetid) return;
 		list($this->_imageid, $this->_varietyid) = explode(':v', $assetid);
 
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return;
 
 		// set the data paths
@@ -167,7 +167,7 @@ class Image_Variety extends Asset
 			}
 		}
 
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		return (bool) $image->saveVariety($this);
 
 	}//end saveAttributes()
@@ -235,7 +235,7 @@ class Image_Variety extends Asset
 	*/
 	function updateImage($file_versioning=TRUE)
 	{
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		if ($this->attr('variety_type') == 'resize') {
@@ -243,7 +243,7 @@ class Image_Variety extends Asset
 			if ($file_versioning) {
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
-				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			}
 
 			if (!is_dir($this->data_path) && !create_directory($this->data_path)) {
@@ -384,7 +384,7 @@ class Image_Variety extends Asset
 		if (!$this->setAttrValue('filename', '')) return FALSE;
 
 		// make sure we have the latest version checked out if we are modifying the file
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$up_to_date = $fv->upToDate($d_file);
 
 		$updated = $this->updateLookups(FALSE);
@@ -422,7 +422,7 @@ class Image_Variety extends Asset
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		$filename = $this->attr('filename');
 		if (!$filename) return TRUE;
@@ -468,14 +468,14 @@ class Image_Variety extends Asset
 	function updateLookups()
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (!empty($image)) {
 			$public = $image->usePublicPath();
 		}
 		if (!$public) return parent::updateLookups();
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
@@ -517,7 +517,7 @@ class Image_Variety extends Asset
 
 			$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', FALSE);
 			foreach ($site_parents as $assetid => $type_code) {
-				$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($site)) continue;
 				$urls = $site->getSiteURLS();
 
@@ -597,7 +597,7 @@ class Image_Variety extends Asset
 	*/
 	function getWebDataPath()
 	{
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		return $image->getWebDataPath().'/varieties';
@@ -638,7 +638,7 @@ class Image_Variety extends Asset
 		}
 		switch ($_REQUEST['asset_ei_screen']) {
 			case 'image_info' :
-				$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+				$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 				if (is_null($image)) exit();
 
 				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
@@ -684,7 +684,7 @@ class Image_Variety extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		$ext = get_file_type($image->name);
@@ -809,7 +809,7 @@ class Image_Variety extends Asset
 	{
 		if (!$this->id) return TRUE;
 
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		return $image->readAccess($assetids);
@@ -833,7 +833,7 @@ class Image_Variety extends Asset
 	{
 		if (!$this->id) return TRUE;
 
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		return $image->writeAccess($lock_type, $assetids);
@@ -857,7 +857,7 @@ class Image_Variety extends Asset
 	{
 		if (!$this->id) return TRUE;
 
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		return $image->adminAccess($lock_type, $assetids);
@@ -879,7 +879,7 @@ class Image_Variety extends Asset
 	*/
 	function liveEditAccess($lock_type)
 	{
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		return $image->liveEditAccess($lock_type);
@@ -904,7 +904,7 @@ class Image_Variety extends Asset
 	*/
 	function checkAccess($perm, $lock_type, $assetids=Array())
 	{
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		return $image->checkAccess($perm, $lock_type, $assetids);
@@ -925,7 +925,7 @@ class Image_Variety extends Asset
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return FALSE;
 
 		return $image->_checkPermissionAccess($perm, $assetids);
