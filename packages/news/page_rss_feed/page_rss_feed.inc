@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.18 2007/10/03 01:17:22 lmarchese Exp $
+* $Id: page_rss_feed.inc,v 1.19 2007/12/03 02:25:59 gsherwood Exp $
 *
 */
 
-
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Page_RSS_Feed
@@ -23,14 +24,10 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
-	require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
-	require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
-
 class Page_RSS_Feed extends Page
 {
 
@@ -75,7 +72,7 @@ class Page_RSS_Feed extends Page
 	function _getAllowedLinks()
 	{
 		$links = Array();
-		$links[SQ_LINK_NOTICE]['listing_engine']    = Array('card' => 'M', 'exclusive' => FALSE);
+		$links[SQ_LINK_NOTICE]['listing_engine'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $links;
 
 	}//end _getAllowedLinks()
@@ -116,7 +113,7 @@ class Page_RSS_Feed extends Page
 		$keywords = Array();
 		if (empty($type)) return $keywords;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
-		$dummy_asset =& new $type();
+		$dummy_asset = new $type();
 		$keywords += $dummy_asset->getAvailableKeywords();
 		unset($dummy_asset);
 		return $keywords;
@@ -244,7 +241,7 @@ class Page_RSS_Feed extends Page
 
 				require_once SQ_FUDGE_PATH.'/rss_feeds/rss_feed_writer.inc';
 				// Create an RSS Feed writer object and set the type and version of the feed to be built
-				$writer =& new RSS_Feed_Writer();
+				$writer = new RSS_Feed_Writer();
 				$type = $this->attr('rss_types');
 				$type = explode('_', $type);
 				$writer->setTypeVersion($type[0], $type[1]);
