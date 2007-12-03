@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.16 2007/10/03 00:01:27 hnguyen Exp $
+* $Id: thesaurus_term.inc,v 1.17 2007/12/03 23:34:40 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Thesaurus_Term extends Asset
 
 		list($thesaurus_id, $termid) = explode(':', $asset_id);
 
-		$this->_thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurus_id);
+		$this->_thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurus_id);
 
 		$term = $this->_thesaurus->getTermById($termid);
 		if (is_null($term)) return;
@@ -90,13 +90,13 @@ class Thesaurus_Term extends Asset
 	*/
 	function create(&$link)
 	{
-		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$this->name = $this->attr('name');
 		if (empty($this->name)) return FALSE;
 
 		$majorid = NULL;
 
-		if (is_a($link['asset'], 'thesaurus')) {
+		if ($link['asset'] instanceof Thesaurus) {
 			$this->_thesaurus =& $link['asset'];
 		} else if (is_a($link['asset'], 'thesaurus_term')) {
 			$this->_thesaurus =& $link['asset']->_thesaurus;
@@ -261,7 +261,7 @@ class Thesaurus_Term extends Asset
 			}
 
 			unset($this->_tmp['vars_set']);
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate', Array('name'));
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_attributes_saved', $this);
 		}
