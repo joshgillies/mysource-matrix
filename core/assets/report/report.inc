@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report.inc,v 1.9 2007/11/06 06:27:41 rong Exp $
+* $Id: report.inc,v 1.10 2007/12/03 05:18:55 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Report extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Report($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -53,7 +53,7 @@ class Report extends Page
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -66,7 +66,7 @@ class Report extends Page
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -82,7 +82,7 @@ class Report extends Page
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
@@ -99,7 +99,7 @@ class Report extends Page
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	public function printBody()
 	{
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib');?>/js/general.js"></script>
