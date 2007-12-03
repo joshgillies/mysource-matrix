@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.59 2007/11/28 03:13:17 lwright Exp $
+* $Id: cache_manager.inc,v 1.60 2007/12/03 04:21:49 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -473,7 +473,7 @@ class Cache_Manager extends Asset
 	{
 		$perm_key = '';
 		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
-		if (is_null($current_user) || is_a($current_user, 'public_user')) {
+		if (is_null($current_user) || ($current_user instanceof Public_User)) {
 			// if your not logged in and public level caching is on - you get the public copy
 			if ($this->attr('public_caching')) {
 				if (is_null($current_user)) {
