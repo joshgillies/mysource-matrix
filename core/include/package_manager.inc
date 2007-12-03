@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.84 2007/10/29 22:21:37 lwright Exp $
+* $Id: package_manager.inc,v 1.85 2007/12/03 01:01:52 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -127,7 +127,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function getPackageName()
 	{
-		return substr(get_class($this), 16);
+		return strtolower(substr(get_class($this), 16));
 
 	}//end getPackageName()
 
