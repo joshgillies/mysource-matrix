@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.69 2007/12/02 22:30:21 lwright Exp $
+* $Id: image.inc,v 1.70 2007/12/03 23:53:12 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,7 +119,7 @@ class Image extends File implements Bridge
 			create_directory($new_base_path);
 
 			// file versioning magick :D
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 			if (isset($varieties['data']) && is_array($varieties['data'])) {
 				foreach ($varieties['data'] as $variety_shadowid => $variety) {
@@ -318,7 +318,7 @@ class Image extends File implements Bridge
 			return FALSE;
 		}
 
-		$variety =& $this->getAsset($this->id.':'.$varietyid);
+		$variety = $this->getAsset($this->id.':'.$varietyid);
 		if (is_null($variety)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -378,7 +378,7 @@ class Image extends File implements Bridge
 			}
 		}
 
-		$variety =& $this->getAsset($this->id.':'.$varietyid);
+		$variety = $this->getAsset($this->id.':'.$varietyid);
 		if (is_null($variety)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -439,7 +439,7 @@ class Image extends File implements Bridge
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
-				$variety =& $this->getAsset($this->id.':'.$varietyid);
+				$variety = $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
 				if (!$variety->checkFileState($this->effectiveUnrestricted())) {
@@ -474,7 +474,7 @@ class Image extends File implements Bridge
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
-				$variety =& $this->getAsset($this->id.':'.$varietyid);
+				$variety = $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 
 				if (!$variety->updateLookups()) {
@@ -820,7 +820,7 @@ class Image extends File implements Bridge
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
-				$variety =& $this->getAsset($this->id.':'.$varietyid);
+				$variety = $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
 				$keywords['image_v_'.$variety->name] = 'Image variety '.$variety->name;
 				$keywords['image_v_'.$variety->name.'_url'] = 'Image variety '.$variety->name.' URL';
@@ -910,7 +910,7 @@ class Image extends File implements Bridge
 			}
 			$variety_id = array_get_index($varieties['lookups'], $variety_name);
 			if (!empty($variety_id)) {
-				$variety =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$variety_id);
+				$variety = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$variety_id);
 				if ($url_only) {
 					$string = $variety->getURL();
 				} else {
@@ -1049,7 +1049,7 @@ class Image extends File implements Bridge
 	{
 		$info = Array();
 		foreach ($assetids as $assetid) {
-			$asset =& $this->getAsset($assetid);
+			$asset = $this->getAsset($assetid);
 
 			if (!empty($field)) {
 				if ($field == 'assetid') {
