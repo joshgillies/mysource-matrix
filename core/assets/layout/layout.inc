@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.8 2007/01/12 04:00:24 tbarrett Exp $
+* $Id: layout.inc,v 1.9 2007/12/03 01:16:21 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,7 +36,7 @@ class Layout extends Bodycopy
 	* An array of keywords used in this layout
 	* @var array
 	*/
-	var $layout_keywords = Array();
+	public $layout_keywords = Array();
 
 
 	/**
@@ -45,9 +45,9 @@ class Layout extends Bodycopy
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Layout($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Bodycopy($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -59,7 +59,7 @@ class Layout extends Bodycopy
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 
 		return Array(
@@ -133,7 +133,7 @@ class Layout extends Bodycopy
 	* @return array
 	* @access public
 	*/
-	function getLayoutKeywords()
+	public function getLayoutKeywords()
 	{
 		if (empty($this->layout_keywords)) {
 
@@ -213,14 +213,14 @@ class Layout extends Bodycopy
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param object	&$broadcaster	the asset that triggered the event
+	* @param Asset	$broadcaster	the asset that triggered the event
 	* @param array	$vars			the vars that get submitted by the broadcaster
 	*								we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private
 	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
+	public function onRequestKeywords(Asset $broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
 

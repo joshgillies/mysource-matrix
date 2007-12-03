@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_edit_fns.inc,v 1.6 2007/02/05 05:39:05 colivar Exp $
+* $Id: layout_edit_fns.inc,v 1.7 2007/12/03 01:16:21 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,24 +36,24 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Layout_Edit_Fns()
+	function __construct()
 	{
-		$this->Bodycopy_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
 
 	/**
-	 * print into a layout edit content a link to the limbo keywords finder
-	 *
-	 * @param object &$asset the asset whose interface we are painting
-	 * @param object &$o             the Backend_Outputter class
-	 * @param string $prefix prefix for the form elements
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	function paintLimboKeywords(&$asset, &$o, $prefix)
+	* print into a layout edit content a link to the limbo keywords finder
+	*
+	* @param Layout				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintLimboKeywords(Layout $asset, Backend_Outputter $o, $prefix)
 	{
 	  ?>
 	  <p>Click here for <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/layout/popups/print_limbo_keywords.php', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">a list of specific asset keywords available for use in Simple Edit Mode</a>.</p>
@@ -63,16 +63,16 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 
 
 	/**
-	 * just return TRUE
-	 *
-	 * @param object &$asset the asset whose interface we are painting
-	 * @param object &$o             the Backend_Outputter class
-	 * @param string $prefix prefix for the form elements
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	function processLimboKeywords(&$asset, &$o, $prefix)
+	* just return TRUE
+	*
+	* @param Layout				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processLimboKeywords(Layout $asset, Backend_Outputter $o, $prefix)
 	{
 	  return TRUE;
 
@@ -80,16 +80,16 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 
 
 	/**
-	 * Paint the interface for creating containers in the bodycopy
-	 *
-	 * @param object &$asset the asset whose interface we are painting
-	 * @param object &$o             the Backend_Outputter class
-	 * @param string $prefix prefix for the form elements
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	function paintLayout(&$asset, &$o, $prefix)
+	* Paint the interface for creating containers in the bodycopy
+	*
+	* @param Layout				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintLayout(Layout $asset, Backend_Outputter $o, $prefix)
 	{
 	  return parent::paintBodycopy($asset, $o, $prefix);
 
@@ -97,16 +97,16 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 
 
 	/**
-	 * Processes the interface for creating containers in the bodycopy
-	 *
-	 * @param object &$asset the asset to which we belong
-	 * @param object &$o             the Backend_Outputter class
-	 * @param string $prefix prefix for the form element
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	function processLayout(&$asset, &$o, $prefix)
+	* Processes the interface for creating containers in the bodycopy
+	*
+	* @param Layout				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processLayout(Layout $asset, Backend_Outputter $o, $prefix)
 	{
 	  return parent::processBodycopy($asset, $o, $prefix);
 

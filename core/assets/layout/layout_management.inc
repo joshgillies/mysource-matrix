@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_management.inc,v 1.7 2007/02/05 05:39:05 colivar Exp $
+* $Id: layout_management.inc,v 1.8 2007/12/03 01:16:21 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Layout_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Layout_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'name'	=> Array(
@@ -56,7 +56,7 @@ class Layout_Management extends Asset_Management
 	* @return boolean
 	* @access public
 	*/
-	function getEventList()
+	public function getEventList()
 	{
 		return Array(
 				Array(
@@ -84,7 +84,7 @@ class Layout_Management extends Asset_Management
 	* @return array
 	* @access private
 	*/
-	function _getFileList()
+	protected function _getFileList()
 	{
 	  return Array(
 				'popups/print_limbo_keywords.php',
