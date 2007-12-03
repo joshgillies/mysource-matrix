@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.634 2007/12/03 23:15:56 bshkara Exp $
+* $Id: asset_manager.inc,v 1.635 2007/12/03 23:28:32 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.634 $
+* @version $Revision: 1.635 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3110,7 +3110,8 @@ class Asset_Manager extends MySource_Object
 			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
 			if (!empty($query)) {
 				$db = MatrixDAL::getDb();
-				$result = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+				$final_query = implode(' ', $query);
+				$result = MatrixDAL::executeSqlGroupedAssoc($final_query);
 				$links = $this->arrayMerge($result,$links);
 			}
 		}
@@ -7895,10 +7896,10 @@ class Asset_Manager extends MySource_Object
 				$where .= $userid_cond.'
 					AND (
 						(p.permission = '.$access.' AND (
-									p.userid <> "'.$public_userid.'"
-									OR r.userid <> "'.$db->quote($public_userid).'"
-									OR (p.userid = "'.$db->quote($public_userid).'" AND p.granted = 1)
-									OR (r.userid = "'.$db->quote($public_userid).'" AND p.granted = 1)
+									p.userid <> '.$db->quote($public_userid).'
+									OR r.userid <> '.$db->quote($public_userid).'
+									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
 								)
 						)';
 				if ($effective) {
