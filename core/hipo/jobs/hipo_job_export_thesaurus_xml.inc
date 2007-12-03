@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_thesaurus_xml.inc,v 1.6 2007/02/01 22:53:34 lwright Exp $
+* $Id: hipo_job_export_thesaurus_xml.inc,v 1.7 2007/12/03 22:15:08 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -153,7 +153,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset =& $this->getThesaurusRef();
+		$asset = $this->getThesaurusRef();
 		if (is_null($asset)) {
 			trigger_localised_error('HIPO0073', E_USER_WARNING, $this->_running_vars['thesaurus_id']);
 			return FALSE;
@@ -195,7 +195,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	function processFinish(&$step_data, $prefix)
 	{
 
-		$thesaurus =& $this->getThesaurusRef();
+		$thesaurus = $this->getThesaurusRef();
 		$thesaurus->setAttrValue('contents_changed', FALSE);
 		$thesaurus->saveAttributes();
 		$step_data['percent_done'] = 100;
@@ -216,7 +216,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	*/
 	function processCreateXML(&$step_data, $prefix)
 	{
-		$thesaurus =& $this->getThesaurusRef();
+		$thesaurus = $this->getThesaurusRef();
 		$filepath = $thesaurus->getXmlFilePath();
 		if (file_exists($filepath)) {
 			$filepath = realpath($filepath);
@@ -231,8 +231,6 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 			if (file_exists($filepath)) unlink($filepath);
 			create_directory(dirname($filepath));
 			touch($filepath);
-
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			$step_data['total_terms'] = $thesaurus->countTerms();
 			$step_data['links_closed'] = 0;
