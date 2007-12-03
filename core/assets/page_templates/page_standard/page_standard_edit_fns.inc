@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_edit_fns.inc,v 1.10 2007/11/29 03:39:32 hnguyen Exp $
+* $Id: page_standard_edit_fns.inc,v 1.11 2007/12/03 05:01:15 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Standard_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -46,14 +46,14 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for creating tables in the bodycopy
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form elements
+	* @param Page_Standard		$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function redirectToBodycopy(&$asset, &$o, $prefix)
+	public function redirectToBodycopy(Page_Standard $asset, Backend_Outputter $o, $prefix)
 	{
 		// get the bodycopy attached to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '1');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.10 2006/12/06 22:14:19 emcdonald Exp $
+* $Id: news_item_management.inc,v 1.11 2007/12/03 05:02:59 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -35,9 +35,9 @@ class News_Item_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function News_Item_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars['name'] = Array(
 								'added'		=> '0.1',

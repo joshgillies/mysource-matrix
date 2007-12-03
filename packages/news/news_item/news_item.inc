@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.19 2007/12/03 01:02:48 gsherwood Exp $
+* $Id: news_item.inc,v 1.20 2007/12/03 05:02:59 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -35,9 +35,9 @@ class News_Item extends Page
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*/
-	function News_Item($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -48,7 +48,7 @@ class News_Item extends Page
 	* @return Array()
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['link_url'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -64,7 +64,7 @@ class News_Item extends Page
 	* @return array
 	* @access private
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => false);
@@ -79,7 +79,7 @@ class News_Item extends Page
 	* @return NULL|object Asset
 	* @access public
 	*/
-	function getLinkAsset()
+	public function getLinkAsset()
 	{
 		if ($this->id == 0) {
 			$null = NULL;
@@ -105,8 +105,12 @@ class News_Item extends Page
 	* @return boolean
 	* @access public
 	*/
-	function setLinkAsset(&$asset)
+	public function setLinkAsset($asset)
 	{
+		if (!is_null($asset)) {
+			assert_is_a($asset, 'asset');
+		}
+
 		$old_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'link_asset');
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -157,7 +161,7 @@ class News_Item extends Page
 	* @see Asset::_getName()
 	* @access private
 	*/
-	function _getName($short_name=false)
+	public function _getName($short_name=false)
 	{
 		return $this->attr('name');
 
@@ -172,7 +176,7 @@ class News_Item extends Page
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	public function printBody()
 	{
 		// if there is no url, see if we have an asset selected
 		if (($url = $this->attr('link_url')) == '') {
@@ -249,7 +253,7 @@ class News_Item extends Page
 	* @return array
 	* @access public
 	*/
-	function getAvailableKeywords()
+	public function getAvailableKeywords()
 	{
 		$res = parent::getAvailableKeywords();
 		$res['asset_name_linked_to_link_url'] = 'Asset name linked to link URL';
@@ -265,7 +269,7 @@ class News_Item extends Page
 	* @return string
 	* @access public
 	*/
-	function getAssetNameLinkedToLinkURLKeywordReplacement()
+	public function getAssetNameLinkedToLinkURLKeywordReplacement()
 	{
 		$url = $this->getLinkUrlKeywordReplacement();
 		if (empty($url)) {
@@ -284,7 +288,7 @@ class News_Item extends Page
 	* @return string
 	* @access public
 	*/
-	function getLinkUrlKeywordReplacement()
+	public function getLinkUrlKeywordReplacement()
 	{
 		$url = '';
 		$link_asset = &$this->getLinkAsset();
@@ -314,7 +318,7 @@ class News_Item extends Page
 	* @return boolean
 	* @access public
 	*/
-	function backendAccess()
+	public function backendAccess()
 	{
 		if (SQ_IN_LIMBO) {
 			return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_management.inc,v 1.5 2006/12/06 02:53:10 emcdonald Exp $
+* $Id: paint_layout_page_management.inc,v 1.6 2007/12/03 05:01:25 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,9 +34,9 @@ class Paint_Layout_Page_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Paint_Layout_Page_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars['types'] = Array(
 								'added'		=> '0.1',

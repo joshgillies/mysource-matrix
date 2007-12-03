@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_management.inc,v 1.3 2006/12/06 02:59:55 emcdonald Exp $
+* $Id: structured_asset_info_management.inc,v 1.4 2007/12/03 05:01:31 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Structured_Asset_Info_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Structured_Asset_Info_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 

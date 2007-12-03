@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info.inc,v 1.2 2006/12/06 02:59:55 emcdonald Exp $
+* $Id: structured_asset_info.inc,v 1.3 2007/12/03 05:01:31 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Structured_Asset_Info extends Report
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Structured_Asset_Info($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Report($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

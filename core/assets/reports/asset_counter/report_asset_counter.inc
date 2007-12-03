@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter.inc,v 1.5 2006/12/06 02:59:54 emcdonald Exp $
+* $Id: report_asset_counter.inc,v 1.6 2007/12/03 05:01:30 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Report_Asset_Counter extends Report
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Report_Asset_Counter ($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Report($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

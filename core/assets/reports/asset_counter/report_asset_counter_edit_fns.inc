@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.14 2007/11/28 05:19:21 rong Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.15 2007/12/03 05:01:30 lwright Exp $
 *
 */
 
@@ -27,29 +27,40 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 {
 
-	var $report_name = 'report.xml';
-	var $temp_report = 'report.tmp';
+	public $report_name = 'report.xml';
+	public $temp_report = 'report.tmp';
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
 
 
 	/**
 	* Generate this report until complete
 	*
-	* @param object	&$job		the HIPO job running this report
-	* @param array	&$step_data	a reference to the array of information about
-	*							the current step of the HIPO job that is running this report
-	* @param string	$prefix		prefix for form vars
+	* @param HIPO_Job	$job		the HIPO job running this report
+	* @param array		&$step_data	a reference to the array of information about
+	*								the current step of the HIPO job that is running this report
+	* @param string		$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateReport(&$job, &$step_data, $prefix)
+	public function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
 	{
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -149,14 +160,14 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintReport(&$asset, &$o, $prefix)
+	public function paintReport(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -284,14 +295,14 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	public function paintCurrentAssetTypes(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('content');
 
@@ -350,20 +361,22 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		</table>
 		<?php
 
+		return TRUE;
+
 	}//end paintCurrentAssetTypes()
 
 
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	public function processCurrentAssetTypes(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
 	{
 		$types = $asset->attr('types');
 
@@ -390,14 +403,14 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint section to add an asset type
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAddAssetType(&$asset, &$o, $prefix)
+	public function paintAddAssetType(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('content')) return FALSE;
 
@@ -411,20 +424,22 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		}
 		combo_box($prefix.'_new_type', $uc_types, FALSE, '');
 
+		return TRUE;
+
 	}//end paintAddAssetType()
 
 
 	/**
 	* Process the section to add a new format for an asset
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Asset_Counter	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAddAssetType(&$asset, &$o, $prefix)
+	public function processAddAssetType(Report_Asset_Counter $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_new_type'])) {
 			$type = trim($_POST[$prefix.'_new_type']);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.9 2007/12/03 01:02:48 gsherwood Exp $
+* $Id: news_item_edit_fns.inc,v 1.10 2007/12/03 05:02:59 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -34,9 +34,9 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Constructor
 	*/
-	function News_Item_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['lock_type'] = 'link_url';
 
 	}//end constructor
@@ -45,14 +45,14 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the interface for selecting the asset to link to
 	*
-	* @param object Bodycopy			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param News_Item			$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintLinkAssetid(&$asset, &$o, $prefix)
+	function paintLinkAssetid(News_Item $asset, Backend_Outputter $o, $prefix)
 	{
 		$link_asset = $asset->getLinkAsset();
 		if ($asset->writeAccess('links')) {
@@ -72,14 +72,14 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the interface for selecting the asset to link to
 	*
-	* @param object Bodycopy			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param News_Item			$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processLinkAssetid(&$asset, &$o, $prefix)
+	function processLinkAssetid(News_Item $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_link_assetid']['assetid'])) {
 			return true;

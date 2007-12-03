@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page.inc,v 1.14 2007/11/06 06:26:44 rong Exp $
+* $Id: paint_layout_page.inc,v 1.15 2007/12/03 05:01:25 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ define('SQ_PAINT_LAYOUT_DEFAULT_FORMAT_NAME', 'default_format');
 * Those bodycopies also support conditions.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,10 +47,10 @@ class Paint_Layout_Page extends Page_Standard
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Paint_Layout_Page($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page_Standard($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -65,7 +65,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link, Array('content' => '%paint_layout%'))) return FALSE;
 
@@ -125,7 +125,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @access public
 	* @see saveAttributes()
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if ($name == 'types' && !empty($value)) {
 			// because of way that we use the 'types' attribute in _getBodycopyFromAssetTypeCode() we need to make sure
@@ -153,7 +153,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	public function printBody()
 	{
 		$assetid = $this->_getAssetToPaint();
 		$this->paintAssetFromId($assetid);
@@ -171,7 +171,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return boolean
 	* @access private
 	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
+	public function onRequestKeywords(Asset $broadcaster, Array $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
 
@@ -216,7 +216,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return int
 	* @access private
 	*/
-	function _getAssetToPaint()
+	protected function _getAssetToPaint()
 	{
 		$ret = 0;
 
@@ -237,7 +237,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return void
 	* @access public
 	*/
-	function paintAssetFromId($assetid=0)
+	public function paintAssetFromId($assetid=0)
 	{
 		if (!empty($assetid)) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -251,12 +251,12 @@ class Paint_Layout_Page extends Page_Standard
 	/**
 	* Paints out our layout
 	*
-	* @param object	&$asset	the asset that we are going to print the body for
+	* @param Asset	$asset	the asset that we are going to print the body for
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset)
+	public function paint(Asset $asset)
 	{
 		if (!empty($asset)) {
 			$bodycopy = $this->getBodycopy();
@@ -282,7 +282,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return array
 	* @access private
 	*/
-	function &_getKeywordReplacements($keywords, &$asset)
+	protected function &_getKeywordReplacements($keywords, &$asset)
 	{
 		$ret = Array();
 
@@ -304,10 +304,10 @@ class Paint_Layout_Page extends Page_Standard
 	*
 	* @param string	$asset_type_code	type of the asset to represent
 	*
-	* @return object
+	* @return Bodycopy
 	* @access private
 	*/
-	function &_getBodycopyFromAssetTypeCode($asset_type_code)
+	protected function _getBodycopyFromAssetTypeCode($asset_type_code)
 	{
 		$ret = NULL;
 
@@ -345,10 +345,10 @@ class Paint_Layout_Page extends Page_Standard
 	*
 	* @param string	$type	the value on the link for this folder
 	*
-	* @return object
+	* @return Folder
 	* @access public
 	*/
-	function &getFolder($type='type_formats')
+	public function getFolder($type='type_formats')
 	{
 		$null = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
@@ -372,7 +372,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return array
 	* @access public
 	*/
-	function getFormats($type='type_formats')
+	public function getFormats($type='type_formats')
 	{
 		if (!isset($this->_tmp['formats'][$type])) {
 			$folder = $this->getFolder($type);
@@ -400,7 +400,7 @@ class Paint_Layout_Page extends Page_Standard
 	* @return boolean
 	* @access public
 	*/
-	function createTypeFormatBodycopy($type)
+	public function createTypeFormatBodycopy($type)
 	{
 		$ret = FALSE;
 

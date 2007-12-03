@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_management.inc,v 1.1 2007/01/08 03:08:09 lwright Exp $
+* $Id: report_safe_trash_management.inc,v 1.2 2007/12/03 05:01:31 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Report_Safe_Trash_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Report_Safe_Trash_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars['types']	= Array(
 									'added'		=> '0.1',

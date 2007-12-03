@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.23 2007/11/15 05:35:40 bshkara Exp $
+* $Id: page_standard.inc,v 1.24 2007/12/03 05:01:15 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,9 +39,9 @@ class Page_Standard extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Standard($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Page_Standard extends Page
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link, $args=Array())
+	protected function _createAdditional(Array &$link, $args=Array())
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -83,7 +83,7 @@ class Page_Standard extends Page
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param Asset	$asset			the major or minor asset that we are linking to
 	* @param string	$side_of_link	the side of the link we are on (major or minor)
 	* @param string	&$link_type		the type of link we are creating
 	* @param string	&$value			the value that is to be associated with the link
@@ -96,7 +96,7 @@ class Page_Standard extends Page
 	* @return boolean
 	* @access public
 	*/
-	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if a bodycopy is linking to us then we need to make it a dependant link
 		if ($side_of_link == 'major' && ($asset instanceof Bodycopy) && $dependant != '1') {
@@ -117,7 +117,7 @@ class Page_Standard extends Page
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function isDeletableLink($linkid)
+	public function isDeletableLink($linkid)
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
@@ -138,7 +138,7 @@ class Page_Standard extends Page
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => TRUE);
@@ -150,12 +150,12 @@ class Page_Standard extends Page
 	/**
 	* Prints out the backend interface for the asset
 	*
-	* @param object	&$o	Backend_Outputter
+	* @param Backend_Outputter	$o	Backend_Outputter
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackend(&$o)
+	public function paintBackend(Backend_Outputter $o)
 	{
 		if (isset($_GET['sq_from_frontend'])) {
 
@@ -191,7 +191,7 @@ class Page_Standard extends Page
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	public function printBody()
 	{
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
@@ -228,7 +228,7 @@ class Page_Standard extends Page
 	* @return void
 	* @access public
 	*/
-	function initLimbo()
+	public function initLimbo()
 	{
 		$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 
@@ -252,7 +252,7 @@ class Page_Standard extends Page
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	public function getContent()
 	{
 		$bodycopy = $this->getBodycopy();
 		if (is_null($bodycopy)) return '';
@@ -269,7 +269,7 @@ class Page_Standard extends Page
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -286,7 +286,7 @@ class Page_Standard extends Page
 	* @return array
 	* @access public
 	*/
-	function getEditingLocks($keywords)
+	public function getEditingLocks(Array $keywords)
 	{
 		$locks = Array();
 		if (!is_array($keywords) || empty($keywords)) {
@@ -301,10 +301,10 @@ class Page_Standard extends Page
 	/**
 	* Return the bodycopy linked to this page
 	*
-	* @return object
+	* @return Bodycopy
 	* @access public
 	*/
-	function &getBodycopy()
+	public function getBodycopy()
 	{
 		$null = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major');
@@ -324,7 +324,7 @@ class Page_Standard extends Page
 	* @access public
 	* @see Asset::getCustomKeywordReplacements()
 	*/
-	function getCustomKeywordReplacements($keywords)
+	public function getCustomKeywordReplacements($keywords)
 	{
 		if (!is_array($keywords) || empty($keywords)) {
 			return Array();
@@ -366,7 +366,7 @@ class Page_Standard extends Page
 	* @access public
 	* @see Asset::processCustomKeywords()
 	*/
-	function processCustomKeywords($keywords)
+	public function processCustomKeywords(Array $keywords)
 	{
 		if (!is_array($keywords) || empty($keywords)) {
 			return Array();

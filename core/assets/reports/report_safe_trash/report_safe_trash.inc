@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash.inc,v 1.5 2007/12/02 23:38:05 lwright Exp $
+* $Id: report_safe_trash.inc,v 1.6 2007/12/03 05:01:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,10 +39,10 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Report_Safe_Trash($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Report($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -53,7 +53,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getAssetMapLinks()
+	public function getAssetMapLinks()
 	{
 		if (!isset($this->_tmp['getAssetMapLinks'])) {
 
@@ -127,7 +127,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @access public
 	* @see Asset_Manager::getLinks()
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
+	public function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Safe Trash Report can only get its own links');
 		if ($dependant || $exclusive) {
@@ -191,7 +191,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
+	public function getParents($assetid, $type_code='', $strict_type_code=TRUE)
 	{
 		assert_equals($assetid, $this->id, 'The Safe Trash Report can only get its own links');
 		return Array();
@@ -219,7 +219,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @access public
 	* @see Asset_Manager::getChildren()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
+	public function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		assert_equals($assetid, $this->id, 'The Safe Trash Report can only get its own links');
 		return Array();
@@ -237,7 +237,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getLineageFromURL($assetid, $protocol, $url)
+	public function getLineageFromURL($assetid, $protocol, $url)
 	{
 
 	}//end getLineageFromURL()
@@ -258,7 +258,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getAllowedAssetTypeMap()
+	public function getAllowedAssetTypeMap()
 	{
 		if (isset($this->_tmp['allowed_asset_map'])) {
 			return $this->_tmp['allowed_asset_map'];
@@ -310,7 +310,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
+	public function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
 		return 0;
 
@@ -325,7 +325,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getAssetMapAssetInfo($assetid)
+	public function getAssetMapAssetInfo($assetid)
 	{
 		return Array();
 
@@ -349,7 +349,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	public function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		return NULL;
 
@@ -365,7 +365,7 @@ class Report_Safe_Trash extends Report implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $moving=FALSE)
+	public function deleteAssetLink($linkid, $moving=FALSE)
 	{
 		return FALSE;
 

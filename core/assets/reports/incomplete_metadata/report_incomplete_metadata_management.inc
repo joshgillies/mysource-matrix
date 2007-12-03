@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_management.inc,v 1.6 2006/12/06 02:59:55 emcdonald Exp $
+* $Id: report_incomplete_metadata_management.inc,v 1.7 2007/12/03 05:01:30 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Report_Incomplete_Metadata_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Report_Incomplete_Metadata_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars['types']	= Array(
 									'added'		=> '0.2',

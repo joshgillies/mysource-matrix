@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_edit_fns.inc,v 1.6 2007/11/28 23:05:36 rong Exp $
+* $Id: report_safe_trash_edit_fns.inc,v 1.7 2007/12/03 05:01:31 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Report_Safe_Trash_Edit_Fns()
+	function __construct()
 	{
-		$this->Report_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -46,15 +46,15 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object	&$job		the HIPO job running this report
-	* @param array	&$step_data	a reference to the array of information about
-	*							the current step of the HIPO job that is running this report
-	* @param string	$prefix		prefix for form vars
+	* @param HIPO_Job	$job		the HIPO job running this report
+	* @param array		&$step_data	a reference to the array of information about
+	*								the current step of the HIPO job that is running this report
+	* @param string		$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateReport(&$job, &$step_data, $prefix)
+	public function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -178,14 +178,14 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Safe_Trash	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintReport(&$asset, &$o, $prefix)
+	public function paintReport(Report_Safe_Trash $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$report_path = $asset->data_path.'/report.xml';
@@ -340,14 +340,14 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Safe_Trash	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	public function paintCurrentAssetTypes(Report_Safe_Trash $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('content');
 
@@ -412,14 +412,14 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Safe_Trash	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	public function processCurrentAssetTypes(Report_Safe_Trash $asset, Backend_Outputter $o, $prefix)
 	{
 		$types = $asset->attr('types');
 
@@ -446,14 +446,14 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint section to add an asset type
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Safe_Trash	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAddAssetType(&$asset, &$o, $prefix)
+	public function paintAddAssetType(Report_Safe_Trash $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('content')) return FALSE;
 
@@ -473,14 +473,14 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Process the section to add a new format for an asset
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Report_Safe_Trash	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAddAssetType(&$asset, &$o, $prefix)
+	public function processAddAssetType(Report_Safe_Trash $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_new_type'])) {
 			$type = trim($_POST[$prefix.'_new_type']);

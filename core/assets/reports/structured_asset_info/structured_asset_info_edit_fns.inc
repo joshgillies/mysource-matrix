@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.12 2007/11/29 02:23:55 rong Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.13 2007/12/03 05:01:31 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Structured_Asset_Info_Edit_Fns()
+	function __construct()
 	{
-		$this->Report_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -48,14 +48,14 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Structured_Asset_Info	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAssetTypes(&$asset, &$o, $prefix)
+	public function paintAssetTypes(Structured_Asset_Info $asset, Backend_Outputter $o, $prefix)
 	{
 		$types = $asset->attr('types');
 		if ($asset->writeAccess('attributes')) {
@@ -107,14 +107,14 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Process the asset types to list
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Structured_Asset_Info	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAssetTypes(&$asset, &$o, $prefix)
+	public function processAssetTypes(Structured_Asset_Info $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_types'])) {
 			$existing_types = $asset->attr('types');
@@ -141,7 +141,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldAssetid($asset_info)
+	protected function _generateFieldAssetid(Array $asset_info)
 	{
 		return $this->_cData($asset_info['assetid']);
 
@@ -156,7 +156,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldStatus($asset_info)
+	protected function _generateFieldStatus(Array $asset_info)
 	{
 		return $asset_info['status'];
 
@@ -171,7 +171,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldAssetType($asset_info)
+	protected function _generateFieldAssetType(Array $asset_info)
 	{
 		return $this->_cData($asset_info['type_code']);
 
@@ -186,9 +186,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldName($asset_info)
+	protected function _generateFieldName(Array $asset_info)
 	{
-
 		return $this->_cData($asset_info['name']);
 
 	}//end _generateFieldName()
@@ -202,9 +201,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldCreatedDate($asset_info)
+	protected function _generateFieldCreatedDate(Array $asset_info)
 	{
-
 		return $asset_info['created'];
 
 	}//end _generateFieldCreatedDate()
@@ -218,9 +216,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldCreatedUser($asset_info)
+	protected function _generateFieldCreatedUser(Array $asset_info)
 	{
-
 		return $asset_info['created_userid'];
 
 	}//end _generateFieldCreatedUser()
@@ -234,7 +231,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldLastUpdatedDate($asset_info)
+	protected function _generateFieldLastUpdatedDate(Array $asset_info)
 	{
 		return $asset_info['updated'];
 
@@ -249,9 +246,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldLastUpdatedUser($asset_info)
+	protected function _generateFieldLastUpdatedUser(Array $asset_info)
 	{
-
 		return $asset_info['updated_userid'];
 
 	}//end _generateFieldLastUpdatedUser()
@@ -265,9 +261,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldLastPublishedDate($asset_info)
+	protected function _generateFieldLastPublishedDate(Array $asset_info)
 	{
-
 		return $asset_info['published'];
 
 	}//end _generateFieldLastPublishedDate()
@@ -281,9 +276,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldLastPublishedUser($asset_info)
+	protected function _generateFieldLastPublishedUser(Array $asset_info)
 	{
-
 		return $asset_info['published_userid'];
 
 	}//end _generateFieldLastPublishedUser()
@@ -297,9 +291,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldLastStatusChangeDate($asset_info)
+	protected function _generateFieldLastStatusChangeDate(Array $asset_info)
 	{
-
 		return $asset_info['status_changed'];
 
 	}//end _generateFieldLastStatusChangeDate()
@@ -313,9 +306,8 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldLastStatusChangeUser($asset_info)
+	protected function _generateFieldLastStatusChangeUser(Array $asset_info)
 	{
-
 		return $asset_info['status_changed_userid'];
 
 	}//end _generateFieldLastStatusChangeUser()
@@ -329,7 +321,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldUrls($asset_info)
+	protected function _generateFieldUrls(Array $asset_info)
 	{
 		$value = '';
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
@@ -358,7 +350,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldDesigns($asset_info)
+	protected function _generateFieldDesigns(Array $asset_info)
 	{
 		$value = '';
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_info['assetid']);
@@ -407,7 +399,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldMetadataSchemas($asset_info)
+	protected function _generateFieldMetadataSchemas(Array $asset_info)
 	{
 		$value = '';
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -429,7 +421,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _generateFieldWorkflowSchemas($asset_info)
+	protected function _generateFieldWorkflowSchemas(Array $asset_info)
 	{
 		$value = '';
 		$wm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -451,7 +443,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _printAssetTagLine($assetid)
+	protected function _printAssetTagLine($assetid)
 	{
 		$value = '';
 		if (!empty($assetid)) {
@@ -470,7 +462,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _cData($character_data)
+	protected function _cData($character_data)
 	{
 		return '<![CDATA['.$character_data.']]>';
 
@@ -480,14 +472,14 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object	&$job		a reference to the array of information about
+	* @param object	&$job		the relevant HIPO job
 	* @param array	&$step_data	a reference to the array of information about the current step of the HIPO job that is running this report
 	* @param string	$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateReport(&$job, &$step_data, $prefix)
+	public function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -697,7 +689,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function startElement($parser, $tag, $attrs)
+	public function startElement($parser, $tag, $attrs)
 	{
 
 		$stack			=& $this->_tmp['paint_stack'];
@@ -739,7 +731,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function tagContent($parser, $data)
+	public function tagContent($parser, $data)
 	{
 
 		$stack			=& $this->_tmp['paint_stack'];
@@ -790,7 +782,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function endElement($parser, $tag)
+	public function endElement($parser, $tag)
 	{
 		$stack			=& $this->_tmp['paint_stack'];
 		$current_asset	=& $this->_tmp['current_asset'];
@@ -817,14 +809,14 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for viewing a report
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Structured_Asset_Info	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintReport(&$asset, &$o, $prefix)
+	public function paintReport(Structured_Asset_Info $asset, Backend_Outputter $o, $prefix)
 	{
 
 		// start the page - <table> etc
@@ -882,7 +874,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintAsset($current_asset)
+	protected function _paintAsset(Array $current_asset)
 	{
 		echo '<tr>';
 
@@ -917,7 +909,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldShortName($data, $type_code, $treeid)
+	protected function _paintFieldShortName($data, $type_code, $treeid)
 	{
 		$depth = strlen($treeid)/SQ_CONF_ASSET_TREE_SIZE - strlen($this->_tmp['root_treeid'])/SQ_CONF_ASSET_TREE_SIZE ;
 		$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
@@ -936,7 +928,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldAssetid($data)
+	protected function _paintFieldAssetid($data)
 	{
 		echo $data;
 
@@ -951,7 +943,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldStatus($data)
+	protected function _paintFieldStatus($data)
 	{
 		$status_names = get_status_names();
 		?><div style="text-align: center; padding: 0 1ex 0 1ex; background: #<?php echo get_status_colour($data); ?>">
@@ -969,7 +961,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldAssetType($data)
+	protected function _paintFieldAssetType($data)
 	{
 		$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($data, 'name');
 		?>
@@ -988,7 +980,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldName($data)
+	protected function _paintFieldName($data)
 	{
 		echo $data;
 
@@ -1003,7 +995,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldCreatedDate($data)
+	protected function _paintFieldCreatedDate($data)
 	{
 		echo $data;
 
@@ -1018,7 +1010,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldCreatedUser($data)
+	protected function _paintFieldCreatedUser($data)
 	{
 		echo $this->_printAssetTagLine($data);
 
@@ -1033,7 +1025,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldLastUpdatedDate($data)
+	protected function _paintFieldLastUpdatedDate($data)
 	{
 		echo $data;
 
@@ -1048,7 +1040,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldLastUpdatedUser($data)
+	protected function _paintFieldLastUpdatedUser($data)
 	{
 		echo $this->_printAssetTagLine($data);
 
@@ -1063,7 +1055,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldLastPublishedDate($data)
+	protected function _paintFieldLastPublishedDate($data)
 	{
 		echo $data;
 
@@ -1078,7 +1070,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldLastPublishedUser($data)
+	protected function _paintFieldLastPublishedUser($data)
 	{
 		echo $this->_printAssetTagLine($data);
 
@@ -1093,7 +1085,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldLastStatusChangeDate($data)
+	protected function _paintFieldLastStatusChangeDate($data)
 	{
 		echo $data;
 
@@ -1108,7 +1100,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldLastStatusChangeUser($data)
+	protected function _paintFieldLastStatusChangeUser($data)
 	{
 		echo $this->_printAssetTagLine($data);
 
@@ -1123,7 +1115,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldUrls($data)
+	protected function _paintFieldUrls($data)
 	{
 		if (!empty($data)) echo implode("<br />\n", $data);
 
@@ -1138,7 +1130,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldDesigns($data)
+	protected function _paintFieldDesigns($data)
 	{
 		if (!empty($data)) {
 			/*
@@ -1177,7 +1169,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldMetadataSchemas($data)
+	protected function _paintFieldMetadataSchemas($data)
 	{
 		if (!empty($data)) {
 			foreach ($data as $schemaid) {
@@ -1196,7 +1188,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintFieldWorkflowSchemas($data)
+	protected function _paintFieldWorkflowSchemas($data)
 	{
 		if (!empty($data)) {
 			foreach ($data as $schemaid) {
@@ -1211,12 +1203,12 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* Check whether we should report on assets of the given type
 	*
 	* @param string	$type			the type to check
-	* @param string	$allowed_types	the allowed asset types in the format Array(type => 1/0)
+	* @param array	$allowed_types	the allowed asset types in the format Array(type => 1/0)
 	*
 	* @return boolean
 	* @access private
 	*/
-	function checkType($type, $allowed_types)
+	public function checkType($type, Array $allowed_types)
 	{
 		$whitelist =& $this->_tmp['whitelist'];
 		if (!isset($whitelist[$type])) {
@@ -1249,7 +1241,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function getTreeid($assetid, $parent_treeid)
+	public function getTreeid($assetid, $parent_treeid)
 	{
 		try {
 			$bind_vars = Array(

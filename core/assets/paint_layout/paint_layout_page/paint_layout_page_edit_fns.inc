@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.10 2007/12/02 23:49:02 colivar Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.11 2007/12/03 05:01:25 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Paint_Layout_Page_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Standard_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -47,17 +47,17 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Paint_Layout_Page	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	public function paintCurrentAssetTypes(Paint_Layout_Page $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('content');
-		$folder =& $asset->getFolder('type_formats');
+		$folder = $asset->getFolder('type_formats');
 
 		$types = $asset->attr('types');
 		if (empty($types) || !is_array($types)) {
@@ -121,17 +121,17 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Paint_Layout_Page	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	public function processCurrentAssetTypes(Paint_Layout_Page $asset, Backend_Outputter $o, $prefix)
 	{
 		$types = $asset->attr('types');
-		$folder =& $asset->getFolder('type_formats');
+		$folder = $asset->getFolder('type_formats');
 		$formats = $asset->getFormats('type_formats');
 
 		// Remove type format bodycopies
@@ -171,14 +171,14 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Paint section to add an asset type
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Paint_Layout_Page	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAddAssetType(&$asset, &$o, $prefix)
+	public function paintAddAssetType(Paint_Layout_Page $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('content')) return FALSE;
 
@@ -196,14 +196,14 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Process the section to add a new format for an asset
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Paint_Layout_Page	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAddAssetType(&$asset, &$o, $prefix)
+	public function processAddAssetType(Paint_Layout_Page $asset, Backend_Outputter $o, $prefix)
 	{
 		$ret = FALSE;
 
@@ -233,14 +233,14 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	/**
 	* Paint the usage of this paint layout
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Paint_Layout_Page	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintUsage(&$asset, &$o, $prefix)
+	public function paintUsage(Paint_Layout_Page $asset, Backend_Outputter $o, $prefix)
 	{
 		$o->openRaw();
 		echo '<p><i>'.translate('design_usage_explanation').'</i></p>';
@@ -296,7 +296,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	function _getTreeTops($treeids)
+	protected function _getTreeTops(Array $treeids)
 	{
 		$all_treeids = Array();
 		foreach ($treeids as $assetid => $asset_treeids) {
@@ -334,7 +334,7 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function _strlenCmp($a, $b)
+	protected function _strlenCmp($a, $b)
 	{
 		return strlen($a) > strlen($b);
 
