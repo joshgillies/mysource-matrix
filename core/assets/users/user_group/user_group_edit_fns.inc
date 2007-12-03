@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.38 2007/11/06 22:36:47 rong Exp $
+* $Id: user_group_edit_fns.inc,v 1.39 2007/12/03 05:16:09 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -615,7 +615,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function paintRoles(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->adminAccess('roles');
-		$string_code_suffix = is_a($asset, 'user_group') ? 'group' : 'user';
+		$string_code_suffix = ($asset instanceof User_Group) ? 'group' : 'user';
 
 		$o->openSection(translate('role_directly_assigned_section_'.$string_code_suffix));
 			$o->openRaw();
