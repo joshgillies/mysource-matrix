@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.115 2007/11/29 01:10:09 rong Exp $
+* $Id: workflow_manager.inc,v 1.116 2007/12/03 04:11:43 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -581,7 +581,7 @@ class Workflow_Manager extends MySource_Object
 			}
 
 			// get the current step for this schema
-			$current_step = $this->getCurrentStep($schema_workflows[$schemaid]);
+			$current_step =& $this->getCurrentStep($schema_workflows[$schemaid]);
 			// is the user listed in the conditions?
 			$listed_user = FALSE;
 
@@ -638,7 +638,7 @@ class Workflow_Manager extends MySource_Object
 		$workflow = $this->getSchemaWorkflows($assetid, $schemaid);
 		if (!isset($workflow['steps'])) return Array();
 
-		$step_data = $this->getCurrentStep($workflow);
+		$step_data =& $this->getCurrentStep($workflow);
 		if (empty($step_data)) return Array();
 
 		for (reset($step_data['conditions']);
@@ -861,7 +861,7 @@ class Workflow_Manager extends MySource_Object
 
 				// ideally we don't want to set complete and start times for steps in here, but we
 				// need to indicate somehow that we've just checked out the escalation workflow and it's all done
-				$step_array = $this->getCurrentStepArray($workflow);
+				$step_array =& $this->getCurrentStepArray($workflow);
 				$current_step_id = end($workflow['current_step']);
 				$step_array[$current_step_id]['completed'] = time();
 
@@ -906,7 +906,7 @@ class Workflow_Manager extends MySource_Object
 
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
-			$workflow = $schema_workflows[$schemaid];
+			$workflow =& $schema_workflows[$schemaid];
 			if ($workflow['complete'] == TRUE) continue;
 			if ($this->_recordPublish($workflow, $publisher, $assetid)) {
 				$new_workflow = serialize($workflow);
@@ -970,10 +970,10 @@ class Workflow_Manager extends MySource_Object
 					// send internal messages to everyone in the next step who can now publish the asset
 					$msg = $ms->newMessage($publishers);
 
-					$workflow = $schema_workflows[$schemaid];
-					$previous_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+					$workflow =& $schema_workflows[$schemaid];
+					$previous_step =& $this->getCurrentStep($workflow, $steps_before[$schemaid]);
 					$previous_step_name =& $previous_step['step_name'];
-					$current_step = $this->getCurrentStep($workflow, $step);
+					$current_step =& $this->getCurrentStep($workflow, $step);
 					$current_step_name =& $current_step['step_name'];
 
 					$msg_reps = Array(
@@ -1072,7 +1072,7 @@ class Workflow_Manager extends MySource_Object
 			$workflow_updated = TRUE;
 			$workflow['steps'] = Array();
 		} else {
-			$step_data = $this->getCurrentStep($workflow);
+			$step_data =& $this->getCurrentStep($workflow);
 			for (reset($step_data['conditions']);
 					NULL !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 
@@ -1125,7 +1125,7 @@ class Workflow_Manager extends MySource_Object
 						$workflow['steps'][$num_steps]['completed'] = time();
 					}
 				} else {
-					$current_step = $this->getCurrentStep($workflow);
+					$current_step =& $this->getCurrentStep($workflow);
 					if (!$current_step['started']) {
 						$current_step['started'] = time();
 					}
@@ -1135,7 +1135,7 @@ class Workflow_Manager extends MySource_Object
 					if ($workflow['current_step'][$last_key] > 1) {
 						$previous_step_address = $workflow['current_step'];
 						$previous_step_address[$last_key]--;
-						$previous_step = $this->getCurrentStep($workflow, $previous_step_address);
+						$previous_step =& $this->getCurrentStep($workflow, $previous_step_address);
 						if (!$previous_step['completed']) {
 							$previous_step['completed'] = time();
 						}
@@ -1550,7 +1550,7 @@ class Workflow_Manager extends MySource_Object
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
-		$workflow = $schema_workflows[$schemaid];
+		$workflow =& $schema_workflows[$schemaid];
 
 
 		// mark the current step as escalated
@@ -1605,7 +1605,7 @@ class Workflow_Manager extends MySource_Object
 
 		// we may have gone deeper in workflow. If so, mark the current step as started.,
 
-		$current_step = $this->getCurrentStep($workflow);
+		$current_step =& $this->getCurrentStep($workflow);
 		if (!$current_step['started']) {
 			$current_step['started'] = time();
 		}
@@ -1753,7 +1753,7 @@ class Workflow_Manager extends MySource_Object
 		if ($current_step == NULL) {
 			$current_step = $workflow['current_step'];
 		}
-		$steps = $this->getCurrentStepArray($workflow, $current_step);
+		$steps =& $this->getCurrentStepArray($workflow, $current_step);
 
 		return $steps[end($current_step)];
 
