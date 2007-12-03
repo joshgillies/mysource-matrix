@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.106 2007/12/02 23:52:39 lwright Exp $
+* $Id: site.inc,v 1.107 2007/12/03 00:07:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -399,7 +399,7 @@ class Site extends Folder
 	* @return boolean
 	* @access private
 	*/
-	protected function _morphCleanup($new_type_code)
+	public function _morphCleanup($new_type_code)
 	{
 		$current_urls = $this->getSiteURLs();
 		if (!empty($current_urls)) {
