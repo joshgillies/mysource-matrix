@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.7 2007/07/24 02:14:36 rhoward Exp $
+* $Id: system_parse_design.php,v 1.8 2007/12/03 04:11:53 gsherwood Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Reparses a specified design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -32,8 +32,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-// check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
@@ -49,9 +48,9 @@ if (empty($DESIGNID)) {
 
 $hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($DESIGNID);
+$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($DESIGNID);
 if (is_null($design)) exit();
-if (!is_a($design, 'design')) {
+if (!($design instanceof Design)) {
 	trigger_error('Asset #'.$design->id.' is not a design', E_USER_ERROR);
 }
 

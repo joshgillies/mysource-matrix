@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_designs.php,v 1.4 2007/07/24 02:14:36 rhoward Exp $
+* $Id: system_parse_designs.php,v 1.5 2007/12/03 04:11:53 gsherwood Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Reparses all of the designs in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 ini_set('memory_limit', '-1');
@@ -34,8 +34,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 define('SQ_SYSTEM_ROOT', realpath($SYSTEM_ROOT));
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-// check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
@@ -55,17 +54,15 @@ foreach ($parse_asset_types as $type_code => $strict) {
 	$designs = array_merge($designs, $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code, $strict));
 }
 
-bam($designs);
-
 foreach ($designs as $designid) {
 
-	$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
+	$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
 	if (is_null($design)) exit();
-	if (!is_a($design, 'design')) {
+	if (!($design instanceof Design)) {
 		trigger_error('Asset #'.$design->id.' is not a design', E_USER_ERROR);
 	}
 
-	printName('Checking Parse files "'.$design->name.'"');
+	printName('Checking Parse files "'.$design->name.'" (#'.$design->id.')');
 
 	$parse_file  = $design->data_path.'/parse.txt';
 	// add a new version to the repository
@@ -81,7 +78,7 @@ foreach ($designs as $designid) {
 
 	printUpdateStatus('OK');
 
-	printName('Reparse '.$design->type().' "'.$design->name.'"');
+	printName('Reparse '.$design->type().' "'.$design->name.'" (#'.$design->id.')');
 
 	$edit_fns = $design->getEditFns();
 	if (!$edit_fns->parseAndProcessFile($design)) {
