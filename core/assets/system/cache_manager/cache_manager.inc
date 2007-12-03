@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.60 2007/12/03 04:21:49 gsherwood Exp $
+* $Id: cache_manager.inc,v 1.61 2007/12/03 04:28:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -264,7 +264,7 @@ class Cache_Manager extends Asset
 								'expires'	=> ts_iso8601($expiry),
 								'path'		=> $file_path,
 							 );
-				MatrixDAL::executeQuery('cache_manager', 'insertCacheEntry');
+				MatrixDAL::executeQuery('cache_manager', 'insertCacheEntry', $bind_vars);
 			} catch (DALException $e) {
 				throw new Exception('Unable to cache asset ID # '.$assetid.' due to database error: '.$e->getMessage());
 			}
@@ -347,7 +347,7 @@ class Cache_Manager extends Asset
 			try {
 				foreach (array_chunk($assetids, 999) as $chunk) {
 					$bind_vars = Array('assetids' => &$chunk);
-					$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'deleteCacheEntriesByAsset'));
+					$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'deleteCacheEntriesByAsset', $bind_vars));
 					//$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
 				}
 			} catch (DALException $e) {
@@ -386,7 +386,7 @@ class Cache_Manager extends Asset
 			// $in_clauses = Array();
 			foreach (array_chunk($assetids, 999) as $chunk) {
 				$bind_vars = Array('assetids' => &$chunk);
-				$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset'));
+				$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset', $bind_vars));
 				$result = array_unique($result);
 			}
 /*
@@ -501,7 +501,7 @@ class Cache_Manager extends Asset
 										'assetid'	=> $assetid,
 										'userids'	=> $userids,
 									 );
-						$permission = MatrixDAL::executeOne('cache_manager', 'getHighestPermissionForUsers');
+						$permission = MatrixDAL::executeOne('cache_manager', 'getHighestPermissionForUsers', $bind_vars);
 					} catch (DALException $e) {
 						throw new Exception('Unable to get maximum permission level of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
 					}
@@ -688,7 +688,7 @@ class Cache_Manager extends Asset
 						'perm_key'	=> $perm_key,
 						'url'		=> $url,
 					 );
-			MatrixDAL::executeQuery('cache_manager', 'deleteCacheEntry');
+			MatrixDAL::executeQuery('cache_manager', 'deleteCacheEntry', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
 		}
@@ -725,7 +725,7 @@ class Cache_Manager extends Asset
 						'perm_key'	=> $perm_key,
 						'url'		=> $url,
 					 );
-			MatrixDAL::executeQuery('cache_manager', 'updateCacheExpiry');
+			MatrixDAL::executeQuery('cache_manager', 'updateCacheExpiry', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception('Unable to update cache expiry time due to database error: '.$e->getMessage());
 		}
