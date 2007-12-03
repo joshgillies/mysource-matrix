@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.25 2006/12/05 22:42:13 emcdonald Exp $
+* $Id: design_area_nest_content.inc,v 1.26 2007/12/03 23:14:26 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,7 @@ class Design_Area_Nest_Content extends Design_Area
 	{
 		$assetid = (int) $this->_getNestAssetInfo('minorid');
 		echo '<', '?php
-		$nest_content_'.$this->attr('id_name').'_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
+		$nest_content_'.$this->attr('id_name').'_asset = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
 		?', '>';
 
 	}//end _printInitCode()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.15 2006/12/05 22:42:13 emcdonald Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.16 2007/12/03 23:14:26 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			asset_finder($prefix.'_assetid', $asset->_getNestAssetInfo('minorid'), $type_code_restrictions);
 
 		} else if ($asset->_getNestAssetInfo('minorid')) {
-			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getNestAssetInfo('minorid'));
+			$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getNestAssetInfo('minorid'));
 			if (!is_null($link_asset)) {
 				echo get_asset_tag_line($link_asset->id);
 			}
@@ -104,7 +104,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 
 		// now create the new link
 		if ($assetid) {
-			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($link_asset)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

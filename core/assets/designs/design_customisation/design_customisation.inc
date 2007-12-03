@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.51 2007/12/03 04:52:12 bshkara Exp $
+* $Id: design_customisation.inc,v 1.52 2007/12/03 23:14:26 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,7 +127,7 @@ class Design_Customisation extends Design
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
 		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && ($minor instanceof File)) {
 
-			$design =& $this->getParentDesign();
+			$design = $this->getParentDesign();
 
 			// if we have not been orphaned from a design...
 			if ($design) {
@@ -164,7 +164,7 @@ class Design_Customisation extends Design
 		// special processing if we are deleting a TYPE_2 linked CSS file (a CSS file overridding a design file)
 		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && ($minor instanceof Design_Css)) {
 
-			$design =& $this->getParentDesign();
+			$design = $this->getParentDesign();
 
 			// go through all the links of the design we are customisaing and find a css file
 			// linked to it with the same name as the one we just deleted so it can take its place
@@ -291,7 +291,7 @@ class Design_Customisation extends Design
 	function getCustomisedAreas()
 	{
 		if (!isset($this->_tmp['customised_areas'])) {
-			$parent =& $this->getParentDesign();
+			$parent = $this->getParentDesign();
 			if (!is_null($parent)) {
 				// OK, get our design area links and our parents
 				$our_links     = $this->getDesignAreaLink();
@@ -402,7 +402,7 @@ class Design_Customisation extends Design
 			$da = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($da)) continue;
 
-			$parent_da =& $parent->getDesignArea($link['value']);
+			$parent_da = $parent->getDesignArea($link['value']);
 			if (is_null($parent_da)) continue;
 			foreach ($parent_da->vars as $name => $details) {
 				if (FALSE !== strpos($name, 'contents')) {
