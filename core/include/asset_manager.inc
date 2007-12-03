@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.632 2007/12/02 23:49:02 colivar Exp $
+* $Id: asset_manager.inc,v 1.633 2007/12/03 03:37:52 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.632 $
+* @version $Revision: 1.633 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6776,7 +6776,6 @@ class Asset_Manager extends MySource_Object
 				)';
 
 		$result = $db->query($sql);
-		assert_valid_db_result($result);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -6823,8 +6822,11 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$result = $db->query($sql);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete roleid on assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
