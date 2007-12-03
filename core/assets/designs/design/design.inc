@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.138 2007/12/03 03:32:53 gsherwood Exp $
+* $Id: design.inc,v 1.139 2007/12/03 04:03:59 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -305,7 +305,7 @@ class Design extends Design_Area
 		}
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
