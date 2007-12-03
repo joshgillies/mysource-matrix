@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_report_edit_fns.inc,v 1.5 2007/12/03 05:29:32 lwright Exp $
+* $Id: log_report_edit_fns.inc,v 1.6 2007/12/03 21:57:10 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,7 @@ class Log_Report_Edit_Fns extends Report_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	protected function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
+	public function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
 	{
 		$step_data['percent_done'] = 100;
 		$step_data['complete'] = TRUE;
