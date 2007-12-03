@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_quick_hipo.inc,v 1.3 2007/11/21 00:20:32 inegretski Exp $
+* $Id: hipo_job_quick_hipo.inc,v 1.4 2007/12/03 22:18:28 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -138,7 +138,7 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 	function &_getCallbackAsset()
 	{
 		$null = NULL;
-		$callback_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['callback_assetid']);
+		$callback_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['callback_assetid']);
 
 		if (is_null($callback_asset)) {
 			trigger_localised_error('HIPO0080', E_USER_ERROR, $this->_running_vars['callback_assetid']);
@@ -171,7 +171,7 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 		}
 
 		// check that the callback asset is valid, and the callback function exists
-		$callback_asset =& $this->_getCallbackAsset();
+		$callback_asset = $this->_getCallbackAsset();
 		if (is_null($callback_asset)) return FALSE;
 
 		$this->_running_vars['total_count'] = count($this->_running_vars['items']);
@@ -197,7 +197,7 @@ class HIPO_Job_Quick_HIPO extends HIPO_Job
 		if (!empty($this->_running_vars['todo_items'])) {
 
 			// check that the callback asset is valid, and the callback function exists
-			$callback_asset =& $this->_getCallbackAsset();
+			$callback_asset = $this->_getCallbackAsset();
 			if (is_null($callback_asset)) return FALSE;
 
 			$current_item_index = reset($this->_running_vars['todo_items']);
