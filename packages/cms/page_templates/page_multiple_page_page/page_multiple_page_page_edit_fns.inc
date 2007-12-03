@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page_edit_fns.inc,v 1.3 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_multiple_page_page_edit_fns.inc,v 1.4 2007/12/03 22:09:31 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -36,7 +36,7 @@ class Page_Multiple_Page_Page_Edit_Fns extends Bodycopy_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Multiple_Page_Page_Edit_Fns()
+	function __construct()
 	{
 		$this->Bodycopy_Edit_Fns();
 

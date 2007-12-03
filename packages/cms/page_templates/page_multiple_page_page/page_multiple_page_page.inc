@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page.inc,v 1.15 2007/12/03 05:44:21 bshkara Exp $
+* $Id: page_multiple_page_page.inc,v 1.16 2007/12/03 22:09:31 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -39,7 +39,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Multiple_Page_Page($assetid=0)
+	function __construct($assetid=0)
 	{
 		parent::__construct($assetid);
 
