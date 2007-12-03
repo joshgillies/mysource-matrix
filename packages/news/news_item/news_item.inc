@@ -10,13 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.18 2007/08/27 05:30:46 lwright Exp $
+* $Id: news_item.inc,v 1.19 2007/12/03 01:02:48 gsherwood Exp $
 *
 */
 
-
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
-
 
 /**
 * News_Item
@@ -24,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -81,7 +79,7 @@ class News_Item extends Page
 	* @return NULL|object Asset
 	* @access public
 	*/
-	function &getLinkAsset()
+	function getLinkAsset()
 	{
 		if ($this->id == 0) {
 			$null = NULL;
@@ -178,7 +176,7 @@ class News_Item extends Page
 	{
 		// if there is no url, see if we have an asset selected
 		if (($url = $this->attr('link_url')) == '') {
-			$link_asset = &$this->getLinkAsset();
+			$link_asset = $this->getLinkAsset();
 			if (!is_null($link_asset)) {
 				if (($url = $link_asset->getURL()) == '') {
 					$url = current_url().'?a='.$link_asset->id;

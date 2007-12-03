@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.8 2006/12/06 22:14:19 emcdonald Exp $
+* $Id: news_item_edit_fns.inc,v 1.9 2007/12/03 01:02:48 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -54,7 +54,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintLinkAssetid(&$asset, &$o, $prefix)
 	{
-		$link_asset = &$asset->getLinkAsset();
+		$link_asset = $asset->getLinkAsset();
 		if ($asset->writeAccess('links')) {
 			asset_finder($prefix.'_link_assetid', (is_null($link_asset) ? 0 : $link_asset->id));
 		} else {
@@ -88,7 +88,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 		$link_assetid = $_POST[$prefix.'_link_assetid']['assetid'];
 
 		if ($link_assetid) {
-			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_assetid);
+			$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_assetid);
 		} else {
 			$link_asset = null;
 		}
