@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.17 2007/02/08 00:26:23 tbarrett Exp $
+* $Id: page_site_map_management.inc,v 1.18 2007/12/03 23:14:03 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -34,7 +34,7 @@ class Page_Site_Map_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Site_Map_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

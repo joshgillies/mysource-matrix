@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.37 2007/02/22 00:16:46 hnguyen Exp $
+* $Id: page_site_map.inc,v 1.38 2007/12/03 23:14:03 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,10 +38,10 @@ class Page_Site_Map extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Site_Map($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -109,7 +109,7 @@ class Page_Site_Map extends Page
 	*/
 	function printBody()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$rootid = $this->_getRootNodeId();
 
 		// Try to load from cache, with our root node as cache key
@@ -186,7 +186,7 @@ class Page_Site_Map extends Page
 		$root_asset = NULL;
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', FALSE, 'root');
 		if (!empty($root_link)) {
-			$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+			$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
 		}
 
 		if (is_null($root_asset)) {
@@ -197,7 +197,7 @@ class Page_Site_Map extends Page
 		} else {
 			$rootid = $root_asset->id;
 
-			$parameter_map =& $this->getAttribute('parameter_map');
+			$parameter_map = $this->getAttribute('parameter_map');
 			$dynamic_root = $parameter_map->getParameterValue('root_node');
 			if (!empty($dynamic_root)) {
 				$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
@@ -401,7 +401,7 @@ class Page_Site_Map extends Page
 		}
 
 		if (!is_null($format_type_code)) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid']);
 			$format = $display_formats[$format_type_code]['format'];
 			preg_match_all('/%(\w+)%/i', $format, $matches);
 

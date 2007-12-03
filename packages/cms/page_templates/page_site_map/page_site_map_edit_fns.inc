@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.21 2006/12/07 00:04:23 emcdonald Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.22 2007/12/03 23:14:03 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -36,9 +36,10 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Site_Map_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		//$this->Page_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'content';
 
@@ -110,7 +111,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 			$ok = FALSE;
 		} else if ($new_root) {
-			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
