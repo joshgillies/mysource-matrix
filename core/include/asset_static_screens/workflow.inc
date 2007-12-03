@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.51 2007/11/29 01:12:47 rong Exp $
+* $Id: workflow.inc,v 1.52 2007/12/03 03:37:00 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ function paintInlineWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Inte
 {
 	$prefix = $owner->getPrefix();
 
-	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$schemas = $wfm->getSchemas($owner->id);
 
 	if (empty($schemas)) return FALSE;
@@ -119,7 +119,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = FALSE;
 
-	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$schemas = $wfm->getSchemas($owner->id);
 	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 	$admin_access = $owner->adminAccess('workflow');
@@ -262,7 +262,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 							ob_start();
 						}
 
-						$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$logs = $ms->getLogs('asset.workflow.log.*', Array('assetid' => $owner->id));
 						$user_logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $owner->id));
 						usort($logs, Array('Messaging_Service', 'sortMessages'));
@@ -454,7 +454,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 												</tr>
 											<?php
 											foreach ($step_data['conditions'] as $pub => $cond_data) {
-												$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+												$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 												if (!$asset->id) continue;
 												?>
 												<tr>
@@ -578,7 +578,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 					// lets show some workflow warnings about metadata if we need to
 					if ($owner->status & SQ_SC_STATUS_PENDING) {
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						if ($mm->allowsMetadata($owner->id)) {
 							$m_complete = $mm->requiredFieldsComplete($owner->id);
 							if (!$m_complete) {
@@ -794,7 +794,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 	$prefix = $owner->getPrefix();
 
 	// process a status change on this screen if workflow is running
-	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 
 	// has a message been entered?
@@ -814,7 +814,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 
 	// process any messages that may have been submitted
 	if (!empty($message_body)) {
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$msg_reps = Array(
 						'message'	=> $message_body,
 					);
@@ -832,7 +832,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 		return $updated;
 	}
 
-	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 	// are we cascading these schema changes to our children?
 	$cascade_changes = FALSE;
@@ -900,7 +900,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 
 
 	if (!empty($schema_vars)) {
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'			=> Array(
 											$owner->id	=> Array(
@@ -936,7 +936,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 */
 function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, array &$workflow, array $step_address)
 {
-	$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$step_data = $wfm->getCurrentStep($workflow, $step_address);
 	$section_title = 'Step '.implode('.',$step_address).' - '.$step_data['step_name'];
 
@@ -1022,7 +1022,7 @@ function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Inter
 				</tr>
 			<?php
 			foreach ($step_data['conditions'] as $pub => $cond_data) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 				if (!$asset->id) continue;
 				?>
 				<tr>
