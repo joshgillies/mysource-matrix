@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.20 2007/12/03 03:33:10 gsherwood Exp $
+* $Id: content_type.inc,v 1.21 2007/12/03 23:12:50 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,12 +37,11 @@ class Content_Type extends Asset
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
-	* @access public
 	*
 	*/
-	function Content_Type($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -57,7 +56,7 @@ class Content_Type extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -79,7 +78,7 @@ class Content_Type extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array();
 
@@ -95,7 +94,7 @@ class Content_Type extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -108,7 +107,7 @@ class Content_Type extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function isEmpty()
+	public function isEmpty()
 	{
 		$html = trim($this->attr('html'));
 		return empty($html);
@@ -122,7 +121,7 @@ class Content_Type extends Asset
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	public function getContent()
 	{
 		return trim($this->attr('html'));
 
@@ -137,7 +136,7 @@ class Content_Type extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setContent($content)
+	public function setContent($content)
 	{
 		$this->setAttrValue('html', $content);
 		$this->saveAttributes();
@@ -157,7 +156,7 @@ class Content_Type extends Asset
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=FALSE)
+	public function saveAttributes($dont_run_updated=FALSE)
 	{
 		$contents_changed = isset($this->_tmp['vars_set']['html']);
 
@@ -175,7 +174,7 @@ class Content_Type extends Asset
 		$success = parent::saveAttributes($dont_run_updated);
 
 		if ($contents_changed && $success) {
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'ContentsUpdated');
 		}
 
@@ -190,14 +189,14 @@ class Content_Type extends Asset
 	* @return void
 	* @access public
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 		// Bug Fix 1541
 		// Paintlayout bodycopy is not updated if the content type is updated but its attributes
 		// was not changed. For instance, the nested content type, it does not change any of its attributes
 		// although you change the asset to nest within. Consequently, saveAttributes() function can not
 		// propagate to all the parents resulting in paint layout bodycopy unchanged.
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$bc_container_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, NULL, 'minor');
 
 		if (!empty($bc_container_link)) {

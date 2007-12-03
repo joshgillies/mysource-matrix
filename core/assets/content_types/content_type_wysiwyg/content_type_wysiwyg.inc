@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.10 2006/12/05 05:48:39 emcdonald Exp $
+* $Id: content_type_wysiwyg.inc,v 1.11 2007/12/03 23:12:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *	Stores html content to be edited using the WYSIWYG editor
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Content_Type_WYSIWYG extends Content_Type
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Content_Type_WYSIWYG($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Content_Type($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Content_Type_WYSIWYG extends Content_Type
 	* @return boolean
 	* @access public
 	*/
-	function morph($new_type_code)
+	public function morph($new_type_code)
 	{
 		if (!parent::morph($new_type_code))	return FALSE;
 

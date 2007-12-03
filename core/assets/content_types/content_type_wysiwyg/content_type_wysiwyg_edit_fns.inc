@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.42 2007/11/16 03:14:09 hnguyen Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.43 2007/12/03 23:12:50 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Content_Type_WYSIWYG_Edit_Fns()
+	function __construct()
 	{
-		$this->Content_Type_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -47,13 +47,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Sets the various params for this WYSIWYG editor, and returns a Fudge WYSIWYG object
 	*
-	* @param object	&$asset	the WYSIWYG Content Type object
-	* @param string	$prefix	prefix for form elements
+	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
+	* @param string					$prefix	prefix for form elements
 	*
-	* @return object
+	* @return WYSIWYG
 	* @access private
 	*/
-	function &_createEditor(&$asset, $prefix)
+	protected function _createEditor(Content_Type_WYSIWYG $asset, $prefix)
 	{
 		// allowed plugins (shortened to $ap for easier use below)
 		$ap = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_WYSIWYG_PLUGINS'));
@@ -250,13 +250,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Prints the backend interface for this WYSIWYG editor
 	*
-	* @param object	&$asset	the WYSIWYG Content Type object
-	* @param string	$prefix	prefix for form elements
+	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$asset, $prefix)
+	public function paintBackend(Content_Type_WYSIWYG $asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			$wysiwyg = $this->_createEditor($asset, $prefix);
@@ -273,13 +273,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Prints any icons the content type needs next to the cell properties
 	*
-	* @param object	&$asset	the WYSIWYG Content Type object
-	* @param string	$prefix	prefix for form elements
+	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackendIcons(&$asset, $prefix)
+	public function paintBackendIcons(Content_Type_WYSIWYG $asset, $prefix)
 	{
 		Bodycopy_Edit_Fns::printBodycopyIcon("switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.');', 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
 
@@ -289,13 +289,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Prints extra backend icons at the right hand side of the menu
 	*
-	* @param object	&$asset	the WYSIWYG Content Type object
-	* @param string	$prefix	prefix for form elements
+	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackendStatusIcons(&$asset, $prefix)
+	public function paintBackendStatusIcons(Content_Type_WYSIWYG $asset, $prefix)
 	{
 		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
@@ -328,14 +328,14 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Paints raw HTML
 	*
-	* @param object		&$asset		the WYSIWYG Content Type object
-	* @param boolean	$editing	are we printing an editing interface
-	* @param boolean	$generating	are we genenerating the cache file
+	* @param Content_Type_WYSIWYG	$asset		the WYSIWYG Content Type object
+	* @param boolean				$editing	are we printing an editing interface
+	* @param boolean				$generating	are we genenerating the cache file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paint(&$asset, $editing=FALSE, $generating=FALSE)
+	public function paint(Content_Type_WYSIWYG $asset, $editing=FALSE, $generating=FALSE)
 	{
 		$html = $asset->attr('html');
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
@@ -352,14 +352,14 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	/**
 	* Processes the backend interface for this WYSIWYG editor
 	*
-	* @param array	$link	information used to create the initial link
-	* @param object	&$asset	the WYSIWYG Content Type object
-	* @param string	$prefix	prefix for form elements
+	* @param array					$link	information used to create the initial link
+	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($link, &$asset, $prefix)
+	public function processBackend(Array $link, Content_Type_WYSIWYG $asset, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 

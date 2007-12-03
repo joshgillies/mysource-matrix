@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_management.inc,v 1.8 2006/12/05 05:53:08 emcdonald Exp $
+* $Id: content_type_wysiwyg_management.inc,v 1.9 2007/12/03 23:12:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Content_Type_WYSIWYG_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Content_Type_WYSIWYG_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'htmltidy_status'	=> Array(
