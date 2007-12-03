@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.35 2007/11/06 06:26:44 rong Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.36 2007/12/03 01:11:45 lwright Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,10 +62,10 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Paint_Layout_Bodycopy($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -76,7 +76,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return boolean
 	* @access public
 	*/
-	function _updated()
+	public function _updated()
 	{
 		// Use bodycopy's save functionality to store any notice links our containers have,
 		// and to store the original content before any substitutions take place
@@ -95,7 +95,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return void
 	* @access private
 	*/
-	function _generateContentFile()
+	protected function _generateContentFile()
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$php_begin = '<'.'?'.'php ';
@@ -193,12 +193,12 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	/**
 	* Returns the body of the painted asset
 	*
-	* @param object	&$asset	the asset to paint
+	* @param Asset	asset	the asset to paint
 	*
 	* @return string
 	* @access public
 	*/
-	function paintAsset(&$asset)
+	public function paintAsset(Asset $asset)
 	{
 		/*
 		 * Possible keywords:
@@ -274,7 +274,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return void
 	* @access private
 	*/
-	function _addRequiredKeywordsFromEvaluatedKeyword($evaluated_keyword, &$required_keywords)
+	protected function _addRequiredKeywordsFromEvaluatedKeyword($evaluated_keyword, Array &$required_keywords)
 	{
 		// if the evaluated keyword is a logical condition, then gets the logical keywords it is relying on
 		$condition_list = new Conditions_List($this, 'conditional_keywords');
@@ -297,7 +297,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return boolean
 	* @access public
 	*/
-	function _evaluateKeyword($keyword_name)
+	protected function _evaluateKeyword($keyword_name)
 	{
 		if (!isset($this->keyword_replacements[$keyword_name])) {
 			return FALSE;
@@ -318,7 +318,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return string
 	* @access private
 	*/
-	function _getKeywordValue($keyword)
+	protected function _getKeywordValue($keyword)
 	{
 		// TODO: must optimise getAssetKeywordReplacements() with a cache
 		$ret = $this->_getAssetKeywordReplacements($this->asset_to_paint, Array($keyword));
@@ -334,13 +334,13 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* Returns the values of a list of keywords.
 	* The returned array may contain more keywords than needed.
 	*
-	* @param object	&$asset				the asset which will provide the values for the keywords
+	* @param Asset	$asset				the asset which will provide the values for the keywords
 	* @param array	$required_keywords	keyword names that must be replaced
 	*
 	* @return array
 	* @access private
 	*/
-	function &_getAssetKeywordReplacements(&$asset, $required_keywords)
+	protected function &_getAssetKeywordReplacements(Asset &$asset, Array $required_keywords)
 	{
 		$ret = Array();
 
@@ -397,7 +397,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return void
 	* @access public
 	*/
-	function setAssociatedAssetType($asset_type='')
+	public function setAssociatedAssetType($asset_type='')
 	{
 		$this->setAttrValue('associated_asset_type', $asset_type);
 
@@ -410,7 +410,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return string
 	* @access public
 	*/
-	function getAssociatedAssetType()
+	public function getAssociatedAssetType()
 	{
 		return $this->attr('associated_asset_type');
 
@@ -426,7 +426,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 	* @return void
 	* @access public
 	*/
-	function getKeywordsDescription(&$keywords, $asset_type_code='')
+	public function getKeywordsDescription(Array &$keywords, $asset_type_code='')
 	{
 		if (is_array($keywords)) {
 

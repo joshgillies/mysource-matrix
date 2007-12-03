@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.11 2007/11/06 06:26:44 rong Exp $
+* $Id: paint_layout_bodycopy_edit_fns.inc,v 1.12 2007/12/03 01:11:45 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Paint_Layout_Bodycopy_Edit_Fns()
+	function __construct()
 	{
-		$this->Bodycopy_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -46,14 +46,14 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	/**
 	* Paints adding a new user condition
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Paint_Layout_Bodycopy	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintConditionalKeywords(&$asset, &$o, $prefix)
+	public function paintConditionalKeywords(Paint_Layout_Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
 		$allowed_keywords = Array();
 		$asset->getKeywordsDescription($allowed_keywords, $asset->getAssociatedAssetType());
@@ -69,14 +69,14 @@ class Paint_Layout_Bodycopy_Edit_Fns extends Bodycopy_Edit_Fns
 	/**
 	* Processses adding a new user condition
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Paint_Layout_Bodycopy	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function processConditionalKeywords(&$asset, &$o, $prefix)
+	public function processConditionalKeywords(Paint_Layout_Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
 		$allowed_keywords = Array();
 		$asset->getKeywordsDescription($allowed_keywords, $asset->getAssociatedAssetType());
