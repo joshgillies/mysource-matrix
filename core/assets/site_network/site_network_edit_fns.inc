@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network_edit_fns.inc,v 1.8 2006/12/06 02:59:56 emcdonald Exp $
+* $Id: site_network_edit_fns.inc,v 1.9 2007/12/03 04:04:36 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 		if (!$write_access) {
 			$site_asset = NULL;
 			if (!empty($site_link)) {
-				$site_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($site_link['minorid']);
+				$site_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_link['minorid']);
 			}
 			if (!is_null($site_asset)) {
 				echo $asset->getPrimaryURL();
@@ -119,7 +119,7 @@ class Site_Network_Edit_Fns extends Folder_Edit_Fns
 		if (!empty($site_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($site_link['linkid'])) {
 			$ok = FALSE;
 		} else if ($new_site) {
-			$site =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_site);
+			$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_site);
 			if (!is_null($site)) {
 				if (!$asset->createLink($site, SQ_LINK_NOTICE, 'primary_site')) {
 					$ok = FALSE;

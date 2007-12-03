@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.12 2006/12/06 02:59:56 emcdonald Exp $
+* $Id: site_network.inc,v 1.13 2007/12/03 04:04:35 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Site_Network extends Folder
 		$result = parent::canCreateLink($minor, $link_type, $exclusive);
 		if ($result !== TRUE) return $result;
 
-		if (is_a($minor, 'site') && ($link_type != SQ_LINK_NOTICE)) {
+		if (($minor instanceof Site) && ($link_type != SQ_LINK_NOTICE)) {
 			// site assets can only be in a single site network
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
 			if (!empty($network_link)) {
@@ -141,7 +141,7 @@ class Site_Network extends Folder
 	*/
 	function canMoveLink(&$minor, &$old_major, $link_type)
 	{
-		if (is_a($minor, 'site') && is_a($old_major, 'site_network') && ($link_type != SQ_LINK_NOTICE)) {
+		if (($minor instanceof Site) && ($old_major instanceof Site_Network) && ($link_type != SQ_LINK_NOTICE)) {
 			// if we are moving from a site network, we can tolerate one existing
 			// network link - the one being moved from
 			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', FALSE, 'minor');
@@ -170,20 +170,17 @@ class Site_Network extends Folder
 			$site_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'site', FALSE, 'primary_site');
 			if (empty($site_link)) return '';
 
-			$sql = 'SELECT url, http, https
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
-					';
-			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($site_link['minorid']);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql .= $where.'ORDER BY urlid LIMIT 1';
-
-			$primary_url_data = $GLOBALS['SQ_SYSTEM']->db->getRow($sql);
-			assert_valid_db_result($primary_url_data);
+			try {
+				$bind_vars = Array('assetid'=> $site_link['minorid']);
+				$primary_url_data = MatrixDAL::executeAll('site_network', 'getPrimaryURL', $bind_vars);
+			} catch (DALException $e) {
+				throw new Exception('Unable to get primary URL due to database error: '.$e->getMessage());
+			}
 
 			if (empty($primary_url_data)) return '';
-			$primary_url = $primary_url_data['url'];
+			$primary_url = $primary_url_data[0]['url'];
 
-			if ($primary_url['https'] == '1') {
+			if ($primary_url_data[0]['https'] == '1') {
 				$primary_url = 'https://'.$primary_url;
 			} else {
 				$primary_url = 'http://'.$primary_url;
