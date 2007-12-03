@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.18 2006/12/07 00:04:23 emcdonald Exp $
+* $Id: page_redirect_management.inc,v 1.19 2007/12/03 23:31:29 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -34,7 +34,7 @@ class Page_Redirect_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Redirect_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

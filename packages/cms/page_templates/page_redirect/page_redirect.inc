@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.35 2007/03/23 04:21:03 tbarrett Exp $
+* $Id: page_redirect.inc,v 1.36 2007/12/03 23:31:29 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Page_Redirect extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Redirect($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -88,7 +88,7 @@ class Page_Redirect extends Page
 		if (!empty($this->id)) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'redirect_asset');
 			if (!empty($link)) {
-				$res =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			}
 		}
 		return $res;
@@ -228,7 +228,7 @@ class Page_Redirect extends Page
 	{
 		$keywords = parent::getAvailableKeywords();
 
-		$asset =& new Asset();
+		$asset = new Asset();
 
 		foreach ($asset->getAvailableKeywords() as $keyword => $desc) {
 			$keywords['referring_'.$keyword] = 'Referring Asset: '.$desc;
@@ -259,7 +259,7 @@ class Page_Redirect extends Page
 	function getKeywordReplacement($keyword)
 	{
 		if (preg_match('|^referring\_(.*)|', $keyword, $matches)) {
-			$referring_asset =& $this->getReferringAsset();
+			$referring_asset = $this->getReferringAsset();
 			if ($referring_asset) {
 				return $referring_asset->getKeywordReplacement($matches[1]);
 			} else {
@@ -288,7 +288,7 @@ class Page_Redirect extends Page
 		$url = preg_replace('|^.*://|', '', $url);
 		$url = preg_replace('|\?.*$|', '', $url);
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $url, FALSE, TRUE);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $url, FALSE, TRUE);
 
 		return $asset;
 
@@ -325,7 +325,7 @@ class Page_Redirect extends Page
 
 		// if there is no url, see if we have an asset selected
 		} else if (($url = $this->attr('redirect_url')) == '') {
-			$redirect_asset =& $this->getRedirectAsset();
+			$redirect_asset = $this->getRedirectAsset();
 			if (!is_null($redirect_asset)) {
 				if (($url = $redirect_asset->getURL()) == '') {
 					$url = current_url().'?a='.$redirect_asset->id;
