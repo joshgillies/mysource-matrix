@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code_prefs.inc,v 1.7 2007/08/17 03:42:31 nbhradwaj Exp $
+* $Id: content_type_code_prefs.inc,v 1.8 2007/12/03 21:47:27 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Raw HTML preferences
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Content_Type_Code_Prefs extends Prefs
@@ -100,8 +100,8 @@ class Content_Type_Code_Prefs extends Prefs
 	function Content_Type_Code_Prefs($pref_file='')
 	{
 		$this->Prefs($pref_file);
-		$this->css_dimension_width =& new Asset_Attribute_CSS_Dimension();
-		$this->css_dimension_height =& new Asset_Attribute_CSS_Dimension();
+		$this->css_dimension_width = new Asset_Attribute_CSS_Dimension();
+		$this->css_dimension_height = new Asset_Attribute_CSS_Dimension();
 
 	}//end constructor
 

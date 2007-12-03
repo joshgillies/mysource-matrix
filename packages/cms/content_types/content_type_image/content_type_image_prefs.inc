@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_prefs.inc,v 1.6 2007/08/17 03:42:32 nbhradwaj Exp $
+* $Id: content_type_image_prefs.inc,v 1.7 2007/12/03 21:47:26 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Image Content Type Preferences
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Content_Type_Image_Prefs extends Prefs
@@ -210,8 +210,8 @@ class Content_Type_Image_Prefs extends Prefs
 							<?php
 								if ($have_lock && $is_admin) {
 									$GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_image');
-									$dummy_asset =& new Content_Type_Image();
-									$onclick =& $dummy_asset->getAttribute('on_click');
+									$dummy_asset = new Content_Type_Image();
+									$onclick = $dummy_asset->getAttribute('on_click');
 									$onclick->value = $value_defaults['on_click'];
 									$onclick->paint('content_type_image_on_click');
 								} else {
@@ -351,8 +351,8 @@ class Content_Type_Image_Prefs extends Prefs
 				$posted_values['constrain_proportions'] = FALSE;
 			}
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_image');
-			$dummy_asset =& new Content_Type_Image();
-			$onclick =& $dummy_asset->getAttribute('on_click');
+			$dummy_asset = new Content_Type_Image();
+			$onclick = $dummy_asset->getAttribute('on_click');
 			$onclick->process('content_type_image_on_click');
 			$posted_values['on_click'] = $onclick->value;
 			$this->pref_vars['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default'] = $posted_values;
