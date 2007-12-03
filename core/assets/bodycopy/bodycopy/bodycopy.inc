@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.43 2007/11/15 05:35:40 bshkara Exp $
+* $Id: bodycopy.inc,v 1.44 2007/12/03 01:12:08 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,7 +34,7 @@ class Bodycopy extends Asset
 	* An array of keywords and their replacements
 	* @var array
 	*/
-	var $keyword_replacements = Array();
+	public $keyword_replacements = Array();
 
 
 	/**
@@ -43,9 +43,9 @@ class Bodycopy extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bodycopy($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Bodycopy extends Asset
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -77,7 +77,7 @@ class Bodycopy extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link, $bc_data=Array())
+	public function create(Array &$link, $bc_data=Array())
 	{
 		// store this data for later use during the create process in _createAdditional()
 		$this->_tmp['bodycopy_create_data'] = $bc_data;
@@ -97,7 +97,7 @@ class Bodycopy extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array $link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -122,7 +122,7 @@ class Bodycopy extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		// grab the bodycopy data that we stored in the create() function
 		$bc_data = $this->_tmp['bodycopy_create_data'];
@@ -161,7 +161,7 @@ class Bodycopy extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a bodycopy container then we need to make it a dependant link
 		if ($side_of_link == 'major' && ($asset instanceof Bodycopy_Container) && $dependant != '1') {
@@ -182,10 +182,16 @@ class Bodycopy extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
-
-		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_container' => Array('card' => 'M', 'exclusive' => FALSE)));
+		return Array(
+				SQ_LINK_TYPE_2 => Array(
+									'bodycopy_container' => Array(
+																'card'		=> 'M',
+																'exclusive'	=> FALSE,
+															),
+								  ),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -198,7 +204,7 @@ class Bodycopy extends Asset
 	* @return void
 	* @access public
 	*/
-	function paintBackend(&$o)
+	public function paintBackend(Backend_Outputter $o)
 	{
 		if (!isset($_REQUEST['asset_ei_screen'])) {
 			return parent::paintBackend($o);
@@ -221,7 +227,7 @@ class Bodycopy extends Asset
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	public function printFrontend()
 	{
 		if (!isset($_REQUEST['asset_ei_screen'])) {
 			return parent::printFrontend();
@@ -244,7 +250,7 @@ class Bodycopy extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function printBody()
+	public function printBody()
 	{
 		// Bodycopy no longer handles the use of system version file, such uses is now being handled by containers.
 		// But For the sake of the upgrading, check for existing file in the bodycopy data dir.
@@ -295,7 +301,7 @@ class Bodycopy extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	public function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -310,7 +316,7 @@ class Bodycopy extends Asset
 	* @return array
 	* @access public
 	*/
-	function &getContainers()
+	public function &getContainers()
 	{
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO || !isset($this->_tmp['containers'])) {
 			$this->_tmp['containers'] = Array();
@@ -330,7 +336,7 @@ class Bodycopy extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function isEmpty()
+	public function isEmpty()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
@@ -349,7 +355,7 @@ class Bodycopy extends Asset
 	* @return array
 	* @access public
 	*/
-	function getKeywords()
+	public function getKeywords()
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$content = $this->getRawBodycopyContent();
@@ -365,7 +371,7 @@ class Bodycopy extends Asset
 	* @return string
 	* @access public
 	*/
-	function getContent()
+	public function getContent()
 	{
 		return $this->getRawBodycopyContent();
 
@@ -378,7 +384,7 @@ class Bodycopy extends Asset
 	* @return string
 	* @access public
 	*/
-	function getRawBodycopyContent()
+	public function getRawBodycopyContent()
 	{
 		$containers = $this->getContainers();
 		$contents = '';
@@ -405,7 +411,7 @@ class Bodycopy extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setKeywordReplacements($replacements=Array())
+	public function setKeywordReplacements($replacements=Array())
 	{
 		if (!is_array($replacements)) return FALSE;
 		if (empty($replacements)) return FALSE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.51 2007/11/28 22:25:11 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.52 2007/12/03 01:12:08 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,12 +55,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
 	*
-	* @param object	&$o	the Backend_Outputter class
+	* @param Backend_Outputter	$o	the Backend_Outputter class
 	*
 	* @return void
 	* @access private
 	*/
-	function _saveCssIds(&$o)
+	protected function _saveCssIds(Backend_Outputter $o)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -115,14 +115,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for creating containers in the bodycopy
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend_Outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Bodycopy			$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBodycopy(&$asset, &$o, $prefix)
+	function paintBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('content');
@@ -350,14 +350,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for creating containers in the bodycopy
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the Backend_Outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Bodycopy			$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBodycopy(&$asset, &$o, $prefix)
+	public function processBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -435,15 +435,15 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Insert a new container into this bodycopy
 	*
-	* @param object	&$asset			the bodycopy
-	* @param string	$type			the type of the container (table, div etc)
-	* @param int	$containerid	the ID of the container to insert before/after
-	* @param array	$bc_data		the array of bodycopy data that got posted
+	* @param Bodycopy	$asset			the bodycopy
+	* @param string		$type			the type of the container (table, div etc)
+	* @param int		$containerid	the ID of the container to insert before/after
+	* @param array		$bc_data		the array of bodycopy data that got posted
 	*
 	* @return boolean
 	* @access public
 	*/
-	function insertContainer(&$asset, $type, $containerid, $bc_data)
+	function insertContainer(Bodycopy $asset, $type, $containerid, Array $bc_data)
 	{
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
@@ -486,13 +486,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Unlink a container from this bodycopy (effectivly deleting it from this bodycopy)
 	*
-	* @param object	&$asset			the bodycopy
-	* @param int	$containerid	the ID of the container to delete
+	* @param Bodycopy	$asset			the bodycopy
+	* @param int		$containerid	the ID of the container to delete
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteContainer(&$asset, $containerid)
+	public function deleteContainer(Bodycopy $asset, $containerid)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
