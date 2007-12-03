@@ -1,0 +1,36 @@
+<queries id="user_group">
+	<query id="addScreenSectionRestrictionForUser">
+        <primary>
+            <insert>
+                <fields table="sq_ast_edit_access">
+                    <field>userid</field>
+                    <field>type_code</field>
+                    <field>screen</field>
+                    <field>section</field>
+                </fields>
+                <values>
+                    <value column="userid">:userid</value>
+                    <value column="type_code">:type_code</value>
+                    <value column="screen">:screen</value>
+                    <value column="section"><value>0</value></value>
+                </values>
+            </insert>
+        </primary>
+	</query>
+
+    <query id="deleteAccessRestrictionForUser">
+        <!-- Deletes link with specified linkid -->
+        <primary>
+            <delete>
+                <where>
+                    <equal table="sq_ast_edit_access" column="userid">:userid</equal>
+                    <equal table="sq_ast_edit_access" column="type_code">:type_code</equal>
+                    <equal table="sq_ast_edit_access" column="screen">:screen</equal>
+                    <equal table="sq_ast_edit_access" column="section"><value>0</value></equal>
+                </where>
+            </delete>
+        </primary>
+    </query>
+
+	
+</queries>
