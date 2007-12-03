@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.46 2007/11/26 00:54:15 bshkara Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.47 2007/12/03 04:52:12 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -162,7 +162,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		foreach ($_POST[$prefix.'_customise'] as $id_name) {
 			$link = $asset->getDesignAreaLink($id_name);
 			if (is_null($link)) continue;
-			$da =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], FALSE);
+			$da = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], FALSE);
 			if (is_null($da)) continue;
 
 			$create_link = Array (
@@ -176,7 +176,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->am->acquireLock($da->id, 'all');
 
 			// First let's duplicate the DA, ignoring the directory with the files
-			$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes', 'permissions', 'roles'), TRUE);
+			$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes', 'permissions', 'roles'), TRUE);
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($da->id, 'all');
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all');
 			if (is_null($clone)) {
@@ -236,7 +236,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 				// We need to update the (ex)-TYPE_3-linked file's lookups as
 				// well as that on the design
-				$minor_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$minor_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 
 				$asset->deleteExistingLink($linkid);
 
@@ -286,7 +286,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$existing_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $data[$id_name][0]);
 			if (empty($existing_link)) {
 				// now create the new link
-				$da =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data[$id_name][0], $data[$id_name][1]);
+				$da = $GLOBALS['SQ_SYSTEM']->am->getAsset($data[$id_name][0], $data[$id_name][1]);
 				if (is_null($da)) return FALSE;
 				if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, NULL, '1')) {
 					return FALSE;
@@ -303,7 +303,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		// Update our customisations to use our DAs where appropriate
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 		foreach ($customisation_links as $customisation_link) {
-			$customisation =& $GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
+			$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
 
 			// We don't want to overwrite already-customised design areas in the 
@@ -362,7 +362,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		uasort($links, Array(get_class($this), 'linkCompare'));
 		$current_type = '';
 		foreach ($links as $link) {
-			$da =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$da = $am->getAsset($link['minorid'], $link['minor_type_code']);
 
 			if ($da->attr('id_name') == '') {
 				trigger_localised_error('CORE0154', E_USER_NOTICE, $da->id);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.20 2007/06/27 02:01:48 hnguyen Exp $
+* $Id: design_area_linked_css.inc,v 1.21 2007/12/03 04:52:13 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Design_Area_Linked_Css extends Design_Area
 		// return true because it just means that they haven't set anything yet
 		if (empty($css_assetid)) return TRUE;
 
-		$css_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
+		$css_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 		$cache_file_assetid = $css_asset->getCacheFileId();
 
 		// The code we are about to add to the design file will check if caching

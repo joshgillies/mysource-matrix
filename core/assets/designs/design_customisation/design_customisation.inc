@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.50 2007/11/26 00:54:15 bshkara Exp $
+* $Id: design_customisation.inc,v 1.51 2007/12/03 04:52:12 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Design_Customisation extends Design
 		}
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -143,7 +143,7 @@ class Design_Customisation extends Design
 				foreach ($file_link_info as $assetid => $info) {
 					if ($info['name'] == $minor->name) {
 						// found the link to create
-						$new_minor =& $am->getAsset($assetid);
+						$new_minor = $am->getAsset($assetid);
 						if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', NULL, '1')) {
 							trigger_localised_error('CORE0162', E_USER_WARNING);
 							$am->forgetAsset($design);
@@ -178,7 +178,7 @@ class Design_Customisation extends Design
 			foreach ($css_link_info as $info) {
 				if ($info['name'] == $minor->name) {
 					// found the link to create
-					$new_minor =& $am->getAsset($info['assetid']);
+					$new_minor = $am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', NULL, '1')) {
 						trigger_localised_error('CORE0161', E_USER_WARNING);
 						$am->forgetAsset($design);
@@ -223,7 +223,7 @@ class Design_Customisation extends Design
 		}
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -274,7 +274,7 @@ class Design_Customisation extends Design
 				$null_asset = NULL;
 				return $null_asset;
 			} else {
-				$this->_tmp['parent_design'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
+				$this->_tmp['parent_design'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
 			}
 		}
 		return $this->_tmp['parent_design'];
@@ -390,7 +390,7 @@ class Design_Customisation extends Design
 		}//end foreach
 
 		foreach ($added_id_names as $id_name) {
-			$da =& $am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['minor_type_code'], TRUE);
+			$da = $am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
 			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, NULL, '1');
 		}//end foreach
@@ -399,7 +399,7 @@ class Design_Customisation extends Design
 
 		$links = $this->getCustomisedAreas();
 		foreach ($links as $link) {
-			$da =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$da = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($da)) continue;
 
 			$parent_da =& $parent->getDesignArea($link['value']);

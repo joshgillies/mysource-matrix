@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.64 2007/11/23 00:37:32 hnguyen Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.65 2007/12/03 04:52:12 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -253,7 +253,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset) ) {
 				// check we can acquire lock and change permissions, otherwise silently pass by

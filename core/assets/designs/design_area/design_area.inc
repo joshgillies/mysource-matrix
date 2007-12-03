@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.56 2007/04/23 06:29:02 skim Exp $
+* $Id: design_area.inc,v 1.57 2007/12/03 04:52:13 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -168,7 +168,7 @@ class Design_Area extends Asset
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', FALSE, 'minor');
 		$designs = Array();
 		foreach ($links as $link) {
-			$designs[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code'], TRUE);
+			$designs[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code'], TRUE);
 		}
 		return $designs;
 

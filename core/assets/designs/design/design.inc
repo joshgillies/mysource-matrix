@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.139 2007/12/03 04:03:59 gsherwood Exp $
+* $Id: design.inc,v 1.140 2007/12/03 04:52:13 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Design extends Design_Area
 
 
 		// create an empty parse file
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		if (!is_dir($this->data_path)) {
 			create_directory($this->data_path);
 		}
@@ -241,7 +241,7 @@ class Design extends Design_Area
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
 				$file_link_ids = Array();
@@ -315,7 +315,7 @@ class Design extends Design_Area
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
 				$file_link_ids = Array();
@@ -528,7 +528,7 @@ class Design extends Design_Area
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		foreach ($customisation_links as $link) {
-			$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($customisation)) continue;
 			if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
 				$customisation->updateFromParent($this);
@@ -790,7 +790,7 @@ echo '/*
 					echo '<', '?php ';
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
 					echo 'if (!empty($link)) {'."\n";
-					echo '$thumbnail =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 					echo 'echo $thumbnail->printImageTag(\'\', \'\', TRUE);'."\n";
 					echo '}'."\n";
 					echo '?', '>';
@@ -800,7 +800,7 @@ echo '/*
 					echo '<', '?php ';
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n;";
 					echo 'if (!empty($link)) {'."\n";
-					echo '$thumbnail =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->getUrl()', $args).');'."\n";
 					echo '}'."\n";
 					echo '?', '>';
@@ -855,7 +855,7 @@ echo '/*
 		// work out where the design file is
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of our design file
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/design_file.php';
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = $fv->_checkOutCheck($rep_file, NULL, $then);
@@ -872,7 +872,7 @@ echo '/*
 						trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->id);
 						break;
 					}
-					$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
+					$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($arr['majorid']);
 					$file_path = dirname(dirname($design->data_path)).'/'.get_asset_hash($design->id).'/'.$arr['majorid'].'/design_file.php';
 				} while(!file_exists($file_path));
 			}
@@ -956,7 +956,7 @@ echo '/*
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				$customisation->generateDesignFile(TRUE);
 			}
@@ -1029,7 +1029,7 @@ echo '/*
 
 		//// FILE VERSIONING ////
 
-		$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		if ($new_file) {
 			// attempt to add the file to the repository
