@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.7 2007/08/17 03:42:35 nbhradwaj Exp $
+* $Id: comment_prefs.inc,v 1.8 2007/12/03 02:25:34 gsherwood Exp $
 *
 */
 
@@ -41,7 +41,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -153,19 +153,19 @@ class Comment_Prefs extends Prefs
 		$this->Prefs($pref_file);
 
 		// we'll use these attributes to print the inputs for SQ_COMMENT_INPUT_SIZE
-		$this->css_dimension_width =& new Asset_Attribute_CSS_Dimension();
-		$this->css_dimension_height =& new Asset_Attribute_CSS_Dimension();
+		$this->css_dimension_width = new Asset_Attribute_CSS_Dimension();
+		$this->css_dimension_height = new Asset_Attribute_CSS_Dimension();
 
 		// attribute for input of SQ_COMMENT_MAX_LENGTH
-		$this->int_max_length =& new Asset_Attribute_Int();
+		$this->int_max_length = new Asset_Attribute_Int();
 		$this->int_max_length->setParam('allow_negative', FALSE);
 
 		// attribute for input of SQ_COMMENT_MAX_RATING
-		$this->int_max_rating =& new Asset_Attribute_Int();
+		$this->int_max_rating = new Asset_Attribute_Int();
 		$this->int_max_rating->setParam('allow_negative', FALSE);
 		$this->int_max_rating->setParam('allow_empty', FALSE);
 
-		$this->url_processor =& new Asset_Attribute_Url();
+		$this->url_processor = new Asset_Attribute_Url();
 		$this->url_processor->_edit_params['protocols'] = Array('http','https');
 		$this->url_processor->_edit_params['width'] = '60';
 
