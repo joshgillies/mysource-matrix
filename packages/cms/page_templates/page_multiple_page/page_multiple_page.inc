@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.23 2007/08/08 10:22:14 gnoel Exp $
+* $Id: page_multiple_page.inc,v 1.24 2007/12/03 05:58:32 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -85,7 +85,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
-		if (($side_of_link == 'major') && (is_a($asset, 'page_multiple_page_page'))) {
+		if (($side_of_link == 'major') && ($asset instanceof Page_Multiple_Page_Page)) {
 			if (($link_type != SQ_LINK_TYPE_2) || ($exclusive != TRUE)) {
 				$link_type = SQ_LINK_TYPE_2;
 				$exclusive = TRUE;
@@ -234,7 +234,7 @@ class Page_Multiple_Page extends Page
 		$links = $this->getPageLinks();
 		foreach ($links as $link_data) {
 			if ($link_data['sort_order'] == strval(intval($page_number) - 1)) {
-				$page_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+				$page_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 				return $page_asset;
 			}
 		}
@@ -287,7 +287,7 @@ class Page_Multiple_Page extends Page
 		$new_paths = Array();
 		foreach ($page_links as $data) {
 			$new_page_children[] = $data['minorid'];
-			$page =& $am->getAsset($data['minorid']);
+			$page = $am->getAsset($data['minorid']);
 			unset($current_children[$data['minorid']]);
 			$new_paths[$data['minorid']] = $this->getPageNewWebpaths($page, strval(intval($data['sort_order']) + 1));
 			if (!empty($this->_tmp['no_sort_order_paths'])) {
@@ -298,7 +298,7 @@ class Page_Multiple_Page extends Page
 
 		// whatever is left in current_children now are the deleted children
 		foreach (array_keys($current_children) as $id) {
-			$asset_to_delete_paths_from =& $am->getAsset($id);
+			$asset_to_delete_paths_from = $am->getAsset($id);
 			if (!is_null($asset_to_delete_paths_from)) {
 				$asset_to_delete_paths_from->saveWebPaths(Array());
 				$am->forgetAsset($asset_to_delete_paths_from);
@@ -309,7 +309,7 @@ class Page_Multiple_Page extends Page
 
 		if (!empty($this->_tmp['no_sort_order_paths'])) {
 			foreach ($new_paths as $pageid => $new_webpaths) {
-				$page =& $am->getAsset($pageid, '', TRUE);
+				$page = $am->getAsset($pageid, '', TRUE);
 				if (!empty($page)) {
 					$page->saveWebPaths($new_webpaths);
 					$am->forgetAsset($page);
@@ -397,7 +397,7 @@ class Page_Multiple_Page extends Page
 	{
 		$import_link = Array('asset' => &$this, 'link_type' => $link_type, 'value' => '', 'sort_order' => $this->getNumberofPages(), 'is_dependant' => 1, 'is_exclusive' => 1);
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_multiple_page_page');
-		$page =& new Page_Multiple_Page_Page();
+		$page = new Page_Multiple_Page_Page();
 		$page->setAttrValue('name', $name);
 		$page->create($import_link);
 
@@ -420,7 +420,7 @@ class Page_Multiple_Page extends Page
 	{
 		if (!isset($this->_tmp['current_page_id'])) {
 			$this->_tmp['current_page_id'] = 0;
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
 			if (!empty($asset)) {
 				if ($asset->id == $this->id) {
 					// this is the Multiple Page Asset itself, so we need the first page
@@ -475,7 +475,7 @@ class Page_Multiple_Page extends Page
 		}
 
 		if (!isset($this->_tmp['current_page_asset']) || empty($this->_tmp['current_page_asset'])) {
-			$this->_tmp['current_page_asset'] =& $this->getCurrentPage();
+			$this->_tmp['current_page_asset'] = $this->getCurrentPage();
 		}
 		if (!isset($this->_tmp['current_page_links']) || empty($this->_tmp['current_page_links'])) {
 			$this->_tmp['current_page_links'] = $this->getPageLinks();
@@ -549,7 +549,7 @@ class Page_Multiple_Page extends Page
 			$value = 'page_assetid_';
 		}
 		if ($page_number != '') {
-			$page_number_asset =& $this->getPageAsset($page_number);
+			$page_number_asset = $this->getPageAsset($page_number);
 		}
 
 		// Evaluate the values we need for keyword replacement
@@ -685,7 +685,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function printFrontend()
 	{
-		$page_one =& $this->getFirstPageAsset();
+		$page_one = $this->getFirstPageAsset();
 		if (is_null($page_one)) $page_one =& $this;
 		$this->printFrontendAsset($page_one);
 
