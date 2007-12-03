@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_report_edit_fns.inc,v 1.4 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: log_report_edit_fns.inc,v 1.5 2007/12/03 05:29:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -32,18 +32,29 @@ class Log_Report_Edit_Fns extends Report_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Paint the interface for regenerating the report
 	*
 	* Leave this up to the kids to override for now
 	*
-	* @param object	&$asset	the report whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Log_Report			$asset	the report whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintRegenerate(&$asset, &$o, $prefix)
+	public function paintRegenerate(Log_Report $asset, Backend_Outputter $o, $prefix)
 	{
 		return FALSE;
 
@@ -53,14 +64,14 @@ class Log_Report_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for updating the report
 	*
-	* @param object	&$report	the report whose interface we are painting
-	* @param object	&$out		the Backend Outputter object
-	* @param string	$prefix		prefix for the form element
+	* @param Log_Report			$asset	the report whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _processRegenerate(&$report, &$out, $prefix)
+	public function _processRegenerate(Log_Report $asset, Backend_Outputter $o, $prefix)
 	{
 		return TRUE;
 
@@ -70,16 +81,16 @@ class Log_Report_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Paint the interface for updating the report
 	*
-	* @param object	&$report	the report whose interface we are painting
-	* @param object	&$out		the Backend Outputter object
-	* @param string	$prefix		prefix for the form element
+	* @param Log_Report			$asset	the report whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintReport(&$report, &$out, $prefix)
+	public function paintReport(Log_Report $asset, Backend_Outputter $o, $prefix)
 	{
-		$body = $report->attr('report_body');
+		$body = $asset->attr('report_body');
 		echo $body;
 
 	}//end paintReport()
@@ -88,15 +99,15 @@ class Log_Report_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Generate this report until complete
 	*
-	* @param object	&$job		a reference to the HIPO job generating this report
-	* @param array	&$step_data	a reference to the array of information about
-	*							the current step of the HIPO job that is running this report
-	* @param string	$prefix		prefix for form vars
+	* @param HIPO_Job	$job		a reference to the HIPO job generating this report
+	* @param array		&$step_data	a reference to the array of information about
+	*								the current step of the HIPO job that is running this report
+	* @param string		$prefix		prefix for form vars
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateReport(&$job, &$step_data, $prefix)
+	protected function generateReport(HIPO_Job $job, Array &$step_data, $prefix)
 	{
 		$step_data['percent_done'] = 100;
 		$step_data['complete'] = TRUE;

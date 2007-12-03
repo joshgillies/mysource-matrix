@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_report_management.inc,v 1.2 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: log_report_management.inc,v 1.3 2007/12/03 05:29:32 lwright Exp $
 *
 */
 
@@ -23,12 +23,23 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Log_Report_Management extends Asset_Management
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct(Package_Manager $pm)
+	{
+		Asset_Management::__construct($pm);
+
+	}//end constructor
 
 
 }//end class
