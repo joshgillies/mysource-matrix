@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.39 2007/12/03 05:16:09 hnguyen Exp $
+* $Id: user_group_edit_fns.inc,v 1.40 2007/12/03 06:22:12 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,15 +53,22 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function getCurrentRestrictions(&$asset)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT type_code, screen, section
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_edit_access ';
-		$where = 'userid = '.$db->quote($asset->id);
+		$where = 'userid = :userid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-		$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-		assert_valid_db_result($result);
+		try {
+			$query	= $db->prepare($sql.$where);
+			$query->bindValue('userid', $asset->id);
+			
+			$result	= MatrixDAL::executePdoGroupedAssoc($query);
+			//$result = $db->getAssoc($sql.$where, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get current restriction information for userid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		return $result;
 
@@ -216,10 +223,14 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function processTypeRestrictions(&$asset, &$o, $prefix)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$current = $this->getCurrentRestrictions($asset);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$bind_vars	= Array (
+							'userid'	=> $asset->id,
+					  );
 
 		  //////////////////////////////////////
 		 //  ADD ACCESS FOR NEW ASSET TYPES  //
@@ -228,30 +239,18 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 			$new_types = $_POST[$prefix.'_restrict_types'];
 
 
-
 			foreach ($new_types as $type) {
 				if (isset($current[$type])) continue;
 
-				$sql = 'INSERT INTO
-							sq_ast_edit_access
-							(
-								userid,
-								type_code,
-								screen,
-								section
-							)
-							VALUES
-							(
-								'.$db->quoteSmart($asset->id).',
-								'.$db->quoteSmart($type).',
-								'.$db->quoteSmart('details').',
-								'.$db->quoteSmart('0').'
-							)';
+				$bind_vars['type_code']	= $type;
+				$bind_vars['screen']	= 'details';
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
-
-			}
+				try {
+					$result = MatrixDAL::executeOne('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Unable to add access for new asset type due to the following database error:'.$e->getMessage());
+				}//end try catch
+			}//end foreach
 
 		}//end if
 
@@ -262,44 +261,31 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_remove_type_screen'])) {
 			$doomed_screens = $_POST[$prefix.'_remove_type_screen'];
 			foreach ($doomed_screens as $type_code => $screen_data) {
+				// Here we set the type code for the bind variable array.
+				$bind_vars['type_code']	= $type_code;
+				$bind_vars['screen']	= 'details';
+
 				foreach ($screen_data as $doomed_screen => $on) {
 					if ($doomed_screen == '0' && count($current[$type_code]) == 1) {
 						// deleting the All Screens option without having a fall back
 						// option to stop this whole type being deleted
 						// so we'll add one
-						$sql = 'INSERT INTO
-									sq_ast_edit_access
-									(
-										userid,
-										type_code,
-										screen,
-										section
-									)
-									VALUES
-									(
-										'.$db->quoteSmart($asset->id).',
-										'.$db->quoteSmart($type_code).',
-										'.$db->quoteSmart('details').',
-										'.$db->quoteSmart('0').'
-									)';
-
-						$result = $db->query($sql);
-						assert_valid_db_result($result);
+						try {
+							$result = MatrixDAL::executeOne('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
+						} catch (Exception $e) {
+							throw new Exception('Unable to add access for userid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+						}//end try catch
 					}
 					// note that we need to put quote around the doomed screen to ensure
 					// it is treated like a string and thus does not blow away all entries
 					// for the type code from the DB
 
-					$sql = 'DELETE FROM
-								sq_ast_edit_access
-							WHERE
-									userid		= '.$db->quoteSmart($asset->id).'
-								AND	type_code	= '.$db->quoteSmart($type_code).'
-								AND	screen		= '.$db->quoteSmart($doomed_screen).'
-								AND	section		= '.$db->quoteSmart('0');
+					try {
+						$result = MatrixDAL::executeOne('user_group', 'deleteAccessRestrictionForUser', $bind_vars);
+					} catch (Exception $e) {
+						throw new Exception('Unable to delete access for userid #'.$asset->id.' due to the following database error:'.$e->getMessage());
+					}//end try catch
 
-					$result = $db->query($sql);
-					assert_valid_db_result($result);
 				}//end foreach doomed screen
 			}//end foreach type code
 		}//end if
@@ -313,25 +299,15 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 			foreach ($new_screens as $type_code => $new_screen) {
 				if (trim($new_screen) == '') continue;
+				// Here we set the type code for the bind variable array.
+				$bind_vars['type_code']	= $type_code;
+				$bind_vars['screen']	= $new_screen;
 
-				$sql = 'INSERT INTO
-							sq_ast_edit_access
-							(
-								userid,
-								type_code,
-								screen,
-								section
-							)
-							VALUES
-							(
-								'.$db->quoteSmart($asset->id).',
-								'.$db->quoteSmart($type_code).',
-								'.$db->quoteSmart($new_screen).',
-								'.$db->quoteSmart('0').'
-							)';
-
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				try {
+					$result = MatrixDAL::executeOne('user_group', 'addScreenSectionRestrictionForUser', $bind_vars);
+				} catch (Exception $e) {
+					throw new Exception('Unable to add access for new asset type due to the following database error:'.$e->getMessage());
+				}//end try catch
 
 			}//end foreach
 		}//end if
