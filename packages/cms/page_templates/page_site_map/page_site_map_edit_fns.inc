@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.22 2007/12/03 23:14:03 bshkara Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.23 2007/12/03 23:17:31 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,7 +38,6 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	*/
 	function __construct()
 	{
-		//$this->Page_Edit_Fns();
 		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'content';
