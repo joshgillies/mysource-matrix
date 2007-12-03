@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.156 2007/11/29 00:06:11 lwright Exp $
+* $Id: file.inc,v 1.157 2007/12/03 04:33:45 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.157 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1256,7 +1256,7 @@ class File extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	protected function _getName($short_name=FALSE)
+	public function _getName($short_name=FALSE)
 	{
 		return (($short_name) ? $this->attr('title') : $this->attr('name'));
 
