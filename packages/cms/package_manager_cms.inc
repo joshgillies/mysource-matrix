@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_cms.inc,v 1.7 2006/12/07 00:10:13 emcdonald Exp $
+* $Id: package_manager_cms.inc,v 1.8 2007/12/03 05:44:21 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -70,7 +70,7 @@ class Package_Manager_CMS extends Package_Manager
 	*/
 	function &createCronJobManagePendingAccounts()
 	{
-		$cron_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_manager)) {
 			trigger_error('Couldn\'t get cron manager, couldn\'t create Manage Pending Accounts cron job', E_USER_WARNING);
 			$null = NULL;
@@ -79,8 +79,8 @@ class Package_Manager_CMS extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_manage_pending_accounts');
 
-		$cron_job =& new Cron_Job_Manage_Pending_Accounts();
-		$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		$cron_job = new Cron_Job_Manage_Pending_Accounts();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Manage Pending Accounts Cron Job NOT CREATED', E_USER_ERROR);
 		}

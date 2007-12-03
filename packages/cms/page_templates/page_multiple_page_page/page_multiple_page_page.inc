@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_page.inc,v 1.14 2007/06/12 00:40:09 skim Exp $
+* $Id: page_multiple_page_page.inc,v 1.15 2007/12/03 05:44:21 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -41,7 +41,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	*/
 	function Page_Multiple_Page_Page($assetid=0)
 	{
-		$this->Bodycopy($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -100,7 +100,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	function printBody()
 	{
 		// We have to redirect to our parent, so that page numbers, and other stuff can be printed
-		$parent =& $this->getMultiplePageAsset();
+		$parent = $this->getMultiplePageAsset();
 		$parent->printPage($this);
 
 	}//end printBody()
@@ -131,7 +131,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	* @return string
 	* @access public
 	*/
-	function &getMultiplePageAsset()
+	function getMultiplePageAsset()
 	{
 		$multi_id = $this->getMultiplePageId();
 		if ($multi_id != '0') {
@@ -183,7 +183,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 	function getAvailableKeywords()
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_multiple_page');
-		$parent =& new Page_Multiple_Page();
+		$parent = new Page_Multiple_Page();
 		return $parent->getAvailableKeywords();
 
 	}//end getAvailableKeywords()
@@ -208,7 +208,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 		}
 
 		if ($replacement == '%'.$value.'%') {
-			$parent =& $this->getMultiplePageAsset();
+			$parent = $this->getMultiplePageAsset();
 			$replacement = $parent->getKeywordReplacement($value);
 		}
 
@@ -237,7 +237,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$edit =& $this->getEditFns();
+					$edit = $this->getEditFns();
 					ob_start();
 						if ($edit->paintBodycopy($this, $GLOBALS['SQ_SYSTEM']->backend->out, $this->getPrefix())) {
 							$print_commit_button = TRUE;
@@ -275,7 +275,7 @@ class Page_Multiple_Page_Page extends Bodycopy
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$edit =& $this->getEditFns();
+					$edit = $this->getEditFns();
 					$edit->processBodycopy($this, $GLOBALS['SQ_SYSTEM']->backend->out, $this->getPrefix());
 				break;
 			}

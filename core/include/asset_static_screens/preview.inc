@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.28 2007/11/16 06:01:14 hnguyen Exp $
+* $Id: preview.inc,v 1.29 2007/12/03 05:41:30 bshkara Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 
@@ -60,7 +60,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		// look at the dependant parents to try and find one
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($owner->id);
 		foreach ($parents as $parentid) {
-			$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, '', TRUE);
+			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, '', TRUE);
 			if (is_null($parent)) continue;
 
 			$where = 'assetid = '.$db->quote($parent->id).'
