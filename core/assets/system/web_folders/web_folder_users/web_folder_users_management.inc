@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder_users_management.inc,v 1.2 2006/12/05 23:41:05 bcaldwell Exp $
+* $Id: web_folder_users_management.inc,v 1.3 2007/12/03 00:15:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Web_Folder_Users_Management extends Asset_Management
 	/**
 	* Constructor
 	*/
-	function Web_Folder_Users_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 

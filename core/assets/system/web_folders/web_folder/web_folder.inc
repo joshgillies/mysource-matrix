@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder.inc,v 1.4 2006/12/05 23:43:20 bcaldwell Exp $
+* $Id: web_folder.inc,v 1.5 2007/12/03 00:15:48 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/site/site.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Web_Folder extends Site
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Web_Folder($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Site($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -53,7 +53,7 @@ class Web_Folder extends Site
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	public function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -99,7 +99,7 @@ class Web_Folder extends Site
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		$url_suffix = '_'.substr($this->type(), 11);
@@ -125,7 +125,7 @@ class Web_Folder extends Site
 	* @return string
 	* @access private
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
@@ -138,7 +138,7 @@ class Web_Folder extends Site
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		return FALSE;
 
@@ -151,7 +151,7 @@ class Web_Folder extends Site
 	* @return boolean
 	* @access public
 	*/
-	function canClone()
+	public function canClone()
 	{
 		return FALSE;
 
@@ -165,7 +165,7 @@ class Web_Folder extends Site
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 
 		return Array(

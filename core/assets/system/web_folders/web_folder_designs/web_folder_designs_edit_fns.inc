@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder_designs_edit_fns.inc,v 1.3 2006/12/05 23:42:18 bcaldwell Exp $
+* $Id: web_folder_designs_edit_fns.inc,v 1.4 2007/12/03 00:15:48 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/web_folders/web_folder/web_folder_edi
 *
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,9 +33,9 @@ class Web_Folder_Designs_Edit_Fns extends Web_Folder_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Web_Folder_Designs_Edit_Fns()
+	function __construct()
 	{
-		$this->Web_Folder_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
