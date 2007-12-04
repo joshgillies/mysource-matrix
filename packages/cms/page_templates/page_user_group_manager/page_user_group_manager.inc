@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.18 2007/04/11 04:15:25 rong Exp $
+* $Id: page_user_group_manager.inc,v 1.19 2007/12/04 00:15:26 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,10 +64,10 @@ class Page_User_Group_Manager extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_User_Group_Manager($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -98,7 +98,7 @@ class Page_User_Group_Manager extends Page
 							'value'			=> $value,
 						 );
 
-			$bodycopy =& new Bodycopy();
+			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$args = Array('content' => $this->_getDefaultBodycopyContents($value));
 			if (!$bodycopy->create($copy_link, $args)) {
@@ -228,13 +228,13 @@ class Page_User_Group_Manager extends Page
 		$cannot_delete = Array();
 		$to_delete = array_diff($old_links, $new_links);
 		$to_create = array_diff($new_links, $old_links);
-		$minor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_id);
+		$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_id);
 
 		$done = Array();
 
 		// loop through and link our minor under all majors
 		foreach ($to_create as $majorid) {
-			$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
+			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($major, $minor, $link_type)) {
 				$done['add_fail'][] = $major->id;
 			} else {
@@ -322,8 +322,8 @@ class Page_User_Group_Manager extends Page
 			$default = array_get_index($this->_tmp, 'selected', Array());
 			// if it is a public user, this function should return locations that public user can read
 			// else this function should return locations that current user has write permissions
-			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
-			if (is_a($current_user, 'public_user')) {
+			$current_user = $GLOBALS['SQ_SYSTEM']->user;
+			if ($current_user instanceof Public_User) {
 				$_permission = SQ_PERMISSION_READ;
 			} else {
 				$_permission = SQ_PERMISSION_WRITE;
@@ -364,7 +364,7 @@ class Page_User_Group_Manager extends Page
 	*/
 	function &getBodycopyContents($name, $replacements=Array())
 	{
-		$bodycopy =& $this->getBodycopy($name);
+		$bodycopy = $this->getBodycopy($name);
 		if (is_null($bodycopy)) return '';
 
 		$bodycopy->setKeywordReplacements($replacements);
@@ -394,7 +394,7 @@ class Page_User_Group_Manager extends Page
 		if (array_key_exists($name, $this->bodycopies)) {
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
-			$bodycopy =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$bodycopy = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			return $bodycopy;
 		} else {
 			return NULL;
@@ -447,11 +447,11 @@ class Page_User_Group_Manager extends Page
 	*/
 	function printBodycopyContents()
 	{
-		$public_user =& $GLOBALS['SQ_SYSTEM']->getPublicUser();
+		$public_user = $GLOBALS['SQ_SYSTEM']->getPublicUser();
 		if ($GLOBALS['SQ_SYSTEM']->currentUser($public_user)) {
-			$bodycopy =& $this->getBodycopy('not_logged_in');
+			$bodycopy = $this->getBodycopy('not_logged_in');
 		} else {
-			$bodycopy =& $this->getBodycopy('logged_in');
+			$bodycopy = $this->getBodycopy('logged_in');
 		}
 
 		$keywords = $bodycopy->getKeywords();
@@ -485,7 +485,7 @@ class Page_User_Group_Manager extends Page
 		$string = '';
 		$names = Array();
 		foreach ($assetids as $assetid) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$names[] = $asset->name;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		}

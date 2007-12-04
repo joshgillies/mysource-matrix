@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager_management.inc,v 1.5 2006/12/07 00:04:24 emcdonald Exp $
+* $Id: page_user_group_manager_management.inc,v 1.6 2007/12/04 00:15:26 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -36,7 +36,7 @@ class Page_User_Group_Manager_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_User_Group_Manager_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 
