@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.20 2007/11/14 23:06:55 colivar Exp $
+* $Id: db_extras.inc,v 1.21 2007/12/04 05:10:25 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -269,6 +269,30 @@ function db_get_function_result($db_type, $sql)
 	return $result;
 
 }//end db_get_function_result()
+
+
+/**
+* Returns a SQL LIMIT fragment for the passed database type.  Appropriated from DALConverter classes.
+*
+* @param string	$db_type	the database type
+* @param array $limit		single LIMIT clause with 'rows' index and 'offset' index
+*
+* @return the result of the function call
+* @access public
+*/
+function db_extras_modify_limit_clause($db_type, array $limit)
+{
+	if ($db_type == 'oci') {
+		$sql  = ')';
+		$sql .= ' WHERE row_num >= '.($limit['offset'] + 1);
+	} else { // psql, db2, mysql
+		$sql  = 'LIMIT ';
+		$sql .= $limit['rows'].' OFFSET '.$limit['offset'];
+	}
+
+	return $sql;
+	
+}//end db_modify_limit_clause()
 
 
 ?>
