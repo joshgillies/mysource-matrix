@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.635 2007/12/03 23:28:32 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.636 2007/12/04 00:14:54 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.635 $
+* @version $Revision: 1.636 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3152,24 +3152,30 @@ class Asset_Manager extends MySource_Object
 
 			$db = MatrixDAL::getDb();
 
-			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = 'l.minorid = :assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid'.$where;
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
+			$limit = ' LIMIT 1'; // TODO
+			$sql .= $limit;
 
-			$treeid = $db->getOne($sql);
-			assert_valid_db_result($treeid);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':assetid', $assetid);
+				$treeid = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get treeid for asset: '.$assetid.' due to database error: '.$e->getMessage());
+			}
 
 			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
 
-			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
-					  AND t.treeid > '.$db->quote($treeid);
+			$where = 't.treeid LIKE :treeid_like
+					  AND t.treeid > :treeid';
 
 			// only do a link comparison if they have specified a link type
 			if ($link_type != 0) {
-				$where .=  ' AND '.db_extras_bitand($db, 'l.link_type', $link_type).' > 0';
+				$where .=  ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type).' > 0';
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -3184,9 +3190,17 @@ class Asset_Manager extends MySource_Object
 					'.$where.'
 					ORDER BY t.treeid';
 
-			$child_links = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-			assert_valid_db_result($child_links);
-
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':treeid_like', $treeid.'%');
+				$query->bindValue(':treeid', $treeid);
+				$links = MatrixDAL::executePdoGroupedAssoc($query);
+				foreach ($links as $id => $info) {
+					$child_links[$id] = $info[0];
+				}
+			} catch (Exception $e) {
+				throw new Exception('Unable to get child links for tree id: '.$treeid.' due to database error: '.$e->getMessage());
+			}
 
 			// OK, what we are going to do is set up the effective dependant treeid for each tree link
 			for (reset($child_links); NULL !== ($treeid = key($child_links)); next($child_links)) {
