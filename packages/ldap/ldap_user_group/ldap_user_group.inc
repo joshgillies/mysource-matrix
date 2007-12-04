@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.13 2007/01/08 04:00:22 emcdonald Exp $
+* $Id: ldap_user_group.inc,v 1.14 2007/12/04 05:08:48 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -52,7 +52,7 @@ class Ldap_User_Group extends User_Group
 			return;
 		}
 
-		$ldap =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
+		$ldap = $GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap)) return;
 		$this->_ldapid = $ldapid;
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.19 2007/01/08 04:00:22 emcdonald Exp $
+* $Id: ldap_user.inc,v 1.20 2007/12/04 05:08:48 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -55,7 +55,7 @@ class Ldap_User extends User
 			return;
 		}
 
-		$ldap_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
+		$ldap_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap_bridge)) return;
 
 		$ldap_bridge->initUser($this, $data);

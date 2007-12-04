@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.18 2007/08/14 01:39:15 lwright Exp $
+* $Id: authentication_ldap.inc,v 1.19 2007/12/04 05:08:48 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -66,7 +66,7 @@ class Authentication_LDAP extends Authentication
 		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
 
-			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
 
 			// if status is not live then skip this bridge
@@ -83,9 +83,9 @@ class Authentication_LDAP extends Authentication
 			// the full dn as the first arg and doing it this way doesn't limit you to having all the users in the
 			// same organisational unit in the ldap directory
 			if (trim($bridge->attr('auth_dn')) !== '') {
-				$auth_base_dn = $bridge->attr('auth_dn');				
+				$auth_base_dn = $bridge->attr('auth_dn');
 			} else {
-				$auth_base_dn = $bridge->attr('root_dn');				
+				$auth_base_dn = $bridge->attr('root_dn');
 			}
 			$result = $ldap->search($auth_base_dn,'('.$attrs['uid'].'='.$username.')');
 			if (!$result) continue;
@@ -100,7 +100,7 @@ class Authentication_LDAP extends Authentication
 				// create our user
 				$user_type = $bridge->attr('user_type');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-				$user =& new $user_type($bridge->id, $entry);
+				$user = new $user_type($bridge->id, $entry);
 
 				// verify password
 				$success = @$ldap->connectAsUser($user->attr('dn'), $password);
@@ -112,10 +112,10 @@ class Authentication_LDAP extends Authentication
 						// Default Auth to merely locate a user for us
 						$auth_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('authentication_default');
 						if (count($auth_assetids) > 0) {
-							$auth_default =& $GLOBALS['SQ_SYSTEM']->am->getAsset($auth_assetids[0]);
+							$auth_default = $GLOBALS['SQ_SYSTEM']->am->getAsset($auth_assetids[0]);
 						}
 
-						$user =& $auth_default->locateUser($username);
+						$user = $auth_default->locateUser($username);
 					}
 
 					if (!is_null($user)) {
@@ -153,7 +153,7 @@ class Authentication_LDAP extends Authentication
 		$user = NULL;
 		$bridges = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'ldap_bridge', TRUE);
 		foreach ($bridges as $bridgeid => $type_code) {
-			$bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 			if (is_null($bridge)) continue;
 
 			// if status is not live then skip this bridge
@@ -173,7 +173,7 @@ class Authentication_LDAP extends Authentication
 				$entry = $entry[0];
 				$user_type = $bridge->attr('user_type');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-				$user =& new $user_type($bridge->id, $entry);
+				$user = new $user_type($bridge->id, $entry);
 				break;
 			}
 		}

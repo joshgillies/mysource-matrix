@@ -10,12 +10,13 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.64 2007/09/13 05:21:51 lmarchese Exp $
+* $Id: ldap_bridge.inc,v 1.65 2007/12/04 05:08:48 gsherwood Exp $
 *
 */
 
 check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 
 /**
@@ -25,12 +26,11 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-register_implementation('ldap_bridge', 'bridge');
-class LDAP_Bridge extends Asset
+class LDAP_Bridge extends Asset implements Bridge
 {
 
 	/**
@@ -107,7 +107,7 @@ class LDAP_Bridge extends Asset
 	*/
 	function connectToLdap()
 	{
-		$ldap =& new Ldap();
+		$ldap = new Ldap();
 		if (!$ldap->connect($this->attr('host'), $this->attr('port'))) {
 			return NULL;
 		}
@@ -174,9 +174,9 @@ class LDAP_Bridge extends Asset
 	*
 	* @return mixed object|NULL
 	* @access public
-	* @see Asset_Manager::&getAsset()
+	* @see Asset_Manager::getAsset()
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $assetid);
@@ -190,7 +190,7 @@ class LDAP_Bridge extends Asset
 		// Setup user's inbox
 		if (isset($id_parts[2]) && $id_parts[2] == 'inbox') {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
-			$inbox_asset =& new Inbox();
+			$inbox_asset = new Inbox();
 			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
 			$inbox_asset->name = 'Inbox';
 			$inbox_asset->status = $this->status;
@@ -207,7 +207,7 @@ class LDAP_Bridge extends Asset
 				$data['dn'] = $shadowid;
 				$user_type = $this->attr('user_type');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-				$asset =& new $user_type($this->id, $data);
+				$asset = new $user_type($this->id, $data);
 				return $asset; // this should return a dummy
 			}
 			$data = $ldap->getEntries($result);
@@ -227,7 +227,7 @@ class LDAP_Bridge extends Asset
 			if (isset($this->_group_types[$class])) {
 				// an LDAP user group
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
-				$asset =& new Ldap_User_Group($this->id, $data);
+				$asset = new Ldap_User_Group($this->id, $data);
 				break;
 
 			} else if (isset($this->_user_types[$class])) {
@@ -237,7 +237,7 @@ class LDAP_Bridge extends Asset
 				// LDAP user or LDAP backend user,
 				// depending on the bridge setting
 				$user_type = $this->attr('user_type');
-				$asset =& new $user_type($this->id, $data);
+				$asset = new $user_type($this->id, $data);
 				break;
 			}
 		}
@@ -326,7 +326,6 @@ class LDAP_Bridge extends Asset
 			return Array();
 		}
 
-		
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];
 
@@ -363,7 +362,7 @@ class LDAP_Bridge extends Asset
 							   );
 
 				} else {
-					$asset =& $this->getAsset($this->id.':'.$minorid);
+					$asset = $this->getAsset($this->id.':'.$minorid);
 
 					if (!empty($type_code)) {
 						if ($asset->type() == 'ldap_user_group') {
@@ -406,12 +405,12 @@ class LDAP_Bridge extends Asset
 					if (($this->attr('system_type') == 'activedirectory') && empty($attr['gm'])) {
 						$attr['gm'] = 'member';
 					}
-					$asset =& $this->getAsset($this->id.':'.$assetid);
+					$asset = $this->getAsset($this->id.':'.$assetid);
 					if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']])) {
 						$members = $asset->vars[$attr['gm']];
 						$entries = Array();
 						foreach ($members as $dn) {
-							$user =& $this->getAsset($this->id.':'.$dn);
+							$user = $this->getAsset($this->id.':'.$dn);
 							$entries[$dn] = $user->vars;
 						}
 					}
@@ -862,7 +861,7 @@ class LDAP_Bridge extends Asset
 			$dn = implode(',', $groups);
 			if ($dn == $this->attr('root_dn')) break;
 
-			$asset =& $this->getAsset($this->id.':'.$dn);
+			$asset = $this->getAsset($this->id.':'.$dn);
 			$url = substr($asset->getURL(), strlen(current_protocol()) +3);
 
 			$lineage[] = Array (
@@ -963,7 +962,7 @@ class LDAP_Bridge extends Asset
 	{
 		$info = Array();
 		foreach ($assetids as $assetid) {
-			$asset =& $this->getAsset($assetid);
+			$asset = $this->getAsset($assetid);
 
 			if (is_null($asset)) {
 				if (!empty($field)) {
@@ -1462,6 +1461,21 @@ class LDAP_Bridge extends Asset
 		$user->vars['last_name']['type'] = 'text';
 
 	}//end initUser()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
 
 
 }//end class
