@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_import_bmail_user.inc,v 1.4 2007/04/30 01:53:43 rong Exp $
+* $Id: hipo_job_tool_import_bmail_user.inc,v 1.5 2007/12/04 23:58:41 rong Exp $
 *
 */
 
@@ -22,10 +22,11 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Initial Running Vars :
 *    create_in_assetid	-	the ID of user group to create bmail users in
 *    file_info			-	the CSV file info
+*    new_link			-	whether to add a new link for existing bmail user (bool)
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -131,7 +132,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	{
 		// import the csv file
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv =& new CSV($this->_running_vars['file_info']['tmp_name']);
+		$csv = new CSV($this->_running_vars['file_info']['tmp_name']);
 		$csv->import();
 
 		// add users into the 'todo' array
@@ -162,12 +163,13 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 
 			// import one bmail user
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_user');
-			$index = array_shift(array_keys($this->_running_vars['todo_asset_users']));
-			$create_in =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['create_in_assetid']);
+			$array_keys = array_keys($this->_running_vars['todo_asset_users']);
+			$index = array_shift($array_keys);
+			$create_in = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['create_in_assetid']);
 			$name = $this->_running_vars['todo_asset_users'][$index]['name'];
 			$email = $this->_running_vars['todo_asset_users'][$index]['email'];
 
-			$user =& new Bulkmail_User();
+			$user = new Bulkmail_User();
 			$user->setAttrValue('name', $name);
 
 			// turn off error reporting if we are linking user with same address
@@ -179,7 +181,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 				error_reporting($old_reporting);
 				if (!$status) {
 					// find the existing bmail user, and link here
-					$user =& $this->_getExistingBmailUser($email);
+					$user = $this->_getExistingBmailUser($email);
 					if ($name != $user->name) {
 						trigger_error("(Bulkmail User #$user->id) \"$name\" does not match existing name \"$user->name\"");
 						$step_data['message'] = "Skipping \"$user->name\" (#$user->id)";
@@ -237,21 +239,16 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	*/
 	function &_getExistingBmailUser($email)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT
-					assetid
-				FROM sq_ast_attr_uniq_val uv
-					INNER JOIN sq_ast_attr oa ON uv.owning_attrid = oa.attrid
-					INNER JOIN sq_ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
-			   WHERE uv.custom_val = '.$db->quoteSmart($email).'
-					AND a.name = '.$db->quoteSmart('email').'
-					AND a.type_code = '.$db->quoteSmart('bulkmail_user');
-		$assetid = $db->getOne($sql);
-		assert_valid_db_result($assetid);
+		try {
+			$bind_vars['email'] = $email;
+			$assetid = MatrixDAL::executeOne('bulkmail_package', 'getExistingBmailUser', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to get existing bulkmail user due to database error: ".$e->getMessage());
+		}
 
 		$user = NULL;
 		if (!is_null($assetid)) {
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		}
 
 		return $user;
@@ -260,5 +257,6 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 
 
 }//end class
+
 
 ?>
