@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.4 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.5 2007/12/04 03:08:59 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,9 +39,9 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Job_Manage_Pending_Accounts($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Cron_Job($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

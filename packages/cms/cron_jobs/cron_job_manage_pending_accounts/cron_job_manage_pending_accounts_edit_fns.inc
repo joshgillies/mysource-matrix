@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts_edit_fns.inc,v 1.2 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: cron_job_manage_pending_accounts_edit_fns.inc,v 1.3 2007/12/04 03:08:59 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,7 @@ class Cron_Job_Manage_Pending_Accounts_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	function Cron_Job_Manage_Pending_Accounts_Edit_Fns()
 	{
-		$this->Cron_Job_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts_management.inc,v 1.4 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: cron_job_manage_pending_accounts_management.inc,v 1.5 2007/12/04 03:08:59 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,7 +35,7 @@ class Cron_Job_Manage_Pending_Accounts_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Cron_Job_Manage_Pending_Accounts_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 
