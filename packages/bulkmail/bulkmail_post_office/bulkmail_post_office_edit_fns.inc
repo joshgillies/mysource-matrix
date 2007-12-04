@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.32 2006/12/13 22:11:34 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.33 2007/12/04 23:57:39 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -77,7 +77,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 				foreach ($recipients as $assetid) {
 					$group_asset = NULL;
 					if (!empty($assetid)) {
-						$group_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$group_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					}
 
 					if (!is_null($group_asset)) {
@@ -479,7 +479,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		// check if bulkmail manager's default's post office overrides threshold settings
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$use_bm_threshold = $bm->attr('use_bm_threshold');
 		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
 			$threshold = $bm->attr('threshold');
@@ -550,7 +550,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		// check if bulkmail manager's default's post office overrides threshold settings
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$use_bm_threshold = $bm->attr('use_bm_threshold');
 		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
 			$write_access = FALSE;
@@ -898,7 +898,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function paintJobQueue(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bulkmail_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$bulkmail_manager_edit_fns = $bulkmail_manager->getEditFns();
 		$o->openField('');
 			$jobs = $bulkmail_manager->getQueuedJobs(NULL, $asset->id);
@@ -923,7 +923,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	function processJobQueue(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bulkmail_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$bulkmail_manager_edit_fns = $bulkmail_manager->getEditFns();
 		if (!$write_access) return;
 
@@ -946,7 +946,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function showProgressSection(&$asset, $prefix)
 	{
-		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bulkmail_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$jobs = $bulkmail_manager->getQueuedJobs(NULL, $asset->id);
 
 		return (empty($jobs) ? FALSE : TRUE);
