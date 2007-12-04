@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.19 2007/12/03 02:25:59 gsherwood Exp $
+* $Id: page_rss_feed.inc,v 1.20 2007/12/04 02:47:56 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -38,10 +38,10 @@ class Page_RSS_Feed extends Page
 	* @param int	$assetid		assetid for the asset
 	*
 	*/
-	function Page_RSS_Feed($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

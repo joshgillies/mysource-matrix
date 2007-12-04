@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.14 2007/01/12 00:23:16 tbarrett Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.15 2007/12/04 02:47:56 gsherwood Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -33,9 +33,9 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_RSS_Feed_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
