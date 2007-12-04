@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_bulkmail.inc,v 1.8 2006/12/07 05:55:55 bcaldwell Exp $
+* $Id: package_manager_bulkmail.inc,v 1.9 2007/12/04 23:41:30 rong Exp $
 *
 */
 
@@ -66,10 +66,10 @@ class Package_Manager_Bulkmail extends Package_Manager
 	function &createBulkmailManager()
 	{
 		// set default asset name in management.inc and define _getName() function
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_manager');
-		$bulkmail_manager =& new Bulkmail_Manager();
+		$bulkmail_manager = new Bulkmail_Manager();
 		$bulkmail_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$bulkmail_manager->create($bulkmail_manager_link)) {
 			trigger_localised_error('SCH0007', E_USER_ERROR);
