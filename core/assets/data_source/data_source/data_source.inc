@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.21 2007/12/02 22:34:13 lwright Exp $
+* $Id: data_source.inc,v 1.22 2007/12/04 02:48:23 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -623,7 +623,7 @@ class Data_Source extends Asset implements Bridge
 	*
 	* @return object
 	* @access public
-	* @see Asset_Manager::&getAsset()
+	* @see Asset_Manager::getAsset()
 	*/
 	public function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
