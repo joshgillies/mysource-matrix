@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.637 2007/12/04 02:40:06 colivar Exp $
+* $Id: asset_manager.inc,v 1.638 2007/12/04 05:01:52 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.637 $
+* @version $Revision: 1.638 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3502,8 +3502,12 @@ class Asset_Manager extends MySource_Object
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'sl');
 
-			$shdw_parentids = $db->getCol($sql.$where);
-			assert_valid_db_result($shdw_parentids);
+			try {
+				$shdw_parentids = MatrixDAL::executeSqlAssoc($sql.$where, 1);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get parents from due to the following database error:'.$e->getMessage());
+			}//end try catch
+
 			$shdw_parents = $this->getAssetInfo($shdw_parentids, Array(), TRUE, 'type_code');
 
 			$real_parents = Array();
@@ -3616,7 +3620,7 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($sort_by)) {
 			$children = Array();
 			foreach ($result as $assetid => $asset_info) {
-				$children[$assetid] = $asset_info['type_code'];
+				$children[$assetid] = $asset_info[0]['type_code'];
 			}
 			return $children;
 		} else {
