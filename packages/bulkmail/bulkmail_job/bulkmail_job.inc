@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.34 2007/07/13 06:52:40 rong Exp $
+* $Id: bulkmail_job.inc,v 1.35 2007/12/04 23:49:48 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -64,13 +64,13 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$assetid = array_pop(array_keys($parents));
 			// make sure the parent post office is not in trash
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($assetid)) {
-				$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			}
 		}
 
 		// use the system default post office if none is selected
 		if (is_null($post_office)) {
-			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+			$post_office = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		}
 
 		return $post_office;
@@ -90,7 +90,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	{
 		// check if this job is valid
 		$post_office = $this->getPostOffice();
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$details_info = $bm->generateJobDetails($this, $post_office);
 		$errors = $bm->isValidJob($details_info, TRUE);
 		if (!empty($errors)) {
@@ -101,7 +101,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// create the mail object
 		$server_details = $post_office->attr('server_details');
 		$driver = array_get_index($server_details, 'driver', '');
-		$mail_object =& Mail::factory($driver, $server_details);
+		$mf = new Mail();
+		$mail_object = $mf->factory($driver, $server_details);
 
 		// generate content as pre-selected user
 		$data_dir = $post_office->data_path.'/.data/'.$this->id;
@@ -124,7 +125,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($subject);
 		$replacements = Array();
-		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
+		$content_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
 		foreach ($keywords as $word) {
 			$replacements[$word] = $content_asset->getKeywordReplacement($word);
 		}
@@ -142,12 +143,12 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		}
 
 		// set $crlf to "\n" since we are sending the content using PEAR Mail
-		$mime =& new Mail_mime("\n");
+		$mime = new Mail_mime("\n");
 		$mime->setHTMLBody($content);
 		$body = @$mime->get();
 		$headers = @$mime->headers($header_details);
-		$status = $mail_object->send($recipient, $headers, $body);
-		if (PEAR::isError($status)) {
+		$status = @$mail_object->send($recipient, $headers, $body);
+		if ($status instanceof PEAR_Error) {
 			// unable to send bulkmail
 			trigger_localised_error('BML0002', E_USER_WARNING, $status->getMessage());
 			return FALSE;
@@ -170,7 +171,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	function processStatusChange($new_status, $update_parents=TRUE)
 	{
 		// get the current state from the bmail queue db table
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$queued_jobs = $bm->getQueuedJobs($this->id);
 
 		// cannot change the status of the job is in the db table
