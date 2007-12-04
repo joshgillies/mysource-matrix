@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.13 2006/12/07 00:04:16 emcdonald Exp $
+* $Id: content_type_code.inc,v 1.14 2007/12/04 02:40:07 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,10 +38,10 @@ class Content_Type_Code extends Content_Type
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Content_Type_Code($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Content_Type($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

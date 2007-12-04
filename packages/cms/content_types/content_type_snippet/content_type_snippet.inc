@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.2 2007/08/28 03:14:43 rong Exp $
+* $Id: content_type_snippet.inc,v 1.3 2007/12/04 02:40:07 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Content_Type_Snippet extends Content_Type
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Content_Type_Snippet($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Content_Type($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

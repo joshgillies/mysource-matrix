@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.19 2007/01/04 02:54:54 rhoward Exp $
+* $Id: page_poll.inc,v 1.20 2007/12/04 02:40:07 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,10 +43,10 @@ class Page_Poll extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Poll($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -74,7 +74,7 @@ class Page_Poll extends Page
 
 		$formats = Array();
 		foreach ($folders as $name) {
-			$asset =& new $type();
+			$asset = new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
@@ -96,7 +96,7 @@ class Page_Poll extends Page
 		$bodycopies['past_questions_list_format'] = 'past_questions_formats';
 
 		foreach ($bodycopies as $value => $folder_asset) {
-			$asset =& new Bodycopy();
+			$asset = new Bodycopy();
 			$copy_link = Array('asset' => &$formats[$folder_asset], 'value' => $value ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ',$value)));
 			if (!$asset->create($copy_link)) return FALSE;
@@ -132,7 +132,7 @@ class Page_Poll extends Page
 		$return_value = FALSE;
 
 		// if this is a poll_question then we need to make it SQ_LINK_TYPE_2
-		if ($side_of_link == 'major' && is_a($asset, 'poll_question')) {
+		if ($side_of_link == 'major' &&( $asset instanceof poll_question)) {
 			if ($link_type != SQ_LINK_TYPE_2) {
 				$link_type = SQ_LINK_TYPE_2;
 				$return_value = TRUE;
@@ -185,7 +185,7 @@ class Page_Poll extends Page
 		// validation
 		$valid = TRUE;
 		if ($active_question_id) {
-			$active_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($active_question_id, '', TRUE);
+			$active_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($active_question_id, '', TRUE);
 
 			// alias question to active_question
 			$question =& $active_question;
@@ -210,7 +210,7 @@ class Page_Poll extends Page
 			if (is_integer($SQ_POLL_ID) && $SQ_POLL_ID > 0 && $SQ_ACTION == $prefix.'_results') {
 
 				// grab the question by the poll id
-				$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($SQ_POLL_ID, '', TRUE);
+				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($SQ_POLL_ID, '', TRUE);
 
 				// if the question doesn't have an ID, or isn't of type poll_question, or isn't a child of the poll
 				if (!$question->id || !$am->getAssetTypeInfo(Array($question->id), Array('poll_question'), TRUE) || $question->status < SQ_STATUS_LIVE || !$am->getLinkByAsset($this->id, $question->id, SQ_LINK_TYPE_2)) {
@@ -258,7 +258,6 @@ class Page_Poll extends Page
 			}
 			$format_type = 'results_format';
 			$keyword_reps = $this->_getResultsFormatKeywordReplacements($question);
-
 		} else {
 
 			// if accessing the results screen by ID of View Results, or cannot vote
@@ -317,7 +316,7 @@ class Page_Poll extends Page
 
 		if (empty($link)) return $null;
 
-		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		return $folder;
@@ -594,13 +593,13 @@ class Page_Poll extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $folders[$format]);
 		if (empty($link)) return $null;
 
-		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $format);
 		if (empty($bodycopy_link)) return $null;
 
-		$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 
 		return $format_bodycopy;
 
@@ -1063,7 +1062,7 @@ class Page_Poll extends Page
 				<?php
 				$link .= ob_get_clean();
 				$keywords['poll_question'] = $link;
-				$poll_question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($info_index);
+				$poll_question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($info_index);
 				foreach ($format_bodycopy->getKeywords() as $keyword) {
 					if (empty($keywords[$keyword])) {
 						$keywords[$keyword] = $poll_question_asset->getKeywordReplacement($keyword);

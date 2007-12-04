@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.636 2007/12/04 00:14:54 bshkara Exp $
+* $Id: asset_manager.inc,v 1.637 2007/12/04 02:40:06 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.636 $
+* @version $Revision: 1.637 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4996,9 +4996,10 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 		// use the sq_ast_lnk sequence so that when we query any link view later
 		// on we don't have any conflicting linkids
-		$linkid = $db->nextId('sq_ast_lnk');
-		assert_valid_db_result($linkid);
 
+		$linkid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_lnk_seq\')');
+		$now = time();
+		$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
 		$sql = 'INSERT INTO
 					sq_shdw_ast_lnk
 					(
@@ -5012,16 +5013,28 @@ class Asset_Manager extends MySource_Object
 					)
 					VALUES
 					(
-						'.$db->quote($linkid).',
-						'.$db->quote($major->id).',
-						'.$db->quote($minor->id).',
-						'.$db->quote($link_type).',
-						'.$db->quote($value).',
-						'.db_extras_todate($db, ts_iso8601(time())).',
-						'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserid()).'
+						:linkid,
+						:majorid,
+						:minorid,
+						:link_type,
+						:value,
+						'.$ts_fragment.',
+						:currentUserId
 					)';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+		$result = NULL;
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':linkid', $linkid);
+			$query->bindValue(':majorid', $major->id);
+			$query->bindValue(':minorid', $minor->id);
+			$query->bindValue(':link_type', $link_type);
+			$query->bindValue(':value', $value);
+			$query->bindValue(':currentUserId', $GLOBALS['SQ_SYSTEM']->currentUserid());
+			$result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('cannot create Shadow Asset Links due to database error: '.$e->getMessage());
+		}
 
 		$this->forgetAsset($major);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -6000,14 +6013,17 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function deleteShadowAssetLink($linkid)
-	{
+	{// TODO TOF TEST
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$sql = 'DELETE FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk
-					WHERE linkid = '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart($linkid);
 
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-		assert_valid_db_result($result);
+		$db = MatrixDAL::getDb();
+		try {
+			$bind_vars = Array('linkid' => $linkid);
+			$result = MatrixDAL::executeOne('core', 'deleteShadowAssetLink', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete shadow asset link with linkid: '.$linkid.' due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

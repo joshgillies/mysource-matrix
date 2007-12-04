@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.49 2007/08/23 07:10:26 hnguyen Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.50 2007/12/04 02:40:07 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -36,9 +36,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Content_Type_Nest_Content_Edit_Fns()
+	function __construct()
 	{
-		$this->Content_Type_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -146,7 +146,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			if (method_exists($nested_asset, '_getCacheKey')) {
 				$asset_cache_key .= $nested_asset->_getCacheKey();
 			}
-			
+
 			if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
 				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 				echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_edit_fns.inc,v 1.7 2006/12/07 00:04:22 emcdonald Exp $
+* $Id: page_poll_edit_fns.inc,v 1.8 2007/12/04 02:40:07 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,10 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Poll_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		//$this->Page_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -93,7 +94,7 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 
 		// create a question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('poll_question');
-		$poll_question =& new Poll_Question();
+		$poll_question = new Poll_Question();
 		$initial_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 0, 'is_dependant' => 0);
 		$poll_question->setAttrValue('name', $poll_name);
 

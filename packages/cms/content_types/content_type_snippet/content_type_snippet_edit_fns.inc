@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_edit_fns.inc,v 1.2 2007/08/28 03:14:43 rong Exp $
+* $Id: content_type_snippet_edit_fns.inc,v 1.3 2007/12/04 02:40:07 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Content_Type_Snippet_Edit_Fns()
+	function __construct()
 	{
-		$this->Content_Type_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

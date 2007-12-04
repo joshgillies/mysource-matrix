@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.6 2007/05/21 01:21:41 rhoward Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.7 2007/12/04 02:40:07 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -36,9 +36,9 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Content_Type_Image_Edit_Fns()
+	function __construct()
 	{
-		$this->Content_Type_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
