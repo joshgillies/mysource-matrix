@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.47 2007/01/08 03:23:47 emcdonald Exp $
+* $Id: bulkmail_manager.inc,v 1.48 2007/12/04 23:55:35 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -225,7 +225,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function createAdHocJob($from, $recipients, $subject, $content_id, $content_gen_as, $headers=Array(), $post_office_id=0, $server_details=Array(), $design_id=0, $layout_id=0)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (!is_array($recipients)) {
 			$recipients = Array($recipients);
@@ -238,7 +238,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		}
 
 		$am->includeAsset('bulkmail_job');
-		$bulkmail_job =& new Bulkmail_Job();
+		$bulkmail_job = new Bulkmail_Job();
 
 		$bulkmail_job->setAttrValue('from', $from);
 		$bulkmail_job->setAttrValue('recipients', $recipients);
@@ -252,10 +252,10 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		$post_office = NULL;
 		if (empty($post_office_id) && !empty($server_details)) {
-			$post_office =& new Post_Office();
+			$post_office = new Post_Office();
 			$post_office->setAttrValue('server_details', $value);
 		} else if ($post_office_id) {
-			$post_office =& $am->getAsset($post_office_id, 'bulkmail_post_office');
+			$post_office = $am->getAsset($post_office_id, 'bulkmail_post_office');
 			if (is_null($post_office)) return FALSE;
 		}
 
@@ -280,9 +280,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		// if no post office is supplied, work out which one to use
 		if (is_null($post_office)) {
 			if ($job->id == 0) {
-				$post_office =& $this;
+				$post_office = $this;
 			} else {
-				$post_office =& $job->getPostOffice();
+				$post_office = $job->getPostOffice();
 			}
 		}
 
@@ -315,30 +315,16 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$this->initDetailsFile($details_info, $data_dir);
 
 		// add a new entry to the database table
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'INSERT INTO
-					sq_bmail_queue
-					(
-						id,
-						po_id,
-						status
-					)
-					VALUES
-					(
-						'.$db->quoteSmart($unique_id).',
-						'.$db->quoteSmart($post_office->id).',
-						'.$db->quoteSmart(BML_JOB_STATE_NOT_RUNNING).'
-					)';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		try {
+			$bind_vars = Array(
+							'id'		=> $unique_id,
+							'po_id'		=> $post_office->id,
+							'status'	=> BML_JOB_STATE_NOT_RUNNING,
+						 );
+			$result = MatrixDAL::executeOne('bulkmail_package', 'addJob', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to add bulkmail job (#$unique_id) due to database error: ".$e->getMessage());
+		}
 
 		return TRUE;
 
@@ -357,22 +343,17 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function deleteJob($job_id)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM
-					sq_bmail_queue
-				WHERE
-					id = '.$db->quoteSmart($job_id);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		try {
+			$bind_vars['job_id'] = $job_id;
+			$result = MatrixDAL::executeOne('bulkmail_package', 'deleteJob', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to delete bulkmail job (#$job_id) due to database error: ".$e->getMessage());
+		}
 
 		// purge the data dir if it is an ad-hoc job
 		$job_id_parts = explode(':', $job_id);
 		if (isset($job_id_parts[1])) {
-			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
+			$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
 			$path = $post_office->data_path.'/.data/'.$job_id_parts[1];
 			if (is_dir($path)) delete_directory($path);
 		}
@@ -393,8 +374,6 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function updateJob($job_id, $state)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// set last_updated to zero to skip timeout checking when we resume the job
 		if ($state == BML_JOB_STATE_NOT_RUNNING	) {
@@ -407,18 +386,15 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			}
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'UPDATE
-					sq_bmail_queue
-				SET
-					status = '.$db->quoteSmart($state).'
-				WHERE
-					id = '.$db->quoteSmart($job_id);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
+		try {
+				$bind_vars = Array(
+							'status'	=> $state,
+							'job_id'	=> $job_id,
+						 );
+			$result = MatrixDAL::executeOne('bulkmail_package', 'updateJob', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to update bulkmail job (#$job_id) due to database error: ".$e->getMessage());
+		}
 		return TRUE;
 
 	}//end updateJob()
@@ -435,30 +411,27 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	*/
 	function getQueuedJobs($job_id=NULL, $post_office_id=NULL)
 	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$db_table = SQ_TABLE_RUNNING_PREFIX.'bmail_queue';
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$where = '';
-		if (!is_null($job_id)) {
-			$where = ' WHERE
-						id = '.$db->quoteSmart($job_id);
+		if (is_null($job_id) && is_null($post_office_id)) {
+			try {
+				$results = MatrixDAL::executeGrouped('bulkmail_package', 'getAllQueuedJobs');
+			} catch (Exception $e) {
+				throw new Exception('Unable to get queued bulkmail jobs: '.$e->getMessage());
+			}
+		} else if (!is_null($job_id)) {
+			try {
+				$bind_vars['job_id'] = $job_id;
+				$results = MatrixDAL::executeGrouped('bulkmail_package', 'getQueuedJobsByJob', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get queued bulkmail jobs: '.$e->getMessage());
+			}
 		} else if (!is_null($post_office_id)) {
-			$where = ' WHERE
-						po_id = '.$db->quoteSmart($post_office_id);
+			try {
+				$bind_vars['post_office_id'] = $post_office_id;
+				$results = MatrixDAL::executeGrouped('bulkmail_package', 'getQueuedJobsByPostOffice', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get queued bulkmail jobs: '.$e->getMessage());
+			}
 		}
-
-		$sql = 'SELECT id, po_id, status
-				FROM sq_bmail_queue
-				'.$where;
-
-		$results = $db->getAssoc($sql);
-		assert_valid_db_result($results);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// add progress/details info to each job result
 		foreach ($results as $job_id => $result) {
@@ -467,6 +440,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 				$results[$job_id]['progress'] = $progress_info;
 				$details_info = $this->getJobDetails($job_id);
 				$results[$job_id]['details'] = $details_info;
+				// do this since we cannot use executeGroupAssoc
+				$results[$job_id]['po_id'] = $result[0][0];
+				$results[$job_id]['status'] = $result[0][1];
 			} else {
 				// if this job has been removed, then delete it from the bmail queue too
 				$this->deleteJob($job_id);
@@ -491,12 +467,12 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$job_id_parts = explode(':', $job_id);
 
 		if (isset($job_id_parts[1])) {
-			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
+			$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
 			$path = $post_office->data_path.'/.data/'.$job_id_parts[1];
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
 		} else {
-			$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
-			$post_office =& $job->getPostOffice();
+			$job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
+			$post_office = $job->getPostOffice();
 			$path = $post_office->data_path.'/.data/'.$job_id;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
 		}
@@ -519,10 +495,10 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	{
 		$job_id_parts = explode(':', $job_id);
 		if (isset($job_id_parts[1])) {
-			$post_office =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
+			$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id_parts[0]);
 		} else {
-			$job =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
-			$post_office =& $job->getPostOffice();
+			$job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
+			$post_office = $job->getPostOffice();
 		}
 
 		return $post_office;
@@ -708,8 +684,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// cannot create a PEAR mail instance
 		$driver = array_get_index($details_info['server_details'], 'driver', '');
-		$mail_object = Mail::factory($driver, $details_info['server_details']);
-		if (PEAR::isError($mail_object)) {
+		$mf = new Mail();
+		$mail_object = $mf->factory($driver, $details_info['server_details']);
+		if ($mail_object instanceof PEAR_Error) {
 			$errors[] = translate('bm_warning_server_details_error', $mail_object->getMessage());
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($mail_object);
@@ -721,12 +698,12 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		}
 
 		// no content page
-		$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		if (empty($details_info['content_id'])) {
 			$errors[] = translate('bm_warning_no_asset_to_send');
 		} else {
 			// page is not live
-			$content_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
+			$content_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_id']);
 			if ($content_page->status != SQ_STATUS_LIVE) {
 				$errors[] = translate('bm_warning_asset_to_send_not_live', $content_page->name, $content_page->id);
 			} else {
@@ -735,8 +712,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 					$errors[] = translate('bm_warning_no_generate_as');
 				} else {
 					// cannot login as pre-selected user, is in trash or not live
-					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
-					if (!is_a($user, 'Public_User') && !$user->canLogin()) {
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_gen_as']);
+					if (!($user instanceof Public_User) && !$user->canLogin()) {
 						$errors[] = translate('bm_warning_generate_as_login_error', $user->name, $user->id);
 					}
 					// pre-selected user does not have (effective) read permission for content page
@@ -775,7 +752,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// design does not have public read access
 		if (!empty($details_info['content_design'])) {
-			$design =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_design']);
+			$design = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_design']);
 			$public_read_access = $design->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
 				$errors[] = translate('bm_warning_no_public_read_access', $design->name, $design->id);
@@ -785,7 +762,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// layout does not have public read access
 		if (!empty($details_info['content_layout'])) {
-			$layout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_layout']);
+			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($details_info['content_layout']);
 			$public_read_access = $layout->readAccess(Array($public_user->id));
 			if (!$public_read_access) {
 				$errors[] = translate('bm_warning_no_public_read_access', $layout->name, $layout->id);
