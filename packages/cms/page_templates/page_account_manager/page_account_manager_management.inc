@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.25 2007/04/03 23:05:40 amiller Exp $
+* $Id: page_account_manager_management.inc,v 1.26 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -33,7 +33,7 @@ class Page_Account_Manager_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Account_Manager_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

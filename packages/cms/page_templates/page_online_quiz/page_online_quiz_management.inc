@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_management.inc,v 1.6 2007/05/31 06:47:47 mbrydon Exp $
+* $Id: page_online_quiz_management.inc,v 1.7 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -35,7 +35,7 @@ class Page_Online_Quiz_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Online_Quiz_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

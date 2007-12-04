@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.31 2006/12/07 00:04:20 emcdonald Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.32 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Asset_Listing_Edit_Fns()
+	function __construct()
 	{
-		$this->Listing_Engine_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

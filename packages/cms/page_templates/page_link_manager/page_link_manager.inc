@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.16 2007/09/12 01:35:21 colivar Exp $
+* $Id: page_link_manager.inc,v 1.17 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,10 +50,10 @@ class Page_Link_Manager extends Page_Asset_Listing
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Link_Manager($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page_Asset_Listing($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

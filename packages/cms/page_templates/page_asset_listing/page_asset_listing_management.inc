@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.35 2007/10/29 00:43:23 colivar Exp $
+* $Id: page_asset_listing_management.inc,v 1.36 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -35,7 +35,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Asset_Listing_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

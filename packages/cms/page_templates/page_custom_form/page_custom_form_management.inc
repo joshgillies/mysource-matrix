@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_management.inc,v 1.12 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_custom_form_management.inc,v 1.13 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -34,7 +34,7 @@ class Page_Custom_Form_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Custom_Form_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

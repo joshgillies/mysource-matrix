@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.36 2007/06/13 06:41:32 rong Exp $
+* $Id: page_whats_new.inc,v 1.37 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Page_Whats_New extends Listing_Engine
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Whats_New($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Listing_Engine($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

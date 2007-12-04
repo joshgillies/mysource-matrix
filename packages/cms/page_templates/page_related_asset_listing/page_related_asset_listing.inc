@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.7 2007/05/17 01:50:22 skim Exp $
+* $Id: page_related_asset_listing.inc,v 1.8 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -39,9 +39,9 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Related_Asset_Listing($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page_Asset_Listing($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

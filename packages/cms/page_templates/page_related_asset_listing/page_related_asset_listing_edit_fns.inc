@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing_edit_fns.inc,v 1.6 2006/12/11 04:18:53 skim Exp $
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.7 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Related_Asset_Listing_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Asset_Listing_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

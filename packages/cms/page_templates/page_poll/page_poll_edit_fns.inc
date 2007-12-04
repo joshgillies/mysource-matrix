@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_edit_fns.inc,v 1.8 2007/12/04 02:40:07 colivar Exp $
+* $Id: page_poll_edit_fns.inc,v 1.9 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,7 +40,6 @@ class Page_Poll_Edit_Fns extends Page_Edit_Fns
 	*/
 	function __construct()
 	{
-		//$this->Page_Edit_Fns();
 		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 

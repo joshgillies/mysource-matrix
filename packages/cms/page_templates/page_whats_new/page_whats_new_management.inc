@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.16 2006/12/07 00:04:24 emcdonald Exp $
+* $Id: page_whats_new_management.inc,v 1.17 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -34,9 +34,9 @@ class Page_Whats_New_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Whats_New_Management(&$pm)
+	function __construct(&$pm)
 	{
-		$this->Asset_Management($pm);
+		parent::__construct($pm);
 
 		$this->vars = Array(
 						'date_field'		=> Array(

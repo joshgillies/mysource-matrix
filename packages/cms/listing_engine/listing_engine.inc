@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.230 2007/11/15 05:14:37 rong Exp $
+* $Id: listing_engine.inc,v 1.231 2007/12/04 02:57:51 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.230 $
+* @version $Revision: 1.231 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,10 +52,10 @@ class Listing_Engine extends Page
 	var $requires_form = FALSE;
 
 
-	function Listing_Engine($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_structure_tree_management.inc,v 1.2 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: content_type_structure_tree_management.inc,v 1.3 2007/12/04 02:59:09 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -35,7 +35,7 @@ class Content_Type_Structure_Tree_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Content_Type_Structure_Tree_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

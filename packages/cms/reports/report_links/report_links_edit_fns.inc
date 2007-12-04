@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.36 2007/06/29 06:13:53 skim Exp $
+* $Id: report_links_edit_fns.inc,v 1.37 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -36,9 +36,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Report_Links_Edit_Fns()
+	function __construct()
 	{
-		$this->Report_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = '0';
 
 	}//end constructor

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager_edit_fns.inc,v 1.3 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_link_manager_edit_fns.inc,v 1.4 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Page_Link_Manager_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Link_Manager_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

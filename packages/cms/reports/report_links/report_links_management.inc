@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_management.inc,v 1.6 2006/12/07 00:04:25 emcdonald Exp $
+* $Id: report_links_management.inc,v 1.7 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -35,7 +35,7 @@ class Report_Links_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Report_Links_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->vars['display_options'] = Array(
 											'added'		=> '0.1',

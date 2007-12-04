@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.10 2007/03/16 06:23:54 tbarrett Exp $
+* $Id: report_links.inc,v 1.11 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -39,10 +39,10 @@ class Report_Links extends Report
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Report_Links($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Report($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

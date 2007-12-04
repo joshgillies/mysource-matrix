@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.12 2007/08/29 03:49:12 lwright Exp $
+* $Id: page_password_reset.inc,v 1.13 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,10 +50,10 @@ class Page_Password_Reset extends Page
 	* @return void
 	* @access public
 	*/
-	function Page_Password_Reset($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

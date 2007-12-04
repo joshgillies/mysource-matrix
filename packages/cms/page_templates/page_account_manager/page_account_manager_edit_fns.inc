@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.24 2006/12/07 00:04:19 emcdonald Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.25 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,9 +43,9 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Account_Manager_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Asset_Builder_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

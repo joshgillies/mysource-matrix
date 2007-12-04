@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.18 2007/08/29 03:49:05 lwright Exp $
+* $Id: page_online_quiz.inc,v 1.19 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -94,9 +94,9 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	* @return void
 	* @access public
 	*/
-	function Page_Online_Quiz($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page_Asset_Listing($assetid);
+		parent::__construct($assetid);
 
 		$this->_bodycopies = Array(
 								'page_contents'	=> translate('cms_page_contents'),

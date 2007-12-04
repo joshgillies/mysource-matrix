@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.6 2007/05/31 06:47:47 mbrydon Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.7 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -43,9 +43,9 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function Page_Online_Quiz_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Asset_Listing_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

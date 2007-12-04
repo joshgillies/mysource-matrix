@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.14 2006/12/07 00:04:24 emcdonald Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.15 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -37,9 +37,9 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Whats_New_Edit_Fns()
+	function __construct()
 	{
-		$this->Listing_Engine_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

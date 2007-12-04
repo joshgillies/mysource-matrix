@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.116 2007/10/22 02:24:58 nbhradwaj Exp $
+* $Id: page_asset_builder.inc,v 1.117 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,10 +68,10 @@ class Page_Asset_Builder extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Asset_Builder($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.112 2007/10/29 00:43:23 colivar Exp $
+* $Id: page_asset_listing.inc,v 1.113 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -39,9 +39,9 @@ class Page_Asset_Listing extends Listing_Engine
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Asset_Listing($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Listing_Engine($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

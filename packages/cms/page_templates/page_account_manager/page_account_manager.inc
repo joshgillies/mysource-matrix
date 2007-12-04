@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.59 2007/07/24 04:21:00 mbrydon Exp $
+* $Id: page_account_manager.inc,v 1.60 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,9 +40,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Account_Manager($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page_Asset_Builder($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

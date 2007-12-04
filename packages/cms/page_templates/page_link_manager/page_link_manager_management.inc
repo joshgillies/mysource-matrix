@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager_management.inc,v 1.2 2006/12/07 00:04:21 emcdonald Exp $
+* $Id: page_link_manager_management.inc,v 1.3 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -34,7 +34,7 @@ class Page_Link_Manager_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Link_Manager_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 

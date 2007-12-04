@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.81 2007/11/15 05:14:38 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.82 2007/12/04 02:57:51 bshkara Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,9 +46,9 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Constructor
 	*/
-	function Listing_Engine_Edit_Fns($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page_Edit_Fns($assetid);
+		parent::__construct($assetid);
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'content';
 

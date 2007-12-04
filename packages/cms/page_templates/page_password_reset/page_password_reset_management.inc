@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset_management.inc,v 1.3 2006/12/07 00:04:22 emcdonald Exp $
+* $Id: page_password_reset_management.inc,v 1.4 2007/12/04 02:57:50 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -33,9 +33,9 @@ class Page_Password_Reset_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Password_Reset_Management(&$pm)
+	function __construct(&$pm)
 	{
-		$this->Asset_Management($pm);
+		parent::__construct($pm);
 
 		$this->vars['request_email_format'] = Array(
 												'added'		=> '0.1',

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll_management.inc,v 1.7 2007/01/04 02:54:54 rhoward Exp $
+* $Id: page_poll_management.inc,v 1.8 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -36,7 +36,7 @@ class Page_Poll_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Page_Poll_Management(&$pm)
+	function __construct(&$pm)
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(

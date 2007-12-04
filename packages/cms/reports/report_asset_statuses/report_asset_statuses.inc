@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses.inc,v 1.5 2006/12/07 00:04:25 emcdonald Exp $
+* $Id: report_asset_statuses.inc,v 1.6 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -39,9 +39,9 @@ class Report_Asset_Statuses extends Report
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Report_Asset_Statuses($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Report($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

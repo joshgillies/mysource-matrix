@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.9 2007/03/28 03:48:51 rong Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.10 2007/12/04 02:57:49 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -37,9 +37,9 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Report_Asset_Statuses_Edit_Fns()
+	function __construct()
 	{
-		$this->Report_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
