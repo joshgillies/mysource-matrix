@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_bmail_user.inc,v 1.7 2007/04/30 01:53:43 rong Exp $
+* $Id: tool_import_bmail_user.inc,v 1.8 2007/12/04 23:59:18 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -57,7 +57,7 @@ class Tool_Import_Bmail_User extends Tool
 	* @return void
 	* @access public
 	*/
-	function paintTool(&$o, $type_code)
+	public static function paintTool(&$o, $type_code)
 	{
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
@@ -91,7 +91,7 @@ class Tool_Import_Bmail_User extends Tool
 	* @return boolean
 	* @access public
 	*/
-	function processTool(&$o, $type_code)
+	public static function processTool(&$o, $type_code)
 	{
 		// error: csv file not specified
 		$file_info = get_file_upload_info($type_code.'_file_upload');
@@ -111,7 +111,7 @@ class Tool_Import_Bmail_User extends Tool
 		$vars['new_link'] = (isset($_REQUEST[$type_code.'_new_link'])) ? $_REQUEST[$type_code.'_new_link'] : FALSE;
 
 		// run HIPO job
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_tool_import_bmail_user', $vars, '', SQ_PACKAGES_PATH.'/bulkmail/hipo_jobs');
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
