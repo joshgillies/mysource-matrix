@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2006/12/07 05:55:56 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.4 2007/12/04 23:51:03 rong Exp $
 *
 */
 -->
@@ -18,7 +18,6 @@
 <contents>
 	<section name="Job Progress" show_if="showProgressSection">
 		<display_name>Job Progress</display_name>
-		<note />
 		<function_call>
 			<paint_function name="paintJobQueue" />
 			<process_function name="processJobQueue" />

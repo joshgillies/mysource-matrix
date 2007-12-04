@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager_edit_fns.inc,v 1.19 2006/12/07 05:55:56 bcaldwell Exp $
+* $Id: bulkmail_manager_edit_fns.inc,v 1.20 2007/12/04 23:51:03 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -106,7 +106,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	*/
 	function _processJobQueue(&$asset, $jobs)
 	{
-		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bulkmail_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 
 		foreach ($jobs as $job_id => $job_info) {
 			$prefix = $asset->getPrefix();
@@ -125,7 +125,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 							$msg_reps = Array(
 											'user_id'	=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
 										);
-							$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+							$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$message = $ms->newMessage(Array(), 'bulkmail.job.cancelled', $msg_reps);
 							$message->parameters['assetid'] = $job_id;
 							$message->send();
@@ -159,7 +159,7 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 
 		$write_access = $asset->writeAccess('attributes');
 
-		$bulkmail_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bulkmail_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 
 		?>
 			<table class="sq-backend-table">
@@ -181,7 +181,8 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				if (isset($jobid_parts[1])) {
 					$name = translate('bm_adhoc_job_name');
 				} else {
-					$name = array_shift($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($jobid), Array(), TRUE, 'name'));
+					$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($jobid), Array(), TRUE, 'name');
+					$name = array_shift($asset_info);
 				}
 
 				$progress = $job_info['progress'];
