@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_management.inc,v 1.9 2006/12/05 05:45:17 emcdonald Exp $
+* $Id: bodycopy_div_management.inc,v 1.10 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Bodycopy_Container_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,9 +34,9 @@ class Bodycopy_Div_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Bodycopy_Div_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 

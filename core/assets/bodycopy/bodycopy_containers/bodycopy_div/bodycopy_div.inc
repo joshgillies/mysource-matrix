@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.19 2007/11/06 06:08:41 rong Exp $
+* $Id: bodycopy_div.inc,v 1.20 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,10 +37,10 @@ class Bodycopy_Div extends Bodycopy_Container
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bodycopy_Div($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Bodycopy_Container($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -57,7 +57,7 @@ class Bodycopy_Div extends Bodycopy_Container
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		// grab the bodycopy data that we stored in the create() function
 		$bc_data = $this->_tmp['bodycopy_create_data'];
@@ -115,7 +115,7 @@ class Bodycopy_Div extends Bodycopy_Container
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_2	=> Array(
@@ -138,10 +138,10 @@ class Bodycopy_Div extends Bodycopy_Container
 	/**
 	* Get the content type asset attached to this DIV
 	*
-	* @return object
+	* @return Content_Type
 	* @access public
 	*/
-	function &getContentType()
+	public function getContentType()
 	{
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO || !isset($this->_tmp['content_type'])) {
 			unset($this->_tmp['content_type']);

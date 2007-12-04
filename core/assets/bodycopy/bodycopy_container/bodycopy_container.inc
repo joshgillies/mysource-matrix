@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.37 2007/11/15 05:35:40 bshkara Exp $
+* $Id: bodycopy_container.inc,v 1.38 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Bodycopy_Container extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bodycopy_Container($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -57,7 +57,7 @@ class Bodycopy_Container extends Asset
 	* @return mixed int|boolean
 	* @access public
 	*/
-	function create(&$link, $bc_data=Array())
+	public function create(Array &$link, Array $bc_data=Array())
 	{
 		// store this data for later use during the create process in _createAdditional()
 		$this->_tmp['bodycopy_create_data'] = $bc_data;
@@ -77,7 +77,7 @@ class Bodycopy_Container extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -98,7 +98,7 @@ class Bodycopy_Container extends Asset
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -111,12 +111,12 @@ class Bodycopy_Container extends Asset
 	* Prints out the backend interface for the asset. Used for displaying
 	* the div properties screen if needed.
 	*
-	* @param object	&$o	The Backend Outputter instance
+	* @param Backend_Outputter	$o	The Backend Outputter instance
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackend(&$o)
+	public function paintBackend(Backend_Outputter $o)
 	{
 
 		if (!isset($_REQUEST['asset_ei_screen'])) {
@@ -129,7 +129,7 @@ class Bodycopy_Container extends Asset
 				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 				$bodycopy_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
 				require_once $bodycopy_dir.'/popups/'.trim($_REQUEST['popup_file']);
-				exit();
+				exit(0);
 			default :
 				return parent::paintBackend($o);
 
@@ -146,7 +146,7 @@ class Bodycopy_Container extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function saveSystemVersion()
+	public function saveSystemVersion()
 	{
 		if (!parent::saveSystemVersion()) return FALSE;
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -188,7 +188,7 @@ class Bodycopy_Container extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $update_parent=TRUE)
+	public function processStatusChange($new_status, $update_parent=TRUE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -227,20 +227,20 @@ class Bodycopy_Container extends Asset
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object	&$asset			the major or minor asset that we are linking to
-	* @param string	$side_of_link	the side of the link we are on (major or minor)
-	* @param string	&$link_type		the type of link we are creating
-	* @param string	&$value			the value that is to be associated with the link
-	* @param string	&$sort_order	the position in the links list that this link should take,
-	* @param string	&$dependant		'0' / '1' on whether the this asset is dependant on the
-	*								asset that will be linked by the new link
-	* @param string	&$exclusive		'0' / '1' on whether the this asset is linked exclusively
-	*								to the asset that will be linked by the new link
+	* @param Bodycopy_Container	$asset			the major or minor asset that we are linking to
+	* @param string				$side_of_link	the side of the link we are on (major or minor)
+	* @param string				&$link_type		the type of link we are creating
+	* @param string				&$value			the value that is to be associated with the link
+	* @param string				&$sort_order	the position in the links list that this link should take,
+	* @param string				&$dependant		'0' / '1' on whether the this asset is dependant on the
+	*											asset that will be linked by the new link
+	* @param string				&$exclusive		'0' / '1' on whether the this asset is linked exclusively
+	*											to the asset that will be linked by the new link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Bodycopy_Container $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a content type then we need to make it a dependant link
 		if ($side_of_link == 'major' && ($asset instanceof Content_Type) && $dependant != '1' && ($link_type & SQ_SC_LINK_SIGNIFICANT)) {
@@ -261,7 +261,7 @@ class Bodycopy_Container extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function deleteLink($linkid)
+	public function deleteLink($linkid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (!parent::deleteLink($linkid)) return FALSE;
@@ -292,7 +292,7 @@ class Bodycopy_Container extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_2	=> Array(
@@ -320,7 +320,7 @@ class Bodycopy_Container extends Asset
 	* @return string
 	* @access public
 	*/
-	function describeLink($linkid)
+	public function describeLink($linkid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($link['link_type'] == SQ_LINK_NOTICE) {
@@ -339,9 +339,8 @@ class Bodycopy_Container extends Asset
 	* @return void
 	* @access public
 	*/
-	function printBody($keyword_replacements=Array())
+	public function printBody(Array $keyword_replacements=Array())
 	{
-
 		if (!$this->readAccess()) return;
 
 		if ($this->useSystemVersion()) {
@@ -442,7 +441,7 @@ class Bodycopy_Container extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -455,12 +454,12 @@ class Bodycopy_Container extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function isEmpty()
+	public function isEmpty()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$content_types = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'content_type', FALSE);
 		foreach ($content_types as $type) {
-			$ct =& $am->getAsset($type['minorid'], $type['minor_type_code']);
+			$ct = $am->getAsset($type['minorid'], $type['minor_type_code']);
 			if (!$ct->isEmpty()) return FALSE;
 		}
 		return TRUE;

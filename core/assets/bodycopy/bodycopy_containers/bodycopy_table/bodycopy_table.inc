@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.20 2007/11/06 06:08:41 rong Exp $
+* $Id: bodycopy_table.inc,v 1.21 2007/12/04 05:35:35 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Bodycopy_Table extends Bodycopy_Container
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bodycopy_Table($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Bodycopy_Container($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Bodycopy_Table extends Bodycopy_Container
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		// grab the bodycopy data that we stored in the create() function
 		$bc_data = $this->_tmp['bodycopy_create_data'];
@@ -108,7 +108,7 @@ class Bodycopy_Table extends Bodycopy_Container
 	* @access public
 	* @see saveAttributes()
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if ($name == 'rows') {
 			parent::setAttrValue('rows', Array());
@@ -126,7 +126,7 @@ class Bodycopy_Table extends Bodycopy_Container
 	* @return boolean
 	* @access public
 	*/
-	function remapAssetids($map)
+	public function remapAssetids(Array $map)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -211,7 +211,7 @@ class Bodycopy_Table extends Bodycopy_Container
 	* @return boolean
 	* @access public
 	*/
-	function remapTableLinks(&$map, &$child_links)
+	public function remapTableLinks(Array &$map, Array &$child_links)
 	{
 		$table_map = $this->attr('rows');
 		$child_map = Array();

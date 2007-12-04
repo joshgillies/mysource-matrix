@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.31 2007/11/16 00:03:31 hnguyen Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.32 2007/12/04 05:35:35 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Bodycopy_Table_Edit_Fns()
+	function __construct()
 	{
-		$this->Bodycopy_Container_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -45,13 +45,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Prints the JavaScript needed by the backend functions for this table
 	*
-	* @param object	&$asset	the table object being printed
-	* @param string	$prefix	prefix for form fields
+	* @param Bodycopy_Table	$asset	the table object being printed
+	* @param string			$prefix	prefix for form fields
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackendJsData(&$asset, $prefix)
+	public function paintBackendJsData(Bodycopy_Table $asset, $prefix)
 	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
@@ -101,14 +101,14 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paint JS data that tables need to use to do their processing
 	*
-	* @param object	&$bodycopy	the bodycopy being printed
-	* @param object	&$o			the Backend Outputter class
-	* @param string	$prefix		prefix for the form element
+	* @param Bodycopy_Table		$bodycopy	the bodycopy being printed
+	* @param Backend_Outputter	$o			the Backend Outputter class
+	* @param string				$prefix		prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintGenericBackend(&$bodycopy, &$o, $prefix)
+	public function paintGenericBackend(Bodycopy_Table $bodycopy, Backend_Outputter $o, $prefix)
 	{
 		// If the parent bodycopy class is itself, fudge the containers array
 		// so that the proper stuff gets drawn when putting out the javascript
@@ -252,7 +252,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $editing=FALSE, $generating=FALSE)
+	public function paint(Bodycopy_Table $asset, $editing=FALSE, $generating=FALSE)
 	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
@@ -305,14 +305,14 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paint the interface for editing this table
 	*
-	* @param object	&$asset	the table whose interface we are painting
-	* @param object	&$o		the Backend Outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Bodycopy_Table		$asset	the table whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter class
+	* @param string				$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintContainer(&$asset, &$o, $prefix)
+	public function paintContainer(Bodycopy_Table $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!parent::paintContainer($asset, $o, $prefix)) {
 			return FALSE;
@@ -422,19 +422,19 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	*	- Bottom left which contains row editing icons
 	*	- Bottom right which contains the actual cell contents.
 	*
-	* @param object		&$asset		The parent table asset being edited
-	* @param string		$prefix		The prefix for this asset in a form
-	* @param int		$x			The x coordinate of this cell
-	* @param int		$i			The y coordinate of this cell
-	* @param int		&$cell		The cell being drawn.
-	* @param boolean	$multiCol	Are there more than 1 cols in the table?
-	* @param boolean	$multiRow	Are there more than 1 rows in the table?
-	* @param boolean	$colReorder	Are we allowed to reorder columns? (colspan issues).
+	* @param Bodycopy_Table	$asset		The parent table asset being edited
+	* @param string			$prefix		The prefix for this asset in a form
+	* @param int			$x			The x coordinate of this cell
+	* @param int			$i			The y coordinate of this cell
+	* @param int			&$cell		The cell being drawn.
+	* @param boolean		$multiCol	Are there more than 1 cols in the table?
+	* @param boolean		$multiRow	Are there more than 1 rows in the table?
+	* @param boolean		$colReorder	Are we allowed to reorder columns? (colspan issues).
 	*
 	* @return void
 	* @access private
 	*/
-	function _paintEditingCell(&$asset, $prefix, $x, $i, &$cell, $multiCol, $multiRow, $colReorder)
+	protected function _paintEditingCell(Bodycopy_Table $asset, $prefix, $x, $i, &$cell, $multiCol, $multiRow, $colReorder)
 	{
 		$attribute_list = '';
 		$table_rows = $asset->attr('rows');
@@ -561,18 +561,18 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Process the interface for editing this table
 	*
-	* @param object	&$asset		the table whose interface we are painting
-	* @param object	&$o			the Backend Outputter class
-	* @param string	$prefix		prefix for the form element
-	* @param string	$bc_action	a global bodycopy action to perform (eg insert_table_row)
-	* @param string	$bc_name	the name of the bodycopy that submitted the action
-	* @param array	$bc_data	an array of data needed to perform the action
-	* @param array	$bc_saved	any saved changes that were performed without committing
+	* @param Bodycopy_Table		$asset		the table whose interface we are painting
+	* @param Backend_Outputter	$o			the Backend Outputter class
+	* @param string				$prefix		prefix for the form element
+	* @param string				$bc_action	a global bodycopy action to perform (eg insert_table_row)
+	* @param string				$bc_name	the name of the bodycopy that submitted the action
+	* @param array				$bc_data	an array of data needed to perform the action
+	* @param array				$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processContainer(&$asset, &$o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)
+	public function processContainer(Bodycopy_Table $asset, Backend_Outputter $o, $prefix, $bc_action, $bc_name, Array $bc_data, Array $bc_saved)
 	{
 		$updated = parent::processContainer($asset, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved);
 
@@ -803,14 +803,14 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Insert a new table row before or after the passed rowid
 	*
-	* @param object		&$asset	the table object
-	* @param int		$rowid	the id of the row that we are inserting before/after
-	* @param boolean	$before	insert before the passed rowid?
+	* @param Bodycopy_Table	$asset	the table object
+	* @param int			$rowid	the id of the row that we are inserting before/after
+	* @param boolean		$before	insert before the passed rowid?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function insertRow(&$asset, $rowid, $before=TRUE)
+	public function insertRow(Bodycopy_Table $asset, $rowid, $before=TRUE)
 	{
 		$rows = $asset->attr('rows');
 		$rowid = intval($rowid);
@@ -864,13 +864,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Delete the passed table row from the array
 	*
-	* @param object	&$asset	the table object
-	* @param int	$rowid	the id of the row to delete
+	* @param Bodycopy_Table	$asset	the table object
+	* @param int			$rowid	the id of the row to delete
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteRow(&$asset, $rowid)
+	public function deleteRow(Bodycopy_Table $asset, $rowid)
 	{
 		$rows = $asset->attr('rows');
 
@@ -909,13 +909,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Reorder the rows of this table
 	*
-	* @param object	&$asset		the table object
-	* @param array	$row_order	an array of the structure (new_place => old_place)
+	* @param Bodycopy_Table	$asset		the table object
+	* @param array			$row_order	an array of the structure (new_place => old_place)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function reorderRows(&$asset, $row_order)
+	public function reorderRows(Bodycopy_Table $asset, Array $row_order)
 	{
 		$rows = $asset->attr('rows');
 
@@ -952,13 +952,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Reorder the columns of this table
 	*
-	* @param object	&$asset		the table object
-	* @param array	$col_order	an array of the structure (new_place => old_place)
+	* @param Bodycopy_Table	$asset		the table object
+	* @param array			$col_order	an array of the structure (new_place => old_place)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function reorderColumns(&$asset, $col_order)
+	public function reorderColumns(Bodycopy_Table $asset, Array $col_order)
 	{
 		// if there ain't no changes, die
 		$changes = FALSE;
@@ -993,14 +993,14 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Insert a new column in all rows, before or after the passed columnID
 	*
-	* @param object		&$asset	the table object
-	* @param int		$cellid	the ID of the column that we are inserting before/after
-	* @param boolean	$before	insert before the passed cellID?
+	* @param Bodycopy_Table	$asset	the table object
+	* @param int			$cellid	the ID of the column that we are inserting before/after
+	* @param boolean		$before	insert before the passed cellID?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function insertColumn(&$asset, $cellid, $before=TRUE)
+	public function insertColumn(Bodycopy_Table $asset, $cellid, $before=TRUE)
 	{
 		$rows = $asset->attr('rows');
 
@@ -1021,13 +1021,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Deletes a column from all rows, before or after the passed columnID
 	*
-	* @param object	&$asset	the table object
-	* @param int	$cellid	the ID of the column that we are deleting
+	* @param Bodycopy_Table	$asset	the table object
+	* @param int			$cellid	the ID of the column that we are deleting
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteColumn(&$asset, $cellid)
+	public function deleteColumn(Bodycopy_Table $asset, $cellid)
 	{
 		$rows = $asset->attr('rows');
 
@@ -1048,17 +1048,17 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Insert a new table cell before or after the passed cellID
 	*
-	* @param object		&$asset		the table object
-	* @param array		&$rows		a reference to the rows attribute of the table
-	* @param int		$rowid		the ID of the row we are inserting into
-	* @param int		$cellid		the ID of the cell we are inserting before/after
-	* @param boolean	$before		insert the cell before the passed cellID?
-	* @param boolean	$colspan	ignore colspans in this row
+	* @param Bodycopy_Table	$asset		the table object
+	* @param array			&$rows		a reference to the rows attribute of the table
+	* @param int			$rowid		the ID of the row we are inserting into
+	* @param int			$cellid		the ID of the cell we are inserting before/after
+	* @param boolean		$before		insert the cell before the passed cellID?
+	* @param boolean		$colspan	ignore colspans in this row
 	*
 	* @return boolean
 	* @access public
 	*/
-	function insertCell(&$asset, &$rows, $rowid, $cellid, $before=TRUE, $colspan=FALSE)
+	public function insertCell(Bodycopy_Table $asset, Array &$rows, $rowid, $cellid, $before=TRUE, $colspan=FALSE)
 	{
 		if (!$colspan) {
 
@@ -1169,16 +1169,16 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Delete the passed table cell from a row
 	*
-	* @param object		&$table		the table object
-	* @param array		&$rows		a reference to the rows attribute of the table
-	* @param int		$rowid		the ID of the row we are deleting from
-	* @param int		$cellid		the ID of the cell we are deleting
-	* @param boolean	$colspan	ignore colspans in this row
+	* @param Bodycopy_Table	&$table		the table object
+	* @param array			&$rows		a reference to the rows attribute of the table
+	* @param int			$rowid		the ID of the row we are deleting from
+	* @param int			$cellid		the ID of the cell we are deleting
+	* @param boolean		$colspan	ignore colspans in this row
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteCell(&$table, &$rows, $rowid, $cellid, $colspan=FALSE)
+	public function deleteCell(Bodycopy_Table $table, Array &$rows, $rowid, $cellid, $colspan=FALSE)
 	{
 		if (!$colspan) {
 
@@ -1250,7 +1250,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* @return int
 	* @access public
 	*/
-	function maxCols($table_rows, $add_colspans=TRUE)
+	public function maxCols($table_rows, $add_colspans=TRUE)
 	{
 		$max = 0;
 		for ($i = 0; $i < count($table_rows); $i++) {

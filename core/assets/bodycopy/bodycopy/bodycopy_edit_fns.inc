@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.52 2007/12/03 01:12:08 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.53 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Bodycopy_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 		unset($this->static_screens['workflow']);
 		unset($this->static_screens['metadataSchemas']);
@@ -122,7 +122,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
+	public function paintBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('content');
@@ -443,7 +443,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function insertContainer(Bodycopy $asset, $type, $containerid, Array $bc_data)
+	public function insertContainer(Bodycopy $asset, $type, $containerid, Array $bc_data)
 	{
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);

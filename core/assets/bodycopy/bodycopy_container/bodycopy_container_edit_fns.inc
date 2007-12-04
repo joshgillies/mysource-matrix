@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.58 2007/11/26 00:54:15 bshkara Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.59 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Bodycopy_Container_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 		unset($this->static_screens['metadataSchemas']);
 		unset($this->static_screens['metadata']);
 		unset($this->static_screens['settings']);
@@ -61,7 +61,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function setAttribute(&$attributes, $name, $value)
+	public function setAttribute(Array &$attributes, $name, $value)
 	{
 		$name = strtolower($name);
 		if (empty($attributes[$name])) $attributes[$name] = '';
@@ -76,13 +76,13 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the JavaScript needed by the backend functions for this table
 	*
-	* @param object	&$asset	the container object being printed
-	* @param string	$prefix	prefix for form fields
+	* @param Bodycopy_Container	$asset	the container object being printed
+	* @param string				$prefix	prefix for form fields
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackendJsData(&$asset, $prefix)
+	public function paintBackendJsData(Bodycopy_Container $asset, $prefix)
 	{
 
 	}//end paintBackendJsData()
@@ -91,14 +91,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint JS data that containers need to use to do their processing
 	*
-	* @param object	&$bodycopy	the bodycopy being printed
-	* @param object	&$o			the outputter class
-	* @param string	$prefix		prefix for the form element
+	* @param Bodycopy_Container	$asset	the bodycopy being printed
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintGenericBackend(&$bodycopy, &$o, $prefix)
+	public function paintGenericBackend(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
 
 	}//end paintGenericBackend()
@@ -107,14 +107,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints this container as HTML
 	*
-	* @param object		&$asset		the container whose interface we are painting
-	* @param boolean	$editing	are we printing an editing interface
-	* @param boolean	$generating	are we generating the content file
+	* @param Bodycopy_Container	$asset		the container whose interface we are painting
+	* @param boolean			$editing	are we printing an editing interface
+	* @param boolean			$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $editing=FALSE, $generating=FALSE)
+	public function paint(Bodycopy_Container $asset, $editing=FALSE, $generating=FALSE)
 	{
 
 	}//end paint()
@@ -123,14 +123,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for editing this container
 	*
-	* @param object	&$asset	the container whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Bodycopy_Container	$asset	the container whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintContainer(&$asset, &$o, $prefix)
+	public function paintContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('content')) {
 			if ($asset->readAccess()) {
@@ -174,18 +174,18 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for editing this container
 	*
-	* @param object	&$asset		the container whose interface we are painting
-	* @param object	&$o			the outputter class
-	* @param string	$prefix		prefix for the form element
-	* @param string	$bc_action	a global bodycopy action to perform
-	* @param string	$bc_name	the name of the bodycopy that submitted the action
-	* @param array	$bc_data	an array of data needed to perform the action
-	* @param array	$bc_saved	any saved changes that were performed without committing
+	* @param Bodycopy_Container	$asset		the container whose interface we are painting
+	* @param Backend_Outputter	$o			the outputter class
+	* @param string				$prefix		prefix for the form element
+	* @param string				$bc_action	a global bodycopy action to perform
+	* @param string				$bc_name	the name of the bodycopy that submitted the action
+	* @param array				$bc_data	an array of data needed to perform the action
+	* @param array				$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processContainer(&$asset, &$o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)
+	public function processContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix, $bc_action, $bc_name, Array $bc_data, Array $bc_saved)
 	{
 		$updated = FALSE;
 
@@ -246,12 +246,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Creates a PHP file to print on the frontend instead of doing processing there
 	*
-	* @param object	&$asset	the container
+	* @param Bodycopy_Container	$asset	the container
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateContentFile(&$asset)
+	public function generateContentFile(Bodycopy_Container $asset)
 	{
 		ob_start();
 			$this->paint($asset, FALSE, TRUE);
@@ -314,14 +314,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* Creates and deletes NOTICE links based on the assets being linked to within the contents of this container
 	* For shadow assets it
 	*
-	* @param object			&$asset	the container
-	* @param string|NULL	$output	the content of the bodycopy container,
-	*								leave NULL to have it generated for you
+	* @param Bodycopy_Container	$asset	the container
+	* @param string|NULL		$output	the content of the bodycopy container,
+	*									leave NULL to have it generated for you
 	*
 	* @return boolean
 	* @access public
 	*/
-	function createContentLinks(&$asset, $output=NULL)
+	public function createContentLinks(Bodycopy_Container $asset, $output=NULL)
 	{
 		if (is_null($output)) {
 			ob_start();
@@ -446,12 +446,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* gets called when a bodycopy container's contents are updated to notify anyone who cares about this
 	*
-	* @param object	&$asset	the asset that is getting updated
+	* @param Bodycopy_Container	$asset	the asset that is getting updated
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _contentsUpdated(&$asset)
+	public function _contentsUpdated(Bodycopy_Container $asset)
 	{
 		if (is_null($asset)) return FALSE;
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
@@ -463,12 +463,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
 	*
-	* @param object	&$o	the Backend_Outputter class
+	* @param Backend_Outputter	$o	the Backend_Outputter class
 	*
 	* @return mixed array|NULL
 	* @access private
 	*/
-	function _saveCssIds(&$o)
+	protected function _saveCssIds(Backend_Outputter $o)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -528,14 +528,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* functionality is so similar. Perhaps going to aggregate it out to
 	* a separate class though once it is understood better.
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Bodycopy_Container	$asset	the container whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBodycopyContainer(&$asset, &$o, $prefix)
+	function paintBodycopyContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -828,14 +828,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* When this bodycopy_container is painted on its own without being a part
 	* of the 'contents' of a bodycopy, process it separately than normal.
 	*
-	* @param object	&$asset	the container whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Bodycopy_Container	$asset	the container whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function processBodycopyContainer(&$asset, &$o, $prefix)
+	function processBodycopyContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
 		// save css ids into global var
 		// we don't care about the return value here
@@ -872,14 +872,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the description attribute as a text area on the details screen
 	*
-	* @param object	&$asset	the container whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Bodycopy_Container	$asset	the container whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintDescription(&$asset, &$o, $prefix)
+	function paintDescription(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			text_area($prefix.'_description', $asset->attr('description'), 20, 3);
@@ -896,14 +896,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the description text area attribute on the details screen
 	*
-	* @param object	&$asset	the container whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Bodycopy_Container	$asset	the container whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function processDescription(&$asset, &$o, $prefix)
+	public function processDescription(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_description']) && !empty($_POST[$prefix.'_description'])) {
 			if ($asset->writeAccess('attributes')) {

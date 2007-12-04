@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_prefs.inc,v 1.5 2007/08/17 03:42:27 nbhradwaj Exp $
+* $Id: bodycopy_container_prefs.inc,v 1.6 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -25,28 +25,28 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Bodycopy_Container_Prefs extends Prefs
 {
-	var $pref_vars = Array(
-						'SQ_DEFAULT_CONTENT_TYPE'	=> Array(
-														'name'			=> 'default_content_type',
-														'description'	=> 'When bodycopy containers are created they will have this content type by default',
-														'default'		=> 'content_type_wysiwyg',
-														'protected'		=> FALSE,
-													   ),
-					 );
+	public $pref_vars = Array(
+							'SQ_DEFAULT_CONTENT_TYPE'	=> Array(
+															'name'			=> 'default_content_type',
+															'description'	=> 'When bodycopy containers are created they will have this content type by default',
+															'default'		=> 'content_type_wysiwyg',
+															'protected'		=> FALSE,
+														   ),
+						);
 
 
 	/**
 	* Constructor
 	*
 	*/
-	function Bodycopy_Container_Prefs($pref_file='')
+	function __construct($pref_file='')
 	{
-		$this->Prefs($pref_file);
+		parent::__construct($pref_file);
 
 	}//end constructor
 
@@ -54,14 +54,14 @@ class Bodycopy_Container_Prefs extends Prefs
 	/**
 	* Paints the backend interface to edit preferences
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to paint
+	* @param Backend_Outputter	$o			reference to the backend outputter instance
+	* @param boolean			$have_lock	do we have the lock to edit these preferences or not
+	* @param string				$pref		a particular preference to paint
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o, $have_lock, $pref=NULL)
+	public function paintBackend(Backend_Outputter $o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -92,14 +92,14 @@ class Bodycopy_Container_Prefs extends Prefs
 	/**
 	* Processes the backend interface to edit preferences
 	*
-	* @param object		&$o			reference to the backend outputter instance
-	* @param boolean	$have_lock	do we have the lock to edit these preferences or not
-	* @param string		$pref		a particular preference to process
+	* @param Backend_Outputter	$o			reference to the backend outputter instance
+	* @param boolean			$have_lock	do we have the lock to edit these preferences or not
+	* @param string				$pref		a particular preference to process
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, $have_lock, $pref=NULL)
+	public function processBackend(Backend_Outputter $o, $have_lock, $pref=NULL)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
@@ -125,7 +125,7 @@ class Bodycopy_Container_Prefs extends Prefs
 	* @return array
 	* @access public
 	*/
-	function mergePrefs($prefs1, $prefs2)
+	public function mergePrefs(Array $prefs1, Array $prefs2)
 	{
 		$merged_prefs = Array();
 		$pref_vars = Array('SQ_DEFAULT_CONTENT_TYPE');

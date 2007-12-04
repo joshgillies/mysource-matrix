@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.36 2007/11/16 00:04:11 hnguyen Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.37 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Bodycopy_Div_Edit_Fns()
+	function __construct()
 	{
-		$this->Bodycopy_Container_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -45,13 +45,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Prints the JavaScript needed by the backend functions for this div
 	*
-	* @param object	&$asset	the div object being printed
-	* @param string	$prefix	prefix for form fields
+	* @param Bodycopy_Div	$asset	the div object being printed
+	* @param string			$prefix	prefix for form fields
 	*
 	* @return void
 	* @access public
 	*/
-	function paintBackendJsData(&$asset, $prefix)
+	public function paintBackendJsData(Bodycopy_Div $asset, $prefix)
 	{
 		$div_attributes = $asset->attr('attributes');
 		$div_attributes['identifier'] = $asset->name;
@@ -70,14 +70,14 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paint JS data that divs need to use to do their processing
 	*
-	* @param object	&$bodycopy	the bodycopy being printed
-	* @param object	&$o			the Backend Outputter instance
-	* @param string	$prefix		prefix for the form element
+	* @param Bodycopy_Div		$bodycopy	the bodycopy being printed
+	* @param Backend_Outputter	$o			the Backend Outputter instance
+	* @param string				$prefix		prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintGenericBackend(&$bodycopy, &$o, $prefix)
+	public function paintGenericBackend(Bodycopy_Div $bodycopy, Backend_Outputter $o, $prefix)
 	{
 		// If the parent bodycopy class is itself, fudge the containers array
 		// so that the proper stuff gets drawn when putting out the javascript
@@ -164,14 +164,14 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paints this div as HTML
 	*
-	* @param object		&$asset		the div whose interface we are painting
-	* @param boolean	$editing	are we printing an editing interface
-	* @param boolean	$generating	are we generating the content file
+	* @param Bodycopy_Div	$asset		the div whose interface we are painting
+	* @param boolean		$editing	are we printing an editing interface
+	* @param boolean		$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $editing=FALSE, $generating=FALSE)
+	public function paint(Bodycopy_Div $asset, $editing=FALSE, $generating=FALSE)
 	{
 		$div_attributes = $asset->attr('attributes');
 		if (!isset($div_attributes['layout_type'])) {
@@ -232,14 +232,14 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Paint the interface for editing this div
 	*
-	* @param object	&$asset	the div whose interface we are painting
-	* @param object	&$o		the Backend Outputter instance
-	* @param string	$prefix	prefix for the form elements
+	* @param Bodycopy_Div		$asset	the div whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter instance
+	* @param string				$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintContainer(&$asset, &$o, $prefix)
+	public function paintContainer(Bodycopy_Div $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!parent::paintContainer($asset, $o, $prefix)) {
 			return FALSE;
@@ -329,18 +329,18 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Process the interface for editing this div
 	*
-	* @param object	&$asset		the div whose interface we are painting
-	* @param object	&$o			the Backend Outputter instance
-	* @param string	$prefix		prefix for the form element
-	* @param string	$bc_action	a global bodycopy action to perform (eg insert_table_row)
-	* @param string	$bc_name	the name of the bodycopy that submitted the action
-	* @param array	$bc_data	an array of data needed to perform the action
-	* @param array	$bc_saved	any saved changes that were performed without committing
+	* @param Bodycopy_Div		$asset		the div whose interface we are painting
+	* @param Backend_Outputter	$o			the Backend Outputter instance
+	* @param string				$prefix		prefix for the form element
+	* @param string				$bc_action	a global bodycopy action to perform (eg insert_table_row)
+	* @param string				$bc_name	the name of the bodycopy that submitted the action
+	* @param array				$bc_data	an array of data needed to perform the action
+	* @param array				$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processContainer(&$asset, &$o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)
+	public function processContainer(Bodycopy_Div $asset, Backend_Outputter $o, $prefix, $bc_action, $bc_name, Array $bc_data, Array $bc_saved)
 	{
 		$updated = parent::processContainer($asset, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved);
 
@@ -373,13 +373,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	/**
 	* Change the type of this DIV's editing interface to the passed content type
 	*
-	* @param object	&$asset		the DIV object
-	* @param string	$new_type	the name of the new content type
+	* @param Bodycopy_Div	$asset		the DIV object
+	* @param string			$new_type	the name of the new content type
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _updateCellType(&$asset, $new_type='')
+	protected function _updateCellType(Bodycopy_Div $asset, $new_type='')
 	{
 		// dont change anything if the new type id blank
 		$new_type = trim($new_type);

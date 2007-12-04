@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_management.inc,v 1.13 2007/12/03 01:12:08 lwright Exp $
+* $Id: bodycopy_management.inc,v 1.14 2007/12/04 05:35:34 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Bodycopy_Management extends Asset_Management
 	* @return array
 	* @access private
 	*/
-	function _getFileList()
+	public function _getFileList()
 	{
 		return Array(
 				'images/icons/add.png',

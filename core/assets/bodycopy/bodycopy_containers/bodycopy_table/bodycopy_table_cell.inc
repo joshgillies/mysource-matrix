@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.22 2007/11/15 01:02:59 hnguyen Exp $
+* $Id: bodycopy_table_cell.inc,v 1.23 2007/12/04 05:35:35 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,16 +33,16 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* an array of attributes for the TD tag
 	* @var array
 	*/
-	var $attributes = Array();
+	public $attributes = Array();
 
 
 	/**
 	* Constructor
 	*
 	*/
-	function BodyCopy_Table_Cell()
+	function __construct()
 	{
-		parent::MySource_Object();
+		parent::__construct();
 
 	}//end constructor
 
@@ -57,7 +57,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setAttribute($name, $value)
+	public function setAttribute($name, $value)
 	{
 		$name = strtolower($name);
 		if (!isset($this->attributes[$name])) {
@@ -73,15 +73,15 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Sets the type of the cells content for editing
 	*
-	* @param object	&$table	the table object
-	* @param string	$type	the type of the cells content
-	* @param int	$rowid	the row the cell is in
-	* @param int	$cellid	the id of the cell
+	* @param Bodycopy_Table	$table	the table object
+	* @param string			$type	the type of the cells content
+	* @param int			$rowid	the row the cell is in
+	* @param int			$cellid	the id of the cell
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setContentType(&$table, $type, $rowid, $cellid)
+	public function setContentType(Bodycopy_Table $table, $type, $rowid, $cellid)
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
@@ -102,14 +102,14 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* We need to make sure when any change happens in the table that the
 	* name remains relevant to where the cell is in the table.
 	*
-	* @param object	&$table		the table object
-	* @param int	$new_rowid	the row the cell is going in
-	* @param int	$new_cellid	the column the cell is going in
+	* @param Bodycopy_Table	$table		the table object
+	* @param int			$new_rowid	the row the cell is going in
+	* @param int			$new_cellid	the column the cell is going in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateContentType(&$table, $new_rowid, $new_cellid)
+	public function updateContentType(Bodycopy_Table $table, $new_rowid, $new_cellid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'])) {
@@ -130,12 +130,12 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Delete this table cell
 	*
-	* @param object	&$table	the table object
+	* @param Bopycopy_Table	$table	the table object
 	*
 	* @return boolean
 	* @access public
 	*/
-	function delete(&$table)
+	public function delete(Bodycopy_Table $table)
 	{
 		if (!$table->deleteLink($this->attributes['linkid'])) {
 			return FALSE;
@@ -157,7 +157,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* @return int
 	* @access public
 	*/
-	function colspan()
+	public function colspan()
 	{
 		if (empty($this->attributes['colspan'])) return 1;
 		return ((int) $this->attributes['colspan'] > 0) ? (int) $this->attributes['colspan'] : 1;
@@ -171,7 +171,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* @return int
 	* @access public
 	*/
-	function rowspan()
+	public function rowspan()
 	{
 		if (empty($this->attributes['rowspan'])) return 1;
 		return ((int) $this->attributes['rowspan'] > 0) ? (int) $this->attributes['rowspan'] : 1;
@@ -182,15 +182,15 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Prints the content of this cell complete with TD tag
 	*
-	* @param object		&$table		the table object
-	* @param string		$prefix		prefix for form elements
-	* @param boolean	$editing	are we printing an editing interface
-	* @param boolean	$generating	are we generating the content file
+	* @param Bopycopy_Table	$table		the table object
+	* @param string			$prefix		prefix for form elements
+	* @param boolean		$editing	are we printing an editing interface
+	* @param boolean		$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$table, $prefix='', $editing=FALSE, $generating=FALSE)
+	public function paint(Bodycopy_Table $table, $prefix='', $editing=FALSE, $generating=FALSE)
 	{
 		if (!isset($this->attributes['linkid'])) return;
 
@@ -249,16 +249,16 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Prints the backend interface for this table cell
 	*
-	* @param object	&$table		the table object
-	* @param string	$prefix		prefix for form elements
-	* @param int	$tableid	the id of the table this cell is in
-	* @param int	$rowid		the id of the row this cell is in
-	* @param int	$cellid		the id of this cell
+	* @param Bodycopy_Table	$table		the table object
+	* @param string			$prefix		prefix for form elements
+	* @param int			$tableid	the id of the table this cell is in
+	* @param int			$rowid		the id of the row this cell is in
+	* @param int			$cellid		the id of this cell
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCell(&$table, $prefix, $tableid, $rowid, $cellid)
+	public function paintCell(Bodycopy_Table $table, $prefix, $tableid, $rowid, $cellid)
 	{
 		$attribute_list = '';
 		$colspaning = 0;
@@ -299,16 +299,16 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Prints the backend status icons, e.g. htmltidy status
 	*
-	* @param object	&$table		the table object
-	* @param string	$prefix		prefix for form elements
-	* @param int	$tableid	the id of the table this cell is in
-	* @param int	$rowid		the id of the row this cell is in
-	* @param int	$cellid		the id of this cell
+	* @param Bodycopy_Table	$table		the table object
+	* @param string			$prefix		prefix for form elements
+	* @param int			$tableid	the id of the table this cell is in
+	* @param int			$rowid		the id of the row this cell is in
+	* @param int			$cellid		the id of this cell
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCellBackendStatusIcons(&$table, $prefix, $tableid, $rowid, $cellid)
+	public function paintCellBackendStatusIcons(Bodycopy_Table $table, $prefix, $tableid, $rowid, $cellid)
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {
@@ -331,17 +331,17 @@ class BodyCopy_Table_Cell extends MySource_Object
 	/**
 	* Process the backend interface for this table cell
 	*
-	* @param object	&$table		the table object
-	* @param string	$prefix		prefix for form elements
-	* @param int	$tableid	the id of the table this cell is in
-	* @param int	$rowid		the id of the row this cell is in
-	* @param int	$cellid		the id of this cell
-	* @param array	$bc_saved	any saved changes that were performed without committing
+	* @param Bodycopy_Table	$table		the table object
+	* @param string			$prefix		prefix for form elements
+	* @param int			$tableid	the id of the table this cell is in
+	* @param int			$rowid		the id of the row this cell is in
+	* @param int			$cellid		the id of this cell
+	* @param array			$bc_saved	any saved changes that were performed without committing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCell(&$table, $prefix, $tableid, $rowid, $cellid, $bc_saved)
+	public function processCell(Bodycopy_Table $table, $prefix, $tableid, $rowid, $cellid, Array $bc_saved)
 	{
 		$updated = FALSE;
 
@@ -384,7 +384,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updateCellType(&$table, $new_type='')
+	protected function _updateCellType(Bodycopy_Table $table, $new_type='')
 	{
 
 		// dont change anything if the new type id blank
@@ -423,7 +423,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function printBackendJsData($cellid)
+	public function printBackendJsData($cellid)
 	{
 		?>
 
