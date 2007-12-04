@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.26 2007/11/07 01:43:08 hnguyen Exp $
+* $Id: event_manager.inc,v 1.27 2007/12/04 00:03:19 colivar Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -184,7 +184,7 @@ class Event_Manager extends MySource_Object
 		}
 
 		// we don't have an entry for this event
-		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][get_class($broadcaster)][$event_name])) {
+		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][get_class_lower($broadcaster)][$event_name])) {
 			return false;
 		}
 
@@ -194,8 +194,8 @@ class Event_Manager extends MySource_Object
 		if (isset($this->_tmp['event_listeners']['global'][$event_name])) {
 			$listener_codes += $this->_tmp['event_listeners']['global'][$event_name];
 		}
-		if (isset($this->_tmp['event_listeners'][get_class($broadcaster)][$event_name])) {
-			$listener_codes += $this->_tmp['event_listeners'][get_class($broadcaster)][$event_name];
+		if (isset($this->_tmp['event_listeners'][get_class_lower($broadcaster)][$event_name])) {
+			$listener_codes += $this->_tmp['event_listeners'][get_class_lower($broadcaster)][$event_name];
 		}
 
 		foreach ($listener_codes as $listener_type_code => $options) {
@@ -220,7 +220,7 @@ class Event_Manager extends MySource_Object
 			} else if ($options['indirect']) {
 
 				// no point continuing if this object does not inherit from asset
-				if (!is_a($broadcaster, 'asset')) return true;
+				if (!($broadcaster instanceof asset)) return true;
 				if (!$broadcaster->id) return;
 
 				if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
@@ -294,23 +294,29 @@ class Event_Manager extends MySource_Object
 			return Array();
 		}
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDal::getDb();
 
-
-		$sql = 'SELECT (t2.treeid || '.$db->quote('%').')
+		$sql = 'SELECT (t2.treeid || \'%\')
 				FROM sq_ast_lnk l1
 				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid,
 				  sq_ast_lnk l2
 				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid,
 				  sq_ast a
-				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
+				WHERE l1.'.$side_of_link.'id = :assetid
 				  AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid
 				  AND a.assetid=l2.'.$side_of_link.'id
-				  AND a.type_code='.$db->quote($type_code).'
+				  AND a.type_code= :type_code
 				ORDER BY t2.treeid DESC';
 
-		$result = $db->getCol($sql);
-		assert_valid_db_result($result);
+		$result = NULL;
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
+			$query->bindValue(':type_code', $type_code);
+			$result = MatrixDAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get Discret Assets due to database error: '.$e->getMessage());
+		}
 
 		if (empty($result)) return Array();
 
@@ -327,14 +333,23 @@ class Event_Manager extends MySource_Object
 				  sq_ast_lnk l2
 				  INNER JOIN sq_ast_lnk_tree t2 ON l2.linkid = t2.linkid,
 				  sq_ast a
-				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
+				WHERE l1.'.$side_of_link.'id = :assetid
 					AND SUBSTR(t1.treeid, 1, LENGTH(t2.treeid)) = t2.treeid
 					AND a.assetid = l2.'.$side_of_link.'id
 					AND ('.$treeid_string.')
 				ORDER BY t2.treeid';
 
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+
+
+		$result = NULL;
+
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
+			$result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get Discret Assets due to database error: '.$e->getMessage());
+		}//end
 
 		$assetids = Array();
 		$start_treeid = true;
