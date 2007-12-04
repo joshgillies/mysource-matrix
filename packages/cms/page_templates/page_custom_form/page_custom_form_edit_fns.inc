@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.20 2007/05/25 05:25:40 skim Exp $
+* $Id: page_custom_form_edit_fns.inc,v 1.21 2007/12/04 02:53:57 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -36,9 +36,9 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Custom_Form_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	function redirectToFormContents(&$asset, &$o, $prefix)
 	{
 		// get the bodycopy attached to us
-		$form =& $asset->getForm();
+		$form = $asset->getForm();
 
 		if (is_null($form)) {
 			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id, 'Contents');
@@ -88,7 +88,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	function redirectToSubmissions(&$asset, &$o, $prefix)
 	{
 		// get the bodycopy attached to us
-		$form =& $asset->getForm();
+		$form = $asset->getForm();
 
 		if (is_null($form)) {
 			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
@@ -119,7 +119,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintSubmissions(&$asset, &$o, $prefix)
 	{
-		$form =& $asset->getForm();
+		$form = $asset->getForm();
 		if (is_null($form)) {
 			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
 			return FALSE;
@@ -281,7 +281,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	*/
 	function delegateToFormEditMethod(&$asset, &$o, $prefix, $edit_method)
 	{
-		$form =& $asset->getForm();
+		$form = $asset->getForm();
 		if (is_null($form)) {
 			trigger_localised_error('CMS0022', E_USER_ERROR, $asset->name, $asset->id);
 			return FALSE;

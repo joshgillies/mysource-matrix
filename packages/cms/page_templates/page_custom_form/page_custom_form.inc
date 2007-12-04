@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.24 2007/02/19 06:03:21 arailean Exp $
+* $Id: page_custom_form.inc,v 1.25 2007/12/04 02:53:57 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Page_Custom_Form extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Custom_Form($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -61,7 +61,7 @@ class Page_Custom_Form extends Page
 
 		// create a new form_email (form with emailing abilities)
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_email');
-		$form =& new Form_Email();
+		$form = new Form_Email();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$form->setAttrValue('name', translate('cms_form_contents'));
@@ -100,7 +100,7 @@ class Page_Custom_Form extends Page
 	*/
 	function printFrontend()
 	{
-		$form =& $this->getForm();
+		$form = $this->getForm();
 
 		if (is_null($form)) {
 			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
@@ -121,7 +121,7 @@ class Page_Custom_Form extends Page
 	*/
 	function printBody()
 	{
-		$form =& $this->getForm();
+		$form = $this->getForm();
 
 		if (is_null($form)) {
 			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
@@ -146,7 +146,7 @@ class Page_Custom_Form extends Page
 
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, '', 'major');
 		if (!empty($form_link)) {
-			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
+			$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
 		}
 
 		return $form;
