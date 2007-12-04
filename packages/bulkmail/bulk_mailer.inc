@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.68 2007/07/13 06:52:40 rong Exp $
+* $Id: bulk_mailer.inc,v 1.69 2007/12/04 23:48:08 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -59,8 +59,8 @@ class Bulk_Mailer
 		pcntl_signal(SIGTERM, Array(&$this,'_sigHandler'));
 		pcntl_signal(SIGHUP, Array(&$this,'_sigHandler'));
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$bm =& $am->getSystemAsset('bulkmail_manager');
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$bm = $am->getSystemAsset('bulkmail_manager');
 
 		// setup the log manager to log bulkmail errors
 		$old_log_errors = ini_set('log_errors', '1');
@@ -68,7 +68,7 @@ class Bulk_Mailer
 		set_error_handler(Array(&$this, '_errorHandler'));
 
 		// login as root user
-		$root_user =& $am->getSystemAsset('root_user');
+		$root_user = $am->getSystemAsset('root_user');
 		if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 			trigger_localised_error('BML0003', E_USER_WARNING, $root_user->name, $root_user->id);
 			exit(1);
@@ -159,7 +159,7 @@ class Bulk_Mailer
 		if (!$pid) {
 			// reconnect because child disconnects DB when it exits
 			$this->_reconnectDB();
-			$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+			$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 			$info = $bm->getQueuedJobs($job_id);
 			$job_path = $bm->getJobDataPath($job_id);
 			$recipient_path = $job_path.'/cache/recipient';
@@ -208,7 +208,7 @@ class Bulk_Mailer
 	function processJob($job_id)
 	{
 		$this->_reconnectDB();
-		$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
 		$job_path = $bm->getJobDataPath($job_id);
 		$progress_path = $job_path.'/progress_info';
@@ -222,9 +222,8 @@ class Bulk_Mailer
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = retrieve_keywords_replacements($details['subject']);
-
 		$replacements = Array();
-		$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($details['content_id']);
+		$content_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($details['content_id']);
 		foreach ($keywords as $word) {
 			if (0 === strpos($word, 'recipient_')) {
 				// keep recipient keyword until later
@@ -273,11 +272,12 @@ class Bulk_Mailer
 
 			$pid = $this->fork();
 			if (!$pid) {
-				$mime =& new Mail_mime("\n");
-				$mail_queue =& new Mail_Queue($details['queue_details'], $details['server_details']);
+				$mime = new Mail_mime("\n");
+				$mail_queue = new Mail_Queue($details['queue_details'], $details['server_details']);
 
-				for ($recipient_chunk; NULL !== ($user_id = key($recipient_chunk)); next($recipient_chunk)) {
-					$email = $recipient_chunk[$user_id];
+				foreach ($recipient_chunk as $r_info) {
+					$user_id = $r_info['assetid'];
+					$email = $r_info['custom_val'];
 					$this->_reconnectDB();
 
 					// make sure user is not already in mail queue/sent directory
@@ -287,7 +287,7 @@ class Bulk_Mailer
 						$pid = $this->fork();
 						if (!$pid) {
 							$content = $this->generateContent($details, $job_path, $user_id);
-							$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
+							$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? TRUE : FALSE;
@@ -307,8 +307,9 @@ class Bulk_Mailer
 					}
 
 				}
+
 				$status = $mail_queue->sendMailsInQueue();
-				if (PEAR::isError($status)) {
+				if ($status instanceof PEAR_Error) {
 					trigger_localised_error('BML0001', E_USER_WARNING, $status->getMessage());
 					exit;
 				}
@@ -349,7 +350,7 @@ class Bulk_Mailer
 								'num_recip'		=> number_format($progress_info['total_count']),
 								'num_problem'	=> number_format(count($progress_info['problematic'])),
 							);
-				$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
 				$message->parameters['assetid'] = $job_id;
 				$message->send();
@@ -374,13 +375,7 @@ class Bulk_Mailer
 	*/
 	function _reconnectDB()
 	{
-		// need to reset both, so that other processes wont break
-		if (!empty($GLOBALS['SQ_SYSTEM']->_db_conns['db2'])) {
-			$GLOBALS['SQ_SYSTEM']->_db_conns['db2']->disconnect();
-		}
-		$GLOBALS['SQ_SYSTEM']->_db_conns['db']->disconnect();
-		$GLOBALS['SQ_SYSTEM']->_db_stack = Array();
-		$GLOBALS['SQ_SYSTEM']->_db_conns = Array();
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(TRUE);
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
 
 	}//end _reconnectDB()
@@ -477,19 +472,18 @@ class Bulk_Mailer
 	*/
 	function getAllRecipients($asset_to_send_id, $recipients)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (!is_array($recipients)) {
 			$recipients = Array($recipients);
 		}
 
-		$asset_to_send =& $am->getAsset($asset_to_send_id);
+		$asset_to_send = $am->getAsset($asset_to_send_id);
 		$recipients_expanded = Array();
 		$problematic_list = Array();
 
 		foreach ($recipients as $recipient_id) {
-			$recipient =& $am->getAsset($recipient_id);
+			$recipient = $am->getAsset($recipient_id);
 			if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
 				// expand user group
 				$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
@@ -508,11 +502,11 @@ class Bulk_Mailer
 			if (!in_array($recipient_id, $permission_denied)) {
 				$recipient_id_parts = explode(':', $recipient_id);
 				if (isset($recipient_id_parts[1])) {
-					$recipient =& $am->getAsset($recipient_id);
+					$recipient = $am->getAsset($recipient_id);
 					$recipients[$recipient->id] = $recipient->attr('email');
 					$am->forgetAsset($recipient);
 				} else {
-					$recipients_query[] = $db->quoteSmart((string) $recipient_id);
+					$recipients_query[] = $recipient_id;
 				}
 			} else {
 				// read access denied for this recipient
@@ -523,109 +517,21 @@ class Bulk_Mailer
 		if (!empty($recipients_query)) {
 			// Now, let's do one big query to get all the email addresses of REAL assets
 			// User assets without an email will be filtered out here
-			$sql = 'SELECT attr_val.assetid, attr_val.custom_val
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val attr_val
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr
-						ON (attr_val.attrid = attr.attrid)
-					WHERE attr.name = \'email\'
-					AND attr_val.assetid IN ('.implode(',', $recipients_query).')';
-
-			$query = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql);
-			assert_valid_db_result($query);
+			try {
+				$bind_vars['recipient_list'] = $recipients_query;
+				$query_result = MatrixDAL::executeAssoc('bulkmail_package', 'getAllRecipients', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception("Unable to get recipient list due to database error: ".$e->getMessage());
+			}
 		}
 
-		$recipients += $query;
-
+		$recipients += $query_result;
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
+
 		return $result;
 
 	}//end getAllRecipients()
-
-
-	/**
-	* Generates the query to get chunk of recipient ids and email addresses
-	*
-	* @param array	$group_ids	the id of the group assets to get their children for
-	* @param array	$type_codes	the type of asset that is linked
-	*							and whether we are finding assets that are just a $type_code (strict)
-	*							or $type_code and any of it's sub-classes (not strict)
-	*							format: type_code => strict ? TRUE : FALSE
-	*
-	* @return string
-	* @access public
-	*/
-	function generateGetRecipientsQuery($group_ids, $type_codes)
-	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$select = 'SELECT DISTINCT l.minorid, val.custom_val';
-		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
-						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val val ON a.assetid = val.assetid
-						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr attr ON attr.attrid = val.attrid
-				  ';
-
-		// get all link tree ids of the groups
-		$treeids = Array();
-		foreach ($group_ids as $group_id) {
-			$where = 'l.minorid = '.$db->quote($group_id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT t.treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-					'.$where;
-			$sql = $db->modifyLimitQuery($sql, 0, 1);
-			$treeid = $db->getOne($sql);
-			assert_valid_db_result($treeid);
-			$treeids[] = $treeid;
-		}
-		// generate the where clause to match link tree id for each group
-		$where = 'WHERE attr.name = \'email\' ';
-		if (!empty($treeids)) {
-			$where .= ' AND (';
-			$count = 0;
-			foreach ($treeids as $treeid) {
-				if ($count) $where .= 'OR ';
-				$where .= '(t.treeid LIKE '.$db->quote($treeid.'%').'AND t.treeid > '.$db->quote($treeid).') ';
-				$count++;
-			}
-			$where .= ')';
-		}
-		// generate where condition to match all type_codes (either strict or not strict)
-		if (!empty($type_codes)) {
-			$where .= ' AND (';
-			$count = 0;
-			for (reset($type_codes); NULL !== ($key = key($type_codes)); next($type_codes)) {
-				$type_codes_cond = '= '.$db->quote($key);
-				if ($count) $where .= 'OR ';
-				// is strict type_codes
-				if ($type_codes[$key]) {
-					$where .= '(a.type_code '.$type_codes_cond.')';
-				} else {
-					$where .= '(a.type_code IN (
-											SELECT type_code
-											FROM sq_ast_typ_inhd
-											WHERE inhd_type_code '.$type_codes_cond.'
-											))';
-				}
-				$count++;
-			}
-			$where .= ')';
-		}//end if
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$query = Array(
-					'select'	=> $select,
-					'from'		=> $from,
-					'where'		=> $where,
-				 );
-
-		return implode(' ', $query);
-
-	}//end generateGetRecipientsQuery()
 
 
 //--        CONTENT        --//
@@ -646,14 +552,14 @@ class Bulk_Mailer
 	* @return string
 	* @access public
 	*/
-	function generateContent($job_details, $job_path, $recipient_id=NULL)
+	public static function generateContent($job_details, $job_path, $recipient_id=NULL)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (!empty($recipient_id)) {
-			$recipient =& $am->getAsset($recipient_id);
+			$recipient = $am->getAsset($recipient_id);
 		} else {
-			$recipient =& $GLOBALS['SQ_SYSTEM']->user;
+			$recipient = $GLOBALS['SQ_SYSTEM']->user;
 		}
 
 		if (($job_details['content_gen'] == 'one_user') || (is_a($recipient, 'bulkmail_user'))) {
@@ -668,7 +574,7 @@ class Bulk_Mailer
 			} else {
 
 				// Log in as generator
-				$generator_user =& $am->getAsset($job_details['content_gen_as']);
+				$generator_user = $am->getAsset($job_details['content_gen_as']);
 				if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($generator_user)) {
 					trigger_localised_error('BML0017', E_USER_WARNING); // localise
 					return '';
@@ -727,10 +633,10 @@ class Bulk_Mailer
 	* @access private
 	* @static
 	*/
-	function generateRawContent($details)
+	public static function generateRawContent($details)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$page =& $am->getAsset($details['content_id']);
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$page = $am->getAsset($details['content_id']);
 		if (empty($page)) {
 			return '';
 		}
@@ -742,13 +648,13 @@ class Bulk_Mailer
 			// generate content based on design and paint layout supplied
 			if ($design_id && $layout_id) {
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
-				$design =& $am->getAsset($design_id);
+				$design = $am->getAsset($design_id);
 				$design->paint($page);
 			} else if ($design_id) {
-				$design =& $am->getAsset($design_id);
+				$design = $am->getAsset($design_id);
 				$design->paint($page);
 			} else if ($layout_id) {
-				$layout =& $am->getAsset($layout_id);
+				$layout = $am->getAsset($layout_id);
 				$layout->paint($page);
 			} else {
 				@$page->printFrontend();
@@ -769,7 +675,7 @@ class Bulk_Mailer
 	* @return string
 	* @access public
 	*/
-	function replaceContentKeywords(&$content, &$user)
+	public static function replaceContentKeywords(&$content, &$user)
 	{
 		// to insert user keywords in the 'Asset to Send' content,
 		// add 'recipient_' prefix in front of normal keywords
@@ -825,7 +731,7 @@ class Bulk_Mailer
 		}
 		// use default chunk_size if 'send rate' rule is not defined or not achievable
 		if (!$mpm) {
-			$bm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
+			$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 			$mpm = $bm->attr('chunk_size');
 		}
 
@@ -1052,8 +958,12 @@ class Bulk_Mailer
 				while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
 					$real_bt_index++;
 				}
-				$err_file = hide_system_root($bt[$real_bt_index]['file']);
-				$err_line = $bt[$real_bt_index]['line'];
+				if (isset($bt[$real_bt_index]['file'])) {
+					$err_file = hide_system_root($bt[$real_bt_index]['file']);
+				}
+				if (isset($bt[$real_bt_index]['line'])) {
+					$err_line = $bt[$real_bt_index]['line'];
+				}
 				$err_msg  = hide_system_root($err_msg);
 			}
 
