@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.638 2007/12/04 05:01:52 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.639 2007/12/05 02:46:19 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.638 $
+* @version $Revision: 1.639 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3195,6 +3195,8 @@ class Asset_Manager extends MySource_Object
 				$query->bindValue(':treeid_like', $treeid.'%');
 				$query->bindValue(':treeid', $treeid);
 				$links = MatrixDAL::executePdoGroupedAssoc($query);
+
+				$child_links = Array();
 				foreach ($links as $id => $info) {
 					$child_links[$id] = $info[0];
 				}
