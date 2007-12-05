@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.245 2007/11/29 05:27:04 bshkara Exp $
+* $Id: mysource.inc,v 1.246 2007/12/05 00:01:57 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.245 $
+* @version $Revision: 1.246 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1042,10 +1042,10 @@ class MySource
 				// if this person is already logged in, don't bother trying again because
 				// we will only be giving them an incorrect login key error
 				if (!is_null($this->user) && $login_username == $this->user->attr('username')) {
-                    if (SQ_IN_LOGIN) {
-                        $current_url = current_url(TRUE,TRUE);
-                        do_redirect($current_url);
-                    }
+					if (SQ_IN_LOGIN) {
+						$current_url = current_url(TRUE,TRUE);
+						do_redirect($current_url);
+					}
 					return;
 				}
 
@@ -2202,12 +2202,19 @@ class MySource
 	/**
 	* Restore the active DB connection to the previous one
 	*
+	* @param boolean	$force_reconnect	set to true for pcntl fork reconnect
+	*
 	* @return void
 	* @access public
 	*/
-	function restoreDatabaseConnection()
+	function restoreDatabaseConnection($force_reconnect=FALSE)
 	{
 		MatrixDAL::restoreDb();
+		if ($force_reconnect) {
+			// need to clear this otherwise will not get new db connection
+			// from DAL
+			array_pop($this->_db_conns);
+		}
 
 	}//end restoreDatabaseConnection()
 
