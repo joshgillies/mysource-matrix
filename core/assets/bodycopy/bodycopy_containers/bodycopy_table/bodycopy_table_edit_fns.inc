@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.32 2007/12/04 05:35:35 lwright Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.33 2007/12/05 03:11:46 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,7 +108,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public function paintGenericBackend(Bodycopy_Table $bodycopy, Backend_Outputter $o, $prefix)
+	public function paintGenericBackend(Bodycopy $bodycopy, Backend_Outputter $o, $prefix)
 	{
 		// If the parent bodycopy class is itself, fudge the containers array
 		// so that the proper stuff gets drawn when putting out the javascript
