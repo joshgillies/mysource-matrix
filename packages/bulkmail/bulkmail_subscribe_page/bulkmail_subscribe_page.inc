@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.21 2007/07/23 06:49:14 bshkara Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.22 2007/12/05 03:30:05 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -66,10 +66,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bulkmail_Subscribe_Page($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page_User_Group_Manager($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -129,7 +129,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 						'value'			=> 'unverified_users',
 					 );
 
-		$unverified_users =& new Folder();
+		$unverified_users = new Folder();
 		$unverified_users->setAttrValue('name', 'Unverified Users');
 		if (!$unverified_users->create($copy_link)) {
 			return FALSE;
@@ -149,7 +149,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	function &getUnverifiedUsersFolder()
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'unverified_users', 'major', '1');
-		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $folder;
 
 	}//end getUnverifiedUsersFolder()
@@ -165,20 +165,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function getExistingBulkmailUserid($value)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		try {
+			$bind_vars['email'] = $value;
+			$result = MatrixDAL::executeOne('bulkmail_package', 'getExistingBmailUser', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to get existing bulkmail user due to database error: ".$e->getMessage());
+		}
 
-		$sql = 'SELECT assetid
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
-					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr oa ON uv.owning_attrid = oa.attrid
-					INNER JOIN sq_ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
-				  ';
-		$where = ' uv.custom_val = '.$db->quote($value).'
-					AND a.name = '.$db->quote('email').'
-					AND a.type_code = '.$db->quote('bulkmail_user');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
-
-		$result = $db->getOne($sql.$where);
-		assert_valid_db_result($result);
 		return $result;
 
 	}//end getExistingBulkmailUserid()
@@ -208,8 +201,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		// if the root node is a user group and has the correct status, include it
 		$available_locations = array_keys($locations);
-		$root_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('root_node'));
-		if (is_a($root_node, 'user_group') && (!empty($statuses) && in_array($root_node->status, $statuses))) {
+		$root_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('root_node'));
+		if (($root_node instanceof User_Group) && (!empty($statuses) && in_array($root_node->status, $statuses))) {
 			$available_locations[] = $root_node->id;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_node);
@@ -229,7 +222,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function processForm()
 	{
-		$public_user =& $GLOBALS['SQ_SYSTEM']->getPublicUser();
+		$public_user = $GLOBALS['SQ_SYSTEM']->getPublicUser();
 		$email_address = array_get_index($_REQUEST, $this->getPrefix().'_email_address', '');
 
 		// Any user attempting verification
@@ -243,7 +236,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		// Matrix User
 		} else {
-			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+			$current_user = $GLOBALS['SQ_SYSTEM']->user;
 			$current_user_email = $current_user->attr('email');
 
 			// The user is logged in, but wants to subscribe/unsubscribe a different email address
@@ -284,7 +277,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		// OK, let's check if there is a user linked under the unverified users
 		// folder with $uniqid as the link value
 
-		$unverified_folder =& $this->getUnverifiedUsersFolder();
+		$unverified_folder = $this->getUnverifiedUsersFolder();
 		$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
 		$type_codes[] = 'bulkmail_user';
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($unverified_folder->id, NULL, $type_codes, TRUE, $uniqid);
@@ -296,7 +289,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			return;
 		}
 
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 
 		// This is to trip up all the sneaky bastards who want to
 		// try and re-write the URL to link themselves under other groups
@@ -415,7 +408,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			break;
 		}
 
-		$unverified_folder =& $this->getUnverifiedUsersFolder();
+		$unverified_folder = $this->getUnverifiedUsersFolder();
 		$uniqid = md5(uniqid(''));
 
 		if ($sub_verify || $unsub_verify) {
@@ -459,10 +452,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$unsubscriptions = Array();
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_user');
-			$bulkmail_user =& new Bulkmail_User();
+			$bulkmail_user = new Bulkmail_User();
 
 			$parent_assetid = array_shift($subscriptions);
-			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
 			$link_value = $sub_verify ? $uniqid : '';
 			$link = Array(
 						'asset'		=> $parent_asset,
@@ -501,7 +494,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bulkmail_user);
 		// The user already exists, so we need to shift them in and out of whatever groups they have selected
 		} else if ($bulk_userid) {
-			$bulkmail_user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bulk_userid, 'bulkmail_user');
+			$bulkmail_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($bulk_userid, 'bulkmail_user');
 
 			foreach ($subscriptions as $index => $assetid) {
 				if ($assetid == $unverified_folder->id) {
@@ -581,10 +574,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			break;
 		}
 
-		$unverified_folder =& $this->getUnverifiedUsersFolder();
+		$unverified_folder = $this->getUnverifiedUsersFolder();
 		$uniqid = md5(uniqid(''));
 
-		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		$current_user_email = $current_user->attr('email');
 		if (empty($current_user_email)) {
 			$this->errors[] = translate('bsp_email_not_configured');
@@ -732,8 +725,9 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		$body .= translate('bsp_verification_email_body_part2', $url);
 
-		$mail = Mail::factory('mail');
-		$mail->send($to, $headers, $body);
+		$mf = new Mail();
+		$mail = $mf->factory('mail');
+		@$mail->send($to, $headers, $body);
 
 		return;
 
@@ -808,8 +802,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 	*/
 	function getCurrentSubscriptionsKeywordReplacement()
 	{
-		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
-		if (is_a($current_user, 'public_user')) {
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+		if ($current_user instanceof Public_User) {
 			// if current user is public user, %current_subscriptions keyword will be blanked.
 			return '';
 		}
