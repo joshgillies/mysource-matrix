@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.70 2007/12/05 03:31:41 rong Exp $
+* $Id: bulk_mailer.inc,v 1.71 2007/12/05 22:39:03 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -513,7 +513,8 @@ class Bulk_Mailer
 				$problematic_list[] = $recipient_id;
 			}
 		}
-		$query = Array();
+
+		$query_result = Array();
 		if (!empty($recipients_query)) {
 			// Now, let's do one big query to get all the email addresses of REAL assets
 			// User assets without an email will be filtered out here

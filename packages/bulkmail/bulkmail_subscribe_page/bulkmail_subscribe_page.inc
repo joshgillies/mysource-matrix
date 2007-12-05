@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.22 2007/12/05 03:30:05 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.23 2007/12/05 22:39:04 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -171,6 +171,8 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		} catch (Exception $e) {
 			throw new Exception("Unable to get existing bulkmail user due to database error: ".$e->getMessage());
 		}
+
+		if (!$result) return 0;
 
 		return $result;
 
