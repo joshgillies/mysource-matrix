@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.44.2.1 2007/05/01 05:42:50 hnguyen Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.44.2.2 2007/12/05 23:59:11 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44.2.1 $
+* @version $Revision: 1.44.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -209,11 +209,11 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			} else {
 				$todo_normal[] = $assetid;
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (is_a($asset, 'bridge')) {
+				if (implements_interface($asset, 'bridge')) {
 					if (!method_exists($asset, 'getChildren')) {
 						trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
 					} else {
-						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren()));
+						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren($assetid)));
 					}
 				}
 
