@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.38 2007/12/04 05:35:34 lwright Exp $
+* $Id: bodycopy_container.inc,v 1.39 2007/12/05 01:21:46 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -240,7 +240,7 @@ class Bodycopy_Container extends Asset
 	* @return boolean
 	* @access public
 	*/
-	public function prepareLink(Bodycopy_Container $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a content type then we need to make it a dependant link
 		if ($side_of_link == 'major' && ($asset instanceof Content_Type) && $dependant != '1' && ($link_type & SQ_SC_LINK_SIGNIFICANT)) {
