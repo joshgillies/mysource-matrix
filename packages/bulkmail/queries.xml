@@ -1,11 +1,3 @@
-PHP5 work
-  changed code to work with new result format returned from DB
-  changed reconnectDB function
-  converted getAllRecipients query to xml format
-  ref fix, made some function public static
-  removed a not-longer-in-used function generateGetRecipientsQuery()
-  modified error handle to work with errors from PEAR packages (mail)
-
 <queries id="bulkmail_package">
 
 	<!-- //        bulkmail_manager        // -->
