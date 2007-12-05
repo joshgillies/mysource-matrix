@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.57 2007/11/29 00:06:30 lwright Exp $
+* $Id: cron_job.inc,v 1.58 2007/12/05 02:43:04 hnguyen Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1037,7 +1037,7 @@ class Cron_Job extends Asset
 	* @return boolean
 	* @access public
 	*/
-	public static function removeJob()
+	public function removeJob()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		// if we are type2 linked under the manager, don't worry.
