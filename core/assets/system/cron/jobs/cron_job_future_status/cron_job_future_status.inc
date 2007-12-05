@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.44 2007/11/29 22:51:15 bshkara Exp $
+* $Id: cron_job_future_status.inc,v 1.45 2007/12/05 23:49:29 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,7 +359,7 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	public static function &getActiveJobs(Asset $asset)
 	{
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, __CLASS__, TRUE, 'minor', 'updating');
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, strtolower(__CLASS__), TRUE, 'minor', 'updating');
 		$assetids = Array();
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		foreach ($links as $link) {
@@ -373,7 +373,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		asort($dates, SORT_STRING);
 		$res = Array();
 		foreach ($dates as $assetid => $date) {
-			$res[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, __CLASS__);
+			$res[] = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, strtolower(__CLASS__));
 		}
 		return $res;
 
