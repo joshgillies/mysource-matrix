@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.339 2007/11/30 00:05:38 hnguyen Exp $
+* $Id: asset_edit_interface.inc,v 1.340 2007/12/05 06:07:16 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.339 $
+* @version $Revision: 1.340 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1448,23 +1448,21 @@ class Asset_Edit_Interface extends MySource_Object
 		$print_commit_button = FALSE;
 		// start buffering anything and trash the content at the end
 		ob_start();
-		for ($i = 0; $i < count($root->children); $i++) {
-
-			$section = $root->children[$i];
+		foreach ($root->section as $section) {
 
 			// find out if we have permission to print this section
-			$limbo_access = (isset($section->attributes['limbo_access']) && (int) $section->attributes['limbo_access'] == 1) ? TRUE : FALSE;
+			$limbo_access = (isset($section->attributes()->limbo_access) && (int) $section->attributes()->limbo_access == 1) ? TRUE : FALSE;
 			if ($limbo_access == FALSE) continue;
 
 			// find out what we need to get in this loop
 			$get_section = FALSE;
-			$section_name = strtolower(str_replace(' ', '_', $section->attributes['name']));
+			$section_name = strtolower(str_replace(' ', '_', (string)$section->attributes()->name));
 			if (isset($layout_keywords['screens'][$screen]['sections'][$section_name])) {
 				$get_section = TRUE;
 				$section_keyword = $layout_keywords['screens'][$screen]['sections'][$section_name];
 			}
 
-			if (!($num_fields = count($section->children))) {
+			if (!($num_fields = count($section->children()))) {
 				continue;
 			}
 
@@ -1476,10 +1474,10 @@ class Asset_Edit_Interface extends MySource_Object
 			// if we are getting this section, start buffering output
 			if ($get_section) ob_start();
 			if ($get_section || $get_screen) {
-				$o->openSection($section->attributes['name']);
+				$o->openSection((string)$section->attributes()->name);
 			}
 
-			if ($section->children[0]->name == 'function_call') {
+			if (isset($section->function_call)) {//TODO TOF FIX
 				if ($get_section || $get_screen) {
 					$paint_node = $section->children[0]->children[0];
 
@@ -1511,24 +1509,21 @@ class Asset_Edit_Interface extends MySource_Object
 				$section_note = NULL;
 
 				// Loop over the fields
-				for ($j = 0; $j < $num_fields; $j++) {
-					$field = $section->children[$j];
-
-					switch ($field->name) {
+				foreach ($section->children() as $field) {
+					switch ($field->getName()) {
 						case 'field':
 							$display_name = '';
 							$field_note   = '';
 							$attr_tag     = NULL;
 
-							for ($sub_index = 0; $sub_index < count($field->children); $sub_index++) {
-								$sub_field = $field->children[$sub_index];
-								switch ($sub_field->name) {
+							foreach ($field->children() as $sub_field) {
+								switch ($sub_field->getName()) {
 									case 'display_name':
-										$display_name = $sub_field->content;
+										$display_name = (string)$sub_field->display_name;
 									break;
 
 									case 'note':
-										$field_note = $sub_field->content;
+										$field_note = (string)$sub_field->note;
 									break;
 
 									default:
@@ -1546,18 +1541,18 @@ class Asset_Edit_Interface extends MySource_Object
 								continue;
 							}
 
-							if (!isset($field->attributes['format'])) {
-								$field->attributes['format'] = '';
+							if (!isset($field->attributes()->format)) {
+								$field->attributes()->format = '';
 							}
 
 							// reset get_field
 							$get_field = FALSE;
 
-							if (!empty($field->attributes['attribute'])) {
+							if (isset($field->attributes()->attribute)) {
 								// find out what we need to get in this loop
-								if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']])) {
+								if (isset($layout_keywords['screens'][$screen]['fields'][(string)$field->attributes()->attribute])) {
 									$get_field = TRUE;
-									$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']];
+									$field_keyword = $layout_keywords['screens'][$screen]['fields'][(string)$field->attributes()->attribute];
 								}
 
 								// if we do not want anything in this loop, continue
@@ -1565,15 +1560,15 @@ class Asset_Edit_Interface extends MySource_Object
 									continue;
 								}
 
-								if ($field->name != 'field') continue;
-								$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
+								if ($field->getName() != 'field') continue;
+								$o->openField($display_name, (string)$field->attributes()->format, '', isset($field->attributes()->hidden));
 
-								$attr = $owner->getAttribute($field->attributes['attribute']);
+								$attr = $owner->getAttribute((string)$field->attributes()->attribute);
 
 								if (is_null($attr)) continue;
 								if (!$attr->setEditParams($attr_tag)) continue;
 								// if this is not a wanted keyword, then continue on our way
-								if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['attribute']]))
+								if (isset($layout_keywords['screens'][$screen]['fields'][(string)$field->attributes()->attribute]))
 
 								// start buffering for this field
 								if ($get_field) ob_start();
@@ -1596,27 +1591,27 @@ class Asset_Edit_Interface extends MySource_Object
 								}
 								$o->closeField();
 
-							} else if ($attr_tag->name == 'function_call') {
+							} else if ($attr_tag->getName() == 'function_call') {
 
-								if (isset($field->attributes['keyword'])) {
+								if (isset($field->attributes()->keyword)) {
 									// find out what we need to get in this loop
-									if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']])) {
+									if (isset($layout_keywords['screens'][$screen]['fields'][(string)$field->attributes()->keyword])) {
 										$get_field = TRUE;
-										$field_keyword = $layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']];
+										$field_keyword = $layout_keywords['screens'][$screen]['fields'][(string)$field->attributes()->keyword];
 									}
 								}
 
-								$paint_node = $attr_tag->children[0];
-								if ($field->name != 'field') continue;
+								$paint_node = $attr_tag->paint_function;
+								if ($field->getName() != 'field') continue;
 
-								$o->openField($display_name, $field->attributes['format'], '', isset($field->attributes['hidden']));
+								$o->openField($display_name, (string)$field->attributes()->format, '', isset($field->attributes()->hidden));
 
-								if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+								if ((!isset($paint_node->attributes()->name)) || !method_exists($this->_edit_fns, (string)$paint_node->attributes()->name)) {
 									echo translate('painting_funtion_not_found');
 								} else {
 									if ($get_field) ob_start();
 
-									if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
+									if ($this->_edit_fns->{(string)$paint_node->attributes()->name}($owner, $o, $prefix)) {
 										$print_commit_button = TRUE;
 									}
 									// get a replacement for this field is there is a keyword for it
@@ -1633,8 +1628,8 @@ class Asset_Edit_Interface extends MySource_Object
 
 						case 'note':
 							// notice that only the last "note" will be used if multiple are supplied
-							if (!empty($field->content)) {
-								$section_note = $field->content;
+							if (!empty($field->note)) {
+								$section_note = (string)$field->note;
 							}
 						break;
 					}//end switch
@@ -2474,18 +2469,18 @@ class Asset_Edit_Interface extends MySource_Object
 				foreach ($root->section as $section) {
 
 					// if the section should not be displayed, continue
-					if ((isset($section['limbo_access'])) && ((int) $section['limbo_access'] === 0)) {
+					if ((isset($section->attributes()->limbo_access)) && (((int) $section->attributes()->limbo_access) === 0)) {
 						continue;
 					}
 
-					$current_section_name = (string) $section['name'];
+					$current_section_name = (string) $section->attributes()->name;
 
 					if (!isset($section_array[$current_section_name])) {
 						$section_array[$current_section_name] = Array();
 					}
 
 					foreach ($section->children() as $field) {
-						$keyword = (string) $field['code'];
+						$keyword = (string) $field->attributes()->code;
 						if (!empty($keyword)) {
 							$section_array[$current_section_name][] = $keyword;
 						}
@@ -2500,17 +2495,17 @@ class Asset_Edit_Interface extends MySource_Object
 				foreach ($root->section as $section) {
 
 					// if the section should not be displayed, continue
-					if ((isset($section['limbo_access'])) && ((int) $section['limbo_access'] === 0)) {
+					if ((isset($section->attributes()->limbo_access)) && (((int) $section->attributes()->limbo_access) === 0)) {
 						continue;
 					}
 
-					$current_section_name = (string) $section['name'];
+					$current_section_name = (string) $section->attributes()->name;
 					if (!isset($section_array[$current_section_name])) {
 						$section_array[$current_section_name] = Array();
 					}
 
 					foreach ($section->children() as $field) {
-						$keyword = (string) $field['attribute'];
+						$keyword = (string) $field->attributes()->attribute;
 						if (!empty($keyword)) {
 							$section_array[$current_section_name][] = $keyword;
 
@@ -2526,20 +2521,20 @@ class Asset_Edit_Interface extends MySource_Object
 				foreach ($root->section as $section) {
 
 					// if the section should not be displayed, continue
-					if ((isset($section['limbo_access'])) && ((int) $section['limbo_access'] === 0)) {
+					if ((isset($section->attributes()->limbo_access)) && ((int) $section->attributes()->limbo_access === 0)) {
 						continue;
 					}
 
-					$current_section_name = (string) $section['name'];
+					$current_section_name = (string) $section->attributes()->name;
 
 					if (!isset($section_array[$current_section_name])) {
 						$section_array[$current_section_name] = Array();
 					}
 
 					foreach ($section->children() as $field) {
-						$keyword = (string) $field['attribute'];
+						$keyword = (string) $field->attributes()->attribute;
 						if (empty($keyword)) {
-							$keyword = array_get_index($field->attributes, 'keyword', 0);
+							$keyword = $field->attributes()->keyword;
 						}
 						if (!empty($keyword)) {
 							$section_array[$current_section_name][] = $keyword;

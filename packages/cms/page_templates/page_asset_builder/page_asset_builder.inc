@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.117 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_asset_builder.inc,v 1.118 2007/12/05 06:09:11 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -95,7 +95,7 @@ class Page_Asset_Builder extends Page
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
 		foreach ($this->_getBodycopies() as $value => $details) {
-			$bodycopy =& new Bodycopy();
+			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $details['name']);
 			$copy_link['value'] = $value;
 			unset($details['name']);
@@ -141,7 +141,7 @@ class Page_Asset_Builder extends Page
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfO($types_needing_layouts, 'name');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 				foreach ($types_needing_layouts as $type_code) {
-					$layout =& new Layout();
+					$layout = new Layout();
 					$layout->setAttrValue('name', translate('cms_asset_builder_create_form_layout_for_type', $type_names[$type_code]));
 					$link = Array(
 								'asset'			=> &$this,
@@ -182,7 +182,7 @@ class Page_Asset_Builder extends Page
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a bodycopy then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
+		if ($side_of_link == 'major' && ($asset instanceof Bodycopy) && $dependant != '1') {
 			$dependant = '1';
 			return TRUE;
 		}
@@ -271,7 +271,7 @@ class Page_Asset_Builder extends Page
 		}
 
 		if (empty($this->_current_state)) {
-			if (is_null($current_user) || is_a($current_user, 'public_user')) {
+			if (is_null($current_user) || ($current_user instanceof Public_User)) {
 				// this person is not logged in, so we should let them log in
 				$this->_current_state = 'not_logged_in';
 				$this->_replacements['login_invite'] = $this->getKeywordReplacement('login_invite');
@@ -305,7 +305,7 @@ class Page_Asset_Builder extends Page
 		<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo htmlentities($submission_url); ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
 			<?php
 			hidden_field($this->id.'_ASSET_BUILDER_ACTION', $this->_default_state);
-			$parameter_map =& $this->getAttribute('parameter_map');
+			$parameter_map = $this->getAttribute('parameter_map');
 			if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
 				hidden_field($this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
 			} else if (isset($_POST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
@@ -351,7 +351,7 @@ class Page_Asset_Builder extends Page
 					// to make life easier for ourselves
 					$create_type = $_POST[$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-					$new_asset =& new $create_type();
+					$new_asset = new $create_type();
 					$prefix = $new_asset->getPrefix();
 
 
@@ -364,7 +364,7 @@ class Page_Asset_Builder extends Page
 					if (!empty($required_fields[$new_asset->type()])) {
 
 						foreach ($required_fields[$new_asset->type()] as $attr => $error_text) {
-							$real_attribute =& $new_asset->getAttribute($attr, TRUE);
+							$real_attribute = $new_asset->getAttribute($attr, TRUE);
 							if (is_null($real_attribute)) continue;
 							// take a copy of the attribute so we don't muck anything up for the processBackend() below
 							$attribute = $real_attribute;
@@ -415,10 +415,12 @@ class Page_Asset_Builder extends Page
 
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-					$o =& new Limbo_Outputter();
-					$create_parentid = array_shift(array_keys($create_locations));
-					$link_type = array_shift(array_values($create_locations));
-					$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
+					$o = new Limbo_Outputter();
+					$create_location_key = array_keys($create_locations);
+					$create_parentid = $create_location_key[0];
+					$create_location_value = array_values($create_locations);
+					$link_type = $create_location_value[0];
+					$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
 					if (is_null($parent)) {
 						$this->_replacements['create_error'] = $this->getKeywordReplacement('create_error');
 						break;
@@ -480,10 +482,10 @@ class Page_Asset_Builder extends Page
 							}
 							$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_asset->id, 'metadata');
 							foreach ($schemaids as $schemaid) {
-								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+								$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 								$mm->setSchema($new_asset->id, $schema->id, TRUE);
 								if (!is_null($schema)) {
-									$edit_fns =& $schema->getEditFns();
+									$edit_fns = $schema->getEditFns();
 									$edit_fns->processInlineValueInterface($schema, $metadata_values);
 								}
 							}
@@ -671,7 +673,7 @@ class Page_Asset_Builder extends Page
 		if (empty($attributes)) {
 			$create_type = $_POST[$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-			$temp_asset =& new $create_type();
+			$temp_asset = new $create_type();
 			$prefix = $temp_asset->getPrefix();
 			unset($temp_asset);
 		}
@@ -1052,7 +1054,7 @@ class Page_Asset_Builder extends Page
 		// get the bodycopy attached to us
 		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $this->_current_state, 'major', '1');
 		if (empty($bodycopy_data)) return;
-		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
 
 		$bodycopy->setKeywordReplacements($this->_replacements);
@@ -1468,7 +1470,7 @@ class Page_Asset_Builder extends Page
 		}
 
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
-		$o =& new Limbo_Outputter();
+		$o = new Limbo_Outputter();
 		$o->addHiddenField($this->id.'_ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
 		if (count($create_types) > 1) $o->addOnSubmit('disableHiddenInputs();');
 
@@ -1487,19 +1489,19 @@ class Page_Asset_Builder extends Page
 				if (isset($this->_tmp['new_asset_created_'.$create_type])) {
 					$asset =& $this->_tmp['new_asset_created_'.$create_type];
 				} else {
-					$asset =& new $create_type();
+					$asset = new $create_type();
 				}
 
 				if ($layout =& $this->_getCreateFormLayout($create_type)) {
-					$ei =& $asset->getEI();
+					$ei = $asset->getEI();
 					$ei->paintLayout($asset, $o, $layout);
 					$o->addHiddenField('asset_action', 'create_custom');
 				} else {
 					unset($GLOBALS['painted_inline_value_interface']);
 					foreach ($metadata_schemas as $schemaid) {
-						$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 						if (is_null($metadata_edit_fns)) {
-							$metadata_edit_fns =& $schema->getEditFns();
+							$metadata_edit_fns = $schema->getEditFns();
 						}
 						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE);
 					}
@@ -1633,7 +1635,7 @@ class Page_Asset_Builder extends Page
 		$res = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'layout', TRUE, $type_code);
 		if (!empty($link)) {
-			$res =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'layout');
+			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'layout');
 		}
 		return $res;
 

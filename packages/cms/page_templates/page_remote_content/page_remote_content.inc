@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.72 2007/12/05 00:26:38 rong Exp $
+* $Id: page_remote_content.inc,v 1.73 2007/12/05 06:09:10 colivar Exp $
 *
 */
 
@@ -19,7 +19,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-require_once 'HTTP/Client.php';
+@require_once 'HTTP/Client.php';
 require_once 'persistent_cookie_manager.inc';
 
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -324,7 +324,7 @@ class Page_Remote_Content extends Page
 			// we need a persistent cookie manager for this
 			$cookie_man =& $this->_getNewCookieManager();
 
-			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers, $cookie_man);
+			$HTTP_Client = @new HTTP_Client($request_parameters, $default_headers, $cookie_man);
 			setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);
 
 			if ($this->attr('allow_redirect')) {
@@ -370,12 +370,14 @@ class Page_Remote_Content extends Page
 			$result = $HTTP_Client->post($url, $post_data, $post_is_encoded, $files);
 
 		} else {
-			$result = $HTTP_Client->get($url);
+			// fix a php 5 strict warning
+			$result = @$HTTP_Client->get($url);
+			//$dummy_http = new HTTP_Client();
+			//$result = $dummy_http->get($url);
 		}
 
-
 		// exit on error
-		if (PEAR::isError($result)) {
+		if ($result instanceof PEAR_Error) {
 			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result->getMessage());
 			unset($HTTP_Client);
 			return FALSE;
@@ -1135,7 +1137,7 @@ class Page_Remote_Content extends Page
 
 		if (!isset($this->_tmp['_white_list_'])) {
 			$this->_tmp['_white_list_'] = Array();
-			$Net_URL =& new Net_URL($this->attr('remote_url'));
+			$Net_URL = new Net_URL($this->attr('remote_url'));
 			if ($options['remote_domain']) {
 				$this->_tmp['_white_list_'][] = strtolower($Net_URL->host);
 			}
@@ -1150,7 +1152,7 @@ class Page_Remote_Content extends Page
 		if (empty($this->_tmp['_white_list_'])) return FALSE;
 
 
-		$Net_URL =& new Net_URL($url);
+		$Net_URL = new Net_URL($url);
 		$url = $Net_URL->host;
 		if (!empty($Net_URL->path)) {
 			$url = $url.$Net_URL->path;
@@ -1179,7 +1181,7 @@ class Page_Remote_Content extends Page
 	*/
 	function &_getNewCookieManager()
 	{
-		$cookie_man =& new Persistent_Cookie_Manager();
+		$cookie_man = new Persistent_Cookie_Manager();
 
 		return $cookie_man;
 

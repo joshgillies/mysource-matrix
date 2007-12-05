@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.46 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.47 2007/12/05 06:09:10 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -322,7 +322,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				<?php
 
 				foreach ($locations as $locationid => $link_type) {
-					$location =& $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
+					$location = $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
 					if (is_null($location)) continue;
 					?>
 					<tr>

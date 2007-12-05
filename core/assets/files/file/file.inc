@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.158 2007/12/05 04:54:54 hnguyen Exp $
+* $Id: file.inc,v 1.159 2007/12/05 06:07:15 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -736,7 +736,7 @@ class File extends Asset
 		}
 		switch ($_POST['asset_action']) {
 			case 'create' :
-				$ei =& $this->getEI();
+				$ei = $this->getEI();
 				if (!$ei->process($this, $o, TRUE)) return FALSE;
 				$this->setAttrValue('name', 'temp');
 				return $this->create($link);
