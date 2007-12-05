@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.639 2007/12/05 02:46:19 rong Exp $
+* $Id: asset_manager.inc,v 1.640 2007/12/05 23:52:17 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.639 $
+* @version $Revision: 1.640 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -944,7 +944,7 @@ class Asset_Manager extends MySource_Object
 			$query = $db->prepare($sql);
 			$query->bindValue(':attr_name', $attr_name);
 			$query->bindValue(':asset_type', $asset_type);
-			$res = DAL::executePdoAssoc($query);
+			$res = DAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get default attribute values due to database error: '.$e->getMessage());
 		}
@@ -964,17 +964,17 @@ class Asset_Manager extends MySource_Object
 			$query = $db->prepare($sql.$where);
 			$query->bindValue(':attr_name', $attr_name);
 			$query->bindValue(':asset_type', $asset_type);
-			$custom_vals = DAL::executePdoAssoc($query);
+			$custom_vals = DAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get customised attribute values due to database error: '.$e->getMessage());
 		}
 
 		// Combine the two
-		foreach ($custom_vals as $rowid => $row) {
-			if (isset($row['default_val'])) {
-				$res[$row['assetid']] = $row['default_val'];
+		foreach ($custom_vals as $assetid => $rowinfo) {
+			if (isset($rowinfo[0]['default_val'])) {
+				$res[$assetid] = $rowinfo[0]['default_val'];
 			} else {
-				$res[$row['assetid']] = $row['custom_val'];
+				$res[$assetid] = $rowinfo[0]['custom_val'];
 			}
 		}
 		return $res;
@@ -3010,7 +3010,7 @@ class Asset_Manager extends MySource_Object
 			$force_array = TRUE;
 			$assetids = $assetid;
 		}
-
+		
 		$links = Array();
 		$query_assetids = Array();
 		foreach ($assetids as $assetid) {
