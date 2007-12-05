@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.35 2007/12/04 23:49:48 rong Exp $
+* $Id: bulkmail_job.inc,v 1.36 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -42,10 +42,10 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bulkmail_Job($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -61,7 +61,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$post_office = NULL;
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'bulkmail_post_office', TRUE);
 		if (!empty($parents)) {
-			$assetid = array_pop(array_keys($parents));
+			$array_keys = array_keys($parents);
+			$assetid = array_pop($array_keys);
 			// make sure the parent post office is not in trash
 			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($assetid)) {
 				$post_office = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);

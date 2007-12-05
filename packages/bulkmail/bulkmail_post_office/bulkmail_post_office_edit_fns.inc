@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.33 2007/12/04 23:57:39 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.34 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -38,9 +38,9 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Bulkmail_Post_Office_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -481,7 +481,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		// check if bulkmail manager's default's post office overrides threshold settings
 		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$use_bm_threshold = $bm->attr('use_bm_threshold');
-		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
+		if ($use_bm_threshold && !($asset instanceof Bulkmail_Manager)) {
 			$threshold = $bm->attr('threshold');
 			$write_access = FALSE;
 		} else {
@@ -520,14 +520,14 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 					?></tr><?php
 				}
 			?></table><?php
-				if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
+				if ($use_bm_threshold && !($asset instanceof Bulkmail_Manager)) {
 					$o->note(translate('bulkmail_threshold_override_note', get_asset_tag_line($bm->id)));
 				}
 			$o->closeField();
 		}//end if
 
 		// the dropdown box that allows user to add new rules
-		if (!($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager'))) {
+		if (!($use_bm_threshold && !($asset instanceof Bulkmail_Manager))) {
 			$this->paintAddRule($asset, $o, $prefix, $write_access);
 		}
 
@@ -552,7 +552,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		// check if bulkmail manager's default's post office overrides threshold settings
 		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$use_bm_threshold = $bm->attr('use_bm_threshold');
-		if ($use_bm_threshold && !is_a($asset, 'Bulkmail_Manager')) {
+		if ($use_bm_threshold && !($asset instanceof Bulkmail_Manager)) {
 			$write_access = FALSE;
 		}
 		if (!$write_access) return FALSE;

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.31 2007/12/04 23:40:55 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.32 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -41,9 +41,9 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Bulkmail_Job_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 		unset($this->static_screens['preview']);
 		$this->static_screens['details']['force_unlock'] = FALSE;
 

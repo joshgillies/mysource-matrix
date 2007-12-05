@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office.inc,v 1.20 2007/01/08 03:23:47 emcdonald Exp $
+* $Id: bulkmail_post_office.inc,v 1.21 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Mail.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -45,10 +45,10 @@ class Bulkmail_Post_Office extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bulkmail_Post_Office($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -119,7 +119,7 @@ class Bulkmail_Post_Office extends Asset
 		$result = parent::canCreateLink($minor, $link_type, $exclusive);
 		if ($result !== TRUE) return $result;
 
-		if (is_a($minor, 'bulkmail_job') && ($link_type != SQ_LINK_NOTICE)) {
+		if (($minor instanceof Bulkmail_Job) && ($link_type != SQ_LINK_NOTICE)) {
 			// bulkmail job can only link to one bulkmail post office
 			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', FALSE, 'minor');
 			if (!empty($bmail_link)) {
@@ -144,7 +144,7 @@ class Bulkmail_Post_Office extends Asset
 	*/
 	function canMoveLink(&$minor, &$old_major, $link_type)
 	{
-		if (is_a($minor, 'bulkmail_job') && is_a($old_major, 'bulkmail_post_office') && ($link_type != SQ_LINK_NOTICE)) {
+		if (($minor instanceof Bulkmail_Job) && ($old_major instanceof Bulkmail_Post_Office) && ($link_type != SQ_LINK_NOTICE)) {
 			 // tolerate one existing bmail_link if we are moving jobs from one post office to another
 			$bmail_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, 'bulkmail_post_office', FALSE, 'minor');
 			if (count($bmail_link) > 1) {

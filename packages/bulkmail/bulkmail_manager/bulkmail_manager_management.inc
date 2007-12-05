@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager_management.inc,v 1.5 2006/12/07 05:55:56 bcaldwell Exp $
+* $Id: bulkmail_manager_management.inc,v 1.6 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -37,9 +37,9 @@ class Bulkmail_Manager_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Bulkmail_Manager_Management(&$pm)
+	function __construct(&$pm)
 	{
-		$this->Asset_Management($pm);
+		parent::__construct($pm);
 
 		$this->vars = Array(
 						'use_bm_threshold'	=> Array(

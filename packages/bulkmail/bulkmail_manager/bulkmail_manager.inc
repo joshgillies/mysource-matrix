@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.48 2007/12/04 23:55:35 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.49 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -43,10 +43,10 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Bulkmail_Manager($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

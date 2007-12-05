@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_import_bmail_user.inc,v 1.5 2007/12/04 23:58:41 rong Exp $
+* $Id: hipo_job_tool_import_bmail_user.inc,v 1.6 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -39,10 +39,10 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	*
 	* @param string	$code_name		a unique codename the HIPO
 	*/
-	function HIPO_Job_Tool_Import_Bmail_User($code_name='')
+	function __construct($code_name='')
 	{
 		$this->uses_trans = FALSE;
-		$this->HIPO_Job($code_name);
+		parent::__construct($code_name);
 		$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('bulkmail');
 
 	}//end constructor

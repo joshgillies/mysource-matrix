@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager_edit_fns.inc,v 1.20 2007/12/04 23:51:03 rong Exp $
+* $Id: bulkmail_manager_edit_fns.inc,v 1.21 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_offi
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -40,9 +40,9 @@ class Bulkmail_Manager_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Bulkmail_Manager_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

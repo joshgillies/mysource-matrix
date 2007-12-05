@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -36,9 +36,9 @@ class Bulkmail_Job_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Bulkmail_Job_Management(&$pm)
+	function __construct(&$pm)
 	{
-		$this->Asset_Management($pm);
+		parent::__construct($pm);
 
 		$this->vars = Array(
 						'name'						=> Array(

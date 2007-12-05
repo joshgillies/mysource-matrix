@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.69 2007/12/04 23:48:08 rong Exp $
+* $Id: bulk_mailer.inc,v 1.70 2007/12/05 03:31:41 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -39,7 +39,7 @@ class Bulk_Mailer
 	* Constructor
 	*
 	*/
-	function Bulk_Mailer()
+	function __construct()
 	{
 
 	}//end constructor
@@ -562,7 +562,7 @@ class Bulk_Mailer
 			$recipient = $GLOBALS['SQ_SYSTEM']->user;
 		}
 
-		if (($job_details['content_gen'] == 'one_user') || (is_a($recipient, 'bulkmail_user'))) {
+		if (($job_details['content_gen'] == 'one_user') || ($recipient instanceof Bulkmail_User)) {
 
 			// Same content for everyone, apart from recipient keywords.
 			// First try the cache, unless we're previewing
