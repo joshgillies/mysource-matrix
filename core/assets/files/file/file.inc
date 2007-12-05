@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.157 2007/12/03 04:33:45 bshkara Exp $
+* $Id: file.inc,v 1.158 2007/12/05 04:54:54 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -168,7 +168,10 @@ class File extends Asset
 		// process the file upload in the middle of creation
 		$this->_tmp['uploading_file'] = 1;
 		$prefix = $this->type().'_0';
-		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+		$o = NULL;
+		if (!is_null($GLOBALS['SQ_SYSTEM']->backend->out)) {
+			$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+		}
 		$info = $this->_tmp['file_create_data'];
 
 		$ret_val = $edit->processFileChooser($this, $o, $prefix, TRUE) || $edit->processFileUpload($this, $o, $prefix, $info, FALSE);
