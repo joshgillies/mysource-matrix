@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.21 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_area_menu_normal.inc,v 1.22 2007/12/06 05:47:47 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 			';
 		}// end if
 
-		$sub_menu =& $this->getSubMenu();
+		$sub_menu = $this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			echo '
 		if (!empty($'.$this->attr('id_name').'_assetids)) {
@@ -123,7 +123,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 
 				// get the lineage from the site asset to the specified root node
 				if (!$within_site) {
-					$root_node =& $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->attr('root_node').');
+					$root_node = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->attr('root_node').');
 					$root_url = $root_node->getURL(current_url());
 					$root_url = str_replace(Array(\'http://\', \'https://\'), \'\' , $root_url);
 					$root_lineage = $GLOBALS[\'SQ_SYSTEM\']->am->getLineageFromURL(null, $root_url);
