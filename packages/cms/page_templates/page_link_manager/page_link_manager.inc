@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.17 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_link_manager.inc,v 1.18 2007/12/06 04:49:00 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -71,7 +71,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 		if (!parent::_createBodycopies()) return FALSE;
 
 		// add a new 'not_logged_in' bodycopy
-		$asset =& new Bodycopy();
+		$asset = new Bodycopy();
 		$copy_link = Array(
 						'asset'			=> &$this,
 						'value'			=> 'not_logged_in',
@@ -206,19 +206,19 @@ class Page_Link_Manager extends Page_Asset_Listing
 		$return = NULL;
 
 		// check that we don't have a root
-		$parameter_map       =& $this->getAttribute('parameter_map');
+		$parameter_map       = $this->getAttribute('parameter_map');
 		$tmp_managed_assetid =  $parameter_map->getParameterValue('managed_asset');
 		if (!empty($tmp_managed_assetid)) {
-			$return =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tmp_managed_assetid);
+			$return = $GLOBALS['SQ_SYSTEM']->am->getAsset($tmp_managed_assetid);
 		}
 
 		// if nothing, try the attribute
 		if (is_null($return) && $this->attr('managed_asset')) {
-			$return =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('managed_asset'));
+			$return = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('managed_asset'));
 		}
 
 		if (is_null($return)) {
-			$return =& $GLOBALS['SQ_SYSTEM']->user;
+			$return = $GLOBALS['SQ_SYSTEM']->user;
 		}
 
 		return $return;
@@ -234,7 +234,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	*/
 	function _getManagedAssetTypeName()
 	{
-		$asset =& $this->_getManagedAsset();
+		$asset = $this->_getManagedAsset();
 		return $asset->name;
 
 	}//end _getManagedAssetTypeName()
@@ -308,10 +308,10 @@ class Page_Link_Manager extends Page_Asset_Listing
 	function printContents()
 	{
 		// print the 'not logged in' bodycopy if the user hasn't logged in
-		$public_user =& $GLOBALS['SQ_SYSTEM']->getPublicUser();
+		$public_user = $GLOBALS['SQ_SYSTEM']->getPublicUser();
 		if ($GLOBALS['SQ_SYSTEM']->currentUser($public_user)) {
 
-			$bodycopy =& $this->getBodycopy('not_logged_in');
+			$bodycopy = $this->getBodycopy('not_logged_in');
 			if (is_null($bodycopy)) return FALSE;
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -340,7 +340,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	*/
 	function processAssetSelections()
 	{
-		$managed_asset =& $this->_getManagedAsset();
+		$managed_asset = $this->_getManagedAsset();
 
 		// get the assets the managed asset is linked to, and make sure the list isn't cached
 		$asset_links = $this->_getAssetLinks($managed_asset, TRUE);
@@ -397,7 +397,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 				$replacements = Array();
 
-				$chunk           =& $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
+				$chunk           = $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
 				$flattened_chunk =  array_flatten($chunk);
 
 				// remove any assets from the asset_links array that isn't visible on the page
@@ -449,13 +449,13 @@ class Page_Link_Manager extends Page_Asset_Listing
 		$cannot_delete =  Array();
 		$to_delete     =  array_diff($old_links, $new_links);
 		$to_create     =  array_diff($new_links, $old_links);
-		$minor         =& $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_id);
+		$minor         = $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_id);
 
 		$done          = Array();
 
 		// loop through and link our minor under all majors
 		foreach ($to_create as $majorid) {
-			$major =& $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
+			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($major, $minor, $link_type)) {
 				$done['add_error'][] = $major->id;
 			} else {
@@ -525,7 +525,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	*/
 	function &getBodycopyContents($name, $replacements=Array())
 	{
-		$bodycopy =& $this->getBodycopy($name);
+		$bodycopy = $this->getBodycopy($name);
 		if (is_null($bodycopy)) return '';
 
 		$bodycopy->setKeywordReplacements($replacements);
@@ -554,7 +554,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	{
 		if (array_key_exists($name, $this->bodycopies)) {
 			$link     =  $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
-			$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			return $bodycopy;
 		} else {
 			return NULL;
@@ -572,11 +572,11 @@ class Page_Link_Manager extends Page_Asset_Listing
 	*/
 	function printBodycopyContents()
 	{
-		$public_user =& $GLOBALS['SQ_SYSTEM']->getPublicUser();
+		$public_user = $GLOBALS['SQ_SYSTEM']->getPublicUser();
 		if ($GLOBALS['SQ_SYSTEM']->currentUser($public_user)) {
-			$bodycopy =& $this->getBodycopy('not_logged_in');
+			$bodycopy = $this->getBodycopy('not_logged_in');
 		} else {
-			$bodycopy =& $this->getBodycopy('logged_in');
+			$bodycopy = $this->getBodycopy('logged_in');
 		}
 
 		$keywords = $bodycopy->getKeywords();
@@ -609,7 +609,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 		$string = '';
 		$names = Array();
 		foreach ($assetids as $assetid) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$names[] = $asset->name;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		}
@@ -650,7 +650,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 					 );
 
 		// add replacements for the managed assets
-		$managed_asset    =& $this->_getManagedAsset();
+		$managed_asset    = $this->_getManagedAsset();
 		$managed_keywords =  $managed_asset->getAvailableKeywords();
 		foreach ($managed_keywords as $keyword => $description) {
 			// upper and lowercase
@@ -681,7 +681,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 	{
 		// Handle keywords for the managed asset
 		if (strpos($keyword, 'managed_asset_') === 0) {
-			$managed_asset =& $this->_getManagedAsset();
+			$managed_asset = $this->_getManagedAsset();
 			if (isset($managed_asset)) {
 				return $managed_asset->getKeywordReplacement(substr($keyword, strlen('managed_asset_')));
 			}

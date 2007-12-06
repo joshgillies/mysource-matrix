@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.113 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_asset_listing.inc,v 1.114 2007/12/06 04:46:50 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -159,7 +159,7 @@ class Page_Asset_Listing extends Listing_Engine
 						// which returns the results from the asset table, using the table alias 'l'
 						$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
 
-						$db =& $GLOBALS['SQ_SYSTEM']->db;
+						$db = $GLOBALS['SQ_SYSTEM']->db;
 						$links = $db->getAll(implode(' ', $query));
 						assert_valid_db_result($links);
 
@@ -201,7 +201,7 @@ class Page_Asset_Listing extends Listing_Engine
 					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
-							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
+							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, TRUE, $link_value_wanted);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 							$table_alias = 'a';
@@ -219,7 +219,7 @@ class Page_Asset_Listing extends Listing_Engine
 						// number of columns in both sides of the union
 						$query['union_select'] .= ', null AS first_letter';
 
-						$db =& $GLOBALS['SQ_SYSTEM']->db;
+						$db = $GLOBALS['SQ_SYSTEM']->db;
 
 						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
 						assert_valid_db_result($new_assets_to_list);
@@ -243,7 +243,7 @@ class Page_Asset_Listing extends Listing_Engine
 					if ((count($grouping_attr) == 1) && ($grouping_attr[0]['group_type'] == 'parent_asset') && array_get_index($grouping_attr[0], 'direct_parent_only', FALSE)) {
 						$group = $grouping_attr[0];
 
-						$db =& $GLOBALS['SQ_SYSTEM']->db;
+						$db = $GLOBALS['SQ_SYSTEM']->db;
 
 						$links_sql = 'SELECT DISTINCT
 											minorid, majorid
@@ -297,14 +297,14 @@ class Page_Asset_Listing extends Listing_Engine
 						$sqls = Array();
 
 						foreach ($root_asset_ids as $root_asset_id) {
-							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
+							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 
 							$sql = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, FALSE, $link_value_wanted);
 							$sql['select'] = str_replace(', a.type_code', '', $sql['select']);
 							$sql['union_select'] = str_replace(', null', '', $sql['union_select']);
 
 							$sql = implode(' ', $sql);
-							$db =& $GLOBALS['SQ_SYSTEM']->db;
+							$db = $GLOBALS['SQ_SYSTEM']->db;
 
 							$sqls[] = '('.sprintf($links_sql, $sql).')';
 

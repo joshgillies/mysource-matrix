@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.118 2007/12/05 06:09:11 colivar Exp $
+* $Id: page_asset_builder.inc,v 1.119 2007/12/06 04:45:46 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -244,7 +244,7 @@ class Page_Asset_Builder extends Page
 		}
 
 		$this->_current_state = '';
-		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		set_error_handler(Array(&$this, '_errorHandler'));
 			$success = $this->_processGlobalActions();
 		restore_error_handler();
@@ -471,7 +471,7 @@ class Page_Asset_Builder extends Page
 						$new_asset->saveAttributes();
 
 						// Process metadata
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$metadata_values = Array();
 						$schemaids = $this->_getMetadataSchemasToApply();
 						if (!empty($schemaids)) {
@@ -506,7 +506,7 @@ class Page_Asset_Builder extends Page
 								// skip the orginal parent we linked the new asset to
 								if ($link_parentid == $parent->id) continue;
 
-								$link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
+								$link_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
 								if (is_null($link_parent)) {
 									trigger_localised_error('CMS0034', E_USER_WARNING, $link_parentid);
 									continue;
@@ -519,7 +519,7 @@ class Page_Asset_Builder extends Page
 
 							// we need to update lookups to make sure the URLs for the
 							// new create locations are set correctly
-							$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+							$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 							$vars = Array('assetids' => Array($new_asset->id));
 							$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 							$this->_errors = array_merge($this->_errors, $lookup_errors);
@@ -890,7 +890,7 @@ class Page_Asset_Builder extends Page
 		$create_status = $this->attr('create_status');
 		if ($create_status != 0) {
 			if ($new_asset->status != $create_status) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
 				$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 				$this->_errors = array_merge($this->_errors, $status_errors);
@@ -1492,7 +1492,7 @@ class Page_Asset_Builder extends Page
 					$asset = new $create_type();
 				}
 
-				if ($layout =& $this->_getCreateFormLayout($create_type)) {
+				if ($layout = $this->_getCreateFormLayout($create_type)) {
 					$ei = $asset->getEI();
 					$ei->paintLayout($asset, $o, $layout);
 					$o->addHiddenField('asset_action', 'create_custom');

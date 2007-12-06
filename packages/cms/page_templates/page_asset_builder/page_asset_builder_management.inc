@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.32 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_asset_builder_management.inc,v 1.33 2007/12/06 04:45:46 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -268,11 +268,11 @@ class Page_Asset_Builder_Management extends Asset_Management
 		// important upgrades that must be taken care of before create type becomes
 		// a serialise in 0.3
 		if (version_compare($current_version, '0.2', '<=')) {
-			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
 
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
@@ -301,10 +301,10 @@ class Page_Asset_Builder_Management extends Asset_Management
 			// this upgrade changed the attribute 'create_locations' to include additional
 			// rules that meant the create locations has to be stored in a different format
 
-			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
@@ -351,10 +351,10 @@ class Page_Asset_Builder_Management extends Asset_Management
 			// of multiple asset types
 			pre_echo('STARTING ASSET BUILDER UPGRADE - VERSION 0.2');
 
-			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
@@ -403,10 +403,10 @@ class Page_Asset_Builder_Management extends Asset_Management
 			// The create locations regime was radically overhauled between versions 0.3 and 0.4
 			// to add more functions and more flexibility
 
-			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
 			foreach ($children as $assetid => $type) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 
@@ -492,7 +492,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				// change the %create_location% keyword in bodycopies to the keyword for our new set
 				$content_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'content_type_wysiwyg');
 				foreach (array_keys($content_assetids) as $assetid) {
-					$content_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$content_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) {
 						trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $content_asset->name, $content_asset->id);
 						return FALSE;
@@ -509,7 +509,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				// regenerate the content files of the bodycopy containers so that they notice
 				$container_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'bodycopy_container', FALSE);
 				foreach (array_keys($container_assetids) as $assetid) {
-					$container_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$container_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($container_asset->id, 'attributes')) {
 						trigger_localised_error('CMS0025', E_USER_WARNING, '0.3', $container_asset->name, $container_asset->id);
 						return FALSE;

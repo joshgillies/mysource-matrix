@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.6 2006/12/07 00:04:20 emcdonald Exp $
+* $Id: keywords.php,v 1.7 2007/12/06 04:46:50 rong Exp $
 *
 */
 -->
@@ -19,7 +19,7 @@
 	if (!isset($_GET['type_code'])) return FALSE;
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($_GET['type_code']);
-	$asset =& new $_GET['type_code']();
+	$asset = new $_GET['type_code']();
 	$keywords = $asset->getAvailableKeywords();
 ?>
 

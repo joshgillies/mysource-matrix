@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager_edit_fns.inc,v 1.4 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_link_manager_edit_fns.inc,v 1.5 2007/12/06 04:49:00 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Page_Link_Manager_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('cms_listing_no_results_bodycopy_desc'));
 			$this->_paintDefaultFormatLink($asset->id, 'not_logged_in', translate('cms_link_manager_not_logged_in_bodycopy_desc'));
 
-			$folder =& $asset->getFolder('type_formats');
+			$folder = $asset->getFolder('type_formats');
 			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('cms_listing_default_asset_desc'));
 			?>
 		</table>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page_edit_fns.inc,v 1.8 2007/12/03 22:09:31 bshkara Exp $
+* $Id: page_multiple_page_edit_fns.inc,v 1.9 2007/12/06 04:50:15 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -293,7 +293,7 @@ class Page_Multiple_Page_Edit_Fns extends Page_Edit_Fns
 			foreach ($delete_list as $id => $flag) {
 				$doomed_link = $am->getLinkByAsset($asset->id, $id);
 				$am->moveLink($doomed_link['linkid'], $am->getSystemAssetid('trash_folder'), SQ_LINK_TYPE_2, '0');
-				$deleted =& $am->getAsset($doomed_link['minorid']);
+				$deleted = $am->getAsset($doomed_link['minorid']);
 				$deleted->saveWebPaths(Array());
 			}
 		}

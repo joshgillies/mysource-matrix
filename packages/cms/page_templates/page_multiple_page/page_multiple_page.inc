@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.25 2007/12/03 22:09:31 bshkara Exp $
+* $Id: page_multiple_page.inc,v 1.26 2007/12/06 04:50:15 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -213,7 +213,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function getPageLinks()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2|SQ_LINK_TYPE_1, 'page_multiple_page_page', TRUE);
 		return $page_links;
 
@@ -279,7 +279,7 @@ class Page_Multiple_Page extends Page
 		}
 		$current_children = array_flip($this->attr('current_page_ids'));
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// Work out new ordering and web paths
 		$new_page_children = Array();
@@ -495,7 +495,7 @@ class Page_Multiple_Page extends Page
 			return $this->paintTOC($ordered);
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$replacement = '';
 
@@ -686,7 +686,7 @@ class Page_Multiple_Page extends Page
 	function printFrontend()
 	{
 		$page_one = $this->getFirstPageAsset();
-		if (is_null($page_one)) $page_one =& $this;
+		if (is_null($page_one)) $page_one = $this;
 		$this->printFrontendAsset($page_one);
 
 	}//end printFrontend()
@@ -703,7 +703,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function paintTOC($ordered=FALSE, $link_current=FALSE)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getPageLinks();
 		$current = $this->getCurrentPageId();
 		$current_id = $links[intval($current) - 1]['minorid'];
@@ -760,7 +760,7 @@ class Page_Multiple_Page extends Page
 	*/
 	function paintNavSelectionList($link_current=FALSE)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getPageLinks();
 		$current = $this->getCurrentPageId();
 		$current_id = $links[intval($current) - 1]['minorid'];
