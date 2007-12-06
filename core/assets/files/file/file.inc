@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.160 2007/12/06 00:58:29 colivar Exp $
+* $Id: file.inc,v 1.161 2007/12/06 22:47:50 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -608,7 +608,7 @@ class File extends Asset
 
 		// Remove all the old URLs
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& MatrixDAL::getDb();
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		unset($this->_tmp['lookups']);
