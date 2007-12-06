@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text.inc,v 1.3 2007/11/06 06:25:28 rong Exp $
+* $Id: metadata_field_multiple_text.inc,v 1.4 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Metadata_Field_Multiple_Text extends Metadata_Field
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Metadata_Field_Multiple_Text($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Metadata_Field($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -48,10 +48,10 @@ class Metadata_Field_Multiple_Text extends Metadata_Field
 	/**
 	* Get an Option List attribute to print the values and edit interfaces
 	*
-	* @return object
+	* @return Asset_Attribute_Option_List
 	* @access public
 	*/
-	function &getOptionListAttribute()
+	public function getOptionListAttribute()
 	{
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 

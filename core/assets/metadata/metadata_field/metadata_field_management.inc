@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.21 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: metadata_field_management.inc,v 1.22 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Metadata_Field_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'name'				=> Array(
@@ -106,7 +106,7 @@ class Metadata_Field_Management extends Asset_Management
 	* @return array
 	* @access private
 	*/
-	function _getFileList()
+	public function _getFileList()
 	{
 		return Array(
 				'popups/keywords.php',
@@ -114,54 +114,6 @@ class Metadata_Field_Management extends Asset_Management
 			   );
 
 	}//end _getFileList()
-
-
-	/**
-	* Upgrade this asset to the most current version
-	*
-	* @param string	$current_version	The version this asset should be upgraded to
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _upgrade($current_version)
-	{
-
-		if (version_compare($current_version,'0.2','<')) {
-			// changes metadata_field_* is_exclusive value to 0 so that they can be moved
-			// to other metadata sections
-
-			pre_echo('UPGRADING METADATA FIELD - FROM VERSION '.$current_version.' TO VERSION 0.2');
-
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-			// get number of assets to upgrade
-			$sql = 'SELECT count(assetid) FROM sq_ast WHERE type_code LIKE '.$db->quote('metadata_field_%');
-			$result = $db->getOne($sql);
-			assert_valid_db_result($result);
-
-			pre_echo('Upgrading '.$result.' assets');
-
-			$sql = 'UPDATE sq_ast_lnk SET is_exclusive = '.$db->quote('0').'
-					WHERE linkid IN (SELECT linkid FROM sq_ast a
-					LEFT OUTER JOIN sq_ast_lnk l ON a.assetid = l.minorid
-					WHERE a.type_code LIKE '.$db->quote('metadata_field_%').'
-						AND l.is_exclusive = '.$db->quote('1').'
-						AND l.is_dependant = '.$db->quote('1').')';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		}//end if
-
-		return parent::_upgrade($current_version);
-
-	}//end _upgrade()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.26 2007/11/06 06:29:53 rong Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.27 2007/12/06 23:06:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Workflow_Schema_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 		$this->static_screens['details']['lock_type'] = 'content';
 		unset($this->static_screens['workflow']);
@@ -51,14 +51,14 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for creating a new workflow step
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form elements
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintNewStep(&$asset, &$o, $prefix)
+	public function paintNewStep(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		echo translate('create_new_step_called').' ';
@@ -71,14 +71,14 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the interface for creating a new workflow step
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processNewStep(&$asset, &$o, $prefix)
+	public function processNewStep(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('links')) return FALSE;
@@ -100,14 +100,14 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for creating a new workflow step
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form elements
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintSteps(&$asset, &$o, $prefix)
+	public function paintSteps(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$write_access = $asset->writeAccess('links');
@@ -141,14 +141,14 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Processes the interface for creating a new workflow step
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSteps(&$asset, &$o, $prefix)
+	public function processSteps(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('links')) return FALSE;
@@ -182,12 +182,12 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	* The generated array is a snap shot of the schema at a point in time that can get written
 	* to the database and used for publishing etc.
 	*
-	* @param object	$asset	the asset we are generating the array for
+	* @param Asset	$asset	the asset we are generating the array for
 	*
 	* @return array
 	* @access public
 	*/
-	function generateWorkflowArray($asset)
+	public function generateWorkflowArray(Asset $asset)
 	{
 		$workflow_array['steps']        = Array();
 		$workflow_array['current_step'] = Array('1');

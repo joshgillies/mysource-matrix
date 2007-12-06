@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.11 2007/01/29 04:03:46 tbarrett Exp $
+* $Id: metadata_field_date_management.inc,v 1.12 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Metadata_Field_Date_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Date_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'offset'		=> Array(
@@ -72,7 +72,7 @@ class Metadata_Field_Date_Management extends Asset_Management
 	* @return array
 	* @access private
 	*/
-	function _getFileList()
+	public function _getFileList()
 	{
 		return Array(
 				'popups/keywords.html',

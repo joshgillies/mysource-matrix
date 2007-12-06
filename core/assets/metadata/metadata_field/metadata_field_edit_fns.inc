@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.53 2007/11/20 02:31:15 hnguyen Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.54 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return object
 	* @access public
 	*/
-	function Metadata_Field_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -49,14 +49,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for viewing keyword instructions
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field		$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintKeywordInstructions(&$asset, &$o, $prefix)
+	function paintKeywordInstructions(Metadata_Field $asset, Backend_Outputter $o, $prefix)
 	{
 		ob_start();
 			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.php?assetid=<?php echo $asset->id; ?>&all=1', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php
@@ -80,7 +80,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processKeywordInstructions(&$asset, &$o, $prefix)
+	function processKeywordInstructions(Metadata_Field $asset, Backend_Outputter $o, $prefix)
 	{
 		return FALSE;
 
@@ -97,7 +97,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintValueComponents(&$asset, &$o, $prefix)
+	function paintValueComponents(Metadata_Field $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$write_access = $asset->writeAccess('attributes');
@@ -171,7 +171,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processValueComponents(&$asset, &$o, $prefix)
+	function processValueComponents(Metadata_Field $asset, Backend_Outputter $o, $prefix)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
@@ -247,7 +247,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
+	function paintInlineValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access)
 	{
 		$complete = $this->requiredFieldsComplete($asset, $value_str);
 		// set field header to friendly_name if it is not empty
@@ -288,7 +288,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
+	function paintValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		return FALSE;
 
@@ -300,14 +300,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Returns true if this field has been processed, false if not and it should be ignored
 	*
-	* @param object	&$asset			the asset whose interface we are processing
-	* @param string	&$new_value_str	a string by reference that we can store the new values in
-	*								set to NULL to revert to default
+	* @param Metadata_Field	$asset			the asset whose interface we are processing
+	* @param string			&$new_value_str	a string by reference that we can store the new values in
+	*										set to NULL to revert to default
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_value_str)
+	function processInlineValueInterface(Metadata_Field $asset, &$new_value_str)
 	{
 		return FALSE;
 
@@ -317,14 +317,14 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Check if all required fields have been completed in the values supplied
 	*
-	* @param object	&$asset		the asset whose metadata we are checking
-	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
-	*							NULL means that there is no current value set
+	* @param Metadata_Field	$asset		the asset whose metadata we are checking
+	* @param string			$value_str	the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
 	*
 	* @return boolean
 	* @access public
 	*/
-	function requiredFieldsComplete(&$asset, $value_str)
+	function requiredFieldsComplete(Metadata_Field $asset, $value_str)
 	{
 		// if this is not a required field then of course it doesnt break the rule
 		if (!$asset->attr('required')) return TRUE;
@@ -353,19 +353,19 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Output the complete metadata tag for this field
 	*
-	* @param object	&$asset		the asset whose interface we are painting
-	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
-	*							NULL means that there is no current value set
-	* @param array	&$tag_value	the metadata tag value
-	* @param array	&$keywords	an array we can put keywords in that need replacing
+	* @param Metadata_Field	$asset		the asset whose interface we are painting
+	* @param string			$value_str	the current value for this field in the asset (NOT $asset)
+	*									NULL means that there is no current value set
+	* @param array			&$tag_value	the metadata tag value
+	* @param array			&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
+	function generateMetadata(Metadata_Field $asset, $value_str, Array &$tag_value, Array &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything

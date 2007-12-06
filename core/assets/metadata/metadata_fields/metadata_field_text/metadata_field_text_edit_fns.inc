@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.27 2007/05/03 00:02:35 rong Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.28 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Text_Edit_Fns()
+	function __construct()
 	{
-		$this->Metadata_Field_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -48,18 +48,18 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* Returns true if a submitable interface has been printed
 	*
-	* @param object		&$asset			the metadata field asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
-	*									NULL means that there is no current value set
-	* @param boolean	$write_access	whether to allow editing of this field
-	*									(typically depends on write access to owner and editability of field)
-	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
+	* @param Metadata_Field_Text	$asset			the metadata field asset whose interface we are painting
+	* @param Backend_Outputter		$o				the outputter class
+	* @param string					$value_str		the current value for this field in the owning asset (NOT $asset)
+	*												NULL means that there is no current value set
+	* @param boolean				$write_access	whether to allow editing of this field
+	*												(typically depends on write access to owner and editability of field)
+	* @param boolean				$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
+	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		$prefix = $asset->getPrefix();
 
@@ -143,13 +143,13 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object	&$asset			the asset whose interface we are processing
-	* @param string	&$new_value_str	a string by reference that we can store the new values in
+	* @param Metadata_Field_Text	$asset			the asset whose interface we are processing
+	* @param string					&$new_value_str	a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_value_str)
+	public function processInlineValueInterface(Metadata_Field_Text $asset, &$new_value_str)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 

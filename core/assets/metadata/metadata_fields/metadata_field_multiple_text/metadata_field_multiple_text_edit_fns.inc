@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.4 2007/03/08 04:00:37 tbarrett Exp $
+* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.5 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Multiple_Text_Edit_Fns()
+	function __construct()
 	{
-		$this->Metadata_Field_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -48,18 +48,18 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* Returns true if a submitable interface has been printed
 	*
-	* @param object		&$asset			the metadata field asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
-	*									NULL means that there is no current value set
-	* @param boolean	$write_access	whether to allow editing of this field
-	*									(typically depends on write access to owner and editability of field)
-	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
+	* @param Metadata_Field_Multiple_Text	&$asset			the metadata field asset whose interface we are painting
+	* @param Backend_Outputter				&$o				the outputter class
+	* @param string							$value_str		the current value for this field in the owning asset (NOT $asset)
+	*														NULL means that there is no current value set
+	* @param boolean						$write_access	whether to allow editing of this field
+	*														(typically depends on write access to owner and editability of field)
+	* @param boolean						$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
+	public function paintValueInterface(Metadata_Field_Multiple_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -132,13 +132,13 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object	&$asset			the asset whose interface we are processing
-	* @param string	&$new_value_str	a string by reference that we can store the new values in
+	* @param Metadata_Field_Multiple_Text	$asset			the asset whose interface we are processing
+	* @param string							&$new_value_str	a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_value_str)
+	public function processInlineValueInterface(Metadata_Field_Multiple_Text $asset, &$new_value_str)
 	{
 		// nothing for us to do
 		if (!$asset->attr('editable')) return FALSE;
@@ -169,16 +169,16 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Output the complete metadata tag for this field
 	*
-	* @param object	&$asset		the asset whose interface we are painting
-	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
-	*							NULL means that there is no current value set
-	* @param array	&$tag_value	the metadata tag value
-	* @param array	&$keywords	an array we can put keywords in that need replacing
+	* @param Metadata_Field_Multiple_Text	$asset		the asset whose interface we are painting
+	* @param string							$value_str	the current value for this field in the asset (NOT $asset)
+	*													NULL means that there is no current value set
+	* @param array							&$tag_value	the metadata tag value
+	* @param array							&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
+	public function generateMetadata(Metadata_Field_Multiple_Text $asset, $value_str, Array &$tag_value, Array &$keywords)
 	{
 		if (is_null($value_str)) {
 			$value_str = $asset->attr('default');
@@ -192,18 +192,18 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for choosing default value
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter object
-	* @param object	$prefix	prefix for form elements
+	* @param Metadata_Field_Multiple_Text	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter				$o		the outputter object
+	* @param string							$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function paintDefault(&$asset, &$o, $prefix)
+	public function paintDefault(Metadata_Field_Multiple_Text $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$attribute =& $asset->getOptionListAttribute();
+		$attribute = $asset->getOptionListAttribute();
 		$attribute->paint($prefix, !$write_access);
 
 		return $write_access;
@@ -214,18 +214,18 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for choosing default value
 	*
-	* @param object	&$asset	the asset whose interface we are processing
-	* @param object	&$o		the outputter object
-	* @param object	$prefix	prefix for form elements
+	* @param Metadata_Field_Multiple_Text	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter				$o		the outputter object
+	* @param string							$prefix	prefix for form elements
 	*
 	* @return void
 	* @access public
 	*/
-	function processDefault(&$asset, &$o, $prefix)
+	public function processDefault(Metadata_Field_Multiple_Text $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$attribute =& $asset->getOptionListAttribute();
+		$attribute = $asset->getOptionListAttribute();
 		$attribute->process($prefix);
 
 		if ($attribute->processed) {

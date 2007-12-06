@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.12 2007/11/28 05:52:03 hnguyen Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.13 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -32,16 +32,27 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Paints the root node selection box
 	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		backend outputter
-	* @param string	$prefix	prefix for the html doc element name
+	* @param Metadata_Field_Thesaurus	$asset	asset being painted
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintRootNode(&$asset, &$o, $prefix)
+	function paintRootNode(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $prefix)
 	{
 		// get root links
 		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
@@ -86,18 +97,18 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* Returns true if a submitable interface has been printed
 	*
-	* @param object		&$asset			the metadata field asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
-	*									NULL means that there is no current value set
-	* @param boolean	$write_access	whether to allow editing of this field
-	*									(typically depends on write access to owner and editability of field)
-	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
+	* @param Metadata_Field_Thesaurus	$asset			asset being painted
+	* @param Backend_Outputter			$o				the outputter class
+	* @param string						$value_str		the current value for this field in the owning asset (NOT $asset)
+	*													NULL means that there is no current value set
+	* @param boolean					$write_access	whether to allow editing of this field
+	*													(typically depends on write access to owner and editability of field)
+	* @param boolean					$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
+	function paintValueInterface(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
 	{
 		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) return;
 		$thesaurus = $asset->getThesaurusRef();
@@ -243,13 +254,13 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object	&$asset			the asset whose interface we are painting
-	* @param string	&$new_value_str	a string by reference that we can store the new values in
+	* @param Metadata_Field_Thesaurus	$asset			asset being painted
+	* @param string						&$new_value_str	a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_value_str)
+	function processInlineValueInterface(Metadata_Field_Thesaurus $asset, &$new_value_str)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
@@ -298,14 +309,14 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paints the default value selection box
 	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		backend outputter
-	* @param string	$prefix	prefix for the html doc element name
+	* @param Metadata_Field_Thesaurus	$asset	asset being painted
+	* @param Backend_Outputter			$o		backend outputter
+	* @param string						$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintDefault(&$asset, &$o, $prefix)
+	function paintDefault(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $prefix)
 	{
 
 		$write_access = $asset->writeAccess('attributes');
@@ -343,14 +354,14 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the default value selection box
 	*
-	* @param object	&$asset	asset being painted
-	* @param object	&$o		backend outputter
-	* @param string	$prefix	prefix for the html doc element name
+	* @param Metadata_Field_Thesaurus	$asset	asset being painted
+	* @param Backend_Outputter			$o		backend outputter
+	* @param string						$prefix	prefix for the html doc element name
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDefault(&$asset, &$o, $prefix)
+	function processDefault(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 

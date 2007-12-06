@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.46 2007/11/28 05:46:31 hnguyen Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.47 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Metadata_Section_Edit_Fns()
+	function __construct()
 	{
-		$this->Folder_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -46,13 +46,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for editing metadata fields
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
+	* @param Metadata_Section	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineOptionInterface(&$asset, &$o)
+	public function paintInlineOptionInterface(Metadata_Section $asset, Backend_Outputter $o)
 	{
 		$write_access = $asset->writeAccess('links');
 		$prefix = $asset->getPrefix();
@@ -132,13 +132,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for editing metadata fields
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
+	* @param Metadata_Section	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineOptionInterface(&$asset, &$o)
+	public function processInlineOptionInterface(Metadata_Section $asset, Backend_Outputter $o)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('links')) return FALSE;
@@ -183,16 +183,16 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param object		&$asset			the asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param array		$values			current metadata values set for this asset
-	* @param boolean	$write_access	does the current user have write access to the asset
-	*									that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param Metadata_Section	$asset			the asset whose interface we are painting
+	* @param Backend_Outputter	$o				the outputter class
+	* @param array				$values			current metadata values set for this asset
+	* @param boolean			$write_access	does the current user have write access to the asset
+	*											that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(Metadata_Section $asset, Backend_Outputter $o, Array $values, $write_access)
 	{
 		$o->openSection($asset->name);
 		if ($write_access) {
@@ -230,13 +230,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	*
 	* Returns true if at least one field processed itself and got a value
 	*
-	* @param object	&$asset			the asset whose interface we are painting
-	* @param array	&$new_values	an array we can store the new values in
+	* @param Metadata_Section	$asset			the asset whose interface we are painting
+	* @param array				&$new_values	an array we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_values)
+	function processInlineValueInterface(Metadata_Section $asset, Array &$new_values)
 	{
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
@@ -263,13 +263,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Check if all required fields have been completed in the values supplied
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param array	$values	the current metadata values
+	* @param Metadata_Section	$asset	the asset whose interface we are painting
+	* @param array				$values	the current metadata values
 	*
 	* @return boolean
 	* @access public
 	*/
-	function requiredFieldsComplete(&$asset, $values)
+	function requiredFieldsComplete(Metadata_Section $asset, $values)
 	{
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
@@ -289,15 +289,15 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Output the complete metadata tags for this section
 	*
-	* @param object	&$asset			the asset whose interface we are painting
-	* @param array	&$values		the current metadata values
-	* @param array	&$tag_values	the metadata tag values
-	* @param array	&$keywords		an array we can put keywords in that need replacing
+	* @param Metadata_Section	$asset			the asset whose interface we are painting
+	* @param array				&$values		the current metadata values
+	* @param array				&$tag_values	the metadata tag values
+	* @param array				&$keywords		an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
+	function generateMetadata(Metadata_Section $asset, Array &$values, Array &$tag_values, Array &$keywords)
 	{
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything

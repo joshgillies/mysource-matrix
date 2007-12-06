@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.25 2007/11/28 00:36:04 hnguyen Exp $
+* $Id: metadata_schema.inc,v 1.26 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Metadata_Schema extends Folder
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Metadata_Schema($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Folder($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -50,7 +50,7 @@ class Metadata_Schema extends Folder
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
@@ -66,7 +66,7 @@ class Metadata_Schema extends Folder
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -85,7 +85,7 @@ class Metadata_Schema extends Folder
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param Asset	$asset			the major or minor asset that we are linking to
 	* @param string	$side_of_link	the side of the link we are on (major or minor)
 	* @param string	&$link_type		the type of link we are creating
 	* @param string	&$value			the value that is to be associated with the link
@@ -98,7 +98,7 @@ class Metadata_Schema extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if this is a metadata section then we need to make it a dependant link
 		if ($side_of_link == 'major' && ($asset instanceof Metadata_Section) && $dependant != '1') {
@@ -122,7 +122,7 @@ class Metadata_Schema extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE)
 	{
 		if (parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -160,7 +160,7 @@ class Metadata_Schema extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function saveWebPaths($paths)
+	public function saveWebPaths(Array $paths)
 	{
 		return TRUE;
 

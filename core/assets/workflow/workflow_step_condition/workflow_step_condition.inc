@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition.inc,v 1.10 2006/12/05 05:50:00 bcaldwell Exp $
+* $Id: workflow_step_condition.inc,v 1.11 2007/12/06 23:06:33 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Workflow_Step_Condition extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Workflow_Step_Condition($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -54,7 +54,7 @@ class Workflow_Step_Condition extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return 'Step Condition';
 
@@ -68,7 +68,7 @@ class Workflow_Step_Condition extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),

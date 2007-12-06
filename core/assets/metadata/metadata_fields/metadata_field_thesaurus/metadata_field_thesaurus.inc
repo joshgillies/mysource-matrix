@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus.inc,v 1.3 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: metadata_field_thesaurus.inc,v 1.4 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Metadata_Field_Thesaurus($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Metadata_Field($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -47,10 +47,10 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	/**
 	* Returns a reference to the parent thesaurus asset
 	*
-	* @return object
+	* @return mixed Thesaurus|bool
 	* @access public
 	*/
-	function &getThesaurusRef()
+	public function getThesaurusRef()
 	{
 		$th_id = $this->attr('thesaurus_assetid');
 		$false = FALSE;

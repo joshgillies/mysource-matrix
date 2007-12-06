@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.39 2007/09/14 06:50:34 mbrydon Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.40 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Date_Edit_Fns()
+	function __construct()
 	{
-		$this->Metadata_Field_Edit_Fns();
+		parent::__construct();
 
 	}//end Metadata_Field_Date_Edit_Fns()
 
@@ -45,16 +45,16 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Paint the interface for configuring display format
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintDateFormat(&$asset, &$o, $prefix)
+	public function paintDateFormat(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
-		$attr =& $asset->getAttribute('format');
+		$attr = $asset->getAttribute('format');
 		$attr->paint($prefix.'_format', !$asset->writeAccess('attributes'));
 		ob_start();
 			?><a href="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/popups/keywords.html" onClick="var win = window.open(this.href, 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;"><?php echo translate('click_here'); ?></a><?php
@@ -69,16 +69,16 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for configuring display format
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDateFormat(&$asset, &$o, $prefix)
+	public function processDateFormat(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
-		$attr =& $asset->getAttribute('format');
+		$attr = $asset->getAttribute('format');
 		if ($asset->writeAccess('attributes')) {
 			$attr->process($prefix.'_format');
 			if ($attr->processed) {
@@ -93,14 +93,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Print the interface for editing the time offset
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintOffset(&$asset, &$o, $prefix)
+	public function paintOffset(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
 		$offset = $asset->attr('offset');
 		if ($asset->writeAccess('attributes')) {
@@ -115,14 +115,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Processes the interface for editing the time offset
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processOffset(&$asset, &$o, $prefix)
+	public function processOffset(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_offset'])) return FALSE;
 		return $asset->setAttrValue('offset', $_POST[$prefix.'_offset']);
@@ -134,14 +134,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Print the interface for editing the default value
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintDefaultValue(&$asset, &$o, $prefix)
+	public function paintDefaultValue(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
 		$default = $asset->attr('default');
 		$wa = $asset->writeAccess('attributes');
@@ -154,14 +154,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for editing the default value
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDefaultValue(&$asset, &$o, $prefix)
+	public function processDefaultValue(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			$default = $asset->attr('default');
@@ -178,14 +178,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Print the interface for editing how the editing interface parameters for the date time field that is used
 	* to enter the metadata value for an individual asset
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintSetupParams(&$asset, &$o, $prefix)
+	public function paintSetupParams(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
 		$field = $asset->_getDateTimeField($prefix);
 
@@ -205,14 +205,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Processes the interface for editing the Setup Params
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Metadata_Field_Date	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSetupParams(&$asset, &$o, $prefix)
+	public function processSetupParams(Metadata_Field_Date $asset, Backend_Outputter $o, $prefix)
 	{
 		$field = $asset->_getDateTimeField($prefix);
 
@@ -230,18 +230,18 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* Returns true if a submitable interface has been printed
 	*
-	* @param object		&$asset			the metadata field asset whose interface we are painting
-	* @param object		&$o				the outputter class
-	* @param string		$value_str		the current value for this field in the owning asset (NOT $asset)
-	*									NULL means that there is no current value set
-	* @param boolean	$write_access	whether to allow editing of this field
-	*									(typically depends on write access to owner and editability of field)
-	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
+	* @param Metadata_Field_Date	$asset			the asset whose interface we are painting
+	* @param Backend_Outputter		$o				the outputter class
+	* @param string					$value_str		the current value for this field in the owning asset (NOT $asset)
+	*												NULL means that there is no current value set
+	* @param boolean				$write_access	whether to allow editing of this field
+	*												(typically depends on write access to owner and editability of field)
+	* @param boolean				$enable_default	Whether to show the 'use default' checkbox
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
+	public function paintValueInterface(Metadata_Field_Date $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
 	{
 
 		$prefix = $asset->getPrefix();
@@ -332,14 +332,14 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* Returns true if this field has been processed, false if not and it should be ignored
 	*
-	* @param object	&$asset			the asset whose interface we are processing
-	* @param string	&$new_value_str	a string by reference that we can store the new values in
-	*								set to NULL to revert to default
+	* @param Metadata_Field_Date	$asset			the asset whose interface we are painting
+	* @param string					&$new_value_str	a string by reference that we can store the new values in
+	*												set to NULL to revert to default
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_value_str)
+	public function processInlineValueInterface(Metadata_Field_Date $asset, &$new_value_str)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
@@ -373,16 +373,16 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Output the complete metadata tag for this field
 	*
-	* @param object	&$asset		the asset whose interface we are painting
-	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
-	*							NULL means that there is no current value set
-	* @param array	&$tag_value	the metadata tag value
-	* @param array	&$keywords	an array we can put keywords in that need replacing
+	* @param Metadata_Field_Date	$asset		the asset whose interface we are painting
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
+	*											NULL means that there is no current value set
+	* @param array					&$tag_value	the metadata tag value
+	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
+	public function generateMetadata(Metadata_Field_Date $asset, $value_str, Array &$tag_value, Array &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 

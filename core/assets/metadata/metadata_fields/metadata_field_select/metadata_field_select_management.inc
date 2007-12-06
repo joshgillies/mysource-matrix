@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_management.inc,v 1.13 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: metadata_field_select_management.inc,v 1.14 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Metadata_Field_Select_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Select_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		// additional attrs., that were not defined in parent
 		$this->vars = Array(
@@ -88,7 +88,7 @@ class Metadata_Field_Select_Management extends Asset_Management
 	* @return array
 	* @access private
 	*/
-	function _getFileList()
+	public function _getFileList()
 	{
 		return Array('js/metadata_field_select.js');
 

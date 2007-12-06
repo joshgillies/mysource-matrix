@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.20 2007/11/06 06:25:28 rong Exp $
+* $Id: metadata_field_select.inc,v 1.21 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Metadata_Field_Select extends Metadata_Field
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Metadata_Field_Select($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Metadata_Field($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -51,7 +51,7 @@ class Metadata_Field_Select extends Metadata_Field
 	* @return object
 	* @access public
 	*/
-	function getSelectionAttribute()
+	public function getSelectionAttribute()
 	{
 		require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 
@@ -83,7 +83,7 @@ class Metadata_Field_Select extends Metadata_Field
 	* @return array
 	* @access public
 	*/
-	function getDefaultValue()
+	public function getDefaultValue()
 	{
 		// return the correct default key/value depending on the 'Visible Part'
 		$default_key = parent::getDefaultValue();
@@ -101,14 +101,14 @@ class Metadata_Field_Select extends Metadata_Field
 	*
 	* Returns the metadata value for the passed asset
 	*
-	* @param object	&$asset		the asset whose field values we are getting
+	* @param Asset	$asset		the asset whose field values we are getting
 	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
 	*							NULL means that there is no current value set
 	*
 	* @return string
 	* @access public
 	*/
-	function getMetadataValue(&$asset, $value_str)
+	public function getMetadataValue(Asset $asset, $value_str)
 	{
 		return str_replace('\\;', ';', parent::getMetadataValue($asset, $this->getValueFromKey($value_str)));
 
@@ -124,7 +124,7 @@ class Metadata_Field_Select extends Metadata_Field
 	* @return string
 	* @access public
 	*/
-	function getValueFromKey($option_str)
+	public function getValueFromKey($option_str)
 	{
 		$option_keys = explode('\\; ', $option_str);
 		if (empty($option_keys) || $this->attr('visible_part') == 'key') {

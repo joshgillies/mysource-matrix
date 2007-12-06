@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.16 2007/11/06 06:25:28 rong Exp $
+* $Id: metadata_field_date.inc,v 1.17 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Metadata_Field_Date extends Metadata_Field
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Metadata_Field_Date($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Metadata_Field($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -48,14 +48,14 @@ class Metadata_Field_Date extends Metadata_Field
 	/**
 	* Generate an array of current values for the passed metadata field names
 	*
-	* @param object	&$asset		the asset whose field values we are getting
+	* @param Asset	$asset		the asset whose field values we are getting
 	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
 	*							NULL means that there is no current value set
 	*
 	* @return string
 	* @access public
 	*/
-	function getMetadataValue(&$asset, $value_str)
+	public function getMetadataValue(Asset $asset, $value_str)
 	{
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
@@ -106,7 +106,7 @@ class Metadata_Field_Date extends Metadata_Field
 	* @return object
 	* @access private
 	*/
-	function _getDateTimeField($prefix, $value=NULL)
+	protected function _getDateTimeField($prefix, $value=NULL)
 	{
 		// parameters
 		$parameters = $this->attr('setup_params');

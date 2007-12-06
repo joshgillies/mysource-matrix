@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.34 2007/11/06 06:29:53 rong Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.35 2007/12/06 23:06:33 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Workflow_Step_Edit_Fns()
+	function __construct()
 	{
-		$this->Folder_Edit_Fns();
+		parent::__construct();
 		unset($this->static_screens['workflow']);
 		unset($this->static_screens['metadataSchemas']);
 		unset($this->static_screens['metadata']);
@@ -49,13 +49,13 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for creating and deleting step conditions
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
+	* @param Workflow_Step		$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintStep(&$asset, &$o)
+	function paintStep(Workflow_Step $asset, Backend_Outputter $o)
 	{
 		$write_access = ($asset->writeAccess('attributes') && $asset->writeAccess('links'));
 		$prefix = $asset->getPrefix();
@@ -198,13 +198,13 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Process the interface for creating and deleting step conditions
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
+	* @param Workflow_Step		$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStep(&$asset, &$o)
+	function processStep(Workflow_Step $asset, Backend_Outputter $o)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes') || !$asset->writeAccess('links')) {
@@ -335,13 +335,13 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	* The generated array is a snap shot of the schema at a point in time that can get written
 	* to the database and used for publishing etc.
 	*
-	* @param object	$asset				the asset we are generating the array for
+	* @param Asset	$asset				the asset we are generating the array for
 	* @param array	&$workflow_array	the workflow array that we will modify
 	*
 	* @return array
 	* @access public
 	*/
-	function generateWorkflowArray($asset, &$workflow_array)
+	function generateWorkflowArray(Asset $asset, Array &$workflow_array)
 	{
 		$workflow_array = Array();
 		$workflow_array['conditions']							= Array();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_management.inc,v 1.1 2006/12/28 01:48:14 lwright Exp $
+* $Id: metadata_field_multiple_text_management.inc,v 1.2 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Metadata_Field_Multiple_Text_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Metadata_Field_Multiple_Text_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 
@@ -48,7 +48,7 @@ class Metadata_Field_Multiple_Text_Management extends Asset_Management
 	* @return array
 	* @access private
 	*/
-	function _getFileList()
+	public function _getFileList()
 	{
 		return Array('js/metadata_field_multiple_text.js');
 

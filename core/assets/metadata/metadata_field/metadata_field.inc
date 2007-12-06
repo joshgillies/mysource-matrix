@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.32 2007/11/28 00:16:42 hnguyen Exp $
+* $Id: metadata_field.inc,v 1.33 2007/12/06 23:06:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Metadata_Field extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Metadata_Field($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Metadata_Field extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -80,7 +80,7 @@ class Metadata_Field extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		return $this->attr('name');
 
@@ -94,7 +94,7 @@ class Metadata_Field extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -112,7 +112,7 @@ class Metadata_Field extends Asset
 	* @return array
 	* @access public
 	*/
-	function getDefaultValue()
+	public function getDefaultValue()
 	{
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		return $mm->getMetadataFieldDefaultValue($this->id);
@@ -123,14 +123,14 @@ class Metadata_Field extends Asset
 	/**
 	* Generate an array of current values for the passed metadata field names
 	*
-	* @param object	&$asset		the asset whose field values we are getting
+	* @param Asset	$asset		the asset whose field values we are getting
 	* @param string	$value_str	the current value for this field in the asset (NOT $asset)
 	*							NULL means that there is no current value set
 	*
 	* @return string
 	* @access public
 	*/
-	function getMetadataValue(&$asset, $value_str)
+	public function getMetadataValue(Asset $asset, $value_str)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -281,7 +281,7 @@ class Metadata_Field extends Asset
 	* @access public
 	* @see setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=FALSE)
+	public function saveAttributes($dont_run_updated=FALSE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -321,7 +321,7 @@ class Metadata_Field extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE)
 	{
 		if (parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
