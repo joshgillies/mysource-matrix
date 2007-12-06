@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.119 2007/12/06 04:45:46 rong Exp $
+* $Id: page_asset_builder.inc,v 1.120 2007/12/06 22:11:12 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1086,7 +1086,7 @@ class Page_Asset_Builder extends Page
 			$bt = debug_backtrace();
 			if (count($bt) > 1) {
 				$real_bt_index = 0;
-				while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) || ($bt[$real_bt_index]['function'] == '_errorhandler'))) {
+				while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(strtolower(array_get_index($bt[$real_bt_index], 'class')), 'locale_manager')) || (FALSE !== strpos(strtolower(array_get_index($bt[$real_bt_index], 'file')), 'locale_manager')) || (strtolower($bt[$real_bt_index]['function']) == '_errorhandler'))) {
 					$real_bt_index++;
 				}
 				$err_file = hide_system_root($bt[$real_bt_index]['file']);
