@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_submission_edit_fns.inc,v 1.1 2007/05/31 06:47:48 mbrydon Exp $
+* $Id: online_quiz_submission_edit_fns.inc,v 1.2 2007/12/06 05:03:08 rong Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Online Quiz Submission edit functions
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -88,13 +88,13 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 	{
 		$user_details_answers = $asset->attr('user_details_answers');
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($user_details_answers), 'simple_form', FALSE));
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 
 		// We're using a Simple Form, so here is where it differs from the "Form Submission" asset
 		$user_details_questions = $form->getQuestions();
 
 		foreach ($user_details_questions as $question_id => $question) {
-			$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
 			$o->openField($question->getVal('title'), '', $question->getVal('note'));
 			$answer_details = $user_details_answers[$question_id];
 			echo $answer_details['answer'];

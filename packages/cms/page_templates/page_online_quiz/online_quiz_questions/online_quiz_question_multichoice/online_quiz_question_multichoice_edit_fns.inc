@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.7 2007/05/29 23:33:33 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_edit_fns.inc,v 1.8 2007/12/06 05:03:08 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,12 +118,12 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 									<td>
 										<?php
 										$wysiwyg_prefix = $prefix.'_options_text_wysiwyg_'.$option_key;
-										$wysiwyg =& new Asset_Attribute_WYSIWYG();
+										$wysiwyg = new Asset_Attribute_WYSIWYG();
 										if (isset($option['text'])) {
 											$wysiwyg->value = $option['text'];
 										}
 										$wysiwyg->paint($wysiwyg_prefix, !$write_access);
-										?> 
+										?>
 									</td>
 								</tr>
 								</table>
@@ -171,9 +171,9 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 					<td>
 						<?php
 						$wysiwyg_prefix = $prefix.'_new_option';
-						$wysiwyg =& new Asset_Attribute_WYSIWYG();
+						$wysiwyg = new Asset_Attribute_WYSIWYG();
 						$wysiwyg->paint($wysiwyg_prefix, !$write_access);
-						?> 
+						?>
 					</td>
 				</tr>
 				</table>
@@ -346,12 +346,12 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 								<td>
 									<?php
 									$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
-									$wysiwyg =& new Asset_Attribute_WYSIWYG();
+									$wysiwyg = new Asset_Attribute_WYSIWYG();
 									if (isset($option['response_supplement'])) {
 										$wysiwyg->value = $option['response_supplement'];
 									}
 									$wysiwyg->paint($wysiwyg_prefix, !$write_access);
-									?> 
+									?>
 								</td>
 							</tr>
 							</table>

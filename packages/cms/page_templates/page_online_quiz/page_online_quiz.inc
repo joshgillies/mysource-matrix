@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.19 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_online_quiz.inc,v 1.20 2007/12/06 05:03:07 rong Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -208,10 +208,10 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function _createSubmissionsFolder()
 	{
-		$existing =& $this->getSubmissionsFolder();
+		$existing = $this->getSubmissionsFolder();
 		if (!empty($existing)) return TRUE;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-		$folder =& new Folder();
+		$folder = new Folder();
 		$folder->setAttrValue('name', translate('submissions'));
 		$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'submissions_folder', 'is_dependant' => 1, 'is_exclusive' =>      1);
 		if (!$folder->create($folder_link)) {
@@ -247,8 +247,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('online_quiz_submission');
 
 		// create the form submission asset
-		$submission =& new Online_Quiz_Submission();
-		$submissions_folder =& $this->getSubmissionsFolder();
+		$submission = new Online_Quiz_Submission();
+		$submissions_folder = $this->getSubmissionsFolder();
 		if (is_null($submissions_folder)) {
 			trigger_localised_error('CMS0069', E_USER_WARNING);
 			$null = NULL;
@@ -283,7 +283,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$res = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
 		if (!empty($link)) {
-			$res =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'folder');
+			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'folder');
 		}
 		return $res;
 
@@ -362,7 +362,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			$link_type =  ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
 
-			$asset =& new Bodycopy();
+			$asset = new Bodycopy();
 			$copy_link =  Array(
 							'asset'			=> &$this,
 							'value'			=> $bodycopy_code,
@@ -408,7 +408,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		$bodycopy_link = $this->getBodycopyLink($bodycopy_code, $link_types);
 		if ($bodycopy_link) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
 		}
 
 		return $asset;
@@ -477,7 +477,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function printBodycopy($bodycopy_code)
 	{
 		$bodycopy_printed =  FALSE;
-		$bodycopy         =& $this->getBodycopy($bodycopy_code);
+		$bodycopy         = $this->getBodycopy($bodycopy_code);
 
 		if (!is_null($bodycopy)) {
 			// keywords
@@ -513,7 +513,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		$form_link = $this->getFormLink(SQ_LINK_TYPE_2);
 		if (!empty($form_link['minorid'])) {
-			$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], 'simple_form');
+			$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], 'simple_form');
 		}
 
 		return $form;
@@ -549,7 +549,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$form_link = $this->getFormLink(SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
 		if (empty($form_link)) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('simple_form');
-			$form =& new Simple_Form();
+			$form = new Simple_Form();
 			$form->setAttrValue('name', translate('online_quiz_form_user_details'));
 			$link = Array(
 						'asset'			=> &$this,
@@ -605,7 +605,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getFormContentsKeywordReplacement()
 	{
-		$form =& $this->getForm();
+		$form = $this->getForm();
 		if (!is_null($form)) {
 			ob_start();
 				$form->printBody(TRUE, TRUE, $_SERVER['PHP_SELF'].'?'.$this->id.'_formid='.$form->id);
@@ -631,8 +631,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function createTypeFormat($new_type)
 	{
-		$edit_fns =& $this->getEditFns();
-		$folder   =& $this->getFolder('type_formats');
+		$edit_fns = $this->getEditFns();
+		$folder   = $this->getFolder('type_formats');
 		$types    =  $edit_fns->_getAvailableTypes($this);
 
 		// check that the new type is valid
@@ -657,7 +657,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							'is_exclusive'	=> 1,
 						 );
 
-			$bodycopy =& new Bodycopy();
+			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
 			$args = Array('content' => $this->_getDefaultBodycopyContent($new_type));
 			if (!$bodycopy->create($copy_link, $args)) {
@@ -768,7 +768,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 										   ),
 						 );
 			foreach ($questions as $id => $details) {
-				$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 				if (!is_null($question)) {
 					$question_results = $question->getResults();
 
@@ -792,7 +792,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			// Log the Quiz Submission if required. This comprises both the User Details Form and the Quiz responses.
 			if ($this->attr('log_submissions')) {
-				$submission_asset =& $this->createSubmission();
+				$submission_asset = $this->createSubmission();
 
 				$user_details_form = $this->getForm();
 				$user_details_form_questions = $user_details_form->getQuestions();
@@ -803,14 +803,14 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 				// Log the answers given for each User Details question
 				foreach ($user_details as $question_id => $user_response) {
-					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+					$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
 					$submission_asset->setUserDetailsQuestion($question_id, $question_asset->getVal('title'));
 					$submission_asset->setUserDetailsAnswer($question_id, $user_response);
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset);
 				}
 
 				foreach ($question_results as $question_position => $question_result) {
-					$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_result['assetid']);
+					$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_result['assetid']);
 
 					$question_text = strip_tags($question_asset->getQuestionText());
 					$question_result['correct_summary'] = trim(strip_tags($question_result['correct_summary']));
@@ -884,7 +884,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// Alrighty, if we're not using the %asset_listing% keyword, we have to make sure that the appropriate keywords are replaced, as Listing Engine will not do this for us
 		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (!empty($page_contents_link)) {
-			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
+			$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = $format_bodycopy->getKeywords();
@@ -1055,7 +1055,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (!empty($page_contents_link)) {
-			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
+			$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = $format_bodycopy->getKeywords();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($format_bodycopy);
@@ -1069,7 +1069,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 						if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
 							// Add this question to a list of quiz questions
 							$question_asset_id = $matches[2];
-							$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+							$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
 
 							// Check again to ensure that it is a question
 							$question_type = $question->type();
@@ -1102,7 +1102,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function sendResultsEmail()
 	{
-		$email_attr           =& $this->getAttribute('results_email_format');
+		$email_attr           = $this->getAttribute('results_email_format');
 		$value                =  unserialize($email_attr->value);
 
 		// make sure the proper version of the results table is used in the plaintext version of the email
@@ -1220,7 +1220,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			if (empty($user_details)) {
 				// determine whether we need to get details from the current user, or a form
 				// fill in dummy values for public user
-				$form =& $this->getForm();
+				$form = $this->getForm();
 				if (!is_null($form)) {
 					// check to see if we need to process
 					if (array_get_index($_REQUEST, $this->id.'_formid') && $form->process()) {
@@ -1392,7 +1392,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				if (!empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['question'][$assetid])) {
 					$questions[$assetid] = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['question'][$assetid];
 				} else {
-					$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if (!is_null($question)) {
 						$questions[$assetid] = $question->getQuestionData();
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
@@ -1418,7 +1418,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		if (!empty($questions)) {
 			foreach ($questions as $assetid => $question_data) {
-				$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (!is_null($question)) {
 					$questions[$assetid] = $question->setValue($question_data['value']);
 					$questions[$assetid] = $question->setPosition($question_data['position']);
@@ -1603,7 +1603,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		}
 
 		foreach ($questions as $questionid => $question_details) {
-			$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($questionid);
+			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($questionid);
 			if (!is_null($question)) {
 				// set the asset position
 				if (!empty($question_pagination['questions_to_pages'][$questionid]['list_position'])) {
@@ -1662,7 +1662,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function &getChunk(&$children, &$replacements, $keywords, $result_page, $num_per_page, $group_by=NULL)
 	{
-		$todo =& parent::getChunk($children, $replacements, $keywords, $result_page, $num_per_page, $group_by);
+		$todo = parent::getChunk($children, $replacements, $keywords, $result_page, $num_per_page, $group_by);
 
 		// if the page keywords are present, deconstruct them, add the javascript to force the processing of the form,
 		// and reconstruct them in the form '<a href="url"' + javascript + '>link text</a>'
@@ -1748,7 +1748,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-		if (!is_a($broadcaster, 'content_type')) return;
+		if (!($broadcaster instanceof Content_Type)) return;
 
 		$parents  = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 
@@ -1794,7 +1794,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		}
 
 		// type folder links
-		$folder =& $this->getFolder();
+		$folder = $this->getFolder();
 		$type_formats = Array();
 		if (!is_null($folder)) {
 			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
@@ -1882,7 +1882,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$keywords = Array();
 
 		// grab the questions attached to the form
-		$form =& $this->getForm();
+		$form = $this->getForm();
 		if (!is_null($form)) {
 			$questions = $form->getQuestions(TRUE);
 			foreach ($questions as $assetid => $question_details) {
@@ -1893,7 +1893,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// get the generic user to provide us with a list of keywords
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user');
-		$user =& new User();
+		$user = new User();
 		$user_keywords = $user->getAvailableKeywords();
 		foreach ($user_keywords as $keyword => $description) {
 			$keywords['user_details_current_user_'.$keyword] = 'Current User: '.$description;
@@ -1936,13 +1936,13 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		// Only do this if the %asset_listing% keyword is missing from the Page Contents bodycopy.
 		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (!empty($page_contents_link)) {
-			$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
+			$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($page_contents_link['minorid'], $page_contents_link['minor_type_code']);
 
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			$keywords = $format_bodycopy->getKeywords();
 
 			if (!in_array('asset_listing', $keywords)) {
-				$form =& $this->getForm();
+				$form = $this->getForm();
 				if (!is_null($form)) {
 					$questions = $form->getQuestions(TRUE);
 				}
@@ -1951,7 +1951,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// Obtain the available keywords for a quiz question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('online_quiz_question');
-		$question =& new Online_Quiz_Question();
+		$question = new Online_Quiz_Question();
 		$question_keywords = $question->getAvailableKeywords();
 		foreach ($question_keywords as $keyword => $description) {
 			$keywords['question_X_'.$keyword] = 'Question X: '.$description;
@@ -2221,7 +2221,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							$pages             = array_get_index($this->loadQuestionPagination(), 'pages_to_questions', Array());
 							$current_questions = array_get_index($pages, $this->getCurrentPage(), Array());
 							foreach ($current_questions as $assetid => $type) {
-								$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+								$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								if (!is_null($question)) {
 									echo $question->getValidationJS();
 									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
@@ -2476,7 +2476,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 								break;
 
 								case 'question_text':
-									$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_results['assetid']);
+									$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_results['assetid']);
 									if (!is_null($question)) {
 										ob_start();
 											echo $question->getQuestionText();
@@ -2728,7 +2728,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%question_'.$question_asset_id.'_'.$keyword.'%';
 
-		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
+		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
 		if ((!is_null($question)) && ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
 			$replacement = $question->getKeywordReplacement($keyword);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
@@ -2752,7 +2752,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%result_'.$question_asset_id.'_'.$keyword.'%';
 
-		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
+		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
 		if ((!is_null($question)) && ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
 			$question_results = $question->getResults();
 
@@ -2879,7 +2879,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	{
 		$replacement = '%question_group_'.$question_group_asset_id.'_'.$keyword.'%';
 
-		$question_group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_group_asset_id, 'online_quiz_question_group');
+		$question_group = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_group_asset_id, 'online_quiz_question_group');
 		if ((!is_null($question_group)) && ($question_group->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
 			$group_questions = array_keys($question_group->getQuestions());
 			$quiz_questions = array_keys($this->getQuestions());
@@ -2893,7 +2893,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 			$section_total = 0;
 			foreach ($questions_asked as $question_asset_id) {
-				$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
+				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id);
 				if (!is_null($question)) {
 					$section_total += $question->getPoints();
 				}
@@ -3001,7 +3001,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$result_page = (int)$result_page;
 
 		// get our page chunk here
-		$todo =& $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
+		$todo = $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
 
 		return $todo;
 

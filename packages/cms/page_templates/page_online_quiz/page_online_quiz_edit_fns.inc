@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.7 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.8 2007/12/06 05:03:07 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -65,16 +65,16 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$attr =& $asset->getAttribute('user_details_source');
+		$attr = $asset->getAttribute('user_details_source');
 		$attr->paint($prefix.'_'.$attr->id, !$write_access);
 
-		$form =& $asset->getForm();
+		$form = $asset->getForm();
 		if (!is_null($form)) {
 			echo '<p>'.get_asset_tag_line($form->id, 'details').'</p>';
 		}
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
 
-		$bodycopy =& $asset->getBodycopy('user_details');
+		$bodycopy = $asset->getBodycopy('user_details');
 		if (!is_null($bodycopy)) {
 			echo '<p>'.get_asset_tag_line($bodycopy->id, 'contents').'</p>';
 		}
@@ -101,7 +101,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		if ($write_access) {
-			$attr =& $asset->getAttribute('user_details_source');
+			$attr = $asset->getAttribute('user_details_source');
 			$attr->process($prefix.'_'.$attr->id);
 			if (!$attr->processed || !$asset->setAttrValue($attr->name, $attr->value)) {
 				// bail now if we can't process the attribute properly
@@ -129,11 +129,11 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
 
-		$attr =& $asset->getAttribute('after_submit_action');
+		$attr = $asset->getAttribute('after_submit_action');
 		$attr->paint($prefix.'_'.$attr->id, !$write_access);
 
 		if ($attr->value == 'thank_you') {
-			$bodycopy =& $asset->getBodycopy('thank_you');
+			$bodycopy = $asset->getBodycopy('thank_you');
 			if (!is_null($bodycopy)) {
 				echo '<p>'.get_asset_tag_line($bodycopy->id, 'contents').'</p>';
 			}
@@ -161,7 +161,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
 
 		if ($write_access) {
-			$attr =& $asset->getAttribute('after_submit_action');
+			$attr = $asset->getAttribute('after_submit_action');
 			$attr->process($prefix.'_'.$attr->id);
 			if (!$attr->processed || !$asset->setAttrValue($attr->name, $attr->value)) {
 				// bail now if we can't process the attribute properly
@@ -194,7 +194,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
 
 		if ($write_access) {
-			$attr =& $asset->getAttribute('can_retake');
+			$attr = $asset->getAttribute('can_retake');
 			$attr->process($prefix.'_'.$attr->id);
 			if (!$attr->processed || !$asset->setAttrValue($attr->name, $attr->value)) {
 				// bail now if we can't process the attribute properly
@@ -227,13 +227,13 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes') && $asset->writeAccess('links');
 
-		$attr =& $asset->getAttribute('can_retake');
+		$attr = $asset->getAttribute('can_retake');
 		$attr->setEditParam('true_text', translate('yes'));
 		$attr->setEditParam('false_text', translate('no'));
 		$attr->paint($prefix.'_'.$attr->id, !$write_access);
 
 		if ($attr->value == FALSE) {
-			$bodycopy =& $asset->getBodycopy('already_taken');
+			$bodycopy = $asset->getBodycopy('already_taken');
 			if (!is_null($bodycopy)) {
 				echo '<p>'.get_asset_tag_line($bodycopy->id, 'contents').'</p>';
 			}
@@ -277,7 +277,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 			$this->_paintDefaultFormatLink($asset->id, 'user_details', translate('online_quiz_form_user_details_desc'), 'simple_form', 'details');
 
-			$folder =& $asset->getFolder('type_formats');
+			$folder = $asset->getFolder('type_formats');
 			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('cms_listing_default_asset_desc'));
 			?>
 		</table>
@@ -318,8 +318,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : date('Y-m-d', time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from =& new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
-		$to =& new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
+		$from = new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
+		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
 		$from->printField();
 		echo ' '.translate('to').' ';
@@ -370,7 +370,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		// Grab all available questions
 		$user_details_form = $asset->getForm();
- 		$user_details_form_questions = $user_details_form->getQuestions();
+		$user_details_form_questions = $user_details_form->getQuestions();
 		$quiz_questions = $asset->getQuestions(TRUE);
 
 		echo check_box($prefix.'_export_fields_select_all', '1', '', 'sq_set_check_all(this.form, "'.$prefix.'_export_fields[]", this.checked);').'<b>'.translate('select_all').'</b>';
@@ -386,7 +386,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		if (!empty($user_details_form_questions)) {
 			echo '<p><b>User Details Form Questions</b><br>';
 			foreach ($user_details_form_questions as $user_details_form_question_assetid => $user_details_form_question_details) {
-				$user_details_form_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_details_form_question_assetid);
+				$user_details_form_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_details_form_question_assetid);
 				$user_details_form_questions[$user_details_form_question_assetid] = $user_details_form_question->getVal('title');
 
 				echo check_box($prefix.'_export_fields[]', $user_details_form_question_assetid, '1');
@@ -401,7 +401,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			echo '<p><b>Quiz Questions</b><br>';
 			$q_num = 1;
 			foreach ($quiz_questions as $quiz_question_assetid => $quiz_question_details) {
-				$quiz_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($quiz_question_assetid);
+				$quiz_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($quiz_question_assetid);
 				$quiz_questions[$quiz_question_assetid] = trim(strip_tags($quiz_question->getQuestionText()));
 
 				echo check_box($prefix.'_export_fields[]', $quiz_question_assetid, '1');
@@ -429,7 +429,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintDownloadButton(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) {
-        	$o->note(translate('online_quiz_form_submission_lock_required'));
+			$o->note(translate('online_quiz_form_submission_lock_required'));
 			return FALSE;
 		}
 
@@ -477,8 +477,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : date('Y-m-d',time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from =& new Datetime_Field($prefix.'_from', $from_value, $parameters);
-		$to =& new Datetime_Field($prefix.'_to', $to_value, $parameters);
+		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
+		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
 		$from->printField();
 		echo ' '.translate('to').' ';
@@ -558,7 +558,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						ON l.minorid = a.assetid';
 
-		$sub_folder =& $asset->getSubmissionsFolder();
+		$sub_folder = $asset->getSubmissionsFolder();
 		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
 					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('online_quiz_submission').'
 					AND a.created BETWEEN '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $from_value).'
@@ -741,7 +741,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$assetid = $asset_info['assetid'];
 
 				// time is good, load me up
-				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$sub_user = $asset_info['created_userid'];
 				$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
 				$sub_expanded = array_search($assetid, $expand_list) !== FALSE;
@@ -762,7 +762,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 						<?php
 						$valid_user = FALSE;
 						if (!empty($sub_user)) {
-							$sub_user_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+							$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
 							if (!empty($sub_user_asset)) {
 								echo get_asset_tag_line($sub_user);
 								$valid_user = TRUE;
@@ -875,7 +875,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-			$submissions_folder =& $asset->getSubmissionsFolder();
+			$submissions_folder = $asset->getSubmissionsFolder();
 			$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($submissions_folder->id, $delete_assetid, SQ_LINK_TYPE_3);
 			if (!$submission_link) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -972,7 +972,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function processExportCSV(&$asset, &$o, $prefix, $export_fields=Array(), $header_row=TRUE, $delimiter=',')
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv =& new CSV();
+		$csv = new CSV();
 		$csv->setFilename('submission_log.csv');
 		$csv->setDeliminator($delimiter);
 
@@ -1005,7 +1005,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			$headers['__ipaddress__'] = translate('online_quiz_ip_address');
 		}
 
-		$sub_folder =& $asset->getSubmissionsFolder();
+		$sub_folder = $asset->getSubmissionsFolder();
 		$sql = 'SELECT
 				a.assetid, a.type_code, a.created, a.created_userid
 				FROM
@@ -1029,7 +1029,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 			$create_time = strtotime($asset_info['created']);
 
-			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+			$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
 
 			// get the submission ip

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_group_edit_fns.inc,v 1.4 2007/05/25 06:37:49 mbrydon Exp $
+* $Id: online_quiz_question_group_edit_fns.inc,v 1.5 2007/12/06 05:03:07 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -253,12 +253,12 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 								<td>
 									<?php
 									$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
-									$wysiwyg =& new Asset_Attribute_WYSIWYG();
+									$wysiwyg = new Asset_Attribute_WYSIWYG();
 									if (isset($option['content'])) {
 										$wysiwyg->value = $option['content'];
 									}
 									$wysiwyg->paint($wysiwyg_prefix, !$write_access);
-									?> 
+									?>
 								</td>
 							</tr>
 							</table>

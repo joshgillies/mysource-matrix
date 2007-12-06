@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_management.inc,v 1.7 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_online_quiz_management.inc,v 1.8 2007/12/06 05:03:07 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -176,7 +176,7 @@ class Page_Online_Quiz_Management extends Asset_Management
 			pre_echo('UPGRADING ONLINE QUIZ TO v0.3');
 			$quizids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_online_quiz', FALSE);
 			foreach ($quizids as $quizid) {
-				$quiz =& $GLOBALS['SQ_SYSTEM']->am->getAsset($quizid);
+				$quiz = $GLOBALS['SQ_SYSTEM']->am->getAsset($quizid);
 				if (!$quiz->_createSubmissionsFolder()) {
 					trigger_error('Error creating submissions folder for Online Quiz #'.$quizid, E_USER_WARNING);
 				}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice_management.inc,v 1.5 2007/05/22 00:51:19 mbrydon Exp $
+* $Id: online_quiz_question_multichoice_management.inc,v 1.6 2007/12/06 05:03:08 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Online_Quiz_Question_Multichoice_Management extends Asset_Management
 			pre_echo('STARTING ONLINE QUIZ QUESTION MULTI-CHOICE UPGRADE - VERSION 0.1 => 0.2');
 
 			foreach ($children as $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				// Build the Response Supplements (option_value => response_supplement)
 				$question_options = $asset->attr('response_form');

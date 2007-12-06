@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_edit_fns.inc,v 1.3 2006/12/22 04:40:06 rhoward Exp $
+* $Id: online_quiz_question_edit_fns.inc,v 1.4 2007/12/06 05:03:07 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,7 +57,7 @@ class Online_Quiz_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintQuestionText(&$asset, &$o, $prefix)
 	{
-		$bodycopy     =& $asset->getQuestionTextBodycopy();
+		$bodycopy     = $asset->getQuestionTextBodycopy();
 		$write_access =  $asset->writeAccess('links') && $asset->writeAccess('attributes');
 		$use_bodycopy =  !is_null($bodycopy);
 

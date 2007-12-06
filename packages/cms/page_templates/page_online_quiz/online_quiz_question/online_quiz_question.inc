@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question.inc,v 1.6 2007/06/12 07:00:00 mbrydon Exp $
+* $Id: online_quiz_question.inc,v 1.7 2007/12/06 05:03:07 rong Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_ONLINE_QUIZ_QUESTION_SESSION_VAR', 'SQ_ONLINE_QUIZ');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -491,7 +491,7 @@ class Online_Quiz_Question extends Asset
 
 			$link_type =  ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
 
-			$asset =& new Bodycopy();
+			$asset = new Bodycopy();
 			$copy_link =  Array(
 							'asset'			=> &$this,
 							'value'			=> 'question_text',
@@ -537,7 +537,7 @@ class Online_Quiz_Question extends Asset
 
 		$bodycopy_link = $this->getQuestionTextBodycopyLink($link_types);
 		if ($bodycopy_link) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
 		}
 
 		return $asset;
@@ -600,7 +600,7 @@ class Online_Quiz_Question extends Asset
 	function printQuestionTextBodycopy()
 	{
 		$bodycopy_printed =  FALSE;
-		$bodycopy         =& $this->getQuestionTextBodycopy();
+		$bodycopy         = $this->getQuestionTextBodycopy();
 
 		if (!is_null($bodycopy)) {
 			$bodycopy->printBody();
