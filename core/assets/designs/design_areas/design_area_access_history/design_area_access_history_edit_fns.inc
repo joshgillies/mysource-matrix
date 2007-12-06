@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_edit_fns.inc,v 1.10 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: design_area_access_history_edit_fns.inc,v 1.11 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *	Print the last N assets viewed
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,15 +33,26 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	&$contents	the contents array we generated with _parseString()
+	* @param Design_Area_Access_History	$asset		the asset to which we belong
+	* @param array						&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents)
+	public function _processContents(Design_Area_Access_History $asset, Array &$contents)
 	{
 		if (!$this->_setVariables($asset, $contents)) {
 			return FALSE;
@@ -81,14 +92,14 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAssetTypes(&$asset, &$o, $prefix)
+	function paintAssetTypes(Design_Area_Access_History $asset, Backend_Outputter $o, $prefix)
 	{
 
 		$write_access = $asset->writeAccess('attributes');
@@ -196,14 +207,14 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the asset types to list
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAssetTypes(&$asset, &$o, $prefix)
+	function processAssetTypes(Design_Area_Access_History $asset, Backend_Outputter $o, $prefix)
 	{
 		$request_info = array_get_index($_REQUEST, $prefix, Array());
 
@@ -237,14 +248,14 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paints the Exclued Assets. These assets are not included in the Asset History.
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintExcludeAssets(&$asset, &$o, $prefix)
+	function paintExcludeAssets(Design_Area_Access_History $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			multiple_asset_finder($prefix.'exclude_assets', $asset->attr('exclude_assets'), Array());
@@ -264,14 +275,14 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the Exclude Assets.
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processExcludeAssets(&$asset, &$o, $prefix)
+	function processExcludeAssets(Design_Area_Access_History $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'exclude_assets'])) {
 			$asset_ids = Array();
@@ -291,14 +302,14 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for choosing which asset types to list
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAddHistoryAssetTypes(&$asset, &$o, $prefix)
+	function paintAddHistoryAssetTypes(Design_Area_Access_History $asset, Backend_Outputter $o, $prefix)
 	{
 		$types = $asset->attr('add_history_asset_types');
 		if ($asset->writeAccess('attributes')) {
@@ -350,14 +361,14 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the asset types to list
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAddHistoryAssetTypes(&$asset, &$o, $prefix)
+	function processAddHistoryAssetTypes(Design_Area_Access_History $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_button_types'])) {
 			$existing_types = $asset->attr('add_history_asset_types');
@@ -380,13 +391,13 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Show/Hide text box
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function useAddButton(&$asset, $prefix)
+	function useAddButton(Design_Area_Access_History $asset, $prefix)
 	{
 		return !$asset->attr('add_history_button_image');
 
@@ -396,13 +407,13 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Show/Hide text box
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function useRemoveButton(&$asset, $prefix)
+	function useRemoveButton(Design_Area_Access_History $asset, $prefix)
 	{
 		return !$asset->attr('remove_history_button_image');
 
@@ -412,13 +423,13 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Show/Hide asset picker
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function showRemoveImageSelection(&$asset, $prefix)
+	function showRemoveImageSelection(Design_Area_Access_History $asset, $prefix)
 	{
 		return $asset->attr('remove_history_button_image');
 
@@ -428,13 +439,13 @@ class Design_Area_Access_History_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Show/Hide asset picker
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Access_History	$asset	the asset to which we belong
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function showAddImageSelection(&$asset, $prefix)
+	function showAddImageSelection(Design_Area_Access_History $asset, $prefix)
 	{
 		return $asset->attr('add_history_button_image');
 

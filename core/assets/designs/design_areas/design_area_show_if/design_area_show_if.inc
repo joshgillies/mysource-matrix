@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.13 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_show_if.inc,v 1.14 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Show different content depending on certain conditions evaluated at runtime
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Show_If extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -42,7 +55,7 @@ class Design_Area_Show_If extends Design_Area
 	* @access public
 	* @see asset:setAttrValue()
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if ((substr($name, 0, 10) == 'condition_') && ($name != 'condition_data')) {
 			// this is some condition data we need to save and pass to the
@@ -67,7 +80,7 @@ class Design_Area_Show_If extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		$condition = $this->attr('condition');
 		$condition_data = $this->attr('condition_data');
@@ -93,7 +106,7 @@ class Design_Area_Show_If extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		$then = $this->attr('then_contents');
 		$else = $this->attr('else_contents');
@@ -143,7 +156,7 @@ class Design_Area_Show_If extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function canBeCached()
+	public function canBeCached()
 	{
 		return FALSE;
 
@@ -159,7 +172,7 @@ class Design_Area_Show_If extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		$attrs = parent::getProtectedAttrs();
 		$attrs[] = 'condition_data';

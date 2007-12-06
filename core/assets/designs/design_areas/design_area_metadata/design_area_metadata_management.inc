@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata_management.inc,v 1.9 2006/12/05 22:42:13 emcdonald Exp $
+* $Id: design_area_metadata_management.inc,v 1.10 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Design_Area_Metadata_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Design_Area_Metadata_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'metadata_field'	=> Array(

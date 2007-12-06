@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_password_change_form.inc,v 1.7 2007/08/29 03:55:55 lwright Exp $
+* $Id: design_area_password_change_form.inc,v 1.8 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -25,12 +25,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Password_Change_Form extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -44,7 +57,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args, $value_prefix='', $value_suffix='')
+	public function printVar($var, Array $args, $value_prefix='', $value_suffix='')
 	{
 
 		// make sure that this var is being painted only within it's valid sections
@@ -192,7 +205,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function _printContentItemCode($element)
+	protected function _printContentItemCode(Array $element)
 	{
 		switch (array_get_index($element, 'operation')) {
 			case 'password_change_section':
@@ -220,7 +233,7 @@ class Design_Area_Password_Change_Form extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		$res = parent::getProtectedAttrs();
 		$res[] = 'password_change_contents';

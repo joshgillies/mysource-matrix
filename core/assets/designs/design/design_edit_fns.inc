@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.121 2007/12/02 23:49:02 colivar Exp $
+* $Id: design_edit_fns.inc,v 1.122 2007/12/06 04:28:47 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,9 +37,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Design_Edit_Fns()
+	public function __construct()
 	{
-		$this->Design_Area_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -48,14 +48,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for the parse file uploading
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintParseFile(&$asset, &$o, $prefix)
+	public function paintParseFile(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('parsing')) {
 			file_upload($prefix.'_parse_file');
@@ -69,14 +69,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for the parse file uploading
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processParseFile(&$asset, &$o, $prefix)
+	public function processParseFile(Design $asset, Backend_Outputter $o, $prefix)
 	{
 
 		// make sure a file was uploaded before processing it
@@ -135,14 +135,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for the reparsing the current parse file
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintReparseFile(&$asset, &$o, $prefix)
+	public function paintReparseFile(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			$parse_file = $asset->data_path.'/parse.txt';
@@ -162,14 +162,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for the reparsing the current parse file
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processReparseFile(&$asset, &$o, $prefix)
+	public function processReparseFile(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_reparse'])) {
 			if ($this->parseAndProcessFile($asset)) {
@@ -186,14 +186,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for editing the parse file
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintEditParseFile(&$asset, &$o, $prefix)
+	public function paintEditParseFile(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -228,14 +228,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for the editing the parse file
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processEditParseFile(&$asset, &$o, $prefix)
+	public function processEditParseFile(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_new_parse_file'])) {
 
@@ -293,14 +293,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint New Files
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintNewFiles(&$asset, &$o, $prefix)
+	public function paintNewFiles(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return FALSE;
 		for ($i = 0; $i < 2; $i++) {
@@ -314,14 +314,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process New Files
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processNewFiles(&$asset, &$o, $prefix)
+	public function processNewFiles(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -406,13 +406,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
 	*
-	* @param object	&$asset	the asset to link the file to
+	* @param Design	$asset	the asset to link the file to
 	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _processUploadedFile(&$asset, $info=Array())
+	public function _processUploadedFile(Design $asset, $info=Array())
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -487,14 +487,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint New Customisation
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintNewCustomisation(&$asset, &$o, $prefix)
+	public function paintNewCustomisation(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('all')) {
 			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
@@ -512,14 +512,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process New Customisation
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processNewCustomisation(&$asset, &$o, $prefix)
+	public function processNewCustomisation(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) {
 			return FALSE;
@@ -645,14 +645,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint current customisation
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentCustomisations(&$asset, &$o, $prefix)
+	public function paintCurrentCustomisations(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 		if ($customisation_links) {
@@ -671,12 +671,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Parses the parse file and processes the contents
 	*
-	* @param object	&$asset	the asset to which we belong
+	* @param Design	$asset	the asset to which we belong
 	*
 	* @return boolean
 	* @access public
 	*/
-	function parseAndProcessFile(&$asset)
+	public function parseAndProcessFile(Design $asset)
 	{
 		$parse_file = $asset->data_path.'/parse.txt';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -691,13 +691,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
 	*
-	* @param object	&$asset			the asset to which we belong
+	* @param Design	$asset			the asset to which we belong
 	* @param string	$file_contents	the contents to parse
 	*
 	* @return array
 	* @access private
 	*/
-	function _parseString(&$asset, $file_contents)
+	protected function _parseString(Design $asset, $file_contents)
 	{
 		// convert the head and body tags to lowercase
 		$file_contents = preg_replace(	Array('/<head/i', '/<\\/head/i', '/<body/i', '/<\\/body/i'),
@@ -733,13 +733,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
+	* @param Design	$asset		the asset to which we belong
 	* @param array	$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, $contents)
+	public function _processContents(Design $asset, Array $contents)
 	{
 		$id_names = Array();
 		// let's check to see if all the design areas have unique names
@@ -892,14 +892,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paints the facility to upload and import files into the design
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintImport(&$asset, &$o, $prefix)
+	public function paintImport(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('parsing');
 		$o->openField(translate('core_design_import_file'));
@@ -923,14 +923,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes uploaded files, and creates required assets and links to generate this design
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processImport(&$asset, &$o, $prefix)
+	public function processImport(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$tar_upload = get_file_upload_info($prefix.'_import_file');
 		if ($tar_upload === FALSE) {
@@ -973,14 +973,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paints the interface for exporting this design
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintExport(&$asset, &$o, $prefix)
+	public function paintExport(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$o->sectionNote(translate('core_design_export_warning'));
 		$write_access = $asset->writeAccess('parsing');
@@ -999,14 +999,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the options and exports the assets required to recreate this design
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processExport(&$asset, &$o, $prefix)
+	public function processExport(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('parsing');
 
@@ -1087,14 +1087,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paints files that are currently underneath this file
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentFiles(&$asset, &$o, $prefix)
+	public function paintCurrentFiles(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$o->sectionNote(translate('core_design_apply_warning'));
 		$write_access = $asset->writeAccess('parsing');
@@ -1154,14 +1154,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the deletion etc of current files
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentFiles(&$asset, &$o, $prefix)
+	public function processCurrentFiles(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('parsing');
 		if (!$write_access) return FALSE;
@@ -1297,14 +1297,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the usage of this paint layout
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the backend outputter object
-	* @param string	$prefix	prefix for the form element
+	* @param Design				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintUsage(&$asset, &$o, $prefix)
+	public function paintUsage(Design $asset, Backend_Outputter $o, $prefix)
 	{
 		$o->openRaw();
 		echo '<p><i>'.translate('design_usage_explanation').'</i></p>';
@@ -1361,7 +1361,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	function _getTreeTops($treeids)
+	public function _getTreeTops(Array $treeids)
 	{
 		$all_treeids = Array();
 		foreach ($treeids as $assetid => $asset_treeids) {
@@ -1399,7 +1399,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function _strlenCmp($a, $b)
+	public function _strlenCmp($a, $b)
 	{
 		return strlen($a) > strlen($b);
 

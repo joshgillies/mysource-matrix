@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.25 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.26 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,13 +35,24 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	* The width of the arrow image
 	* @var int
 	*/
-	var $arrow_width  = 4;
+	public $arrow_width  = 4;
 
 	/**
 	* The height of the arrow image
 	* @var int
 	*/
-	var $arrow_height = 6;
+	public $arrow_height = 6;
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
 
 
 	/**
@@ -55,7 +66,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	* @access private
 	* @see Design_Area_Menu_Type_Edit_Fns::_processContents();
 	*/
-	function _processSubMenu(&$asset, &$contents)
+	protected function _processSubMenu(Design_Area_Menu_Type $asset, Array $contents)
 	{
 		// we just want to ignore any sub menu's in our asset contents
 		trigger_localised_error('CORE0215', E_USER_WARNING);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars_edit_fns.inc,v 1.4 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_request_vars_edit_fns.inc,v 1.5 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,12 +24,24 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Request_Vars_Edit_Fns extends Design_Area_Edit_Fns
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
 
 }//end class
 ?>

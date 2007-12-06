@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.16 2006/12/05 22:42:13 emcdonald Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.17 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,15 +33,26 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	&$contents	the contents array we generated with _parseString()
+	* @param Design_Area_Login_Form	$asset		the asset to which we belong
+	* @param array					&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents)
+	public function _processContents(Design_Area_Login_Form $asset, Array &$contents)
 	{
 		if (!$this->_setVariables($asset, $contents)) {
 			return FALSE;

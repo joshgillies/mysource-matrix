@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.35 2007/11/26 03:08:16 bshkara Exp $
+* $Id: design_css.inc,v 1.36 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,9 +40,9 @@ class Design_Css extends Design
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Design_Css($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Design($assetid);
+		parent::__construct($assetid);
 		// We store a temp var that indicates whether the cache has been updated
 		// on this request
 		$this->_tmp['updated_cache'] = FALSE;
@@ -60,7 +60,7 @@ class Design_Css extends Design
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -97,7 +97,7 @@ class Design_Css extends Design
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	protected function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -121,7 +121,7 @@ class Design_Css extends Design
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -155,7 +155,7 @@ class Design_Css extends Design
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
-	* @param object	&$minor		the minor asset that we are linking to
+	* @param Asset	$minor		the minor asset that we are linking to
 	* @param string	$link_type	the type of link this is
 	* @param string	$value		the value that is to be associated with this link
 	* @param string	$sort_order	the position in the links list that this link should take,
@@ -168,7 +168,7 @@ class Design_Css extends Design
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
+	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -236,7 +236,7 @@ class Design_Css extends Design
 	* @return boolean
 	* @access public
 	*/
-	function deleteLink($linkid)
+	public function deleteLink($linkid)
 	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
@@ -305,7 +305,7 @@ class Design_Css extends Design
 	* @return boolean
 	* @access public
 	*/
-	function deleteExistingLink($linkid)
+	public function deleteExistingLink($linkid)
 	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
@@ -341,7 +341,7 @@ class Design_Css extends Design
 	* @return void
 	* @access public
 	*/
-	function printFrontend()
+	public function printFrontend()
 	{
 		$this->paint($this);
 
@@ -351,10 +351,10 @@ class Design_Css extends Design
 	/**
 	* Returns the parent design/design_customisation that this customisation is customising
 	*
-	* @return object
+	* @return Design_CSS
 	* @access public
 	*/
-	function &getParentDesign()
+	public function getParentDesign()
 	{
 		// a css file is its own customisation
 		return $this;
@@ -371,7 +371,7 @@ class Design_Css extends Design
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args)
+	public function printVar($var, Array $args)
 	{
 		switch ($var) {
 			case 'css_header' :
@@ -399,7 +399,7 @@ echo '/*
 	* @return void
 	* @access public
 	*/
-	function _getDesignFileHeader()
+	public function _getDesignFileHeader()
 	{
 		return '<?php header("Content-type: text/css"); ?>
 		'.parent::_getDesignFileHeader();
@@ -410,13 +410,13 @@ echo '/*
 	/**
 	* Processes a backend submission from this asset, returns TRUE if all OK
 	*
-	* @param object	&$o		Backend Outputter
-	* @param array	&$link	information used to create the initial link
+	* @param Backend_Outputter	$o		Backend Outputter
+	* @param array				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, &$link)
+	public function processBackend(Backend_Outputter $o, Array &$link)
 	{
 		$cache = $this->attr('cache_css');
 		$strip = $this->attr('strip_whitespace');
@@ -451,7 +451,7 @@ echo '/*
 	* @return void
 	* @access public
 	*/
-	function generateDesignFile($do_customisations=TRUE)
+	public function generateDesignFile($do_customisations=TRUE)
 	{
 		parent::generateDesignFile($do_customisations);
 
@@ -468,7 +468,7 @@ echo '/*
 	* @return void
 	* @access private
 	*/
-	function _updateCustomisations()
+	protected function _updateCustomisations()
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -492,7 +492,7 @@ echo '/*
 	* @return boolean
 	* @access public
 	*/
-	function _updateCacheFile()
+	public function _updateCacheFile()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -541,7 +541,7 @@ echo '/*
 	* @return string
 	* @access public
 	*/
-	function getCacheFileId()
+	public function getCacheFileId()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$cache_link = $am->getLink($this->id, SQ_LINK_TYPE_3, 'file', true, 'css_cache');
@@ -554,10 +554,10 @@ echo '/*
 	/**
 	* Creates the cache file asset that this CSS asset will display in the cache
 	*
-	* @return object
+	* @return File
 	* @access public
 	*/
-	function &_createCacheFile()
+	public function _createCacheFile()
 	{
 		$null = NULL;
 
@@ -605,7 +605,7 @@ echo '/*
 	* @return mixed array|NULL
 	* @access public
 	*/
-	function getDesignAreaLink($id_name='')
+	public function getDesignAreaLink($id_name='')
 	{
 		if ($id_name) {
 			return @$GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area', FALSE, $id_name);
@@ -619,7 +619,7 @@ echo '/*
 	/**
 	* Paints out our design
 	*
-	* @param object	&$ASSET		the asset that we are going to print the body for
+	* @param Asset	$ASSET		the asset that we are going to print the body for
 	* @param array	$FILE_URLS	an array of filename => URL to use to print files in the design
 	*							doesnt need to be passed in unless some URLs are overridden by
 	*							a customisation of the design
@@ -627,7 +627,7 @@ echo '/*
 	* @return void
 	* @access public
 	*/
-	function paint(&$ASSET, $FILE_URLS=Array())
+	public function paint(Asset $ASSET, $FILE_URLS=Array())
 	{
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
@@ -696,7 +696,7 @@ echo '/*
 	* @return void
 	* @access public
 	*/
-	function saveAttributes()
+	public function saveAttributes()
 	{
 		if (!parent::saveAttributes()) {
 			return FALSE;
@@ -715,7 +715,7 @@ echo '/*
 	* @return void
 	* @access public
 	*/
-	function _setCacheFileEnabled($enabled)
+	public function _setCacheFileEnabled($enabled)
 	{
 		$cache_id = $this->getCacheFileId();
 		if (empty($cache_id)) {

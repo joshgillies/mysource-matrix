@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.90 2006/12/05 22:42:15 emcdonald Exp $
+* $Id: design_area_menu_type.inc,v 1.91 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Type extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID of the asset to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -39,7 +52,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		return Array(
 				SQ_LINK_TYPE_1	=> Array(),
@@ -60,7 +73,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		// if they are trying to set an asset position dependent setting
 		if (substr($name, 0, 9) == 'settings.') {
@@ -124,7 +137,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return mixed string|NULL
 	* @access public
 	*/
-	function attr($name)
+	public function attr($name)
 	{
 		// if they are trying to set an asset position dependent setting
 		if (substr($name, 0, 9) == 'settings.') {
@@ -150,10 +163,10 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getVarReferences()
+	public function getVarReferences()
 	{
 		$var_refs = parent::getVarReferences();
-		$sub_menu =& $this->getSubMenu();
+		$sub_menu = $this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			$sub_var_refs = $sub_menu->getVarReferences();
 			for (reset($sub_var_refs); NULL !== ($id_name = key($sub_var_refs)); next($sub_var_refs)) {
@@ -180,7 +193,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function setVarReferenceValues($var_ref_values)
+	public function setVarReferenceValues(Array $var_ref_values)
 	{
 		$settings = $this->attr('settings');
 		$settings_changed = FALSE;
@@ -205,7 +218,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 		// send our custom array to the parent fn
 		parent::setVarReferenceValues($var_ref_values);
-		$sub_menu =& $this->getSubMenu();
+		$sub_menu = $this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			// now send the original array to the sub
 			$sub_menu->setVarReferenceValues($var_ref_values);
@@ -220,7 +233,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getSubMenuLink()
+	public function getSubMenuLink()
 	{
 		if (!isset($this->_tmp['sub_menu_link'])) {
 			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', FALSE, 'sub_menu');
@@ -236,7 +249,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getSubMenu()
+	public function getSubMenu()
 	{
 		$link = $this->getSubMenuLink();
 		if (empty($link)) {
@@ -255,7 +268,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getParentMenu()
+	public function getParentMenu()
 	{
 		if (!isset($this->_tmp['parent_menu_link'])) {
 			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', FALSE, 'sub_menu', 'minor');
@@ -278,7 +291,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 		parent::linksUpdated();
 		unset($this->_tmp['sub_menu_link']);
@@ -295,7 +308,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function settingExists($name)
+	public function settingExists($name)
 	{
 		$settings = $this->attr('settings'); // do like this to take into account var refs
 		return !empty($settings[$name]);
@@ -312,7 +325,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printInitCode()
+	public function printInitCode()
 	{
 		// Print output that is only required once per parse file (shared by all menu DAs)
 		echo '<', '?php
@@ -333,11 +346,11 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		echo '<', '?php
 		';
-		$parent_menu =& $this->getParentMenu();
+		$parent_menu = $this->getParentMenu();
 		// if we aren't a sub menu
 		if (is_null($parent_menu)) {
 			$this->printInitOutput();
@@ -379,7 +392,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		echo '
 			<?php
@@ -406,12 +419,12 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printStaticInitOutput()
+	public function printStaticInitOutput()
 	{
 		// Stuff that is only needed once per design file
 		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id])) {
 			echo '
-			$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
+			$db = MatrixDAL::getDb();
 
 			require_once SQ_FUDGE_PATH.\'/db_extras/db_extras.inc\';
 			require_once SQ_CORE_PACKAGE_PATH.\'/designs/design_areas/menu/design_area_menu_type/menu_get_assets.inc\';
@@ -422,7 +435,7 @@ class Design_Area_Menu_Type extends Design_Area
 			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$GLOBALS['DESIGN_BEING_GENERATED']->id] = TRUE;
 		}//end if
 
-		$sub_menu =& $this->getSubMenu();
+		$sub_menu = $this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			$sub_menu->printStaticInitOutput();
 		}
@@ -436,10 +449,10 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printInitOutput()
+	public function printInitOutput()
 	{
 		$level = (int) $this->attr('level');
-		$parent_menu =& $this->getParentMenu();
+		$parent_menu = $this->getParentMenu();
 		if (!is_null($parent_menu)) {
 			// we are a sub menu
 			if ($level == 0) {
@@ -461,7 +474,7 @@ class Design_Area_Menu_Type extends Design_Area
 			}
 		}
 
-		$sub_menu =& $this->getSubMenu();
+		$sub_menu = $this->getSubMenu();
 		if (!is_null($sub_menu)) $sub_menu->printInitOutput();
 
 	}//end printInitOutput()
@@ -474,7 +487,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printDataCollection()
+	public function printDataCollection()
 	{
 		//// SHOULD BE OVERRIDDEN ////
 
@@ -486,7 +499,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 		';
 
-		$sub_menu =& $this->getSubMenu();
+		$sub_menu = $this->getSubMenu();
 		if (!is_null($sub_menu)) {
 			$sub_menu->printDataCollection();
 		}
@@ -505,7 +518,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args, $value_prefix='', $value_suffix='')
+	public function printVar($var, Array $args, $value_prefix='', $value_suffix='')
 	{
 		// if they are trying to set an asset position dependent setting
 		if (substr($var, 0, 9) == 'settings.') {
@@ -535,7 +548,7 @@ class Design_Area_Menu_Type extends Design_Area
 			// if we are not in the asset looping section then we need to print the details of
 			// our parent asset - if we are not a sub menu there is nothing we can do
 			if (empty($this->_tmp['outputting_asset_section'])) {
-				$parent_menu =& $this->getParentMenu();
+				$parent_menu = $this->getParentMenu();
 				// if we aren't a sub menu, there is nothing we can do
 				if (is_null($parent_menu)) {
 					$id_name = '';
@@ -633,7 +646,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function _settingHasPHPCode($setting_name)
+	public function _settingHasPHPCode($setting_name)
 	{
 		$settings = $this->attr('settings');
 		// OK we need out find out if any of the values for this setting have PHP code that needs to be
@@ -652,7 +665,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function _getSettingsArray()
+	public function _getSettingsArray()
 	{
 		$settings = $this->attr('settings');
 		// OK we need out find out if any of the values for this setting have PHP code that needs to be
@@ -678,7 +691,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		$res = parent::getProtectedAttrs();
 		$res[] = 'asset_contents';
@@ -697,7 +710,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function _printContentItemCode($element)
+	protected function _printContentItemCode(Array $element)
 	{
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :
@@ -721,7 +734,7 @@ class Design_Area_Menu_Type extends Design_Area
 				$'.$this->attr('id_name').'_lineage_setting = (count($ASSET_LINEAGE) - 1 == $'.$this->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
 
 				';
-				$parent_menu =& $this->getParentMenu();
+				$parent_menu = $this->getParentMenu();
 				// if we aren't a sub menu
 				if (is_null($parent_menu)) {
 					$this->_tmp['parent_assetid_name'] = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';
@@ -794,7 +807,7 @@ class Design_Area_Menu_Type extends Design_Area
 				return TRUE;
 
 			case 'sub' :
-				$sub =& $this->getSubMenu();
+				$sub = $this->getSubMenu();
 				if (is_null($sub)) return TRUE;
 				return $sub->printAreaCode();
 

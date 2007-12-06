@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.23 2007/03/22 22:21:34 skim Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.24 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,16 +34,27 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor()
+
+
+	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Custom_Image	$asset	the design area asset
+	* @param Backend_Outputter			$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintImageUpload(&$asset, &$o, $prefix)
+	public function paintImageUpload(Design_Area_Custom_Image $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		file_upload($prefix);
@@ -58,14 +69,14 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for uploading a file
 	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Custom_Image	$asset	the design area asset
+	* @param Backend_Outputter			$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processImageUpload(&$asset, &$o, $prefix)
+	public function processImageUpload(Design_Area_Custom_Image $asset, Backend_Outputter $o, $prefix)
 	{
 		$info = get_file_upload_info($prefix);
 
@@ -122,14 +133,14 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Custom_Image	$asset	the design area asset
+	* @param Backend_Outputter			$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentImage(&$asset, &$o, $prefix)
+	public function paintCurrentImage(Design_Area_Custom_Image $asset, Backend_Outputter $o, $prefix)
 	{
 		$image = $asset->attr('image');
 		if (empty($image) || !file_exists($asset->data_path_public.'/'.$image)) {

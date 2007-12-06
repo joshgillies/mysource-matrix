@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_management.inc,v 1.5 2006/12/05 22:56:41 emcdonald Exp $
+* $Id: design_css_customisation_management.inc,v 1.6 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Design_Css_Customisation_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Design_Css_Customisation_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 

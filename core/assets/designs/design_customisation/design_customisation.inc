@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.52 2007/12/03 23:14:26 bshkara Exp $
+* $Id: design_customisation.inc,v 1.53 2007/12/06 04:28:51 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Design_Customisation extends Design
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Design_Customisation($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Design($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -52,7 +52,7 @@ class Design_Customisation extends Design
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
 		$links[SQ_LINK_TYPE_1]['file'] = Array('card' => 'M', 'exclusive' => FALSE);
@@ -70,7 +70,7 @@ class Design_Customisation extends Design
 	* should be checked to work out what side of the link this asset is on. The return value should indicate
 	* if any of the link fields were changed.
 	*
-	* @param object	&$asset			the major or minor asset that we are linking to
+	* @param Asset	$asset			the major or minor asset that we are linking to
 	* @param string	$side_of_link	the side of the link we are on (major or minor)
 	* @param string	&$link_type		the type of link we are creating
 	* @param string	&$value			the value that is to be associated with the link
@@ -83,7 +83,7 @@ class Design_Customisation extends Design
 	* @return boolean
 	* @access public
 	*/
-	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
+	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		if ($side_of_link == 'minor' && $asset instanceof Design) {
 			$value = 'customisation';
@@ -213,7 +213,7 @@ class Design_Customisation extends Design
 	* @return boolean
 	* @access public
 	*/
-	function deleteExistingLink($linkid)
+	public function deleteExistingLink($linkid)
 	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
@@ -222,7 +222,7 @@ class Design_Customisation extends Design
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -250,7 +250,7 @@ class Design_Customisation extends Design
 	* @return void
 	* @access private
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 		parent::linksUpdated();
 		unset($this->_tmp['parent_design']);
@@ -263,10 +263,10 @@ class Design_Customisation extends Design
 	/**
 	* Returns the parent design/design_customisation that this customisation is customising
 	*
-	* @return object
+	* @return Design
 	* @access public
 	*/
-	function &getParentDesign()
+	public function getParentDesign()
 	{
 		if (empty($this->_tmp['parent_design'])) {
 			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design', FALSE, 'customisation', 'minor');
@@ -288,7 +288,7 @@ class Design_Customisation extends Design
 	* @return array
 	* @access public
 	*/
-	function getCustomisedAreas()
+	public function getCustomisedAreas()
 	{
 		if (!isset($this->_tmp['customised_areas'])) {
 			$parent = $this->getParentDesign();
@@ -335,7 +335,7 @@ class Design_Customisation extends Design
 	* @return array
 	* @access public
 	*/
-	function getUnCustomisedAreas()
+	public function getUnCustomisedAreas()
 	{
 		if (!isset($this->_tmp['uncustomised_areas'])) {
 			$this->getCustomisedAreas();
@@ -351,14 +351,14 @@ class Design_Customisation extends Design
 	* ie. Updates our contents array and the contents arrays for any customised design areas
 	*     No need to do the uncustomised design areas because they would be done by our parent
 	*
-	* @param object	&$parent	the parent design for this customisation
+	* @param Design	$parent	the parent design for this customisation
 	*
 	* @return boolean
 	* @access protected
 	*/
-	function updateFromParent(&$parent)
+	protected function updateFromParent(Design $parent)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		//// FIRST, let's set our new contents ////
 		if (!$this->setAttrValue('contents', $parent->attr('contents')) || !$this->saveAttributes()) {
@@ -432,7 +432,7 @@ class Design_Customisation extends Design
 	/**
 	* Paints out our design
 	*
-	* @param object	&$ASSET		the asset that we are going to print the body for
+	* @param Asset	&$ASSET		the asset that we are going to print the body for
 	* @param array	$FILE_URLS	an array of filename => URL to use to print files in the design
 	*							doesnt need to be passed in unless some URLs are overridden by
 	*							a customisation of the design
@@ -441,7 +441,7 @@ class Design_Customisation extends Design
 	* @return void
 	* @access public
 	*/
-	function paint(&$ASSET, $FILE_URLS=Array(), $CSS_URLS=Array())
+	public function paint(Asset $ASSET, Array $FILE_URLS=Array(), Array $CSS_URLS=Array())
 	{
 		// generate an array of all the URLs we are going to need for the files in this customisation
 		// that are inherited from the design we are customising

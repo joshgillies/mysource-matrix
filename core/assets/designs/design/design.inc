@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.140 2007/12/03 04:52:13 bshkara Exp $
+* $Id: design.inc,v 1.141 2007/12/06 04:28:47 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Design extends Design_Area
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Design($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Design_Area($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -222,7 +222,7 @@ class Design extends Design_Area
 	* @return int
 	* @access public
 	*/
-	public function createLink($minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
+	public function createLink(Asset $minor, $link_type, $value='', $sort_order=NULL, $dependant='0', $exclusive='0')
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

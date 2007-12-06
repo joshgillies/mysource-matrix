@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_edit_fns.inc,v 1.9 2007/12/03 04:52:13 bshkara Exp $
+* $Id: design_area_linked_css_edit_fns.inc,v 1.10 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,16 +33,27 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Prints the interface for linking to an assetid
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Linked_CSS	$asset	the owning asset
+	* @param Backend_Outputter		$o		the backend outputter
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAssetid(&$asset, &$o, $prefix)
+	public function paintAssetid(Design_Area_Linked_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('links')) {
 			$type_code_restrictions['design_css'] = 'D';
@@ -65,14 +76,14 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Prints the interface for selecting a tag type
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Linked_CSS	$asset	the owning asset
+	* @param Backend_Outputter		$o		the backend outputter
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintTagType(&$asset, &$o, $prefix)
+	public function paintTagType(Design_Area_Linked_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			$options = Array();
@@ -98,14 +109,14 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Prints the interface for selecting a tag type
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Linked_CSS	$asset	the owning asset
+	* @param Backend_Outputter		$o		the backend outputter
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintMedia(&$asset, &$o, $prefix)
+	public function paintMedia(Design_Area_Linked_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			$options = Array();
@@ -132,14 +143,14 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for setting the tag type
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Linked_CSS	$asset	the owning asset
+	* @param Backend_Outputter		$o		the backend outputter
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processTagType(&$asset, &$o, $prefix)
+	public function processTagType(Design_Area_Linked_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		$tag_type  = (int) (isset($_POST[$prefix.'_tag_type'])) ? $_POST[$prefix.'_tag_type'] : '';
 		return $asset->setAttrValue('tag_type', $tag_type);
@@ -150,14 +161,14 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for setting the media
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Linked_CSS	$asset	the owning asset
+	* @param Backend_Outputter		$o		the backend outputter
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processMedia(&$asset, &$o, $prefix)
+	public function processMedia(Design_Area_Linked_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		$media  = (int) (isset($_POST[$prefix.'_media'])) ? $_POST[$prefix.'_media'] : '';
 		return $asset->setAttrValue('media', $media);
@@ -168,14 +179,14 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for linking to an asset
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Linked_CSS	$asset	the owning asset
+	* @param Backend_Outputter		$o		the backend outputter
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAssetid(&$asset, &$o, $prefix)
+	public function processAssetid(Design_Area_Linked_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_assetid']['assetid'])) {
 			return FALSE;

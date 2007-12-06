@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_management.inc,v 1.17 2006/12/05 22:42:10 emcdonald Exp $
+* $Id: design_area_management.inc,v 1.18 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,9 +35,9 @@ class Design_Area_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Design_Area_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'id_name'			=> Array(

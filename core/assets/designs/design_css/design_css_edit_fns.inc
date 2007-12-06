@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.17 2006/12/05 22:56:41 emcdonald Exp $
+* $Id: design_css_edit_fns.inc,v 1.18 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Design_Css_Edit_Fns()
+	function __construct()
 	{
-		$this->Design_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -53,7 +53,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _parseString(&$asset, $file_contents)
+	protected function _parseString(Asset $asset, $file_contents)
 	{
 		// Let's place an print operation at the top of the file
 		// to allow us to print the default header stuff like
@@ -69,13 +69,13 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
 	*
-	* @param object	&$asset	the asset to link the file to
+	* @param Asset	$asset	the asset to link the file to
 	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _processUploadedFile(&$asset, $info=Array())
+	public function _processUploadedFile(Asset $asset, Array $info=Array())
 	{
 		// if we already have a file with the same name TYPE_3 linked to us,
 		// delete this link so we link up this new file
@@ -110,7 +110,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintNewCustomisation(&$asset, &$o, $prefix)
+	public function paintNewCustomisation(Design_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return FALSE;
 		check_box($prefix.'_new_customisation');
@@ -130,7 +130,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processNewCustomisation(&$asset, &$o, $prefix)
+	public function processNewCustomisation(Design_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) {
 			return FALSE;
@@ -236,18 +236,18 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Paints this assets current customisations
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_CSS			$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentCustomisations(&$asset, &$o, $prefix)
+	public function paintCurrentCustomisations(Design_CSS $asset, Backend_Outputter $o, $prefix)
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 		if ($customisation_links) {
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
 				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;

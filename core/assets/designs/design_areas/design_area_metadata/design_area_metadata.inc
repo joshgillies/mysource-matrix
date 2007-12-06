@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.13 2006/12/05 22:42:13 emcdonald Exp $
+* $Id: design_area_metadata.inc,v 1.14 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Metadata extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -41,7 +54,7 @@ class Design_Area_Metadata extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		echo '<', '?php'."\n";
 		$field_name = $this->attr('metadata_field');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.47 2007/12/03 04:52:12 bshkara Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.48 2007/12/06 04:28:51 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Design_Customisation_Edit_Fns()
+	function __construct()
 	{
-		$this->Design_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['lock_type'] = 'all';
 
 	}//end constructor
@@ -47,14 +47,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Paints the interface for customising the design areas
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Customisation	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintCustomisedDesignAreas(&$asset, &$o, $prefix)
+	function paintCustomisedDesignAreas(Design_Customisation $asset, Backend_Outputter $o, $prefix)
 	{
 		$customised_areas = $asset->getCustomisedAreas();
 		if (empty($customised_areas)) {
@@ -69,20 +69,20 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Processes the customising of design areas
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Customisation	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCustomisedDesignAreas(&$asset, &$o, $prefix)
+	function processCustomisedDesignAreas(Design_Customisation $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_customisation'])) {
 			return FALSE;
 		}
 
-		$parent_design =& $asset->getParentDesign();
+		$parent_design = $asset->getParentDesign();
 		if (is_null($parent_design)) return FALSE;
 
 		$data = Array();
@@ -121,14 +121,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Paints the interface for customising the design areas
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Customisation	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintUnCustomisedDesignAreas(&$asset, &$o, $prefix)
+	function paintUnCustomisedDesignAreas(Design_Customisation $asset, Backend_Outputter $o, $prefix)
 	{
 		$uncustomised_areas = $asset->getUnCustomisedAreas();
 		if (empty($uncustomised_areas)) {
@@ -143,14 +143,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Processes the customising of design areas
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Customisation	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processUnCustomisedDesignAreas(&$asset, &$o, $prefix)
+	function processUnCustomisedDesignAreas(Design_Customisation $asset, Backend_Outputter $o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_customise'])) return FALSE;
 
@@ -166,7 +166,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			if (is_null($da)) continue;
 
 			$create_link = Array (
-							'asset'			=> &$asset,
+							'asset'			=> $asset,
 							'link_type'		=> SQ_LINK_TYPE_3,
 							'value'			=> $link['value'],
 							'sort_order'	=> NULL,
@@ -209,13 +209,13 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
 	*
-	* @param object	&$asset	the asset to link the file to
+	* @param Asset	$asset	the asset to link the file to
 	* @param array	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _processUploadedFile(&$asset, $info=Array())
+	public function _processUploadedFile(Asset $asset, Array $info=Array())
 	{
 		// if we already have a file with the same name TYPE_3 linked to us,
 		// delete this link so we link up this new file
@@ -252,7 +252,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Recursivly updates all links to a design area from under this asset
 	*
-	* @param object	&$asset	the asset to which we belong
+	* @param Asset	$asset	the asset to which we belong
 	* @param array	$data	array of Array([id_name] => Array([assetid], [type_code]));
 	*						where key is the id_name, whose link needs to be updated and the value
 	*						is an array with assetid and type_code
@@ -260,7 +260,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function _updateDesignAreaLink(&$asset, $data)
+	public function _updateDesignAreaLink(Asset $asset, Array $data)
 	{
 		$da_links = $asset->getDesignAreaLink();
 		$old_da_ids = Array();
@@ -306,7 +306,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
 
-			// We don't want to overwrite already-customised design areas in the 
+			// We don't want to overwrite already-customised design areas in the
 			// customisation, so we filter the update array to remove them.
 			// We do this by applying the rule that we can only unlink DAs
 			// from the customisation if we just unlinked them from ourselves
@@ -342,9 +342,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $write_access, $link_name=FALSE)
+	protected function _paintDesignAreaList(Array $links, $check_box_col, $check_box_name, $write_access, $link_name=FALSE)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		?>
 		<table cellspacing="2" cellpadding="2" border="0" width="100%">
 			<tr>

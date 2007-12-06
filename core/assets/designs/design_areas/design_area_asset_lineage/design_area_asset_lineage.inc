@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.18 2007/11/15 01:12:35 hnguyen Exp $
+* $Id: design_area_asset_lineage.inc,v 1.19 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Asset_Lineage extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -43,7 +56,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args, $value_prefix='', $value_suffix='')
+	public function printVar($var, Array $args, $value_prefix='', $value_suffix='')
 	{
 		switch ($var) {
 			case 'assetid' :
@@ -75,7 +88,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function _printContentItemCode($element)
+	protected function _printContentItemCode(Array $element)
 	{
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :
@@ -233,7 +246,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		$res = parent::getProtectedAttrs();
 		$res[] = 'asset_contents';
@@ -256,7 +269,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 	* @access public
 	* @see saveAttributes()
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		if (($name == 'unwanted_asset_types') && is_scalar($value)) {
 			$value = preg_split('/[ ,]+/', (string)$value);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.16 2007/12/03 23:14:26 bshkara Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.17 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,16 +33,27 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Prints the interface for linking to an assetid
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Nest_Content	$asset	the owning asset
+	* @param Backend_Outputter			$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintAssetid(&$asset, &$o, $prefix)
+	function paintAssetid(Design_Area_Nest_Content $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('links')) {
 			$type_codes = $asset->attr('type_codes');
@@ -70,14 +81,14 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for linking to an asset
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Nest_Content	$asset	the owning asset
+	* @param Backend_Outputter			$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processAssetid(&$asset, &$o, $prefix)
+	public function processAssetid(Design_Area_Nest_Content $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_assetid']['assetid'])) {
 			return FALSE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime.inc,v 1.11 2006/12/05 22:42:12 emcdonald Exp $
+* $Id: design_area_datetime.inc,v 1.12 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_DateTime extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -41,7 +54,7 @@ class Design_Area_DateTime extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		$format = addslashes($this->attr('format'));
 		switch ($this->attr('datetime')) {

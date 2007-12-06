@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.13 2007/07/16 23:55:39 rhoward Exp $
+* $Id: design_css_customisation.inc,v 1.14 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Design_Css_Customisation extends Design_Css
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Design_Css_Customisation($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Design_Css($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -69,7 +69,7 @@ class Design_Css_Customisation extends Design_Css
 	* @return boolean
 	* @access public
 	*/
-	function deleteLink($linkid)
+	public function deleteLink($linkid)
 	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
@@ -78,8 +78,8 @@ class Design_Css_Customisation extends Design_Css
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$am    = $GLOBALS['SQ_SYSTEM']->am;
+		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -93,7 +93,7 @@ class Design_Css_Customisation extends Design_Css
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
 		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
 
-			$design =& $this->getParentDesign();
+			$design = $this->getParentDesign();
 
 			// go through all the links of the design we are customisaing and find a file
 			// linked to it with the same name as the one we just deleted so it can take its place
@@ -107,7 +107,7 @@ class Design_Css_Customisation extends Design_Css
 			foreach ($file_link_info as $info) {
 				if ($info['name'] == $minor->name) {
 					// found the link to create
-					$new_minor =& $am->getAsset($info['assetid']);
+					$new_minor = $am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', NULL, '1')) {
 						trigger_localised_error('CORE0162', E_USER_WARNING);
 						$am->forgetAsset($design);
@@ -142,7 +142,7 @@ class Design_Css_Customisation extends Design_Css
 	* @return boolean
 	* @access public
 	*/
-	function deleteExistingLink($linkid)
+	public function deleteExistingLink($linkid)
 	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
@@ -151,8 +151,8 @@ class Design_Css_Customisation extends Design_Css
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$minor =& $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+		$am    = $GLOBALS['SQ_SYSTEM']->am;
+		$minor = $am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -179,7 +179,7 @@ class Design_Css_Customisation extends Design_Css
 	* @return void
 	* @access private
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 		parent::linksUpdated();
 		unset($this->_tmp['parent_design']);
@@ -195,7 +195,7 @@ class Design_Css_Customisation extends Design_Css
 	* @return mixed object|NULL
 	* @access public
 	*/
-	function &getParentDesign()
+	public function getParentDesign()
 	{
 		if (empty($this->_tmp['parent_design'])) {
 			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design_css', FALSE, 'customisation', 'minor');
@@ -212,10 +212,10 @@ class Design_Css_Customisation extends Design_Css
 	* @return array
 	* @access public
 	*/
-	function getCustomisedAreas()
+	public function getCustomisedAreas()
 	{
 		if (!isset($this->_tmp['customised_areas'])) {
-			$parent =& $this->getParentDesign();
+			$parent = $this->getParentDesign();
 			if (!is_null($parent)) {
 				// OK, get our design area links and our parents
 				$our_links     = $this->getDesignAreaLink();
@@ -259,7 +259,7 @@ class Design_Css_Customisation extends Design_Css
 	* @return array
 	* @access public
 	*/
-	function getUnCustomisedAreas()
+	public function getUnCustomisedAreas()
 	{
 		if (!isset($this->_tmp['uncustomised_areas'])) {
 			$this->getCustomisedAreas();
@@ -275,14 +275,14 @@ class Design_Css_Customisation extends Design_Css
 	* ie. Updates our contents array and the contents arrays for any customised design areas
 	*     No need to do the uncustomised design areas because they would be done by our parent
 	*
-	* @param object	&$parent	the parent design for this customisation
+	* @param Design_CSS	$parent	the parent design for this customisation
 	*
 	* @return boolean
 	* @access protected
 	*/
-	function updateFromParent(&$parent)
+	public function updateFromParent(Design_CSS $parent)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		//// FIRST, let's set our new contents ////
 		if (!$this->setAttrValue('contents', $parent->attr('contents')) || !$this->saveAttributes()) {
@@ -314,7 +314,7 @@ class Design_Css_Customisation extends Design_Css
 		}//end foreach
 
 		foreach ($added_id_names as $id_name) {
-			$da =& $am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['minor_type_code'], TRUE);
+			$da = $am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
 			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, NULL, '1');
 		}//end foreach
@@ -323,10 +323,10 @@ class Design_Css_Customisation extends Design_Css
 
 		$links = $this->getCustomisedAreas();
 		foreach ($links as $link) {
-			$da =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$da = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($da)) continue;
 
-			$parent_da =& $parent->getDesignArea($link['value']);
+			$parent_da = $parent->getDesignArea($link['value']);
 			if (is_null($parent_da)) continue;
 
 			$da->setAttrValue('contents', $parent_da->attr('contents'));
@@ -346,7 +346,7 @@ class Design_Css_Customisation extends Design_Css
 	/**
 	* Paints out our design
 	*
-	* @param object	&$ASSET		the asset that we are going to print the body for
+	* @param Asset	$ASSET		the asset that we are going to print the body for
 	* @param array	$FILE_URLS	an array of filename => URL to use to print files in the design
 	*							doesnt need to be passed in unless some URLs are overridden by
 	*							a customisation of the design
@@ -354,7 +354,7 @@ class Design_Css_Customisation extends Design_Css
 	* @return void
 	* @access public
 	*/
-	function paint(&$ASSET, $FILE_URLS=Array())
+	public function paint(Asset $ASSET, Array $FILE_URLS=Array())
 	{
 		// generate an array of all the URLs we are going to need for the files in this customisation
 		// that are inherited from the design we are customising

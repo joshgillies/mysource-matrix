@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.18 2007/10/18 00:01:21 rong Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.19 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,15 +33,26 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	&$contents	the contents array we generated with _parseString()
+	* @param Design_Area_Asset_Lineage	$asset		the asset to which we belong
+	* @param array						&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents)
+	public function _processContents(Design_Area_Asset_Lineage $asset, Array &$contents)
 	{
 		if (!$this->_setVariables($asset, $contents)) {
 			return FALSE;
@@ -114,14 +125,14 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for choosing asset types to exclude from the lineage
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Asset_Lineage	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintExcludedTypes(&$asset, &$o, $prefix)
+	public function paintExcludedTypes(Design_Area_Asset_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		$excluded_types = $asset->attr('unwanted_asset_types');
 		if ($asset->writeAccess('attributes')) {
@@ -150,14 +161,14 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for choosing asset types to exclude from the lineage
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the Backend Outputter object
-	* @param string	$prefix	prefix for the form elements
+	* @param Design_Area_Asset_Lineage	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the Backend Outputter object
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processExcludedTypes(&$asset, &$o, $prefix)
+	public function processExcludedTypes(Design_Area_Asset_Lineage $asset, Backend_Outputter $o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			// bug #2712: asset chooser returns an array of empty strings

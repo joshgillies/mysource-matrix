@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.58 2007/11/29 00:14:04 lwright Exp $
+* $Id: design_area_edit_fns.inc,v 1.59 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,16 +35,17 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @var string
 	* The prefix for tags in parse files
 	*/
-	var $tag_name = 'MySource';
+	public $tag_name = 'MySource';
 
 
 	/**
 	* Contructor
 	*
 	*/
-	function Design_Area_Edit_Fns()
+	function __construct()
 	{
 		$this->static_screens['details']['lock_type'] = 'parsing';
+		parent::__construct();
 
 	}//end constructor
 
@@ -52,14 +53,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Echo the Design Area's ID name
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Area		$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for the form element
 	*
 	* @return void
 	* @access public
 	*/
-	function paintIdName(&$asset, &$o, $prefix)
+	public function paintIdName(Design_Area $asset, Backend_Outputter $o, $prefix)
 	{
 		echo $asset->attr('id_name');
 		return TRUE;
@@ -75,7 +76,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _parseString($file_contents)
+	protected function _parseString($file_contents)
 	{
 		// lets just make sure that they are all UNIX new lines
 		$file_contents = str_replace(Array("\r\n", "\r"), "\n", $file_contents);
@@ -124,7 +125,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _parseStringContents(&$file_contents, &$cur_pos, &$nest_level)
+	protected function _parseStringContents(&$file_contents, &$cur_pos, &$nest_level)
 	{
 		$start_pos = $cur_pos;
 		$parsed = Array();
@@ -226,7 +227,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _tagToParse(&$file_contents, &$cur_pos)
+	protected function _tagToParse(&$file_contents, &$cur_pos)
 	{
 		// get the next terminate and open tag locations
 		$next_open_pos      = strpos($file_contents, '<'.$this->tag_name,  $cur_pos);
@@ -267,7 +268,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _parseOpenTag(&$file_contents, &$cur_pos)
+	protected function _parseOpenTag(&$file_contents, &$cur_pos)
 	{
 		$cur_pos += strlen('<'.$this->tag_name);
 
@@ -383,7 +384,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _parseTerminateTag(&$file_contents, &$cur_pos)
+	protected function _parseTerminateTag(&$file_contents, &$cur_pos)
 	{
 		$cur_pos += strlen('</'.$this->tag_name);
 		// go to the next close bracket
@@ -402,7 +403,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _isWhitespace($str)
+	protected function _isWhitespace($str)
 	{
 		return preg_match('/^[[:space:]]*$/', $str);
 
@@ -412,13 +413,13 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Loop through the contents array and create the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	$contents	the contents array we generated with _parseString()
+	* @param Design_Area	$asset		the asset to which we belong
+	* @param array			$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, $contents)
+	public function _processContents(Design_Area $asset, Array $contents)
 	{
 		if ($this->_setVariables($asset, $contents)) {
 			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = TRUE;
@@ -438,13 +439,13 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* Also anything with 'image' contained in it will have the file root removed
 	* from its value
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	&$contents	the contents array from _parseString
+	* @param Design_Area	$asset		the asset to which we belong
+	* @param array			&$contents	the contents array from _parseString
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _setVariables(&$asset, &$contents)
+	protected function _setVariables(Design_Area &$asset, Array &$contents)
 	{
 		// process the set operations of the element
 		$remove_indexes = Array();
@@ -545,7 +546,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _removeFileRoot($str)
+	protected function _removeFileRoot($str)
 	{
 		return preg_replace('/^(\\.\\/)?mysource_files\/(.*)/i', '\\2', $str);
 
@@ -557,15 +558,15 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*
 	* Can be used when there is no contents supplied in parse file
 	*
-	* @param object	&$asset			the asset to which we belong
-	* @param string	$content_type	the name that forms the filename 'default_'.$content_type.'_contents.html' in the asset types directory
+	* @param Design_Area	$asset			the asset to which we belong
+	* @param string			$content_type	the name that forms the filename 'default_'.$content_type.'_contents.html' in the asset types directory
 	*
 	* @return array
 	* @access private
-	* @see _parseString();
-	* @see _processContents();
+	* @see _parseString()
+	* @see _processContents()
 	*/
-	function _getDefaultContents(&$asset, $content_type)
+	protected function _getDefaultContents(Design_Area $asset, $content_type)
 	{
 		$parent_types = $asset->getTypeAncestors(FALSE);
 		array_unshift($parent_types, $asset->type());

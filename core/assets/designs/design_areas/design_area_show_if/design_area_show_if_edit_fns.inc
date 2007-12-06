@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.14 2007/08/09 06:23:25 lwright Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.15 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,13 +34,11 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Constructor
 	*
-	* @return void
-	* @access public
 	*/
-	function Design_Area_Show_If_Edit_Fns()
+	function __construct()
 	{
 		$this->static_screens['details']['force_unlock'] = FALSE;
-		return $this->Design_Area_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -48,13 +46,13 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	&$contents	the contents array we generated with _parseString()
+	* @param Design_Area_Show_If	$asset		the asset to which we belong
+	* @param array					&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents)
+	public function _processContents(Design_Area_Show_If $asset, Array &$contents)
 	{
 		$then_element = FALSE;
 		$else_element = FALSE;
@@ -125,14 +123,14 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for choosing the condition type
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Area_Show_If	&$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		&$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintConditionType(&$asset, &$o, $prefix)
+	public function paintConditionType(Design_Area_Show_If $asset, Backend_Outputter $o, $prefix)
 	{
 		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition'), 'name');
 		if ($asset->writeAccess('attributes')) {
@@ -149,14 +147,14 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the interface for choosing the condition type
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Area_Show_If	&$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		&$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processConditionType(&$asset, &$o, $prefix)
+	public function processConditionType(Design_Area_Show_If $asset, Backend_Outputter $o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_condition_type']) && ($_POST[$prefix.'_condition_type'] != 'condition_'.$asset->attr('condition'))) {
 			$this->_tmp['condition_type_changed'] = TRUE;
@@ -170,14 +168,14 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for setting details of the condition
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Area_Show_If	&$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		&$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintConditionDetails(&$asset, &$o, $prefix)
+	public function paintConditionDetails(Design_Area_Show_If $asset, Backend_Outputter $o, $prefix)
 	{
 		echo translate('condition_'.$asset->attr('condition').'_true');
 		$edit_fns_classname = 'condition_'.$asset->attr('condition').'_edit_fns';
@@ -190,14 +188,14 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process the interface for setting details of the condition
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Area_Show_If	&$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		&$o		the outputter class
+	* @param string					$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processConditionDetails(&$asset, &$o, $prefix)
+	public function processConditionDetails(Design_Area_Show_If $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!array_get_index($this->_tmp, 'condition_type_changed')) {
 			$edit_fns_classname = 'condition_'.$asset->attr('condition').'_edit_fns';

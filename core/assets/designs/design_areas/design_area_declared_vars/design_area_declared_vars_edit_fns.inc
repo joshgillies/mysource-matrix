@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.27 2007/11/06 06:11:39 rong Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.28 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,15 +33,26 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	$contents	the contents array we generated with _parseString()
+	* @param Design_Area_Declared_Vars	$asset		the asset to which we belong
+	* @param array						$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, $contents)
+	public function _processContents(Design_Area_Declared_Vars $asset, Array $contents)
 	{
 		$vars = Array();
 		$declared_vars = Array();
@@ -103,14 +114,14 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint declared variables
 	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Area_Declared_Vars	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintDecVars(&$asset, &$o, $prefix)
+	public function paintDecVars(Design_Area_Declared_Vars $asset, Backend_Outputter $o, $prefix)
 	{
 		$attrs = $asset->getDeclaredVarAttributes();
 		foreach ($attrs as $name => $attr) {
@@ -132,14 +143,14 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Process declared variables
 	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
+	* @param Design_Area_Declared_Vars	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDecVars(&$asset, &$o, $prefix)
+	public function processDecVars(Design_Area_Declared_Vars $asset, Backend_Outputter $o, $prefix)
 	{
 		$save = FALSE;
 		$attrs = $asset->getDeclaredVarAttributes();

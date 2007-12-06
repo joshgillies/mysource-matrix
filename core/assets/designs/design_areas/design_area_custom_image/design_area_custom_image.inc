@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image.inc,v 1.15 2006/12/05 22:42:12 emcdonald Exp $
+* $Id: design_area_custom_image.inc,v 1.16 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -24,18 +24,32 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Custom_Image extends Design_Area
 {
 
+
 	/**
 	* All allowed extensions for an image
 	* @var Array(string)
 	*/
-	var $allowed_extensions = Array('gif', 'jpg', 'jpeg', 'png');
+	public $allowed_extensions = Array('gif', 'jpg', 'jpeg', 'png');
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -47,7 +61,7 @@ class Design_Area_Custom_Image extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		$image_path = $this->data_path_public.'/'.$this->attr('image');
 		// return true because it just means that they haven't uploaded the file yet

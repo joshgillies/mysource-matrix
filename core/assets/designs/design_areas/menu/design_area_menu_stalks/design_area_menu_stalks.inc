@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.26 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_menu_stalks.inc,v 1.27 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,13 +34,13 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	* The width of the arrow image
 	* @var int
 	*/
-	var $arrow_width  = 4;
+	public $arrow_width  = 4;
 
 	/**
 	* The height of the arrow image
 	* @var int
 	*/
-	var $arrow_height = 6;
+	public $arrow_height = 6;
 
 
 	/**
@@ -52,7 +52,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		// make sure the aligment is lower case
 		switch ($name) {
@@ -81,7 +81,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	* @return void
 	* @access public
 	*/
-	function printRecursiveFn()
+	public function printRecursiveFn()
 	{
 		$use_blanks  = !$this->attr('show_stalks');
 		$cell_class = '';
@@ -274,7 +274,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		if ($this->attr('show_stalks') && $this->attr('indent') && $this->attr('min_height')) {
 			if (!$this->_createStalkImages($this)) return FALSE;
@@ -290,7 +290,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	* @return boolean
 	* @access private
 	*/
-	function _createStalkImages()
+	protected function _createStalkImages()
 	{
 
 		$bg_colour = $this->attr('stalk_bg_colour');

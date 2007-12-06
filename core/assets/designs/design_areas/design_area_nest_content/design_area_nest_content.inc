@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.26 2007/12/03 23:14:26 bshkara Exp $
+* $Id: design_area_nest_content.inc,v 1.27 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Nest_Content extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -41,7 +54,7 @@ class Design_Area_Nest_Content extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		// if they are trying to set the type_codes, split the string
 		if ($name == 'type_codes') {
@@ -73,7 +86,7 @@ class Design_Area_Nest_Content extends Design_Area
 	* @return array
 	* @access private
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 
 		return Array(
@@ -102,7 +115,7 @@ class Design_Area_Nest_Content extends Design_Area
 	* @access private
 	* @see Asset::getLink()
 	*/
-	function _getNestAssetInfo($field)
+	protected function _getNestAssetInfo($field)
 	{
 		if (!isset($this->_tmp['nest_assetid'])) {
 			$this->_tmp['nest_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'nest_content_asset');
@@ -118,7 +131,7 @@ class Design_Area_Nest_Content extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 		parent::linksUpdated();
 		unset($this->_tmp['nest_assetid']);
@@ -132,7 +145,7 @@ class Design_Area_Nest_Content extends Design_Area
 	* @return boolean
 	* @access protected
 	*/
-	function _canInit()
+	protected function _canInit()
 	{
 		$assetid = (int) $this->_getNestAssetInfo('minorid');
 		return !(empty($assetid));
@@ -146,7 +159,7 @@ class Design_Area_Nest_Content extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		$assetid = (int) $this->_getNestAssetInfo('minorid');
 		echo '<', '?php
@@ -165,7 +178,7 @@ class Design_Area_Nest_Content extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		echo '<', '?php
 		if (!is_null($nest_content_'.$this->attr('id_name').'_asset)) {

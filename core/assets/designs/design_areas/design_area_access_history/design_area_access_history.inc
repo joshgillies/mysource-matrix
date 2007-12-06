@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.8 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: design_area_access_history.inc,v 1.9 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,13 +35,27 @@ class Design_Area_Access_History extends Design_Area
 {
 
 	/**
-	* @var Array	$_request_types	Types and names of request variable requirements
+	* Types and names of request variable requirements
+	* @var Array
 	*/
-	var $request_types = Array(
-							SQ_DESIGN_AREA_HISTORY_STATUS_IGNORE	=> 'Ignore',
-							SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT	=> 'Must exist',
-							SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT	=> 'Must NOT exist',
-						 );
+	public $request_types = Array(
+								SQ_DESIGN_AREA_HISTORY_STATUS_IGNORE	=> 'Ignore',
+								SQ_DESIGN_AREA_HISTORY_STATUS_PRESENT	=> 'Must exist',
+								SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT	=> 'Must NOT exist',
+							);
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -55,7 +69,7 @@ class Design_Area_Access_History extends Design_Area
 	* @return string
 	* @access public
 	*/
-	function printVar($var, $args, $value_prefix='', $value_suffix='')
+	public function printVar($var, Array $args, $value_prefix='', $value_suffix='')
 	{
 		switch ($var) {
 			case 'assetid' :
@@ -205,7 +219,7 @@ class Design_Area_Access_History extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function _printContentItemCode($element)
+	protected function _printContentItemCode(Array $element)
 	{
 		$area_id = $this->attr('id_name');
 
@@ -251,7 +265,7 @@ class Design_Area_Access_History extends Design_Area
 	* @return boolean
 	* @access protected
 	*/
-	function _canInit()
+	protected function _canInit()
 	{
 		return count($this->attr('asset_types')) && count($this->attr('asset_count'));
 
@@ -264,7 +278,7 @@ class Design_Area_Access_History extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		$area_id = $this->attr('id_name');
 		$exclude_assets = $this->attr('exclude_assets');
@@ -417,7 +431,7 @@ class Design_Area_Access_History extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		$res = parent::getProtectedAttrs();
 		$res[] = 'asset_contents';

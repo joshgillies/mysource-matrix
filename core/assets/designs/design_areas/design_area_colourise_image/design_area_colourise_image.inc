@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.22 2006/12/05 22:42:12 emcdonald Exp $
+* $Id: design_area_colourise_image.inc,v 1.23 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Colourise_Image extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -41,7 +54,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		// if this is one of the colour attributes then let's grab the value, add it the
 		// $this->colours and then save that array
@@ -71,7 +84,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return mixed array|string
 	* @access public
 	*/
-	function attr($name)
+	public function attr($name)
 	{
 		if (empty($this->vars['colours']['value'][$name])) {
 			return parent::attr($name);
@@ -88,7 +101,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		if (!isset($this->_tmp['image'])) {
 			trigger_error('no image');
@@ -115,7 +128,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return boolean
 	* @access protected
 	*/
-	function _canInit()
+	protected function _canInit()
 	{
 		$image_asset = $GLOBALS['DESIGN_BEING_GENERATED']->getAssociatedFile($this->attr('image'));
 		if (is_null($image_asset)) {
@@ -151,7 +164,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
@@ -206,7 +219,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		$res = parent::getProtectedAttrs();
 		$res[] = 'colours';

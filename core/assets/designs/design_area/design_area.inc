@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.57 2007/12/03 04:52:13 bshkara Exp $
+* $Id: design_area.inc,v 1.58 2007/12/06 04:28:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,10 +38,10 @@ class Design_Area extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Design_Area($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE; // we have serialise type vars
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Design_Area extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _preCreateCheck(&$link)
+	protected function _preCreateCheck(Array &$link)
 	{
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
@@ -85,7 +85,7 @@ class Design_Area extends Asset
 	* @return boolean
 	* @access private
 	*/
-	function _updated($update_parents=TRUE)
+	public function _updated($update_parents=TRUE)
 	{
 		// don't update the parent asset when this asset is updated as it starts a recusion
 		// that takes way too long
@@ -100,7 +100,7 @@ class Design_Area extends Asset
 	* @return array
 	* @access public
 	*/
-	function lockTypes()
+	public function lockTypes()
 	{
 		$lock_types = parent::lockTypes();
 		$lock_types['parsing'] = $lock_types['all'];
@@ -118,7 +118,7 @@ class Design_Area extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		$name = $this->attr('id_name');
 		// if the attribute is empty, let the parent take care of setting the name
@@ -138,7 +138,7 @@ class Design_Area extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function processBackend(&$o, &$link)
+	public function processBackend(Backend_Outputter $o, Array &$link)
 	{
 		if (parent::processBackend($o, $link)) {
 			$designs =& $this->getDesigns();
@@ -163,7 +163,7 @@ class Design_Area extends Asset
 	* @return array
 	* @access public
 	*/
-	function &getDesigns()
+	public function &getDesigns()
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', FALSE, 'minor');
 		$designs = Array();
@@ -181,7 +181,7 @@ class Design_Area extends Asset
 	* @return array
 	* @access public
 	*/
-	function getVarReferences()
+	public function getVarReferences()
 	{
 		$var_refs = Array();
 		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
@@ -204,7 +204,7 @@ class Design_Area extends Asset
 	* @return void
 	* @access public
 	*/
-	function setVarReferenceValues($var_ref_values)
+	public function setVarReferenceValues(Array $var_ref_values)
 	{
 		if (!isset($this->_tmp['var_reference_values'])) {
 			$this->_tmp['var_reference_values'] = Array();
@@ -226,7 +226,7 @@ class Design_Area extends Asset
 	* @return string
 	* @access public
 	*/
-	function attr($name)
+	public function attr($name)
 	{
 		if (isset($this->_tmp['var_reference_values'][$name])) {
 			return $this->_tmp['var_reference_values'][$name];
@@ -246,7 +246,7 @@ class Design_Area extends Asset
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes('design_area', Array('name'));
 
@@ -265,7 +265,7 @@ class Design_Area extends Asset
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args)
+	public function printVar($var, Array $args)
 	{
 		echo $this->_escapeVar($this->attr($var), $args);
 
@@ -281,7 +281,7 @@ class Design_Area extends Asset
 	* @return string
 	* @access public
 	*/
-	function _escapeVar($value, $args)
+	protected function _escapeVar($value, Array $args)
 	{
 		if (empty($args['escape']) || strtolower($args['escape']) == 'no') {
 			return $value;
@@ -302,7 +302,7 @@ class Design_Area extends Asset
 	* @return string
 	* @access protected
 	*/
-	function _safeStringLiteral($string)
+	protected function _safeStringLiteral($string)
 	{
 		return var_export((string)$string, TRUE);
 
@@ -317,7 +317,7 @@ class Design_Area extends Asset
 	* @return boolean
 	* @access protected
 	*/
-	function _canBeCached()
+	protected function _canBeCached()
 	{
 		return TRUE;
 
@@ -332,7 +332,7 @@ class Design_Area extends Asset
 	* @return boolean
 	* @access protected
 	*/
-	function _canInit()
+	protected function _canInit()
 	{
 		return TRUE;
 
@@ -347,14 +347,14 @@ class Design_Area extends Asset
 	* @return void
 	* @access public
 	*/
-	function printInitCode()
+	public function printInitCode()
 	{
-		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
+		$design = $GLOBALS['DESIGN_BEING_GENERATED'];
 		$instance_id = '_'.$this->id.'_'.$design->id;
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
 			<?php
-				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
+				$cm = $GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
 				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
 
 				if (empty($asset_contents'.$instance_id.')) {
@@ -382,7 +382,7 @@ class Design_Area extends Asset
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 
 	}//end _printInitCode()
@@ -398,12 +398,12 @@ class Design_Area extends Asset
 	* @return void
 	* @access public
 	*/
-	function printPaintingCode()
+	public function printPaintingCode()
 	{
 		if (!array_get_index($this->_tmp, 'ready_to_paint')) {
 			return;
 		}
-		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
+		$design = $GLOBALS['DESIGN_BEING_GENERATED'];
 		$instance_id = '_'.$this->id.'_'.$design->id;
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
@@ -441,7 +441,7 @@ class Design_Area extends Asset
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		$contents = $this->attr('contents');
 		$current_element = NULL;
@@ -495,7 +495,7 @@ class Design_Area extends Asset
 	* @return void
 	* @access private
 	*/
-	function _printContentItemCode($item)
+	protected function _printContentItemCode(Array $item)
 	{
 		if ($item['_type'] == 'HTML') {
 			// just some HTML content to echo out
@@ -549,7 +549,7 @@ class Design_Area extends Asset
 	* @return void
 	* @access public
 	*/
-	function printAreaCode()
+	public function printAreaCode()
 	{
 		if ($this->_canInit()) {
 			$this->printInitCode();

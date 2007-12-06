@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.20 2007/03/29 00:32:00 tbarrett Exp $
+* $Id: design_area_menu_normal.inc,v 1.21 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -39,9 +52,9 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 	* @return void
 	* @access public
 	*/
-	function printDataCollection()
+	public function printDataCollection()
 	{
-		$parent_menu =& $this->getParentMenu();
+		$parent_menu = $this->getParentMenu();
 
 		// if we aren't a sub menu, or if our parent is only showing subs if we are in the lineage, use the asset from the lineage
 		if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
@@ -90,7 +103,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		if ($this->attr('root_node') != 0 && $this->attr('level') == 0) {
 			echo '
@@ -159,7 +172,7 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		if ($this->attr('root_node') != 0 && $this->attr('level') == 0) {
 			echo '

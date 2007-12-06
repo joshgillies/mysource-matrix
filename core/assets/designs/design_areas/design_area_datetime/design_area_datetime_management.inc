@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime_management.inc,v 1.11 2006/12/06 04:57:30 emcdonald Exp $
+* $Id: design_area_datetime_management.inc,v 1.12 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,9 +36,9 @@ class Design_Area_DateTime_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Design_Area_DateTime_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'format'	=> Array(

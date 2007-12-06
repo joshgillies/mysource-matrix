@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.51 2007/11/06 06:11:39 rong Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.52 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,15 +33,26 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
+
+	/**
 	* Loops through the contents array and creates the necessary objects
 	*
-	* @param object	&$asset		the asset to which we belong
-	* @param array	&$contents	the contents array we generated with _parseString()
+	* @param Design_Area_Menu_Type	$asset		the asset to which we belong
+	* @param array					&$contents	the contents array we generated with _parseString()
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, &$contents)
+	public function _processContents(Design_Area_Menu_Type $asset, Array &$contents)
 	{
 		$asset->setAttrValue('settings', Array());
 		if (!$this->_setVariables($asset, $contents)) {
@@ -192,15 +203,15 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	* Takes the contents for the sub menu element and attempts to process it,
 	* is a separate fn to allow menu types that don't want to allow sub menu's to override
 	*
-	* @param object	&$asset			the asset to which we belong
-	* @param array	&$contents		the sub menu's contents array that we generated with _parseString()
-	* @param string	$design_area	the menu type design area that the sub menu is supposed to be
+	* @param Design_Area_Menu_Type	$asset			the asset to which we belong
+	* @param array					&$contents		the sub menu's contents array that we generated with _parseString()
+	* @param string					$design_area	the menu type design area that the sub menu is supposed to be
 	*
 	* @return boolean
 	* @access private
-	* @see _processContents();
+	* @see _processContents()
 	*/
-	function _processSubMenu(&$asset, &$contents, $design_area)
+	protected function _processSubMenu(Design_Area_Menu_Type $asset, Array &$contents, $design_area)
 	{
 		// let's see if we already have a sub menu
 		$sub = $asset->getSubMenu();
@@ -282,14 +293,14 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Prints the interface for setting the menu level
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Menu_Type	$asset	the owning asset
+	* @param Backend_Outputter		$o		the backend outputter
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintLevel(&$asset, &$o, $prefix)
+	function paintLevel(Design_Area_Menu_Type $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_level = $asset->attr('level');
@@ -321,14 +332,14 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the interface for setting the menu level
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Design_Area_Menu_Type	$asset	the owning asset
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processLevel(&$asset, &$o, $prefix)
+	function processLevel(Design_Area_Menu_Type $asset, Backend_Outputter $o, $prefix)
 	{
 		$special_level = (int) (isset($_POST[$prefix.'_special_level'])) ? $_POST[$prefix.'_special_level'] : '';
 		$custom_level  = (int) (isset($_POST[$prefix.'_level'])) ? $_POST[$prefix.'_level'] : '';

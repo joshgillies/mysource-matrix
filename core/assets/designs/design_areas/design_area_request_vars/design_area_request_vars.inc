@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars.inc,v 1.6 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_request_vars.inc,v 1.7 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Display something from the request (GET or POST) in the design
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Request_Vars extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID of the asset to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -41,7 +54,7 @@ class Design_Area_Request_Vars extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args)
+	public function printVar($var, Array $args)
 	{
 		switch ($this->vars['method']['value']) {
 			case 'get':

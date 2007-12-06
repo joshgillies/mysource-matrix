@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars.inc,v 1.20 2007/11/06 06:11:39 rong Exp $
+* $Id: design_area_declared_vars.inc,v 1.21 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Declared_Vars extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -40,7 +53,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return mixed string|object|int|float
 	* @access public
 	*/
-	function attr($name)
+	public function attr($name)
 	{
 		if (empty($this->vars['declared_vars']['value'][$name])) {
 			return parent::attr($name);
@@ -59,7 +72,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 
 	}//end _printPaintingCode()
@@ -71,7 +84,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getDeclaredVarAttributes()
+	public function getDeclaredVarAttributes()
 	{
 		$attrs = Array();
 		foreach ($this->vars['declared_vars']['value'] as $name => $data) {
@@ -100,7 +113,7 @@ class Design_Area_Declared_Vars extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function mergeParentDeclaredVars($parent_attrs)
+	public function mergeParentDeclaredVars(Array $parent_attrs)
 	{
 		$current_attrs = $this->attr('declared_vars');
 		foreach ($parent_attrs as $id => $value) {

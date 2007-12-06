@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.25 2007/08/29 03:55:55 lwright Exp $
+* $Id: design_area_login_form.inc,v 1.26 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,7 @@ class Design_Area_Login_Form extends Design_Area
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args, $value_prefix='', $value_suffix='')
+	public function printVar($var, Array $args, $value_prefix='', $value_suffix='')
 	{
 		// make sure that this var is being painted only within its valid sections
 		switch ($var) {
@@ -195,7 +195,7 @@ class Design_Area_Login_Form extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function canBeCached()
+	public function canBeCached()
 	{
 		return FALSE;
 
@@ -208,7 +208,7 @@ class Design_Area_Login_Form extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printInitCode()
+	protected function _printInitCode()
 	{
 		echo '<', '?php
 		if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) {
@@ -229,7 +229,7 @@ class Design_Area_Login_Form extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function _printContentItemCode($element)
+	protected function _printContentItemCode(Array $element)
 	{
 		switch (array_get_index($element, 'operation')) {
 			case 'login_section':
@@ -283,7 +283,7 @@ class Design_Area_Login_Form extends Design_Area
 	* @return array
 	* @access public
 	*/
-	function getProtectedAttrs()
+	public function getProtectedAttrs()
 	{
 		$res = parent::getProtectedAttrs();
 		$res[] = 'login_contents';

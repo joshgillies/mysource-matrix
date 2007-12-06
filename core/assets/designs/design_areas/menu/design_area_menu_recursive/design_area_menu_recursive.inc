@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.25 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_menu_recursive.inc,v 1.26 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -39,7 +52,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* @return void
 	* @access public
 	*/
-	function printStaticInitOutput()
+	public function printStaticInitOutput()
 	{
 		parent::printStaticInitOutput();
 
@@ -61,7 +74,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* @return void
 	* @access public
 	*/
-	function printInitOutput()
+	public function printInitOutput()
 	{
 		parent::printInitOutput();
 		$this->printRecursiveFn();
@@ -76,7 +89,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* @return void
 	* @access public
 	*/
-	function printRecursiveFn()
+	public function printRecursiveFn()
 	{
 		echo '
 
@@ -155,7 +168,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* @return void
 	* @access public
 	*/
-	function printDataCollection()
+	public function printDataCollection()
 	{
 		$parent_menu =& $this->getParentMenu();
 
@@ -235,7 +248,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* @return void
 	* @access public
 	*/
-	function printVar($var, $args, $value_prefix='', $value_suffix='')
+	public function printVar($var, Array $args, $value_prefix='', $value_suffix='')
 	{
 		if ($var == 'asset_short_name' && $this->attr('ellipsis_length') > 0) {
 			$value_prefix = 'ellipsisize('.$value_prefix;
@@ -255,7 +268,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	* @return void
 	* @access private
 	*/
-	function _printContentItemCode($element)
+	protected function _printContentItemCode(Array $element)
 	{
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :

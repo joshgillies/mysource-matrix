@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.21 2007/12/03 04:52:13 bshkara Exp $
+* $Id: design_area_linked_css.inc,v 1.22 2007/12/06 04:28:49 lwright Exp $
 *
 */
 
@@ -24,12 +24,25 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Linked_Css extends Design_Area
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -41,7 +54,7 @@ class Design_Area_Linked_Css extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	public function setAttrValue($name, $value)
 	{
 		// if they are trying to set the type_codes, split the string
 		if ($name == 'type_codes') {
@@ -73,7 +86,7 @@ class Design_Area_Linked_Css extends Design_Area
 	* @return array
 	* @access private
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 
 		return Array(
@@ -96,13 +109,13 @@ class Design_Area_Linked_Css extends Design_Area
 	*
 	* Returns NULL if no link found
 	*
-	* @param boolean	$field	field in the link that is required (any valid field from getLink())
+	* @param string	$field	field in the link that is required (any valid field from getLink())
 	*
 	* @return mixed NULL|string
 	* @access private
 	* @see Asset::getLink()
 	*/
-	function _getLinkedCSSInfo($field)
+	protected function _getLinkedCSSInfo($field)
 	{
 		if (!isset($this->_tmp['css_assetid'])) {
 			$this->_tmp['css_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'linked_css_asset');
@@ -118,7 +131,7 @@ class Design_Area_Linked_Css extends Design_Area
 	* @return void
 	* @access private
 	*/
-	function linksUpdated()
+	public function linksUpdated()
 	{
 		parent::linksUpdated();
 		unset($this->_tmp['css_assetid']);
@@ -136,7 +149,7 @@ class Design_Area_Linked_Css extends Design_Area
 	* @return void
 	* @access protected
 	*/
-	function _printPaintingCode()
+	protected function _printPaintingCode()
 	{
 		$css_assetid = (int) $this->_getLinkedCSSInfo('minorid');
 

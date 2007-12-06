@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks_edit_fns.inc,v 1.12 2006/12/05 22:42:14 emcdonald Exp $
+* $Id: design_area_menu_stalks_edit_fns.inc,v 1.13 2007/12/06 04:28:50 lwright Exp $
 *
 */
 
@@ -24,12 +24,24 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_Fns
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct()
+	{
+		parent::__construct();
+
+	}//end constructor
+
 
 }//end class
 ?>
