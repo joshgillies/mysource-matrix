@@ -15,7 +15,7 @@
 		require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 		require_once SQ_SYSTEM_ROOT.'/core/include/asset_edit_interface.inc';
 
-		$o =& new Backend_Outputter();
+		$o = new Backend_Outputter();
 
 		$o->openSection('Keyword List for Simple Edit Keywords');
 
@@ -52,7 +52,7 @@
 		if (isset($_REQUEST['asset_type']))
 		{
 			$asset_type = $_REQUEST['asset_type'];
-			$ei=& new Asset_Edit_Interface($asset_type);
+			$ei= new Asset_Edit_Interface($asset_type);
 			$ei->getSimpleEditKeywords($asset_type, $o);
 		}
 		$o->openSection('&nbsp;');
