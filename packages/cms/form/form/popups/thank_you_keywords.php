@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thank_you_keywords.php,v 1.8 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: thank_you_keywords.php,v 1.9 2007/12/06 04:33:39 rong Exp $
 *
 */
 
@@ -19,8 +19,8 @@
 	if (!isset($_GET['assetid'])) return FALSE;
 
 	assert_valid_assetid($_GET['assetid']);
-	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
-	if (!is_a($asset, 'form')) {
+	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	if (!($asset instanceof Form)) {
 		trigger_localised_error('CMS0002', E_USER_ERROR, $asset);
 		return FALSE	;
 	}
@@ -55,7 +55,7 @@
 	<?php
 		require_once dirname(__FILE__).'/../../../../../core/include/backend_outputter.inc';
 		// $backend = new Backend();
-		$o =& new Backend_Outputter();
+		$o = new Backend_Outputter();
 
 		$o->openSection('Keyword List for \''.$asset->attr('name').'\' (#'.$asset->id.')');
 		$o->openField('&nbsp;');

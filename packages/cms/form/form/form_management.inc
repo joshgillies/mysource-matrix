@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.52 2007/06/21 06:35:10 rong Exp $
+* $Id: form_management.inc,v 1.53 2007/12/06 04:33:39 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -223,7 +223,7 @@ class Form_Management extends Asset_Management
 
 		if (version_compare($current_version, '0.6', '<')) {
 			pre_echo('UPGRADING FORM TO v0.6');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
 			foreach ($descendants as $i => $desc) {
 				$descendants[$i] = $db->quote($desc);
@@ -232,7 +232,7 @@ class Form_Management extends Asset_Management
 			assert_valid_db_result($form_assetids);
 
 			foreach ($form_assetids as $form_id) {
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 				// delete the content file so it gets regenerated next run
 				if (is_file($form->data_path.'/content_file.php')) {
 					unlink($form->data_path.'/content_file.php');
@@ -246,7 +246,7 @@ class Form_Management extends Asset_Management
 		if (version_compare($current_version, '0.7', '<')) {
 			pre_echo('UPGRADING FORM TO v0.7');
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -297,7 +297,7 @@ class Form_Management extends Asset_Management
 
 		if (version_compare($current_version, '0.11', '<')) {
 			pre_echo('UPGRADING FORM TO v0.11');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
 			foreach ($descendants as $i => $desc) {
 				$descendants[$i] = $db->quote($desc);
@@ -308,7 +308,7 @@ class Form_Management extends Asset_Management
 			pre_echo('Upgrading '.count($form_assetids).' asset(s)...');
 
 			foreach ($form_assetids as $form_id) {
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 				// delete the content file so it gets regenerated next run
 				if (is_file($form->data_path.'/content_file.php')) {
 					unlink($form->data_path.'/content_file.php');
@@ -323,7 +323,7 @@ class Form_Management extends Asset_Management
 			pre_echo('UPGRADING FORM TO v0.10');
 			$formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 			foreach ($formids as $formid) {
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
 				if (!$form->_createSubmissionsFolder()) {
 					trigger_error('Error creating submissions folder for Form #'.$formid, E_USER_WARNING);
 				}
@@ -335,7 +335,7 @@ class Form_Management extends Asset_Management
 		if (version_compare($current_version, '0.12', '<')) {
 			$formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 			foreach ($formids as $formid) {
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
 				// remove questions that are not present in the sort order array
 				$sort_order = $form->attr('sort_order');
 				$questions = $form->attr('questions');

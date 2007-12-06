@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.173 2007/12/04 02:55:08 bshkara Exp $
+* $Id: form.inc,v 1.174 2007/12/06 04:33:37 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -555,7 +555,7 @@ class Form extends Asset
 		// this is so we get the sections as we go
 		// have to do this all in here because calling asset manager will bring on a vicious loop
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
+		if (($asset instanceof Bridge) && ($assetid != $this->id)) {
 			$children = $asset->getChildren($assetid, $type_code, $dependant, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
 		} else {
@@ -637,7 +637,7 @@ class Form extends Asset
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (is_a($minor, 'form_submission') || is_a($minor, 'form_section')) {
+		if (($minor instanceof Form_Submission) || ($minor instanceof Form_Section)) {
 			return TRUE;
 		}
 
@@ -749,7 +749,7 @@ class Form extends Asset
 	*/
 	function &getQuestionAssets()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
 
 		$questions = $this->attr('questions');
@@ -984,7 +984,7 @@ class Form extends Asset
 	*/
 	function &getSections()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$section_links = $this->getSectionLinks();
 		$sections = Array();
 
@@ -1113,13 +1113,13 @@ class Form extends Asset
 	* @access public
 	* @see asset::cloneComponentsAdditional()
 	*/
-    function cloneComponentsAdditional(&$clone, $components)
+	function cloneComponentsAdditional(&$clone, $components)
 	{
 
-        $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-        $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-        if (in_array('attributes', $components) || in_array('all', $components)) {
+		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 
 
@@ -1194,11 +1194,11 @@ class Form extends Asset
 
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-        }//end if components
+		}//end if components
 
-        $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-        $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-        return TRUE;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
 
 	}//end cloneComponentsAdditional()
 
@@ -1680,7 +1680,7 @@ class Form extends Asset
 		$null = NULL;
 
 		if (!$name) return $null;
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
 		if (empty($folder_link)) return $null;
@@ -1823,8 +1823,8 @@ class Form extends Asset
 		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
 
 			if ($this->attr('show_results')) {
-                $keyword_list = $tyb->getKeywords();
-                $replacements = Array();
+				$keyword_list = $tyb->getKeywords();
+				$replacements = Array();
 
 				foreach ($keyword_list as $keyword) {
 					$lookup_keyword = $keyword;
@@ -1906,7 +1906,7 @@ class Form extends Asset
 		ob_start();
 		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
 		echo ' ip="'.$submission_ip.'"';
-		if (!is_null($cur_user =& $GLOBALS['SQ_SYSTEM']->user)) {
+		if (!is_null($cur_user = $GLOBALS['SQ_SYSTEM']->user)) {
 			echo ' user="'.$cur_user->id.'"';
 		}
 		echo '>';
@@ -2026,7 +2026,7 @@ class Form extends Asset
 	function getFormInfo()
 	{
 		$info = Array();
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$lineage = $am->getLineageFromURL();
 		foreach ($lineage as $asset) {
@@ -2109,7 +2109,7 @@ class Form extends Asset
 	*/
 	function &createSubmission()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

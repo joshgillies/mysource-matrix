@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_contents_keywords.php,v 1.8 2006/12/07 00:04:17 emcdonald Exp $
+* $Id: page_contents_keywords.php,v 1.9 2007/12/06 04:33:39 rong Exp $
 *
 */
 
@@ -19,8 +19,8 @@
 	if (!isset($_GET['assetid'])) return FALSE;
 
 	assert_valid_assetid($_GET['assetid']);
-	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
-	if (!is_a($asset, 'form')) {
+	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	if (!($asset instanceof Form)) {
 		trigger_localised_error('CMS0002', E_USER_ERROR, $asset);
 		return FALSE;
 	}
@@ -55,7 +55,7 @@
 	<?php
 		require_once dirname(__FILE__).'/../../../../../core/include/backend_outputter.inc';
 		// $backend = new Backend();
-		$o =& new Backend_Outputter();
+		$o = new Backend_Outputter();
 
 		$o->openSection('Keyword List for \''.$asset->attr('name').'\' (#'.$asset->id.')');
 		$o->openField('&nbsp;');
@@ -71,7 +71,7 @@
 			<table border="0" width="100%">
 				<?php
 					foreach ($questions as $q_id => $question) {
-						$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$q_id);
+						$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
 						?>							<tr><td valign="top" width="200"><b>%question_field_<?php echo $asset->id.'_q'.$q_id ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($asset->id.':q'.$q_id); ?></td></tr><?php
 					}
@@ -92,7 +92,7 @@
 					$replacements['section_title_'.$section->id] = $section->attr('name');
 					$questions = $section->getQuestions();
 					foreach ($questions as $q_id => $question) {
-						$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
+						$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $section->attr('name').': '.$q_asset->attr('name');
 						?>
 						<tr><td valign="top" width="200"><b>%question_field_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($section->id.':q'.$q_id); ?></td></tr>
