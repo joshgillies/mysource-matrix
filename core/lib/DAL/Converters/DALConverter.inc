@@ -2267,6 +2267,33 @@ class DALConverter
 
 
     /**
+     * Handles the SUBSTR() function.
+     *
+     * @param array $args Method arguments.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionSubstr(array $args)
+    {
+        // SUBSTR(str,pos) or SUBSTR(str,pos,len)
+        // SQL Server: SUBSTRING(), syntax 1 not supported
+
+        if (count($args) != 2 && count($args) != 3) {
+            $msg = 'The SUBSTR() function accepts only two or three parameters.';
+            throw new DALConverterException($msg);
+        }
+
+        $fnArg = $this->convertSingleField($args[0]);
+        array_shift($args);
+        $sql = "SUBSTR($fnArg,".implode(',',$args).')';
+
+        return $sql;
+
+    }//end handleFunctionSubstr()
+
+
+    /**
      * Returns list of allowed where clause conditions.
      *
      * @param string $type Type of the condition. It will return its sign.
