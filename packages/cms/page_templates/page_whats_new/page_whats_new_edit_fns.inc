@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.15 2007/12/04 02:57:49 bshkara Exp $
+* $Id: page_whats_new_edit_fns.inc,v 1.16 2007/12/06 05:14:00 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -172,7 +172,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 		foreach (Array('oldest_date', 'newest_date') as $type) {
 
 			$o->openField(ucwords(str_replace('_', ' ', $type)));
-				$datetime =& new Asset_Attribute_DateTime();
+				$datetime = new Asset_Attribute_DateTime();
 
 				// set some params for the datetime field so that it paints properly
 				$datetime->_edit_params['allow_period'] = TRUE;
@@ -246,7 +246,7 @@ class Page_Whats_New_Edit_Fns extends Listing_Engine_Edit_Fns
 			}
 
 			foreach (Array('oldest_date', 'newest_date') as $type) {
-				$datetime =& new Asset_Attribute_DateTime();
+				$datetime = new Asset_Attribute_DateTime();
 				$datetime->process($prefix.'_'.$type);
 
 				if (isset($current_range[$type]) && $current_range[$type] == $datetime->value) {

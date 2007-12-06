@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.19 2007/12/04 00:15:26 bshkara Exp $
+* $Id: page_user_group_manager.inc,v 1.20 2007/12/06 05:12:52 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -392,7 +392,7 @@ class Page_User_Group_Manager extends Page
 	function &getBodycopy($name)
 	{
 		if (array_key_exists($name, $this->bodycopies)) {
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
 			$bodycopy = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			return $bodycopy;
@@ -545,7 +545,7 @@ class Page_User_Group_Manager extends Page
 	*/
 	function getUserEmailKeywordReplacement()
 	{
-		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		$current_user_email = $current_user->attr('email');
 		return $current_user_email;
 

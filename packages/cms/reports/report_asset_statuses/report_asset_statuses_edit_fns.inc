@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.10 2007/12/04 02:57:49 bshkara Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.11 2007/12/06 05:15:57 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,9 +57,9 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	*/
 	function generateReport(&$job, &$step_data, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$owner =& $am->getAsset($job->_running_vars['assetid'], 'report_asset_statuses');
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$owner = $am->getAsset($job->_running_vars['assetid'], 'report_asset_statuses');
 		$where = Array();
 		$tables = Array('ast a');
 
@@ -113,7 +113,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			if (isset($names[$r['status_changed_userid']])) {
 				$result[$i]['user_name'] = array_get_index($names, $r['status_changed_userid'], 'Unknown');
 			} else if (!empty($r['status_changed_userid'])) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($r['status_changed_userid']);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($r['status_changed_userid']);
 				$result[$i]['user_name'] = $asset->name;
 			} else {
 				$result[$i]['user_name'] = 'Unknown';
@@ -174,12 +174,12 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$comparator_attr =& $asset->getAttribute('status_change_comparator_more_than');
+		$comparator_attr = $asset->getAttribute('status_change_comparator_more_than');
 		$comparator_attr->setEditParam('true_text', 'more');
 		$comparator_attr->setEditParam('false_text', 'less');
 		$comparator_attr->paint($prefix.'_comparator', !$write_access);
 		echo ' than ';
-		$comparator_attr =& $asset->getAttribute('status_change_period');
+		$comparator_attr = $asset->getAttribute('status_change_period');
 		$comparator_attr->paint($prefix.'_period', !$write_access);
 		echo ' ago';
 		return TRUE;
@@ -199,10 +199,10 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	*/
 	function processLastStatusChange(&$asset, &$o, $prefix)
 	{
-		$comparator_attr =& $asset->getAttribute('status_change_comparator_more_than');
+		$comparator_attr = $asset->getAttribute('status_change_comparator_more_than');
 		$comparator_attr->process($prefix.'_comparator');
 		$asset->setAttrValue('status_change_comparator_more_than', $comparator_attr->value);
-		$period_attr =& $asset->getAttribute('status_change_period');
+		$period_attr = $asset->getAttribute('status_change_period');
 		$period_attr->process($prefix.'_period');
 		$asset->setAttrValue('status_change_period', $period_attr->value);
 		return TRUE;
@@ -222,7 +222,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintReport(&$asset, &$o, $prefix)
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -234,8 +234,8 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input =& new XML_Tree($report_path);
-		$root  =& $input->getTreeFromFile();
+		$input = new XML_Tree($report_path);
+		$root  = $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;

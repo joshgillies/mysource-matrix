@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.73 2007/12/05 06:09:10 colivar Exp $
+* $Id: page_remote_content.inc,v 1.74 2007/12/06 05:11:57 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -322,7 +322,7 @@ class Page_Remote_Content extends Page
 			addProxyInfo($request_parameters, $default_headers);
 
 			// we need a persistent cookie manager for this
-			$cookie_man =& $this->_getNewCookieManager();
+			$cookie_man = $this->_getNewCookieManager();
 
 			$HTTP_Client = @new HTTP_Client($request_parameters, $default_headers, $cookie_man);
 			setcookie(SQ_REMOTE_SESSION_COOKIE_NAME, 1);

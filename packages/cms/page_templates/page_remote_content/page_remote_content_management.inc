@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.20 2006/12/07 01:12:23 emcdonald Exp $
+* $Id: page_remote_content_management.inc,v 1.21 2007/12/06 05:11:57 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -190,7 +190,7 @@ class Page_Remote_Content_Management extends Asset_Management
 			pre_echo('UPGRADING REMOTE CONTENT FROM v'.$current_version.' to v1.7');
 			$ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_remote_content');
 			foreach ($ids as $id) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 				$white_list = $asset->attr('url_white_list');
 				$options = Array(
 							'all'			=> FALSE,

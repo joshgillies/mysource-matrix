@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.13 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_password_reset.inc,v 1.14 2007/12/06 05:05:02 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,7 +103,7 @@ class Page_Password_Reset extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
 		$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
 
-		$group =& new User_Group();
+		$group = new User_Group();
 
 		$group->setAttrValue('name', translate('cms_password_reset_pending_group'));
 		if (!$group->create($group_link)) return FALSE;
@@ -114,7 +114,7 @@ class Page_Password_Reset extends Page
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
 		foreach ($this->_getBodycopies() as $value => $details) {
-			$bodycopy =& new Bodycopy();
+			$bodycopy = new Bodycopy();
 			$copy_link['value'] = $value;
 
 			$bodycopy->setAttrValue('name', $details['name']);
@@ -278,7 +278,7 @@ class Page_Password_Reset extends Page
 		} else {
 			$username = $_POST['username'];
 
-			$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+			$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 			if (is_null($auth_folder)) {
 				trigger_localised_error('SYS0249', E_USER_ERROR);
 				return Array();
@@ -287,11 +287,11 @@ class Page_Password_Reset extends Page
 
 			$user = NULL;
 			foreach ($auth_systems as $systemid) {
-				$system =& $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+				$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
 				if (is_null($system)) continue;
 
 				if (method_exists($system, 'locateUser')) {
-					$user =& $system->locateUser($username);
+					$user = $system->locateUser($username);
 					if (!is_null($user) && $user->canLogin()) {
 						break;
 					}
@@ -316,7 +316,7 @@ class Page_Password_Reset extends Page
 				$email_replacements = $replacements;
 				$email_replacements['password_reset_url'] = current_url().'?action=reset&prid='.$user_hash;
 
-				$email_attr =& $this->getAttribute('request_email_format');
+				$email_attr = $this->getAttribute('request_email_format');
 				$email_value = unserialize($email_attr->value);
 				$email_value['to'][] = $user->attr('email');
 				$email_attr->value = serialize($email_value);
@@ -357,7 +357,7 @@ class Page_Password_Reset extends Page
 				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
 			} else {
 				$userid = $user_link['minorid'];
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_null($user)) {
 					$replacements['password_reset_error'] = translate('cms_password_reset_message_no_user');
 				} else {
@@ -403,7 +403,7 @@ class Page_Password_Reset extends Page
 				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
 			} else {
 				$userid = $user_link['minorid'];
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (is_null($user)) {
 					$replacements['password_reset_error'] = translate('cms_password_reset_message_no_user');
 				} else {
@@ -451,7 +451,7 @@ class Page_Password_Reset extends Page
 		$replacements = Array();
 
 		ob_start();
-			$bodycopy =& $this->_getBodycopy($action);
+			$bodycopy = $this->_getBodycopy($action);
 			$keywords = $bodycopy->getKeywords();
 
 			foreach ($keywords as $keyword) {
@@ -518,7 +518,7 @@ class Page_Password_Reset extends Page
 				$parentid = $this->_getPendingAccountsGroupId();
 				if ($parentid == 0) return FALSE;
 
-				$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, 'user_group');
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, 'user_group');
 				if (is_null($parent)) return FALSE;
 
 				// Remove this user completly from our pending reset group.
@@ -553,14 +553,14 @@ class Page_Password_Reset extends Page
 		if (empty($assetid)) return FALSE;
 
 		// The user asset.
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return FALSE;
 
 		$parentid = $this->_getPendingAccountsGroupId();
 		if ($parentid == 0) return FALSE;
 
 		// The user group asset.
-		$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, 'user_group');
+		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, 'user_group');
 		if (is_null($parent)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -733,12 +733,12 @@ class Page_Password_Reset extends Page
 	}//end getPasswordInputKeywordReplacement()
 
 
-    /**
-    * Prints a form allowing the user to enter a new password.
-    *
-    * @return string
-    * @access public
-    */
+	/**
+	* Prints a form allowing the user to enter a new password.
+	*
+	* @return string
+	* @access public
+	*/
 	function getPasswordNewKeywordReplacement()
 	{
 		ob_start();
@@ -748,17 +748,17 @@ class Page_Password_Reset extends Page
 	}//end getPasswordNewKeywordReplacement()
 
 
-    /**
-    * Prints a form allowing the user to enter a new password.
-    *
-    * @return string
-    * @access public
-    */
+	/**
+	* Prints a form allowing the user to enter a new password.
+	*
+	* @return string
+	* @access public
+	*/
 	function getPasswordConfirmationKeywordReplacement()
 	{
 		ob_start();
-        	password_box('password[]');
-        return ob_get_clean();
+			password_box('password[]');
+		return ob_get_clean();
 
 	}//end getPasswordConfirmationKeywordReplacement()
 
@@ -809,7 +809,7 @@ class Page_Password_Reset extends Page
 		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $link_value, 'major', '1');
 		if (empty($bodycopy_data)) $null;
 
-		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) $null;
 
 		return $bodycopy;

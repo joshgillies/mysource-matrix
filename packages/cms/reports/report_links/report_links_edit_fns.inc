@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.37 2007/12/04 02:57:49 bshkara Exp $
+* $Id: report_links_edit_fns.inc,v 1.38 2007/12/06 05:17:53 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,7 +59,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$owner =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
+		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
 
 		if (!isset($job->_running_vars['results'])) {
 			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', FALSE);
@@ -94,7 +94,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if ($asset_type == 'content_type_nest_content') {
 				$step_data['message'] = translate('cms_report_links_skipping_nest_content', $assetid);
 			} else {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 				if (!is_null($asset)) {
 					$step_data['message'] = translate('cms_report_links_generating');
@@ -169,7 +169,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$job->_running_vars['complete'] = TRUE;
 
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['userid']);
+				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['userid']);
 				// update the who/when attribute
 				$owner->setAttrValue('generated_date', $job->_running_vars['generated_date']);
 				$owner->setAttrValue('generated_user', $user->name.' (#'.$user->id.')');
@@ -224,7 +224,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$asset = NULL;
 		$assetid = $link[1];
 		if ($assetid) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		}
 
 		if (is_null($asset)) {
@@ -458,7 +458,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 								$to = NULL;
 								if ($link['data']) {
-									$to =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['data'], '', TRUE);
+									$to = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['data'], '', TRUE);
 								}
 								if (is_null($to)) {
 									$to_type = '';
@@ -702,7 +702,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	{
 		$asset = NULL;
 		if ($assetid) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 		}
 		if (is_null($asset)) {
 			$asset_type = '';
@@ -716,7 +716,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$asset_preview_url = '';
 		} else {
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
-			$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
+			$first_dep = array_pop($dependants);
+			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($first_dep);
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
 				$asset_name = $parent->name;
@@ -1035,11 +1036,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			trigger_localised_error('CORE0273', E_USER_WARNING);
 		} else {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-			$csv =& new CSV();
+			$csv = new CSV();
 			$csv->setFilename($asset->name.'_report.csv');
 			$csv->setDeliminator(',');
 
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			$logs = Array();
 
@@ -1053,8 +1054,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				return;
 			}
 
-			$input =& new XML_Tree($report_path);
-			$root =& $input->getTreeFromFile();
+			$input = new XML_Tree($report_path);
+			$root = $input->getTreeFromFile();
 			if (PEAR::isError($root)) {
 				trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 				return;
@@ -1129,7 +1130,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintFutureRegenerate(&$asset, &$o, $prefix)
 	{
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_regenerate_report');
 		$rl_jobs = $cron_mgr->getJobs('cron_job_regenerate_report');
 		$job_count = count($rl_jobs);
@@ -1171,7 +1172,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-								$user =& $rl_job->getRunningUser();
+								$user = $rl_job->getRunningUser();
 								echo get_asset_tag_line($user->id);
 								unset($user);
 							?>
@@ -1195,7 +1196,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		}//end if
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		$cron_job =& new Cron_Job_Regenerate_Report();
+		$cron_job = new Cron_Job_Regenerate_Report();
 		$edit_fns = $cron_job->getEditFns();
 
 
@@ -1231,7 +1232,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function processFutureRegenerate(&$asset, &$o, $prefix)
 	{
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_regenerate_report');
 
 		if (!is_null($cron_mgr)) {
@@ -1264,7 +1265,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$cron_refresh = (int)$cron_mgr->attr('refresh_time');
 			if ($cron_epoc > 0 && $cron_refresh > 0) {
 				if ($asset->writeAccess('attributes')) {
-					$rl =& new Cron_Job_Regenerate_Report();
+					$rl = new Cron_Job_Regenerate_Report();
 					$edit_fns = $rl->getEditFns();
 
 					$new_rl = $prefix.'_new_rl';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.20 2007/12/04 02:40:07 colivar Exp $
+* $Id: page_poll.inc,v 1.21 2007/12/06 05:06:45 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -338,30 +338,30 @@ class Page_Poll extends Page
 		$parent_folders = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'folder', TRUE);
 		$parent_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 
-		$vote_formats =& $this->getFolder('vote_formats');
-		$result_formats =& $this->getFolder('results_formats');
-		$past_questions_formats =& $this->getFolder('past_questions_formats');
+		$vote_formats = $this->getFolder('vote_formats');
+		$result_formats = $this->getFolder('results_formats');
+		$past_questions_formats = $this->getFolder('past_questions_formats');
 
 		$keywords = Array();
 		if (in_array($vote_formats->id, array_keys($parent_folders))) {
-			$quetion_format =& $this->getFormatAsset('question_format');
-			$option_list_format =& $this->getFormatAsset('option_list_format');
+			$quetion_format = $this->getFormatAsset('question_format');
+			$option_list_format = $this->getFormatAsset('option_list_format');
 			if (in_array($quetion_format->id, array_keys($parent_bodycopy))) {
 				$keywords = $this->_getQuestionFormatKeywords();
 			} else if (in_array($option_list_format->id, array_keys($parent_bodycopy))) {
 				$keywords = $this->_getOptionListFormatKeywords();
 			}
 		} else if (in_array($result_formats->id, array_keys($parent_folders))) {
-			$results_format =& $this->getFormatAsset('results_format');
-			$results_list_format =& $this->getFormatAsset('results_list_format');
+			$results_format = $this->getFormatAsset('results_format');
+			$results_list_format = $this->getFormatAsset('results_list_format');
 			if (in_array($results_format->id, array_keys($parent_bodycopy))) {
 				$keywords = $this->_getResultsFormatKeywords();
 			} else if (in_array($results_list_format->id, array_keys($parent_bodycopy))) {
 				$keywords = $this->_getResultsListFormatKeywords();
 			}
 		} else if (in_array($past_questions_formats->id, array_keys($parent_folders))) {
-			$past_questions_format =& $this->getFormatAsset('past_questions_format');
-			$past_questions_list_format =& $this->getFormatAsset('past_questions_list_format');
+			$past_questions_format = $this->getFormatAsset('past_questions_format');
+			$past_questions_list_format = $this->getFormatAsset('past_questions_list_format');
 			if (in_array($past_questions_format->id, array_keys($parent_bodycopy))) {
 				$keywords = $this->_getPastQuestionsFormatKeywords();
 			} else if (in_array($past_questions_list_format->id, array_keys($parent_bodycopy))) {

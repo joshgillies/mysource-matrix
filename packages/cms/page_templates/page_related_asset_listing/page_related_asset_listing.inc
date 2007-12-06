@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.8 2007/12/04 02:57:49 bshkara Exp $
+* $Id: page_related_asset_listing.inc,v 1.9 2007/12/06 05:10:03 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,7 +92,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 
 		// get all the assets related to any of the relators
 		$relator_ids = $this->getRelators();
-		$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+		$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 		$related_assets = $tag_manager->getRelatedAssets($relator_ids);
 		$related_ids = array_keys($related_assets);
 		$related_ids = array_diff($related_ids, $relator_ids);
@@ -135,7 +135,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 					$relator_ids[] = (int)$relator_link['minorid'];
 				}
 			}
-			$parameter_map =& $this->getAttribute('parameter_map');
+			$parameter_map = $this->getAttribute('parameter_map');
 
 			$raw_dynamic_relators = $parameter_map->getParameterValue('relator_node');
 

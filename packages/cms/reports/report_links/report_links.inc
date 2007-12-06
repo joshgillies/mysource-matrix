@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.11 2007/12/04 02:57:49 bshkara Exp $
+* $Id: report_links.inc,v 1.12 2007/12/06 05:17:53 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,7 +74,7 @@ class Report_Links extends Report
 
 		if (!isset($this->_tmp['getLinks'])) {
 
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -83,8 +83,8 @@ class Report_Links extends Report
 
 			if (!is_file($report_path)) return Array();
 
-			$input =& new XML_Tree($report_path);
-			$root  =& $input->getTreeFromFile();
+			$input = new XML_Tree($report_path);
+			$root  = $input->getTreeFromFile();
 			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
@@ -129,7 +129,7 @@ class Report_Links extends Report
 	{
 		if (!isset($this->_tmp['getAssetMapLinks'])) {
 
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -138,8 +138,8 @@ class Report_Links extends Report
 
 			if (!is_file($report_path)) return Array();
 
-			$input =& new XML_Tree($report_path);
-			$root  =& $input->getTreeFromFile();
+			$input = new XML_Tree($report_path);
+			$root  = $input->getTreeFromFile();
 			if (PEAR::isError($root)) return Array();
 
 			if (!isset($root->children[0]->attributes['type_code'])) {
@@ -266,8 +266,8 @@ class Report_Links extends Report
 			return Array();
 		}
 
-		$input =& new XML_Tree($report_path);
-		$root  =& $input->getTreeFromFile();
+		$input = new XML_Tree($report_path);
+		$root  = $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_localised_error('CMS0009', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return Array();
@@ -375,7 +375,7 @@ class Report_Links extends Report
 						'link_report_id'	=> $this->id,
 					);
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openQueue();
 		foreach ($reported_links as $link_type => $info) {
 			$msg_reps['type'] = $link_type;

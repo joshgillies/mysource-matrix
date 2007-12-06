@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing_edit_fns.inc,v 1.7 2007/12/04 02:57:49 bshkara Exp $
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.8 2007/12/06 05:10:03 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -123,7 +123,7 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 			// otherwise, create the appropriate notice link
 			if (!empty($node['assetid'])) {
-				$new_relator =& $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				$new_relator = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_relator, SQ_LINK_NOTICE, 'relator')) {
 					trigger_localised_error('CMS0016', E_USER_WARNING, $new_relator->name, $new_relator->id);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

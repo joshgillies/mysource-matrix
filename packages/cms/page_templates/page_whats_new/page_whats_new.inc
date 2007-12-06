@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.37 2007/12/04 02:57:49 bshkara Exp $
+* $Id: page_whats_new.inc,v 1.38 2007/12/06 05:14:00 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,7 +93,7 @@ class Page_Whats_New extends Listing_Engine
 
 		$children = Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		// this is the field in the database that we are using the specify that something is "new"
 		$field = $this->attr('date_field');
@@ -107,14 +107,14 @@ class Page_Whats_New extends Listing_Engine
 			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
 			$this->setAttrValue('num_per_page', 0); // If we're displaying a range, clear the pagination
 
-			$from =& new Asset_Attribute_DateTime();
+			$from = new Asset_Attribute_DateTime();
 			$from->value = $ranges[$id]['oldest_date'];
 
-			$to =& new Asset_Attribute_DateTime();
+			$to = new Asset_Attribute_DateTime();
 			$to->value = $ranges[$id]['newest_date'];
 		} else {
-			$from =& $this->getAttribute('date_range_from');
-			$to   =& $this->getAttribute('date_range_to');
+			$from = $this->getAttribute('date_range_from');
+			$to   = $this->getAttribute('date_range_to');
 		}
 
 		$from = $from->getISO8601();
@@ -206,7 +206,7 @@ class Page_Whats_New extends Listing_Engine
 			$children = Array();
 
 			foreach ($root_asset_ids as $root_asset_id) {
-				$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
+				$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
 				$query['where'] .= $where;
 
