@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.21 2007/03/08 23:58:56 arailean Exp $
+* $Id: form_submission_edit_fns.inc,v 1.22 2007/12/06 04:39:20 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -113,8 +113,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$answers = $asset->attr('attributes');
 		reset($answers['answers']);
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
-		$sections =& $form->getSections();
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+		$sections = $form->getSections();
 		for (reset($sections); $section = current($sections); next($sections)) {
 			$section_questions[$section->id] = Array();
 		}
@@ -125,7 +125,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$section_questions[$section_id][$q_id] = $details;
 		}
 		foreach ($form->attr('sort_order') as $q_id) {
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
 			if ($q->isEditable() && !$is_editable_q) {
 				$is_editable_q = TRUE;
 			}
@@ -150,10 +150,10 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 
 		unset($section_questions[$form_id]);
 		foreach ($section_questions as $section_id => $section_qs) {
-			$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id);
 			$o->openSection(translate('cms_form_submission_answers_for_section',$section->name));
 			foreach ($section->attr('sort_order') as $q_id) {
-				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
 				if ($q->isEditable() && !$is_editable_q) {
 					$is_editable_q = TRUE;
 				}
@@ -201,11 +201,11 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	{
 		$attributes = $asset->attr('attributes');
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($attributes['answers']), 'form', FALSE));
-		$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 		$this->_tmp['question_errors'] = Array();
-		$unanswered_questions =& $form->getAllQuestionAssets();
+		$unanswered_questions = $form->getAllQuestionAssets();
 		foreach ($attributes['answers'] as $q_id => $details) {
-			$question_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
+			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
 			if (!is_null($question_asset)) {
 				if (!$question_asset->isEditable()) continue;
 				$question_asset->populate();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.50 2007/06/13 03:49:56 hnguyen Exp $
+* $Id: form_section_edit_fns.inc,v 1.51 2007/12/06 04:36:53 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,7 +57,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	function paintQuestionLinks(&$asset, &$o, $prefix)
 	{
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$admin_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
 		$questions = $asset->getQuestions();
@@ -196,7 +196,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 					// will allow sections to be sorted in later
 					$i = 0;
 					foreach ($sort_order as $sort_id => $assetid) {
-						$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (is_null($q)) continue;
 						$href = $q->getBackendHref('details');
 						?>
@@ -299,7 +299,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
 		$questions = Array('' => '-- Choose Type --');
 
@@ -342,7 +342,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		// so when we create the new ones,  we can give them an
 		// appropriate name
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
 
 		if ($type && $number) {
@@ -414,7 +414,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$output .= '<table width="'.$asset->attr('section_width').'">';
 
 		foreach ($sort_order as $i => $assetid) {
-			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			// skip over if asset doesn't exist anymore
 			if (is_null($q)) continue;
 
@@ -429,7 +429,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			}
 			$output .= '</td><td';
 			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= '<'.'?php $q =& $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
+			$output .= '<'.'?php $q = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
 			echo $q->getHtmlField(); ?'.'>'."\n";
 			$output .= '</td></tr>';
 		}

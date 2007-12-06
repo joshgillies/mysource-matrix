@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.19 2007/06/21 06:35:11 rong Exp $
+* $Id: form_section_management.inc,v 1.20 2007/12/06 04:36:54 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -108,7 +108,7 @@ class Form_Section_Management extends Asset_Management
 
 			pre_echo('Upgrading '.count($form_sections).' assets...');
 			foreach ($form_sections as $assetid) {
-				$form_section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$form_section = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				// reasonably critical upgrade - report any assets that didn't make it
 				if (is_null($form_section)) {
@@ -117,7 +117,7 @@ class Form_Section_Management extends Asset_Management
 				}
 
 				// regenerate the bodycopy_container's content file
-				$form_section_edit_fns =& $form_section->getEditFns();
+				$form_section_edit_fns = $form_section->getEditFns();
 				if (!$form_section_edit_fns->generateContentFile($form_section)) {
 					pre_echo('Could not generate content file for asset #'.$assetid);
 				}
@@ -133,7 +133,7 @@ class Form_Section_Management extends Asset_Management
 		if (version_compare($current_version, '0.7', '<')) {
 			$form_section_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($form_section_ids as $id) {
-				$form_section_ =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$form_section_ = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 				// remove questions that are not present in the sort order array
 				$sort_order = $form_section_->attr('sort_order');
 				$questions = $form_section_->attr('questions');

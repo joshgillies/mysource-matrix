@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.61 2007/08/29 03:49:20 lwright Exp $
+* $Id: form_email.inc,v 1.62 2007/12/06 04:35:26 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -264,7 +264,7 @@ class Form_Email extends Form
 		$email_field_assetid = $this->attr('receipt_field');
 		if (empty($email_field_assetid)) return FALSE;
 
-		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
 		if (empty($email_field)) return FALSE;
 		$address = $email_field->getValue();
 
@@ -272,7 +272,7 @@ class Form_Email extends Form
 							'receipt_address'	=> $address,
 						   );
 
-		$email_format_attr =& $this->getAttribute('receipt_emails_format');
+		$email_format_attr = $this->getAttribute('receipt_emails_format');
 
 		// append the 'To:' address with the address from the e-mail field
 		$current_value = @unserialize($email_format_attr->value);
@@ -294,7 +294,7 @@ class Form_Email extends Form
 	*/
 	function mailRecipients()
 	{
-		$email_format_attr =& $this->getAttribute('recipient_emails_format');
+		$email_format_attr = $this->getAttribute('recipient_emails_format');
 		$this->_sendEmail($email_format_attr);
 		return TRUE;
 
@@ -310,11 +310,11 @@ class Form_Email extends Form
 	function _getAttachments()
 	{
 		$questions = $this->getAllQuestions();
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$file_assets = Array();
 		foreach ($questions as $q_assetid => $question) {
 			if ($question['question_type_code'] == 'form_question_type_file_upload') {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($q_assetid);
+				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_assetid);
 				if (!is_null($q_asset) && $q_asset->attr('attach_to_mail')) {
 					$file_asset_id = $q_asset->getUploadedFileId();
 					if (!is_null($file_asset_id)) {
@@ -340,11 +340,11 @@ class Form_Email extends Form
 		$email_field_assetid = $this->attr('staf_field');
 		if (empty($email_field_assetid)) return FALSE;
 
-		$email_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
+		$email_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($email_field_assetid);
 		if (empty($email_field)) return FALSE;
 		$addresses = preg_split('/[\s;,]+/',$email_field->getValue());
 
-		$email_format_attr =& $this->getAttribute('staf_format');
+		$email_format_attr = $this->getAttribute('staf_format');
 
 		// append the 'To:' address with the address from the e-mail field
 		$current_value = @unserialize($email_format_attr->value);
@@ -398,7 +398,7 @@ class Form_Email extends Form
 
 				for (reset($rule_parts); NULL !== ($rule_key = key($rule_parts)); next($rule_parts)) {
 					$rule =& $rule_parts[$rule_key];
-					$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+					$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
 
 					// if this rule is broken due to a deleted question, the rule
 					// will automatically fail
@@ -411,7 +411,7 @@ class Form_Email extends Form
 
 					$type_code = 'form_question_rule_type_'.$rule['name'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-					$rule_asset =& new $type_code();
+					$rule_asset = new $type_code();
 					$rule_passed = $rule_asset->evaluate($answer, $rule, $q_asset);
 
 					// Short Circuit evaluation, see note above this loop.
@@ -454,7 +454,7 @@ class Form_Email extends Form
 			// only send one of each type of email to each recipient
 			$recipients = array_unique($recipients);
 
-			$email_format =& $this->getAttribute('recipient_emails_format');
+			$email_format = $this->getAttribute('recipient_emails_format');
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
@@ -472,7 +472,7 @@ class Form_Email extends Form
 			// only send one of each type of email to each recipient
 			$receipts = array_unique($receipts);
 
-			$email_format =& $this->getAttribute('receipt_emails_format');
+			$email_format = $this->getAttribute('receipt_emails_format');
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
@@ -492,7 +492,7 @@ class Form_Email extends Form
 			// only send one of each type of email to each recipient
 			$stafs = array_unique($stafs);
 
-			$email_format =& $this->getAttribute('staf_format');
+			$email_format = $this->getAttribute('staf_format');
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.18 2007/02/05 04:39:39 emcdonald Exp $
+* $Id: form_submission_management.inc,v 1.19 2007/12/06 04:39:20 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -86,7 +86,7 @@ class Form_Submission_Management extends Asset_Management
 			// if they are had already upgraded to version 0.3 (which is where this upgrade should really have happened
 			// then we need to just get the assets that are using the default attribute value
 			if (version_compare($current_version, '0.3', '>=')) {
-				$db =& $GLOBALS['SQ_SYSTEM']->db;
+				$db = $GLOBALS['SQ_SYSTEM']->db;
 				$sql = 'SELECT a.assetid, a.type_code
 						FROM (sq_ast_attr at INNER JOIN sq_ast a ON a.type_code = at.type_code)
 								LEFT OUTER JOIN sq_ast_attr_val v ON at.attrid = v.attrid AND a.assetid = v.assetid
@@ -108,7 +108,7 @@ class Form_Submission_Management extends Asset_Management
 
 			$errors = FALSE;
 			foreach ($assetids as $assetid => $type) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
@@ -140,7 +140,7 @@ class Form_Submission_Management extends Asset_Management
 
 			// unset the exclusive and dependant flags on all form submission links
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$sql = 'UPDATE

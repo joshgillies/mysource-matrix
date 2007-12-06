@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.57 2007/06/12 05:18:24 rong Exp $
+* $Id: form_section.inc,v 1.58 2007/12/06 04:36:53 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,7 +124,7 @@ class Form_Section extends Asset
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($q_type_code);
 
 				// this eval returns the necessary object for the question type
-				$asset =& new $q_type_code($this->id, $questions[$questionid]);
+				$asset = new $q_type_code($this->id, $questions[$questionid]);
 			}
 		}
 
@@ -234,7 +234,7 @@ class Form_Section extends Asset
 		$id_parts = explode(':', $linkid);
 		if (isset($id_parts[1]) && isset($id_parts[2])) {
 			$question_to_delete = $id_parts[1].':'.$id_parts[2];
-			$asset_to_delete =& $this->getAsset($question_to_delete);
+			$asset_to_delete = $this->getAsset($question_to_delete);
 			if ($asset_to_delete != NULL) {
 				return $this->deleteQuestion($asset_to_delete);
 			}
@@ -562,14 +562,14 @@ class Form_Section extends Asset
 	*/
 	function &getQuestionAssets()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
 
 		$questions = $this->attr('questions');
 		if (!empty($questions)) {
 			foreach ($questions as $q_id => $question) {
 				$id           =  $this->id.':q'.$q_id;
-				$result[$id]  =& $am->getAsset($id);
+				$result[$id]  = $am->getAsset($id);
 			}
 		}
 
@@ -623,7 +623,7 @@ class Form_Section extends Asset
 	function attachQuestion($type_code)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -763,7 +763,7 @@ class Form_Section extends Asset
 	function fileRegeneration($form_regen=TRUE)
 	{
 		// we want to regen this section
-		$edit =& $this->getEditFns();
+		$edit = $this->getEditFns();
 		$edit->generateContentFile($this);
 
 		// sometimes, we might not want to regen the form (eg. if the form is calling this function!)
@@ -772,7 +772,7 @@ class Form_Section extends Asset
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', FALSE, 'minor');
 
 			foreach ($links as $l) {
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
 				if (is_null($form)) continue;
 				if (!$form->_updated()) {
 					unset($form);
@@ -839,7 +839,7 @@ class Form_Section extends Asset
 			$clone_form_parents = array_diff($clone_form_parents, $form_parents);
 
 			foreach ($clone_form_parents as $parent_assetid) {
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
 
 				$recip = unserialize($form->attr('recipient_emails_format'));
 				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
@@ -921,7 +921,7 @@ class Form_Section extends Asset
 		$code = '';						// blank sheet of code to start with
 
 		foreach ($questions as $q_id => $question) {
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_code = $q_asset->generateJSCode();
 
 			$code .= $q_code.(empty($q_code) ? '' : "\n");

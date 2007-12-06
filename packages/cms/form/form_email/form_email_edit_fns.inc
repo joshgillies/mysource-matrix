@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.88 2007/10/12 03:46:14 hnguyen Exp $
+* $Id: form_email_edit_fns.inc,v 1.89 2007/12/06 04:35:26 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -79,8 +79,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_fromvalue']['m'],$_POST[$prefix.'_fromvalue']['d'],$_POST[$prefix.'_fromvalue']['y'])) : date('Y-m-d',time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_tovalue']['m'],$_POST[$prefix.'_tovalue']['d'],$_POST[$prefix.'_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from =& new Datetime_Field($prefix.'_from', $from_value, $parameters);
-		$to =& new Datetime_Field($prefix.'_to', $to_value, $parameters);
+		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
+		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
 
 
 		$from->printField();
@@ -161,7 +161,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						ON l.minorid = a.assetid';
 
-		$sub_folder =& $asset->getSubmissionsFolder();
+		$sub_folder = $asset->getSubmissionsFolder();
 		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
 					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
 					AND a.created BETWEEN '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $from_value).'
@@ -344,7 +344,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$assetid = $asset_info['assetid'];
 
 				// time is good, load me up
-				$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$sub_user = $asset_info['created_userid'];
 				$sub_time = date('d M Y H:i:s', strtotime($asset_info['created']));
 				$sub_expanded = array_search($assetid, $expand_list) !== FALSE;
@@ -365,7 +365,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						<?php
 						$valid_user = FALSE;
 						if (!empty($sub_user)) {
-							$sub_user_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+							$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
 							if (!empty($sub_user_asset)) {
 								echo get_asset_tag_line($sub_user);
 								$valid_user = TRUE;
@@ -478,7 +478,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-			$submissions_folder =& $asset->getSubmissionsFolder();
+			$submissions_folder = $asset->getSubmissionsFolder();
 			$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($submissions_folder->id, $delete_assetid, SQ_LINK_TYPE_3);
 			if (!$submission_link) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -545,8 +545,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : date('Y-m-d', time()-7*86400).' --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : date('Y-m-d').' --:--:--';
 
-		$from =& new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
-		$to =& new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
+		$from = new Datetime_Field($prefix.'_export_from', $from_value, $parameters);
+		$to = new Datetime_Field($prefix.'_export_to', $to_value, $parameters);
 
 		$from->printField();
 		echo ' '.translate('to').' ';
@@ -668,7 +668,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function processExportCSV(&$asset, &$o, $prefix, $header_row=TRUE, $delimiter=',')
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv =& new CSV();
+		$csv = new CSV();
 		$csv->setFilename('submission_log.csv');
 		$csv->setDeliminator($delimiter);
 
@@ -687,7 +687,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$logs = Array();
 		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'), '__ipaddress__' => translate('cms_form_ipaddress_submitting'));
 
-		$sub_folder =& $asset->getSubmissionsFolder();
+		$sub_folder = $asset->getSubmissionsFolder();
 		$sql = 'SELECT
 					a.assetid, a.type_code, a.created, a.created_userid
 				FROM
@@ -712,7 +712,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			$create_time = strtotime($asset_info['created']);
 
-			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+			$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
 
 			// get the submission ip
@@ -783,7 +783,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		echo '<submissions>';
 
-		$sub_folder =& $asset->getSubmissionsFolder();
+		$sub_folder = $asset->getSubmissionsFolder();
 		$sql = 'SELECT
 					a.assetid, a.type_code, a.created
 				FROM
@@ -810,7 +810,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
 
-			$sub_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+			$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
 
 			if (trim($sub_asset->attr('xml')) == '') continue;
@@ -841,8 +841,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		for (reset($kids); NULL !== ($k = key($kids)); next($kids)) {
 			$this_child =& $kids[$k];
-			$child_id =& $this_child->getAttribute('id');
-			$child_name =& $this_child->getAttribute('name');
+			$child_id = $this_child->getAttribute('id');
+			$child_name = $this_child->getAttribute('name');
 			switch ($this_child->name) {
 				case 'section':
 				break;
@@ -853,7 +853,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 				case 'datetime_q':
 					$child_value = date('d M Y H:i:s',	iso8601_ts($this_child->content));
-					$circa =& $this_child->getAttribute('circa');
+					$circa = $this_child->getAttribute('circa');
 					if ($circa) $child_value = 'circa '.$child_value;
 				break;
 
@@ -1094,7 +1094,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		$admin_access = $asset->adminAccess('attributes');
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$ruleid = isset($_REQUEST[$prefix.'_se_active_ruleid']) ? $_REQUEST[$prefix.'_se_active_ruleid'] : -1;
 
@@ -1159,7 +1159,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						for (reset($rules); NULL !== ($rule_key = key($rules)); next($rules)) {
 							$rule =& $rules[$rule_key];
 							$type_code = 'form_question_rule_type_'.$rule['name'];
-							$q_asset =& $am->getAsset($rule['assetid']);
+							$q_asset = $am->getAsset($rule['assetid']);
 
 							// deleted question = invalid rule!
 							if (!$q_asset) {
@@ -1169,7 +1169,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 							}
 
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-							$rule_asset =& new $type_code();
+							$rule_asset = new $type_code();
 							$descriptions[] = $rule_asset->ruleDescription($q_asset, $rule);
 
 							$i++;
@@ -1326,7 +1326,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			echo translate('cms_form_select_question_before_part');
 			return FALSE;
 		} else {
-			$active_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_se_new_qid']['assetid']);
+			$active_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_se_new_qid']['assetid']);
 
 			$rule_codes = $active_question->getAllowedRules();
 			$type_codes = Array();
@@ -1368,7 +1368,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		} else {
 			$ruleid = $_REQUEST[$prefix.'_se_active_ruleid'];
 			$qid = $_POST[$prefix.'_se_new_qid']['assetid'];
-			$active_question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($qid);
+			$active_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($qid);
 
 			$type_code = $_POST[$prefix.'_new_rule'];
 			$rule_code = substr($type_code,24);
@@ -1427,7 +1427,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$write_access = $asset->writeAccess('attributes');
 
-		$am		=& $GLOBALS['SQ_SYSTEM']->am;
+		$am		= $GLOBALS['SQ_SYSTEM']->am;
 		$all_se	= $asset->attr('selective_emails');
 		$rules  = $all_se[$ruleid]['rules'];
 		$descs  =  Array();
@@ -1444,7 +1444,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['name'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset =& new $type_code();
+			$rule_asset = new $type_code();
 			$edit_fns = $rule_asset->getEditFns();
 
 			if (!isset($descs[$type_code])) {
@@ -1455,7 +1455,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			$o->openSection($descs[$type_code]);
 
 			$o->openField(translate('applies_to'));
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
+				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule['assetid']);
 				if ($q_asset) {
 					echo get_asset_tag_line($q_asset->id);
 				} else {
@@ -1523,7 +1523,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['name'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-			$rule_asset =& new $type_code();
+			$rule_asset = new $type_code();
 			$edit_fns = $rule_asset->getEditFns();
 
 			$edit_fns->processRule($rule_asset, $o, $prefix.'_rule_'.$k, $rule);
