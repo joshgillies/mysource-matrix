@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.60 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_account_manager.inc,v 1.61 2007/12/06 04:43:14 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,7 +103,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			foreach (Array('create_login', 'create_no_login') as $value) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, 'bodycopy', TRUE, $value);
 				if (!empty($link)) {
-					$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+					$bc = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 					$bc->setAttrValue('name', $new_names[$value]);
 					$bc->saveAttributes();
 				}
@@ -170,8 +170,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function printFrontend()
 	{
-		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
-		if ((!is_null($current_user) && !is_a($current_user, 'public_user')) && !SQ_IN_LIMBO) {
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+		if ((!is_null($current_user) && !($current_user instanceof Public_User)) && !SQ_IN_LIMBO) {
 
 			if ($this->attr('enter_edit_mode')) {
 				// this person is logged in - so redirect them to limbo where they can edit their details
@@ -183,7 +183,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'login_redirect');
 				if (!empty($link)) {
 					// the manager is configured with a custom redirect location
-					$redirect_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+					$redirect_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 					$redirect_url = $redirect_asset->getURL();
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($redirect_asset);
 				}//end if
@@ -241,12 +241,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('ignore_frames', '1', TRUE);
 
-		$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		$this->_current_state = 'logged_in';
 
-		if (!is_null($current_user) && !is_a($current_user, 'public_user')) {
+		if (!is_null($current_user) && !($current_user instanceof Public_User)) {
 			// try and acquire a lock on the current user so they can edit their details
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
 						'assetids'			=> Array($current_user->id,),
 						'lock_type'			=> 'attributes',
@@ -269,7 +269,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					// ensure that the user has access to edit their details
 					// ie. they have permission to access the default screen for a user
 					require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
-					$aei =& new Asset_Edit_Interface($current_user->type());
+					$aei = new Asset_Edit_Interface($current_user->type());
 
 					$allowed_screens = $aei->getAllowedScreens($current_user);
 					$default_screen = $aei->_default_screen;
@@ -347,7 +347,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		if (strtolower(array_get_index($_GET, 'action', '')) == 'validate') {
 			// grab the user and create locations
-			$user =& $this->_getCurrentPendingUser();
+			$user = $this->_getCurrentPendingUser();
 			if (!is_null($user)) {
 
 				if ($this->validateUser($user)) {
@@ -370,9 +370,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$this->_tmp['am_created_asset_key'] = '';
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-			$new_asset =& new $create_type();
+			$new_asset = new $create_type();
 
-			$real_username =& $new_asset->getAttribute('username', TRUE);
+			$real_username = $new_asset->getAttribute('username', TRUE);
 			if (is_null($real_username)) continue;
 			// take a copy of the username so we don't muck anything up for the processBackend() (if we get that far;)
 			$username = $real_username;
@@ -446,7 +446,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 									$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 										foreach ($selected_create_locations as $locationid => $link_type) {
-											$location =& $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
+											$location = $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
 											if (is_null($location)) continue;
 											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type)) {
 												// bail out
@@ -476,7 +476,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$replacements['validation_url'] = current_url().'?action=validate&amid='.$this->_tmp['am_created_asset_key'];
 
 							// add an email to the TO list for the user who just signed up
-							$email_attr =& $this->getAttribute('validation_email_format');
+							$email_attr = $this->getAttribute('validation_email_format');
 							$new_value = unserialize($email_attr->value);
 							$new_value['to'][] = $replacements['email'];
 							$email_attr->value = serialize($new_value);
@@ -586,9 +586,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function processBackend(&$o, &$link)
 	{
 		if (SQ_IN_LIMBO) {
-			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
+			$current_user = $GLOBALS['SQ_SYSTEM']->user;
 
-			if (!is_null($current_user) && !is_a($current_user, 'public_user')) {
+			if (!is_null($current_user) && !($current_user instanceof Public_User)) {
 				if ($current_user->processBackend($o, $link)) {
 					$this->_replacements['edit_details_success'] = $this->getKeywordReplacement('edit_details_success');
 				}
@@ -611,7 +611,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function backendAccess()
 	{
 		if (SQ_IN_LIMBO) {
-			return is_a($GLOBALS['SQ_SYSTEM']->user, 'user');
+			return ($GLOBALS['SQ_SYSTEM']->user instanceof User);
 		} else {
 			return parent::backendAccess();
 		}
@@ -718,7 +718,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			// link the user asset into the locations it is supposed to go
 			foreach ($create_locations as $link_parentid => $link_type) {
-				$link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
+				$link_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', TRUE);
 				if (is_null($link_parent)) continue;
 				if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -780,7 +780,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function hipoValidateUser($index, $item, $settings)
 	{
 		// load the user asset
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
+		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
 		if (is_null($user)) return FALSE;
 		$validated = $this->validateUser($user);
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
@@ -801,7 +801,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function hipoDeleteUser($index, $item, $settings)
 	{
-		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
+		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
 		$GLOBALS['SQ_SYSTEM']->am->trashAsset($item);
 
 		// trick the user asset into thinking we're purging the
@@ -811,12 +811,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			// Delete the inbox and remove its URLs
 			$inbox_link = $user->getInboxLink();
-			$inbox =& $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
+			$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
 			$GLOBALS['SQ_SYSTEM']->am->trashAsset($inbox->id);
 			$inbox->updateLookups();
 
 			// Delete the workspace and remove its URLs
-			$workspace =& $user->getWorkspace();
+			$workspace = $user->getWorkspace();
 			$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
 			$workspace->updateLookups();
 
@@ -853,13 +853,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (!is_null($username) && $this->attr('use_email_validation')) {
 				// add an email to the TO list for the user who just signed up
 
-				$auth_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+				$auth_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
 				$auth_systems = $auth_folder->getAuthSystems();
 				$user = NULL;
 				foreach ($auth_systems as $systemid) {
-					$system =& $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+					$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
 					if (is_null($system)) continue;
-					$user =& $system->locateUser($username);
+					$user = $system->locateUser($username);
 					if (!is_null($user) && $user->id) {
 						break;
 					}
@@ -884,7 +884,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$replacements['validation_url'] = current_url().'?action=validate&amid='.$validation_key;
 
 						// add an email to the TO list for the user who just signed up
-						$email_attr =& $this->getAttribute('validation_email_format');
+						$email_attr = $this->getAttribute('validation_email_format');
 						$new_value = unserialize($email_attr->value);
 						$new_value['to'][] = $replacements['email'];
 						$email_attr->value = serialize($new_value);
@@ -942,7 +942,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
 
-		$group =& new User_Group();
+		$group = new User_Group();
 		$group->setAttrValue('name', 'Pending Accounts');
 		if (!$group->create($group_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -986,7 +986,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			if (!empty($pending_link)) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($pending_link['minorid'], SQ_LINK_TYPE_1, 'user', FALSE, $id);
 				if (!empty($link)) {
-					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				}
 			}
 		}
