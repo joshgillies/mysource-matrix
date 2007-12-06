@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.22 2007/12/06 04:39:20 rong Exp $
+* $Id: form_submission_edit_fns.inc,v 1.23 2007/12/06 05:52:59 mwegermann Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -223,8 +223,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 			$section_questions[$section_id][$q_id] = $details;
 		}
 
-		for ($i = 0; $i < count($unanswered_questions); $i++) {
-			$q =& $unanswered_questions[$i];
+		foreach ($unanswered_questions as $unanswered_question) {
+			$q =& $unanswered_question;
 			if (!$q->isEditable()) continue;
 			$q->setAttrValue('is_required', FALSE); // temporarily
 			$q->populate();
