@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.262 2007/12/06 00:58:29 colivar Exp $
+* $Id: asset_map.inc,v 1.263 2007/12/06 05:24:46 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.262 $
+* @version $Revision: 1.263 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -729,9 +729,7 @@ class Asset_Map
 		if (FALSE !== strpos($assetid, ':')) {
 			// This is a shadow asset so we need to get info differently
 			$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset(strtok($assetid, ':'));
-			if (method_exists($bridge, 'getAssetMapAssetInfo')) {
-				$attrs = $bridge->getAssetMapAssetInfo($assetid);
-			}
+			$attrs = $bridge->getAssetMapAssetInfo($assetid);
 			if (empty($attrs)) {
 				// note that we pretend these assets have children so we dont have to actually
 				// load all their kids - we dont know what kind of speed hit we get for the different
