@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.159 2007/12/05 06:07:15 colivar Exp $
+* $Id: file.inc,v 1.160 2007/12/06 00:58:29 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -169,7 +169,7 @@ class File extends Asset
 		$this->_tmp['uploading_file'] = 1;
 		$prefix = $this->type().'_0';
 		$o = NULL;
-		if (!is_null($GLOBALS['SQ_SYSTEM']->backend->out)) {
+		if ((!is_null($GLOBALS['SQ_SYSTEM']->backend)) && (!is_null($GLOBALS['SQ_SYSTEM']->backend->out))) {
 			$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		}
 		$info = $this->_tmp['file_create_data'];
