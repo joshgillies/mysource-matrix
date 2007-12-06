@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.49 2007/11/29 01:10:10 rong Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.50 2007/12/06 00:03:28 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -214,7 +214,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 					if (!method_exists($asset, 'getChildren')) {
 						trigger_localised_error('SYS0204', E_USER_WARNING, $asset->name);
 					} else {
-						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren()));
+						$todo_shadows = array_merge($todo_shadows, array_keys($asset->getChildren($assetid)));
 					}
 				}
 
