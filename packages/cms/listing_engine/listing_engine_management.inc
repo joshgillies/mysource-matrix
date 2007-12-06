@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.69 2007/12/04 02:57:51 bshkara Exp $
+* $Id: listing_engine_management.inc,v 1.70 2007/12/06 04:24:21 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -438,7 +438,7 @@ class Listing_Engine_Management extends Asset_Management
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$search_page_fields = Array('lineage_seperator');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$attributes = Array();
 
@@ -482,7 +482,7 @@ class Listing_Engine_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 
 		if (version_compare($current_version,'0.1','==')) {
@@ -539,7 +539,7 @@ class Listing_Engine_Management extends Asset_Management
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 
 			foreach ($children as $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				$sort_by = $asset->attr('sort_by');
 
@@ -600,7 +600,7 @@ class Listing_Engine_Management extends Asset_Management
 
 			$to_save = array_get_index($this->_tmp, 'sort_by', Array());
 			foreach ($to_save as $assetid => $sort_by_list) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				$asset->setAttrValue('sort_by', $sort_by_list);
 
@@ -623,7 +623,7 @@ class Listing_Engine_Management extends Asset_Management
 
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 				$asset_positions = $asset->attr('asset_positions');
 				if (empty($asset_positions)) continue;
@@ -660,9 +660,9 @@ class Listing_Engine_Management extends Asset_Management
 
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($children as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 
-				$group_formats =& $asset->getFolder('group_formats');
+				$group_formats = $asset->getFolder('group_formats');
 
 				// folder alread exists...nothing for us to do.
 				if (is_null($group_formats)) {
@@ -670,7 +670,7 @@ class Listing_Engine_Management extends Asset_Management
 					echo 'Upgrading asset: '.$asset->name.' ('.$assetid.')'."\n";
 
 					// Group Format
-					$group_formats =& new Folder();
+					$group_formats = new Folder();
 					$create_link = Array(
 									'asset'			=> &$asset,
 									'value'			=> 'group_formats',
@@ -718,7 +718,7 @@ class Listing_Engine_Management extends Asset_Management
 			foreach ($children as $assetid) {
 
 				// find assets that do not have the 'Random' sort by option
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$sort_value = $asset->attr('sort_by');
 				$random = 0;
 				foreach ($sort_value as $sort_info) {
@@ -765,7 +765,7 @@ class Listing_Engine_Management extends Asset_Management
 			return Array();
 		}
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT * FROM sq_ast_attr WHERE name = '.$db->quote($attr_name).' AND owning_type_code = '.$db->quote($from);
 
@@ -789,7 +789,7 @@ class Listing_Engine_Management extends Asset_Management
 	{
 		if (empty($attrs)) return TRUE;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$attrs_quoted = Array();
@@ -825,7 +825,7 @@ class Listing_Engine_Management extends Asset_Management
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($attrs as $attrid => $attr) {
 			$fields_quoted = Array();

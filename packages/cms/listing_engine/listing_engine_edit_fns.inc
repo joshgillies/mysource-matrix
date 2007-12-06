@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.82 2007/12/04 02:57:51 bshkara Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.83 2007/12/06 04:24:21 rong Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -155,7 +155,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 
-			$folder =& $asset->getFolder('type_formats');
+			$folder = $asset->getFolder('type_formats');
 			$formats = $asset->getFormats('type_formats');
 
 			// See if any types have been removed
@@ -574,7 +574,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$this->_paintDefaultFormatLink($asset->id, 'page_contents', translate('cms_listing_page_contents_desc'));
 			$this->_paintDefaultFormatLink($asset->id, 'no_results', translate('cms_listing_no_results_bodycopy_desc'));
 
-			$folder =& $asset->getFolder('type_formats');
+			$folder = $asset->getFolder('type_formats');
 			$this->_paintDefaultFormatLink($folder->id, 'default_format', translate('cms_listing_default_asset_desc'));
 			?>
 		</table>
@@ -785,7 +785,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processTypeFormats(&$asset, &$o, $prefix)
 	{
-		$folder =& $asset->getFolder('type_formats');
+		$folder = $asset->getFolder('type_formats');
 		$types = $this->_getAvailableTypes($asset);
 
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
@@ -824,7 +824,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				$bodycopy =& new Bodycopy();
+				$bodycopy = new Bodycopy();
 				$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
 
 				if (!$bodycopy->create($copy_link)) {
@@ -935,7 +935,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processPositionFormats(&$asset, &$o, $prefix)
 	{
-		$folder =& $asset->getFolder('position_formats');
+		$folder = $asset->getFolder('position_formats');
 
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_position', Array());
 		$new_position = (int) array_get_index($_POST, $prefix.'_new_position', 0);
@@ -968,7 +968,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 				$copy_link = Array('asset' => &$folder, 'value' => 'position_'.$new_position, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				$bodycopy =& new Bodycopy();
+				$bodycopy = new Bodycopy();
 				$bodycopy->setAttrValue('name', translate('cms_listing_position_number_format', $new_position));
 
 				if (!$bodycopy->create($copy_link)) {
@@ -2314,7 +2314,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 			// otherwise, create the appropriate notice link
 			if ($node['assetid'] != 0) {
-				$new_root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				$new_root = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
 					$ok = FALSE;
 					trigger_localised_error('CMS0016', E_USER_WARNING, $new_root->name, $new_root->id);
@@ -2470,7 +2470,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$group_by_details = $asset->attr('asset_grouping');
 		$posted_options = array_get_index($_POST, $prefix, Array());
-		$folder =& $asset->getFolder('group_formats');
+		$folder = $asset->getFolder('group_formats');
 
 		// go through and process deletions of groups
 		foreach ($posted_options as $key => $posted_option) {
@@ -2938,12 +2938,12 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-					$folder =& $asset->getFolder('group_formats');
+					$folder = $asset->getFolder('group_formats');
 
 
 					$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'sort_order' => $new_position);
 
-					$bodycopy =& new Bodycopy();
+					$bodycopy = new Bodycopy();
 					$bodycopy->setAttrValue('name', 'Group Level '.($new_position+1).' Format');
 					$group_listing_data = Array('content' => '%group_listing%');
 
@@ -3963,7 +3963,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$current_types = $asset->attr('proxy_types');
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$o->openField(translate('cms_listing_proxy_asset_types'));
 			if (empty($current_types)) {
