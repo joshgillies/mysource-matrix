@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.59 2007/02/26 03:48:07 tbarrett Exp $
+* $Id: inbox_edit_fns.inc,v 1.60 2007/12/06 00:26:22 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,9 +59,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintNewMessage(&$asset, &$o, $prefix)
 	{
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id, NULL, Array (SQ_MSG_UNREAD, SQ_MSG_READ), Array (), NULL, NULL, 'name');
 		$write_access = $asset->writeAccess('mail');
 		if ($write_access) {
@@ -127,7 +127,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processNewMessage(&$asset, &$o, $prefix)
 	{
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		// send the message
 		$noaction = TRUE;
 		if (isset ($_POST[$prefix.'_To'])) {
@@ -175,11 +175,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSent(&$asset, &$o, $prefix)
 	{
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
 		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id, NULL, Array (SQ_MSG_UNREAD, SQ_MSG_READ), Array (), NULL, NULL, 'name');
 		$write_access = $asset->writeAccess('mail');
 		$num_messages = count($messages);
@@ -291,9 +291,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		$delete = (isset ($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array();
 
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id);
 
 		if (!empty ($delete)) {
@@ -323,11 +323,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintInbox(&$asset, &$o, $prefix)
 	{
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
 		$priority = Array ('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id, NULL, Array (SQ_MSG_UNREAD, SQ_MSG_READ), Array (), NULL, NULL, 'name');
 		$write_access = $asset->writeAccess('mail');
 
@@ -570,9 +570,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$msgs = (isset ($_REQUEST[$prefix.'_messages'])) ? array_keys($_REQUEST[$prefix.'_messages']) : Array ();
 		$read = (isset ($_REQUEST[$prefix.'_mark_as_read'])) ? array_keys($_REQUEST[$prefix.'_mark_as_read']) : Array ();
 
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id);
 
 		if (!empty($messages)) {
@@ -614,9 +614,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
 		$delete = (isset ($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array ();
 
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id);
 
 		if (!empty ($messages)) {
@@ -653,11 +653,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintTrash(&$asset, &$o, $prefix)
 	{
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
 		$priority = Array('', 'Highest', 'High', 'Normal', 'Low', 'Lowest');
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id, NULL, Array(SQ_MSG_DELETED), Array(), NULL, NULL, 'name');
 		$write_access = $asset->writeAccess('mail');
 ?>
@@ -791,9 +791,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$recover = (isset ($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array();
 		$purge = (isset ($_POST[$prefix.'_purge'])) ? array_keys($_POST[$prefix.'_purge']) : Array();
 
-		$user =& $asset->_getUser();
+		$user = $asset->_getUser();
 
-		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$messages = $ms->getMessages($user->id);
 
 		if (!empty ($recover)) {
