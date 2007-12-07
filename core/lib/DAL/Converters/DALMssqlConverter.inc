@@ -575,6 +575,34 @@ class DALMssqlConverter extends DALConverter
     }//end convertLimit()
 
 
-}//end class
+    /**
+     * Handles the SUBSTRING() function.
+     *
+     * MSSQL's SUBSTRING function syntax differs from that of the standard,
+     * SUBSTRING(input, start, length).
+     *
+     * @param array $args Method arguments.
+     *
+     * @since  4.0.0
+     * @return string
+     */
+    protected function handleFunctionSubstring(array $args)
+    {
+        // SUBSTRING(input FROM start-position [FOR length])
+        if (count($args) != 2 && count($args) != 3) {
+            $msg = 'The SUBSTR() function only accepts two or three parameters.';
+            throw new DALConverterException($msg);
+        }
 
+        $input = $this->convertSingleField($args[0]);
+        $start = $args[1];
+        $length = isset($args[2]) ? ",$args[2]" : '';
+        $sql = "SUBSTRING($input, $start $length)";
+
+        return $sql;
+
+    }//end handleFunctionSubstring()
+
+
+}//end class
 ?>

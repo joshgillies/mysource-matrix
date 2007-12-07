@@ -2267,30 +2267,31 @@ class DALConverter
 
 
     /**
-     * Handles the SUBSTR() function.
+     * Handles the SUBSTRING() function.
+     *
+     * see DB2, MSSQL and Oracle converter for different syntax
      *
      * @param array $args Method arguments.
      *
      * @since  4.0.0
      * @return string
      */
-    protected function handleFunctionSubstr(array $args)
+    protected function handleFunctionSubstring(array $args)
     {
-        // SUBSTR(str,pos) or SUBSTR(str,pos,len)
-        // SQL Server: SUBSTRING(), syntax 1 not supported
-
+        // SUBSTRING(input FROM start-position [FOR length])
         if (count($args) != 2 && count($args) != 3) {
-            $msg = 'The SUBSTR() function accepts only two or three parameters.';
+            $msg = 'The SUBSTRING() function only accepts two or three parameters.';
             throw new DALConverterException($msg);
         }
 
-        $fnArg = $this->convertSingleField($args[0]);
-        array_shift($args);
-        $sql = "SUBSTR($fnArg,".implode(',',$args).')';
+        $input = $this->convertSingleField($args[0]);
+        $start = $args[1];
+        $length = isset($args[2]) ? " FOR $args[2]" : '';
+        $sql = "SUBSTRING($input FROM $start $length)";
 
         return $sql;
 
-    }//end handleFunctionSubstr()
+    }//end handleFunctionSubstring()
 
 
     /**
