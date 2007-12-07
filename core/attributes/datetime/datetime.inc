@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.42 2007/11/29 00:45:22 colivar Exp $
+* $Id: datetime.inc,v 1.43 2007/12/07 05:58:22 bshkara Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -124,7 +124,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			if ($child->getName() == 'show') {
 				foreach ($child->children() as $i => $format) {
 					$this->_edit_params['show'][] = $format->getName();
-					$this->_edit_params['style'][$format->name] = (string)$format->attributes()->style;
+					$this->_edit_params['style'][(string) $format->getName()] = (string)$format->attributes()->style;
 					if (isset($format->attributes()->allow_null) && (string)$format->attributes()->allow_null) {
 						$this->_edit_params['null'][] = $format->getName();
 					}
