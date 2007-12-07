@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.5 2007/01/23 05:35:59 arailean Exp $
+* $Id: keywords.php,v 1.6 2007/12/07 00:43:24 hnguyen Exp $
 *
 */
 
@@ -135,7 +135,7 @@
 				$roles_temp = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('role');
 				$users = Array();
 				foreach ($roles_temp as $roleid) {
-					$role =& $GLOBALS['SQ_SYSTEM']->am->getAsset($roleid);
+					$role = $GLOBALS['SQ_SYSTEM']->am->getAsset($roleid);
 					if ($role->readAccess(Array())) $roles[] = $roleid;
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($role);
 				}
@@ -184,7 +184,7 @@
 <legend><b>All Keywords</b> (dynamically populated)</legend>
 <table border="0" width="100%">
 <?php
-$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 $keywords = $asset->getAvailableKeywords();
 ksort($keywords);
 
