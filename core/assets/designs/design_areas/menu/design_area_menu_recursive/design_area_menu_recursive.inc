@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.26 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_area_menu_recursive.inc,v 1.27 2007/12/07 00:09:36 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,7 +170,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	*/
 	public function printDataCollection()
 	{
-		$parent_menu =& $this->getParentMenu();
+		$parent_menu = $this->getParentMenu();
 
 		echo '
 		$'.$this->attr('id_name').'_num_repeats = count($ASSET_LINEAGE) - $'.$this->attr('id_name').'_level;
@@ -276,7 +276,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 				echo '<', '?php
 				';
 
-				$parent_menu =& $this->getParentMenu();
+				$parent_menu = $this->getParentMenu();
 				// if we aren't a sub menu
 				if (is_null($parent_menu)) {
 					$parent_assetid_name = '$ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']';

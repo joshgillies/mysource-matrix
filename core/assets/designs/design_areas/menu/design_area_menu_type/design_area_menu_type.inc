@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.91 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_area_menu_type.inc,v 1.92 2007/12/07 00:09:36 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -256,7 +256,8 @@ class Design_Area_Menu_Type extends Design_Area
 			$null = NULL;
 			return $null;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
+			$smenu = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
+			return $smenu;
 		}
 
 	}//end getSubMenu()
@@ -277,7 +278,8 @@ class Design_Area_Menu_Type extends Design_Area
 			$null = NULL;
 			return $null;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['major_type_code'], TRUE);
+			$pmenu = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['major_type_code'], TRUE)    ;
+			return $pmenu;
 		}
 
 	}//end getParentMenu()

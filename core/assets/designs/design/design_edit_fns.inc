@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.122 2007/12/06 04:28:47 lwright Exp $
+* $Id: design_edit_fns.inc,v 1.123 2007/12/07 00:09:36 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -472,6 +472,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
 			$edit_fns = $new_file->getEditFns();
+			$o = NULL;
 			$success = $edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info);
 
 			if ($lock_status === 1) {
