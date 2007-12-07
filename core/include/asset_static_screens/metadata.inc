@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.38 2007/11/27 23:03:54 hnguyen Exp $
+* $Id: metadata.inc,v 1.39 2007/12/07 00:33:52 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -38,13 +38,13 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$root =& $ei->findScreen('static_screen_metadata');
+	$root = $ei->findScreen('static_screen_metadata');
 	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = FALSE;
 
-	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE);
 	$metadata_warnings = Array();
 
@@ -121,7 +121,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 						$replacements_link = '<a href="'.sq_web_path('data').'/asset_types/metadata_field/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('click_here').'</a>';
 						echo '<p>'.translate('metadata_keyword_replacements_usage', $replacements_link).'</p>';
 
-						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
+						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
 						if (!empty($sm) && $sm->attr('indexing')) {
 						?>
 							<?php
@@ -271,7 +271,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 				if (empty($owner->id) || (array_intersect($schemas, array_keys($schemaid)) != Array())) {
 					$value = $mm->getMetadataInterfaceValueByAssetid($owner->id, $field_assetid);
 
-					$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
+					$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
 					$edit_fns = $field->getEditFns();
 
 					ob_start();
@@ -303,13 +303,13 @@ function processMetadata(&$owner, &$o, $ei)
 	// if we dont have write access, dont process anything
 	if (!$owner->writeAccess('metadata')) return FALSE;
 
-	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE);
 	$save = FALSE;
 	if (!empty($schemas)) {
 		$new_values = Array();
 		foreach ($schemas as $schemaid) {
-			$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			$edit_fns = $schema->getEditFns();
 			if ($edit_fns->processInlineValueInterface($schema, $new_values)) {
 				$save = TRUE;
