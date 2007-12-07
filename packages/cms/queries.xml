@@ -1,0 +1,33 @@
+<queries id="cms_package">
+
+	<!-- //        report_asset_statuses_edit_fns.inc        // -->
+
+	<query id="getTreeidFromMinor">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lnk_tree" column="treeid" />
+				</fields>
+				<from>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<where>
+					<in table="sq_ast_lnk_tree" column="linkid">
+						<select>
+							<fields>
+								<field table="sq_ast_lnk" column="linkid" />
+							</fields>
+							<from>
+								<table>sq_ast_lnk</table>
+							</from>
+							<where>
+								<equal table="sq_ast_lnk" column="minorid">:root_link_minorid</equal>
+							</where>
+						</select>
+					</in>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+</queries>
