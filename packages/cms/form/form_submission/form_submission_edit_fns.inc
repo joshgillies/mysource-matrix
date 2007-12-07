@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.23 2007/12/06 05:52:59 mwegermann Exp $
+* $Id: form_submission_edit_fns.inc,v 1.24 2007/12/07 06:01:49 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -89,23 +89,6 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSubmissionAnswers(&$asset, &$o, $prefix)
 	{
-
-		if (!empty($this->_tmp['question_errors'])) {
-			?>
-			<div style="color: red">
-			<strong><?php echo translate('cms_form_submission_error_during_processing'); ?></strong>
-			<ul>
-				<?php
-				foreach ($this->_tmp['question_errors'] as $msg) {
-					?>
-					<li><?php echo $msg; ?></li>
-					<?php
-				}
-				?>
-			</ul>
-			</div>
-			<?php
-		}
 
 		$wa = $asset->writeAccess('attributes');
 		$is_editable_q = FALSE;
@@ -240,6 +223,23 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		if (empty($this->_tmp['question_errors'])) {
 			$asset->setAttrValue('attributes', $attributes);
 			return TRUE;
+		} else {
+			?>
+			<div style="color: red">
+			<strong><?php echo translate('cms_form_submission_error_during_processing'); ?></strong>
+			<ul>
+				<?php
+				foreach ($this->_tmp['question_errors'] as $msg) {
+					?>
+					<li><?php echo $msg; ?></li>
+					<?php
+				}
+				?>
+			</ul>
+			</div>
+			<?php
+
+			return FALSE;
 		}
 
 	}//end processSubmissionAnswers()

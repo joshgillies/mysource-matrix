@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection.inc,v 1.3 2006/12/06 00:35:29 emcdonald Exp $
+* $Id: form_question_rule_type_selection.inc,v 1.4 2007/12/07 06:00:05 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 	* @return boolean
 	* @access public
 	*/
-	function isValidationRule()
+	public static function isValidationRule()
 	{
 		return false;
 

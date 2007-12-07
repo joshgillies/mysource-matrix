@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.7 2007/11/06 06:12:58 rong Exp $
+* $Id: form_question_edit_fns.inc,v 1.8 2007/12/07 06:00:04 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,7 +158,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		// modify what's left
 		for (reset($rules); NULL !== ($k = key($rules)); next($rules)) {
-			$rule = $rules[$k];
+			$rule =& $rules[$k];
 			$rule_prefix = $prefix.'_rule_'.$k;
 			// let the rule paint itself here!!
 			$type_code = 'form_question_rule_type_'.$rule['rule_code'];
@@ -263,7 +263,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		if (empty($lock)) {
 			if ($full_write_access && $acquire_lock_access) {
-				echo '<p class="sq-backend-unlocked">The "Attributes" lock to the '.(is_a($section_asset, 'form_section') ? 'Form Section' : 'Form').' is not currently held.</p>';
+				echo '<p class="sq-backend-unlocked">The "Attributes" lock to the '.(($section_asset instanceof Form_Section) ? 'Form Section' : 'Form').' is not currently held.</p>';
 			} else {
 				echo 'You do not have access to edit "'.$section_asset->name.'".';
 			}
@@ -290,7 +290,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-			The "Attributes" lock to the <?php echo is_a($section_asset, 'form_section') ? 'Form Section' : 'Form' ?> is held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".<br/>
+			The "Attributes" lock to the <?php echo ($section_asset instanceof Form_Section) ? 'Form Section' : 'Form' ?> is held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".<br/>
 			<?php echo $expires_in; ?>
 			</p>
 			<?php
@@ -299,10 +299,10 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		?>
 
 		<p>Locking for this asset is controlled by its parent form<?php
-			if (is_a($section_asset, 'form_section')) {
+			if ($section_asset instanceof Form_Section) {
 				echo ' section';
 			}
-		?>. Click to access this asset: <?php $href = $section_asset->getBackendHref(!is_a($section_asset, 'form') ? 'details' : 'contents'); ?><a href="<?php echo $href ?>"><?php echo $section_asset->_getName() ?></a></p><?php
+		?>. Click to access this asset: <?php $href = $section_asset->getBackendHref(!($section_asset instanceof Form) ? 'details' : 'contents'); ?><a href="<?php echo $href ?>"><?php echo $section_asset->_getName() ?></a></p><?php
 		return TRUE;
 
 	}//end paintLockMessage()

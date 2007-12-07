@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.8 2006/12/06 00:35:27 emcdonald Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.9 2007/12/07 06:00:04 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 
 			// if it's a numeric field, make sure that JavaScript
 			// interprets it as a number
-			if (is_a($q_asset, 'form_question_type_numeric')) {
+			if ($q_asset instanceof Form_Question_Type_Numeric) {
 				?>if (!(parseFloat(form.elements["q<?php echo $q_asset->id; ?>"].value) <?php echo $operator ?> parseFloat(<?php echo $comparison ?>))) {<?php
 			} else {
 				?>if (!(form.elements["q<?php echo $q_asset->id; ?>"].value <?php echo $operator ?> <?php echo $comparison ?>)) {<?php
@@ -128,7 +128,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 
 		if ($cq_id != 0) {
-			$comparison_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$comparison_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
 			$value = $comparison_asset->getValue();
 		}
 
@@ -190,7 +190,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 
 			if ($cq_id != 0) {
 				$string_code .= '_q';
-				$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+				$comparison = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
 				$value = $comparison->name;
 			} else {	// sent just a value
 				$value = array_get_index($rule_data, 'value', '');

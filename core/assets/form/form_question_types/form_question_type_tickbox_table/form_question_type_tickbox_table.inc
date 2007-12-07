@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.7 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.8 2007/12/07 06:00:05 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,7 +89,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		$question_contents = $this->attr('question_contents');
 		$datapath = sq_web_path('data').'/asset_types/form_question_type_tickbox_table/files';
 
-		$form =& $this->getMySection();
+		$form = $this->getMySection();
 		$submission = $this->getValue();
 
 		$to_output = '';

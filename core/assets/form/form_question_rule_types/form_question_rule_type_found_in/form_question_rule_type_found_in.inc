@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.7 2006/12/06 00:35:28 emcdonald Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.8 2007/12/07 06:00:05 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,21 +149,27 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
 		if ($cq_id != 0) {
-			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
-			if ($case_sensitive) {
-				$valid = (strpos($comparison->getValue(), $answer) !== false) ? 1 : 0;
-			} else {
-				$valid = (strpos(strtolower($comparison->getValue()), strtolower($answer)) !== false) ? 1 : 0;
+			$comparison = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			if (!empty($answer)) {
+				if ($case_sensitive) {
+					$valid = (strpos($comparison->getValue(), $answer) !== false) ? 1 : 0;
+				} else {
+					$valid = (strpos(strtolower($comparison->getValue()), strtolower($answer)) !== false) ? 1 : 0;
+				}
 			}
 		} else {	// sent just a value
-			if ($case_sensitive) {
-				$valid = (strpos($value, $answer) !== false) ? 1 : 0;
-			} else {
-				$valid = (strpos(strtolower($value), strtolower($answer)) !== false) ? 1 : 0;
+			if (!empty($answer)) {
+				if ($case_sensitive) {
+					$valid = (strpos($value, $answer) !== false) ? 1 : 0;
+				} else {
+					$valid = (strpos(strtolower($value), strtolower($answer)) !== false) ? 1 : 0;
+				}
 			}
 		}
-
-		return $valid == $operator;
+		if (isset($valid)) {
+			return $valid == $operator;
+		} else
+			return FALSE;
 
 	}//end evaluate()
 
@@ -189,7 +195,7 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 
 		if ($cq_id != 0) {
 			$string_code .= '_q';
-			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$comparison = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
 			$value = $comparison->name;
 		} else {	// sent just a value
 			$value = array_get_index($rule_data, 'value', '');

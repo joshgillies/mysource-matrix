@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.79 2007/12/06 04:33:39 rong Exp $
+* $Id: form_edit_fns.inc,v 1.80 2007/12/07 06:01:49 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -671,7 +671,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// if there is no section for the keyword replacement,
 				// just strip out the keyword
 
-				if ($s =& $asset->getSectionByOrder($section)) {
+				if ($s = $asset->getSectionByOrder($section)) {
 
 					// let the section know what its column widths are
 					$section->question_col_width = $asset->attr('question_col_width');
@@ -719,7 +719,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// is no replacement for it, then just strip out the tag
 				// for that keyword
 
-				if ($question =& $asset->getQuestionByOrder($asset, $s, $q)) {
+				if ($question = $asset->getQuestionByOrder($asset, $s, $q)) {
 					if (!empty($this->current_answers)) {
 						$question->setValue($this->current_answers[$question->id]);
 					}

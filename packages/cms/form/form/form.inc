@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.174 2007/12/06 04:33:37 rong Exp $
+* $Id: form.inc,v 1.175 2007/12/07 06:01:49 bshkara Exp $
 *
 */
 
@@ -18,6 +18,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
 * Form
@@ -26,12 +27,11 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.174 $
+* @version $Revision: 1.175 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-register_implementation('form', 'bridge');
-class Form extends Asset
+class Form extends Asset implements Bridge
 {
 
 
@@ -225,7 +225,7 @@ class Form extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $shadowid);
@@ -349,8 +349,12 @@ class Form extends Asset
 				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
 				if (empty($query)) return Array();
 
-				$type_links = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
-				assert_valid_db_result($type_links);
+				$db = MatrixDAL::getDb();
+				try {
+					$type_links = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+				} catch (Exception $e) {
+					throw new Exception('Unable to get links for asset: '.$assetid.' due to database error: '.$e->getMessage());
+				}
 
 				foreach (array_keys($type_links) as $key) {
 					$new_sort_order++;
@@ -500,8 +504,11 @@ class Form extends Asset
 
 		if (empty($query)) return Array();
 
-		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
-		assert_valid_db_result($queried_parents);
+		try {
+			$queried_parents = MatrixDAL::executeSqlAssoc(implode(' ', $query));
+		} catch (Exception $e) {
+			throw new Exception('Unable to get the parents of shadow id: '.$shadowid.' due to database error: '.$e->getMessage());
+		}
 		$parents = Array();
 
 		foreach ($queried_parents as $queried_parent) {
@@ -940,7 +947,8 @@ class Form extends Asset
 	function &getQuestionByOrder($orderid)
 	{
 		$sort_order = $this->attr('sort_order');
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
+		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
+		return $question;
 
 	}//end getQuestionByOrder()
 
@@ -1740,7 +1748,7 @@ class Form extends Asset
 
 		// verify captcha
 		if ($this->attr('require_captcha') && !validate_security_key()) {
-			$this->submission_errors = array_merge($this->submission_errors, translate('security_key_incorrect'));
+			$this->submission_errors = array_merge($this->submission_errors, Array(translate('security_key_incorrect')));
 			$ok = FALSE;
 		}
 		$questions = $this->getAllQuestionAssets();
@@ -2564,6 +2572,21 @@ class Form extends Asset
 		return FALSE;
 
 	}//end deleteAssetLink()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
 
 
 	/**

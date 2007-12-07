@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with.inc,v 1.6 2006/12/06 00:35:27 emcdonald Exp $
+* $Id: form_question_rule_type_begins_with.inc,v 1.7 2007/12/07 06:00:04 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -152,7 +152,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
 		if ($cq_id != 0) {
-			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$comparison = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
 			if ($case_sensitive) {
 				$valid = (strpos($answer, $comparison->getValue()) === 0) ? 1 : 0;
 			} else {
@@ -192,7 +192,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 
 		if ($cq_id != 0) {
 			$string_code .= '_q';
-			$comparison =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+			$comparison = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
 			$value = $comparison->name;
 		} else {	// sent just a value
 			$value = array_get_index($rule_data, 'value', '');

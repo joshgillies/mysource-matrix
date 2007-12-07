@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.89 2007/12/06 04:35:26 rong Exp $
+* $Id: form_email_edit_fns.inc,v 1.90 2007/12/07 06:01:49 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,19 +161,37 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						ON l.minorid = a.assetid';
 
+<<<<<<< form_email_edit_fns.inc
+		$sub_folder = $asset->getSubmissionsFolder();
+
+		$db = MatrixDAL::getDb();
+		$where = 'l.majorid IN (:assetid, :subfolderid)
+					AND i.inhd_type_code = '.$db->quote('form_submission').'
+					AND a.created BETWEEN '.db_extras_todate(MatrixDAL::getDbType(), $from_value).'
+					AND '.db_extras_todate(MatrixDAL::getDbType(), $to_value);
+
+=======
 		$sub_folder = $asset->getSubmissionsFolder();
 		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
 					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
 					AND a.created BETWEEN '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $from_value).'
 					AND '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $to_value);
+>>>>>>> 1.89
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 		// grab the number of assets
-		$asset_count = $GLOBALS['SQ_SYSTEM']->db->getOne($count_sql.$where);
-		assert_valid_db_result($asset_count);
+
+		try {
+			$query = $db->prepare($count_sql.$where);
+			$query->bindValue(':assetid', $asset->id);
+			$query->bindValue(':subfolderid', $sub_folder->id);
+			$asset_count = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get the number of assets due to database error: '.$e->getMessage());
+		}
 
 		$num_pages = ceil($asset_count / $num_per_page);
 
@@ -189,7 +207,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}
 
 		$sql = $sql.$where.' ORDER BY a.created DESC';
-		$sql = $GLOBALS['SQ_SYSTEM']->db->modifyLimitQuery($sql, $submission_offset, $num_per_page);
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$limit_array['rows'] = $num_per_page;
+		$limit_array['offset'] = $submission_offset;
+		$limit = db_extras_modify_limit_clause(MatrixDAL::getDbType(), $limit_array);
+		$sql .= $limit;
 
 		if ($asset_count == 0) {
 			?><p><i><?php echo translate('cms_form_no_submissions_during_period') ?></i></p><?php
@@ -335,12 +357,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				<th>&nbsp;</th>
 			</tr>
 			<?php
-			// For memory reasons, we are going to fetch this one row at a time
-			// because we could be displaying a lot on this page
-			$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-			assert_valid_db_result($result);
 
-			while ($asset_info = $result->fetchRow()) {
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':assetid', $asset->id);
+				$query->bindValue(':subfolderid', $sub_folder->id);
+				$result = MatrixDAL::executePdoAssoc($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get submission list due to database error: '.$e->getMessage());
+			}
+
+			foreach ($result as $asset_info) {
 				$assetid = $asset_info['assetid'];
 
 				// time is good, load me up

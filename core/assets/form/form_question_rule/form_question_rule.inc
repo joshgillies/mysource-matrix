@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.3 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: form_question_rule.inc,v 1.4 2007/12/07 06:00:04 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Form_Question_Rule extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function isValidationRule()
+	public static function isValidationRule()
 	{
 		return TRUE;
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.19 2007/11/06 06:12:58 rong Exp $
+* $Id: form_question_type_file_upload.inc,v 1.20 2007/12/07 06:00:05 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		if ($this->attr('overwrite_rule') == 'D') {
 			// we want to throw an error if a file with this name already exists, so see if one does
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			// Check that we are not going to have web path conflicts
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -165,11 +165,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 							ON a.assetid = l.minorid
 					WHERE
-						l.majorid = '.$db->quoteSmart($create_loc).'
-						AND a.name = '.$db->quoteSmart($name);
+						l.majorid = :majorid
+						AND a.name = :name';
 
-			$existing_file = $db->getOne($sql);
-			assert_valid_db_result($existing_file);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':majorid', $create_loc);
+				$query->bindValue(':name', $name);
+				$existing_file = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to check if file upload value is valid due to database error: '.$e->getMessage());
+			}
 			if ($existing_file) {
 				// file already exists so throw the error
 				$ok = FALSE;
@@ -227,7 +233,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	function getSummary()
 	{
 		if (!isset($this->_tmp['summary'])) {
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = MatrixDAL::getDb();
 
 			// Check that we are not going to have web path conflicts
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -241,11 +247,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 							ON a.assetid = l.minorid
 					WHERE
-						l.majorid = '.$db->quoteSmart($this->attr('create_location')).'
-						AND a.name = '.$db->quoteSmart($name);
+						l.majorid = :majorid
+						AND a.name = :name';
 
-			$existing_file = $db->getOne($sql);
-			assert_valid_db_result($existing_file);
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':majorid', $this->attr('create_location'));
+				$query->bindValue(':name', $name);
+				$existing_file = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get summary of answers for: '.$name.' due to database error: '.$e->getMessage());
+			}
 			if (!is_null($existing_file)) {
 				$existing_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
 				$info = $existing_file_asset->getExistingFile();
@@ -289,7 +301,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			return;
 		}
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		// Check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -303,11 +315,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						ON a.assetid = l.minorid
 				WHERE
-					l.majorid = '.$db->quoteSmart($create_loc).'
-					AND a.name = '.$db->quoteSmart($name);
+					l.majorid = :majorid
+					AND a.name = :name';
 
-		$existing_file = $db->getOne($sql);
-		assert_valid_db_result($existing_file);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':majorid', $create_loc);
+			$query->bindValue(':name', $name);
+			$existing_file = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to check for web path conflicts for filename: '.$name.' due to database error: '.$e->getMessage());
+		}
 
 		$ok = TRUE;
 		if ($existing_file) {

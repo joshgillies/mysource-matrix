@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.58 2007/12/06 04:36:53 rong Exp $
+* $Id: form_section.inc,v 1.59 2007/12/07 06:01:49 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -623,7 +623,11 @@ class Form_Section extends Asset
 	function attachQuestion($type_code)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+<<<<<<< form_section.inc
+		$db = MatrixDAL::getDb();
+=======
 		$db = $GLOBALS['SQ_SYSTEM']->db;
+>>>>>>> 1.58
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 

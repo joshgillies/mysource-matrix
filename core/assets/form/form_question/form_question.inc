@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.25 2007/12/05 02:42:10 mwegermann Exp $
+* $Id: form_question.inc,v 1.26 2007/12/07 06:00:04 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,7 +129,7 @@ class Form_Question extends Asset
 		$this->version = '0.1';
 
 		// set variable values
-		$this->vars['question_type_code']['value'] = get_class($this);
+		$this->vars['question_type_code']['value'] = get_class_lower($this);
 		$this->vars['question_type_code']['type'] = 'text';
 
 	}//end constructor
@@ -176,7 +176,7 @@ class Form_Question extends Asset
 	function saveAttributes($dont_run_updated=FALSE)
 	{
 		if (!$this->id) return TRUE;
-		if (empty($this->_tmp['vars_set'])) return TRUE;
+//		if (empty($this->_tmp['vars_set'])) return TRUE;
 
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 
@@ -205,17 +205,16 @@ class Form_Question extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql.$where);
-			$existing = MatrixDAL::executePdoAssoc($query);
+			$existing = MatrixDAL::executeSqlGroupedAssoc($sql.$where);
 		} catch (Exception $e) {
 			throw new Exception('Can not get default val and name base on type code due to the following database error	'.$e->getMessage());
 		}//end try catch
 
 		// check against default values; we don't need to save that attribute if it is
-		foreach ($existing as $entry) {
-			if ($saved_vars[$entry['name']['value']] == $entry['default_val']) {
-				unset($saved_vars[$entry['name']]);
-			}//end if
+		foreach ($existing as $name => $default_val) {
+			if ($saved_vars[$name]['value'] == $default_val['0']['default_val']) {
+				unset($saved_vars[$name]);
+			}
 		}//end foreach
 
 		// only save the values

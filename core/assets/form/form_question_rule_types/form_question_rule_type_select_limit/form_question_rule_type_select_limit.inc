@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.8 2006/12/11 03:48:07 emcdonald Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.9 2007/12/07 06:00:05 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,10 +91,10 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 
 		$q_name = 'q'.$q_asset->id;
 
-		if (is_a($q_asset, 'form_question_type_select')) {
+		if ($q_asset instanceof Form_Question_Type_Select) {
 			// selection list or derivative - check multiple attribute
 			$q_id = $q_name.($q_asset->attr('multiple') ? '[]' : '');
-		} else if (is_a($q_asset, 'form_question_type_option_list')) {
+		} else if ($q_asset instanceof Form_Question_Type_Option_List) {
 			// option list - always single (*sniff* :`-( )
 			$q_id = $q_name;
 		} else {
@@ -114,7 +114,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 			var selectCount = 0;
 
 			<?php
-			if (is_a($q_asset, 'form_question_type_select')) {
+			if ($q_asset instanceof Form_Question_Type_Select) {
 				?>var select = form.elements["<?php echo $q_id ?>"];
 				for(i=0; i<select.options.length; i++) {
 					if (select.options[i].selected) selectCount++;
