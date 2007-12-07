@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.11 2007/12/06 05:15:57 rong Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.12 2007/12/07 04:27:36 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,19 +58,23 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	function generateReport(&$job, &$step_data, $prefix)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$owner = $am->getAsset($job->_running_vars['assetid'], 'report_asset_statuses');
 		$where = Array();
-		$tables = Array('ast a');
+		$tables = Array('sq_ast a');
 
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, '', FALSE, 'root');
 		if (!empty($root_link)) {
 			// need to restrict results according to link tree position too
-			$parent_treeid = $db->getOne('SELECT t.treeid FROM sq_ast_lnk_tree t WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = '.$root_link['minorid'].')');
-			assert_valid_db_result($parent_treeid);
+			 try {
+				$bind_vars['root_link_minorid'] = $root_link['minorid'];
+				$parent_treeid = MatrixDAL::executeOne('cms_package', 'getTreeidFromMinor', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get tree id from minor id: '.$e->getMessage());
+			}
 			$where[] = 'SUBSTR(t.treeid, 1, '.strlen($parent_treeid).') = '.$db->quote($parent_treeid);
-			$tables[] = 'ast_lnk l';
-			$tables[] = 'ast_lnk_tree t';
+			$tables[] = 'sq_ast_lnk l';
+			$tables[] = 'sq_ast_lnk_tree t';
 			$where[] = 'l.linkid = t.linkid';
 			$where[] = 'a.assetid = l.minorid';
 		}
@@ -87,13 +91,16 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			$where[] = 'a.status_changed '.$operator.' '.$db->quote(ts_iso8601($timestamp));
 		}
 
-		foreach ($tables as $index => $table) {
-			$tables[$index] = 'sq_'.$table;
-		}
-		$sql = 'SELECT a.assetid, a.type_code, a.name, a.status, a.status_changed, a.status_changed_userid FROM '.implode(', ', $tables).' WHERE ('.implode(') AND (', $where).')';
-
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		$sql = 'SELECT
+					a.assetid, a.type_code, a.name, a.status, a.status_changed, a.status_changed_userid
+				FROM
+					'.implode(', ', $tables).'
+				WHERE
+					('.implode(') AND (', $where).')
+				ORDER BY
+					a.type_code';
+		$query = $db->prepare($sql);
+		$result = MatrixDAL::executePdoAssoc($query);
 
 		if (empty($result)) {
 			$step_data['percent_done'] = 100;
@@ -128,8 +135,6 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			$contents .= '</asset>'."\n";
 		}
 		$contents .= '</asset_list>';
-
-
 
 		$report_dir = $owner->data_path;
 		$xml_file_name = $report_dir.'/report.xml';
@@ -224,9 +229,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
 		$report_path = $asset->data_path.'/report.xml';
 
 		if (!is_file($report_path)) {
@@ -234,10 +237,11 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$input = new XML_Tree($report_path);
-		$root  = $input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+		try {
+			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			 throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
 			return;
 		}
 
@@ -252,18 +256,17 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_changer'); ?></td>
 			</tr>
 		<?php
-		$cmp_func = create_function('$a, $b', 'return $a->attributes[\'type_code\'] > $b->attributes[\'type_code\'];');
-		usort($root->children, $cmp_func);
-		foreach ($root->children as $asset_node) {
-			$assetid = $asset_node->attributes['assetid'];
-			$name = $asset_node->attributes['name'];
-			$type_code = $asset_node->attributes['type_code'];
+
+		foreach ($root->asset as $asset_node) {
+			$assetid = (int) $asset_node->attributes()->assetid;
+			$name = (string) $asset_node->attributes()->name;
+			$type_code = (string) $asset_node->attributes()->type_code;
 			$type_icon = $am->getAssetIconURL($type_code);
 
-			$status = $asset_node->children[0]->attributes['value'];
-			$status_changed = $asset_node->children[0]->attributes['changed'];
-			$status_changed_userid = $asset_node->children[0]->attributes['changed_userid'];
-			$status_changed_user_name = $asset_node->children[0]->attributes['changed_user_name'];
+			$status = (int) $asset_node->status->attributes()->value;
+			$status_changed = (string) $asset_node->status->attributes()->changed;
+			$status_changed_userid = (int) $asset_node->status->attributes()->changed_userid;
+			$status_changed_user_name = (string) $asset_node->status->attributes()->changed_user_name;
 
 			?>
 				<tr>
