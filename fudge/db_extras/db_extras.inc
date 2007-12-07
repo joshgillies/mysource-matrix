@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.21 2007/12/04 05:10:25 bshkara Exp $
+* $Id: db_extras.inc,v 1.22 2007/12/07 00:10:26 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -286,7 +286,7 @@ function db_extras_modify_limit_clause($db_type, array $limit)
 		$sql  = ')';
 		$sql .= ' WHERE row_num >= '.($limit['offset'] + 1);
 	} else { // psql, db2, mysql
-		$sql  = 'LIMIT ';
+		$sql  = ' LIMIT ';
 		$sql .= $limit['rows'].' OFFSET '.$limit['offset'];
 	}
 
