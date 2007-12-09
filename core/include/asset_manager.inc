@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.640 2007/12/05 23:52:17 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.641 2007/12/09 23:39:15 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.640 $
+* @version $Revision: 1.641 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3010,7 +3010,7 @@ class Asset_Manager extends MySource_Object
 			$force_array = TRUE;
 			$assetids = $assetid;
 		}
-		
+
 		$links = Array();
 		$query_assetids = Array();
 		foreach ($assetids as $assetid) {
@@ -3332,7 +3332,8 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($from_treeid)) {
 			if (is_array($from_treeid)) {
 				$treeid_bits = Array();
-				foreach ($from_treeid as $ftid) {
+				foreach ($from_treeid as $ftids) {
+					$ftid = $ftids[0];
 					$treeid_bits[] = '(pt.treeid LIKE '.$db->quote((string)$ftid.'%').')';
 				}
 				$where .= ' AND ('.implode(' OR ', $treeid_bits).')';
