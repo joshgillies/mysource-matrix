@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.26 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_login_form.inc,v 1.27 2007/12/10 22:50:25 mwegermann Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,6 +111,7 @@ class Design_Area_Login_Form extends Design_Area
 					unset($'.$this->attr('id_name').'_post_vars[\'SQ_LOGIN_KEY\']);
 					unset($'.$this->attr('id_name').'_post_vars[\'SQ_LOGIN_REFERER\']);
 					unset($'.$this->attr('id_name').'_post_vars[\'SQ_ACTION\']);
+					unset($'.$this->attr('id_name').'_post_vars[\'log_in_out_button\']);
 					var_to_hidden_field($'.$this->attr('id_name').'_post_vars);
 					?', '>';
 				}// end if
