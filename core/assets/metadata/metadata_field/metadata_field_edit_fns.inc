@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.54 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.55 2007/12/10 01:05:32 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -362,7 +362,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(Metadata_Field $asset, $value_str, Array &$tag_value, Array &$keywords)
+	function generateMetadata(Metadata_Field $asset, $value_str, &$tag_value, Array &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
