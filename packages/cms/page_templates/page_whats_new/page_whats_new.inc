@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.38 2007/12/06 05:14:00 rong Exp $
+* $Id: page_whats_new.inc,v 1.39 2007/12/10 21:57:51 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,7 +93,7 @@ class Page_Whats_New extends Listing_Engine
 
 		$children = Array();
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDal::getDb();
 
 		// this is the field in the database that we are using the specify that something is "new"
 		$field = $this->attr('date_field');
@@ -178,8 +178,14 @@ class Page_Whats_New extends Listing_Engine
 					$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
 				}
 
-				$new_links = $db->getAll(implode(' ', $query));
-				assert_valid_db_result($new_links);
+				$new_links = NULL;
+				try {
+					$_query = $db->prepare(implode(' ', $query));
+					$new_links = MatrixDAL::executePdoAll($_query);
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}
+
 				$links = array_merge($links, $new_links);
 			}
 
@@ -187,17 +193,18 @@ class Page_Whats_New extends Listing_Engine
 
 				case 'letter' :
 					foreach ($links as $link_info) {
-						$children[$link_info['minorid']] = Array(
-															'type_code'		=> $link_info['minor_type_code'],
-															'first_letter'	=> $link_info['first_letter'],
-														   );
+						$children[$link_info['minorid']] = Array( 0 => Array(
+																		'type_code'		=> $link_info['minor_type_code'],
+																		'first_letter'	=> $link_info['first_letter'],
+																		)
+															);
 					}
 				break;
 
 				case 'number' :
 				case 'random' :
 					foreach ($links as $link_info) {
-						$children[$link_info['minorid']] = $link_info['minor_type_code'];
+						$children[$link_info['minorid']] = Array( 0 => Array('type_code' => $link_info['minor_type_code']));
 					}
 				break;
 			}
@@ -216,8 +223,12 @@ class Page_Whats_New extends Listing_Engine
 					$query['union_select'] .= ', NULL AS first_letter';
 				}
 
-				$new_kids = $db->getAssoc(implode(' ', $query));
-				assert_valid_db_result($new_kids);
+				$new_kids = NULL;
+				try {
+					$new_kids = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}
 
 				// can't use array_merge() because we need to save the key (assetid);
 				foreach ($new_kids as $kid_key => $kid_value) {
@@ -231,8 +242,9 @@ class Page_Whats_New extends Listing_Engine
 			// only A-Z listings require the type_code to be in an array
 			// all other formats require a simple assetid => type_code return value
 			if ($group_by != 'letter') {
-				foreach ($children as $child_id => $child_data) {
-					$children[$child_id] = $child_data['type_code'];
+				foreach ($children as $child_id => $child_datas) {
+					$child_data = $child_datas[0];
+					$children[$child_id] = Array( 0 => Array('type_code' => $child_data['type_code']));
 				}
 			}
 
