@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet_edit_fns.inc,v 1.3 2007/12/04 02:40:07 colivar Exp $
+* $Id: content_type_snippet_edit_fns.inc,v 1.4 2007/12/10 06:32:47 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,7 +58,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paint(&$asset, $editing=FALSE, $generating=FALSE)
 	{
-		$snippet_asset =& $asset->getCurrentSnippet();
+		$snippet_asset = $asset->getCurrentSnippet();
 		if ($generating) {
 			$this->paintGenerated($asset, $snippet_asset);
 		} else {
@@ -88,7 +88,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 		if (!is_null($snippet_asset)) {
 			?>
 			$snippet_assetid = '<?php echo $snippet_asset->id; ?>';
-			$snippet_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_assetid);
+			$snippet_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_assetid);
 			$snippet_asset->printBody();
 			<?php
 		}
@@ -120,7 +120,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			// get default values
 			$source_safe = FALSE;
 			$current_view = $asset->attr('view_style');
-			$current_snippet =& $asset->getCurrentSnippet();
+			$current_snippet = $asset->getCurrentSnippet();
 			$current_id = (is_null($current_snippet)) ? 0 : $current_snippet->id;
 			$current_content = translate('cms_ct_snippet_select_one');
 			if ($current_id) {
@@ -224,7 +224,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 				$asset->setAttrValue('view_style', $_POST[$prefix.'_viewstyle']);
 				$asset->saveAttributes();
 			}
-			$current_snippet =& $asset->getCurrentSnippet();
+			$current_snippet = $asset->getCurrentSnippet();
 			$current_id = (is_null($current_snippet)) ? 0 : $current_snippet->id;
 			$new_id = (isset($_POST[$prefix.'_dropdown'])) ? $_POST[$prefix.'_dropdown'] : 0;
 
@@ -244,7 +244,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 							return FALSE;
 						}
 					}
-					$new_snippet =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_id);
+					$new_snippet = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_id);
 					// create new snippet link
 					if (!$asset->createLink($new_snippet, SQ_LINK_NOTICE, 'snippet_asset')) {
 						return FALSE;
@@ -266,7 +266,7 @@ class Content_Type_Snippet_Edit_Fns extends Content_Type_Edit_Fns
 			// update content.php file
 			$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
 			if (!empty($bc_container_link)) {
-				$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+				$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
 				$edit_fns = $container->getEditFns();
 				$edit_fns->generateContentFile($container);
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.18 2007/12/04 02:40:07 colivar Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.19 2007/12/10 06:32:47 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,7 +58,7 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 			$size = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_RAW_HTML_SIZE');
 			$html = $asset->attr('html');
 
-			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$keywords = Array();
 			$prepared_keywords = Array();
 			$keyword_vars = Array('keywords' => &$keywords);

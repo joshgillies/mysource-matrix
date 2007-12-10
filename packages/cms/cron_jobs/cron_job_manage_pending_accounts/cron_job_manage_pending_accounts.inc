@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.5 2007/12/04 03:08:59 bshkara Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.6 2007/12/10 06:32:47 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 						$inbox->updateLookups();
 
 						// Delete the workspace and remove its URLs
-						$workspace =& $user->getWorkspace();
+						$workspace = $user->getWorkspace();
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
 						$workspace->updateLookups();
 
