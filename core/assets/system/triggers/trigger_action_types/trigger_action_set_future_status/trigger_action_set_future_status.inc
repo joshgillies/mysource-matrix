@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.17 2007/11/28 03:50:04 colivar Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.18 2007/12/10 22:00:28 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -382,7 +382,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* @return string
 	* @access public
 	*/
-	function getAttributeChooser($prefix, $write_access, $type, $attr)
+	protected static function getAttributeChooser($prefix, $write_access, $type, $attr)
 	{
 		ob_start();
 			if ($write_access) {
