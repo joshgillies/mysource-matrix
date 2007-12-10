@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.18 2007/12/10 22:00:28 hnguyen Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.19 2007/12/10 22:05:43 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -360,7 +360,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 	* @return array
 	* @access private
 	*/
-	function _getStatusList()
+	protected static function _getStatusList()
 	{
 		$status = Array();
 		foreach (get_constant_values('SQ_STATUS_') as $status_value) {
