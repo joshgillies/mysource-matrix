@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.19 2007/11/28 22:27:51 lwright Exp $
+* $Id: image_variety_edit_fns.inc,v 1.20 2007/12/10 23:29:02 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,19 +95,20 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 					var variety_type = get_form_element_value("<?php echo $prefix; ?>_variety_type");
 					var constrain    = get_form_element_value("<?php echo $prefix; ?>_constrain");
-
+					
 					document.getElementById('<?php echo $prefix; ?>_field_constrain').style.display	= (variety_type == 'resize') ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_width').style.display		= (variety_type == 'resize' && (constrain == 'width' || constrain == 'none')) ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_height').style.display	= (variety_type == 'resize' && (constrain == 'height' || constrain == 'none'))  ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_dimension').style.display	= (variety_type == 'resize' && constrain == 'dimension')  ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_upload').style.display	= (variety_type == 'upload') ? '' : 'none';
-
+					return true;
+					
 				}// end <?php echo $prefix; ?>_update_visible_fields()
 
 				// -->
 			</script>
 		<?php
-			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
+			$sel_edit_params->attributes()->extras = 'onclick="return '.$js_prefix.'_update_visible_fields();"';
 			$attr = $asset->getAttribute('variety_type');
 			$attr->setEditParams($sel_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
@@ -115,7 +116,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		$o->closeField();
 
 		$o->openField(translate('constrain_by'), '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
-			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
+			$sel_edit_params->attributes()->extras = 'onclick="return '.$js_prefix.'_update_visible_fields();"';
 			$attr = $asset->getAttribute('constrain');
 			$attr->setEditParams($sel_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);
