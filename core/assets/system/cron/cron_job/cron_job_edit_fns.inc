@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.40 2007/11/28 21:56:42 lwright Exp $
+* $Id: cron_job_edit_fns.inc,v 1.41 2007/12/10 21:53:35 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,7 +66,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	protected function _paintWhenBox(Cron_Job $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
+	public function _paintWhenBox(Cron_Job $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
 	{
 		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (is_null($cron_mgr)) return FALSE;
