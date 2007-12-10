@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.63 2007/12/07 06:01:49 bshkara Exp $
+* $Id: form_email.inc,v 1.64 2007/12/10 06:01:04 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -310,11 +310,8 @@ class Form_Email extends Form
 	function _getAttachments()
 	{
 		$questions = $this->getAllQuestions();
-<<<<<<< form_email.inc
 		$db = MatrixDAL::getDb();
-=======
-		$db = $GLOBALS['SQ_SYSTEM']->db;
->>>>>>> 1.62
+
 		$file_assets = Array();
 		foreach ($questions as $q_assetid => $question) {
 			if ($question['question_type_code'] == 'form_question_type_file_upload') {

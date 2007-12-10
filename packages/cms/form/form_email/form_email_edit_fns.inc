@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.90 2007/12/07 06:01:49 bshkara Exp $
+* $Id: form_email_edit_fns.inc,v 1.91 2007/12/10 06:01:04 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,7 +161,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						ON l.minorid = a.assetid';
 
-<<<<<<< form_email_edit_fns.inc
 		$sub_folder = $asset->getSubmissionsFolder();
 
 		$db = MatrixDAL::getDb();
@@ -169,14 +168,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					AND i.inhd_type_code = '.$db->quote('form_submission').'
 					AND a.created BETWEEN '.db_extras_todate(MatrixDAL::getDbType(), $from_value).'
 					AND '.db_extras_todate(MatrixDAL::getDbType(), $to_value);
-
-=======
-		$sub_folder = $asset->getSubmissionsFolder();
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
-					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
-					AND a.created BETWEEN '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $from_value).'
-					AND '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $to_value);
->>>>>>> 1.89
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
