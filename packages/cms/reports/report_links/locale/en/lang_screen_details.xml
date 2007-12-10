@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/12/07 00:04:25 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.7 2007/12/10 01:27:22 rong Exp $
 *
 */
 -->
@@ -45,7 +45,7 @@
 		</field>
 		<field attribute="report_broken_links">
 			<display_name>Report Broken Links?</display_name>
-			<note>Notify the asset administrators if a broken link is found during the report generation process</note>
+			<note>Notify the asset administrators if a broken link is found during the report generation process. You will have to add 'asset.report.brokenlink' to 'Log To Email White List' in the Messaging Service Configuration for this to work.</note>
 		</field>
 		<field>
 			<function_call>
