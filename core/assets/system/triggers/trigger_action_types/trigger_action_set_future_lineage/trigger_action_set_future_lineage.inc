@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.14 2007/12/02 23:18:56 bshkara Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.15 2007/12/10 21:54:18 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -196,8 +196,9 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$temporary_edit_fns = $temporary_cron_job->getEditFns();
 
 		// Use the cron job edit functions to paint the 'when' box.
+		$o = new Backend_Outputter();
 		ob_start();
-			$temporary_edit_fns->_paintWhenBox($temporary_cron_job, $this, $munge_prefix, $settings['when']);
+			$temporary_edit_fns->_paintWhenBox($temporary_cron_job, $o, $munge_prefix, $settings['when']);
 
 			echo '<br />or by the date/time value from the ';
 			$selected_type = array_get_index($settings, 'asset_type', '');
