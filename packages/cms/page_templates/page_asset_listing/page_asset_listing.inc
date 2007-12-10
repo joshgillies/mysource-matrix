@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.114 2007/12/06 04:46:50 rong Exp $
+* $Id: page_asset_listing.inc,v 1.115 2007/12/10 03:42:20 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -159,16 +159,23 @@ class Page_Asset_Listing extends Listing_Engine
 						// which returns the results from the asset table, using the table alias 'l'
 						$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
 
-						$db = $GLOBALS['SQ_SYSTEM']->db;
-						$links = $db->getAll(implode(' ', $query));
-						assert_valid_db_result($links);
+						$db = MatrixDAL::getDb();
+						$links = NULL;
+
+						try {
+							$_query = $db->prepare(implode(' ', $query));
+							$links = MatrixDAL::executePdoAll($_query);
+						} catch (Exception $e) {
+							throw new Exception($e->getMessage());
+						}
 
 						$new_assets_to_list = Array();
 						foreach ($links as $link_info) {
-							$new_assets_to_list[$link_info[$link_type.'id']] = Array(
-																				'type_code'		=> $link_info[$link_type.'_type_code'],
-																				'first_letter'	=> $link_info['first_letter'],
-																			   );
+							$new_assets_to_list[$link_info[$link_type.'id']] = Array( 0	=> Array(
+																								'type_code'		=> $link_info[$link_type.'_type_code'],
+																								'first_letter'	=> $link_info['first_letter'],
+																								)
+																					);
 						}
 
 						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
@@ -183,7 +190,7 @@ class Page_Asset_Listing extends Listing_Engine
 						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, $link_value_wanted, NULL, NULL, NULL, $list_permission, $list_effective);
 						$new_assets_to_list = Array();
 						foreach ($links as $link_info) {
-							$new_assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
+							$new_assets_to_list[$link_info[$link_type.'id']] = Array( 0 => Array('type_code' => $link_info[$link_type.'_type_code']));
 						}
 
 						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
@@ -219,10 +226,14 @@ class Page_Asset_Listing extends Listing_Engine
 						// number of columns in both sides of the union
 						$query['union_select'] .= ', null AS first_letter';
 
-						$db = $GLOBALS['SQ_SYSTEM']->db;
+						$db = MatrixDAL::getDb();
+						$new_assets_to_list = Array();
+						try {
+							   $new_assets_to_list = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+						} catch (Exception $e) {
+								throw new Exception($e->getMessage());
+						}
 
-						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
-						assert_valid_db_result($new_assets_to_list);
 
 						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
 					}
@@ -331,7 +342,15 @@ class Page_Asset_Listing extends Listing_Engine
 						}
 					} else {
 						foreach ($root_asset_ids as $root_asset_id) {
-							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
+							// we are now formating the asset_list the way it should be
+							// the function getParents is used at many places in Matrix therefore we are adding the following code to format
+							// the returned array. This might affect the performances of the asset listing.
+							// $asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
+							$asset_list = Array();
+							$new_asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
+							foreach ($new_asset_list as $k => $v) {
+								$asset_list[$k] = Array( 0 => Array('type_code' => $v));
+							}
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					}

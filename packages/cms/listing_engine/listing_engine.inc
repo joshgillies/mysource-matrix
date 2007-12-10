@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.233 2007/12/10 03:15:09 lwright Exp $
+* $Id: listing_engine.inc,v 1.234 2007/12/10 03:42:20 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.233 $
+* @version $Revision: 1.234 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1081,7 +1081,7 @@ class Listing_Engine extends Page
 			case 'letter' :
 				$filtered_todo = Array();
 				for (reset($todo); NULL !== ($todo_id = key($todo)); next($todo)) {
-					$filtered_todo[$todo_id] = $todo[$todo_id]['type_code'];
+					$filtered_todo[$todo_id] = Array( 0 => Array( 'type_code' => $todo[$todo_id][0]['type_code']));
 				}
 
 				$this->filterAssetTypes($filtered_todo);
@@ -1130,12 +1130,12 @@ class Listing_Engine extends Page
 		}
 
 		$wanted_statuses = $this->attr('statuses');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
 			// find which of the assets have the right statuses
 			foreach (array_unique(array_merge($real_assetids, $bridge_assetids)) as $assetid) {
-				$query_assetids[] = $db->quoteSmart((string) $assetid);
+				$query_assetids[] = $db->quote((string) $assetid);
 			}
 			$in_clauses = Array();
 			foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1149,8 +1149,13 @@ class Listing_Engine extends Page
 							('.implode(' OR ', $in_clauses).')
 						AND status IN ('.implode(', ', $wanted_statuses).')';
 
-			$status_matches = $db->getCol($sql);
-			assert_valid_db_result($status_matches);
+			$status_matches = Array();
+			try {
+				$query = $db->prepare($sql);
+				$status_matches = MatrixDAL::executePdoAssoc($query, 0);
+			} catch (Execption $e) {
+				throw new Exception($e->getMessage());
+			}
 		} else {
 			// We want all statuses
 			$status_matches = array_unique(array_merge($real_assetids, $bridge_assetids));
@@ -1237,7 +1242,8 @@ class Listing_Engine extends Page
 			return;
 		}
 
-		foreach ($todo as $assetid => $type_code) {
+		foreach ($todo as $assetid => $type_codes) {
+			$type_code = $type_codes[0]['type_code'];
 			if (!isset($allowed_types[$type_code])) {
 				unset($todo[$assetid]);
 			} else {
@@ -1475,7 +1481,8 @@ class Listing_Engine extends Page
 					$all_letters[$one_letter] = $one_letter;
 				}
 
-				foreach ($children as $childid => $data) {
+				foreach ($children as $childid => $datas) {
+					$data = $datas[0];
 					$letter = strtoupper($data['first_letter']);
 					if (!isset($all_letters[$letter])) {
 						$letter = $other_letter;
@@ -2724,7 +2731,7 @@ class Listing_Engine extends Page
 		$group_levels = array_reverse($group_levels);
 
 		$asset_groups = Array();
-		foreach ($assetids as $assetid => $group_data) {
+		foreach ($assetids as $assetid => $group_datas) {
 			$asset_groups[] = Array('assetid' => $assetid);
 		}
 
@@ -4182,7 +4189,8 @@ class Listing_Engine extends Page
 			$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
 		}
 
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', FALSE, 'major', 'no_results'));
+		$tmp_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', FALSE, 'major', 'no_results');
+		$bodycopy_link = reset($tmp_bodycopy_link);
 
 		if ($bodycopy_link) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
@@ -4227,7 +4235,8 @@ class Listing_Engine extends Page
 	*/
 	function setUseNoResultsBodycopy($enabled)
 	{
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', FALSE, 'major', 'no_results'));
+		$tmp_body_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', FALSE, 'major', 'no_results');
+		$bodycopy_link = reset($tmp_body_link);
 
 		if (!$bodycopy_link) {
 			// no bodycopy yet? If we're trying to set to disabled, then we don't
