@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.116 2007/12/03 04:11:43 bshkara Exp $
+* $Id: workflow_manager.inc,v 1.117 2007/12/10 04:20:56 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1212,7 +1212,6 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$schemas = $this->getSchemas($assetid, TRUE, FALSE);
 
 		if (empty($schemas)) return FALSE;
@@ -1554,7 +1553,7 @@ class Workflow_Manager extends MySource_Object
 
 
 		// mark the current step as escalated
-		$current_step = $this->getCurrentStep($workflow);
+		$current_step =& $this->getCurrentStep($workflow);
 
 		// we'll need these for later to check if any workflow has changed steps
 		$step_before = $current_step;
