@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.36.2.5 2007/10/03 01:46:31 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.36.2.6 2007/12/10 01:32:21 mwegermann Exp $
 *
 */
 
@@ -28,7 +28,7 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.36.2.5 $
+* @version $Revision: 1.36.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2078,7 +2078,8 @@ class Thesaurus extends Asset
 	*/
 	function getPermission($assetid, $permission, $granted=NULL, $and_greater=TRUE, $expand_groups=FALSE, $all_info=FALSE)
 	{
-		return Array();
+		// All thesaurus terms inherit permissions of thesaurus.
+		return $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $permission, $granted, $and_greater, $expand_groups, $all_info);
 
 	}//end getPermission()
 
