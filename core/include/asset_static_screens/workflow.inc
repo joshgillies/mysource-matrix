@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.52 2007/12/03 03:37:00 bshkara Exp $
+* $Id: workflow.inc,v 1.53 2007/12/10 06:22:36 rong Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 */
 
@@ -113,7 +113,7 @@ function paintInlineWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Inte
 */
 function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, $keywords=NULL)
 {
-	$root =& $ei->findScreen('static_screen_workflow');
+	$root = $ei->findScreen('static_screen_workflow');
 	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
@@ -937,7 +937,7 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 function _paintWorkflowStep(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, array &$workflow, array $step_address)
 {
 	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-	$step_data = $wfm->getCurrentStep($workflow, $step_address);
+	$step_data =& $wfm->getCurrentStep($workflow, $step_address); // need by ref
 	$section_title = 'Step '.implode('.',$step_address).' - '.$step_data['step_name'];
 
 	if ($step_data['expired']) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy.inc,v 1.36 2007/12/03 01:11:45 lwright Exp $
+* $Id: paint_layout_bodycopy.inc,v 1.37 2007/12/10 06:20:08 rong Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * If an attribute is not recognised, the condition will be evaluated as FALSE.
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$containers = $this->getContainers();
 		foreach (array_keys($containers) as $i) {
 			ob_start();
-				$container = $containers[$i]; // need this by reference
+				$container =& $containers[$i]; // need this by reference
 				$edit = $container->getEditFns();
 				$edit->paint($container, FALSE, TRUE);
 				$content = ob_get_contents();
