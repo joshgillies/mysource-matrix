@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.73 2007/12/05 06:07:16 colivar Exp $
+* $Id: asset_edit_fns.inc,v 1.74 2007/12/10 06:22:41 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -314,7 +314,7 @@ class Asset_Edit_Fns extends MySource_Object
 			return FALSE;
 		}
 
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($asset->id));
 		$hh->queueHipo('hipo_job_update_lookups', $vars);
 
@@ -338,7 +338,7 @@ class Asset_Edit_Fns extends MySource_Object
 		if (!$asset->adminAccess('lookups')) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
@@ -484,7 +484,7 @@ class Asset_Edit_Fns extends MySource_Object
 			}
 		}
 
-		$remap_manager =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$remap_manager->addRemapURL($old_url, $new_url, $expires);
 
 		return TRUE;

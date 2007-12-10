@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.24 2007/11/22 02:29:53 hnguyen Exp $
+* $Id: metadataSchemas.inc,v 1.25 2007/12/10 06:22:41 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Ed
 {
 	$prefix = $owner->getPrefix();
 
-	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
@@ -71,7 +71,7 @@ function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Ed
 			foreach ($direct as $granted => $schemaids) {
 				foreach ($schemaids as $schemaid) {
 					if ($schemaid) {
-						$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 						if (!$schema->id || !($schema instanceof Metadata_Schema)) {
 							continue;
 						}
@@ -118,7 +118,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 
 	$o->openSection(translate('metadata_schemas'));
 
-	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id);
 
 	$direct = Array();
@@ -236,7 +236,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 	$prefix = $owner->getPrefix();
 	if (!isset($_POST[$prefix.'_metadata'])) return FALSE;
 
-	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 	// are we cascading these schema changes to our children?
 	$cascade_changes = FALSE;

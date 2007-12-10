@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.10 2007/08/08 06:00:31 lmarchese Exp $
+* $Id: tag_manager.inc,v 1.11 2007/12/10 06:20:50 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -418,7 +418,7 @@ class Tag_Manager extends Asset
 	*/
 	function setTagByName($assetid, $tag, $weight)
 	{
-		$thes  =& $this->getTagThesaurus();
+		$thes  = $this->getTagThesaurus();
 		$tagid =  $thes->getTermIdByName($tag);
 		return $this->setTag($assetid, $tagid, $weight);
 

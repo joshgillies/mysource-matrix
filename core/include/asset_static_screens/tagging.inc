@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tagging.inc,v 1.21 2007/11/29 00:45:23 colivar Exp $
+* $Id: tagging.inc,v 1.22 2007/12/10 06:22:41 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Tagging Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 
@@ -38,7 +38,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 {// TODO TOF TEST
-	$root =& $ei->findScreen('static_screen_tagging');
+	$root = $ei->findScreen('static_screen_tagging');
 	if (is_null($root)) return FALSE;
 	$write_access = $owner->writeAccess('menu');
 	$prefix = $owner->getPrefix();
@@ -90,7 +90,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 
 					if ($write_access) {
 						ob_start();
-						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
+						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
 						if (!empty($sm)) {
 							ob_start();
 								?>
@@ -117,7 +117,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 						ob_start();
 					}
 
-					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+					$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					ob_start();
 					if ($write_access) {
@@ -160,7 +160,7 @@ function paintTagging(&$owner, &$o, &$ei, $keywords=NULL)
 
 				case 'weights' :
 
-					$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+					$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 					$current_tag_links = $tag_manager->getTagLinks($owner->id);
 					$o->openField('');
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string)$field->attributes()->code)])) {
@@ -261,7 +261,7 @@ function paintInlineTagging(&$owner, &$o, &$ei)
 {
 	$prefix = $owner->getPrefix();
 
-	$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+	$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 	$current_tag_links = $tag_manager->getTagLinks($owner->id);
 
 	if (empty($current_tag_links)) return FALSE;
@@ -323,7 +323,7 @@ function processTagging(&$owner, &$o, $ei)
 	if (!$owner->writeAccess('menu')) return FALSE;
 	$prefix = $owner->getPrefix();
 
-	$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+	$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 
 	$submitted_tags = array_get_index($_REQUEST, $prefix.'_tags', Array());
 	// are we cascading these tag changes to our children? If we are doing a manual cascade, that is handled later, after changes have been made to the parent asset.
@@ -430,7 +430,7 @@ function processTagging(&$owner, &$o, $ei)
 
 
 	if (!empty($tag_vars)) {
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'		=> Array(
 										$owner->id	=> Array(

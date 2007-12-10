@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: accept_file_upload.php,v 1.10 2007/06/05 00:41:38 lwright Exp $
+* $Id: accept_file_upload.php,v 1.11 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Script to accept HTTP uploads and save them to the temp dir
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -35,7 +35,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAcces
 
 // copy all uploaded files, including arrays of files, to the temp dir
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 $ms->openLog();
 foreach ($_FILES as $id => $details) {
 	if (is_array($details['name'])) {

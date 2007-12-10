@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.58 2007/12/06 04:28:48 lwright Exp $
+* $Id: design_area.inc,v 1.59 2007/12/10 06:20:49 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,7 +141,7 @@ class Design_Area extends Asset
 	public function processBackend(Backend_Outputter $o, Array &$link)
 	{
 		if (parent::processBackend($o, $link)) {
-			$designs =& $this->getDesigns();
+			$designs = $this->getDesigns();
 			for ($i = 0, $max = count($designs); $i < $max; $i++) {
 				$designs[$i]->generateDesignFile(FALSE);
 			}//end for

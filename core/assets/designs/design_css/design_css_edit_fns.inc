@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.18 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_css_edit_fns.inc,v 1.19 2007/12/10 06:20:49 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -178,12 +178,12 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			return FALSE;
 		}
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		// Now create the links to our design areas
 		$da_links = $asset->getDesignAreaLink();
 		foreach ($da_links as $link) {
-			$da =& $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
+			$da = $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
 			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -207,7 +207,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($file_links as $link) {
-			$minor =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
@@ -249,7 +249,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		if ($customisation_links) {
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 			foreach ($customisation_links as $link) {
-				$customisation =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+				$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				echo '# ', $customisation->id, '&nbsp;&nbsp;<a href="', $customisation->getBackendHref(), '">', $customisation->name, '</a><br>';
 

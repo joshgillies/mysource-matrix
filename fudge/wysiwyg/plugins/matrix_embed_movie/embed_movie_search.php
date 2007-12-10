@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie_search.php,v 1.2 2007/01/02 00:22:27 mbrydon Exp $
+* $Id: embed_movie_search.php,v 1.3 2007/12/10 06:23:46 rong Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -37,13 +37,13 @@ $search_for = trim(array_get_index($_GET, 'quick-search-for', ''));
 // If we are searching for something
 if ($search_for != '') {
 	// check for a url first
-	$asset_by_url =& $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($search_for, TRUE), TRUE, TRUE);
+	$asset_by_url = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($search_for, TRUE), TRUE, TRUE);
 	if (!empty($asset_by_url) && ($asset_by_url->type() != 'file')) {
 		$asset_by_url = NULL;
 	}
 
 	if (assert_valid_assetid($search_for, '', TRUE, FALSE)) {
-		$asset_by_id  =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_for, '', TRUE);
+		$asset_by_id  = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_for, '', TRUE);
 		if (!empty($asset_by_id) && ($asset_by_id->type() != 'file')) {
 			$asset_by_id = NULL;
 		}

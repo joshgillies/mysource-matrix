@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager_management.inc,v 1.3 2006/12/06 00:14:45 bcaldwell Exp $
+* $Id: tag_manager_management.inc,v 1.4 2007/12/10 06:20:50 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 
 * @author	Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Tag_Manager_Management extends Asset_Management
 			pre_echo('UPGRADING TAG MANAGER - FROM VERSION '.$current_version);
 			// adding 'restrict_tag_source' attribute - set it to TRUE/FALSE based
 			// on whether a tagging thesaurus is currently selected
-			$tag_manager =& $GLOBALS['SQ_SYSTEM']->getTagManager();
+			$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
 			if ($tag_manager->attr('thesaurus')) {
 				$tag_manager->setAttrValue('restrict_tag_source', TRUE);
 				$tag_manager->saveAttributes();

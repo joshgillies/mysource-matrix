@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_clean_old_files.php,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_integrity_clean_old_files.php,v 1.4 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Deletes the old checked-out files from the data directory for file type of assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -56,7 +56,7 @@ echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
 }
@@ -66,7 +66,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
-$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 $children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('file', FALSE);
 $count = 0;
 $orphans = Array();
@@ -75,7 +75,7 @@ $orphans = Array();
 echo "[Total ".count($children)." assets will be checked.]\n\n";
 foreach ($children as $assetid) {
 
-	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 	$file_name = $asset->attr('name');
 
 	$data_paths = Array($asset->data_path);

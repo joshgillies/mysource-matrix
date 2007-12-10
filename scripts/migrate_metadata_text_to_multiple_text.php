@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: migrate_metadata_text_to_multiple_text.php,v 1.1 2007/01/10 22:59:12 lwright Exp $
+* $Id: migrate_metadata_text_to_multiple_text.php,v 1.2 2007/12/10 06:23:45 rong Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -68,18 +68,18 @@ ini_set('memory_limit', '-1');
 define('SQ_SYSTEM_ROOT', $_SYSTEM_ROOT);
 include_once $_SYSTEM_ROOT.'/core/include/init.inc';
 
-$from_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($FROM_ASSETID);
+$from_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($FROM_ASSETID);
 if (empty($from_asset) || !is_a($from_asset, 'metadata_field_text')) {
 	echo 'ERROR: Asset #"'.$FROM_ASSETID.'" is not of type Metadata Text Field'."\n";
 	exit(1);
 }
 
-$to_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($TO_ASSETID);
+$to_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($TO_ASSETID);
 if (empty($to_asset) || !is_a($to_asset, 'metadata_field_multiple_text')) {
 	echo 'ERROR: Asset #"'.$TO_ASSETID.'" is not of type Metadata Multiple Text Field'."\n";
 	exit(1);
 }
-$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 // Find which assets contain both fields
 $from_schema_link = $GLOBALS['SQ_SYSTEM']->am->getParents($from_asset->id, 'metadata_schema');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.2 2007/10/16 07:57:50 rong Exp $
+* $Id: purge_trash.php,v 1.3 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -50,7 +50,7 @@ echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // check that the correct root password was entered
-$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	echo "ERROR: The root password entered was incorrect\n";
 	exit();
@@ -66,8 +66,8 @@ $vars = Array();
 $purge_rootnode = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : 0;
 if (!empty($purge_rootnode)) {
 	// do some checking to make sure there is a link to the trash folder
-	$trash_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-	$db =& $GLOBALS['SQ_SYSTEM']->db;
+	$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+	$db = $GLOBALS['SQ_SYSTEM']->db;
 	$sql = 'select
 				linkid
 			from
@@ -84,7 +84,7 @@ if (!empty($purge_rootnode)) {
 	}
 }
 
-$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
 if (count($errors)) {
 	echo print_r($errors, TRUE);

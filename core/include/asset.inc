@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.619 2007/11/30 02:55:46 bshkara Exp $
+* $Id: asset.inc,v 1.620 2007/12/10 06:22:40 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.619 $
+* @version $Revision: 1.620 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3458,7 +3458,7 @@ class Asset extends MySource_Object
 			$spaced_metadata_keyword = str_replace('_', ' ', $metadata_keyword);
 			if (!isset($this->_tmp['mm_replacements'])) {
 				// generate all metadata keywords in one go
-				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				$this->_tmp['mm_replacements'] = $mm->getMetadataFieldValues($this->id);
 			}
 			if (isset($this->_tmp['mm_replacements'][$metadata_keyword])) {

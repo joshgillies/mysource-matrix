@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata.inc,v 1.14 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_metadata.inc,v 1.15 2007/12/10 06:20:49 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,7 @@ class Design_Area_Metadata extends Design_Area
 		} else {
 			// printing a specific field
 			echo '
-					$METADATA_MANAGER = &$GLOBALS[\'SQ_SYSTEM\']->getMetadataManager();
+					$METADATA_MANAGER = $GLOBALS[\'SQ_SYSTEM\']->getMetadataManager();
 					$metadata_field_value = $METADATA_MANAGER->getMetadataFieldValues($ASSET->id, Array('.var_export($field_name, TRUE).'));
 					echo array_get_index($metadata_field_value, '.var_export($field_name, TRUE).', \'\');
 				 ';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.8 2007/11/23 04:17:42 hnguyen Exp $
+* $Id: roles.inc,v 1.9 2007/12/10 06:22:41 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -109,7 +109,7 @@ function paintInlineRoles(&$owner, &$o, &$ei)
 */
 function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 {
-	$root =& $ei->findScreen('static_screen_roles');
+	$root = $ei->findScreen('static_screen_roles');
 	if (is_null($root)) return FALSE;
 
 	$prefix = $owner->getPrefix();
@@ -384,7 +384,7 @@ function processRoles(&$owner, &$o, &$ei)
 	}
 
 	if (!empty($role_vars)) {
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'		=> Array(
 										$owner->id	=> Array(

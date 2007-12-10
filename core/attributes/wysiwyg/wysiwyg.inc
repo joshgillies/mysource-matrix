@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.27 2007/11/29 00:45:23 colivar Exp $
+* $Id: wysiwyg.inc,v 1.28 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -110,7 +110,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
 		// get the keyword replacements
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$keywords = Array();
 		$keyword_vars = Array('keywords' => &$keywords);
 		$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
@@ -130,7 +130,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
 		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 			$wysiwyg->add_plugin('keyword_replace');
-			$keyword_replace = &$wysiwyg->get_plugin('keyword_replace');
+			$keyword_replace = $wysiwyg->get_plugin('keyword_replace');
 			$keyword_replace->keyword_tag = '%';
 			$keyword_replace->keywords = $keywords;
 		}
@@ -212,7 +212,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		$wysiwyg = &$this->_createEditor($prefix);
+		$wysiwyg = $this->_createEditor($prefix);
 		$html = $wysiwyg->process();
 		$this->processed = FALSE;
 		if ($html !== FALSE && $html !== $this->value && $this->setValue($html)) {

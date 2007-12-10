@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_designs.php,v 1.5 2007/12/03 04:11:53 gsherwood Exp $
+* $Id: system_parse_designs.php,v 1.6 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Reparses all of the designs in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 ini_set('memory_limit', '-1');
@@ -42,7 +42,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 
-$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
 
 $parse_asset_types = Array(
@@ -92,7 +92,7 @@ foreach ($designs as $designid) {
 
 	$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 	foreach($customisation_links as $link) {
-		$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($customisation)) continue;
 		printName('Reparse design customisation "'.$customisation->name.'"');
 

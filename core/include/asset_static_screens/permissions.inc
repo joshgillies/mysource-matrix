@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.32 2007/01/30 05:35:54 colivar Exp $
+* $Id: permissions.inc,v 1.33 2007/12/10 06:22:41 rong Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 
@@ -366,7 +366,7 @@ function processPermissions(&$owner, &$o, &$ei)
 	}//end foreach perms
 
 	if (!empty($permission_vars)) {
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
 					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())),
 					'permission_changes'	=> $permission_vars,

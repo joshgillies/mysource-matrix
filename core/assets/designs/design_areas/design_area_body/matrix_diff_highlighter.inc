@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.2 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.3 2007/12/10 06:20:49 rong Exp $
 *
 */
 
@@ -30,7 +30,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,11 +194,11 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 		/* We want to split on word boundaries, but we need to
 		 * preserve whitespace as well. Therefore we split on words,
 		 * but include all blocks of whitespace in the wordlist. */
-		$diff =& new Text_Diff($text1_words,
+		$diff = new Text_Diff($text1_words,
 							   $text2_words);
 
 		/* Get the diff in inline format. */
-		$renderer =& new Matrix_Diff_Highlighter(array_merge($this->getParams(),
+		$renderer = new Matrix_Diff_Highlighter(array_merge($this->getParams(),
 															   Array('split_level' => 'words')));
 
 		/* Run the diff and get the output. */
@@ -384,7 +384,7 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 
 		/* Create the Diff object. */
 		include_once 'Text/Diff.php';
-		$diff =& new Text_Diff(explode("\n", $first), explode("\n", $second));
+		$diff = new Text_Diff(explode("\n", $first), explode("\n", $second));
 
 		return $this->render($diff);
 
@@ -392,3 +392,4 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 
 
 }//end class
+?>

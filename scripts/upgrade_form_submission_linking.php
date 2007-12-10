@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_form_submission_linking.php,v 1.6 2007/06/04 00:11:56 colivar Exp $
+* $Id: upgrade_form_submission_linking.php,v 1.7 2007/12/10 06:23:45 rong Exp $
 *
 */
 
 /**
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -37,7 +37,7 @@ echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // check that the correct root password was entered
-$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
 }
@@ -50,7 +50,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-$am =& $GLOBALS['SQ_SYSTEM']->am;
+$am = $GLOBALS['SQ_SYSTEM']->am;
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
@@ -58,12 +58,12 @@ $ecommerce_formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce'
 
 $formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 foreach ($formids as $formid) {
-	$form =& $am->getAsset($formid);
+	$form = $am->getAsset($formid);
 
 	if (in_array($formid, $ecommerce_formids)) continue;
 
 	pre_echo('Moving submissions for '.$form->name.' ('.$form->id.') to submissions folder');
-	$submissions_folder =& $form->getSubmissionsFolder();
+	$submissions_folder = $form->getSubmissionsFolder();
 	if (is_null($submissions_folder)) {
 		trigger_error('Submissions folder not found for form #'.$formid.'; upgrade may be required', E_USER_ERROR);
 	}

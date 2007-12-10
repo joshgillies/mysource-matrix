@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.8 2007/12/03 04:11:53 gsherwood Exp $
+* $Id: system_parse_design.php,v 1.9 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Reparses a specified design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -46,8 +46,8 @@ if (empty($DESIGNID)) {
 	exit();
 }
 
-$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 $design = $GLOBALS['SQ_SYSTEM']->am->getAsset($DESIGNID);
 if (is_null($design)) exit();
 if (!($design instanceof Design)) {
@@ -97,7 +97,7 @@ printUpdateStatus('OK');
 
 $customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 foreach($customisation_links as $link) {
-	$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+	$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 	if (is_null($customisation)) continue;
 	printName('Reparse design customisation "'.$customisation->name.'"');
 	$vars = Array('assetids' => Array($customisation->id), 'lock_type' => 'all', 'forceably_acquire' => false);

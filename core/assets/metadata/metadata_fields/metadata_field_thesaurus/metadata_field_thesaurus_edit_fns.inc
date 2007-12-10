@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.13 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.14 2007/12/10 06:20:49 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,7 +265,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$prefix = $asset->getPrefix();
-		$thesaurus =& $asset->getThesaurusRef();
+		$thesaurus = $asset->getThesaurusRef();
 		$value = Array();
 
 		if (!empty($_POST[$prefix.'_default'])) {
@@ -326,7 +326,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			return TRUE;
 		}
 
-		$thesaurus =& $asset->getThesaurusRef();
+		$thesaurus = $asset->getThesaurusRef();
 
 		if (empty($default)) {
 			$values = Array();
@@ -366,7 +366,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$prefix = $asset->getPrefix();
-		$thesaurus =& $asset->getThesaurusRef();
+		$thesaurus = $asset->getThesaurusRef();
 		$value = Array();
 
 		$new_terms = array_get_index($_REQUEST, $prefix.'_default_term', Array());

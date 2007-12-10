@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.14 2007/08/08 06:12:08 lmarchese Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.15 2007/12/10 06:20:50 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,7 +105,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_import_thesaurus_xml', Array('thesaurus_id' => $asset->id, 'append' => $append));
 		return TRUE;
 
@@ -196,7 +196,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 
 		// If the export form was submitted and the thesaurus contents have changed, so rebuild the export file
 		if (!empty($_REQUEST[$prefix.'_process_generate'])) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hh->queueHipo('hipo_job_export_thesaurus_xml', Array('thesaurus_id' => $asset->id));
 		}
 

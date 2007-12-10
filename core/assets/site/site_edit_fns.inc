@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.68 2007/12/02 23:52:39 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.69 2007/12/10 06:20:50 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -345,7 +345,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		//// START HIPO PROCESSING ////
 		if ($run_hipo && $updatelookups) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetids' => Array($asset->id));
 			$hh->queueHipo('hipo_job_update_lookups', $vars);
 		}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.4 2007/07/24 03:44:11 rong Exp $
+* $Id: remove_form_submission.php,v 1.5 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -61,7 +61,7 @@ $to_value = iso8601_date_component($argv[4]).' 23:59:59';
 
 // check assetid and asset type
 $assetid = $argv[2];
-$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 if (is_null($asset)) {
 	trigger_error("#$assetid is not a valid asset ID", E_USER_WARNING);
 	die;
@@ -70,15 +70,15 @@ if (!is_a($asset, 'page_custom_form')) {
 	trigger_error("Asset #$assetid is not a custom form asset", E_USER_WARNING);
 	die;
 } else {
-	$form =& $asset->getForm();
-	$sub_folder =& $form->getSubmissionsFolder();
+	$form = $asset->getForm();
+	$sub_folder = $form->getSubmissionsFolder();
 }
 
 
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-$db =& $GLOBALS['SQ_SYSTEM']->db;
+$db = $GLOBALS['SQ_SYSTEM']->db;
 
 
 $sql = 'SELECT

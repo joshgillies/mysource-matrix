@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.161 2007/12/06 22:47:50 hnguyen Exp $
+* $Id: file.inc,v 1.162 2007/12/10 06:20:49 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -536,7 +536,7 @@ class File extends Asset
 				return FALSE;
 			}
 
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (file_exists($unrestricted)) {
@@ -553,7 +553,7 @@ class File extends Asset
 		} else {
 			// need to make sure our file is NOT in the public data directory
 			if (is_file($unrestricted)) {
-				$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
 					$changed = TRUE;
 				} else {
@@ -1219,7 +1219,7 @@ class File extends Asset
 
 		if (SQ_ROLLBACK_VIEW) {
 			// get an older version of this file
-			$fv =& $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/'.$this->name;
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = $fv->_checkOutCheck($rep_file, NULL, $then);

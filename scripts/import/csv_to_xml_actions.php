@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.9 2007/11/15 04:15:44 hnguyen Exp $
+* $Id: csv_to_xml_actions.php,v 1.10 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -225,7 +225,7 @@ function getMetadataMapping($mapping_filename)
 						);
 
 	// Read metadata mapping info
-	$xml =& new XML_Converter();
+	$xml = new XML_Converter();
 	$xml_array = $xml->getArrayFromFile($mapping_filename);
 
 	// No, not schemii
@@ -372,7 +372,7 @@ function validateMetadataMapping(&$metadata_mapping)
 	printStdErr('- Initialising Matrix...');
 
 	// Check the schema is available in the system
-	$schema_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_mapping['metadata_schema_id']);
+	$schema_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_mapping['metadata_schema_id']);
 	if (!$schema_asset) {
 		printStdErr('* The supplied schema (ID: '.$metadata_mapping['metadata_schema_id'].") could not be found in the system\n");
 		exit(-21);
@@ -383,7 +383,7 @@ function validateMetadataMapping(&$metadata_mapping)
 	}
 
 	// Now we have the schema, find its fields and make sure that they were specified
-	$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$metadata_fields = $mm->getMetadataFields(Array($metadata_mapping['metadata_schema_id']));
 
 	// Fields specified in the system...
@@ -405,10 +405,10 @@ function validateMetadataMapping(&$metadata_mapping)
 	// This will be used while importing to verify that the fields are correct
 	$metadata_mapping['metadata_field_types'] = $metadata_fields;
 
-	$am =& $GLOBALS['SQ_SYSTEM']->am;
+	$am = $GLOBALS['SQ_SYSTEM']->am;
 
 	foreach ($metadata_fields as $metadata_field_id => $metadata_field_type) {
-		$field =& $am->getAsset($metadata_field_id, $metadata_field_type);
+		$field = $am->getAsset($metadata_field_id, $metadata_field_type);
 		$metadata_mapping['metadata_field_objects'][$metadata_field_id] = $field;
 
 		if ($field->attr('required')) {
@@ -448,7 +448,7 @@ function validateMetadataField(&$metadata_field_object, $value)
 		// Ensure that the supplied value is an asset ID of an existing Thesaurus asset
 		$asset_id = (int)($value);
 		if (($asset_id == $value) && ($asset_id > 0)) {
-			$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
+			$thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 			$asset_id = $thesaurus->id;
 		}
 		$valid_value = ($asset_id > 0);

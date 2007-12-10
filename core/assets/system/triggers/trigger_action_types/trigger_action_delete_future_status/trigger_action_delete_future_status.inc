@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_delete_future_status.inc,v 1.5 2007/11/30 02:41:37 hnguyen Exp $
+* $Id: trigger_action_delete_future_status.inc,v 1.6 2007/12/10 06:20:50 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,7 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 
 		// nothing to process
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-		$future_status_jobs = &Cron_Job_Future_Status::getActiveJobs($state['asset']);
+		$future_status_jobs = Cron_Job_Future_Status::getActiveJobs($state['asset']);
 		if (empty($future_status_jobs)) return TRUE;
 
 		$status_list = Trigger_Action_Delete_Future_Status::_getStatusList();

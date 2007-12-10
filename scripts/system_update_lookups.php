@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.4 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_update_lookups.php,v 1.5 2007/12/10 06:23:45 rong Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -39,7 +39,7 @@ echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
 // check that the correct root password was entered
-$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
 }
@@ -50,13 +50,13 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 
-$am = &$GLOBALS['SQ_SYSTEM']->am;
-$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+$am = $GLOBALS['SQ_SYSTEM']->am;
+$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 $sites = $am->getTypeAssetids('site', false, true);
 
 foreach ($sites as $assetid => $type_code) {
-	$site = &$am->getAsset($assetid, $type_code);
+	$site = $am->getAsset($assetid, $type_code);
 
 	$pid = fork();
 
