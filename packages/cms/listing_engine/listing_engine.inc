@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.232 2007/12/06 04:24:21 rong Exp $
+* $Id: listing_engine.inc,v 1.233 2007/12/10 03:15:09 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.232 $
+* @version $Revision: 1.233 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4129,7 +4129,8 @@ class Listing_Engine extends Page
 	*/
 	function createNoResultsBodycopy($enable_on_create=TRUE)
 	{
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', FALSE, 'major', 'no_results'));
+		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', FALSE, 'major', 'no_results');
+		$bodycopy_link = reset($bodycopy_links);
 
 		// we already have a bodycopy link?!
 		if ($bodycopy_link) {
@@ -4202,7 +4203,8 @@ class Listing_Engine extends Page
 	{
 		$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
 
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', FALSE, 'major', 'no_results'));
+		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', FALSE, 'major', 'no_results');
+		$bodycopy_link = reset($bodycopy_links);
 
 		if ($bodycopy_link) {
 			return ($bodycopy_link['link_type'] == SQ_LINK_TYPE_2);
