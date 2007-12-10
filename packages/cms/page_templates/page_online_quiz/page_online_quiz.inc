@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.20 2007/12/06 05:03:07 rong Exp $
+* $Id: page_online_quiz.inc,v 1.21 2007/12/10 06:31:19 rong Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1662,7 +1662,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function &getChunk(&$children, &$replacements, $keywords, $result_page, $num_per_page, $group_by=NULL)
 	{
-		$todo = parent::getChunk($children, $replacements, $keywords, $result_page, $num_per_page, $group_by);
+		$todo =& parent::getChunk($children, $replacements, $keywords, $result_page, $num_per_page, $group_by);
 
 		// if the page keywords are present, deconstruct them, add the javascript to force the processing of the form,
 		// and reconstruct them in the form '<a href="url"' + javascript + '>link text</a>'
@@ -3001,7 +3001,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$result_page = (int)$result_page;
 
 		// get our page chunk here
-		$todo = $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
+		$todo =& $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
 
 		return $todo;
 

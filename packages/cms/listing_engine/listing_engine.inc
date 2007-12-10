@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.234 2007/12/10 03:42:20 colivar Exp $
+* $Id: listing_engine.inc,v 1.235 2007/12/10 06:31:19 rong Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.234 $
+* @version $Revision: 1.235 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -613,7 +613,7 @@ class Listing_Engine extends Page
 
 
 		$children = $this->getAssetList();
-		$children = $this->convertProxyAssetTypes($children);
+		$children =& $this->convertProxyAssetTypes($children);
 		$this->filterAssetList($children);
 		$num_kids = count($children);
 
@@ -677,7 +677,7 @@ class Listing_Engine extends Page
 
 
 		// get our page chunk here
-		$todo = $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
+		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
 
 		// If random grouping, we should now shove fixed positions in (it would
 		// normally be in filterAssetList). Note that in this case we must still

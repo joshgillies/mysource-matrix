@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.18 2007/12/06 04:49:00 rong Exp $
+* $Id: page_link_manager.inc,v 1.19 2007/12/10 06:32:09 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -397,8 +397,8 @@ class Page_Link_Manager extends Page_Asset_Listing
 
 				$replacements = Array();
 
-				$chunk           = $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
-				$flattened_chunk =  array_flatten($chunk);
+				$chunk           =& $this->getChunk($children, $replacements, Array(), $result_page, $num_per_page);
+				$flattened_chunk = array_flatten($chunk);
 
 				// remove any assets from the asset_links array that isn't visible on the page
 				foreach ($asset_links as $assetid => $value) {
