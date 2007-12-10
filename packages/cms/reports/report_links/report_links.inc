@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.12 2007/12/06 05:17:53 rong Exp $
+* $Id: report_links.inc,v 1.13 2007/12/10 01:26:52 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -75,33 +75,26 @@ class Report_Links extends Report
 		if (!isset($this->_tmp['getLinks'])) {
 
 			$am = $GLOBALS['SQ_SYSTEM']->am;
-
-			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
 			$report_path = $this->data_path.'/report.xml';
-
 			if (!is_file($report_path)) return Array();
 
-			$input = new XML_Tree($report_path);
-			$root  = $input->getTreeFromFile();
-			if (PEAR::isError($root)) return Array();
-
-			if (!isset($root->children[0]->attributes['type_code'])) {
-				// old xml format, needs regenerating before it can act as a bridge
+			try {
+				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+			} catch (Exception $e) {
+				throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
 				return Array();
 			}
 
 			$links = Array();
 			$sort_order = 0;
-			foreach ($root->children as $asset_element) {
-				if ($asset_element->name != 'asset') continue;
+			foreach ($root->asset as $asset_element) {
 				$links[] = Array(
 							'linkid'			=> 0,
-							'minorid'			=> $asset_element->attributes['assetid'],
+							'minorid'			=> (int) $asset_element->attributes()->assetid,
 							'value'				=> '',
 							'link_type'			=> SQ_LINK_TYPE_1,
-							'minor_type_code'	=> $asset_element->attributes['type_code'],
+							'minor_type_code'	=> (string) $asset_element->attributes()->type_code,
 							'sort_order'		=> $sort_order,
 							'is_dependant'		=> '0',
 							'is_exclusive'		=> '0',
@@ -117,65 +110,6 @@ class Report_Links extends Report
 		return $this->_tmp['getLinks'];
 
 	}//end getLinks()
-
-
-	/**
-	* Return all links in a format the asset map can read
-	*
-	* @return array
-	* @access public
-	*/
-	function getAssetMapLinks()
-	{
-		if (!isset($this->_tmp['getAssetMapLinks'])) {
-
-			$am = $GLOBALS['SQ_SYSTEM']->am;
-
-			require_once 'XML/Tree.php';
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
-			$report_path = $this->data_path.'/report.xml';
-
-			if (!is_file($report_path)) return Array();
-
-			$input = new XML_Tree($report_path);
-			$root  = $input->getTreeFromFile();
-			if (PEAR::isError($root)) return Array();
-
-			if (!isset($root->children[0]->attributes['type_code'])) {
-				// old xml format, needs regenerating before it can act as a bridge
-				return Array();
-			}
-
-			$links = Array();
-			$sort_order = 0;
-			foreach ($root->children as $asset_element) {
-				if ($asset_element->name != 'asset') continue;
-				$links[] = Array(
-							'assetid'		=> $asset_element->attributes['assetid'],
-							'short_name'	=> $asset_element->attributes['short_name'],
-							'name'			=> $asset_element->attributes['name'],
-							'accessible'	=> 1,
-							'type_code'		=> $asset_element->attributes['type_code'],
-							'status'		=> $asset_element->attributes['status'],
-							'linkid'		=> '0',
-							'link_type'		=> SQ_LINK_TYPE_1,
-							'num_kids'		=> 0,
-							'sort_order'	=> $sort_order,
-							'url'			=> '',
-							'path'			=> '',
-						   );
-
-				$sort_order++;
-			}
-
-			$this->_tmp['getAssetMapLinks'] = $links;
-
-		}//end if not cached
-
-		return $this->_tmp['getAssetMapLinks'];
-
-	}//end getAssetMapLinks()
 
 
 	/**
@@ -256,7 +190,6 @@ class Report_Links extends Report
 	*/
 	function parseReport($show_all=FALSE)
 	{
-		require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 
@@ -266,10 +199,10 @@ class Report_Links extends Report
 			return Array();
 		}
 
-		$input = new XML_Tree($report_path);
-		$root  = $input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_localised_error('CMS0009', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+		try {
+			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+		} catch (Exception $e) {
+			 throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
 			return Array();
 		}
 
@@ -281,38 +214,30 @@ class Report_Links extends Report
 
 		$display_options = $this->attr('display_options');
 
-		foreach ($root->children as $asset_element) {
-			if ($asset_element->name != 'asset') continue;
-			foreach ($asset_element->children as $link) {
-				if ($link->name != 'link') continue;
-				assert_isset_array_index($reported_links, $link->attributes['type'], 'Unknown link type "'.$link->attributes['type'].'"');
+		foreach ($root->asset as $asset_element) {
+			foreach ($asset_element->link as $link) {
+				$type = (string) $link->attributes()->type;
+				assert_isset_array_index($reported_links, $type, 'Unknown link type "'.$type.'"');
 
 				$new_link = Array();
-				foreach ($link->children as $link_child) {
-					switch ($link_child->name) {
-						case 'html' :
-							$new_link['html'] = $link_child->content;
+				$new_link['html'] = (string) $link->html;
 
-							// get the assetid from the html link
-							if ($link->attributes['type'] == 'internal') {
-								$to_assetid = preg_replace('|\./\?a=([0-9]+).*|', '\\1', $link_child->content);
-								$new_link['data'] = $to_assetid;
-							} else {
-								$new_link['data'] = $link_child->content;
-							}
-						break;
-						case 'description' :
-							$new_link['description'] = htmlentities($link_child->content);
-						break;
-					}
-				}//end foreach
+				// get the assetid from the html link
+				if ($type == 'internal') {
+					$to_assetid = preg_replace('|\./\?a=([0-9]+).*|', '\\1', (string) $link->html);
+					$new_link['data'] = $to_assetid;
+				} else {
+					$new_link['data'] = (string) $link->html;
+				}
+				$new_link['description'] = htmlentities((string) $link->description);
 
-				$new_link['valid'] = $link->attributes['valid'];
+				$valid = (int) $link->attributes()->valid;
+				$new_link['valid'] = $valid;
 
 				$display_link = TRUE;
-				switch ($link->attributes['type']) {
+				switch ($type) {
 					case 'internal':
-						if ($link->attributes['valid']) {
+						if ($valid) {
 							if (!$display_options['internal_working']) {
 								$display_link = FALSE;
 							}
@@ -323,7 +248,7 @@ class Report_Links extends Report
 						}
 					break;
 					case 'external':
-						if ($link->attributes['valid']) {
+						if ($valid) {
 							if (!$display_options['external_working']) {
 								$display_link = FALSE;
 							}
@@ -334,7 +259,7 @@ class Report_Links extends Report
 						}
 					break;
 					case 'mailto':
-						if ($link->attributes['valid']) {
+						if ($valid) {
 							if (!$display_options['email_working']) {
 								$display_link = FALSE;
 							}
@@ -348,7 +273,7 @@ class Report_Links extends Report
 					break;
 				}//end switch
 				if ($display_link || $show_all) {
-					$reported_links[$link->attributes['type']][$asset_element->attributes['assetid']][] = $new_link;
+					$reported_links[$type][(int) $asset_element->attributes()->assetid][] = $new_link;
 				}
 			}//end foreach
 		}//end foreach
@@ -366,7 +291,7 @@ class Report_Links extends Report
 	*/
 	function reportBrokenLink()
 	{
-		$reported_links =$this->parseReport(TRUE);
+		$reported_links = $this->parseReport(TRUE);
 		if (empty($reported_links)) return FALSE;
 
 		$asset_admins = Array();

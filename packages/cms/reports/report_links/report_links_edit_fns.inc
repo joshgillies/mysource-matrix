@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.38 2007/12/06 05:17:53 rong Exp $
+* $Id: report_links_edit_fns.inc,v 1.39 2007/12/10 01:26:52 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,11 +85,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				return FALSE;
 			}
 		}
-
 		if (!empty($job->_running_vars['todo'])) {
-
-			$assetid = array_shift(array_keys($job->_running_vars['todo']));
-			$asset_type = $job->_running_vars['todo'][$assetid];
+			$array_keys = array_keys($job->_running_vars['todo']);
+			$assetid = array_shift($array_keys);
+			$asset_type = $job->_running_vars['todo'][$assetid][0]['type_code'];
 			unset($job->_running_vars['todo'][$assetid]);
 			if ($asset_type == 'content_type_nest_content') {
 				$step_data['message'] = translate('cms_report_links_skipping_nest_content', $assetid);
@@ -105,7 +104,6 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$master_matches = Array();
 					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
 					$matches = $master_matches[2];
-
 					foreach ($matches as $match) {
 						// skip keywords
 						$keywords = retrieve_keywords_replacements($match);
@@ -119,6 +117,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						$link_type = '';
 						$results = Array();
 						preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
+
+
 						$validated_results = FALSE;
 						if (!empty($results)) {
 							$link_type = 'internal';
@@ -187,7 +187,6 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!unlink($owner->data_path.'/report.tmp')) {
 				trigger_localised_error('RPRT0002', E_USER_WARNING);
 			}
-
 			// send broken link notification, if enabled
 			if ($owner->attr('report_broken_links')) {
 				$owner->reportBrokenLink();
@@ -1044,9 +1043,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			$logs = Array();
 
-			require_once 'XML/Tree.php';
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
 			$report_path = $asset->data_path.'/report.xml';
 
 			if (!is_file($report_path)) {
@@ -1054,10 +1051,10 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				return;
 			}
 
-			$input = new XML_Tree($report_path);
-			$root = $input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
+			try {
+				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+			} catch (Exception $e) {
+				 throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
 				return;
 			}
 
@@ -1065,13 +1062,16 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$empty_headers = TRUE;
 			$top_headers = TRUE;
 
-			foreach ($root->children as $asset_node) {
+			foreach ($root->asset as $asset_node) {
 				$persistent_values = Array();
-				$parent_ast_info = $this->_getAssetReportInfo($asset_node->attributes['assetid']);
+				$parent_ast_info = $this->_getAssetReportInfo((int) $asset_node->attributes()->assetid);
 				// Have to initialise the headers
-				foreach ($asset_node->attributes as $attr => $value) {
-					if ($top_headers) $headers[] = $attr;
+				$attribute_list = Array('assetid', 'name', 'short_name', 'type_code', 'status');
+				if ($top_headers) {
+					$header = $attribute_list;
+				}
 
+				foreach ($attribute_list as $attr) {
 					// the xml data might not be the data we want to export
 					if (isset($parent_ast_info[$attr])) {
 						$value = array_get_index($parent_ast_info, $attr);
@@ -1085,16 +1085,18 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				}
 				$top_headers = FALSE;
 
-				foreach ($asset_node->children as $asset_data) {
+				foreach ($asset_node->link as $link) {
 					$row = $persistent_values;
-					foreach ($asset_data->attributes as $attr => $value) {
-						if ($empty_headers) $headers[] = $attr;
-						$row[] = $value;
-					}
-					foreach ($asset_data->children as $data) {
-						if ($empty_headers) $headers[] = $data->name;
-						$row[] = $data->content;
-					}
+					if ($empty_headers) $headers[] = 'type';
+					$row[] = (string) $link->attributes()->type;
+					if ($empty_headers) $headers[] = 'valid';
+					$row[] = (int) $link->attributes()->valid;
+
+					if ($empty_headers) $headers[] = 'html';
+					$row[] = (string) $link->html;
+					if ($empty_headers) $headers[] = 'description';
+					$row[] = (string) $link->description;
+
 					$logs[] = $row;
 					$empty_headers = FALSE;
 				}
