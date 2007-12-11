@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.20.2.3 2007/10/29 04:31:23 nbhradwaj Exp $
+* $Id: page_calendar_rolling.inc,v 1.20.2.4 2007/12/11 00:08:50 mwegermann Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.20.2.3 $
+* @version $Revision: 1.20.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -620,6 +620,7 @@ class Page_Calendar_Rolling extends Page
 		foreach ($res as $day => $day_events) {
 			if (!in_array(date('D', strtotime($day)), $day_filter)) {
 				unset($res[$day]);
+				continue;
 			}
 			uasort($res[$day], Array('Calendar_Common', 'compareStartDates'));
 		}
