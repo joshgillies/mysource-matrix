@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.17 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_field_date.inc,v 1.18 2007/12/11 02:53:10 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Metadata_Field_Date extends Metadata_Field
 	* @return object
 	* @access private
 	*/
-	protected function _getDateTimeField($prefix, $value=NULL)
+	public function _getDateTimeField($prefix, $value=NULL)
 	{
 		// parameters
 		$parameters = $this->attr('setup_params');
