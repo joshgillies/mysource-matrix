@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.51 2007/03/08 22:56:34 arailean Exp $
+* $Id: image_edit_fns.inc,v 1.51.4.1 2007/12/11 22:20:51 mwegermann Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -656,7 +656,12 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 								$meta[$keyword]['name'] = $tag_name;
 								foreach ($tag_value_list['children'] as $tag_value) {
-									$meta[$keyword]['value'][] = $tag_value['value'];
+									//sometimes value tag is missing in image header, checking first!
+									if(!isset($tag_value['value'])) {
+										$meta[$keyword]['value'][] = '';
+									} else {
+										$meta[$keyword]['value'][] = $tag_value['value'];
+									}
 								}
 							}
 						}
