@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.51 2007/12/11 22:25:38 lwright Exp $
+* $Id: settings.inc,v 1.52 2007/12/11 22:26:31 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 
@@ -670,7 +670,7 @@ function processSettings(&$owner, &$o, &$ei)
 			}
 		}
 	}
-	
+
 	//// DATES ////
 	if ($owner->adminAccess('all')) {
 		require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
