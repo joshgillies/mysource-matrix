@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.5 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.6 2007/12/11 03:03:50 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,7 +178,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Field_Multiple_Text $asset, $value_str, Array &$tag_value, Array &$keywords)
+	public function generateMetadata(Metadata_Field_Multiple_Text $asset, $value_str, &$tag_value, Array &$keywords)
 	{
 		if (is_null($value_str)) {
 			$value_str = $asset->attr('default');
