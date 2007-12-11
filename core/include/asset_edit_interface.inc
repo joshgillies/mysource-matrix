@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.340 2007/12/05 06:07:16 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.341 2007/12/11 00:45:33 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.340 $
+* @version $Revision: 1.341 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1851,7 +1851,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$process_node = $section->function_call->process_function;
 
 						// if there is nothing declared there is nothing for us to do
-						if (empty($process_node->attributes()->name)) {
+						if (empty($process_node) || empty($process_node->attributes()->name)) {
 							continue;
 						// There is something declared but it doesn't exist
 						} else if (!method_exists($this->_edit_fns, (string)$process_node->attributes()->name)) {
