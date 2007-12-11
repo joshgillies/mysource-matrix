@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.63 2007/12/11 05:23:30 rong Exp $
+* $Id: cache_manager.inc,v 1.64 2007/12/11 06:00:06 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -337,6 +337,7 @@ class Cache_Manager extends Asset
 			// break up the assets into chunks of 1000 so that oracle does not complain
 			//$in_clauses = Array();
 			try {
+				$result = Array();
 				foreach (array_chunk($assetids, 999) as $chunk) {
 					$bind_vars = Array('assetids' => &$chunk);
 					$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'deleteCacheEntriesByAsset', $bind_vars));
@@ -376,6 +377,7 @@ class Cache_Manager extends Asset
 
 			// break up the assets into chunks of 1000 so that oracle does not complain
 			// $in_clauses = Array();
+			$result = Array();
 			foreach (array_chunk($assetids, 999) as $chunk) {
 				$bind_vars = Array('assetids' => &$chunk);
 				$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset', $bind_vars));
