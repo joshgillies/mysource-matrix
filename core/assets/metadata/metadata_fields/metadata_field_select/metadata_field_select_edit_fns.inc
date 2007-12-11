@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.38 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.39 2007/12/11 03:15:41 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -380,7 +380,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Field_Select $asset, $value_str, Array &$tag_value, Array &$keywords)
+	public function generateMetadata(Metadata_Field_Select $asset, $value_str, &$tag_value, Array &$keywords)
 	{
 		if (is_null($value_str)) {
 			$value_str = str_replace('; ', '\\; ', $asset->attr('default'));
