@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.641 2007/12/09 23:39:15 colivar Exp $
+* $Id: asset_manager.inc,v 1.642 2007/12/11 23:24:31 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.641 $
+* @version $Revision: 1.642 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7712,7 +7712,7 @@ class Asset_Manager extends MySource_Object
 				$href = sq_web_path('admin').'/?'.$frame.'backend_section=am&am_section=edit_asset&assetid='.$assetid.'&asset_ei_screen='.$screen;
 			}
 			if (!$current_url_complete && strpos($href, './') === 0) {
-				$href = substr($href, 1);
+				$href = substr($href, 2);
 			}
 			$return_hrefs[$assetid] = $href;
 		}
