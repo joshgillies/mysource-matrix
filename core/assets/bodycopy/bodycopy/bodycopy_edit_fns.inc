@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.53 2007/12/04 05:35:34 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.54 2007/12/11 21:52:56 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -383,7 +383,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			// unserialize the data for a bodycopy.
 			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
-				$containers = $bc_saved[$k];
+				$containers =& $bc_saved[$k];
 				for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
 					$containers[$containersid] = var_unserialise($containers[$containersid]);
 				}
