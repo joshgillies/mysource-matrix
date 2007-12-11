@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_extraction.php,v 1.6 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: keyword_extraction.php,v 1.7 2007/12/11 03:29:57 rong Exp $
 *
 */
 	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))))));
@@ -19,7 +19,7 @@
 	if (!isset($_GET['assetid'])) return FALSE;
 
 	assert_valid_assetid($_GET['assetid']);
-	$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
+	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
 ?>
 
 <html>
@@ -50,7 +50,7 @@
 	<body>
 	<?php
 		require_once dirname(__FILE__).'/../../../../../core/include/backend_outputter.inc';
-		$o =& new Backend_Outputter();
+		$o = new Backend_Outputter();
 
 		$o->openSection(translate('keyword_extraction_for', translate('asset_format', $asset->attr('name'), $asset->id)));
 		$o->openField('');
@@ -62,7 +62,7 @@
 		<fieldset>
 			<legend><b><?php echo translate('extracted_keywords'); ?></b></legend>
 			<?php
-$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 if (empty($sm)) {
 	echo translate('keyword_list_not_available');
 } else {

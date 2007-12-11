@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.92 2007/12/07 00:09:36 bshkara Exp $
+* $Id: design_area_menu_type.inc,v 1.93 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -613,7 +613,7 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '<', '?php ';
 						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
 						echo 'if (!empty($link)) {'."\n";
-						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 						echo 'echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', TRUE);'."\n";
 						echo '}'."\n";
 						echo '?', '>';
@@ -625,7 +625,7 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '<', '?php ';
 						echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($'.$id_name.'_row[\'assetid\'], SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
 						echo 'if (!empty($link)) {'."\n";
-						echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+						echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 						echo 'echo $thumbnail->getURL($'.$id_name.'_row[\'name\']);'."\n";
 						echo '}'."\n";
 						echo '?', '>';

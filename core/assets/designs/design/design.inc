@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.141 2007/12/06 04:28:47 lwright Exp $
+* $Id: design.inc,v 1.142 2007/12/11 03:29:56 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,7 +237,7 @@ class Design extends Design_Area
 		// special processing if we are creating a TYPE_2 linked file (inherited by customisations)
 		if (($minor instanceof File)) {
 
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am; // this need ref!
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 			foreach ($customisation_links as $link) {
@@ -922,7 +922,7 @@ echo '/*
 						unset($args['var']);
 						$this->printVar($item['attributes']['var'], $args);
 					} else {
-						$da =& $this->getDesignArea($item['attributes']['id_name']);
+						$da = $this->getDesignArea($item['attributes']['id_name']);
 						if (is_null($da)) {
 							trigger_localised_error('CORE0153', E_USER_NOTICE, $item['attributes']['id_name']);
 						} else {

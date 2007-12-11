@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.19 2007/11/28 22:27:27 lwright Exp $
+* $Id: file_management.inc,v 1.20 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,7 +85,7 @@ class File_Management extends Asset_Management
 			pre_echo('UPGRADING FILE ASSETS - FROM VERSION '.$current_version);
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE);
 			foreach ($children as $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$attr = $asset->attr('title');
 				if (empty($attr)) {
 					$asset->setAttrValue('title', $asset->attr('name'));

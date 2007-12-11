@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.22 2006/12/05 06:04:33 bcaldwell Exp $
+* $Id: user_group.inc,v 1.23 2007/12/11 03:29:58 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,7 +132,7 @@ class User_Group extends Folder
 	*/
 	function printBody()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		// if the cache is empty, go ahead and regenerate a new version
@@ -163,7 +163,7 @@ class User_Group extends Folder
 	*/
 	function printUserList($groupid)
 	{
-		$group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
+		$group = $GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
 
 		?>
 		<table class="sq_user_group">
@@ -188,7 +188,7 @@ class User_Group extends Folder
 				</tr>
 				<?php
 				foreach ($users as $link_data) {
-					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
 					?>
 					<tr>
 						<td class="sq_user_group_user_name"><?php echo $user->name; ?></td>

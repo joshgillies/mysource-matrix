@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.19 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.20 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			return FALSE;
 		}
 
-		$parent_design =& $asset->getParentDesign();
+		$parent_design = $asset->getParentDesign();
 		if (is_null($parent_design)) return FALSE;
 
 		$data = Array();

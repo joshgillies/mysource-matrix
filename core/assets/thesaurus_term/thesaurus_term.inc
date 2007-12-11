@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.17 2007/12/03 23:34:40 hnguyen Exp $
+* $Id: thesaurus_term.inc,v 1.18 2007/12/11 03:29:58 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Thesaurus_Term extends Asset
 
 		if ($link['asset'] instanceof Thesaurus) {
 			$this->_thesaurus =& $link['asset'];
-		} else if (is_a($link['asset'], 'thesaurus_term')) {
+		} else if ($link['asset'] instanceof Thesaurus_Term) {
 			$this->_thesaurus =& $link['asset']->_thesaurus;
 			$majorid = $link['asset']->_termid;
 		} else {
@@ -325,7 +325,7 @@ class Thesaurus_Term extends Asset
 	{
 		$create_link = FALSE;
 
-		if (is_a($minor, 'thesaurus_term') && ($exclusive == 0)) {
+		if (($minor instanceof Thesaurus_Term) && ($exclusive == 0)) {
 			$create_link = (($link_type == SQ_LINK_TYPE_1) || ($link_type == SQ_LINK_TYPE_2));
 		}
 

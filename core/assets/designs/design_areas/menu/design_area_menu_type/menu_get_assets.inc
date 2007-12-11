@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.4 2007/11/29 01:10:24 hnguyen Exp $
+* $Id: menu_get_assets.inc,v 1.5 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ function menu_get_assets($id_name, $majorids)
 	if (!isset($GLOBALS['MENU_DATA'][$id_name])) {
 		$GLOBALS['MENU_DATA'][$id_name] = Array();
 	}
-	$storage =& $GLOBALS['MENU_DATA'][$id_name];
+	$storage =& $GLOBALS['MENU_DATA'][$id_name]; // need ref
 	$assetids = Array();
 	$majorids_str = '';
 	foreach ($majorids as $id) {

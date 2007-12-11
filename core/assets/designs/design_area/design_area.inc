@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.59 2007/12/10 06:20:49 rong Exp $
+* $Id: design_area.inc,v 1.60 2007/12/11 03:29:56 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -421,7 +421,7 @@ class Design_Area extends Asset
 			<?php
 					$asset_contents'.$instance_id.' = ob_get_contents();
 					ob_end_clean();
-					$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
+					$cm = $GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
 					$cm->saveToCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\', $asset_contents'.$instance_id.');
 				}
 				echo $asset_contents'.$instance_id.';
@@ -517,7 +517,7 @@ class Design_Area extends Asset
 						$design->printVar($item['attributes']['var'], $args);
 					} else {
 						// referencing another design area (which should already have been defined)
-						$da =& $design->getDesignArea($item['attributes']['id_name']);
+						$da = $design->getDesignArea($item['attributes']['id_name']);
 						if (is_null($da)) {
 							trigger_localised_error('CORE0153', E_USER_NOTICE, $item['attributes']['id_name']);
 						} else {

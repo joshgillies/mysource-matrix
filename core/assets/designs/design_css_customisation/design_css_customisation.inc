@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation.inc,v 1.14 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_css_customisation.inc,v 1.15 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,7 @@ class Design_Css_Customisation extends Design_Css
 		}
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
-		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
+		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && ($minor instanceof File)) {
 
 			$design = $this->getParentDesign();
 
@@ -199,7 +199,7 @@ class Design_Css_Customisation extends Design_Css
 	{
 		if (empty($this->_tmp['parent_design'])) {
 			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design_css', FALSE, 'customisation', 'minor');
-			$this->_tmp['parent_design'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
+			$this->_tmp['parent_design'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
 		}
 		return $this->_tmp['parent_design'];
 

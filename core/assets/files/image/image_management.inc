@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.18 2007/01/24 04:56:11 arailean Exp $
+* $Id: image_management.inc,v 1.19 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,7 +122,7 @@ class Image_Management extends Asset_Management
 			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
 			$images = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($images as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				if (!$asset->setAttrValue('alt',   $asset->name) || !$asset->setAttrValue('title', $asset->name)) {

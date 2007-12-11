@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.29 2007/12/02 22:30:45 lwright Exp $
+* $Id: pdf_file.inc,v 1.30 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,7 +88,7 @@ class PDF_File extends File
 
 		// in some cases file path ends up as the first string in the file
 		// this is the way pdftohtml treats files without the title, it puts filename into html title
-		if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && (is_a($GLOBALS['SQ_SYSTEM']->user, 'public_user'))) {
+		if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
 			// strip file versioning suffix from the filename, e.g. 'file.pdf,ffv5' becomes 'file.pdf'
 			$file = preg_replace('/,ffv\d+$/', '', $file);
 		}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form_edit_fns.inc,v 1.7 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: simple_form_edit_fns.inc,v 1.8 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,7 +102,7 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				foreach ($asset->attr('questions') as $shadowid => $asset_data) {
 				$assetid = $asset->id.':q'.$shadowid;
-				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$href = $q->getBackendHref('details');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 				unset($q); ?>

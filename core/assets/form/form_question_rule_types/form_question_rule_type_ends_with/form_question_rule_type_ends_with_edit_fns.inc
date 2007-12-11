@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_ends_with_edit_fns.inc,v 1.3 2006/12/06 00:35:27 emcdonald Exp $
+* $Id: form_question_rule_type_ends_with_edit_fns.inc,v 1.4 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,7 @@ class Form_Question_Rule_Type_Ends_With_Edit_Fns extends Form_Question_Rule_Edit
 		if (!$write_access) {
 			$o->openField(translate('core_form_rule_details'));
 			if (($cq_id = array_get_index($rule_data, 'comparison_question_id', 0)) != 0) {
-				$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
+				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($cq_id);
 				$value = $q_asset->name;
 			} else {
 				$value = array_get_index($rule_data, 'value', '');

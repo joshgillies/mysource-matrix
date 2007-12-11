@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.26 2007/12/07 06:00:04 bshkara Exp $
+* $Id: form_question.inc,v 1.27 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -401,7 +401,7 @@ class Form_Question extends Asset
 	function isSelection()
 	{
 		foreach ($this->getSelectionTypeQuestions() as $types) {
-			if (is_a($this, $types)) return TRUE;
+			if ($this instanceof $types) return TRUE;
 		}
 		return FALSE;
 

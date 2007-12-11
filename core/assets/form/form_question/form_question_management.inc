@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.8 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: form_question_management.inc,v 1.9 2007/12/11 03:29:57 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,12 +118,12 @@ class Form_Question_Management extends Asset_Management
 			$form_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE, TRUE);
 			$question_assets = Array();
 			foreach ($form_ids as $form_id => $type) {
-				$form =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id, $type);
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id, $type);
 				$question_assets += $form->getChildren($form->id, 'form_question', FALSE);
 			}
 			$section_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_section', FALSE, TRUE);
 			foreach ($section_ids as $section_id => $type) {
-				$section =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id, $type);
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_id, $type);
 				$question_assets += $section->getChildren($section->id, 'form_question', FALSE);
 			}
 
@@ -131,7 +131,7 @@ class Form_Question_Management extends Asset_Management
 			$irrelevant_types = Array(); // these don't have a required attr
 			foreach ($question_assets as $id => $type) {
 				if (!isset($irrelevant_types[$type])) {
-					$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
+					$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
 					if (!isset($q->vars['required'])) {
 						$irrelevant_types[$type] = 1;
 						continue;

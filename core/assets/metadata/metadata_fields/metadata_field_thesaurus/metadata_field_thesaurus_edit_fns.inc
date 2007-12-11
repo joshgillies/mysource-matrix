@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.14 2007/12/10 06:20:49 rong Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.15 2007/12/11 03:29:58 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -277,7 +277,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
 				foreach ($new_terms as $one_term) {
 					if (empty($one_term['assetid'])) continue;
-					$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
+					$term_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
 					$term_name = $term_asset->attr('name');
 					if ($term_asset->_thesaurus->id != $thesaurus->id) {
 						$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);
@@ -372,7 +372,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$new_terms = array_get_index($_REQUEST, $prefix.'_default_term', Array());
 		foreach ($new_terms as $one_term) {
 			if (empty($one_term['assetid'])) continue;
-			$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
+			$term_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
 			$term_name = $term_asset->attr('name');
 			if ($term_asset->_thesaurus->id != $thesaurus->id) {
 				$asset->_tmp['error'][] = translate('thesaurus_meta_wrong_thesaurus', $term_name, $term_asset->_thesaurus->name, $term_asset->_thesaurus->id);

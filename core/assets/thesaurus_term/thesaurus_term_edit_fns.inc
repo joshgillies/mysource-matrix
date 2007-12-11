@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.9 2006/12/12 23:49:35 arailean Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.10 2007/12/11 03:29:58 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 		$o->openRaw();
 		if ($asset->id == 0) {
 			$parent_assetid = array_get_index($_REQUEST, 'parent_assetid');
-			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
 			if ($parent_asset->type() == 'thesaurus') {
 				echo translate('thesaurus_creating_top_level_term');
 			} else {

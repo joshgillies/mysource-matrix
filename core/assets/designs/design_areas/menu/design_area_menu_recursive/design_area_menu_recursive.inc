@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.27 2007/12/07 00:09:36 bshkara Exp $
+* $Id: design_area_menu_recursive.inc,v 1.28 2007/12/11 03:29:56 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,7 +112,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 				$end = ($i == $num_kids);
 				// if not live, we have to get the proper object, sorry
 				if (((int) $'.$this->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
-					$'.$this->attr('id_name').'_obj = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_row[\'type_code\']);
+					$'.$this->attr('id_name').'_obj = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_row[\'type_code\']);
 				} else {
 					unset($'.$this->attr('id_name').'_obj);
 				}
