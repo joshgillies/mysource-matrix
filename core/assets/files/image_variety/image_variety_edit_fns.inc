@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.20 2007/12/10 23:29:02 lwright Exp $
+* $Id: image_variety_edit_fns.inc,v 1.21 2007/12/11 00:21:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,13 +54,13 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paint the interface for the image variety
 	*
-	* @param object	&$asset	Image_Variety: the asset whose interface we are painting
-	* @param object	&$o		Backend_Outputter: the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Image_Variety		$asset	the asset whose interface we are processing
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	*/
-	public function paintInlineInterface(&$asset, &$o, $prefix)
+	public function paintInlineInterface(Image_Variety $asset, Backend_Outputter $o, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
 
@@ -164,13 +164,13 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for the image variety
 	*
-	* @param object	&$asset	Image_Variety: the asset whose interface we are processing
-	* @param object	&$o		Backend_Outputter: the outputter class
-	* @param string	$prefix	prefix for form elements
+	* @param Image_Variety		$asset	the asset whose interface we are processing
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	*/
-	public function processInlineInterface(&$asset, &$o, $prefix)
+	public function processInlineInterface(Image_Variety $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
@@ -216,12 +216,12 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object	&$asset	Image_Variety: the asset whose interface we are processing
-	* @param array	$info	info about the uploaded file
+	* @param Image_Variety	$asset	the asset whose interface we are processing
+	* @param array			$info	info about the uploaded file
 	*
 	* @return boolean
 	*/
-	public function processUploadedFile(&$asset, $info=Array())
+	public function processUploadedFile(Image_Variety $asset, Array $info=Array())
 	{
 		if (empty($asset->_imageid)) return FALSE;
 		if ($asset->attr('name') == '') return FALSE;
