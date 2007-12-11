@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_changed.inc,v 1.7 2007/12/02 23:18:57 bshkara Exp $
+* $Id: trigger_condition_attribute_changed.inc,v 1.8 2007/12/11 02:57:27 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Trigger_Condition_Attribute_Changed extends Trigger_Condition_Asset_Type
 		$changed_attr = $state['event']['data'];
 
 		if ($settings['inherit']) {
-			if (is_a($state['asset'], $settings['asset_type'])) {
+			if ($state['asset'] instanceof $settings['asset_type']) {
 				return isset($changed_attr[$settings['attribute']]);
 			}
 		} else {

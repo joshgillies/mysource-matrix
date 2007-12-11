@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.15 2007/12/10 21:54:18 hnguyen Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.16 2007/12/11 02:57:27 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 			if (empty($state['assetid'])) {
 				return FALSE;
 			} else {
-				$state['asset'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
 			}
 		}
 
@@ -80,7 +80,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$link_info['link_type'] = $settings['link_type'];
 
 		// Calculate one-off date/time from asset if it was dynamically supplied
-		if (!empty($settings['attribute']) && !empty($settings['asset_type']) && is_a($state['asset'], $settings['asset_type'])) {
+		if (!empty($settings['attribute']) && !empty($settings['asset_type']) && ($state['asset'] instanceof $settings['asset_type'])) 
+{
 			$attr = $state['asset']->getAttribute($settings['attribute']);
 
 			// Perform some validation on the supplied date/time value

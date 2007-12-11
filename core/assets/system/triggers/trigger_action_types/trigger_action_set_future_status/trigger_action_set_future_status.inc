@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.19 2007/12/10 22:05:43 hnguyen Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.20 2007/12/11 02:57:27 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,7 +79,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		if (in_array($settings['when_type'], Array('attr_interval', 'attr_exact'))) {
 			// need to try to consult an attribute value
 			if (empty($settings['when_attr_name'])) return FALSE; // incomplete config
-			if (!is_a($state['asset'], $settings['when_asset_type'])) {
+			if (!($state['asset'] instanceof $settings['when_asset_type'])) {
 				return FALSE; // wrong asset type
 			}
 			$val = @$state['asset']->attr($settings['when_attr_name']);

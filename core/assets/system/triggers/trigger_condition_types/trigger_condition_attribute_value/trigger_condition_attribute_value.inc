@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_value.inc,v 1.8 2007/11/28 03:50:06 colivar Exp $
+* $Id: trigger_condition_attribute_value.inc,v 1.9 2007/12/11 02:57:27 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,7 +85,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		$value = $settings['value'];
 
 		if ($settings['inherit']) {
-			if (is_a($state['asset'], $settings['asset_type'])) {
+			if ($state['asset'] instanceof $settings['asset_type']) {
 				return ($state['asset']->attr($settings['attribute']) == $value) == (array_get_index($settings, 'operator', '=') == '=');
 			}
 		} else {
@@ -220,7 +220,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 			$fake_asset = new $settings['asset_type'];
 			$attr = $fake_asset->getAttribute($settings['attribute'], TRUE);
 			if (!is_null($attr)) {
-				if (is_a($attr, 'asset_attribute_serialise')) {
+				if ($attr instanceof Asset_Attribute_Serialise) {
 					$value = str_replace(';', '', $value); // avoid code injection
 					eval('$value = '.$value.';');
 				}

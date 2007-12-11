@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_release_lock.inc,v 1.7 2007/11/30 03:00:22 hnguyen Exp $
+* $Id: trigger_action_release_lock.inc,v 1.8 2007/12/11 02:57:27 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Trigger_Action_Release_Lock extends Trigger_Action
 
 			case 'held':
 				// This only works if you're a user
-				if (is_a($state['asset'], 'user')) {
+				if ($state['asset'] instanceof User) {
 					$state['asset']->releaseUserLocks();
 				} else {
 					return FALSE;

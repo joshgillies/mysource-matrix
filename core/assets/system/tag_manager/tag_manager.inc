@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.11 2007/12/10 06:20:50 rong Exp $
+* $Id: tag_manager.inc,v 1.12 2007/12/11 02:57:26 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -127,9 +127,9 @@ class Tag_Manager extends Asset
 			$id_parts = explode(':', $notice_link['minorid']);
 			if (!empty($id_parts[1])) {
 				$thes_id = $id_parts[0];
-				$thes =& $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
+				$thes = $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
 				if (!is_null($thes)) {
-					$tag_term_exists =& $GLOBALS['SQ_SYSTEM']->am->getAsset($notice_link['minorid'], 'thesaurus_term', FALSE);
+					$tag_term_exists = $GLOBALS['SQ_SYSTEM']->am->getAsset($notice_link['minorid'], 'thesaurus_term', FALSE);
 					if (!is_null($tag_term_exists)) {
 						$tag_links[] = $notice_link;
 					}
@@ -289,9 +289,9 @@ class Tag_Manager extends Asset
 	*/
 	function isSetTaggingScreen($assetid)
 	{
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
 		if (is_null($asset)) return TRUE;
-		$edit_fns =& $asset->getEditFns();
+		$edit_fns = $asset->getEditFns();
 		return isset($edit_fns->static_screens['tagging']);
 
 	}//end isSetTaggingScreen()
@@ -315,7 +315,7 @@ class Tag_Manager extends Asset
 			
 			if (!is_array($tagids)) $tagids = Array($tagids);
 	
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) return 0;
 	
 			
@@ -327,7 +327,7 @@ class Tag_Manager extends Asset
 					continue;
 				}
 	
-				$new_tag_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
+				$new_tag_object = $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
 				if (is_null($new_tag_object)) {
 					trigger_localised_error('SYS0087', E_USER_WARNING, $tagid);
 					$has_error = TRUE;
@@ -435,7 +435,7 @@ class Tag_Manager extends Asset
 	{
 		$thes = NULL;
 		if ($this->attr('thesaurus')) {
-			$thes =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('thesaurus'));
+			$thes = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('thesaurus'));
 		}
 		return $thes;
 
