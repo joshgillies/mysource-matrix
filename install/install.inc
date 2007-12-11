@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.79 2007/11/28 00:48:23 hnguyen Exp $
+* $Id: install.inc,v 1.80 2007/12/11 00:48:05 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -189,20 +189,20 @@ function uninstall_asset_types()
 
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
-                throw new Exception('Unable to delete inherited type code '.$asset_type.' due to the following database error:'.$e->getMessage());
-            }//end try catch
+				throw new Exception('Unable to delete inherited type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+			}//end try catch
 
 			// remove the attributes
 			try {
 				$sql = 'DELETE FROM sq_ast_attr WHERE type_code = :type_code';
-				
+
 				$query = $db->prepare($sql);
 				$query->bindValue('type_code', $asset_type);
 
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
-                throw new Exception('Unable to delete attribute with type code '.$asset_type.' due to the following database error:'.$e->getMessage());
-            }//end try catch
+				throw new Exception('Unable to delete attribute with type code '.$asset_type.' due to the following database error:'.$e->getMessage());
+			}//end try catch
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -952,7 +952,17 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 									case 'note':
 										if (!$has_note) {
-											$this_field->addChild($xml_sub_field->getName(), (string)$xml_sub_field);
+											$note_value = (string)$xml_sub_field;
+											// if we got html entities convert them else simple xml might complain when parsing the xml again
+											if ((stripos($note_value, "<li>") !== FALSE)
+												|| (stripos($note_value, "</li>") !== FALSE)
+												|| (stripos($note_value, "<ul>") !== FALSE)
+												|| (stripos($note_value, "</ul>") !== FALSE)
+												|| (stripos($note_value, "<br />") !== FALSE)) {
+												$note_value = htmlentities($note_value);
+											}
+
+											$this_field->addChild($xml_sub_field->getName(), $note_value);
 										}
 									break;
 
