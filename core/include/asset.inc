@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.620 2007/12/10 06:22:40 rong Exp $
+* $Id: asset.inc,v 1.621 2007/12/11 22:25:37 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.620 $
+* @version $Revision: 1.621 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1358,7 +1358,7 @@ class Asset extends MySource_Object
 		// version that we have been asked to update (major|minor|micro)
 		$version_parts = explode('.', $this->version);
 		for (reset($version_parts); NULL !== ($k = key($version_parts)); next($version_parts)) {
-			$value = $version_parts[$k];
+			$value =& $version_parts[$k];
 			$value = (int)$value;
 			if ($k == $part_num) {
 				$value++;
