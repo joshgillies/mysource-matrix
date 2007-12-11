@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_details.xml,v 1.5 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: edit_interface_static_screen_details.xml,v 1.6 2007/12/11 23:37:11 mwegermann Exp $
 *
 */
 -->
@@ -19,6 +19,8 @@
 	<section name="Status">
 		<field code="status_current" />
 		<field code="status_change" />
+	</section>
+	<section name="Future Status">
 		<field code="status_future_status" />
 	</section>
 </contents>
