@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.235 2007/12/10 06:31:19 rong Exp $
+* $Id: listing_engine.inc,v 1.236 2007/12/11 00:52:25 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.235 $
+* @version $Revision: 1.236 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2447,7 +2447,7 @@ class Listing_Engine extends Page
 			$this->_tmp['type_format_bcs'][$type_code] = NULL;
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, $type_code);
 			if ($link) {
-				$this->_tmp['type_format_bcs'][$type_code] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				$this->_tmp['type_format_bcs'][$type_code] = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 			} else {
 				$this->_tmp['is_default'][] = $type_code;
 			}
