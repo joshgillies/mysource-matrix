@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.76 2007/11/29 00:06:30 lwright Exp $
+* $Id: cron_manager.inc,v 1.77 2007/12/11 00:22:30 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -957,7 +957,7 @@ class Cron_Manager extends Asset
 	* @access private
 	* @see run()
 	*/
-	protected function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	public function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.58 2007/12/05 02:43:04 hnguyen Exp $
+* $Id: cron_job.inc,v 1.59 2007/12/11 00:22:30 rong Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -720,7 +720,7 @@ class Cron_Job extends Asset
 	* @access private
 	* @see run()
 	*/
-	protected function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	public function _errorHandler($err_no, $err_msg, $err_file, $err_line)
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
