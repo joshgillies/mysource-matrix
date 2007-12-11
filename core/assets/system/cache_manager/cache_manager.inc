@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.62 2007/12/11 02:57:26 rong Exp $
+* $Id: cache_manager.inc,v 1.63 2007/12/11 05:23:30 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,28 +266,20 @@ class Cache_Manager extends Asset
 							 );
 				MatrixDAL::executeQuery('cache_manager', 'insertCacheEntry', $bind_vars);
 			} catch (DALException $e) {
-				throw new Exception('Unable to cache asset ID # '.$assetid.' due to database error: '.$e->getMessage());
-			}
-			// silent the error and check for cache entry (concurrency issue)
-			if (!assert_valid_db_result($result, '', TRUE, FALSE)) {
-				$error = TRUE;
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			} else {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				// if there is an error, check if it is already cached
+				$cached = $this->_getCache($cache_key, $perm_key, $url);
+				if (is_null($cached)) {
+					throw new Exception('Unable to cache asset ID # '.$assetid.' due to database error: '.$e->getMessage());
+					return FALSE;
+				}
 			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		if ($error) {
-			// we can only do query here because transaction will be aborted when the assertion fails
-			$cached = $this->_getCache($cache_key, $perm_key, $url);
-			if (is_null($cached)) {
-				// if the cache entry is empty, this is a real error
-				assert_valid_db_result($result);
-			}
-		}
 
 		return TRUE;
 
