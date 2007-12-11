@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.26 2007/12/11 00:47:01 colivar Exp $
+* $Id: simple_form.inc,v 1.27 2007/12/11 06:01:48 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -357,8 +357,15 @@ class Simple_Form extends Asset implements Bridge
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
 
-		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
-		assert_valid_db_result($queried_parents);
+		$queried_parents = NULL;
+		try {
+			$db = MatrixDal::getDb();
+			$_query = $db->prepare(implode(' ', $query));
+			$queried_parents = MatrixDAL::executePdoAll($_query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}//end
+
 		$parents = Array();
 
 		foreach ($queried_parents as $queried_parent) {
@@ -1199,7 +1206,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
 		}
 
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format'));
+		$tmp_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format');
+		$bodycopy_link = reset($tmp_bodycopy);
 
 		if ($bodycopy_link) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
@@ -1243,7 +1251,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	*/
 	function setUseFormatBodycopy($enabled)
 	{
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', 'format'));
+		$tmp_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', 'format');
+		$bodycopy_link = reset($tmp_bodycopy);
 
 		if (!$bodycopy_link) {
 			// no bodycopy yet? If we're trying to set to disabled, then we don't
