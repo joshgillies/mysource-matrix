@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.8 2007/12/06 05:03:07 rong Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.9 2007/12/11 06:09:36 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -559,18 +559,29 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 						ON l.minorid = a.assetid';
 
 		$sub_folder = $asset->getSubmissionsFolder();
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
-					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('online_quiz_submission').'
-					AND a.created BETWEEN '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $from_value).'
-					AND '.db_extras_todate($GLOBALS['SQ_SYSTEM']->db, $to_value);
+
+		$db = Dal::getDb();
+
+		$ts_from_fragment = db_extras_todate(MatrixDAL::getDbType(), $from_value);
+		$ts_to_fragment = db_extras_todate(MatrixDAL::getDbType(), $to_value);
+
+		$where = 'l.majorid IN ('.$db->quote($asset->id).', '.$db->quote($sub_folder->id).')
+					AND i.inhd_type_code = '.$db->quote('online_quiz_submission').'
+					AND a.created BETWEEN '.$ts_from_fragment.'
+					AND '.$ts_to_fragment;
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 		// grab the number of assets
-		$asset_count = $GLOBALS['SQ_SYSTEM']->db->getOne($count_sql.$where);
-		assert_valid_db_result($asset_count);
+		$asset_count = 0;
+		try {
+			$query = $db->prepare($count_sql.$where);
+			$asset_count = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception($e.getMessage());
+		}
 
 		$num_pages = ceil($asset_count / $num_per_page);
 
@@ -586,7 +597,9 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 
 		$sql = $sql.$where.' ORDER BY a.created DESC';
-		$sql = $GLOBALS['SQ_SYSTEM']->db->modifyLimitQuery($sql, $submission_offset, $num_per_page);
+		$parameters = Array('rows' => $num_per_page, 'offset' => $submission_offset);
+
+		$sql .= db_extras_modify_limit_clause(MatrixDAL::getDbType(), $parameters);
 
 		if ($asset_count == 0) {
 			?><p><i><?php echo translate('online_quiz_no_submissions_during_period') ?></i></p><?php
@@ -734,10 +747,15 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			<?php
 			// For memory reasons, we are going to fetch this one row at a time
 			// because we could be displaying a lot on this page
-			$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
-			assert_valid_db_result($result);
+			$result = NULL;
+			 try {
+				$_query = $db->prepare($sql);
+				$result = MatrixDAL::executeSqlAssoc($sql);
+			} catch (Exception $e) {
+				throw new Exception($e->getMessage());
+			}
 
-			while ($asset_info = $result->fetchRow()) {
+			foreach ($result as $k => $asset_info) {
 				$assetid = $asset_info['assetid'];
 
 				// time is good, load me up

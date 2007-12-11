@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.21 2007/12/10 06:31:19 rong Exp $
+* $Id: page_online_quiz.inc,v 1.22 2007/12/11 06:09:36 colivar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -427,7 +427,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getBodycopyLink($bodycopy_code, $link_type)
 	{
-		return reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_type, 'bodycopy', FALSE, 'major', $bodycopy_code));
+		$tmp_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_type, 'bodycopy', FALSE, 'major', $bodycopy_code);
+		return reset($tmp_bodycopy);
 
 	}//end getBodycopyLink()
 
@@ -531,7 +532,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function getFormLink($link_type)
 	{
-		return reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_type, 'simple_form', FALSE, 'major', 'user_details'));
+		$tmp_form = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_type, 'simple_form', FALSE, 'major', 'user_details');
+		return reset($tmp_form);
 
 	}//end getFormLink()
 
@@ -934,7 +936,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 				if ($this->attr('group_by') == 'letter') {
 					$assets_to_list[$id] = $details;
 				} else {
-					$assets_to_list[$id] = $details['type_code'];
+					$assets_to_list[$id] = Array( 0 => Array('type_code' => $details['type_code']));
 				}
 			}
 		}

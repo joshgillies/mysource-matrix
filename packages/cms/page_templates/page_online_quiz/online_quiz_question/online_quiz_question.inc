@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question.inc,v 1.7 2007/12/06 05:03:07 rong Exp $
+* $Id: online_quiz_question.inc,v 1.8 2007/12/11 06:09:36 colivar Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_ONLINE_QUIZ_QUESTION_SESSION_VAR', 'SQ_ONLINE_QUIZ');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -555,7 +555,8 @@ class Online_Quiz_Question extends Asset
 	*/
 	function getQuestionTextBodycopyLink($link_type)
 	{
-		return reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_type, 'bodycopy', FALSE, 'major', 'question_text'));
+		$tmp_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_type, 'bodycopy', FALSE, 'major', 'question_text');
+		return reset($tmp_bodycopy);
 
 	}//end getQuestionTextBodycopyLink()
 
