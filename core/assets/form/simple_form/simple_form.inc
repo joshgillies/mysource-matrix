@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.25 2007/12/02 23:37:53 lwright Exp $
+* $Id: simple_form.inc,v 1.26 2007/12/11 00:47:01 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,8 +206,12 @@ class Simple_Form extends Asset implements Bridge
 			// we are getting this type?
 			if ($get_type) {
 				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
-				$type_links = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
-				assert_valid_db_result($type_links);
+				$type_links = NULL;
+				try {
+					$type_links = MatrixDal::executeSqlAssoc(implode(' ', $query));
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}
 
 				foreach (array_keys($type_links) as $key) {
 					$type_links[$key]['sort_order'] = $new_sort_order;
@@ -406,16 +410,23 @@ class Simple_Form extends Asset implements Bridge
 		// this is so we get the sections as we go
 		// have to do this all in here because calling asset manager will bring on a vicious loop
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
+		if (($asset instanceof Bridge) && ($assetid != $this->id)) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 			$this->forgetAsset($asset);
 		} else {
 			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by);
 			unset($asset);
 
+
 			if (!empty($query)) {
-				$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
-				assert_valid_db_result($result);
+				$db = MatrixDal::getDb();
+				$result = NULL;
+				try {
+					$_query = $db->prepare(implode(' ', $query));
+					$result = MatrixDal::executePdoAssoc($_query);
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}
 
 				$children = $result;
 			}
