@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_asset.inc,v 1.14 2007/11/28 03:50:01 colivar Exp $
+* $Id: trigger_action_create_asset.inc,v 1.15 2007/12/12 02:54:31 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -142,7 +142,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			// get the attributes of this asset
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type_code);
 			foreach ($attrs as $attr => $type) {
-				$attributes[$attr] = ucwords(str_replace('_', ' ', $attr)).' - '.ucwords($type);
+				$attributes[$attr] = ucwords(str_replace('_', ' ', $attr)).' - '.ucwords($type['type']);
 			}
 			$attributes[''] = '--SELECT ATTRIBUTE--';
 		}
