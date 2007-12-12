@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role.inc,v 1.4.4.1 2007/12/12 04:51:33 hnguyen Exp $
+* $Id: trigger_action_set_role.inc,v 1.4.4.2 2007/12/12 21:59:26 skim Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4.4.1 $
+* @version $Revision: 1.4.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,12 +63,13 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		}
 
 		// check the optional settings, assign defaults
-		$roleid		        	= array_get_index($settings, 'roleid', 0);
-		$role_action			= array_get_index($settings, 'role_action', 'add');
-		$userid					= array_get_index($settings, 'userid', 0);
-		$userids				= Array($userid);
-		$cascade				= array_get_index($settings, 'cascade', FALSE);
+		$roleid		        = array_get_index($settings, 'roleid', 0);
+		$role_action		= array_get_index($settings, 'role_action', 'add');
+		$userids		= array_get_index($settings, 'userid', Array());
+		$cascade		= array_get_index($settings, 'cascade', FALSE);
 		$cascade_to_dependents  = array_get_index($settings, 'cascade_to_dependents', FALSE);
+
+		if (!is_array($userids)) $userids = (array) $userids;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -115,7 +116,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 				if (!empty($role_vars['add'])) {
 					foreach ($role_vars['add'] as $roleid => $userids) {
 						foreach ($userids as $userid) {
-							if (!$GLOBALS['SQ_SYSTEM']->am->setRole($state['assetid'], $roleid, $userid[0])) {
+							if (!$GLOBALS['SQ_SYSTEM']->am->setRole($state['assetid'], $roleid, $userid)) {
 								$result = FALSE;
 								break;
 							}
