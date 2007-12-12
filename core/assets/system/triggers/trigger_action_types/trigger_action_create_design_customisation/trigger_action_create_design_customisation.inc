@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,19 +90,21 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		}
 
 		// Now let's morph the dupe into a design customisation
-		if (!$clone->morph('design_customisation')) {
+		// since 3.18, morph() returns the result asset instead of a boolean
+		$customisation = $clone->morph('design_customisation');
+		if (!$customisation) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		// and link it back to ourselves
-		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', NULL, '1')) {
+		if (!$asset->createLink($customisation, SQ_LINK_TYPE_2, 'customisation', NULL, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
-		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
+		if (!($customisation->setAttrValue('id_name', $new_name) && $customisation->saveAttributes())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -115,7 +117,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		foreach ($da_links as $link) {
 			$da = $am->getAsset($link['minorid'], $link['minor_type_code'], TRUE);
 			if (is_null($da)) continue;
-			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
+			if (!$customisation->createLink($da, SQ_LINK_TYPE_3, $link['value'], NULL, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
@@ -126,8 +128,8 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		$initial_path = strtolower($new_name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, TRUE);
-		if (!$clone->saveWebPaths($good_paths)) {
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $customisation->id, TRUE);
+		if (!$customisation->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -138,7 +140,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', FALSE);
 		foreach ($file_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
+			if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0162', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -153,7 +155,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', FALSE);
 		foreach ($css_links as $link) {
 			$minor = $am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
+			if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', NULL, 1)) {
 				trigger_localised_error('CORE0161', E_USER_WARNING);
 				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -164,7 +166,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		$am->forgetAsset($minor);
 
 		// release the lock on the new object
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -174,7 +176,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return	Array(
-					'assetid'			=> $clone->id,
+					'assetid'			=> $customisation->id,
 					'original_design'	=> $asset->id,
 				);
 
