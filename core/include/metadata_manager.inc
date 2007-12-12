@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.164 2007/11/28 23:53:15 rong Exp $
+* $Id: metadata_manager.inc,v 1.165 2007/12/12 23:41:01 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1563,6 +1563,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataFieldDefaultValue($field_assetid)
 	{
+
 		static $cached_defaults = Array();
 		if (!in_array($field_assetid, array_keys($cached_defaults))) {
 			if (!$this->isMetadataFieldAssetid($field_assetid)) {
@@ -1637,7 +1638,7 @@ class Metadata_Manager extends MySource_Object
 
 		try {
 			// does the default value exist yet, then?
-			if (is_null($row)) {
+			if (is_null($row) || empty($row)) {
 				$message = 'Unable to set';
 				$bind_vars	= Array (
 								'field_assetid'	=> $field_assetid,

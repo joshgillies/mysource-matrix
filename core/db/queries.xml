@@ -998,7 +998,7 @@
 	<!-- Set metadata schema on asset -->
 		<primary>
 			<insert>
-				<fields table="sq_ast_mdata">
+				<fields table="sq_ast_mdata_dflt_val">
 					<field>assetid</field>
 					<field>default_val</field>
 				</fields>
