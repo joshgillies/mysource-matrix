@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.162 2007/12/10 06:20:49 rong Exp $
+* $Id: file.inc,v 1.163 2007/12/12 05:50:26 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.163 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,6 +185,21 @@ class File extends Asset
 		return $ret_val;
 
 	}//end _createAdditional()
+
+
+	/**
+	* A public interface for _createAdditional.
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function createAdditional(Array &$link)
+	{
+		return $this->_createAdditional($link);
+
+	}//end createAdditional()
 
 
 	/**

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.9 2007/11/28 03:50:02 colivar Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.10 2007/12/12 05:50:26 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,7 +116,7 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 		// If we're running at a low runlevel, we need to run the _createAdditional function here
 		if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_INTEGRITY)) {
-			if (!$new_asset->_createAdditional($linkid)) {
+			if (!$new_asset->createAdditional($link)) {
 				return FALSE;
 			}
 
