@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.7 2007/11/28 03:50:03 colivar Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.8 2007/12/12 01:04:15 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,8 +44,15 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	*	'alt_dsn'			=> string	// if not using default, use the supplied alternative dsn
 	*	'value'				=> int		// time value
 	*	'unit'				=> int		// time unit (time = value * unit)
+	*	'alt_dsn_user'		=> string	// 3.18
+	*	'alt_dsn_pwd'		=> string	// 3.18
+	*	'alt_dsn_type'		=> string	// 3.18
 	* );
 	* </PRE>
+	*
+	* Since 3.18, we need a new DSN array format for DAL DB connection
+	* Array(DSN, user, password, type)
+	* The trigger action interface has been updated to get 3 more fields
 	*
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
@@ -55,9 +62,18 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	*/
 	public static function execute($settings, &$state)
 	{
-
 		$use_alternative = array_get_index($settings, 'use_alternative', FALSE);
 		$alt_dsn = array_get_index($settings, 'alt_dsn', '');
+		$alt_dsn_user = array_get_index($settings, 'alt_dsn_user', '');
+		$alt_dsn_pwd = array_get_index($settings, 'alt_dsn_pwd', '');
+		$alt_dsn_type = array_get_index($settings, 'alt_dsn_type', '');
+
+		$alt_dsn_array = Array(
+							'DSN'		=> $alt_dsn,
+							'user'		=> $alt_dsn_user,
+							'password'	=> $alt_dsn_pwd,
+							'type'		=> $alt_dsn_type,
+						 );
 
 		// if using alternative dsn, and it is not supplied, bail
 		if ($use_alternative && $alt_dsn == '') {
@@ -77,18 +93,18 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 		if (!$use_alternative) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
 		} else {
 			// connect to alternative cache db dsn is a little bit different
-			$db = Trigger_Action_Set_Cache_Expiry::_connectAltDSN($alt_dsn);
+			$db = Trigger_Action_Set_Cache_Expiry::_connectAltDSN($alt_dsn_array);
 			if (is_null($db)) return FALSE;
+			MatrixDAL::changeDb('dbalt');
 			// initialise the transaction
 			// see mysource.inc::doTransaction for more info
-			if (!isset($GLOBALS['SQ_SYSTEM']->tm) || get_class($GLOBALS['SQ_SYSTEM']->tm) != 'Transaction_Manager') {
+			if (!isset($GLOBALS['SQ_SYSTEM']->tm) || !($GLOBALS['SQ_SYSTEM']->tm instanceof Transaction_Manager)) {
 				require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 				$GLOBALS['SQ_SYSTEM']->tm = new Transaction_Manager();
 			}
-			$GLOBALS['SQ_SYSTEM']->tm->begin($db);
+			$GLOBALS['SQ_SYSTEM']->tm->begin('dbalt');
 		}
 
 		// work out all affected assetids
@@ -103,33 +119,27 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 		// only update db if at least one asset has been selected
 		if (!empty($todo_assetids)) {
 
-			// quote id correctly
-			foreach ($todo_assetids as $key => $assetid) {
-				$todo_assetids[$key] = $db->quoteSmart((String) $assetid);
-			}
-			// break up assetids into chunks of 1000 so that oracle does not complain
-			$in_clauses = Array();
-			foreach (array_chunk($todo_assetids, 999) as $chunk) {
-					$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
-			}
-
 			// work out the expiry time, current time + (value * unit)
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			$value = array_get_index($settings, 'value', 1);
 			$unit = array_get_index($settings, 'unit', 60);
-			$expiry = time() + ($value * $unit);
-			$expiry_sql = db_extras_todate($db, ts_iso8601($expiry));
-
-			// update all cache entries that has the current assetid
-			$sql = 'UPDATE
-						sq_cache
-					SET
-						expires = '.$expiry_sql.'
-					WHERE
-						('.implode(' OR ', $in_clauses).')';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			$expiry = ts_iso8601(time() + ($value * $unit));
+			try {
+				// update all cache entries that has the current assetid
+				$bind_vars = Array(
+								'expires'	=> $expiry,
+								'assetids'	=> $todo_assetids,
+							 );
+				MatrixDAL::executeAll('cache_manager', 'setNewCacheExpiry', $bind_vars);
+			} catch (Exception $e) {
+				if (!$use_alternative) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				} else {
+					$GLOBALS['SQ_SYSTEM']->tm->rollback('dbalt');
+					MatrixDAL::restoreDb();
+				}
+				return FALSE;
+			}
 		}
 
 		if (!$use_alternative) {
@@ -137,7 +147,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} else {
 			// commit the transaction
-			$GLOBALS['SQ_SYSTEM']->tm->commit($db);
+			$GLOBALS['SQ_SYSTEM']->tm->commit('dbalt');
+			MatrixDAL::restoreDb();
 		}
 
 		return Array(
@@ -189,6 +200,9 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 
 		$settings['use_alternative'] = array_get_index($request_data, 'use_alternative', FALSE);
 		$settings['alt_dsn'] = array_get_index($request_data, 'alt_dsn', '');
+		$settings['alt_dsn_user'] = array_get_index($request_data, 'alt_dsn_user', '');
+		$settings['alt_dsn_pwd'] = array_get_index($request_data, 'alt_dsn_pwd', '');
+		$settings['alt_dsn_type'] = array_get_index($request_data, 'alt_dsn_type', '');
 
 		return FALSE;
 
@@ -205,7 +219,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* @return void
 	* @access private
 	*/
-	function _paintTimeUnit($settings, $prefix, $write_access=FALSE)
+	private static function _paintTimeUnit($settings, $prefix, $write_access=FALSE)
 	{
 		// expiry time = value * unit (sec)
 		$value = array_get_index($settings, 'value', 1);
@@ -248,27 +262,34 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* @return void
 	* @access private
 	*/
-	function _paintDSN($settings, $prefix, $write_access=FALSE)
+	private static function _paintDSN($settings, $prefix, $write_access=FALSE)
 	{
 		// expiry time = value * unit (sec)
 		$use_alternative = array_get_index($settings, 'use_alternative', FALSE);
 		$alt_dsn = array_get_index($settings, 'alt_dsn', '');
-
-		// if cache dsn is not set, system will use db2 by default
-		$current_cache_dsn = (SQ_CONF_DBCACHE_DSN) ? SQ_CONF_DBCACHE_DSN : SQ_CONF_DB2_DSN;
+		$alt_dsn_user = array_get_index($settings, 'alt_dsn_user', '');
+		$alt_dsn_pwd = array_get_index($settings, 'alt_dsn_pwd', '');
+		$alt_dsn_type = array_get_index($settings, 'alt_dsn_type', '');
 
 		if ($write_access) {
 			?>
 				<script language="JavaScript" type="text/javascript">
 					function enableAltDSN(value) {
 						var prefix = '<?php echo $prefix; ?>';
-						var id = prefix + '[alt_dsn]';
-						var element = document.getElementById(id);
-						if (!value) {
-							element.disabled = 'disabled';
-							element.value = '';
-						} else {
-							element.disabled = '';
+						var elems = new Array();
+						elems[0] = '[alt_dsn]';
+						elems[1] = '[alt_dsn_user]';
+						elems[2] = '[alt_dsn_pwd]';
+						elems[3] = '[alt_dsn_type]';
+						for (var x in elems) {
+							var id = prefix + elems[x];
+							var element = document.getElementById(id);
+							if (!value) {
+								element.disabled = 'disabled';
+								element.value = '';
+							} else {
+								element.disabled = '';
+							}
 						}
 					}
 				</script>
@@ -280,15 +301,42 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			ob_end_clean();
 			ob_start();
 				$disabled = (!$use_alternative) ? 'disabled="disabled"' : '';
-				text_box($prefix.'[alt_dsn]', $alt_dsn, 60, '', FALSE, $disabled);
-				$alt_dsn = ob_get_contents();
+				?>
+				<table border="0">
+				<tr>
+					<td valign="top"><b>DSN</b></td>
+					<td valign="top" style="padding-bottom: 10px;">
+						<?php text_box($prefix.'[alt_dsn]', $alt_dsn, 60, '', FALSE, $disabled); ?>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top"><b>user</b></td>
+					<td valign="top" style="padding-bottom: 10px;">
+						<?php text_box($prefix.'[alt_dsn_user]', $alt_dsn_user, 30, '', FALSE, $disabled); ?>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top"><b>password</b></td>
+					<td valign="top" style="padding-bottom: 10px;">
+						<?php text_box($prefix.'[alt_dsn_pwd]', $alt_dsn_pwd, 30, '', FALSE, $disabled); ?>
+					</td>
+				</tr>
+				<tr>
+					<td valign="top"><b>type</b></td>
+					<td valign="top" style="padding-bottom: 10px;">
+						<?php text_box($prefix.'[alt_dsn_type]', $alt_dsn_type, 30, '', FALSE, $disabled); ?>
+					</td>
+				</tr>
+				</table>
+				<?php
+				$alt_dsn_part = ob_get_contents();
 			ob_end_clean();
-			$output = translate('trigger_set_cache_expiry_default_dsn', '<b>'.$current_cache_dsn.'</b><br />Use Alternative? '.$default);
-			$output .= '<br />'.translate('trigger_set_cache_expiry_alt_dsn', $alt_dsn);
+			$output = translate('trigger_set_cache_expiry_default_db', '<b>dbcache</b><br />Use Alternative? '.$default);
+			$output .= '<br />'.translate('trigger_set_cache_expiry_alt_dsn', $alt_dsn_part);
 
 		} else {
 			$output = 'Cache DSN: ';
-			$output .= '<b>'.((!$use_alternative) ? $current_cache_dsn : $alt_dsn).'</b>';
+			$output .= '<b>'.((!$use_alternative) ? 'default dbcache DSN' : $alt_dsn).'</b>';
 		}
 
 		return $output;
@@ -303,28 +351,27 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	*
 	* @return object
 	* @access private
+	* @see mysource.inc::changeDatabaseConnection
 	*/
-	function &_connectAltDSN($dsn)
+	private static function &_connectAltDSN($dsn)
 	{
-		// see mysource.inc::changeDatabaseConnection for more info
-		$db = DB::connect($dsn);
-		if (DB::isError($db)) {
+		try {
+			MatrixDAL::dbConnect($dsn, 'dbalt');
+			$db = MatrixDAL::getDb('dbalt');
+			if ($dsn['type'] === 'oci') {
+				$db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+			}
+			$db->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+			$db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+			$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, TRUE);
+
+		} catch (Exception $e) {
 			if (!SQ_PHP_CLI) {
 				header('HTTP/1.0 500 Internal Server Error');
 			}
-			trigger_error($db->message, E_USER_ERROR);
+			throw new Exception('Could not create database connection: '.$e->getMessage());
 			return NULL;
 		}
-		// make sure all results are assoc arrays
-		$db->setFetchMode(DB_FETCHMODE_ASSOC);
-
-		// if we are using oracle we want to set all tables and fields
-		// to have lowercase names
-		if ($db->phptype == 'oci8') {
-			$db->setOption('portability', DB_PORTABILITY_ALL);
-		}
-		$db->autoCommit(FALSE);
-
 		return $db;
 
 	}//end _connectAltDSN()
@@ -339,7 +386,7 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* @return array
 	* @access private
 	*/
-	function _getAssetIDs($id, $settings)
+	private static function _getAssetIDs($id, $settings)
 	{
 		// empty asset_types = include all type
 		$type_code = empty($settings['asset_types']) ? '' : $settings['asset_types'];

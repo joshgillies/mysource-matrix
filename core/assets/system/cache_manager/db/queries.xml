@@ -155,4 +155,26 @@
 			</select>
 		</primary>
 	</query>
+
+	<!-- //     trigger_action_set_cache_expiry     // -->
+	<query id="setNewCacheExpiry">
+		<primary>
+			<update>
+				<fields table="sq_cache">
+					<field>expires</field>
+				</fields>
+				<values>
+					<value column="expires">
+						<function function="toDate">
+							<arg>:expires</arg>
+						</function>
+					</value>
+				</values>
+				<where>
+					<in table="sq_cache" column="assetid">:assetids</in>
+				</where>
+			</update>
+		</primary>
+	</query>
+
 </queries>
