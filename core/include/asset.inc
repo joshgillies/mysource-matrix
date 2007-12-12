@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.621 2007/12/11 22:25:37 lwright Exp $
+* $Id: asset.inc,v 1.622 2007/12/12 00:29:17 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.621 $
+* @version $Revision: 1.622 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -632,7 +632,7 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql.$where);
 			$query->bindValue(':assetid', $assetid);
-			$result = MatrixDAL::executePdoAll($query);
+			$result = MatrixDAL::executePdoAssoc($query);
 			if (!empty($result)) {
 				$result = $result[0];
 			}
@@ -708,7 +708,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access private
 	*/
-	protected function _loadDataPaths()
+	public function _loadDataPaths()
 	{
 		$this->data_path_suffix = asset_data_path_suffix($this->type(), $this->id);
 		$this->data_path = SQ_DATA_PATH.'/private/'.$this->data_path_suffix;
@@ -3033,7 +3033,7 @@ class Asset extends MySource_Object
 				$query->bindValue(':type_code',  $this->type());
 				$result = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
-				throw new Exception('Cannot check for unique attribute value "'.$name.'" of type code "'.$this->type().'" due to atabase error: '.$e->getMessage());
+				throw new Exception('Cannot check for unique attribute value "'.$name.'" of type code "'.$this->type().'" due to database error: '.$e->getMessage());
 			}
 
 			if ((int) $result > 0) {
