@@ -10,12 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.2 2007/10/30 00:18:50 lwright Exp $
+* $Id: MatrixDAL.inc,v 1.3 2007/12/12 03:17:38 gsherwood Exp $
 *
 */
 
 
-require_once SQ_LIB_PATH.'/DAL/DAL.inc';
+require_once dirname(__FILE__).'/../DAL/DAL.inc';
 
 /**
 * MatrixDAL
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
