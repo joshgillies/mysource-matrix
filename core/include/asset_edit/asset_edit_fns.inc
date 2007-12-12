@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.74 2007/12/10 06:22:41 rong Exp $
+* $Id: asset_edit_fns.inc,v 1.75 2007/12/12 06:10:58 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -338,26 +338,17 @@ class Asset_Edit_Fns extends MySource_Object
 		if (!$asset->adminAccess('lookups')) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-
 		if (isset($_POST[$prefix.'_delete_remap'])) {
-			$deletes = Array();
-			foreach ($_POST[$prefix.'_delete_remap'] as $url => $on) {
-				$deletes[] = $db->quoteSmart($url);
+			$urls = array_keys($_POST[$prefix.'_delete_remap']);
+
+			try {
+				$bind_vars = Array('urls' => $urls);
+				MatrixDAL::executeQuery('remap_manager', 'deleteRemapsByURL', $bind_vars);
+			} catch (DALException $e) {
+				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
 			}
-
-			$sql = 'DELETE FROM
-						sq_ast_lookup_remap
-					WHERE
-						url IN
-							(
-								'.implode(',', $deletes).'
-							)';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
