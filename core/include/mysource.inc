@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.248 2007/12/12 00:34:48 rong Exp $
+* $Id: mysource.inc,v 1.249 2007/12/12 05:18:13 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.248 $
+* @version $Revision: 1.249 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1309,12 +1309,12 @@ class MySource
 	*
 	* SHOULD BE USED WITH CAUTION - the assumption is that this user has already been authenticated
 	*
-	* @param object	&$user	The user to log in
+	* @param User	$user	The user object to log in
 	*
 	* @return void
 	* @access public
 	*/
-	public function loginUser(&$user)
+	public function loginUser(User $user)
 	{
 		if (is_null($user)) return FALSE;
 
