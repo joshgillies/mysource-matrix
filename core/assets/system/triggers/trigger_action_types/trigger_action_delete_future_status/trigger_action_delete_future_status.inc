@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_delete_future_status.inc,v 1.6 2007/12/10 06:20:50 rong Exp $
+* $Id: trigger_action_delete_future_status.inc,v 1.7 2007/12/12 05:12:29 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,7 +178,7 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 	* @return array
 	* @access private
 	*/
-	function _getStatusList()
+	protected static function _getStatusList()
 	{
 		$status = Array();
 		foreach (get_constant_values('SQ_STATUS_') as $status_value) {
