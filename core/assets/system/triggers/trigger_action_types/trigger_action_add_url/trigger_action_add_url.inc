@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.13 2007/12/05 06:07:16 colivar Exp $
+* $Id: trigger_action_add_url.inc,v 1.14 2007/12/12 05:58:24 rong Exp $
 *
 */
 
@@ -20,11 +20,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 /**
 * Trigger_Action_Add_URL
 *
-* A trigger action that sets a the value of an asset attribute
+* A trigger action that adds a URL (with protocol option) to a site asset
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,6 +77,16 @@ class Trigger_Action_Add_Url extends Trigger_Action
 			}
 		}
 		if (is_null($state['asset'])) return FALSE;
+
+		// if asset is not a site asset?
+		if (!($state['asset'] instanceof Site)) {
+			return Array(
+					'assetid'	=> $state['asset']->id,
+					'url'		=> $settings['url'],
+					'http'		=> $settings['http'],
+					'https'		=> $settings['https'],
+				   );
+		}
 
 		// dont change anything if the asset already has this URL
 		$url_exists = FALSE;
