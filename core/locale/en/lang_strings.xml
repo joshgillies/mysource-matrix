@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.260 2007/09/25 05:07:44 nbhradwaj Exp $
+* $Id: lang_strings.xml,v 1.261 2007/12/12 01:04:42 rong Exp $
 *
 */
 
@@ -1161,8 +1161,8 @@
 	<string source="trigger_clear_cache_asset_types_selected">Selected Asset Types</string>
 
 	<string source="trigger_set_cache_expiry">Set cache entries related to current asset to expire in: %s.</string>
-	<string source="trigger_set_cache_expiry_default_dsn">Default Cache DSN: %s</string>
-	<string source="trigger_set_cache_expiry_alt_dsn">Alternative Cache DSN: %s</string>
+	<string source="trigger_set_cache_expiry_default_db">Default Cache DB: %s</string>
+	<string source="trigger_set_cache_expiry_alt_dsn">Alternative Cache DB DSN: %s</string>
 
 	<string source="trigger_set_role_no_role_selected">No Role Selected</string>
 	<string source="trigger_set_role_no_users_selected">No Users Selected</string>
