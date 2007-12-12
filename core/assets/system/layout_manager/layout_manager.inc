@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.17 2007/11/28 22:02:05 lwright Exp $
+* $Id: layout_manager.inc,v 1.18 2007/12/12 23:27:08 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,7 @@ class Layout_Manager extends Asset
 		// will check the type ancestors to look for one
 		if (!isset($layouts[$type_code]) || (!empty($screen) && !isset($layouts[$type_code][$screen]))) {
 			if (NULL === ($type_code = $this->getAncestorLayoutTypeCode($type_code, $screen))) {
-				return $NULL;
+				return $null;
 			}
 		}
 
