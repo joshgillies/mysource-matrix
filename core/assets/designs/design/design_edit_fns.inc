@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.123 2007/12/07 00:09:36 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.124 2007/12/12 05:58:26 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -698,7 +698,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	protected function _parseString(Design $asset, $file_contents)
+	public function _parseString(Design $asset, $file_contents)
 	{
 		// convert the head and body tags to lowercase
 		$file_contents = preg_replace(	Array('/<head/i', '/<\\/head/i', '/<body/i', '/<\\/body/i'),
