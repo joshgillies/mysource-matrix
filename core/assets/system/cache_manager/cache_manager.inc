@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.64 2007/12/11 06:00:06 hnguyen Exp $
+* $Id: cache_manager.inc,v 1.65 2007/12/12 04:56:04 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -301,7 +301,8 @@ class Cache_Manager extends Asset
 	function _formUniqueUrl($url)
 	{
 		// we don't want this query vars for cache key, e.g. SQ_ACTION=login
-		parse_str($_SERVER['QUERY_STRING'], $query_vars=Array());
+		$query_vars=Array();
+		parse_str($_SERVER['QUERY_STRING'], $query_vars);
 		$mute_list = array_intersect(array_keys($query_vars), Array('SQ_BACKEND_PAGE', 'SQ_ACTION', 'SQ_DESIGN_NAME'));
 		foreach ($mute_list as $name) {
 			unset($query_vars[$name]);
@@ -714,7 +715,7 @@ class Cache_Manager extends Asset
 
 		try {
 			$bind_vars = Array(
-						'expires'	=> $expiry,
+						'expires'	=> ts_iso8601($expiry),
 						'cache_key'	=> $cache_key,
 						'perm_key'	=> $perm_key,
 						'url'		=> $url,
