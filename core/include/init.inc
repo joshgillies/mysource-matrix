@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.102 2007/10/29 04:35:13 lwright Exp $
+* $Id: init.inc,v 1.103 2007/12/12 22:09:39 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 */
 
@@ -65,6 +65,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
+ini_set('memory_limit', SQ_CONF_WEB_MEMORY_LIMIT.'M');
 
 // include installation key if it exists
 if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
@@ -111,7 +112,6 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 	header('Location: '.$_SERVER['PHP_SELF'].'/'.(($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING'] : ''));
 	exit();
 }
-
 
 
 // the current output type for the system, can be changed during run-time (eg to XML)
@@ -223,7 +223,6 @@ if (get_magic_quotes_gpc()) {
 		$_SERVER['QUERY_STRING'] = stripslashes($_SERVER['QUERY_STRING']);
 	}
 }
-
 
 // create and init the system object
 require_once SQ_INCLUDE_PATH.'/mysource.inc';
