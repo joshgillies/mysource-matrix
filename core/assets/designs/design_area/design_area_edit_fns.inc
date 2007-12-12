@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.60 2007/12/12 23:20:38 bshkara Exp $
+* $Id: design_area_edit_fns.inc,v 1.61 2007/12/12 23:22:10 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @param string	$file_contents	the contents to parse
 	*
 	* @return array
-	* @access private
+	* @access public
 	*/
 	public function _parseString($file_contents)
 	{

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.20 2007/12/12 23:20:38 bshkara Exp $
+* $Id: design_css_edit_fns.inc,v 1.21 2007/12/12 23:22:10 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	* @param string	$file_contents	the contents to parse
 	*
 	* @return array
-	* @access private
+	* @access public
 	*/
 	public function _parseString(Asset $asset, $file_contents)
 	{
