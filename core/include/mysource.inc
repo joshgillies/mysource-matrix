@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.247 2007/12/12 00:15:32 colivar Exp $
+* $Id: mysource.inc,v 1.248 2007/12/12 00:34:48 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.247 $
+* @version $Revision: 1.248 $
 * @package MySource_Matrix
 */
 class MySource
@@ -83,7 +83,7 @@ class MySource
 	/**
 	* @var object Transaction_Manager
 	*/
-	protected $tm;
+	public $tm;
 
 	/**
 	* @var object Messaging_Service
