@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.124 2007/12/12 05:58:26 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.125 2007/12/12 05:59:20 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -696,7 +696,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @param string	$file_contents	the contents to parse
 	*
 	* @return array
-	* @access private
+	* @access public
 	*/
 	public function _parseString(Design $asset, $file_contents)
 	{
