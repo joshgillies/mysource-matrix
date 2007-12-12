@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.236 2007/12/11 00:52:25 colivar Exp $
+* $Id: listing_engine.inc,v 1.237 2007/12/12 00:15:34 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.236 $
+* @version $Revision: 1.237 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1178,7 +1178,7 @@ class Listing_Engine extends Page
 			if ($may_have_sublives) {
 				$sub_live_assets = Array();
 				foreach ($status_matches as $assetid) {
-					$query_assetids[] = $db->quoteSmart((string) $assetid);
+					$query_assetids[] = $db->quote((string) $assetid);
 				}
 				$in_clauses = Array();
 				foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1191,8 +1191,14 @@ class Listing_Engine extends Page
 						WHERE
 								('.implode(' OR ', $in_clauses).')
 							AND status < '.$db->quote(SQ_STATUS_LIVE);
-				$sub_live_assets = $db->getAssoc($sql);
-				assert_valid_db_result($sub_live_assets);
+				$sub_live_assets = NULL;
+				try {
+					$query = $db->prepare($sql);
+					$existing = MatrixDAL::executePdoAssoc($query);
+				} catch (Exception $e) {
+					throw new Exception($e->getMessage());
+				}//end try catch
+
 				foreach ($status_matches as $i => $v) {
 					if (isset($sub_live_assets[$v])) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($v, $sub_live_assets[$v]);
@@ -2501,6 +2507,7 @@ class Listing_Engine extends Page
 		if ($reload || !isset($this->_tmp['root_nodes_'.$GLOBALS['SQ_SYSTEM']->frontend_asset->id])) {
 			$root_asset_ids = Array();
 			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
+
 			foreach ($root_links as $root_link) {
 				if (strstr($root_link['minorid'], ':') !== FALSE) {
 					$root_asset_ids[] = $root_link['minorid'];

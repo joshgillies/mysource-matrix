@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.20 2007/12/04 02:47:56 gsherwood Exp $
+* $Id: page_rss_feed.inc,v 1.21 2007/12/12 00:15:33 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -200,7 +200,7 @@ class Page_RSS_Feed extends Page
 		}
 		// try to get the feed from cache
 		$rss = '';
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$rss = $cm->loadFromCache($this->id, $this->type(), '', FALSE);
 		$rss = unserialize($rss);
 
@@ -222,7 +222,7 @@ class Page_RSS_Feed extends Page
 				return;
 			}
 			foreach ($rss_source_links as $links) {
-				$listing_engine =& $GLOBALS['SQ_SYSTEM']->am->getAsset($links['minorid']);
+				$listing_engine = $GLOBALS['SQ_SYSTEM']->am->getAsset($links['minorid']);
 				$list_of_assets = $listing_engine->getAssetList();
 				$listing_engine->filterAssetList($list_of_assets);
 				$assets_to_list += $list_of_assets;
@@ -283,8 +283,8 @@ class Page_RSS_Feed extends Page
 							if ($index >= $num_assets_as_items) break;
 						}
 						if (strcasecmp($type, $asset_type) == 0) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-							if (!is_null($asset) && is_a($asset, $asset_type)) {
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							if (!is_null($asset) && ($asset instanceof $asset_type)) {
 								foreach ($keywords as $tag => $keyword) {
 									// if the user enters multiple keywords or some text along with keywords then
 									// we need to pick the keywords and insert the replacements in the entered text.
@@ -332,7 +332,7 @@ class Page_RSS_Feed extends Page
 				if (!$no_errors) return;
 				$writer->addItems($new_items);
 				$rss = $writer->getRSSString(FALSE, $charset);
-				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$r = $cm->saveToCache($this->id, $this->type(), '', serialize($rss), FALSE);
 			}
 		}

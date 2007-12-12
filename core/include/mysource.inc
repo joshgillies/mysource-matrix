@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.246 2007/12/05 00:01:57 rong Exp $
+* $Id: mysource.inc,v 1.247 2007/12/12 00:15:32 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.246 $
+* @version $Revision: 1.247 $
 * @package MySource_Matrix
 */
 class MySource
@@ -968,7 +968,7 @@ class MySource
 	* @return void
 	* @access private
 	*/
-	protected function _processGlobalActions()
+	public function _processGlobalActions()
 	{
 		switch ($_REQUEST['SQ_ACTION']) {
 			case 'password_change' :

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.15 2007/12/04 02:47:56 gsherwood Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.16 2007/12/12 00:15:33 colivar Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -144,7 +144,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 		if (!empty($rss_source_links)) {
 			$keywords = Array();
 			foreach ($rss_source_links as $links) {
-				$listing_engine =& $GLOBALS['SQ_SYSTEM']->am->getAsset($links['minorid']);
+				$listing_engine = $GLOBALS['SQ_SYSTEM']->am->getAsset($links['minorid']);
 				$attribute_types =  array_keys($listing_engine->attr('types'));
 				if (!empty($attribute_types)) {
 					foreach ($attribute_types as $type) {
