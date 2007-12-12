@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.59 2007/12/06 04:28:48 lwright Exp $
+* $Id: design_area_edit_fns.inc,v 1.60 2007/12/12 23:20:38 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +76,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	protected function _parseString($file_contents)
+	public function _parseString($file_contents)
 	{
 		// lets just make sure that they are all UNIX new lines
 		$file_contents = str_replace(Array("\r\n", "\r"), "\n", $file_contents);

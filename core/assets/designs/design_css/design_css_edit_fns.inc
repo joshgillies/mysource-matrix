@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.19 2007/12/10 06:20:49 rong Exp $
+* $Id: design_css_edit_fns.inc,v 1.20 2007/12/12 23:20:38 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	protected function _parseString(Asset $asset, $file_contents)
+	public function _parseString(Asset $asset, $file_contents)
 	{
 		// Let's place an print operation at the top of the file
 		// to allow us to print the default header stuff like
