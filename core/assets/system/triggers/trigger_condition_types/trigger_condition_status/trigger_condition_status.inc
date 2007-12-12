@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.14 2007/12/11 02:57:28 rong Exp $
+* $Id: trigger_condition_status.inc,v 1.15 2007/12/12 05:10:11 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 	* @return array
 	* @access private
 	*/
-	function _getStatusList()
+	protected static function _getStatusList()
 	{
 		$status = Array();
 		foreach (get_constant_values('SQ_STATUS_') as $status_value) {
