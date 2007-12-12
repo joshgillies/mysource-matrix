@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: asset_cache.inc,v 1.9 2007/11/13 04:37:45 hnguyen Exp $
+*$Id: asset_cache.inc,v 1.10 2007/12/12 05:20:14 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_ASSET_CACHE_DEBUG', 0);
 * limits. They can also be manually removed by calling remove().
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class Asset_Cache extends MySource_Object
@@ -116,7 +116,7 @@ class Asset_Cache extends MySource_Object
 	* @return boolean 		false if the item is already in the cache
 	* @access public
 	*/
-	function add(&$item, $itemid=-1)
+	function add($item, $itemid=-1)
 	{
 		if ($itemid == -1) {
 			// no valid id
@@ -129,7 +129,7 @@ class Asset_Cache extends MySource_Object
 		// already in the cache
 		if ($this->get($itemid)) return false;
 
-		$this->_items[$itemid] = Array('item' => &$item, 'reference_count' => 1);
+		$this->_items[$itemid] = Array('item' => $item, 'reference_count' => 1);
 
 		if (SQ_ASSET_CACHE_DEBUG) {
 			$this->_trackCaller($itemid, 1);
@@ -146,10 +146,10 @@ class Asset_Cache extends MySource_Object
 	*
 	* @param string $itemid	the id of the item to get
 	*
-	* @return &object
+	* @return object
 	* @access public
 	*/
-	function &get($itemid)
+	function get($itemid)
 	{
 		$ret = null;
 
