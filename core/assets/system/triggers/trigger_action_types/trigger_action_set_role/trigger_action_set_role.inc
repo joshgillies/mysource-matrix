@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role.inc,v 1.4 2007/03/15 00:07:02 rhoward Exp $
+* $Id: trigger_action_set_role.inc,v 1.4.2.1 2007/12/12 04:54:15 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,7 +115,7 @@ class Trigger_Action_Set_Role extends Trigger_Action
 				if (!empty($role_vars['add'])) {
 					foreach ($role_vars['add'] as $roleid => $userids) {
 						foreach ($userids as $userid) {
-							if (!$GLOBALS['SQ_SYSTEM']->am->setRole($state['assetid'], $roleid, $userid)) {
+							if (!$GLOBALS['SQ_SYSTEM']->am->setRole($state['assetid'], $roleid, $userid[0])) {
 								$result = FALSE;
 								break;
 							}
