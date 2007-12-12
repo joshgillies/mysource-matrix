@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.13 2007/11/01 04:44:18 rong Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.14 2007/12/12 03:06:41 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -621,7 +621,8 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function &getThesaurusRef()
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['thesaurus_id']);
+		$thes = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['thesaurus_id']);
+		return $thes;
 
 	}//end getThesaurusRef()
 
