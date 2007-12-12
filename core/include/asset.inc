@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.622 2007/12/12 00:29:17 bshkara Exp $
+* $Id: asset.inc,v 1.623 2007/12/12 23:33:51 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.622 $
+* @version $Revision: 1.623 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1926,6 +1926,7 @@ class Asset extends MySource_Object
 				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($this->id);
 				foreach ($roles as $roleid => $userids) {
 					foreach ($userids as $userid) {
+						$userid = $userid['userid'];
 						if (!$GLOBALS['SQ_SYSTEM']->am->setRole($clone->id, $roleid, $userid)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
