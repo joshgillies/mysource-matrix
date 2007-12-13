@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.118 2007/12/13 22:10:51 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.119 2007/12/13 22:29:55 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -503,7 +503,7 @@ class Workflow_Manager extends MySource_Object
 						}
 						foreach ($role_userids as $roleid => $userids) {
 							for ($i=0;$i<count($userids);$i++) {
-								$notify[] = $userids[$i];
+								$notify[] = $userids[$i]['userid'];
 							}
 						}
 					} else {
@@ -1091,7 +1091,8 @@ class Workflow_Manager extends MySource_Object
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
 						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
 						foreach ($roles as $roleid => $userids) {
-							foreach ($userids as $userid) {
+							foreach ($userids as $user) {
+								$userid = $user['userid'];
 								if ($userid == '0') continue;
 								$can_publish[] = $userid;
 							}
