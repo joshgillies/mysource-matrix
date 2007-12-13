@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.19 2007/12/03 23:44:40 hnguyen Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.20 2007/12/13 02:52:10 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -66,7 +66,10 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		}
 
 		// asset must be image
-		if (!($state['asset'] instanceof Image)) return FALSE;
+		if (!($state['asset'] instanceof Image)) {
+			trigger_error('Unable to create image variety for a '.$state['asset']->type().' asset', E_USER_NOTICE);
+			return FALSE;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('image_variety');
 
