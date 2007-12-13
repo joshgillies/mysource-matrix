@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.60 2007/12/10 06:01:03 bshkara Exp $
+* $Id: form_section.inc,v 1.61 2007/12/13 00:08:01 bshkara Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
 * Form_Section
@@ -23,12 +24,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-register_implementation('form_section', 'bridge');
-class Form_Section extends Asset
+class Form_Section extends Asset implements Bridge
 {
 
 	/**
@@ -94,7 +94,7 @@ class Form_Section extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $shadowid);
@@ -930,6 +930,21 @@ class Form_Section extends Asset
 		return $code;
 
 	}//end generateJSCode()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
 
 
 }//end class
