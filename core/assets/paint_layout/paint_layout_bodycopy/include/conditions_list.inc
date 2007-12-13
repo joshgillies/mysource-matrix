@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: conditions_list.inc,v 1.13 2007/11/06 06:26:44 rong Exp $
+* $Id: conditions_list.inc,v 1.14 2007/12/13 01:06:53 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_KEYWORD_CONDITION_ELSE', 'else');
 * parameters in a single attribute (of type Array).
 *
 * @author  Geoffroy Noel <gnoel@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class Conditions_List
@@ -125,7 +125,8 @@ class Conditions_List
 				foreach ($condition_names as $condition_name) {
 
 					// TODO: should avoid this array_merge, potentialy heavy
-					$this->_updateKeywordsInRestriction(array_merge($logical_keywords, $ret), $conditions_info[$condition_name]);
+					$merge_result = array_merge($logical_keywords, $ret);
+					$this->_updateKeywordsInRestriction($merge_result, $conditions_info[$condition_name]);
 
 					$ret[$condition_name] = $boolean_values[Condition::evaluateRestriction($asset_being_painted, $conditions_info[$condition_name]['restriction'], $conditions_info[$condition_name]['type_code']) ? 1 : 0];
 				}
@@ -315,7 +316,8 @@ class Conditions_List
 	function &_getCurrentUser()
 	{
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+		return $user;
 
 	}//end _getCurrentUser()
 
