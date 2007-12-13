@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.10 2007/07/19 06:54:09 mbrydon Exp $
+* $Id: page_upcoming_events_list.inc,v 1.10.2.1 2007/12/13 00:01:48 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -343,10 +343,18 @@ class Page_Upcoming_Events_List extends Page
 			$id = strtok($id, ':');
 			$replacements = Array();
 
-			$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? 'calendar_event_recurring' : 'calendar_event_single';
+			// Use the Display Format of the asset type if it has been defined, otherwise use the
+			// Display Format of the parent of the asset type. This means that custom Calendar Event
+			// assets will be displayed using their own format if one is defined
+			if (in_array($event['type_code'], $types_available)) {
+				$format_type = $event_type_code;
+			} else {
+				$format_type = 'calendar_event_single';
 
-			// Only print events if we have a Type Format available
-			if (!isset($types_available[$format_type])) continue;
+				if (in_array($event['type_code'], $recurring_event_descendants)) {
+					$format_type = 'calendar_event_recurring';
+				}
+			}
 
 			// get asset keywords
 			if ($needs_asset[$format_type]) {
