@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_replace_file_asset.inc,v 1.5 2007/12/11 02:57:27 rong Exp $
+* $Id: trigger_action_replace_file_asset.inc,v 1.6 2007/12/13 04:40:40 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,10 @@ class Trigger_Action_Replace_File_Asset extends Trigger_Action
 		}
 
 		if (is_null($state['asset'])) return FALSE;
-		if (!($state['asset'] instanceof File)) return FALSE;
+		if (!($state['asset'] instanceof File)) {
+			trigger_error('Unable to replace file content for a '.$state['asset']->type().' asset', E_USER_NOTICE);
+			return FALSE;
+		}
 
 		$edit_fns = $state['asset']->getEditFns();
 		$lock_acquired = ($GLOBALS['SQ_SYSTEM']->am->acquireLock($state['asset']->id, 'attributes') == 1);
