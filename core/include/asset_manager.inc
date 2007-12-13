@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.643 2007/12/13 22:27:10 colivar Exp $
+* $Id: asset_manager.inc,v 1.644 2007/12/13 23:59:44 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.643 $
+* @version $Revision: 1.644 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1533,26 +1533,14 @@ class Asset_Manager extends MySource_Object
 
 			$result = Array();
 			foreach	($result_x as $key => $row) {
-				// if the field is equal to asset id we will have to behave slightly differently
-				// because when the field is asset id the result_x has the following format:
-				// 56 => array (
-				//   0 => array (
-				//        [Empty]
-				//     )
-				// ),
-				if (!empty($field) && (strcmp($field, 'assetid') == 0)) {
-					$result[$key] = $key;
-				} else {
-					// if we are only after a single field
-					$result[$key] = (empty($field)) ? $row[0] : $row[0][$field];
-				}
+				// if we are only after a single field
+				$result[$key] = (empty($field)) ? $row[0] : $row[0][$field];
 			}
 
 			unset($result_x);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get asset info due to database error: '.$e->getMessage());
 		}
-
 
 		// add the shadow assets info
 		$result += $shadow_results;
@@ -8528,31 +8516,22 @@ class Asset_Manager extends MySource_Object
 			// no container found under the specified snippet root
 			return Array();
 		}
+		$parent = $this->getChildren($rootid, Array('bodycopy','folder'), TRUE);
 
 		// rearrange the snippets according to asset map sort order
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		$majorids = Array($db->quote((string)$rootid));
-		$parent = $this->getChildren($rootid, Array('bodycopy','folder'), TRUE);
-		foreach ($parent as $assetid => $type_code) {
-			$majorids[] = $db->quote((string)$assetid);
+		$minorids = array_keys($containers);
+		$majorids = array_keys($parent);
+		$majorids[] = $rootid;
+		try {
+			$bind_vars = Array(
+							'minorids' => $minorids,
+							'majorids' => $majorids,
+						 );
+			$db_result = MatrixDAL::executeGrouped('core', 'getSnippetOrder', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get snippet sort order due to database error: '.$e->getMessage());
 		}
-		$minorids = Array();
-		foreach ($containers as $assetid => $type_code) {
-			$minorids[] = $db->quote((string)$assetid);
-		}
-		$sql = 'select
-					minorid
-				from
-					sq_ast_lnk
-				where
-					minorid in ('.implode(',', $minorids).') and
-					majorid in ('.implode(',', $majorids).')
-				group by
-					majorid, sort_order, minorid
-				order by
-					majorid, sort_order';
-		$results = $db->getCol($sql);
-		assert_valid_db_result($results);
+		$results = array_keys($db_result);
 
 		// generate list of snippet name and content
 		$keywords = Array();
