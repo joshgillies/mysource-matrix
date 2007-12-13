@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.103 2007/12/12 22:09:39 colivar Exp $
+* $Id: init.inc,v 1.104 2007/12/13 00:22:53 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 */
 
@@ -65,7 +65,9 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
-ini_set('memory_limit', SQ_CONF_WEB_MEMORY_LIMIT.'M');
+if (!SQ_PHP_CLI) {
+	ini_set('memory_limit', SQ_CONF_WEB_MEMORY_LIMIT.'M');
+}
 
 // include installation key if it exists
 if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
