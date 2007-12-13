@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.8 2007/12/13 23:46:25 rong Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.9 2007/12/13 23:55:56 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -276,10 +276,15 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 
 			// Process Image Link
 			if (isset($_POST[$prefix.'_image_selection']['assetid'])) {
-				if (!empty($current_link) && $_POST[$prefix.'_image_selection']['assetid'] != $current_link['minorid']) {
+				$img_assetid = $_POST[$prefix.'_image_selection']['assetid'];
+				// imageid changed, delete existing
+				if (!empty($current_link) && $img_assetid != $current_link['minorid']) {
 					$am->deleteAssetLink($current_link['linkid']);
 				}
-				if ($_POST[$prefix.'_image_selection']['assetid'] != $current_link['minorid']) {
+				// new imageid, but no link or different link, create new link
+				if (!empty($img_assetid) &&
+					(!isset($current_link['minorid']) || $img_assetid != $current_link['minorid'])
+				) {
 					$new_screen_id = $_POST[$prefix.'_image_selection']['assetid'];
 					if (!empty($new_screen_id) || ($new_screen_id != '0')) {
 						$image = $am->getAsset($new_screen_id);
