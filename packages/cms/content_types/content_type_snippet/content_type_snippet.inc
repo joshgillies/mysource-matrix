@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_snippet.inc,v 1.3 2007/12/04 02:40:07 colivar Exp $
+* $Id: content_type_snippet.inc,v 1.4 2007/12/13 23:58:20 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -76,9 +76,8 @@ class Content_Type_Snippet extends Content_Type
 	{
 		// update content.php file once snippet notice link has been deleted
 		$bc_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE, 'minor');
-		log_dump($bc_container_link);
 		if (!empty($bc_container_link)) {
-			$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
+			$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($bc_container_link[0]['majorid']);
 			$edit_fns = $container->getEditFns();
 			$edit_fns->generateContentFile($container);
 		}
@@ -124,13 +123,13 @@ class Content_Type_Snippet extends Content_Type
 		$results = Array();
 		foreach ($containers as $id => $type_code) {
 
-			$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+			$container = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 			if (is_null($container)) continue;
 
 			// only list what the current user has access to
 			if ($container->readAccess()) {
 				if (method_exists($container, 'getContentType')) {
-					$content_type =& $container->getContentType();
+					$content_type = $container->getContentType();
 					// recursion check to prevent snippet from nesting itself
 					if ($content_type->id == $this->id) continue;
 					if (($content_type->type() == $this->type()) && $content_type->isEmpty()) {
@@ -168,7 +167,7 @@ class Content_Type_Snippet extends Content_Type
 		$snippet_asset = NULL;
 		$snippet_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'snippet_asset');
 		if (!empty($snippet_link)) {
-			$snippet_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_link['minorid'], $snippet_link['minor_type_code'], TRUE);
+			$snippet_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($snippet_link['minorid'], $snippet_link['minor_type_code'], TRUE);
 		}
 
 		return $snippet_asset;
