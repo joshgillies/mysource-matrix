@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.238 2007/12/13 04:29:56 colivar Exp $
+* $Id: listing_engine.inc,v 1.239 2007/12/13 22:23:58 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.238 $
+* @version $Revision: 1.239 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2504,7 +2504,9 @@ class Listing_Engine extends Page
 	*/
 	function getRootNodes($reload=TRUE)
 	{
-		if ($reload || !isset($this->_tmp['root_nodes_'.$GLOBALS['SQ_SYSTEM']->frontend_asset->id])) {
+		$frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
+		$frontend_asset_id = (!is_null($frontend_asset)) ? $frontend_asset->id : NULL;
+		if ($reload || (!empty($GLOBALS['SQ_SYSTEM']->frontend_asset) && !isset($this->_tmp['root_nodes_'.$frontend_asset_id]))) {
 			$root_asset_ids = Array();
 			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'root');
 
@@ -2558,10 +2560,10 @@ class Listing_Engine extends Page
 			if (empty($root_asset_ids)) {
 				$root_asset_ids = Array($this->id);
 			}
-			$this->_tmp['root_nodes_'.$GLOBALS['SQ_SYSTEM']->frontend_asset->id] = $root_asset_ids;
+			$this->_tmp['root_nodes_'.$frontend_asset_id] = $root_asset_ids;
 		}//end if
 
-		return $this->_tmp['root_nodes_'.$GLOBALS['SQ_SYSTEM']->frontend_asset->id];
+		return isset($this->_tmp['root_nodes_'.$frontend_asset_id]) ? $this->_tmp['root_nodes_'.$frontend_asset_id] : NULL;
 
 	}//end getRootNodes()
 
