@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_code.inc,v 1.14 2007/12/04 02:40:07 colivar Exp $
+* $Id: content_type_code.inc,v 1.15 2007/12/13 23:57:48 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -69,9 +69,11 @@ class Content_Type_Code extends Content_Type
 
 
 		// Below Matches Single html tags(those without attributes specifified, as well as singleton tags);
-		preg_match_all('/\<([A-Za-z]+[A-Za-z0-9_]*)(\s*\/)\>/i', $highlighted, $matches=Array());
+		$matches = Array();
+		preg_match_all('/\<([A-Za-z]+[A-Za-z0-9_]*)(\s*\/)\>/i', $highlighted, $matches);
 
-		for ($i = 0; $i < count($matches[0]); $i++) {
+		$count = count($matches[0]);
+		for ($i = 0; $i < $count; $i++) {
 			$needle = $matches[0][$i];
 			$replace = 'SPANSTART class="'.$classes['tag_brackets'].'">&lt;ENDSPAN';
 			$replace .= 'SPANSTART class="'.$classes['tag_name'].'">'.$matches[1][$i].'ENDSPAN';
@@ -80,9 +82,11 @@ class Content_Type_Code extends Content_Type
 		}
 
 		// End tags ( </aaa> )
-		preg_match_all('/\<\/\s*([A-Za-z][A-Za-z0-9_]*)\>/i', $highlighted, $matches=Array());
+		$matches = Array();
+		preg_match_all('/\<\/\s*([A-Za-z][A-Za-z0-9_]*)\>/i', $highlighted, $matches);
 
-		for ($i = 0; $i < count($matches[0]); $i++) {
+		$count = count($matches[0]);
+		for ($i = 0; $i < $count; $i++) {
 			$needle = $matches[0][$i];
 			$replace = 'SPANSTART class="'.$classes['tag_brackets'].'">&lt;/ENDSPAN';
 			$replace .= 'SPANSTART class="'.$classes['tag_name'].'">'.$matches[1][$i].'ENDSPAN';
@@ -93,9 +97,11 @@ class Content_Type_Code extends Content_Type
 		$simple_matches = Array();
 
 		// Tags like <h1> etc;
-		preg_match_all('/\<\s*([A-Za-z]+[A-Za-z0-9_]*)\>/i', $highlighted, $matches=Array());
+		$matches = Array();
+		preg_match_all('/\<\s*([A-Za-z]+[A-Za-z0-9_]*)\>/i', $highlighted, $matches);
 
-		for ($i = 0; $i < count($matches[0]); $i++) {
+		$count = count($matches[0]);
+		for ($i = 0; $i < $count; $i++) {
 			$needle = $matches[0][$i];
 			$replace = 'SPANSTART class="'.$classes['tag_brackets'].'">&lt;ENDSPAN';
 			$replace .= 'SPANSTART class="'.$classes['tag_name'].'">'.$matches[1][$i].'ENDSPAN';
@@ -109,9 +115,11 @@ class Content_Type_Code extends Content_Type
 		}
 
 		// Match Param Names
-		preg_match_all('/<\\s*([A-Za-z][A-Za-z0-9]*)\\s+([^>]*)\\s*>/i', $highlighted, $matches=Array());
+		$matches = Array();
+		preg_match_all('/<\\s*([A-Za-z][A-Za-z0-9]*)\\s+([^>]*)\\s*>/i', $highlighted, $matches);
 
-		for ($i = 0; $i < count($matches[0]); $i++) {
+		$count = count($matches[0]);
+		for ($i = 0; $i < $count; $i++) {
 			$original = $matches[0][$i];
 			$replace_text = $original;
 			$replace_text = str_replace('<', '&lt;', $replace_text);
@@ -175,8 +183,11 @@ class Content_Type_Code extends Content_Type
 		foreach ($classes as $colour => $class) {
 			$highlighted = str_replace('color="'.strtoupper($colour).'"', 'class="'.$class.'"', $highlighted);
 		}
-		preg_match_all('#color="(.*?)"#', $highlighted, $matches=Array());
-		for ($i = 0; $i < count($matches[0]); $i++) {
+
+		$matches = Array();
+		preg_match_all('#color="(.*?)"#', $highlighted, $matches);
+		$count = count($matches[0]);
+		for ($i = 0; $i < $count; $i++) {
 			$needle = $matches[0][$i];
 			$replace_class = $system_colours[strtolower($matches[1][$i])];
 			$replace = 'class="'.$replace_class.'"';
@@ -262,7 +273,8 @@ class Content_Type_Code extends Content_Type
 		$str = str_replace("\r", '', $str);
 
 		// Handle the XML Tags, so they don't get messed up with the PHP start tags
-		preg_match_all('/<\?\s*xml.*\?>/i', $str, $matches=Array());
+		$matches = Array();
+		preg_match_all('/<\?\s*xml.*\?>/i', $str, $matches);
 		foreach ($matches as $text) {
 			$replace = str_replace(Array('<?', '?>'), Array('<XMLSTART', 'XMLEND>'), $text);
 			$str = str_replace($text, $replace, $str);
@@ -391,7 +403,8 @@ class Content_Type_Code extends Content_Type
 					}
 
 					// Now we need a count of how many lines there are.
-					preg_match_all('/-line_number-/i', $str, $matches=Array());
+					$matches = Array();
+					preg_match_all('/-line_number-/i', $str, $matches);
 					$line_number = count($matches[0]);
 
 					// Now we can go through the line numbers, and pad them on the left with spaces
