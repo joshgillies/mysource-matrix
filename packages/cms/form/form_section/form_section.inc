@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.61 2007/12/13 00:08:01 bshkara Exp $
+* $Id: form_section.inc,v 1.62 2007/12/13 00:22:25 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -540,6 +540,21 @@ class Form_Section extends Asset implements Bridge
 
 
 	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
+
+
+	/**
 	* get the section links attached to this form
 	*
 	* @param boolean	$force	whether to force... something or not
@@ -605,7 +620,8 @@ class Form_Section extends Asset implements Bridge
 	function &getQuestionByOrder($orderid)
 	{
 		$sort_order = $this->attr('sort_order');
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
+		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
+		return $question;
 
 	}//end getQuestionByOrder()
 
@@ -930,21 +946,6 @@ class Form_Section extends Asset implements Bridge
 		return $code;
 
 	}//end generateJSCode()
-
-
-	/**
-	* Get asset info for use by asset map
-	*
-	* @param string	$assetid	Full Asset id to get information for
-	*
-	* @return array
-	* @access public
-	*/
-	function getAssetMapAssetInfo($assetid)
-	{
-		return Array();
-
-	}//end getAssetMapAssetInfo()
 
 
 }//end class
