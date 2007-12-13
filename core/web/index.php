@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.php,v 1.31 2007/12/12 22:09:39 colivar Exp $
+* $Id: index.php,v 1.32 2007/12/13 00:23:25 hnguyen Exp $
 *
 */
 
@@ -20,13 +20,12 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 define('SQ_SYSTEM_ROOT', dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME']))));
 
 require_once dirname(dirname(__FILE__)).'/include/init.inc';
-ini_set('memory_limit', SQ_CONF_WEB_MEMORY_LIMIT.'M');
 
 $GLOBALS['SQ_SYSTEM']->start();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
