@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.14 2007/04/26 00:42:42 hnguyen Exp $
+* $Id: trigger_action_set_design.inc,v 1.14.2.1 2007/12/13 04:16:35 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,6 +156,9 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			$selected_assetid = $settings['assetid'];
 		}
 
+		$design_type = array_get_index($settings, 'design_type', '');
+		$design_name = array_get_index($settings, 'design_name', '');
+
 		// check if the selected asset is valid
 		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
 			$selected_assetid = 0;
@@ -173,6 +176,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 							'design::user'				=> 'User Defined Design',
 						  );
 
+		$disabled = ($design_type == 'design::user') ? '' : 'disabled="disabled"';
 		// begin buffering basic options
 
 		$extra = 'onChange="if(this.value == \'design::user\') { document.getElementById(\''.$prefix.'[design_name]'.'\').disabled=\'\';}
@@ -182,10 +186,10 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				asset_finder($prefix.'[assetid]', $selected_assetid, Array('design' => 'D'));
 				echo '<br /><br />';
 				echo translate('trigger_set_design_select_design_type');
-				combo_box($prefix.'[design_type]', $design_types, FALSE, '', 0, $extra);
+				combo_box($prefix.'[design_type]', $design_types, FALSE, $design_type, 0, $extra);
 				echo '<br /><br />';
 				echo translate('trigger_set_design_set_user_design_name');
-				text_box($prefix.'[design_name]', '', '', '', FALSE, 'disabled="disabled"');
+				text_box($prefix.'[design_name]', $design_name, '', '', FALSE, $disabled);
 			} else {
 				if ($selected_assetid) {
 					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
