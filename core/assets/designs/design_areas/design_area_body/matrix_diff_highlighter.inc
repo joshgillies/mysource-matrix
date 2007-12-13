@@ -10,11 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.3 2007/12/10 06:20:49 rong Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.4 2007/12/13 02:40:18 colivar Exp $
 *
 */
 
-include_once 'Text/Diff/Renderer.php';
+// Text/Diff.php is throwing php5 warnings
+// instead of overwritting the pear package, we are making the error mute
+@include_once 'Text/Diff/Renderer.php';
 include_once 'Text/Diff/Renderer/inline.php';
 
 /**
@@ -30,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -343,7 +345,10 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 				}
 			</style>
 		';
-		$out .= parent::render($diff);
+
+		// Text/Diff.php is throwing php5 warnings
+		// instead of overwritting the pear package, we are making the error mute
+		$out .= @parent::render($diff);
 
 		// make sure we have some whitespace around ins/del tags,
 		// but none immediately inside
@@ -383,8 +388,10 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 		$second = preg_replace('/([ \t]+)/', ' ', $second);
 
 		/* Create the Diff object. */
-		include_once 'Text/Diff.php';
-		$diff = new Text_Diff(explode("\n", $first), explode("\n", $second));
+		// Text/Diff.php is throwing php5 warnings
+		// instead of overwritting the pear package we are making the error mute
+		@include_once 'Text/Diff.php';
+		@$diff = new Text_Diff(explode("\n", $first), explode("\n", $second));
 
 		return $this->render($diff);
 
