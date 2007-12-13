@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.166 2007/12/13 22:52:06 rong Exp $
+* $Id: metadata_manager.inc,v 1.167 2007/12/13 23:16:52 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -711,7 +711,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($metadata as $fieldid => $details) {
 			if ($details['value'] === NULL) {
 				// we want to revert this field to default, done by deleting it from the mdata_val table
-				$delete_fieldids[] = $db->quote((string)$fieldid);
+				$delete_fieldids[] = (string) $fieldid;
 			} else {
 				$remaining[] = $fieldid;
 			}
@@ -727,7 +727,6 @@ class Metadata_Manager extends MySource_Object
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete metadata value for fieldid #'.implode(', ', $delete_fieldids).' from assetid #'.$assetid.'due to the following database error:'.$e->getMessage());
 			}//end try catch
-
 		}
 
 		if (!empty($remaining)) {
@@ -736,15 +735,13 @@ class Metadata_Manager extends MySource_Object
 						fieldid
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val';
-
-			$where = '	assetid = '.$db->quote($asset->id);
-
+			$where = '	assetid = :assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query	= $db->prepare($sql.$where);
+				$query = $db->prepare($sql.$where);
 				$query->bindValue('assetid', $asset->id);
-				$updates	= MatrixDAL::executePdoAssoc($query, 0);
+				$updates = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get metadata fields ids for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
 			}

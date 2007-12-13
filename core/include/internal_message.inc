@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.81 2007/11/26 22:07:23 colivar Exp $
+* $Id: internal_message.inc,v 1.82 2007/12/13 23:16:52 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -159,7 +159,7 @@ class Internal_Message extends MySource_Object
 	function send()
 	{
 		// make sure we have the required fields
-		assert_not_empty(trim($this->type),    'Could not send internal message without a type set');
+		assert_not_empty(trim($this->type), 'Could not send internal message without a type set');
 
 		// lets work out what action should be conducted on this type of message
 		// ie. should it logged, mailed etc
@@ -252,6 +252,7 @@ class Internal_Message extends MySource_Object
 			log_write($log_line);
 
 		}//end if logging message to file
+
 		if ($log_to_db || $send_mail) {
 			// work out the email address the the email will be sent from
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
