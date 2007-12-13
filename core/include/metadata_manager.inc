@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.165 2007/12/12 23:41:01 colivar Exp $
+* $Id: metadata_manager.inc,v 1.166 2007/12/13 22:52:06 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -507,7 +507,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		static $cached_field_names = Array();
 
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$schema = $am->getAsset($schemaid);
 		if (is_null($schema)) {
@@ -560,7 +560,7 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataFieldValues($assetid, $field_names=Array())
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$asset = $am->getAsset($assetid);
 		$field_values = Array();
 
@@ -860,7 +860,7 @@ class Metadata_Manager extends MySource_Object
 			echo '<'.'?php'."\n";
 			if (!empty($keywords)) {
 				require_once SQ_FUDGE_PATH.'/general/text.inc';
-				echo '$am = $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
+				echo '$am =& $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
 				echo '$metadata_asset = $am->getAsset('.$asset->id.', \'\', TRUE);'."\n\n";
 				echo '/* 1 */', "\n";
 				echo '$metadata_replacements = Array();'."\n";
@@ -1045,7 +1045,7 @@ class Metadata_Manager extends MySource_Object
 				$metadata_replacements[$keyword] = '$metadata_replacements['.var_export($keyword, 1).']';
 			} else {
 				ob_start();
-				echo '$am = $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
+				echo '$am =& $GLOBALS[\'SQ_SYSTEM\']->am;'."\n";
 			}
 
 			// Date/Time keywords are processed first.
@@ -1480,7 +1480,7 @@ class Metadata_Manager extends MySource_Object
 		if ($replace_nested_keyword) {
 
 			// get the metadata value from the generated metadata.php file
-			$am = $GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$asset = $am->getAsset($assetid);
 			$_metadata_filename = $asset->data_path.'/metadata.php';
 
