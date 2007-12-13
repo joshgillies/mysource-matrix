@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.39 2007/11/29 00:45:22 colivar Exp $
+* $Id: email_format.inc,v 1.40 2007/12/13 23:09:24 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -68,7 +68,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if (!parent::setEditParams($node)) return FALSE;
 		foreach ($this->_edit_params as $field => $val) {
 			if (isset($node->attributes()->$field)) {
-				$this->_edit_params[$field] = (bool)$node->attributes()->field;
+				$this->_edit_params[$field] = (bool)$node->attributes()->$field;
 			}
 		}
 		return TRUE;
@@ -450,7 +450,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			foreach ($attachments as $file_path) {
 				if (file_exists($file_path)) {
-					$mime->addAttachment($file_path);
+					@$mime->addAttachment($file_path); // throws PHP5 strict warning (Non-static method PEAR::isError should not be called statically)
 				}
 			}
 

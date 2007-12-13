@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.64 2007/12/10 06:01:04 bshkara Exp $
+* $Id: form_email.inc,v 1.65 2007/12/13 23:09:47 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -318,7 +318,7 @@ class Form_Email extends Form
 				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_assetid);
 				if (!is_null($q_asset) && $q_asset->attr('attach_to_mail')) {
 					$file_asset_id = $q_asset->getUploadedFileId();
-					if (!is_null($file_asset_id)) {
+					if (!empty($file_asset_id)) {
 						$file_assets[] = $file_asset_id;
 					}
 				}

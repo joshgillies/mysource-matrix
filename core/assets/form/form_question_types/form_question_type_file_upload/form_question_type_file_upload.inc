@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.20 2007/12/07 06:00:05 bshkara Exp $
+* $Id: form_question_type_file_upload.inc,v 1.21 2007/12/13 23:09:24 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -258,7 +258,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			} catch (Exception $e) {
 				throw new Exception('Unable to get summary of answers for: '.$name.' due to database error: '.$e->getMessage());
 			}
-			if (!is_null($existing_file)) {
+			if (!empty($existing_file)) {
 				$existing_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
 				$info = $existing_file_asset->getExistingFile();
 				$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
@@ -455,7 +455,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
 		if (is_null($create_loc_asset)) return NULL;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		// Check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_names = make_valid_web_paths(Array($this->getValue()));
@@ -468,11 +468,17 @@ class Form_Question_Type_File_Upload extends Form_Question
 						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						ON a.assetid = l.minorid
 				WHERE
-					l.majorid = '.$db->quoteSmart($create_loc).'
-					AND a.name = '.$db->quoteSmart($name);
+					l.majorid = :create_loc
+					AND a.name = :name';
 
-		$existing_file = $db->getOne($sql);
-		assert_valid_db_result($existing_file);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':create_loc', $create_loc);
+			$query->bindValue(':name', $name);
+			$existing_file = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get the uploaded file assetid due to database error: '.$e->getMessage());
+		}
 
 		return $existing_file;
 
