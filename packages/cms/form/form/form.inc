@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.175 2007/12/07 06:01:49 bshkara Exp $
+* $Id: form.inc,v 1.176 2007/12/13 23:35:50 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -570,8 +570,11 @@ class Form extends Asset implements Bridge
 			unset($asset);
 
 			if (!empty($query)) {
-				$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
-				assert_valid_db_result($result);
+				try  {
+					$result = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+				} catch (Exception $e) {
+					throw new Exception('Unable to get children for asset: '.$assetid.' due to database error: '.$e->getMessage());
+				}
 
 				$children =& $result;
 			}
