@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.623 2007/12/12 23:33:51 lwright Exp $
+* $Id: asset.inc,v 1.624 2007/12/13 02:37:32 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.623 $
+* @version $Revision: 1.624 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -640,7 +640,7 @@ class Asset extends MySource_Object
 			throw new Exception('Unable to get versioning information for file ID '.$fileid.' at version '.(is_null($version) ? '(current)' : $version).' due to database error: '.$e->getMessage());
 		}
 
-		if (is_null($result)) {
+		if (empty($result)) {
 			trigger_localised_error('SYS0087', E_USER_WARNING, $assetid);
 			return;
 		}
