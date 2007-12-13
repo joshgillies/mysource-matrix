@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_management.inc,v 1.9 2007/12/04 02:59:09 bshkara Exp $
+* $Id: content_type_raw_html_management.inc,v 1.10 2007/12/13 23:56:31 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,7 +52,6 @@ class Content_Type_Raw_HTML_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if (version_compare($current_version,'0.2','<')) {
 			$user_group_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('user_group');
 			$user_group_assets = Array();
