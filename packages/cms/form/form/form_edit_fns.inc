@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.80 2007/12/07 06:01:49 bshkara Exp $
+* $Id: form_edit_fns.inc,v 1.81 2007/12/13 00:41:48 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -256,7 +256,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 							</td>
 							<td class="sq-backend-table-cell">
 								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php
-									$q_type = str_replace('form_question_type', '', get_class($q));
+									$q_type = str_replace('Form_Question_Type', '', get_class($q));
 									$q_type = str_replace('_', ' ', $q_type);
 									$q_type = trim(ucwords($q_type));
 									echo $q_type;
