@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.14 2007/12/12 05:58:24 rong Exp $
+* $Id: trigger_action_add_url.inc,v 1.15 2007/12/13 03:05:28 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,12 +80,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 
 		// if asset is not a site asset?
 		if (!($state['asset'] instanceof Site)) {
-			return Array(
-					'assetid'	=> $state['asset']->id,
-					'url'		=> $settings['url'],
-					'http'		=> $settings['http'],
-					'https'		=> $settings['https'],
-				   );
+			trigger_error('Unable to add URL for a '.$state['asset']->type().' asset', E_USER_NOTICE);
+			return FALSE;
 		}
 
 		// dont change anything if the asset already has this URL
@@ -270,8 +266,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 			return translate('protocol_not_specified');
 		}
 
-		$settings['http'] = ($http == '1');
-		$settings['https'] = ($https == '1');
+		$settings['http'] = ($http == '1') ? '1' : '0';
+		$settings['https'] = ($https == '1') ? '1' : '0';
 
 		return FALSE;
 
