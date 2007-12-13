@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.25 2007/11/28 04:00:13 lwright Exp $
+* $Id: transaction_manager.inc,v 1.26 2007/12/13 02:57:57 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -63,9 +63,9 @@ class Transaction_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	public function inTransaction(&$db)
+	public function inTransaction($db_name)
 	{
-		return !empty($this->_levels[$this->_getId($db)]);
+		return !empty($this->_levels[$db_name]);
 
 	}//end inTransaction()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.77 2007/12/11 00:22:30 rong Exp $
+* $Id: cron_manager.inc,v 1.78 2007/12/13 02:57:57 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -436,7 +436,7 @@ class Cron_Manager extends Asset
 			return;
 		}
 
-		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction($GLOBALS['SQ_SYSTEM']->db)) {
+		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction(MatrixDAL::getCurrentDbId())) {
 			trigger_localised_error('CRON0012', E_USER_WARNING);
 			return;
 		}
