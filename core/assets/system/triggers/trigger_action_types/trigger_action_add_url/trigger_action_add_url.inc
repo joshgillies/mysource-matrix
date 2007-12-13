@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.5 2007/04/27 04:01:18 hnguyen Exp $
+* $Id: trigger_action_add_url.inc,v 1.5.2.1 2007/12/13 03:13:43 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -240,7 +240,6 @@ class Trigger_Action_Add_Url extends Trigger_Action
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-
 		// process url
 		$url = array_get_index($request_data, 'url', '');
 		$url = trim($url);
@@ -254,8 +253,8 @@ class Trigger_Action_Add_Url extends Trigger_Action
 			return translate('protocol_not_specified');
 		}
 
-		$settings['http'] = ($http == '1');
-		$settings['https'] = ($https == '1');
+		$settings['http'] = ($http == '1') ? '1' : '0';
+		$settings['https'] = ($https == '1') ? '1' : '0';
 
 		return FALSE;
 
