@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.7 2007/12/04 02:40:07 colivar Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.8 2007/12/13 23:46:25 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,10 +55,11 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 	function paintBackend(&$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$am = $GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
+
 			if (empty($current_link)) {
-				$current_link['minorid'] == '';
+				$current_link['minorid'] = '';
 			}
 
 			$display_fields = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CONTENT_TYPE_IMAGE_FIELDS');
@@ -238,7 +239,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				<td class="sq-backend-table-header">On Clicking:</td>
 				<td class="sq-backend-table-cell">
 				<?php
-					$onclick =& $asset->getAttribute('on_click');
+					$onclick = $asset->getAttribute('on_click');
 					$onclick->paint($prefix);
 				?>
 				</td>
@@ -270,7 +271,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$am = $GLOBALS['SQ_SYSTEM']->am;
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
 
 			// Process Image Link
@@ -281,7 +282,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				if ($_POST[$prefix.'_image_selection']['assetid'] != $current_link['minorid']) {
 					$new_screen_id = $_POST[$prefix.'_image_selection']['assetid'];
 					if (!empty($new_screen_id) || ($new_screen_id != '0')) {
-						$image =& $am->getAsset($new_screen_id);
+						$image = $am->getAsset($new_screen_id);
 						$new_link_id = $asset->createLink($image, SQ_LINK_NOTICE, 'image_link');
 						$current_link = $am->getLinkById($new_link_id);
 					}
@@ -302,7 +303,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			}
 			$current_settings['constrain_proportions'] = isset($_POST[$prefix.'_proportions']);
 
-			$onclick =& $asset->getAttribute('on_click');
+			$onclick = $asset->getAttribute('on_click');
 			$onclick->process($prefix);
 
 			$on_click_option = $onclick->value;
@@ -315,16 +316,16 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$asset->setAttrValue('on_click', $onclick->value);
 
 			if ($current_link == NULL) return TRUE;
-			$current_image =& $am->getAsset($current_link['minorid']);
+			$current_image = $am->getAsset($current_link['minorid']);
 			$image_width = ($current_settings['fit_dimensions'] == TRUE) ? 'width: '.$current_settings['width'].'px;' : '';
 			$image_height = ($current_settings['fit_dimensions'] == TRUE) ? 'height: '.$current_settings['height'].'px;' : '';
 			$image_alt = $current_image->name;
-			if (is_a($current_image, 'image')) {
+			if ($current_image instanceof Image) {
 				// Its an image, no problems here
 				$image_alt = $current_image->attr('alt');
 			} else {
 				// Image Variety, so some work to be done to get alt
-				$real_image =& $am->getAsset($current_image->_imageid);
+				$real_image = $am->getAsset($current_image->_imageid);
 				$image_alt = $real_image->attr('alt');
 			}
 			$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CONTENT_TYPE_IMAGE_CLASSES');
