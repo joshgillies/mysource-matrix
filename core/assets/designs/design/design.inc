@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.142 2007/12/11 03:29:56 rong Exp $
+* $Id: design.inc,v 1.143 2007/12/13 21:45:12 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -499,7 +499,7 @@ class Design extends Design_Area
 					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {
 						$this->generateDesignFile(!$this->_tmp['update_customisations']);
 						if ($this->_tmp['update_customisations']) {
-							$this->_updateCustomisations();
+							$this->updateCustomisations();
 						}
 					}
 
@@ -521,9 +521,9 @@ class Design extends Design_Area
 	* Updates each of our customisations from ourselves
 	*
 	* @return void
-	* @access private
+	* @access public
 	*/
-	protected function _updateCustomisations()
+	public function updateCustomisations()
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -538,7 +538,7 @@ class Design extends Design_Area
 			}
 		}// end foreach
 
-	}//end _updateCustomisations()
+	}//end updateCustomisations()
 
 
 	/**

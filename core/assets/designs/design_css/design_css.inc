@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.36 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_css.inc,v 1.37 2007/12/13 21:45:12 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -466,9 +466,9 @@ echo '/*
 	* Updates each of our customisations from ourselves
 	*
 	* @return void
-	* @access private
+	* @access public
 	*/
-	protected function _updateCustomisations()
+	public function updateCustomisations()
 	{
 		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', TRUE, 'major', 'customisation');
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -483,7 +483,7 @@ echo '/*
 			}
 		}// end foreach
 
-	}//end _updateCustomisations()
+	}//end updateCustomisations()
 
 
 	/**

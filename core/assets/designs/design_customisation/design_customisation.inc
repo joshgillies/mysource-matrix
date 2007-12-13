@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.53 2007/12/06 04:28:51 lwright Exp $
+* $Id: design_customisation.inc,v 1.54 2007/12/13 21:45:12 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -422,7 +422,7 @@ class Design_Customisation extends Design
 
 		//// AND FINALLY, regenerate our design file and update any of our customisations ////
 		$this->generateDesignFile(FALSE); // not recursive because update customisations takes care of that
-		$this->_updateCustomisations();
+		$this->updateCustomisations();
 
 		return TRUE;
 
