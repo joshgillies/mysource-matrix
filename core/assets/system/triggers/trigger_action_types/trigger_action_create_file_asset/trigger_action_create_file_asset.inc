@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.10 2007/12/12 05:50:26 gsherwood Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.11 2007/12/13 01:16:28 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,7 +165,7 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			// get the attributes of this asset
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type_code);
 			foreach ($attrs as $attr => $type) {
-				$attributes[$attr] = ucwords(str_replace('_', ' ', $attr)).' - '.ucwords($type);
+				$attributes[$attr] = ucwords(str_replace('_', ' ', $attr)).' - '.ucwords($type['type']);
 			}
 			$attributes[''] = '--SELECT ATTRIBUTE--';
 		}
@@ -311,7 +311,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			ob_end_clean();
 
 			// now patch together the output
-			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3, $basic_part_4).
+			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
+						'<br />and populate it with the file located on the server at '.$basic_part_4.
 						'<br /><br />'.
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
 						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).'<br />'.
@@ -343,7 +344,7 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 			return translate('parent_to_create_under_is_missing');
 		}
 
-		if (!isset($request_data['file_path'])) {
+		if (!isset($request_data['file_path']) || empty($request_data['file_path'])) {
 			return translate('trigger_action_create_file_asset_file_path_not_set');
 		}
 
@@ -363,8 +364,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 		if (!$type_code) {
 			return translate('asset_type_not_specified');
 		}
-		$settings['type_code'] = $type_code;
 
+		$settings['type_code'] = $type_code;
 		$settings['file_path'] = $request_data['file_path'];
 
 		// optional fields
