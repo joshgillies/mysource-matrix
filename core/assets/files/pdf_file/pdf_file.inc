@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.30 2007/12/11 03:29:57 rong Exp $
+* $Id: pdf_file.inc,v 1.31 2007/12/13 04:54:34 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,6 +85,7 @@ class PDF_File extends File
 		if (!$content) return '';
 		// strip out the tags
 		$content = trim(strip_tags($content));
+		if (!$content) return '';
 
 		// in some cases file path ends up as the first string in the file
 		// this is the way pdftohtml treats files without the title, it puts filename into html title
