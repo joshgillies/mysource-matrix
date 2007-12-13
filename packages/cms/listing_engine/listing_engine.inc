@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.237 2007/12/12 00:15:34 colivar Exp $
+* $Id: listing_engine.inc,v 1.238 2007/12/13 04:29:56 colivar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.237 $
+* @version $Revision: 1.238 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1194,14 +1194,14 @@ class Listing_Engine extends Page
 				$sub_live_assets = NULL;
 				try {
 					$query = $db->prepare($sql);
-					$existing = MatrixDAL::executePdoAssoc($query);
+					$sub_live_assets = MatrixDAL::executePdoGroupedAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
 				}//end try catch
 
 				foreach ($status_matches as $i => $v) {
 					if (isset($sub_live_assets[$v])) {
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($v, $sub_live_assets[$v]);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($v, $sub_live_assets[$v][0]['type_code']);
 						if (is_null($asset) || !$asset->readAccess()) {
 							unset($status_matches[$i]);
 						}
