@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.19 2007/12/11 02:57:27 rong Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.20 2007/12/13 05:29:34 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// get the field name
 		$field_name = '';
 		if (isset($metadata[$settings['fieldid']])) {
-			$field_name = $metadata[$settings['fieldid']]['name'];
+			$field_name = $metadata[$settings['fieldid']][0]['name'];
 		}
 
 		// set the new value
