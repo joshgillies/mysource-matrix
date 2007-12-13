@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.117 2007/12/10 04:20:56 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.118 2007/12/13 22:10:51 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -670,7 +670,8 @@ class Workflow_Manager extends MySource_Object
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
 						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
 						foreach ($roles as $roleid => $userids) {
-							foreach ($userids as $userid) {
+							foreach ($userids as $user) {
+								$userid = $user['userid'];
 								if ($userid == '0') continue;
 								$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
 								if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
