@@ -1047,7 +1047,7 @@ class DALConverter
      */
     protected function convertGroupBy(array $groupBy)
     {
-        $sql  = 'GROUP BY (';
+        $sql  = 'GROUP BY ';
         $list = array();
         foreach ($groupBy as $field) {
             if (is_array($field) === TRUE) {
@@ -1057,7 +1057,7 @@ class DALConverter
             }
         }
 
-        $sql .= $this->separateFields($list).')';
+        $sql .= $this->separateFields($list);
 
         return $sql;
 
