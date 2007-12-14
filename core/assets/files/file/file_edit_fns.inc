@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.89 2007/11/29 00:06:11 lwright Exp $
+* $Id: file_edit_fns.inc,v 1.90 2007/12/14 23:56:24 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -527,9 +527,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @param string	$prefix	prefix for form elements
 	*
 	* @return array
-	* @access protected
+	* @access public
 	*/
-	protected function getChosenFileInfo($prefix)
+	public function getChosenFileInfo($prefix)
 	{
 		$info = Array();
 		if (isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
