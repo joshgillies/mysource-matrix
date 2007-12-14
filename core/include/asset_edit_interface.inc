@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.341 2007/12/11 00:45:33 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.342 2007/12/14 05:23:19 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.341 $
+* @version $Revision: 1.342 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -244,7 +244,6 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function paint(&$owner, &$o, $creating)
 	{
-
 		// if we dont have read access, go away
 		if ($owner->id && !$owner->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
@@ -254,6 +253,9 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($creating && SQ_IN_BACKEND) $o->addOnLoad('focusFirstTextInput();');
 		// if there are no screens or static screens
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
+
+		// set the type code again in case it has changed (like when morphing)
+		$this->_type_code = $owner->type();
 
 
 		  /////////////////////////////
