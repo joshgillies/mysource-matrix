@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.9 2007/12/10 06:22:41 rong Exp $
+* $Id: roles.inc,v 1.10 2007/12/14 05:12:12 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -168,8 +168,10 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 							<td class="sq-backend-table-header"><?php echo translate('users'); ?></td>
 							<td class="sq-backend-table-header"><?php echo translate('global'); ?></td>
 							<?php
-							foreach ($roles as $roleid => $userids) {
-								$userids = $userids[0];
+							foreach ($roles as $roleid => $ids) {
+								foreach ($ids as $row => $userid) {
+									$userids[] = $userid['userid'];
+								}
 								$global_role = FALSE;
 								if (in_array(0, $userids)) {
 									$userids = array_diff($userids, Array(0));
@@ -298,14 +300,19 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 function processRoles(&$owner, &$o, &$ei)
 {
 	if (!$owner->adminAccess('roles')) return FALSE;
-	$current_roles = $GLOBALS['SQ_SYSTEM']->am->getRole($owner->id);
+	$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($owner->id);
+	$current_roles = Array();
+	foreach ($roles as $roleid => $ids) {
+		foreach ($ids as $row => $userid) {
+			$current_roles[$roleid][] = $userid['userid'];
+		}
+	}
 	$new_roles = array_get_index($_REQUEST, $owner->getPrefix().'_roles', Array());
 
 	$prefix = $owner->getPrefix();
 
 	$role_vars = Array();
 	foreach ($current_roles as $roleid => $userids) {
-		$userids = $userids[0];
 		$currently_global = FALSE;
 		if (in_array(0, $userids)) {
 			$userids = array_diff($userids, Array(0));
