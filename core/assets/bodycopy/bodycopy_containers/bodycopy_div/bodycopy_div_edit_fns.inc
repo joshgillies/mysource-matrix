@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.39 2007/12/14 00:42:46 rong Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.40 2007/12/14 05:38:14 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -396,11 +396,12 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// morph the content type to the new type
 		// first up
-		if (!$content_type->morph('content_type')) {
-			return FALSE;
-		}
+		$morphed = $content_type->morph('content_type');
+		if (!$morphed) return FALSE;
+
 		// then down
-		if (!$content_type->morph($new_type)) return FALSE;
+		$content_type = $morphed->morph($new_type);
+		if (!$content_type) return FALSE;
 
 		return TRUE;
 
