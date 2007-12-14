@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.626 2007/12/14 05:22:49 gsherwood Exp $
+* $Id: asset.inc,v 1.627 2007/12/14 05:36:08 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.626 $
+* @version $Revision: 1.627 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1575,10 +1575,12 @@ class Asset extends MySource_Object
 	* Morph the asset to either one of its parent types or one of its children types
 	*
 	* Only succeeds if $type_code assets are allowed to link to all children that this asset has.
+	* Since 3.18, we cannot do $this = $morphed, so we return the morphed obj if successful
+	* We also call forgetAsset and getAsset again to refresh the cache.
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return boolean
+	* @return boolean|object
 	* @access public
 	*/
 	public function morph($new_type_code)

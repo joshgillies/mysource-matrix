@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.12 2007/12/14 05:24:55 rong Exp $
+* $Id: content_type_wysiwyg.inc,v 1.13 2007/12/14 05:36:27 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *	Stores html content to be edited using the WYSIWYG editor
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,10 +49,11 @@ class Content_Type_WYSIWYG extends Content_Type
 	*
 	* In this case we are probably morphing to raw-html and want to remove mozilla's <br> tag
 	* if the content is otherwise blank
+	* see asset.inc::morph() for more info on changes on 3.18
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return boolean
+	* @return boolean|object
 	* @access public
 	*/
 	public function morph($new_type_code)
