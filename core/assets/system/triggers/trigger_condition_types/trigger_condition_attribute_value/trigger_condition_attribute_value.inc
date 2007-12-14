@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_attribute_value.inc,v 1.9 2007/12/11 02:57:27 rong Exp $
+* $Id: trigger_condition_attribute_value.inc,v 1.10 2007/12/14 03:03:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -37,7 +37,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 	* @return array
 	* @access public
 	*/
-	function getOperatorOptions()
+	protected static function getOperatorOptions()
 	{
 		return Array(
 				'='		=> strtolower(translate('equals')),
