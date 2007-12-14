@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.60 2007/12/11 03:29:56 rong Exp $
+* $Id: design_area.inc,v 1.61 2007/12/14 04:27:33 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -349,7 +349,7 @@ class Design_Area extends Asset
 	*/
 	public function printInitCode()
 	{
-		$design = $GLOBALS['DESIGN_BEING_GENERATED'];
+		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
 		$instance_id = '_'.$this->id.'_'.$design->id;
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
@@ -403,7 +403,7 @@ class Design_Area extends Asset
 		if (!array_get_index($this->_tmp, 'ready_to_paint')) {
 			return;
 		}
-		$design = $GLOBALS['DESIGN_BEING_GENERATED'];
+		$design =& $GLOBALS['DESIGN_BEING_GENERATED'];
 		$instance_id = '_'.$this->id.'_'.$design->id;
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
