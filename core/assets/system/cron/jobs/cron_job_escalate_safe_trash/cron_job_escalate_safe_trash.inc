@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_escalate_safe_trash.inc,v 1.4 2007/11/28 21:53:59 lwright Exp $
+* $Id: cron_job_escalate_safe_trash.inc,v 1.5 2007/12/14 05:56:45 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,25 +112,6 @@ class Cron_Job_Escalate_Safe_Trash extends Cron_Job
 		return FALSE;
 
 	}//end canClone()
-
-
-	/**
-	* Morphs this asset to either one of its parent types or one of its children types.
-	*
-	* Only succeeds if $new_type_code assets are allowed to link to all children that this asset has
-	*
-	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
-	*
-	* @return boolean
-	* @access public
-	* @see Asset::morph()
-	*/
-	public function morph($new_type_code)
-	{
-		trigger_localised_error('CRON0024', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
-		return FALSE;
-
-	}//end morph()
 
 
 	/**
