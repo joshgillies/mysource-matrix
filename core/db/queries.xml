@@ -483,6 +483,24 @@
 		</primary>
 	</query>
 
+	<query id="setRole">
+	<!-- Applies a role to an asset -->
+		<primary>
+			<insert>
+				<fields table="sq_ast_role">
+					<field>assetid</field>
+					<field>roleid</field>
+					<field>userid</field>
+				</fields>
+				<values>
+					<value column="assetid">:assetid</value>
+					<value column="roleid">:roleid</value>
+					<value column="userid">:userid</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+
 	<query id="getSnippetOrder">
 		<primary>
 			<select>

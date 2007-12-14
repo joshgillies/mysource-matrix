@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.645 2007/12/14 00:13:29 rong Exp $
+* $Id: asset_manager.inc,v 1.646 2007/12/14 05:05:59 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.645 $
+* @version $Revision: 1.646 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6814,20 +6814,16 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'INSERT INTO sq_ast_role
-				(
-					assetid,
-					roleid,
-					userid
-				)
-				VALUES
-				(
-					'.$db->quote($assetid).',
-					'.$db->quote($roleid).',
-					'.$db->quote($userid).'
-				)';
-
-		$result = $db->query($sql);
+		try {
+			$bind_vars = Array(
+							'assetid'	=> $assetid,
+							'roleid'	=> $roleid,
+							'userid'	=> $userid,
+						 );
+			MatrixDAL::executeQuery('core', 'setRole', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to set the role for asset: '.$assetid.' due to database error: '.$e->getMessage());
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -6862,20 +6858,22 @@ class Asset_Manager extends MySource_Object
 
 		$where_and = '';
 		if (!is_null($roleid)) {
-			$where_and .= ' AND roleid = '.$db->quote((string) $roleid);
+			$where_and .= ' AND roleid = '.$db->quote($roleid);
 		}
 
 		if (!is_null($userid)) {
-			$where_and .= ' AND userid = '.$db->quote((string) $userid);
+			$where_and .= ' AND userid = '.$db->quote($userid);
 		}
 
 		$sql = 'DELETE FROM sq_ast_role
-				WHERE assetid = '.$db->quote($assetid).$where_and;
+				WHERE assetid = :assetid';
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		try {
-			$result = $db->query($sql);
+			$query = $db->prepare($sql.$where_and);
+			$query->bindValue(':assetid', $assetid);
+			$result = MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete roleid on assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
 		}//end try catch
