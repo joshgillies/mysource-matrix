@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.23 2007/12/04 05:35:35 lwright Exp $
+* $Id: bodycopy_table_cell.inc,v 1.24 2007/12/14 06:04:22 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -402,11 +402,12 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 		// morph the content type to the new type
 		// first up
-		if (!$content_type->morph('content_type')) {
-			return FALSE;
-		}
+		$morphed = $content_type->morph('content_type');
+		if (!$morphed) return FALSE;
+
 		// then down
-		if (!$content_type->morph($new_type)) return FALSE;
+		$content_type = $morphed->morph($new_type);
+		if (!$content_type) return FALSE;
 
 		$this->setAttribute('content_type', $new_type);
 
