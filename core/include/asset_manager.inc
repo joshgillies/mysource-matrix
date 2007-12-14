@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.646 2007/12/14 05:05:59 bshkara Exp $
+* $Id: asset_manager.inc,v 1.647 2007/12/14 23:21:14 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.646 $
+* @version $Revision: 1.647 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6724,18 +6724,21 @@ class Asset_Manager extends MySource_Object
 			throw new Exception('Unable to get role data due to database error: '.$e->getMessage());
 		}
 
-		if ($include_assetid) {
-			$roles = Array();
-			foreach ($result as $roleid => $userid_assetids) {
-				foreach ($userid_assetids as $index => $userid_assetid) {
-					if ($userid_assetid == '0') continue;
+		$roles = Array();
+		foreach ($result as $roleid => $userid_assetids) {
+			foreach ($userid_assetids as $index => $userid_assetid) {
+				if ($userid_assetid['userid'] == '0') continue;
+				if ($include_assetid) {
 					$assetid = $userid_assetid['assetid'];
-					$userid =$userid_assetid['userid'];
+					$userid = $userid_assetid['userid'];
 					$roles[$roleid][$userid][] = $assetid;
+				} else {
+					$userid = $userid_assetid['userid'];
+					$roles[$roleid][] = $userid;
 				}
 			}
-			$result = $roles;
 		}
+		$result = $roles;
 
 		if ($expand_groups) {
 			$roles = Array();
