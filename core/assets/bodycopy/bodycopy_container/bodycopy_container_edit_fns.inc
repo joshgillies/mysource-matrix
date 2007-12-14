@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.59 2007/12/04 05:35:34 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.60 2007/12/14 03:28:21 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -470,7 +470,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	protected function _saveCssIds(Backend_Outputter $o)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$url = $GLOBALS['sq_preview_url'];
 		$url = preg_replace('|^http[s]?://|', '', $url);
@@ -537,7 +537,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintBodycopyContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// if there's a preview url set for this asset, get the design info for
 		// it.
@@ -583,6 +583,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// all available content types
 		$content_types = Array();
 		$types = $am->getAssetTypeHierarchy('content_type');
+
 		foreach ($types as $type => $type_data) {
 			$content_types[$type] = Array('name' => str_replace(' Content Type', '', $type_data['name']));
 		}
@@ -853,7 +854,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		// unserialize the data for a bodycopy.
 		for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
-			$containers = $bc_saved[$k];
+			$containers =& $bc_saved[$k];
 			for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
 				$containers[$containersid] = var_unserialise($containers[$containersid]);
 			}

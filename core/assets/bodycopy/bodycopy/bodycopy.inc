@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.44 2007/12/03 01:12:08 lwright Exp $
+* $Id: bodycopy.inc,v 1.45 2007/12/14 03:28:21 rong Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -278,11 +278,11 @@ class Bodycopy extends Asset
 
 		} else {
 			// get all the containers linked to this bodycopy
-			$containers = $this->getContainers();
+			$containers =& $this->getContainers();
 
 			// paint each container
 			foreach (array_keys($containers) as $i) {
-				$container = $containers[$i];
+				$container =& $containers[$i];
 				$container->printBody($this->keyword_replacements);
 			}
 		}
@@ -322,7 +322,7 @@ class Bodycopy extends Asset
 			$this->_tmp['containers'] = Array();
 			$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 			foreach ($container_links as $container_data) {
-				$this->_tmp['containers'][] = $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+				$this->_tmp['containers'][] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			}
 		}
 		return $this->_tmp['containers'];
@@ -338,7 +338,7 @@ class Bodycopy extends Asset
 	*/
 	public function isEmpty()
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 		foreach ($containers as $container_data) {
 			$container = $am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
@@ -386,12 +386,12 @@ class Bodycopy extends Asset
 	*/
 	public function getRawBodycopyContent()
 	{
-		$containers = $this->getContainers();
+		$containers =& $this->getContainers();
 		$contents = '';
 
 		ob_start();
 			foreach (array_keys($containers) as $i) {
-				$container = $containers[$i]; // need this by reference
+				$container =& $containers[$i]; // need this by reference
 				$edit = $container->getEditFns();
 				$edit->paint($container, FALSE, TRUE);
 			}

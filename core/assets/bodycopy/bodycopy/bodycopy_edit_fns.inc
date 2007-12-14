@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.54 2007/12/11 21:52:56 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.55 2007/12/14 03:28:21 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	protected function _saveCssIds(Backend_Outputter $o)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
@@ -124,7 +124,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function paintBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('content');
 		// variable to determine whether or not to allow commit
 		$print_commit_button = $write_access;
@@ -359,7 +359,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function processBodycopy(Bodycopy $asset, Backend_Outputter $o, $prefix)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$updated = FALSE;
 
@@ -494,7 +494,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function deleteContainer(Bodycopy $asset, $containerid)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
