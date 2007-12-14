@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.26 2007/11/28 23:56:14 rong Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.27 2007/12/14 02:51:23 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -293,9 +293,13 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			} else {
 				$parent_assetid_keys = array_keys($this->_running_vars['child_assetids'][$parent_assetid]);
 				$assetid = array_shift($parent_assetid_keys);
-				$asset_type = $this->_running_vars['child_assetids'][$parent_assetid][$assetid];
+				if (is_array($this->_running_vars['child_assetids'][$parent_assetid][$assetid])) {
+					$asset_type = $this->_running_vars['child_assetids'][$parent_assetid][$assetid][0]['type_code'];
+				} else {
+					$asset_type = $this->_running_vars['child_assetids'][$parent_assetid][$assetid];
+				}
 				unset($this->_running_vars['child_assetids'][$parent_assetid][$assetid]);
-				$asset =$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 			}
 
 			if (!is_null($asset)) {
