@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.51 2007/12/10 06:32:47 rong Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.52 2007/12/14 00:33:32 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -56,14 +56,15 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	{
 		if ($asset->writeAccess('links') && $asset->writeAccess('attributes')) {
 			$nested_asset = $this->_getNestedAsset($asset);
-			$paint_with = $asset->attr('paint_with');
-			$arbitrary_paint_layout = $this->_getArbitraryPaintLayout($asset);
-			$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
-			if (empty($asset_link)) {
-				$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
-			}
 
 			if (!is_null($nested_asset)) {
+				$paint_with = $asset->attr('paint_with');
+				$arbitrary_paint_layout = $this->_getArbitraryPaintLayout($asset);
+				$paint_layout_id = (is_null($arbitrary_paint_layout)) ? 0 : $arbitrary_paint_layout->id;
+				$asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
+				if (empty($asset_link)) {
+					$asset_link = strip_url(current_url(FALSE, TRUE)).'/?a='.$nested_asset->id;
+				}
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -82,7 +83,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						<td class="sq-backend-table-cell">
 						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="raw"<?php if ($paint_with == 'raw') { ?> checked="checked"<?php } ?>> Raw (no Paint Layout)<br/>
 						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="default"<?php if ($paint_with == 'default') { ?> checked="checked"<?php } ?>> Using default Paint Layout (based on lookup rules)<br/>
-						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="arbitrary"<?php if ($paint_with == 'arbitrary') { ?> checked="checked"<?php } ?>> Using an arbitrary Paint Layout: <?php asset_finder($prefix.'_paint_with_layout', $arbitrary_paint_layout->id, Array('paint_layout_page' => 'D')); ?><br/>
+						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="arbitrary"<?php if ($paint_with == 'arbitrary') { ?> checked="checked"<?php } ?>> Using an arbitrary Paint Layout: <?php asset_finder($prefix.'_paint_with_layout', $paint_layout_id, Array('paint_layout_page' => 'D')); ?><br/>
 						</td>
 					</tr>
 				</table>
