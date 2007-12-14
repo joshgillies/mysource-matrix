@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.263 2007/12/06 05:24:46 colivar Exp $
+* $Id: asset_map.inc,v 1.264 2007/12/14 03:18:01 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.263 $
+* @version $Revision: 1.264 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1052,6 +1052,12 @@ class Asset_Map
 			if ($res_count >= $start) {
 				$result[$db_result_v['assetid']] = $db_result_v;
 				$result[$db_result_v['assetid']]['assetid'] = $db_result_v['assetid'];
+				if (($limit > 0) && ($added >= $limit-1)) {
+					break;
+				}
+				$added++;
+			} else {
+				$res_count++;
 			}
 		}
 		unset($db_result);
