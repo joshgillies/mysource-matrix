@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.115 2007/12/10 03:42:20 colivar Exp $
+* $Id: page_asset_listing.inc,v 1.116 2007/12/14 00:16:59 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -254,7 +254,7 @@ class Page_Asset_Listing extends Listing_Engine
 					if ((count($grouping_attr) == 1) && ($grouping_attr[0]['group_type'] == 'parent_asset') && array_get_index($grouping_attr[0], 'direct_parent_only', FALSE)) {
 						$group = $grouping_attr[0];
 
-						$db = $GLOBALS['SQ_SYSTEM']->db;
+						$db = MatrixDal::getDb();
 
 						$links_sql = 'SELECT DISTINCT
 											minorid, majorid
@@ -315,8 +315,7 @@ class Page_Asset_Listing extends Listing_Engine
 							$sql['union_select'] = str_replace(', null', '', $sql['union_select']);
 
 							$sql = implode(' ', $sql);
-							$db = $GLOBALS['SQ_SYSTEM']->db;
-
+							$db = MatrixDal::getDb();
 							$sqls[] = '('.sprintf($links_sql, $sql).')';
 
 						}
@@ -324,7 +323,19 @@ class Page_Asset_Listing extends Listing_Engine
 						$sql = implode(' UNION ', $sqls);
 
 						// The fifth param to getAssoc() lets us get this
-						$links = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
+						$links = NULL;
+						try {
+							$query = $db->prepare($sql);
+							$links = MatrixDAL::executePdoGrouped($query);
+						} catch (Exception $e) {
+							throw new Exception($e->getMessage());
+						}
+						// let's reformat the result
+						// in the new query format there is an extra array which was causing problem
+						// we are now removing it
+						foreach ($links as $k => $v) {
+							$links[$k] = $v[0];
+						}
 						$this->_tmp['direct_parent_grouping'] = $links;
 					}//end if
 
