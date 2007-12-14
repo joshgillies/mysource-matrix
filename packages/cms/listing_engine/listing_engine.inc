@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.239 2007/12/13 22:23:58 colivar Exp $
+* $Id: listing_engine.inc,v 1.240 2007/12/14 00:06:21 mwegermann Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.239 $
+* @version $Revision: 1.240 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2251,11 +2251,11 @@ class Listing_Engine extends Page
 			} else {
 				$keywords = Array();
 				foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
-					$keywords['asset_'.$field] = $value;
+					$keywords['asset_'.$field] = htmlentities($value);
 				}
 				$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid, './?a='.$assetid);
-				$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($keywords['asset_name']).'</a>';
-				$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.htmlspecialchars($keywords['asset_short_name']).'</a>';
+				$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_name'].'</a>';
+				$keywords['asset_short_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_short_name'].'</a>';
 
 			}//end if needs asset
 		}//end else
