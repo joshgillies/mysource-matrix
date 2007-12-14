@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_edit_fns.inc,v 1.10 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_linked_css_edit_fns.inc,v 1.11 2007/12/14 23:47:00 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,10 +58,10 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 		if ($asset->writeAccess('links')) {
 			$type_code_restrictions['design_css'] = 'D';
 			$type_code_restrictions['design_css_customisation'] = 'D';
-			asset_finder($prefix.'_assetid', $asset->_getLinkedCSSInfo('minorid'), $type_code_restrictions);
+			asset_finder($prefix.'_assetid', $asset->getLinkedCSSInfo('minorid'), $type_code_restrictions);
 
-		} else if ($asset->_getLinkedCSSInfo('minorid')) {
-			$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getLinkedCSSInfo('minorid'));
+		} else if ($asset->getLinkedCSSInfo('minorid')) {
+			$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->getLinkedCSSInfo('minorid'));
 			if (!is_null($link_asset)) {
 				echo get_asset_tag_line($link_asset->id);
 			}
@@ -192,7 +192,7 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 			return FALSE;
 		}
 
-		if ($asset->_getLinkedCSSInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) {
+		if ($asset->getLinkedCSSInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) {
 			return FALSE;
 		}
 
@@ -203,7 +203,7 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// remove the old link first
-		if ($old_linkid = $asset->_getLinkedCSSInfo('linkid')) {
+		if ($old_linkid = $asset->getLinkedCSSInfo('linkid')) {
 			if (!$asset->deleteLink($old_linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

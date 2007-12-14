@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.22 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_linked_css.inc,v 1.23 2007/12/14 23:47:00 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,17 +112,17 @@ class Design_Area_Linked_Css extends Design_Area
 	* @param string	$field	field in the link that is required (any valid field from getLink())
 	*
 	* @return mixed NULL|string
-	* @access private
+	* @access public
 	* @see Asset::getLink()
 	*/
-	protected function _getLinkedCSSInfo($field)
+	public function getLinkedCSSInfo($field)
 	{
 		if (!isset($this->_tmp['css_assetid'])) {
 			$this->_tmp['css_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'linked_css_asset');
 		}
 		return (empty($this->_tmp['css_assetid'])) ? NULL : $this->_tmp['css_assetid'][$field];
 
-	}//end _getLinkedCSSInfo()
+	}//end getLinkedCSSInfo()
 
 
 	/**
@@ -151,7 +151,7 @@ class Design_Area_Linked_Css extends Design_Area
 	*/
 	protected function _printPaintingCode()
 	{
-		$css_assetid = (int) $this->_getLinkedCSSInfo('minorid');
+		$css_assetid = (int) $this->getLinkedCSSInfo('minorid');
 
 		// return true because it just means that they haven't set anything yet
 		if (empty($css_assetid)) return TRUE;
