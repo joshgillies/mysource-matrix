@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.624 2007/12/13 02:37:32 gsherwood Exp $
+* $Id: asset.inc,v 1.625 2007/12/14 00:44:42 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.624 $
+* @version $Revision: 1.625 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1583,6 +1583,10 @@ class Asset extends MySource_Object
 	*/
 	public function morph($new_type_code)
 	{
+		// need to forget the asset because we are about to
+		// change the type_code, and it does not get updated
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, TRUE);
+
 		$new_type_code = strtolower($new_type_code);
 		$old_type_code = $this->type();
 
@@ -1769,6 +1773,8 @@ class Asset extends MySource_Object
 			return FALSE;
 
 		}// end if
+        
+        
 
 	}//end morph()
 
