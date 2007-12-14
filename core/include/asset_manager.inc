@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.644 2007/12/13 23:59:44 rong Exp $
+* $Id: asset_manager.inc,v 1.645 2007/12/14 00:13:29 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.644 $
+* @version $Revision: 1.645 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1533,8 +1533,19 @@ class Asset_Manager extends MySource_Object
 
 			$result = Array();
 			foreach	($result_x as $key => $row) {
-				// if we are only after a single field
-				$result[$key] = (empty($field)) ? $row[0] : $row[0][$field];
+				// if the field is equal to asset id we will have to behave slightly differently
+				// because when the field is asset id the result_x has the following format:
+				// 56 => array (
+				//   0 => array (
+				//        [Empty]
+				//     )
+				// ),
+				if (!empty($field) && (strcmp($field, 'assetid') == 0)) {
+					$result[$key] = $key;
+				} else {
+					// if we are only after a single field
+					$result[$key] = (empty($field)) ? $row[0] : $row[0][$field];
+				}
 			}
 
 			unset($result_x);
