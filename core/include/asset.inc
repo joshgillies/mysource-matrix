@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.625 2007/12/14 00:44:42 gsherwood Exp $
+* $Id: asset.inc,v 1.626 2007/12/14 05:22:49 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.625 $
+* @version $Revision: 1.626 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1583,10 +1583,6 @@ class Asset extends MySource_Object
 	*/
 	public function morph($new_type_code)
 	{
-		// need to forget the asset because we are about to
-		// change the type_code, and it does not get updated
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, TRUE);
-
 		$new_type_code = strtolower($new_type_code);
 		$old_type_code = $this->type();
 
@@ -1765,7 +1761,13 @@ class Asset extends MySource_Object
 															'new_type'	=> $new_type_code,
 														  )
 			);
-			return $tmp;
+
+			// We beed to forget the asset because we are changed the
+			// type_code, and it does not get updated in the asset cache
+			// because of the way it does references. Then we get a fresh copy
+			// from asset manager which will repopoulate the cache.
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($tmp, TRUE);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($tmp->id, $tmp->type());
 
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1773,8 +1775,6 @@ class Asset extends MySource_Object
 			return FALSE;
 
 		}// end if
-        
-        
 
 	}//end morph()
 
@@ -4302,7 +4302,8 @@ class Asset extends MySource_Object
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		if ($this->charset) $o->setCharset($this->charset);
 		$ei = $this->getEI();
-		$ei->paint($this, $o, empty($this->id));
+		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+		$ei->paint($owner, $o, empty($this->id));
 
 	}//end paintBackend()
 
@@ -4344,7 +4345,8 @@ class Asset extends MySource_Object
 			break;
 
 			default :
-				return $ei->process($this, $o, FALSE);
+				$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+				return $ei->process($owner, $o, FALSE);
 			break;
 		}
 
