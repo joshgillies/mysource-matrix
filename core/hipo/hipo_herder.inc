@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.94 2007/11/15 03:59:05 hnguyen Exp $
+* $Id: hipo_herder.inc,v 1.95 2007/12/15 04:03:54 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -705,12 +705,10 @@ class HIPO_Herder extends MySource_Object
 
 		$sql = 'UPDATE sq_hipo_job
 				SET running = 1
-				WHERE code_name IN (:job_codes)';
+				WHERE code_name IN ('.implode(', ',$job_codes).')';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':job_codes', implode(', ',$job_codes));
-			$result = MatrixDAL::executePdoOne($query);
+			$result = MatrixDAL::executeSql($sql);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update HIPO jobs table due to database error: '.$e->getMessage());
 		}
