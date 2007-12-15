@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.9 2007/11/30 00:11:59 hnguyen Exp $
+* $Id: tool_asset_sorter.inc,v 1.10 2007/12/15 03:48:08 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -118,7 +118,7 @@ class Tool_Asset_Sorter extends Tool
 					JOIN sq_ast a ON l.minorid = a.assetid
 				WHERE majorid = :parentid
 					AND link_type IN ('.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote(SQ_LINK_TYPE_2).')
-				ORDER BY a.'.$sort_field.' '.$direction;
+				ORDER BY a.'.$sort_field.' '.$direction.', a.assetid DESC';
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':parentid', $parentid);
