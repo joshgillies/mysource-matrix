@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.647 2007/12/14 23:21:14 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.648 2007/12/15 23:26:25 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.647 $
+* @version $Revision: 1.648 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6727,8 +6727,8 @@ class Asset_Manager extends MySource_Object
 		$roles = Array();
 		foreach ($result as $roleid => $userid_assetids) {
 			foreach ($userid_assetids as $index => $userid_assetid) {
-				if ($userid_assetid['userid'] == '0') continue;
 				if ($include_assetid) {
+					if ($userid_assetid['userid'] == '0') continue;
 					$assetid = $userid_assetid['assetid'];
 					$userid = $userid_assetid['userid'];
 					$roles[$roleid][$userid][] = $assetid;
