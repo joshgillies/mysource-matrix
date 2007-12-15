@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.107 2007/12/03 00:07:23 lwright Exp $
+* $Id: site.inc,v 1.108 2007/12/15 03:00:27 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -371,9 +371,8 @@ class Site extends Folder
 
 			// remove corresponding authentication redirects
 			try {
-				$bind_vars = Array('urlid' => $urlid,
-									'auth_urlid'	=> NULL,);
-				MatrixDAL::executeQuery('site', 'updateAuthUrlId', $bind_vars);
+				$bind_vars = Array('old_auth_urlid' => $urlid, 'new_auth_urlid' => NULL);
+				MatrixDAL::executeQuery('site', 'changeAuthUrlId', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to remove authentication redirect for auth_urlid: '.$urlid.' due to database error: '.$e->getMessage());
 			}
