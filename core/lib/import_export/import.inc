@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.15 2007/11/21 05:21:08 gsherwood Exp $
+* $Id: import.inc,v 1.16 2007/12/15 22:48:12 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -280,6 +280,9 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 				break;
 				case 'matrix_url':
 					$construct_value = (defined('TC_CONF_MATRIX_URL') ? strip_url(TC_CONF_MATRIX_URL, TRUE): '');
+				break;
+				case 'time':
+					$construct_value = time();
 				break;
 			}
 			$value = str_replace($matches[0][$ii], $construct_value, $value);
