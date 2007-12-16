@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.627 2007/12/14 05:36:08 rong Exp $
+* $Id: asset.inc,v 1.628 2007/12/16 02:58:46 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.627 $
+* @version $Revision: 1.628 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -774,7 +774,7 @@ class Asset extends MySource_Object
 
 			unset($result);
 		} catch (Exception $e) {
-			throw new Exception('Unable to load variables of asset type "'.$type_code.'" due to database error: '.$e->getMessage());
+			throw new Exception('Unable to load variables of asset #'.$this->id.' ('.$this->type().') due to database error: '.$e->getMessage());
 		}
 
 		if ($this->_ser_attrs && $this->vars) {
@@ -2850,8 +2850,6 @@ class Asset extends MySource_Object
 
 		}//end foreach
 
-
-		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = MatrixDAL::getDb();
@@ -2873,12 +2871,8 @@ class Asset extends MySource_Object
 
 		$new = array_diff($attr_ids, $existing);
 
-
 		// update existing custom attribute values
 		if (!empty($existing)) {
-
-			$prepared = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid');
-			$prepared_uniq = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid');
 
 			foreach ($existing as $attr_id) {
 				$attr_id = (int) $attr_id;
@@ -2890,16 +2884,18 @@ class Asset extends MySource_Object
 				if ($attribute->uniq) {
 					// update existing entry
 					try {
-						$prepared_uniq->bindValue(':custom_val', $attr_value);
-						$prepared_uniq->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
-						$prepared_uniq->bindValue(':assetid',    $this->id);
-						MatrixDAL::execPdoQuery($prepared_uniq);
+                        $prepared = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid');
+						$prepared->bindValue(':custom_val', $attr_value);
+						$prepared->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
+						$prepared->bindValue(':assetid',    $this->id);
+						MatrixDAL::execPdoQuery($prepared);
 					} catch (Exception $e) {
 						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 					}
 				}
 
 				try {
+                    $prepared = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid');
 					$prepared->bindValue(':custom_val', $attr_value);
 					$prepared->bindValue(':attrid',     $attr_id);
 					$prepared->bindValue(':assetid',    $this->id);
@@ -2915,9 +2911,6 @@ class Asset extends MySource_Object
 		// insert new custom attribute values
 		if (!empty($new)) {
 
-			$prepared = $db->prepare('INSERT INTO sq_ast_attr_val (attrid, custom_val, assetid) VALUES (:attrid, :custom_val, :assetid)');
-			$prepared_uniq = $db->prepare('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, custom_val, assetid) VALUES (:attrid, :custom_val, :assetid)');
-
 			foreach ($new as $attr_id) {
 				$attr_id = (int) $attr_id;
 				$attr_value = $save_vars[$attr_id]['value'];
@@ -2926,16 +2919,18 @@ class Asset extends MySource_Object
 				$attribute = $this->getAttribute($save_vars[$attr_id]['name']);
 				if ($attribute->uniq) {
 					try {
-						$prepared_uniq->bindValue(':custom_val', $attr_value);
-						$prepared_uniq->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
-						$prepared_uniq->bindValue(':assetid',    $this->id);
-						MatrixDAL::execPdoQuery($prepared_uniq);
+						$prepared = $db->prepare('INSERT INTO sq_ast_attr_uniq_val (owning_attrid, custom_val, assetid) VALUES (:attrid, :custom_val, :assetid)');
+						$prepared->bindValue(':custom_val', $attr_value);
+						$prepared->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
+						$prepared->bindValue(':assetid',    $this->id);
+						MatrixDAL::execPdoQuery($prepared);
 					} catch (Exception $e) {
 						throw new Exception('Unable to update unique attribute values for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 					}
 				}
 
 				try {
+					$prepared = $db->prepare('INSERT INTO sq_ast_attr_val (attrid, custom_val, assetid) VALUES (:attrid, :custom_val, :assetid)');
 					$prepared->bindValue(':custom_val', $attr_value);
 					$prepared->bindValue(':attrid',     $attr_id);
 					$prepared->bindValue(':assetid',    $this->id);

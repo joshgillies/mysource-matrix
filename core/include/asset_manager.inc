@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.649 2007/12/16 00:27:04 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.650 2007/12/16 02:58:46 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.649 $
+* @version $Revision: 1.650 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7452,7 +7452,7 @@ class Asset_Manager extends MySource_Object
 		} else {
 			try {
 				$query = $db->prepare($sql);
-				$res = MatrixDAL::executePdoAssoc($sql, 0);
+				$res = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get asset ids: '.$e->getMessage());
 			}
