@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.241 2007/12/16 00:53:42 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.242 2007/12/16 06:01:45 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.241 $
+* @version $Revision: 1.242 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -809,7 +809,9 @@ class Listing_Engine extends Page
 		if ($cache_key) {
 			// because the root nodes can be dynamic we need to cache the results based upon root node
 			$root_nodes = $this->getRootNodes(FALSE);
-			$cache_key .= '-'.implode('-', $root_nodes);
+			if (!empty($root_nodes)) {
+				$cache_key .= '-'.implode('-', $root_nodes);
+			}
 		}
 
 		return $cache_key;
