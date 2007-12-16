@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.250 2007/12/16 01:45:05 gsherwood Exp $
+* $Id: mysource.inc,v 1.251 2007/12/16 06:01:21 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.250 $
+* @version $Revision: 1.251 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2242,9 +2242,9 @@ class MySource
 		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
 		// $bt = debug_backtrace();
 		// if (isset($bt[1])) {
-		// error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		// error_log (MatrixDAL::getCurrentDbId().' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		// } else {
-		// error_log ($this->_db_conns[$this->_db_stack[count($this->_db_stack) - 1]]->connection.' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		// error_log (MatrixDAL::getCurrentDbId().' TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		// }
 
 		$current_db = MatrixDAL::getCurrentDbId();
