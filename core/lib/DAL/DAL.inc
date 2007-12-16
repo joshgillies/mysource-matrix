@@ -836,7 +836,7 @@ class DAL
         $currentDb = self::getCurrentDbId();
         $dbInfo    = self::$_dbhPool[$currentDb];
 
-        if ($dbInfo['transactionSupport'] === TRUE && $dbInfo['transactionSupport'] === FALSE) {
+        if ($dbInfo['transactionSupport'] === TRUE) {
             $dbh = self::getDb();
             $dbh->beginTransaction();
             self::$_dbhPool[$currentDb]['inTransaction'] = TRUE;
@@ -961,15 +961,15 @@ class DAL
             // Check if this database supports db transactions.
             // We need to change first because transaction functions won't
             // like no current database
-            self::changeDb($conn_id);
+            #self::changeDb($conn_id);
 
-            if (self::transactionSupport($conn_id) === TRUE) {
+            #if (self::transactionSupport($conn_id) === TRUE) {
                 self::$_dbhPool[$conn_id]['transactionSupport'] = TRUE;
-            } else {
-                self::$_dbhPool[$conn_id]['transactionSupport'] = FALSE;
-            }
+            #} else {
+            #    self::$_dbhPool[$conn_id]['transactionSupport'] = FALSE;
+            #}
 
-            self::restoreDb();
+            #self::restoreDb();
 
             self::$_dbhPool[$conn_id]['inTransaction'] = FALSE;
 
