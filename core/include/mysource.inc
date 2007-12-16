@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.249 2007/12/12 05:18:13 lwright Exp $
+* $Id: mysource.inc,v 1.250 2007/12/16 01:45:05 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.249 $
+* @version $Revision: 1.250 $
 * @package MySource_Matrix
 */
 class MySource
@@ -855,7 +855,7 @@ class MySource
 	{
 		if (!SQ_CONF_ALLOW_IP_CHANGE && isset($_SESSION['remote_addr']) && ($_SESSION['remote_addr'] != $_SERVER['REMOTE_ADDR'])) {
 			// IP address has changed and we don't allow that
-			$this->_loginPublicUser();
+			$this->loginPublicUser();
 			return;
 		}
 
@@ -902,7 +902,7 @@ class MySource
 
 		if (is_null($this->user)) {
 			// Must be the public user
-			$this->_loginPublicUser();
+			$this->loginPublicUser();
 		}
 
 		// Right, now we have a user of some sort; let's check their session preferences
@@ -917,7 +917,7 @@ class MySource
 				if (time() - $_SESSION['user_last_access'] > $session_prefs['timeout']) {
 					$this->_logSecurityMsg('system.security.logout.idle', Array('timeout' => $session_prefs['timeout']));
 					$this->_clearSession();
-					$this->_loginPublicUser();
+					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
 					return;
 				}
@@ -937,7 +937,7 @@ class MySource
 						// it expired yesterday so clear the session / force a login right now
 						$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
 						$this->_clearSession();
-						$this->_loginPublicUser();
+						$this->loginPublicUser();
 						$this->generateLoginKey(TRUE);
 					} else if ($session_expiry_ts < $tomorrow_start_ts) {
 						// it's meant to expire today...
@@ -946,7 +946,7 @@ class MySource
 							// and ask for re-authentication
 							$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
 							$this->_clearSession();
-							$this->_loginPublicUser();
+							$this->loginPublicUser();
 							$this->generateLoginKey(TRUE);
 							return;
 						}
@@ -1120,7 +1120,7 @@ class MySource
 				if (isset($_SERVER['PHP_AUTH_PW'])) { unset ($_SERVER['PHP_AUTH_PW']); }
 
 				$this->_clearSession();
-				$this->_loginPublicUser();
+				$this->loginPublicUser();
 				$this->generateLoginKey(TRUE);
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
@@ -1131,7 +1131,7 @@ class MySource
 				$old_user = $this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$this->_clearSession();
-				$this->_loginPublicUser();
+				$this->loginPublicUser();
 				$this->generateLoginKey(TRUE);
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
@@ -1217,7 +1217,7 @@ class MySource
 	* @return void
 	* @access public
 	*/
-	protected function _loginPublicUser()
+	public function loginPublicUser()
 	{
 		if (empty($this->user) || !($this->user instanceof Public_User)) {
 			$this->user = $this->getPublicUser();
@@ -1229,7 +1229,7 @@ class MySource
 			$_SESSION['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		}
 
-	}//end _loginPublicUser()
+	}//end loginPublicUser()
 
 
 	/**
