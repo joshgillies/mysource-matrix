@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.648 2007/12/15 23:26:25 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.649 2007/12/16 00:27:04 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.648 $
+* @version $Revision: 1.649 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3517,7 +3517,7 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'sl');
 
 			try {
-				$shdw_parentids = MatrixDAL::executeSqlAssoc($sql.$where, 1);
+				$shdw_parentids = MatrixDAL::executeSqlAssoc($sql.$where, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get parents from due to the following database error:'.$e->getMessage());
 			}//end try catch
