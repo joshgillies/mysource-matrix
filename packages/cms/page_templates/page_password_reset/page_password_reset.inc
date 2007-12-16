@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.14 2007/12/06 05:05:02 rong Exp $
+* $Id: page_password_reset.inc,v 1.15 2007/12/16 23:05:12 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -572,7 +572,7 @@ class Page_Password_Reset extends Page
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 			}
 
-			$hash_value = MD5(implode('::', Array($this->id, $asset->id, $asset->_getName(), (time() * rand()))));
+			$hash_value = MD5(implode('::', Array($this->id, $asset->id, $asset->name, (time() * rand()))));
 
 			$return_value = FALSE;
 			if ($parent->createLink($asset, SQ_LINK_TYPE_1, $hash_value)) {
