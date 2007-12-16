@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.251 2007/12/16 06:01:21 gsherwood Exp $
+* $Id: mysource.inc,v 1.252 2007/12/16 23:26:55 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix
 */
 class MySource
@@ -996,7 +996,8 @@ class MySource
 				}
 
 				include_once SQ_ATTRIBUTES_PATH.'/password/password.inc';
-				if (!Asset_Attribute_Password::validateValue($password_new)) {
+				$pass_attr = new Asset_Attribute_Password();
+				if (!$pass_attr->validateValue($password_new)) {
 					$this->addMessage('Bad password values');
 					return;
 				}
