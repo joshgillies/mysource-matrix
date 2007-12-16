@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.10 2007/12/14 05:12:12 bshkara Exp $
+* $Id: roles.inc,v 1.11 2007/12/16 22:44:04 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -169,8 +169,9 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 							<td class="sq-backend-table-header"><?php echo translate('global'); ?></td>
 							<?php
 							foreach ($roles as $roleid => $ids) {
+								$userids = Array();
 								foreach ($ids as $row => $userid) {
-									$userids[] = $userid['userid'];
+									$userids[] = $userid;
 								}
 								$global_role = FALSE;
 								if (in_array(0, $userids)) {
@@ -304,7 +305,7 @@ function processRoles(&$owner, &$o, &$ei)
 	$current_roles = Array();
 	foreach ($roles as $roleid => $ids) {
 		foreach ($ids as $row => $userid) {
-			$current_roles[$roleid][] = $userid['userid'];
+			$current_roles[$roleid][] = $userid;
 		}
 	}
 	$new_roles = array_get_index($_REQUEST, $owner->getPrefix().'_roles', Array());
