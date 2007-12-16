@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.82 2007/12/13 23:16:52 gsherwood Exp $
+* $Id: internal_message.inc,v 1.83 2007/12/16 01:04:34 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -129,10 +129,13 @@ class Internal_Message extends MySource_Object
 		} catch (Exception $e) {
 			throw new Exception('Unable to get message with messageid #'.$messageid.' due to the following database error:'.$e->getMessage());
 		}
+
 		$result = Array();
 		if (!empty($result_all)) {
 			$result	= $result_all[0];
-		}//end if
+		} else {
+            return false;
+        }
 
 		$this->id         = $result['msgid'];
 		$this->to         = Array($result['userto']);
