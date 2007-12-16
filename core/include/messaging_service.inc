@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.66 2007/11/26 22:07:23 colivar Exp $
+* $Id: messaging_service.inc,v 1.67 2007/12/16 01:30:30 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -513,7 +513,7 @@ class Messaging_Service extends MySource_Object
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
 
 		if ($max_msgs) {
-			$sql = $db->modifyLimitQuery($sql, 0, $max_msgs);
+            $sql .= " LIMIT $max_msgs"; // TODO
 		}
 
 		// Begin try block
