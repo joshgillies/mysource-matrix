@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.240 2007/12/14 00:06:21 mwegermann Exp $
+* $Id: listing_engine.inc,v 1.241 2007/12/16 00:53:42 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.240 $
+* @version $Revision: 1.241 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3439,15 +3439,15 @@ class Listing_Engine extends Page
 		$type_folder = $this->getFolder('type_formats');
 
 		$keywords = Array();
-		if (in_array($group_folder->id, array_keys($parent_folders))) {
+		if (!is_null($group_folder) && in_array($group_folder->id, array_keys($parent_folders))) {
 			// group format
 			$keywords = $this->_getGroupFolderKeywords();
 
-		} else if (in_array($position_folder->id, array_keys($parent_folders))) {
+		} else if (!is_null($position_folder) && in_array($position_folder->id, array_keys($parent_folders))) {
 			// position format
 			$keywords = $this->_getGenericSingleAssetFormatKeywords();
 
-		} else if (in_array($type_folder->id, array_keys($parent_folders))) {
+		} else if (!is_null($type_folder) && in_array($type_folder->id, array_keys($parent_folders))) {
 			// specific or default type format
 			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($type_folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 			$type_codes = Array();
