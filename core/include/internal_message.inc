@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.83 2007/12/16 01:04:34 gsherwood Exp $
+* $Id: internal_message.inc,v 1.84 2007/12/16 03:12:34 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -227,12 +227,6 @@ class Internal_Message extends MySource_Object
 						:parameters
 					)';
 
-		try {
-			$prepared = $db->prepare($sql);
-		} catch (DALException $e) {
-			throw new Exception('Prepared internal message statement failed: '.$e->getMessage());
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		  //////////////////////////////
@@ -293,6 +287,7 @@ class Internal_Message extends MySource_Object
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 
 			try {
+                $prepared = $db->prepare($sql);
 				$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
 				$prepared->bindValue(':userto',     0,               PDO::PARAM_STR);
 				$prepared->bindValue(':userfrom',   $this->from,     PDO::PARAM_STR);
@@ -411,6 +406,7 @@ class Internal_Message extends MySource_Object
 					}//end try catch
 
 					try {
+                        $prepared = $db->prepare($sql);
 						$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
 						$prepared->bindValue(':userto',     $userid,         PDO::PARAM_STR);
 						$prepared->bindValue(':userfrom',   $this->from,     PDO::PARAM_STR);
