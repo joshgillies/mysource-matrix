@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.628 2007/12/16 02:58:46 gsherwood Exp $
+* $Id: asset.inc,v 1.629 2007/12/16 04:09:15 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.628 $
+* @version $Revision: 1.629 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4299,7 +4299,11 @@ class Asset extends MySource_Object
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		if ($this->charset) $o->setCharset($this->charset);
 		$ei = $this->getEI();
-		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+		if ($this->id !== 0) {
+			$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+		} else {
+			$owner = $this;
+		}
 		$ei->paint($owner, $o, empty($this->id));
 
 	}//end paintBackend()
@@ -4342,7 +4346,11 @@ class Asset extends MySource_Object
 			break;
 
 			default :
-				$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+				if ($this->id !== 0) {
+					$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
+				} else {
+					$owner = $this;
+				}
 				return $ei->process($owner, $o, FALSE);
 			break;
 		}
