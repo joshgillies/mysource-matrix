@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.261 2007/12/12 01:04:42 rong Exp $
+* $Id: lang_strings.xml,v 1.262 2007/12/16 22:28:08 rong Exp $
 *
 */
 
@@ -1031,7 +1031,7 @@
 	<string source="require_comment_from_unlisted_users">Unlisted User Commenting</string>
 	<string source="require_comment_from_unlisted_users_explanation">Requires users not specified in the condition steps to comment when approving or rejecting.</string>
 	<string source="must_enter_comment_error" js="1">You must enter a comment for this workflow step.</string>
-	<string source="step_not_completed_in_time_explanation">If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</string>
+	<string source="step_not_completed_in_time_explanation">If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at "0" to disable this feature.</string>
 	<string source="members_must_approve">%s member(s) must approve</string>
 	<string source="security_key_question">Can't read the security key? %s</string>
 	<string source="security_key_link">Click here to get a new key</string>
