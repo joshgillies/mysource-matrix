@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.91 2007/12/10 06:01:04 bshkara Exp $
+* $Id: form_email_edit_fns.inc,v 1.92 2007/12/16 23:24:59 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -701,30 +701,26 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// about the h:m:s section of the above times
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
+		$from_time = ts_iso8601($from_ts);
+		$to_time = ts_iso8601($to_ts);
 
 		$logs = Array();
 		$headers = Array('__time__' => translate('submission_time'), '__user__' => translate('cms_form_user_submitting'), '__ipaddress__' => translate('cms_form_ipaddress_submitting'));
-
 		$sub_folder = $asset->getSubmissionsFolder();
-		$sql = 'SELECT
-					a.assetid, a.type_code, a.created, a.created_userid
-				FROM
-					('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
-					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-					ON l.minorid = a.assetid';
+		$assetids = Array($asset->id, $sub_folder->id);
 
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').
-			' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		try {
+			$bind_vars = Array(
+							'assetids'	=> $assetids,
+							'from_time'	=> $from_time,
+							'to_time'	=> $to_time,
+						 );
+			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to get submission log due to database error: ".$e->getMessage());
+		}
 
-		// Going to fetch this one row at a time for memory reasons, because this
-		// could potentially be a very big download
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql.$where);
-		assert_valid_db_result($result);
-
-		while ($asset_info = $result->fetchRow()) {
+		foreach ($result as $asset_info) {
 			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
 
@@ -751,7 +747,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 				$logs[$assetid][$id] = $element['answer'];
 			}
-		}
+		}//end foreach
 
 		if ($header_row) $csv->setFieldHeaders($headers);
 
@@ -798,43 +794,33 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// about the h:m:s section of the above times
 		$from_ts = mktime(0, 0, 0, $from_value[1], $from_value[2], $from_value[0]);
 		$to_ts   = mktime(23, 59, 59, $to_value[1], $to_value[2], $to_value[0]);
-
-		echo '<submissions>';
-
+		$from_time = ts_iso8601($from_ts);
+		$to_time = ts_iso8601($to_ts);
 		$sub_folder = $asset->getSubmissionsFolder();
-		$sql = 'SELECT
-					a.assetid, a.type_code, a.created
-				FROM
-					('.SQ_TABLE_RUNNING_PREFIX.'ast a
-					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
-					JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-					ON l.minorid = a.assetid';
+		$assetids = Array($asset->id, $sub_folder->id);
 
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).')
-					AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('form_submission').'
-					AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).'
-					AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
+		try {
+			$bind_vars = Array(
+							'assetids'	=> $assetids,
+							'from_time'	=> $from_time,
+							'to_time'	=> $to_time,
+						 );
+			$result = MatrixDAL::executeAssoc('cms_package', 'getSubmissionLog', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception("Unable to get submission log due to database error: ".$e->getMessage());
+		}
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		echo "<submissions>\n";
+		foreach ($result as $asset_info) {
 
-		// Going to fetch this one row at a time for memory reasons, because this
-		// could potentially be a very big download
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql.$where);
-		assert_valid_db_result($result);
-
-		while ($asset_info = $result->fetchRow()) {
-			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
 
 			$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (!$sub_asset->attr('complete')) continue;
 
 			if (trim($sub_asset->attr('xml')) == '') continue;
-			echo $sub_asset->attr('xml');
+			echo "\t".$sub_asset->attr('xml')."\n";
 		}
-
 		echo '</submissions>';
 		exit(0);
 
