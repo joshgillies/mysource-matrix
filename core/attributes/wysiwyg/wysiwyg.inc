@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.28 2007/12/10 06:23:45 rong Exp $
+* $Id: wysiwyg.inc,v 1.29 2007/12/17 05:37:21 rong Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -130,7 +130,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
 		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 			$wysiwyg->add_plugin('keyword_replace');
-			$keyword_replace = $wysiwyg->get_plugin('keyword_replace');
+			$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
 			$keyword_replace->keyword_tag = '%';
 			$keyword_replace->keywords = $keywords;
 		}

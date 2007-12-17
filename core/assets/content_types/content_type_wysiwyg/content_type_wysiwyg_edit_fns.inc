@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.43 2007/12/03 23:12:50 lwright Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.44 2007/12/17 05:37:21 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,7 +127,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			}
 			if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 				$wysiwyg->add_plugin('keyword_replace');
-				$keyword_replace = $wysiwyg->get_plugin('keyword_replace');
+				$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
 				$keyword_replace->keyword_tag = '%';
 				$keyword_replace->keywords = $keywords;
 			}
@@ -136,7 +136,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 			if (($iap || in_array('snippet_keyword_replace', $ap)) && !empty($snippets)) {
 				$wysiwyg->add_plugin('snippet_keyword_replace');
-				$snippet_keyword_replace = $wysiwyg->get_plugin('snippet_keyword_replace');
+				$snippet_keyword_replace =& $wysiwyg->get_plugin('snippet_keyword_replace');
 				$snippet_keyword_replace->keyword_tag = '%';
 				$snippet_keyword_replace->keywords = $snippets;
 			}
@@ -235,7 +235,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				}
 			$wysiwyg->close_group();
 
-			$this->_tmp['wysiwg_object'] = $wysiwyg;
+			$this->_tmp['wysiwg_object'] =& $wysiwyg;
 
 		}//end if WYSIWYG object doesn't already exist
 
@@ -369,7 +369,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 		// grab and store the last run status of htmltidy plugin
 		// to be used when we print the corresponding status icon
-		$html_tidy = $wysiwyg->get_plugin('html_tidy');
+		$html_tidy =& $wysiwyg->get_plugin('html_tidy');
 		if (!is_null($html_tidy)) {
 			$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
 		}//end if
