@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.24 2007/06/21 23:19:12 mbrydon Exp $
+* $Id: tool_search_replace.inc,v 1.25 2007/12/17 22:42:04 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -42,9 +42,9 @@ class Tool_Search_Replace extends Tool
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Tool_Search_Replace($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Tool($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -58,7 +58,7 @@ class Tool_Search_Replace extends Tool
 	* @return void
 	* @access public
 	*/
-	function paintTool(&$o, $type_code)
+	static function paintTool(&$o, $type_code)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
@@ -122,7 +122,7 @@ class Tool_Search_Replace extends Tool
 	* @return boolean
 	* @access public
 	*/
-	function processTool(&$o, $type_code)
+	static function processTool(&$o, $type_code)
 	{
 		// ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
@@ -145,7 +145,7 @@ class Tool_Search_Replace extends Tool
 			return FALSE;
 		}
 
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		if (strlen($_REQUEST[$type_code.'_search_string']) < $sm->attr('min_word_length')) {
 			trigger_localised_error('SCH0026', E_USER_NOTICE, $_REQUEST[$type_code.'_search_string'], $sm->attr('min_word_length'));
@@ -209,7 +209,7 @@ class Tool_Search_Replace extends Tool
 				);
 
 		// redirect data to the HIPO
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_tool_search_replace', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
@@ -234,7 +234,7 @@ class Tool_Search_Replace extends Tool
 	{
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:\/]+)/i', '\\\${1}',$search_string);
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$formatted_results = Array();
 
@@ -246,7 +246,7 @@ class Tool_Search_Replace extends Tool
 		// populate the results array as required
 		// note we dont include fields that dont have matches
 		foreach ($searched_results as $assetid => $content) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			foreach ($content as $content_type) {
 				switch ($content_type['source']) {
@@ -295,7 +295,7 @@ class Tool_Search_Replace extends Tool
 							$schemas = $mm->getSchemas($assetid, TRUE);
 
 							foreach ($schemas as  $schemaid) {
-								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+								$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 								$schema_data = $mm->getSchemaDefaultValues($schema->id);
 
 								foreach ($schema_data as $fieldid => $data) {

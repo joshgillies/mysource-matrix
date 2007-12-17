@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_reindex.inc,v 1.9 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: tool_reindex.inc,v 1.10 2007/12/17 22:42:04 rong Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -42,9 +42,9 @@ class Tool_Reindex extends Tool
 	* @param int  $assetid  the asset id to be loaded
 	*
 	*/
-	function Tool_Reindex($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Tool($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -58,7 +58,7 @@ class Tool_Reindex extends Tool
 	* @return void
 	* @access public
 	*/
-	function paintTool(&$o, $type_code)
+	static function paintTool(&$o, $type_code)
 	{
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
@@ -87,7 +87,7 @@ class Tool_Reindex extends Tool
 	* @return boolean
 	* @access public
 	*/
-	function processTool(&$o, $type_code)
+	static function processTool(&$o, $type_code)
 	{
 		$index_all = 0;
 
@@ -102,7 +102,7 @@ class Tool_Reindex extends Tool
 			$vars = Array('root_assetid' => $root_assetid);
 		}
 
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hh->queueHipo('hipo_job_reindex', $vars, '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
