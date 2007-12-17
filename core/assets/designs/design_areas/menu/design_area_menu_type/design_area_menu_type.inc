@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.94 2007/12/14 04:27:34 bshkara Exp $
+* $Id: design_area_menu_type.inc,v 1.95 2007/12/17 03:44:39 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,7 +235,7 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	public function getSubMenuLink()
 	{
-		if (!isset($this->_tmp['sub_menu_link'])) {
+		if (empty($this->_tmp['sub_menu_link']) ||(!isset($this->_tmp['sub_menu_link']))) {
 			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', FALSE, 'sub_menu');
 		}
 		return $this->_tmp['sub_menu_link'];

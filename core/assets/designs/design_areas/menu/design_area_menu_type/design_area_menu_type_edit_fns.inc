@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.52 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.53 2007/12/17 03:44:39 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -215,8 +215,9 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		// let's see if we already have a sub menu
 		$sub = $asset->getSubMenu();
+
 		// nup ? create one now
-		if (is_null($sub)) {
+		if ((empty($sub)) || (is_null($sub))) {
 
 			// get the parent
 			$design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'design', FALSE, 'minor', $asset->attr('id_name'));
@@ -259,7 +260,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 			// Create SQ_LINK_NOTICE to its Upper level menu
 			$createAssetLink = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $sub, SQ_LINK_NOTICE, 'sub_menu');
-
 			if (!$createAssetLink) return FALSE;
 
 		}//end if
