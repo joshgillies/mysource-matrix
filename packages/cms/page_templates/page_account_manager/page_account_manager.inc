@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.61 2007/12/06 04:43:14 rong Exp $
+* $Id: page_account_manager.inc,v 1.62 2007/12/17 04:40:37 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -209,7 +209,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function _loadCreateReplacements()
 	{
 		$this->_replacements['resend_validation_form'] = $this->getkeywordreplacement('re_send_validation_form');
-		array_merge($this->_replacements, parent::_loadCreateReplacements());
+		parent::_loadCreateReplacements();
 
 	}//end _loadCreateReplacements()
 
