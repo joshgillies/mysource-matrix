@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.25 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.26 2007/12/17 22:36:25 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -345,7 +345,6 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	*/
 	function paintCreateFormCustomisation(&$asset, &$o, $prefix)
 	{
-		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($asset->attr('create_type')), 'name');
 		$customised_types = $asset->attr('create_form_customisations');
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
