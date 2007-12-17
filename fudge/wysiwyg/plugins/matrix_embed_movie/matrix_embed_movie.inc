@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.27 2007/12/17 05:52:27 rong Exp $
+* $Id: matrix_embed_movie.inc,v 1.28 2007/12/17 05:55:26 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -362,7 +362,7 @@ class matrix_embed_movie extends wysiwyg_plugin
 		// make sure the htmlTidy plugin knows about our special tag
 		if ($this->wysiwyg->plugin_loaded('html_tidy')) {
 			$html_tidy =& $this->wysiwyg->get_plugin('html_tidy');
-			$html_tidy->new_inline_tag('sq_wysiwyg_embed_movie');
+			//$html_tidy->new_inline_tag('sq_wysiwyg_embed_movie');
 		}
 
 	}//end process()
