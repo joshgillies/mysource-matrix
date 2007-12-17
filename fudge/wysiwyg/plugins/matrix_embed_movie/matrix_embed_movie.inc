@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.26 2007/12/17 05:38:05 rong Exp $
+* $Id: matrix_embed_movie.inc,v 1.27 2007/12/17 05:52:27 rong Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
