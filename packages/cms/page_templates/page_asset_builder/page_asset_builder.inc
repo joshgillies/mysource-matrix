@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.120 2007/12/06 22:11:12 colivar Exp $
+* $Id: page_asset_builder.inc,v 1.121 2007/12/17 22:08:22 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -367,7 +367,7 @@ class Page_Asset_Builder extends Page
 							$real_attribute = $new_asset->getAttribute($attr, TRUE);
 							if (is_null($real_attribute)) continue;
 							// take a copy of the attribute so we don't muck anything up for the processBackend() below
-							$attribute = $real_attribute;
+							$attribute = clone $real_attribute;
 							$attribute->process($prefix.'_'.$attribute->id);
 							if (!$attribute->processed) {
 								if (empty($error_text)) {
