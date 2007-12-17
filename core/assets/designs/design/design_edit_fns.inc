@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.125 2007/12/12 05:59:20 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.126 2007/12/17 23:56:33 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -871,7 +871,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// for login form design area and password change form design area
 			// this only occurs in CLI mode
 			if (SQ_PHP_CLI) {
-				@$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'parsing');
+                $lockInfo = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($design_areas[$element['attributes']['id_name']]->id, 'parsing');
+                if (!empty($lockInfo['links']) && $lockInfo['links']['userid'] == '0') {
+                    @$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'parsing');
+                }
 			}
 
 		}//end foreach
