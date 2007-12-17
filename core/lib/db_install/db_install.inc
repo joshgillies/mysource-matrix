@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.50 2007/11/29 06:04:05 lwright Exp $
+* $Id: db_install.inc,v 1.51 2007/12/17 23:23:28 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -115,8 +115,8 @@ function parse_tables_xml($xml_file)
 
 			if (isset($table->keys) && (count($table->keys->children()) > 0)) {
 				foreach ($table->keys->children() as $table_key) {
-					$index_db_type = array_get_index($table_key->attributes(), 'db', NULL);
-					if (!is_null($index_db_type) && ($index_db_type != DAL::getDbType())) {
+					$index_db_type = $table_key->attributes()->db;
+					if (!is_null($index_db_type) && ((string)$index_db_type != DAL::getDbType())) {
 						continue;
 					}
 
