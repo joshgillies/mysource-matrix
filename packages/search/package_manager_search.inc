@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.16 2006/12/07 01:10:13 bcaldwell Exp $
+* $Id: package_manager_search.inc,v 1.17 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -67,10 +67,10 @@ class Package_Manager_Search extends Package_Manager
 	*/
 	function &createSearchManager()
 	{
-		$system_management_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
+		$system_management_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_management_folder');
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
-		$search_manager =& new Search_Manager();
+		$search_manager = new Search_Manager();
 		$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$search_manager->create($search_manager_link)) {
 			trigger_localised_error('SCH0007', E_USER_ERROR);

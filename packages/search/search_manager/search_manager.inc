@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.157 2007/11/14 05:41:22 mbrydon Exp $
+* $Id: search_manager.inc,v 1.158 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,10 +50,10 @@ class Search_Manager extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Search_Manager($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 		$this->standard_date_fields = Array(
 										'created'			=> translate('asset_created_date'),
 										'updated'			=> translate('asset_updated_date'),
@@ -373,7 +373,7 @@ class Search_Manager extends Asset
 		if (!$indexing_assetid = $this->getIndexingAssetid($asset)) {
 			return FALSE;
 		}
-		$indexing_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
+		$indexing_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($indexing_assetid);
 		$index_content  = $this->getIndexableContent($indexing_asset);
 
 		$this->flushIndexableContent($indexing_assetid, Array('__contents__'));
@@ -537,7 +537,7 @@ class Search_Manager extends Asset
 				continue;
 			}
 
-			$attribute =& $asset->getAttribute($var_name);
+			$attribute = $asset->getAttribute($var_name);
 			$value = strtolower($attribute->getContent());
 			if (empty($value)) continue;
 
@@ -667,7 +667,7 @@ class Search_Manager extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$insert_st = $db->prepare(
 					'INSERT INTO
@@ -720,7 +720,7 @@ class Search_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM
 					sq_sch_idx
 				WHERE
@@ -751,7 +751,7 @@ class Search_Manager extends Asset
 	*/
 	function getIndexedComponents($assetid)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					component
@@ -989,7 +989,7 @@ class Search_Manager extends Asset
 	*/
 	function onMetadataDeleted(&$broadcaster, $vars=Array())
 	{
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$fieldids = array_keys($mm->getMetadataFields(Array($vars['schemaid'])));
 		for (reset($fieldids); NULL !== ($key = key($fieldids)); next($fieldids)) {
 			$fieldids[$key] = 'metadata:'.$fieldids[$key];
@@ -1012,7 +1012,7 @@ class Search_Manager extends Asset
 	function reindexMetadata($assetid, $vars=Array())
 	{
 		assert_valid_assetid($assetid);
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (in_array('all', $vars)) {
 			$schema_ids = array_keys($mm->getSchemas($assetid));
@@ -1038,7 +1038,7 @@ class Search_Manager extends Asset
 
 		if (!$this->isAssetIndexable($assetid)) return;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		$this->addIndexableContent($assetid, $this->getIndexableMetadataContent($asset, $fieldids));
 
@@ -1057,7 +1057,7 @@ class Search_Manager extends Asset
 	function getIndexableMetadataContent(&$asset, $fieldids=Array())
 	{
 		$index_content = Array();
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
 		$type_code = $asset->type();
 
@@ -1076,7 +1076,7 @@ class Search_Manager extends Asset
 				continue;
 			}
 
-			$field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
 
 			if (isset($metadata[$field->id]['value'])) {
 				$value = $metadata[$field->id]['value'];
@@ -1231,7 +1231,7 @@ class Search_Manager extends Asset
 	*/
 	function getMetadataWeighting($assetid, $fieldid)
 	{
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$section_link = $GLOBALS['SQ_SYSTEM']->am->getLink($fieldid, SQ_LINK_TYPE_2, 'metadata_section', TRUE, NULL, 'minor');
 		if (empty($section_link)) {
@@ -1699,14 +1699,14 @@ class Search_Manager extends Asset
 	function processSearch($search_info, $include_context=FALSE)
 	{
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 
 		  /////////////////////////////
 		 //  CONSTRUCT CACHING KEY  //
 		/////////////////////////////
 		// we need the cache manager to cache the results of queries
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		if (empty($search_info['roots'])) {
 			$search_cache_key = 'systemWide';
 		} else {
@@ -1745,7 +1745,7 @@ class Search_Manager extends Asset
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($root['type_code']);
 				// assert class implements bridge and contains method
 				if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processSearch'))) {
-					$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$shadow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					$shadow_results = $this->_combineResults($shadow_results, $shadow_asset->processSearch($search_info, $include_context), array_get_index($search_info, 'root_logic', 'OR'));
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
 					unset($search_info['roots'][$i]);
@@ -1905,15 +1905,15 @@ class Search_Manager extends Asset
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
-					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
+					$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
 					if (is_null($attribute)) {
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
-					if (!is_a($attribute, 'asset_attribute_datetime')) {
+					if (!($attribute instanceof Asset_Attribute_Datetime)) {
 						$is_datetime = FALSE;
 					}
-					if (is_a($attribute, 'asset_attribute_int') || is_a($attribute, 'asset_attribute_float')) {
+					if (($attribute instanceof Asset_Attribute_Int) || ($attribute instanceof Asset_Attribute_Float)) {
 						$is_numeric = TRUE;
 					}
 					if (!$is_datetime || $is_numeric) {
@@ -1926,12 +1926,12 @@ class Search_Manager extends Asset
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
-					$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+					$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 					if (is_null($metadata_field)) {
 						unset($field_details['data_sources'][$i]);
 						continue;
 					}
-					if (!is_a($metadata_field, 'metadata_field_date')) {
+					if (!($metadata_field instanceof Metadata_Field_Date)) {
 						$is_datetime = FALSE;
 						break(2);
 					}
@@ -2007,7 +2007,7 @@ class Search_Manager extends Asset
 	*/
 	function _processWordSearch($search_term, $data_source, $base_query, $word_logic='AND')
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
 		switch ($data_source['type']) {
@@ -2050,7 +2050,7 @@ class Search_Manager extends Asset
 	*/
 	function _processDateSearch($date_range, $data_source, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
 		switch ($data_source['type']) {
@@ -2093,7 +2093,7 @@ class Search_Manager extends Asset
 	*/
 	function _processNumericSearch($numeric_range, $data_source, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
 		switch ($data_source['type']) {
@@ -2209,7 +2209,7 @@ class Search_Manager extends Asset
 	function processBasicSearch($search_info)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$query_comps = $this->constructBaseSearchQuery($search_info);
 		if (empty($query_comps)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
@@ -2241,7 +2241,7 @@ class Search_Manager extends Asset
 
 			// assert class implements bridge and contains method
 			if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processBasicSearch'))) {
-				$shadow_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$shadow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$shadow_results += $shadow_asset->processBasicSearch($search_info);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
 			}
@@ -2342,7 +2342,7 @@ class Search_Manager extends Asset
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$query = Array(
 					'select'		=> Array(),
@@ -2400,7 +2400,7 @@ class Search_Manager extends Asset
 				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
 			}
 
-			$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+			$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
 			$public_user_access = (empty($current_user) || $search_info['search_as_public_user'] == 1);
 			if ($public_user_access) {
@@ -2686,13 +2686,13 @@ class Search_Manager extends Asset
 	function &_getDBPlugin()
 	{
 		if (is_null($this->_db_plugin)) {
-			$db =& $GLOBALS['SQ_SYSTEM']->db;
+			$db = $GLOBALS['SQ_SYSTEM']->db;
 			$db_type = $db->phptype;
 
 			$dir = dirname(__FILE__).'/plugins/'.strtolower($db_type);
 			$class_name = 'search_manager_plugin_'.$db_type;
 			require_once $dir.'/'.$class_name.'.inc';
-			$this->_db_plugin =& new $class_name();
+			$this->_db_plugin = new $class_name();
 		}
 
 		return $this->_db_plugin;
@@ -2746,7 +2746,7 @@ class Search_Manager extends Asset
 		$search_string = preg_replace('/([\.\\\!\+\*\?\[\]\^\$\(\)\=\!\<\>\|\:]+)/i', '\\\${1}',$search_string);
 		$search_string = trim(preg_replace('/[\~\&\|]/i', ' ', $search_string));
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
 
 		$formatted_results = Array();
@@ -2757,7 +2757,7 @@ class Search_Manager extends Asset
 		// note we dont include fields that dont have matches
 		foreach ($results as $assetid => $content) {
 			$content = $content['sources'];
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			foreach ($content as $content_type) {
 				switch (TRUE) {
@@ -2823,7 +2823,7 @@ class Search_Manager extends Asset
 							$schemas = $mm->getSchemas($assetid, TRUE);
 
 							foreach ($schemas as  $schemaid) {
-								$schema =& $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+								$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 								$schema_data = $mm->getSchemaDefaultValues($schema->id);
 								foreach ($schema_data as $fieldid => $data) {
 									foreach ($words as $word) {

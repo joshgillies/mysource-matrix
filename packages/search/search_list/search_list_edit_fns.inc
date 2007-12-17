@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.12 2006/12/07 01:09:34 bcaldwell Exp $
+* $Id: search_list_edit_fns.inc,v 1.13 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -36,9 +36,9 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Search_List_Edit_Fns()
+	function __construct()
 	{
-		$this->Listing_Engine_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -110,7 +110,7 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!empty($search_page_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($search_page_link['linkid'])) {
 			$ok = false;
 		} else if ($new_search_page) {
-			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_search_page);
+			$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_search_page);
 			if (!is_null($search_page)) {
 				if (!$asset->createLink($search_page, SQ_LINK_NOTICE, 'search_page')) {
 					$ok = false;
@@ -146,7 +146,7 @@ class Search_List_Edit_Fns extends Listing_Engine_Edit_Fns
 		$search_page = null;
 		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'search_page');
 		if (!empty($search_page_link)) {
-			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
+			$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 		}
 
 		if (is_null($search_page)) {

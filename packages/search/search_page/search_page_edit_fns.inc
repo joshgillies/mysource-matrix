@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.75 2007/11/15 05:18:22 rong Exp $
+* $Id: search_page_edit_fns.inc,v 1.76 2007/12/17 22:43:25 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -34,9 +34,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Search_Page_Edit_Fns()
+	function __construct()
 	{
-		$this->Listing_Engine_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['lock_type'] = 'content';
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
@@ -71,7 +71,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!$write_access) {
 			$root_asset = NULL;
 			if (!empty($root_link)) {
-				$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
+				$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid']);
 			}
 			if (!is_null($root_asset)) {
 				echo $root_asset->name.' (Id: #'.$root_asset->id.')';
@@ -122,7 +122,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 			$ok = FALSE;
 		} else if ($new_root) {
-			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
 					$ok = FALSE;
@@ -341,7 +341,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											asset_finder($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
 										} else {
 											if ($metadata_field > 0) {
-												$field_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
+												$field_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field);
 												if (!is_null($metadata_field)) {
 													echo get_asset_tag_line($field_asset->id);
 												} else {
@@ -364,7 +364,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 										}
 										if ($write_access) {
 											$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
-											$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+											$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 											$attributes = $sm->standard_date_fields + $sm->standard_text_fields;
 											combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][field]', $attributes, FALSE, $selected_attr_name);
 										} else if ($selected_attr_name != '') {
@@ -615,7 +615,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if (!isset($field_datasource['params']['attrid'])) {
 						continue;
 					}
-					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
+					$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
 					if (is_null($attribute)) continue;
 
 					// if this is a boolean or selection field, we want to make sure blank options are allowed
@@ -671,7 +671,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if (empty($field_datasource['params']['attrid'])) {
 						continue;
 					}
-					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
+					$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($field_datasource['params']['attrid']);
 					$search_styles[$attribute->id] = $attribute->processEditParams($prefix.'_'.$attribute->id);
 				}
 			}
@@ -1079,7 +1079,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 						$ok = FALSE;
 					} else if ($new_root) {
-						$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+						$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 						if (!is_null($root)) {
 							if (!$asset->createLink($root, SQ_LINK_NOTICE, $new_link_value)) {
 								$ok = FALSE;
@@ -1112,7 +1112,8 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$new_root = $_POST[$prefix.'__new__root']['assetid'];
-				if (!is_null($root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root))) {
+				$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+				if (!is_null($root)) {
 					if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {
 						trigger_localised_error('SCH0012', E_USER_WARNING, $root->name, $root->id);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1269,7 +1270,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-					$format_folder =& new Folder();
+					$format_folder = new Folder();
 					$copy_link = Array('asset' => &$asset, 'value' => 'format_folder', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 					$format_folder->setAttrValue('name', 'Search Forms');
@@ -1292,7 +1293,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-					$bodycopy =& new Bodycopy();
+					$bodycopy = new Bodycopy();
 					$copy_link = Array('asset' => &$format_folder, 'value' => $value, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 					$bodycopy->setAttrValue('name', $form_name);
@@ -1415,7 +1416,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		if (!empty($root_link) && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 			$ok = FALSE;
 		} else if ($new_root) {
-			$root =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
+			$root = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_root);
 
 			if (!is_null($root)) {
 				if (!$asset->createLink($root, SQ_LINK_NOTICE, $link_value)) {

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.8 2006/12/07 01:07:18 bcaldwell Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.9 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -273,8 +273,8 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		}//end if($job_vars['mode'] == 'rollover')
 
 
-		$job_vars['iterator']      = &$iterator;
-		$job_vars['complete']      = $step_data['complete'];
+		$job_vars['iterator'] =& $iterator;
+		$job_vars['complete'] = $step_data['complete'];
 
 		return TRUE;
 

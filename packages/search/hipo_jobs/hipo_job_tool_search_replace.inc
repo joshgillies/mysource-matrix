@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.12 2007/06/22 00:28:04 mbrydon Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.13 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -832,7 +832,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = $this->_replaceOccurrences($search_string, $replace_string, $data['value'], $data['matches'], $match_case);
-			$field =& $am->getAsset($fieldid);
+			$field = $am->getAsset($fieldid);
 			$value_component = Array();
 			$field->decodeValueString($new_data, $default_data, $value_component);
 			$field->setAttrValue('default', $default_data);
@@ -877,7 +877,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$match_case = $this->_running_vars['match_case'];
 		$assetid = key($this->_running_vars['attribute_replacements']);
 
-		$asset =& $am->getAsset($assetid);
+		$asset = $am->getAsset($assetid);
 
 		$step_data['message'] = translate('sch_tool_global_sr_replacing_with_in', $search_string, $replace_string, $asset->name);
 
@@ -918,7 +918,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 	function processMetadata(&$step_data, $prefix)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$search_string = $this->_running_vars['search_string'];
 		$replace_string = $this->_running_vars['replace_string'];

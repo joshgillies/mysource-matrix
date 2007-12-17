@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.25 2006/12/07 01:06:15 bcaldwell Exp $
+* $Id: hipo_job_reindex.inc,v 1.26 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -140,7 +140,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 		foreach ($this->_running_vars['root_assetid'] as $assetid) {
 			// so we have an assetid to start at, but make sure it is a valid assetid
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) {
 				trigger_localised_error('SCH0022', E_USER_WARNING, $assetid);
 				return FALSE;
@@ -170,14 +170,14 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
-			$sm =& $am->getSystemAsset('search_manager');
+			$sm = $am->getSystemAsset('search_manager');
 			if (is_null($sm)) return FALSE;
 
 			// get next asset to reindex
 			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if ($asset) {
 				$step_data['message'] = translate('sch_reindexing_asset', $asset->name);

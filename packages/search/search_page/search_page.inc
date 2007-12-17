@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.210 2007/11/25 22:16:46 mbrydon Exp $
+* $Id: search_page.inc,v 1.211 2007/12/17 22:43:25 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210 $
+* @version $Revision: 1.211 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -93,10 +93,10 @@ class Search_Page extends Listing_Engine
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Search_Page($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Listing_Engine($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -120,7 +120,7 @@ class Search_Page extends Listing_Engine
 							'value'			=> $value,
 						 );
 
-			$bodycopy =& new Bodycopy();
+			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$args = Array('content' => $this->_getDefaultBodycopyContent($value));
 			if (!$bodycopy->create($copy_link, $args)) {
@@ -179,7 +179,7 @@ class Search_Page extends Listing_Engine
 	function prepareLink(&$asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
 	{
 		// if a bodycopy is linking to us then we need to make it a dependant link
-		if ($side_of_link == 'major' && is_a($asset, 'bodycopy') && $dependant != '1') {
+		if ($side_of_link == 'major' && ($asset instanceof Bodycopy) && $dependant != '1') {
 			$dependant = '1';
 			return TRUE;
 		}
@@ -459,7 +459,7 @@ class Search_Page extends Listing_Engine
 		if (array_key_exists($name, $this->bodycopies)) {
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
-			$bodycopy =& $am->getAsset($link['minorid'], $link['minor_type_code']);
+			$bodycopy = $am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
 
 		return $bodycopy;
@@ -527,17 +527,17 @@ class Search_Page extends Listing_Engine
 				switch ($ds['type']) {
 					case 'metadata':
 						$assetid = $ds['params']['assetid'];
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$this_field_type = get_class($asset);
 						}
 					break;
 					case 'asset_attrib':
-						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($ds['params']['attrid']);
+						$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($ds['params']['attrid']);
 						$this_field_type = $attribute->type();
 					break;
 					case 'standard' :
-						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 						if (isset($sm->standard_date_fields[$ds['params']['field']])) {
 							$this_field_type = 'date';
 						} else {
@@ -588,7 +588,7 @@ class Search_Page extends Listing_Engine
 					  );
 
 		$value = '---------- --:--:--';
-		$field =& new DateTime_Field($field_name, $value, $parameters, TRUE);
+		$field = new DateTime_Field($field_name, $value, $parameters, TRUE);
 		return $field;
 
 	}//end _getDateField()
@@ -692,7 +692,7 @@ class Search_Page extends Listing_Engine
 						&nbsp;
 						<?php
 						// print the JS calendar popup date selecta
-						$calendar =& new JS_Calendar();
+						$calendar = new JS_Calendar();
 						$calendar->changeSetting('onDayClick', 'datetime_set_date');
 						$calendar->paint($field_name.'_from', '', TRUE);
 						?>
@@ -724,7 +724,7 @@ class Search_Page extends Listing_Engine
 						&nbsp;
 						<?php
 						// print the JS calendar popup date selecta
-						$calendar =& new JS_Calendar();
+						$calendar = new JS_Calendar();
 						$calendar->changeSetting('onDayClick', 'datetime_set_date');
 						$calendar->paint($field_name.'_to', '', TRUE);
 						?>
@@ -964,7 +964,7 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						$assetid = $data_source['params']['assetid'];
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 						if (!is_null($asset)) {
 							$params = $asset->vars;
@@ -992,7 +992,7 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'asset_attrib' :
-						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+						$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
@@ -1023,7 +1023,7 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'standard' :
-						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 						if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printDateRange('queries_'.$query_var, $current_value);
@@ -1076,7 +1076,7 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						$assetid = $data_source['params']['assetid'];
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 							$this->registerFormField('queries_'.$query_var);
@@ -1129,7 +1129,7 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'asset_attrib' :
-						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+						$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
@@ -1186,7 +1186,7 @@ class Search_Page extends Listing_Engine
 
 					case 'standard' :
 						$read_only = TRUE;
-						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 						if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
 							$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 							$this->_printDateRange('queries_'.$query_var, $current_value, $read_only);
@@ -1242,7 +1242,7 @@ class Search_Page extends Listing_Engine
 
 					case 'metadata' :
 						$assetid = $fields[$field_name]['data_sources'][0]['params']['assetid'];
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 							switch (get_class($asset)) {
@@ -1267,7 +1267,7 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'asset_attrib' :
-						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
+						$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
 
 						if ($attribute->type() == 'datetime') {
 
@@ -1842,7 +1842,7 @@ class Search_Page extends Listing_Engine
 							if ($fields[$query_var]['type'] == 'metadata') {
 
 								$assetid = $fields[$query_var]['params']['assetid'];
-								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$params = $asset->vars;
 								// metadata dropdown selection
 								if (isset($params['select_options'])) {
@@ -1854,7 +1854,7 @@ class Search_Page extends Listing_Engine
 								$search_styles = $this->attr('search_styles');
 								$not_selected_text = '';
 
-								$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$query_var]['params']['attrid']);
+								$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$query_var]['params']['attrid']);
 
 								if ($attribute->type() == 'selection') {
 									if (empty($attribute->_params['multiple'])) {
@@ -1948,9 +1948,9 @@ class Search_Page extends Listing_Engine
 		$keywords = $bodycopy->getKeywords();
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$asset =& $am->getAsset($assetid);
+		$asset = $am->getAsset($assetid);
 
-		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$replaces = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
 
 		$metadata_keywords = Array();
@@ -2013,7 +2013,7 @@ class Search_Page extends Listing_Engine
 							$replacement .= $this->attr('lineage_seperator');
 						}
 						$first = FALSE;
-						$ancestor_asset =& $am->getAsset($parent_asset_id);
+						$ancestor_asset = $am->getAsset($parent_asset_id);
 						if ($keyword == 'asset_lineage_linked') {
 							$replacement .= '<a href="'.$ancestor_asset->getUrl().'">';
 						}
@@ -2067,7 +2067,7 @@ class Search_Page extends Listing_Engine
 	*/
 	function processSearch()
 	{
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
 
@@ -2109,7 +2109,7 @@ class Search_Page extends Listing_Engine
 				$search_info['exclude'][] = $value;
 			} else {
 				if (!$this->_hasMixedFieldTypes($fields[$field_name]) && $fields[$field_name]['data_sources'][0]['type'] == 'asset_attrib') {
-					$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
+					$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['data_sources'][0]['params']['attrid']);
 					if (!is_null($attribute) && $attribute->type() == 'boolean') {
 						// we need to convert the value into a word representation,
 						// since indexing service will not operate just 0 or 1
@@ -2187,7 +2187,7 @@ class Search_Page extends Listing_Engine
 				$synonyms =& $this->_tmp['search_synonyms'];
 
 				if (!empty($t_link)) {
-					$thesaurus =& $GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
+					$thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($t_link['minorid']);
 					$synonyms[$field_name] = Array();
 
 					// loop over each word, find synonyms
@@ -2270,7 +2270,7 @@ class Search_Page extends Listing_Engine
 		if ($mode == '') $mode = 'results';
 		$suffix = ($mode == 'results') ? '_query' : '_query_sis';
 		$queries = Array();
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		foreach ($fields as $field_name => $field_details) {
 
 			$queries[$field_name] = '';
@@ -2293,7 +2293,7 @@ class Search_Page extends Listing_Engine
 					break;
 
 					case 'asset_attrib' :
-						$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+						$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 						if (!is_null($attribute)) {
 							if ($attribute->type() == 'datetime') {
 								$queries[$field_name] = $this->_processDateRange($query_var);
@@ -2347,7 +2347,7 @@ class Search_Page extends Listing_Engine
 							$queries[$field_name] = '';
 							break;
 						}
-						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 							switch (get_class($asset)) {
@@ -2516,7 +2516,7 @@ class Search_Page extends Listing_Engine
 
 		$link = $this->getFormatFolderLink();
 		if (!empty($link)) {
-			$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
 
 		return $folder;
@@ -2560,7 +2560,7 @@ class Search_Page extends Listing_Engine
 
 		$bodycopy_link = $this->getFormatBodycopyLink($link_value);
 		if (!empty($bodycopy_link)) {
-			$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+			$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		}
 
 		return $bodycopy;
@@ -2589,7 +2589,7 @@ class Search_Page extends Listing_Engine
 	function _printAsset($assetid, $list_position, $keywords=Array())
 	{
 		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$element_contents = $cm->loadFromCache($this->id, $this->type(), $assetid);
 
 		if (empty($element_contents)) {

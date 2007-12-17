@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.19 2007/06/08 04:40:39 skim Exp $
+* $Id: search_list.inc,v 1.20 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -39,9 +39,9 @@ class Search_List extends Listing_Engine
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Search_List($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Listing_Engine($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -87,11 +87,11 @@ class Search_List extends Listing_Engine
 		$search_page = NULL;
 		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'search_page');
 		if (!empty($search_page_link)) {
-			$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
+			$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 		}
 		if (is_null($search_page)) return Array();
 
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$plugin =& $sm->_getDBPlugin();
 		$children = $plugin->getSearchListAssets($this, $search_page);
 
@@ -142,7 +142,7 @@ class Search_List extends Listing_Engine
 		$search_page = NULL;
 		$search_page_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', FALSE, 'search_page');
 		if (!empty($search_page_link)) {
-			$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
+			$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 		}
 		if (is_null($search_page)) return;
 

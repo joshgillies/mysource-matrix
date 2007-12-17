@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.12 2007/10/05 03:48:44 colivar Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.13 2007/12/17 22:43:25 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,7 +50,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($data_source['type']) {
 
@@ -78,7 +78,7 @@ class Search_Manager_Plugin_PgSQL
 			break;
 
 			case 'metadata':
-				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
 								'metadata_field_select'			=> 'selection',
 								'metadata_field_multiple_text'	=> 'selection',
@@ -136,7 +136,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processNumericSearch(&$sm, $numeric_range, $data_source, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($data_source['type']) {
 
@@ -214,18 +214,18 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processDateSearch(&$sm, $date_range, $data_source, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($data_source['type']) {
 
 			case 'asset_attrib':
 				// TODO: restrict by asset type here?
-				$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
 			break;
 
 			case 'metadata':
-				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
 								'metadata_field_select'		=> 'selection',
 								'metadata_field_thesaurus'	=> 'thesaurus',
@@ -285,7 +285,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processExcludeQuery(&$sm, $search_term, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$words = Array();
 		foreach ($search_term as $exclude_value) {
@@ -320,7 +320,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$query = Array(
 					'select'		=> Array(),
@@ -469,7 +469,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT
 					LOWER(value), SUM(score)
@@ -593,7 +593,7 @@ class Search_Manager_Plugin_PgSQL
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql_components['select'][]	= 'DISTINCT target.assetid';
 		$sql_components['from'][] 	= 'sq_sch_idx source INNER JOIN sq_sch_idx target ON target.value = source.value';
@@ -662,8 +662,8 @@ class Search_Manager_Plugin_PgSQL
 		}
 		$search_field = $search_page_fields[$search_field_name];
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
 

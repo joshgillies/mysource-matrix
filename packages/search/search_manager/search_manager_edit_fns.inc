@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.19 2006/12/13 00:15:18 emcdonald Exp $
+* $Id: search_manager_edit_fns.inc,v 1.20 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -37,9 +37,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
-	function Search_Manager_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -1184,13 +1184,13 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_reindexing_root_assetid']['assetid'])) {
 			$root_assetid = $_POST[$prefix.'_reindexing_root_assetid']['assetid'];
 			if ($root_assetid > 0) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => $root_assetid), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 				return TRUE;
 			}
 		}
 		if (isset($_POST[$prefix.'_reindexing_root_folder'])) {
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hh->queueHipo('hipo_job_reindex', Array('root_assetid' => '1'), '', SQ_PACKAGES_PATH.'/search/hipo_jobs');
 			return TRUE;
 		}

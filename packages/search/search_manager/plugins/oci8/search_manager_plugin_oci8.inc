@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.26 2007/10/05 03:53:20 colivar Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.27 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -48,7 +48,7 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($data_source['type']) {
 
@@ -59,7 +59,7 @@ class Search_Manager_Plugin_OCI8
 			break;
 
 			case 'asset_attrib':
-				$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
 
 				$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
@@ -68,7 +68,7 @@ class Search_Manager_Plugin_OCI8
 			break;
 
 			case 'metadata':
-				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
 								'metadata_field_select'			=> 'selection',
 								'metadata_field_multiple_text'	=> 'selection',
@@ -151,7 +151,7 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function processNumericSearch(&$sm, $numeric_range, $data_source, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($data_source['type']) {
 
@@ -229,18 +229,18 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function processDateSearch(&$sm, $date_range, $data_source, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($data_source['type']) {
 
 			case 'asset_attrib':
 				// TODO: restrict by asset type here?
-				$attribute =& $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
+				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
 			break;
 
 			case 'metadata':
-				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
+				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
 								'metadata_field_select'		=> 'selection',
 								'metadata_field_thesaurus'	=> 'thesaurus',
@@ -296,7 +296,7 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function processExcludeQuery(&$sm, $search_term, $base_query)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$words = Array();
 
@@ -338,7 +338,7 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		$query = Array(
 					'select'		=> Array(),
@@ -469,8 +469,8 @@ class Search_Manager_Plugin_OCI8
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		// The SUBSTR stuff is to turn the CLOB field of value into a VARCHAR
 		// that can be handled by the LOWER() function
@@ -843,7 +843,7 @@ class Search_Manager_Plugin_OCI8
 			}
 
 			$good_words = Array();
-			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 			foreach ($words[1] as $word) {
 				if (empty($ignore_chars) || !in_array($word, $ignore_chars)) {
@@ -970,7 +970,7 @@ class Search_Manager_Plugin_OCI8
 		$multiple = FALSE;
 		if (strpos($terms, '|') !== FALSE) 	$multiple = TRUE;
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($use_contains) {
 			$sql = 'contains('.$column.', '.$db->quoteSmart(trim($terms)).', '.$score.') > 0';
@@ -1018,9 +1018,9 @@ class Search_Manager_Plugin_OCI8
 		// load the asset from source_id
 		// get all the keywords from this asset
 		// get all assets (of the supplied type) that contain any of the keywords in the source asset
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = $GLOBALS['SQ_SYSTEM']->db;
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($source_id);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($source_id);
 		$keywords = $this->extractKeywords($asset);
 
 		$query_array['select'][] = 'ai.assetid';
@@ -1196,8 +1196,8 @@ class Search_Manager_Plugin_OCI8
 		}
 		$search_field = $search_page_fields[$search_field_name];
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
 

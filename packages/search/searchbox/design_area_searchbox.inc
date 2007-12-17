@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.30 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: design_area_searchbox.inc,v 1.31 2007/12/17 22:43:25 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -39,9 +39,9 @@ class Design_Area_Searchbox extends Design_Area
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Design_Area_Searchbox($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Design_Area($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -77,13 +77,13 @@ class Design_Area_Searchbox extends Design_Area
 		$assetid = $this->attr('search_page_assetid');
 		if (empty($assetid)) return;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$asset =& $am->getAsset($assetid);
+		$asset = $am->getAsset($assetid);
 
 		switch ($var) {
 
 			case 'form_start' :
 				echo '
-					<?php $asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?>
+					<?php $asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?>
 					<form method="get" action="<?php echo $asset->getURL(); ?>">
 				';
 			break;
@@ -102,8 +102,8 @@ class Design_Area_Searchbox extends Design_Area
 				} else {
 					$submit_image_assetid = $this->attr('submit_image_assetid');
 					if ($submit_image_assetid > 0) {
-						$submit_image_asset =& $am->getAsset($submit_image_assetid);
-						echo '<'.'?php $submit_image_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$submit_image_asset->id.', "'.$submit_image_asset->type().'"); ?'.'>';
+						$submit_image_asset = $am->getAsset($submit_image_assetid);
+						echo '<'.'?php $submit_image_asset = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$submit_image_asset->id.', "'.$submit_image_asset->type().'"); ?'.'>';
 						echo '<input alt="'.$this->attr('submit_button_text').'" type="image"';
 						if (isset($args['class'])) {
 							echo ' class="'.$args['class'].'"';
@@ -122,7 +122,7 @@ class Design_Area_Searchbox extends Design_Area
 				if (!empty($category_set)) {
 					echo '
 						<?php
-							$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+							$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 							$categories = $asset->attr("categories");
 							echo $asset->getCategoryChooserReplacement("'.$category_set.'", $categories["'.$category_set.'"], "'.$default.'", '.var_export($show_empty, TRUE).');
 						?>';
@@ -135,7 +135,7 @@ class Design_Area_Searchbox extends Design_Area
 				echo '
 				<input type="hidden" name="mode" value="results" />
 				<?php
-					$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+					$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 
 					$field_name = "'.$this->attr('field_name').'";
 					$box_width  = '.$this->attr('querybox_width').';
@@ -161,13 +161,13 @@ class Design_Area_Searchbox extends Design_Area
 				if (substr($var, -6) == '_query') {
 					echo '
 					<?php
-						$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+						$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 						echo $asset->getFieldReplacement("'.substr($var, 0, -6).'");
 					?>';
 				} else if (substr($var, -17) == '_category_chooser') {
 					echo '
 					<?php
-						$asset = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
+						$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');
 						$categories = $asset->attr("categories");
 						echo $asset->getCategoryChooserReplacement("'.substr($var, 0, -17).'", $categories["'.substr($var, 0, -17).'"]);
 					?>';

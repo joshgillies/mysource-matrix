@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.29 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: search_folder.inc,v 1.30 2007/12/17 22:43:24 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -40,10 +40,10 @@ class Search_Folder extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Search_Folder($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Asset($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -89,7 +89,7 @@ class Search_Folder extends Asset
 			return $asset;
 		}
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($shadowid);
 		return $asset;
 
 	}//end getAsset()
@@ -132,7 +132,7 @@ class Search_Folder extends Asset
 
 			$settings = $this->attr('settings');
 
-			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
 			$search_info['requester'] = $this->id;
@@ -219,7 +219,7 @@ class Search_Folder extends Asset
 			$links = Array();
 			$settings = $this->attr('settings');
 
-			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
 			$search_info['field_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
@@ -301,7 +301,7 @@ class Search_Folder extends Asset
 			return $attrs;
 		}
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		if (!is_null($assetid)) {
 			$attrs = Array(

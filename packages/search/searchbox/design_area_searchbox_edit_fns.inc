@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.25 2006/12/07 02:46:11 bcaldwell Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.26 2007/12/17 22:43:25 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -36,9 +36,9 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Design_Area_Searchbox_Edit_Fns()
+	function __construct()
 	{
-		$this->Design_Area_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
@@ -169,7 +169,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 		$search_assetid = $asset->attr('search_page_assetid');
 		if (empty($search_assetid)) return FALSE;
 
-		$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
+		$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
 
 		$categories[''] = '-- Please Select --';
 		foreach (array_keys($search_page->attr('categories')) as $category_id) {
@@ -229,7 +229,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 		$search_assetid = $asset->attr('search_page_assetid');
 		if (empty($search_assetid)) return FALSE;
 
-		$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
+		$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_assetid);
 
 		$categories = Array();
 		$category_sets = $search_page->attr('categories');
@@ -293,7 +293,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 		// TODO: This needs to be updated to better handle the multiple sources,
 		//      it'd likely show yellow errors and 'unknown' for all of them
 		if ($asset->writeAccess('attributes')) {
-			$search_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('search_page_assetid'));
+			$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('search_page_assetid'));
 			$fields = $search_page->attr('fields');
 			if (is_scalar($fields)) {
 				$fields = unserialize($fields);
@@ -355,7 +355,7 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$assetid = $owner->attr('search_page_assetid');
 		if (!$assetid) return FALSE;
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (!$asset->id) return FALSE;
 		return $asset->type() == 'search_page';
 
