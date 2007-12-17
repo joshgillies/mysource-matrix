@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.14 2006/12/06 00:07:40 bcaldwell Exp $
+* $Id: trigger_action_create_clone.inc,v 1.14.6.1 2007/12/17 05:14:48 mwegermann Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,7 +121,17 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		// old -> new asset id mapping
 		$clone_map = Array();
 
-		$clone =& $am->cloneAsset($minor, $link, $clone_map, Array('all'));
+		// Clone only the following atrributes. (tagging will be cloned by cloneLinks)
+		$components = Array(
+						'attributes',
+                        'metadata_schemas',
+                        'metadata',
+                        'workflow',
+                        'permissions',
+                        'roles',
+                      );
+
+		$clone =& $am->cloneAsset($minor, $link, $clone_map, $components);
 		if (is_null($clone)) {
 			trigger_localised_error('CORE0138', E_USER_WARNING);
 			return FALSE;
