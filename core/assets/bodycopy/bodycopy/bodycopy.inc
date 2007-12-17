@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.46 2007/12/15 00:41:35 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.47 2007/12/17 02:19:50 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -322,8 +322,7 @@ class Bodycopy extends Asset
 			$this->_tmp['containers'] = Array();
 			$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 			foreach ($container_links as $container_data) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
-				$this->_tmp['containers'][] =& $asset;
+				$this->_tmp['containers'][] = $GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			}
 		}
 		return $this->_tmp['containers'];
