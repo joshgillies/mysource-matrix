@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.650 2007/12/16 02:58:46 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.651 2007/12/18 05:32:10 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.650 $
+* @version $Revision: 1.651 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3670,7 +3670,11 @@ class Asset_Manager extends MySource_Object
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', NULL, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
 				if (!$dependant_links[$k]['is_dependant']) continue;
-				$children[$dependant_links[$k]['minorid']] = $dependant_links[$k]['minor_type_code'];
+				$children[$dependant_links[$k]['minorid']]	= Array (
+																0	=> Array (
+																		'type_code'	=> $dependant_links[$k]['minor_type_code'],
+																	   ),
+															  );
 			}
 
 			// get ALL kids, regardless of type code, so we can chase them down
