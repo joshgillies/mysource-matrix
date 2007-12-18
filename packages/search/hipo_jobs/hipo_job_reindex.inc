@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.26 2007/12/17 22:43:24 rong Exp $
+* $Id: hipo_job_reindex.inc,v 1.27 2007/12/18 00:35:14 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -147,7 +147,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			}
 
 			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
-			$child_assets[$asset->id] = $asset->type();
+			$child_assets[$asset->id][0]['type_code'] = $asset->type();
 			$this->_running_vars['todo_assetids'] = $child_assets;
 			$this->_running_vars['done_assetids'] = Array();
 		}
@@ -174,8 +174,10 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			if (is_null($sm)) return FALSE;
 
 			// get next asset to reindex
-			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+log_dump($this->_running_vars);
+			$array_keys = array_keys($this->_running_vars['todo_assetids']);
+			$assetid = array_shift($array_keys);
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
