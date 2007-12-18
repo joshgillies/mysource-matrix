@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.18 2007/12/11 03:29:58 rong Exp $
+* $Id: thesaurus_term.inc,v 1.19 2007/12/18 05:38:43 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,8 +55,8 @@ class Thesaurus_Term extends Asset
 		$this->_thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurus_id);
 
 		$term = $this->_thesaurus->getTermById($termid);
+		log_dump("TERM : " . var_Export($term,TRUE));
 		if (is_null($term)) return;
-
 
 		$this->id = $asset_id;
 		$this->_termid = $termid;
@@ -102,7 +102,8 @@ class Thesaurus_Term extends Asset
 			$this->_thesaurus =& $link['asset']->_thesaurus;
 			$majorid = $link['asset']->_termid;
 		} else {
-			trigger_localised_error('CORE0236', E_USER_WARNING, $link['asset']->type());
+			$type = method_exists($link['asset'], 'type') ? $link['asset']->type() : '';
+			trigger_localised_error('CORE0236', E_USER_WARNING, $type);
 			return FALSE;
 		}
 
@@ -134,6 +135,7 @@ class Thesaurus_Term extends Asset
 		$this->_termid = $termid;
 
 		// if we're adding a top level term it's a stray term - not linked to anything
+		log_dump("MAJORID : " . $majorid);
 		if (is_null($majorid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			if ($created) {
@@ -141,16 +143,19 @@ class Thesaurus_Term extends Asset
 			}
 			$em->broadcastEvent($this->_thesaurus, 'CreateLink', Array());
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			log_dump("RETURNING: ".$this->_thesaurus->id.':atoz:'.$termid);
 			return $this->_thesaurus->id.':atoz:'.$termid;
 		}
 
 		$existing_link = $this->_thesaurus->getTermLinkByTermids($termid, $majorid, $relation);
+		log_dump("EXISTING LINKS:" . var_export($existing_link,TRUE));
 		if (!empty($existing_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $this->_thesaurus->id.':'.$existing_link['linkid'];
 		}
 
+		log_dump("LINKING TERM");
 		$linkid = $this->_thesaurus->linkTerms($termid, $majorid, $relation);
 		if (is_null($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -237,8 +242,8 @@ class Thesaurus_Term extends Asset
 
 		$name = $this->attr('name');
 
-		// If the name is updated, we are going to update the name of this object so when it broadcasts an 
-		// even, the new name is used instead. In particular it is 
+		// If the name is updated, we are going to update the name of this object so when it broadcasts an
+		// even, the new name is used instead. In particular it is
 		if ($this->name != $this->attr('name'))	{
 			$this->name = $name;
 		}//end if
