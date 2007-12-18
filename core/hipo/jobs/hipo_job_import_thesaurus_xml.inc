@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.14 2007/12/12 03:06:41 gsherwood Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.15 2007/12/18 05:43:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -270,9 +270,9 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	function startElement($parser, $tag, $attrs)
 	{
 
-		$stack = $this->_running_vars['stack'];
-		$tagstack = $this->_running_vars['tagstack'];
-		$relations = $this->_running_vars['relations'];
+		$stack =& $this->_running_vars['stack'];
+		$tagstack =& $this->_running_vars['tagstack'];
+		$relations =& $this->_running_vars['relations'];
 
 		$thesaurus = $this->getThesaurusRef();
 
@@ -324,7 +324,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 
 				// add the term
 				if (is_null($stack[0]['term'])) {
-					$parent_asset = $thesaurus;
+					$parent_asset =& $thesaurus;
 				} else {
 					$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($stack[0]['term']);
 					$rel_id = array_get_index($stack[0], 'relation');
@@ -340,7 +340,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 					}
 				}
 
-				$create_link['asset'] = &$parent_asset;
+				$create_link['asset'] =& $parent_asset;
 				$create_link['value'] = $rel_id;
 
 				$term_asset = new Thesaurus_Term();
@@ -391,10 +391,10 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function cDataHandler($parser, $data)
 	{
-		$stack = $this->_running_vars['stack'];
-		$tagstack = $this->_running_vars['tagstack'];
+		$stack =& $this->_running_vars['stack'];
+		$tagstack =& $this->_running_vars['tagstack'];
 
-		if ($tagstack[0] == 'note') {
+		if (isset($tagstack[0]) && $tagstack[0] == 'note') {
 			// we do this because for some reason if there are newlines in the character data block,
 			// it will be reported as multiple elements
 			if (isset($this->_running_vars['current_note']['text'])) {
@@ -419,9 +419,9 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function endElement($parser, $tag)
 	{
-		$stack = $this->_running_vars['stack'];
-		$tagstack = $this->_running_vars['tagstack'];
-		$relations = $this->_running_vars['relations'];
+		$stack =& $this->_running_vars['stack'];
+		$tagstack =& $this->_running_vars['tagstack'];
+		$relations =& $this->_running_vars['relations'];
 
 		if ($tag != 'thesaurus' && $tag != 'term' && $tag != 'relation' && $tag != 'note') {
 			trigger_localised_error('HIPO0064', E_USER_WARNING, $tag);
