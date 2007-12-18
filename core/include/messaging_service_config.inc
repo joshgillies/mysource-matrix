@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service_config.inc,v 1.29 2007/10/29 05:31:04 lwright Exp $
+* $Id: messaging_service_config.inc,v 1.30 2007/12/18 05:44:43 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class Messaging_Service_Config extends Config
@@ -75,7 +75,7 @@ class Messaging_Service_Config extends Config
 		parent::paintBackend($o);
 
 		$write_access = $this->writeAccess();
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 
@@ -158,7 +158,7 @@ class Messaging_Service_Config extends Config
 		$write_access = $this->writeAccess();
 		if (!$write_access) return parent::processBackend($o);
 
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 		$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
