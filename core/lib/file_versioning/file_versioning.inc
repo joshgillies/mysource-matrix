@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.34 2007/11/28 04:33:50 bshkara Exp $
+* $Id: file_versioning.inc,v 1.35 2007/12/18 23:54:09 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -706,7 +706,7 @@ class File_Versioning
 			} else {
 				$nice_date = ts_iso8601($date);
 				$date = $db->quote(ts_iso8601($date));
-				if ($db->phptype == 'oci8') {
+				if (MatrixDAL::getDbType() == 'oci8') {
 					$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
 				}
 
