@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.631 2007/12/18 00:14:13 gsherwood Exp $
+* $Id: asset.inc,v 1.632 2007/12/18 05:15:35 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.631 $
+* @version $Revision: 1.632 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -276,10 +276,7 @@ class Asset extends MySource_Object
 		}
 
 		try {
-			// TODO: Until MatrixDAL handles dates properly, get date separately
-			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
-			$now = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
-
+			$now_iso = ts_iso8601($now);
 			$bind_vars = Array(
 							'assetid'				=> $assetid,
 							'version'				=> $initial_version,
@@ -287,13 +284,13 @@ class Asset extends MySource_Object
 							'name'					=> $name,
 							'short_name'			=> $name,
 							'status'				=> $initial_status,
-							'created'				=> $now,
+							'created'				=> $now_iso,
 							'created_userid'		=> $userid,
-							'updated'				=> $now,
+							'updated'				=> $now_iso,
 							'updated_userid'		=> $userid,
 							'published'				=> NULL,
 							'published_userid'		=> NULL,
-							'status_changed'		=> $now,
+							'status_changed'		=> $now_iso,
 							'status_changed_userid'	=> $userid,
 						 );
 			MatrixDAL::executeQuery('core', 'createAsset', $bind_vars);
@@ -2883,7 +2880,7 @@ class Asset extends MySource_Object
 				if ($attribute->uniq) {
 					// update existing entry
 					try {
-                        $prepared = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid');
+						$prepared = $db->prepare('UPDATE sq_ast_attr_uniq_val SET custom_val = :custom_val WHERE owning_attrid = :attrid AND assetid = :assetid');
 						$prepared->bindValue(':custom_val', $attr_value);
 						$prepared->bindValue(':attrid',     $save_vars[$attr_id]['owning_attrid']);
 						$prepared->bindValue(':assetid',    $this->id);
@@ -2894,7 +2891,7 @@ class Asset extends MySource_Object
 				}
 
 				try {
-                    $prepared = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid');
+					$prepared = $db->prepare('UPDATE sq_ast_attr_val SET custom_val = :custom_val WHERE attrid = :attrid AND assetid = :assetid');
 					$prepared->bindValue(':custom_val', $attr_value);
 					$prepared->bindValue(':attrid',     $attr_id);
 					$prepared->bindValue(':assetid',    $this->id);
