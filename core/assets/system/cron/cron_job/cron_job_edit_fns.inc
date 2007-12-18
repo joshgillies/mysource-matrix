@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.41 2007/12/10 21:53:35 hnguyen Exp $
+* $Id: cron_job_edit_fns.inc,v 1.42 2007/12/18 05:47:47 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -303,7 +303,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	* @return mixed string|boolean
 	* @access private
 	*/
-	protected function _processWhenBox(Cron_Job $asset, Backend_Outputter $o, $prefix)
+	public function _processWhenBox(Cron_Job $asset, Backend_Outputter $o, $prefix)
 	{
 		$one_off = ($asset->attr('type') == 'one_off');
 		$repeating = !$one_off; // for easier reading
