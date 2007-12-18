@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.26 2007/05/01 05:45:40 hnguyen Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.26.2.1 2007/12/18 00:05:40 lmarchese Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -485,11 +485,19 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		if (!isset($this->_running_vars['link_type'])) {
 			$orig_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['clone_assets'][$assetid]['parentid'], $orig->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
 			$link['link_type'] = $orig_link['link_type'];
+
 		} else {
 			$link['link_type'] = $this->_running_vars['link_type'];
 		}
 		if ($this->_running_vars['to_parent_pos'] != -1) {
 			$this->_running_vars['to_parent_pos']++;
+		}
+
+		if (!isset($this->_running_vars['value'])) {
+			$orig_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['clone_assets'][$assetid]['parentid'], $orig->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
+			$link['value'] = $orig_link['value'];
+		} else {
+			$link['value'] = $this->_running_vars['value'];
 		}
 
 		// NOTE: Content tags are not cloned as a component because the link
@@ -504,7 +512,6 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					  );
 
 		$step_data['message'] = 'Cloning "'.htmlentities($orig->name).'" to "'.htmlentities($parent_asset->name).'".';
-
 		$clone =& $GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $remap, $components, TRUE);
 
 		if (is_null($clone)) {
