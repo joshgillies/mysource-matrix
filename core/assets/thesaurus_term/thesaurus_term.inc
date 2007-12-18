@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.19 2007/12/18 05:38:43 hnguyen Exp $
+* $Id: thesaurus_term.inc,v 1.20 2007/12/18 05:39:44 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,6 @@ class Thesaurus_Term extends Asset
 		$this->_thesaurus = $GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurus_id);
 
 		$term = $this->_thesaurus->getTermById($termid);
-		log_dump("TERM : " . var_Export($term,TRUE));
 		if (is_null($term)) return;
 
 		$this->id = $asset_id;
@@ -135,7 +134,6 @@ class Thesaurus_Term extends Asset
 		$this->_termid = $termid;
 
 		// if we're adding a top level term it's a stray term - not linked to anything
-		log_dump("MAJORID : " . $majorid);
 		if (is_null($majorid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			if ($created) {
@@ -143,19 +141,16 @@ class Thesaurus_Term extends Asset
 			}
 			$em->broadcastEvent($this->_thesaurus, 'CreateLink', Array());
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			log_dump("RETURNING: ".$this->_thesaurus->id.':atoz:'.$termid);
 			return $this->_thesaurus->id.':atoz:'.$termid;
 		}
 
 		$existing_link = $this->_thesaurus->getTermLinkByTermids($termid, $majorid, $relation);
-		log_dump("EXISTING LINKS:" . var_export($existing_link,TRUE));
 		if (!empty($existing_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $this->_thesaurus->id.':'.$existing_link['linkid'];
 		}
 
-		log_dump("LINKING TERM");
 		$linkid = $this->_thesaurus->linkTerms($termid, $majorid, $relation);
 		if (is_null($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
