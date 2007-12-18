@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.87 2007/04/01 22:50:53 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.87.2.1 2007/12/18 00:30:34 mwegermann Exp $
 *
 */
 
@@ -1737,4 +1737,5 @@ Full Node Contents :
 
 	<error code="TRIG0003">The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted</error>
 
+	<error code="TRIG0004">No Tag is specified in Trigger Condition: 'Asset is tagged'</error>
 </errors>
