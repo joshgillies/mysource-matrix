@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_search.inc,v 1.5 2007/11/16 05:54:37 hnguyen Exp $
+* $Id: backend_search.inc,v 1.6 2007/12/18 01:10:00 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Backend_Search
@@ -74,7 +74,7 @@ class Backend_Search
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		if (Backend_Search::isAvailable()) {
-			$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 			// Are we restricting statuses? If not, use all of them
 			if (empty($restrict_statuses)) {
