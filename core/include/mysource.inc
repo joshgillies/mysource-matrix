@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.253 2007/12/18 05:45:34 hnguyen Exp $
+* $Id: mysource.inc,v 1.254 2007/12/18 23:34:23 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix
 */
 class MySource
@@ -294,15 +294,19 @@ class MySource
 				// are using for rollback so that and stored procedures that require
 				// the rollback timestamp can acquire it
 				$then = $_SESSION['sq_rollback_view']['rollback_time'];
-				$db   = $GLOBALS['SQ_SYSTEM']->db;
+				$db   = MatrixDAL::getDb();
 
-				if ($db->phptype == 'pgsql') {
-					$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quoteSmart($then).')';
-				} else if ($db->phptype == 'oci8') {
-					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp('.$db->quoteSmart($then).'); END;';
+				if (MatrixDAL::getDbType() == 'pgsql') {
+					$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quote($then).')';
+				} else if (MatrixDAL::getDbType() == 'oci8') {
+					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp('.$db->quote($then).'); END;';
 				}
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+
+				try {
+					MatrixDAL::executeSql($sql);
+				} catch (DALException $e) {
+					throw new Exception('Unable to set rollback timestamp due to database error: '.$e->getMessage());
+				}
 			} else {
 				define('SQ_ROLLBACK_VIEW', '0');
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
@@ -970,6 +974,8 @@ class MySource
 	*/
 	public function _processGlobalActions()
 	{
+		$db = MatrixDAL::getDb();
+
 		switch ($_REQUEST['SQ_ACTION']) {
 			case 'password_change' :
 				$password_old     = array_get_index($_POST, 'SQ_PASSWORD_CHANGE_OLD');
@@ -1160,13 +1166,20 @@ class MySource
 
 					// note that we dont prep this query for rollback select
 					// because we are selecting directly from the rollback table
-					$sql = 'SELECT sQ_eff_from AS efrom
+					$sql = 'SELECT sq_eff_from AS efrom
 							FROM sq_rb_ast
-							WHERE assetid = '.$this->db->quote($assetid).'
-							  AND version = '.$this->db->quote($version);
+							WHERE assetid = :assetid
+								AND version = :version';
 
-					$then = $this->db->getOne($sql);
-					assert_valid_db_result($then);
+					try {
+						$query = $db->prepare($sql);
+						$query->bindValue(':assetid', $assetid);
+						$query->bindValue(':version', $version);
+						$then = MatrixDAL::executePdoOne($query);
+					} catch (DALException $e) {
+						throw new Exception('Could not find version '.$version.' of asset ID #'.$assetid.' in rollback system due to database error: '.$e->getMessage());
+					}
+
 					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
 				}
 
@@ -2339,6 +2352,8 @@ class MySource
 	*/
 	function constructRollbackWhereClause($where='', $table_alias=NULL, $prefix='WHERE', $is_table_alias=TRUE)
 	{
+		$db = MatrixDAL::getDb();
+
 		// trim off a current prefix keyword if it exists
 		$where = trim($where);
 		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) {
@@ -2363,9 +2378,9 @@ class MySource
 		$then = $_SESSION['sq_rollback_view']['rollback_time'];
 
 		if (!empty($where)) $where .= ' AND ';
-		$where .= $table_alias.'sq_eff_from <= '.$this->db->quote($then).'
+		$where .= $table_alias.'sq_eff_from <= '.$db->quote($then).'
 				  AND ('.$table_alias.'sq_eff_to IS NULL
-					   OR '.$table_alias.'sq_eff_to > '.$this->db->quote($then).')';
+					   OR '.$table_alias.'sq_eff_to > '.$db->quote($then).')';
 
 		return ' '.$prefix.' '.$where;
 
