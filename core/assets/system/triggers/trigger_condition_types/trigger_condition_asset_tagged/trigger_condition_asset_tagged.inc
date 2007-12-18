@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_tagged.inc,v 1.5 2007/11/30 02:54:53 hnguyen Exp $
+* $Id: trigger_condition_asset_tagged.inc,v 1.6 2007/12/18 00:52:53 mwegermann Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,6 +57,10 @@ class Trigger_Condition_Asset_Tagged extends Trigger_Condition
 		$tagids		= array_get_index($settings, 'tagids');
 		$is_strict	= array_get_index($settings, 'is_strict', FALSE);
 
+		if (empty($tagids)) {
+			trigger_localised_error('TRIG0004', E_USER_WARNING);
+			return FALSE;
+		}
 		return $tag_manager->isAssetTaggedWith($assetid, $tagids, $is_strict);
 
 	}//end evaluate()
