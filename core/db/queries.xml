@@ -425,13 +425,13 @@
 					<value column="name">:name</value>
 					<value column="short_name">:short_name</value>
 					<value column="status">:status</value>
-					<value column="created">:created</value>
+					<value column="created"><function function="toDate"><arg>:created</arg></function></value>
 					<value column="created_userid">:created_userid</value>
-					<value column="updated">:updated</value>
+					<value column="updated"><function function="toDate"><arg>:updated</arg></function></value>
 					<value column="updated_userid">:updated_userid</value>
 					<value column="published">:published</value>
 					<value column="published_userid">:published_userid</value>
-					<value column="status_changed">:status_changed</value>
+					<value column="status_changed"><function function="toDate"><arg>:status_changed</arg></function></value>
 					<value column="status_changed_userid">:status_changed_userid</value>
 				</values>
 			</insert>
