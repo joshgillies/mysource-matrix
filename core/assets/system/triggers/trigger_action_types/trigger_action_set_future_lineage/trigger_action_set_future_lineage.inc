@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_lineage.inc,v 1.16 2007/12/11 02:57:27 rong Exp $
+* $Id: trigger_action_set_future_lineage.inc,v 1.17 2007/12/18 05:42:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,7 +283,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		$fs = new Cron_Job_Future_Lineage();
 		$edit_fns = $fs->getEditFns();
 
-		$settings['when'] = $edit_fns->_processWhenBox($fs, $this, $munge_prefix);
+		$o = new Backend_Outputter();
+		$settings['when'] = $edit_fns->_processWhenBox($fs, $o, $munge_prefix);
 
 		$type_code = array_get_index($request_data, 'asset_type', FALSE);
 		if ($type_code) {
