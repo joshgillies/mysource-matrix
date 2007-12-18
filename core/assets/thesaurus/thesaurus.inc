@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.50 2007/12/10 01:35:47 mwegermann Exp $
+* $Id: thesaurus.inc,v 1.51 2007/12/18 05:34:44 hnguyen Exp $
 *
 */
 
@@ -20,8 +20,6 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
-register_implementation('thesaurus', 'bridge');
-
 /**
 * Thesaurus
 *
@@ -29,7 +27,8 @@ register_implementation('thesaurus', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
+
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,7 +175,7 @@ class Thesaurus extends Asset implements Bridge
 		$limit_relation = TRUE;
 		if (is_null($relid)) $limit_relation = FALSE;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = '
 			SELECT
@@ -212,9 +211,9 @@ class Thesaurus extends Asset implements Bridge
 		}//end if
 
 		try {
-			$result = MatrixDAL::executeAll($query);
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
-			throw new Exception("BALB AL : " . $e->getMessage());
+			throw new Exception('Unable to get thesaurus child terms due to database error: '. $e->getMessage());
 		}//end
 
 		return $result;
@@ -235,21 +234,18 @@ class Thesaurus extends Asset implements Bridge
 	function countChildTerms($termid)
 	{
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				count(linkid)
-			FROM
-				sq_thes_lnk
-			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
-				AND
-				major = '.$db->quoteSmart($termid).'
-		';
+		$bind_vars = Array (
+						'assetid'	=> $this->id,
+						'termid'	=> $termid,
+					);
 
-		$result = $db->getOne($sql);
-		assert_valid_db_result($result);
+        try {
+			$result = MatrixDAL::executeOne('thesaurus', 'countChildTerms', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to count thesaurus child terms due to database error: '. $e->getMessage());
+        }//end
 
 		return $result;
 
@@ -265,19 +261,15 @@ class Thesaurus extends Asset implements Bridge
 	function countTermLinks()
 	{
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				count(linkid)
-			FROM
-				sq_thes_lnk
-			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
-		';
+		$bind_vars['assetid'] = $this->id;
 
-		$result = $db->getOne($sql);
-		assert_valid_db_result($result);
+		try {
+            $result = MatrixDAL::executeOne('thesaurus', 'countTermLinks', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to count thesaurus term links due to database error: '. $e->getMessage());
+        }//end
 
 		return $result;
 
@@ -293,19 +285,16 @@ class Thesaurus extends Asset implements Bridge
 	function countTerms()
 	{
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				count(termid)
-			FROM
-				sq_thes_term
-			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
-		';
+        $bind_vars['assetid'] = $this->id;
 
-		$result = $db->getOne($sql);
-		assert_valid_db_result($result);
+        try {
+            $result = MatrixDAL::executeOne('thesaurus', 'countTerms', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to count thesaurus terms due to database error: '. $e->getMessage());
+        }//end
+
 
 		return $result;
 
@@ -325,21 +314,19 @@ class Thesaurus extends Asset implements Bridge
 	function countParentTerms($termid)
 	{
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+        $db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				count(linkid)
-			FROM
-				sq_thes_lnk
-			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
-				AND
-				minor = '.$db->quoteSmart($termid).'
-		';
+        $bind_vars = Array (
+                        'assetid'   => $this->id,
+                        'termid'    => $termid,
+                    );
 
-		$result = $db->getOne($sql);
-		assert_valid_db_result($result);
+        try {
+            $result = MatrixDAL::executeOne('thesaurus', 'countParentTerms', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to count thesaurus parent terms due to database error: '. $e->getMessage());
+        }//end
+
 
 		return $result;
 
@@ -359,30 +346,19 @@ class Thesaurus extends Asset implements Bridge
 	function getChildRelationsForTerm($termid)
 	{
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql ='
-			SELECT DISTINCT
-				l.relid,
-				r.relation
-			FROM
-				sq_thes_lnk l,
-				sq_thes_rel r
-			WHERE
-				r.relid = l.relid
-				AND
-				r.thesid = '.$db->quoteSmart($this->id).'
-				AND
-				l.thesid = '.$db->quoteSmart($this->id).'
-				AND
-				l.major = '.$db->quoteSmart($termid).'
-			ORDER BY
-				r.relation
-		';
+        $bind_vars = Array (
+                        'assetid'   => $this->id,
+                        'termid'    => $termid,
+                    );
 
-		$result = $db->getAssoc($sql);
+        try {
+            $result = MatrixDAL::executeAssoc('thesaurus', 'getChildRelationsForTerm', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get child relations for term due to database error: '. $e->getMessage());
+        }//end
 
-		assert_valid_db_result($result);
 		return $result;
 
 	}//end getChildRelationsForTerm()
@@ -403,30 +379,19 @@ class Thesaurus extends Asset implements Bridge
 
 		if (!isset($termid)) return NULL;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+        $db = MatrixDAL::getDb();
 
-		$sql ='
-			SELECT DISTINCT
-				l.relid,
-				r.relation
-			FROM
-				sq_thes_lnk l,
-				sq_thes_rel r
-			WHERE
-				r.relid = l.relid
-				AND
-				r.thesid = '.$db->quoteSmart($this->id).'
-				AND
-				l.thesid = '.$db->quoteSmart($this->id).'
-				AND
-				l.minor = '.$db->quoteSmart($termid).'
-			ORDER BY
-				r.relation
-		';
+        $bind_vars = Array (
+                        'assetid'   => $this->id,
+                        'termid'    => $termid,
+                    );
 
-		$result = $db->getAssoc($sql);
+        try {
+            $result = MatrixDAL::executeAssoc('thesaurus', 'getParentRelationsForTerm', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get parent relations for term due to database error: '. $e->getMessage());
+        }//end
 
-		assert_valid_db_result($result);
 		return $result;
 
 	}//end getParentRelationsForTerm()
@@ -440,23 +405,15 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getAllTerms()
 	{
+        $bind_vars	= Array();
+        $bind_vars['assetid'] = $this->id;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+        try {
+            $result = MatrixDAL::executeAll('thesaurus', 'getAllTerms', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get a list of all thesaurus terms due to database error: '. $e->getMessage());
+        }//end
 
-		$sql = '
-			SELECT
-				termid, term
-			FROM
-				sq_thes_term
-			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
-			ORDER BY
-				term
-		';
-
-		$result = $db->getAll($sql);
-
-		assert_valid_db_result($result);
 		return $result;
 
 	}//end getAllTerms()
@@ -479,7 +436,7 @@ class Thesaurus extends Asset implements Bridge
 		$limit_relation = TRUE;
 		if (is_null($relid)) $limit_relation = FALSE;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = '
 			SELECT
@@ -488,17 +445,17 @@ class Thesaurus extends Asset implements Bridge
 				sq_thes_term term
 				INNER JOIN sq_thes_lnk link ON term.termid = link.major
 			WHERE
-				term.thesid = '.$db->quoteSmart($this->id).'
+				term.thesid = :thesid_1
 				AND
-				link.thesid = '.$db->quoteSmart($this->id).'
+				link.thesid = :thesid_2
 				AND
-				minor = '.$db->quoteSmart($termid).'
+				minor = :termid
 		';
 
 		if ($limit_relation) {
 			$sql .= '
 				AND
-				relid = '.$db->quoteSmart($relid).'
+				relid = :relid
 			';
 		}
 
@@ -507,9 +464,21 @@ class Thesaurus extends Asset implements Bridge
 				term
 		';
 
-		$result = $db->getAll($sql);
 
-		assert_valid_db_result($result);
+		$query = $db->prepare($sql);
+        $query->bindValue(':thesid_1', $this->id);
+        $query->bindValue(':thesid_2', $this->id);
+        $query->bindValue(':termid', $termid);
+        if ($limit_relation) {
+            $query->bindValue(':relid', $relid);
+        }//end if
+
+        try {
+            $result = MatrixDAL::executePdoAll($query);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus parent terms due to database error: '. $e->getMessage());
+        }//end
+
 		return $result;
 
 	}//end getParentTerms()
@@ -527,7 +496,7 @@ class Thesaurus extends Asset implements Bridge
 	{
 		if (empty($relation_id)) return NULL;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = '
 			SELECT
@@ -540,18 +509,16 @@ class Thesaurus extends Asset implements Bridge
 				INNER JOIN sq_thes_lnk link ON major.termid = link.major
 				INNER JOIN sq_thes_term minor ON minor.termid = link.minor
 			WHERE
-				link.relid = '.$db->quoteSmart($relation_id).'
+				link.relid = '.$db->quote($relation_id).'
 				AND
-				major.thesid = '.$db->quoteSmart($this->id).'
+				major.thesid = '.$db->quote($this->id).'
 				AND
-				minor.thesid = '.$db->quoteSmart($this->id).'
+				minor.thesid = '.$db->quote($this->id).'
 				AND
-				link.thesid = '.$db->quoteSmart($this->id).'
+				link.thesid = '.$db->quote($this->id).'
 		';
 
-		$result = $db->getAll($sql);
-
-		assert_valid_db_result($result);
+		$result = MatrixDAL::executeSqlAll($sql);
 
 		return $result;
 
@@ -575,28 +542,21 @@ class Thesaurus extends Asset implements Bridge
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 
-		$termid = $db->nextId('sq_thes_term');
-		assert_valid_db_result($termid);
+        $db = MatrixDAL::getDb();
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$sql = '
-			INSERT INTO sq_thes_term
-				(
-					termid,
-					term,
-					thesid
-				)
-			VALUES
-			(
-				'.$termid.',
-				'.$db->quoteSmart($term).',
-				'.$db->quoteSmart($this->id).'
-			)
-		';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$termid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_term_seq\');');
+        $bind_vars = Array (
+                        'thesid'	=> $this->id,
+						'term'		=> $term,
+						'termid'	=> $termid,
+                    );
+
+        try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'insertTerm', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to insert a thesaurus term due to database error: '. $e->getMessage());
+        }//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -640,27 +600,21 @@ class Thesaurus extends Asset implements Bridge
 	{
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$sql = '
-			INSERT INTO sq_thes_term_note
-				(
-					termid,
-					name,
-					value,
-					thesid
-				)
-			VALUES
-			(
-				'.$db->quoteSmart($termid).',
-				'.$db->quoteSmart($note_name).',
-				'.$db->quoteSmart($note_value).',
-				'.$db->quoteSmart($this->id).'
-			)
-		';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$db = MatrixDAL::getDb();
+
+        $bind_vars = Array (
+                        'thesid'	=> $this->id,
+                        'termid'	=> $termid,
+						'name'		=> $note_name,
+						'value'		=> $note_value,
+                    );
+
+        try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'insertTermNote', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to insert a thesaurus term note due to database error: '. $e->getMessage());
+        }//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -680,24 +634,19 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getTermNotes($termid)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '
-			SELECT
-				name,
-				value
-			FROM
-				sq_thes_term_note
-			WHERE
-				termid = '.$db->quoteSmart($termid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-			ORDER BY
-				name
-		';
+		$db = MatrixDAL::getDb();
 
-		$result = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ORDERED, TRUE);
-		assert_valid_db_result($result);
+        $bind_vars = Array (
+                        'assetid'   => $this->id,
+                        'termid'    => $termid,
+                    );
+
+        try {
+            $result = MatrixDAL::executeAssoc('thesaurus', 'getTermNotes', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus term note due to database error: '. $e->getMessage());
+        }//end
 
 		return $result;
 
@@ -715,19 +664,22 @@ class Thesaurus extends Asset implements Bridge
 	function deleteTermNotes($termid)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+
+		$db = MatrixDAL::getDb();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$sql = '
-			DELETE FROM
-				sq_thes_term_note
-			WHERE
-				termid = '.$db->quoteSmart($termid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+		$bind_vars = Array (
+                        'thesid'    => $this->id,
+                        'termid'    => $termid,
+                    );
+
+        try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'deleteTermNotes', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to delete a thesaurus term note due to database error: '. $e->getMessage());
+        }//end
+
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -790,55 +742,34 @@ class Thesaurus extends Asset implements Bridge
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				linkid
-			FROM
-				sq_thes_lnk
-			WHERE
-				major = '.$db->quoteSmart($majorid).'
-				AND
-				minor = '.$db->quoteSmart($minorid).'
-				AND
-				relid = '.$db->quoteSmart($relation_id).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-		$result = $db->getOne($sql);
-		assert_valid_db_result($result);
+		$bind_vars = Array (
+                        'thesid'    => $this->id,
+                        'major'     => $majorid,
+                        'minor'     => $minorid,
+                        'relation'  => $relation_id,
+					 );
+
+		try {
+            $result = MatrixDAL::executeOne('thesaurus', 'getLinkId', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus linkid due to database error: '. $e->getMessage());
+        }//end
+
 
 		// if the terms are already linked using this relation, just return the ID
 		if (!empty($result)) return $result;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$linkid = $db->nextId('sq_thes_lnk');
-		assert_valid_db_result($linkid);
-
 		// inserting a term link is the easiest thing ever
-		$sql = '
-			INSERT INTO sq_thes_lnk
-				(
-					linkid,
-					major,
-					minor,
-					relid,
-					thesid
-				)
-			VALUES
-				(
-					'.$linkid.',
-					'.$db->quoteSmart($majorid).',
-					'.$db->quoteSmart($minorid).',
-					'.$db->quoteSmart($relation_id).',
-					'.$db->quoteSmart($this->id).'
-				)
-		';
+        try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'insertLink', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to link a thesaurus term due to database error: '. $e->getMessage());
+        }//end
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
 
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$major = $this->getAsset($majorid);
@@ -871,7 +802,7 @@ class Thesaurus extends Asset implements Bridge
 		if ($term['term'] == $name) return TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 
 		// if the new name is being used by another term, do not update
@@ -886,19 +817,19 @@ class Thesaurus extends Asset implements Bridge
 		// if the term has only one parent and the name is not used anywhere else - it is safe to update it
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		// update the term itself
-		$sql = '
-			UPDATE
-				sq_thes_term
-			SET
-				term = '.$db->quoteSmart($name).'
-			WHERE
-				termid = '.$db->quoteSmart($termid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+        $bind_vars = Array (
+                        'assetid'	=> $this->id,
+                        'termid'	=> $termid,
+                        'name'		=> $name,
+                     );
+
+		try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'updateTerm', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to update a thesaurus term due to database error: '. $e->getMessage());
+        }//end
+
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -933,22 +864,22 @@ class Thesaurus extends Asset implements Bridge
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Update relations
-		$sql = '
-			UPDATE
-				sq_thes_rel
-			SET
-				relation = '.$db->quoteSmart($new_name).'
-			WHERE
-				relid = '.$db->quoteSmart($relation_id).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+        $bind_vars = Array (
+                        'assetid'	=> $this->id,
+                        'relid'		=> $relation_id,
+                        'relation'	=> $new_name,
+                     );
+
+        try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'updateRelationName', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to update a thesaurus relation name due to database error: '. $e->getMessage());
+        }//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -971,21 +902,21 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getTermById($termid)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				term, termid
-			FROM
-				sq_thes_term
-			WHERE
-				termid = '.$db->quoteSmart($termid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-		$result = $db->getRow($sql);
+		$bind_vars = Array (
+                        'assetid'	=> $this->id,
+                        'termid'	=> $termid,
+                    );
+        try {
+            $result = MatrixDAL::executeAll('thesaurus', 'getTermById', $bind_vars);
+			if (!empty($result) && isset($result[0])) {
+				$result = $result[0];
+			}
+        } catch (Exception $e) {
+            throw new Exception('Unable to get a thesaurus term by id due to database error: '. $e->getMessage());
+        }//end
 
-		assert_valid_db_result($result);
 		return $result;
 
 	}//end getTermById()
@@ -1003,24 +934,22 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getTermLinkById($linkid)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				minor, major, r.relid, relation, linkid
-			FROM
-				sq_thes_lnk l
-				INNER JOIN sq_thes_rel r ON r.relid = l.relid
-			WHERE
-				linkid = '.$db->quoteSmart($linkid).'
-				AND
-				r.thesid = '.$db->quoteSmart($this->id).'
-				AND
-				l.thesid = '.$db->quoteSmart($this->id).'
-		';
-		$result = $db->getRow($sql);
+		$bind_vars = Array (
+						'assetid'   => $this->id,
+						'linkid'    => $linkid,
+					 );
 
-		assert_valid_db_result($result);
+        try {
+            $result = MatrixDAL::executeAll('thesaurus', 'getLinkById', $bind_vars);
+            if (!empty($result) && isset($result[0])) {
+                $result = $result[0];
+            }
+        } catch (Exception $e) {
+            throw new Exception('Unable to get a thesaurus term link by id due to database error: '. $e->getMessage());
+        }//end
+
 		return $result;
 
 	}//end getTermLinkById()
@@ -1036,7 +965,7 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getRelationIdByName($name)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = '
 			SELECT
@@ -1044,14 +973,22 @@ class Thesaurus extends Asset implements Bridge
 			FROM
 				sq_thes_rel
 			WHERE
-				relation '.(is_null($name)?'IS NULL':'= '.$db->quoteSmart($name)).'
+				relation '.(is_null($name)?'IS NULL':'= :name').'
 				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
+				thesid = :assetid';
 
-		$result = $db->getOne($sql);
+		$query = $db->prepare($sql);
+		if (!is_null($name)) {
+			$query->bindValue('name', $name);
+		}
+        $query->bindValue('assetid', $this->id);
 
-		assert_valid_db_result($result);
+        try {
+            $result = MatrixDAL::executePdoOne($query);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus relation Id by name due to database error: '. $e->getMessage());
+        }//end
+
 		if (empty($result)) $result = NULL;
 
 		return $result;
@@ -1076,29 +1013,22 @@ class Thesaurus extends Asset implements Bridge
 		if (!is_null($relid)) return $relid;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
-		$id = $db->nextId('sq_thes_rel');
-		assert_valid_db_result($id);
+		$db = MatrixDAL::getDb();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$sql = '
-			INSERT INTO
-				sq_thes_rel
-				(
-					relid,
-					relation,
-					thesid
-				)
-			VALUES
-				(
-					'.$id.',
-					'.$db->quoteSmart($name).',
-					'.$db->quoteSmart($this->id).'
-				)
-		';
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+
+		$id = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_rel_seq\');');
+		$bind_vars = Array (
+                        'thesid'	=> $this->id,
+                        'relation'	=> $name,
+                        'relid'		=> $id,
+                     );
+
+        try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'insertRelation', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to add a thesaurus relation due to database error: '. $e->getMessage());
+        }//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1149,29 +1079,25 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getTermLinkByTermids($termid, $parentid, $relid=NULL)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '
-			SELECT
-				linkid,
-				relid,
-				major,
-				minor
-			FROM
-				sq_thes_lnk
-			WHERE
-				minor = '.$db->quoteSmart($termid).'
-				AND
-				major = '.$db->quoteSmart($parentid).'
-				AND
-				relid = '.$db->quoteSmart($relid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
+		$db = MatrixDAL::getDb();
 
-		$result = $db->getRow($sql, DB_FETCHMODE_ASSOC);
+        $bind_vars = Array (
+                        'thesid'	=> $this->id,
+                        'relid'		=> $relid,
+						'parentid'	=> $parentid,
+						'termid'	=> $termid,
+                     );
 
-		assert_valid_db_result($result);
+        try {
+            $result = MatrixDAL::executeAll('thesaurus', 'getTermLinkByTermIds', $bind_vars);
+            if (!empty($result) && isset($result[0])) {
+                $result = $result[0];
+            }
+        } catch (Exception $e) {
+            throw new Exception('Unable to get a thesaurus term link by id due to database error: '. $e->getMessage());
+        }//end
+
 		return $result;
 
 	}//end getTermLinkByTermids()
@@ -1187,24 +1113,20 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getTermIdByName($name)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$name = strtolower($name);
 
-		$sql = '
-			SELECT
-				termid
-			FROM
-				sq_thes_term
-			WHERE
-				lower(term) = '.$db->quoteSmart($name).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
+		$bind_vars = Array (
+                        'thesid'	=> $this->id,
+                        'name'		=> $name,
+                    );
 
-		$result = $db->getOne($sql);
-
-		assert_valid_db_result($result);
+        try {
+            $result = MatrixDAL::executeOne('thesaurus', 'getTermIdByName', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus term id by name due to database error: '. $e->getMessage());
+        }//end
 
 		if (empty($result)) $result = NULL;
 
@@ -1232,27 +1154,24 @@ class Thesaurus extends Asset implements Bridge
 	{
 		if (empty($names)) return Array();
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$formatted_names = Array();
 		foreach ($names as $name) {
-			$formatted_names[] = $db->quoteSmart(strtolower($name));
+			$formatted_names[] = strtolower($name);
 		}
 
-		$sql = '
-			SELECT
-				termid, term
-			FROM
-				sq_thes_term
-			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
-				AND
-				lower(term) IN ('.implode(',', $formatted_names).')
-		';
+		$bind_vars = Array (
+						'names'	=> $formatted_names,
+						'theid'	=> $this->id,
+					 );
 
-		$result = $db->getAssoc($sql);
+		try {
+            $result = MatrixDAL::executeAssoc('thesaurus', 'getTermIdByNames', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus term ids by names due to database error: '. $e->getMessage());
+        }//end
 
-		assert_valid_db_result($result);
 		return $result;
 
 	}//end getTermIdsByNames()
@@ -1271,8 +1190,7 @@ class Thesaurus extends Asset implements Bridge
 	{
 		if (is_null($term)) return FALSE;
 
-
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MAtrixDAL::getDb();
 
 		$sql = '
 			SELECT
@@ -1280,16 +1198,34 @@ class Thesaurus extends Asset implements Bridge
 			FROM
 				sq_thes_term
 			WHERE
-				lower(term) = '.$db->quoteSmart(strtolower($term)).'
+				lower(term) = :term
 				AND
-				thesid = '.$db->quoteSmart($this->id).'
+				thesid = :thesid
 		';
 		if ($termid != 0) {
-			$sql .= 	' AND termid <> '.$db->quoteSmart($termid);
+			$sql .= 	' AND termid <> :termid';
 		}
-		$result = $db->getOne($sql);
 
-		assert_valid_db_result($result);
+		$bind_vars = Array (
+                        'term'	=> strtolower($term),
+                        'thesid' => $this->id,
+                     );
+
+		if ($termid != 0) {
+			$bind_vars['termid'] = $termid;
+		}
+
+        try {
+        	$query	= $db->prepare($sql);
+        	$query->bindValue(':term', strtolower($term));
+        	$query->bindValue(':thesid', $this->id);
+        	if ($termid != 0) {
+        		$query->bindValue(':termid', $termid);
+        	}
+            $result = MatrixDAL::executePdoOne($query);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus term id due to database error: '.$e->getMessage());
+        }//end
 
 		return !empty($result);
 
@@ -1304,20 +1240,17 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getActiveRelations()
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = '
-			SELECT
-				relid, relation
-			FROM
-				sq_thes_rel
-			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
-			ORDER BY
-				relation
-		';
-		$result = $db->getAssoc($sql);
-		assert_valid_db_result($result);
+        $bind_vars = Array (
+                        'assetid' => $this->id,
+                     );
+
+        try {
+            $result = MatrixDAL::executeAssoc('thesaurus', 'getActiveRelations', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get thesaurus active relations due to database error: '. $e->getMessage());
+        }//end
 
 		return $result;
 
@@ -1357,23 +1290,37 @@ class Thesaurus extends Asset implements Bridge
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
-		$sql = 'DELETE FROM sq_thes_term WHERE thesid = '.$db->quoteSmart($this->id);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		$bind_vars = Array (
+						'assetid'	=> $this->id,
+					 );
 
-		$sql = 'DELETE FROM sq_thes_lnk WHERE thesid = '.$db->quoteSmart($this->id);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllTerms', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to delete all thesaurus terms due to database error: '. $e->getMessage());
+        }//end
 
-		$sql = 'DELETE FROM sq_thes_rel WHERE thesid = '.$db->quoteSmart($this->id);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllLinks', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to delete all thesaurus links due to database error: '. $e->getMessage());
+        }//end
 
-		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE '.$db->quoteSmart($this->id.':%');
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllRelations', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to delete all thesaurus relations due to database error: '. $e->getMessage());
+        }//end
+
+		$bind_vars['assetid'] = $this->id.':%';
+
+		try {
+            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllShadowLinks', $bind_vars);
+        } catch (Exception $e) {
+            throw new Exception('Unable to delete all shadow thesaurus links due to database error: '. $e->getMessage());
+        }//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1421,7 +1368,7 @@ class Thesaurus extends Asset implements Bridge
 	function getAbsoluteParentsInRelation($relation_id=NULL)
 	{
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		if (!isset($relation_id)) return Array();
 
@@ -1432,7 +1379,7 @@ class Thesaurus extends Asset implements Bridge
 			FROM
 				sq_thes_term
 			WHERE
-				thesid = '.$db->quoteSmart($this->id).'
+				thesid = :thesid_1
 				AND
 				termid IN (
 					SELECT DISTINCT
@@ -1440,9 +1387,9 @@ class Thesaurus extends Asset implements Bridge
 					FROM
 						sq_thes_lnk
 					WHERE
-						thesid = '.$db->quoteSmart($this->id).'
+						thesid = :thesid_2
 						AND
-						relid  = '.$db->quoteSmart($relation_id).'
+						relid  = :relid_1
 						AND
 						major NOT IN (
 							SELECT DISTINCT
@@ -1450,17 +1397,27 @@ class Thesaurus extends Asset implements Bridge
 							FROM
 								sq_thes_lnk
 							WHERE
-								thesid = '.$db->quoteSmart($this->id).'
+								thesid = :thesid_3
 								AND
-								relid  = '.$db->quoteSmart($relation_id).'
+								relid  = :relid_2
 						)
 				)
 			ORDER BY
 				term
 		';
 
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		$query = $db->prepare($sql);
+        $query->bindValue(':thesid_1', $this->id);
+        $query->bindValue(':thesid_2', $this->id);
+        $query->bindValue(':thesid_3', $this->id);
+		$query->bindValue(':relid_1', $relation_id);
+		$query->bindValue(':relid_2', $relation_id);
+
+        try {
+            $result = MatrixDAL::executePdoAll($query);
+        } catch (Exception $e) {
+            throw new Exception('Unable to get absolute parent om relation due to database error: '. $e->getMessage());
+        }//end
 
 		return $result;
 
@@ -2252,20 +2209,17 @@ class Thesaurus extends Asset implements Bridge
 		if (empty($linkid)) return FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = '
-			DELETE FROM
-				sq_thes_lnk
-			WHERE
-				linkid = '.$db->quoteSmart($linkid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'linkid'	=> $linkid,
+							'assetid'	=> $this->id,
+						  );
+			$result = MatrixDAL::executeQuery('thesaurus', 'deleteLink', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete thesaurus term link due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2287,46 +2241,38 @@ class Thesaurus extends Asset implements Bridge
 	{
 		if (empty($termid)) return FALSE;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
-
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// delete the term
-		$sql = '
-			DELETE FROM
-				sq_thes_term
-			WHERE
-				termid = '.$db->quoteSmart($termid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
+		try {
+			$bind_vars	= Array (
+							'assetid'	=> $this->id,
+							'termid'	=> $termid,
+						  );
+			$result	= MatrixDAL::executeQuery('thesaurus', 'deleteTerm', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete thesaurus term due to the following database error:'.$e->getMessage());
+		}//end try catch
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'termid'	=> $termid,
+							'assetid'	=> $this->id,
+						  );
+			$result	= MatrixDAL::executeQuery('thesaurus', 'deleteThesaurusLinksContainingTerm', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete thesaurus links containing term due to the following database error:'.$e->getMessage());
+		}//end try catch
 
-		// delete the links featuring this term
-		$sql = '
-			DELETE FROM
-				sq_thes_lnk
-			WHERE
-				(
-					major = '.$db->quoteSmart($termid).'
-					OR
-					minor = '.$db->quoteSmart($termid).'
-				)
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid = '.$db->quoteSmart($this->id.':'.$termid);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'assetid'	=> $this->id.':'.$termid,
+						  );
+			$result	= MatrixDAL::executeQuery('thesaurus', 'deleteAllShadowLinks', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete shadow links due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -2348,39 +2294,29 @@ class Thesaurus extends Asset implements Bridge
 	{
 		if (empty($relid)) return FALSE;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
-
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-
 		// delete the term
-		$sql = '
-			DELETE FROM
-				sq_thes_rel
-			WHERE
-				relid = '.$db->quoteSmart($relid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
+		try {
+			$bind_vars	= Array (
+							'relation'	=> $relid,
+							'assetid'	=> $this->id,
+						  );
+			$result	= MatrixDAL::executeQuery('thesaurus', 'deleteRelation', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete thesaurus terms relation due to the following database error:'.$e->getMessage());
+		}//end try catch
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		// delete the links featuring this term
-		$sql = '
-			DELETE FROM
-				sq_thes_lnk
-			WHERE
-				relid = '.$db->quoteSmart($relid).'
-				AND
-				thesid = '.$db->quoteSmart($this->id).'
-		';
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'relation'	=> $relid,
+							'assetid'	=> $this->id,
+						  );
+			$result	= MatrixDAL::executeQuery('thesaurus', 'deleteLinksContainingRelation', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete links containing relation due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		// cleanup the reflections
 		// NOTE: In the future it might be necessary to wipe the reflective relation as well - Reflection Integrity
@@ -2485,7 +2421,7 @@ class Thesaurus extends Asset implements Bridge
 			assert_valid_assetid($assetids);
 		}
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$sql = 'SELECT termid, thesid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'thes_term ';
 
@@ -2493,9 +2429,8 @@ class Thesaurus extends Asset implements Bridge
 		if (!$is_array) {
 			if ($is_empty) return FALSE;
 			$id_parts = explode(':', $assetids);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('termid = '.$db->quoteSmart($id_parts[1]).' AND thesid = '.$db->quoteSmart($id_parts[0]));
-			$db_assetids = $db->getOne($sql.$where);
-			assert_valid_db_result($db_assetids);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('termid = '.$db->quote($id_parts[1]).' AND thesid = '.$db->quote($id_parts[0]));
+			$db_assetids = MatrixDAL::executeSqlOne($sql.$where);
 			return ($db_assetids == $assetids);
 		}
 
@@ -2508,12 +2443,11 @@ class Thesaurus extends Asset implements Bridge
 				$id_parts = explode(':', $assetids[$i]);
 				// build an array of thesids for each termid
 				$thesid_array[$id_parts[1]] = $id_parts[0];
-				$in .= $db->quoteSmart($id_parts[1]).(($i == count($assetids) - 1) ? ')' : ',');
+				$in .= $db->quote($id_parts[1]).(($i == count($assetids) - 1) ? ')' : ',');
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);
-			$db_assetids = $db->getAll($sql.$where);
-			assert_valid_db_result($db_assetids);
+			$db_assetids = MatrixDAL::executeSqlAll($sql.$where);
 
 			foreach ($db_assetids as $db_id) {
 				if ($db_id['thesid'] == $thesid_array[$db_id['termid']]) {
@@ -2639,8 +2573,8 @@ class Thesaurus extends Asset implements Bridge
 	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
-	* @param string	$protocol	the protocol to match -> NULL means it is ignored
-	* @param string	$url		the url to check for -> NULL defaults it to current url
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the url to check for -> null defaults it to current url
 	*
 	* @return array
 	* @access public
