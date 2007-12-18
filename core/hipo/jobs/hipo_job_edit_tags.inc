@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.11 2007/12/03 22:11:45 hnguyen Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.12 2007/12/18 00:28:54 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -211,10 +211,15 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 				}
 				 $child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, Array(), NULL, FALSE);
 
-				$child_assets[$assetid] = $asset->type();
+				//$child_assets[$assetid] = $asset->type();
+				$child_assets[$assetid]	= Array (
+											0	=> Array (
+													'type_code'	=> $asset->type(),
+												   ),
+										  );
 
 				// getChildren is not supposed to return any assets that are linked by notice links, but at time of writing it did, resulting in tags getting tagged. Check for assets returned that have no type.
-				$child_assets = array_filter($child_assets);
+				$child_assets = array_filter($child_assets);	//TODO: Running array_filter wouldnt have any effect, since it's multi-dimensional array now.
 				unset($asset);
 			}
 			$this->_running_vars['todo_assetids'] = $child_assets;
@@ -238,10 +243,10 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
-			$assetid = array_shift(array_keys($this->_running_vars['todo_assetids']));
-
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid];
+			$assetid	= key($this->_running_vars['todo_assetids']);
+			$asset_type	= $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
+
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
