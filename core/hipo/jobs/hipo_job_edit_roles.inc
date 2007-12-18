@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.9 2007/12/03 22:08:53 hnguyen Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.10 2007/12/18 22:54:06 hnguyen Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -311,7 +311,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 
 		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
-		foreach ($children as $dep_child_id => $dep_child_type_code) {
+		foreach ($children as $dep_child_id => $dep_child_data) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'roles');
 		}
 
