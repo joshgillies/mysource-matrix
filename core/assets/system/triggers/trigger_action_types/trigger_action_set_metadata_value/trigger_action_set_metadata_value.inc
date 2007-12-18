@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.20 2007/12/13 05:29:34 hnguyen Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.21 2007/12/18 04:40:41 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,6 +91,11 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// get the current metadata values
 		$metadata = $mm->getMetadata($asset->id);
+		$tmp_metadata = Array();
+		foreach ($metadata as $fieldid => $metadata_info) {
+			$tmp_metadata[$fieldid] = $metadata_info[0];
+		}
+		$metadata = $tmp_metadata;
 
 		// get the field name
 		$field_name = '';
