@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.630 2007/12/16 23:20:11 bshkara Exp $
+* $Id: asset.inc,v 1.631 2007/12/18 00:14:13 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.630 $
+* @version $Revision: 1.631 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1580,7 +1580,7 @@ class Asset extends MySource_Object
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
-	* @return boolean|object
+	* @return object|null
 	* @access public
 	*/
 	public function morph($new_type_code)
@@ -1588,11 +1588,11 @@ class Asset extends MySource_Object
 		$new_type_code = strtolower($new_type_code);
 		$old_type_code = $this->type();
 
-		if ($this->type() == $new_type_code) return TRUE;
+		if ($this->type() == $new_type_code) return $this;
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed($new_type_code)) {
 			trigger_localised_error('SYS0085', E_USER_WARNING, $new_type_code);
-			return FALSE;
+			return NULL;
 		}
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -1620,7 +1620,7 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0234', E_USER_WARNING, $this->name, $new_type_code, $this->type());
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
+			return NULL;
 		}
 
 		$am->includeAsset($new_type_code);
@@ -1638,7 +1638,7 @@ class Asset extends MySource_Object
 					trigger_localised_error('SYS0236', E_USER_WARNING, $this->name, $new_type_code, $link['minor_type_code'], link_type_name($link['link_type']), $new_type_code);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
+					return NULL;
 				}
 			}// end foreach
 
@@ -1657,7 +1657,7 @@ class Asset extends MySource_Object
 					trigger_localised_error('SYS0235', E_USER_WARNING, $this->name, $new_type_code, $parent->name, $parent->id, $err_msg);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return FALSE;
+					return NULL;
 				}
 			}// end foreach
 
@@ -1774,7 +1774,7 @@ class Asset extends MySource_Object
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
+			return NULL;
 
 		}// end if
 
