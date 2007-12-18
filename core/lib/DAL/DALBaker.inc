@@ -274,25 +274,25 @@ class DALBaker
             return FALSE;
         }
 
-		$success = self::processQueriesFile($systemName, $queryXML);
+        $success = self::processQueriesFile($systemName, $queryXML);
         return $success;
 
     }//end addSystemQueries()
 
 
-	/**
-	 * Processes a queries.xml file to prepare it for baking
-	 *
-	 * @param string $systemName The system to add queries to.
-	 * @param string $fileName   The name of the queries file.
-	 *
-	 * @since  4.0.0
-	 * @return void
-	 * @throws DALBakerException When an ID isn't specified for a query.
-	 */
-	public static function processQueriesFile($systemName, $fileName)
-	{
-		if (file_exists($fileName) === FALSE) {
+    /**
+     * Processes a queries.xml file to prepare it for baking
+     *
+     * @param string $systemName The system to add queries to.
+     * @param string $fileName   The name of the queries file.
+     *
+     * @since  4.0.0
+     * @return void
+     * @throws DALBakerException When an ID isn't specified for a query.
+     */
+    public static function processQueriesFile($systemName, $fileName)
+    {
+        if (file_exists($fileName) === FALSE) {
             return FALSE;
         }
 
@@ -342,7 +342,7 @@ class DALBaker
             }//end if
         }//end foreach childnodes
 
-	}//end processQueriesFile()
+    }//end processQueriesFile()
 
 
     /*
@@ -865,6 +865,11 @@ class DALBaker
     {
         $systemPath = dirname(__FILE__).'/Oven/'.$system;
         $fileName   = $systemPath.'/'.$queryName.'.xml';
+
+        if (file_exists($fileName)) {
+            unlink($fileName);
+        }
+
         $doc->save($fileName);
 
     }//end saveQueryXML()
@@ -891,9 +896,9 @@ class DALBaker
     {
         $queryId = $query->getAttribute('id');
 
-        if (self::queryXMLExists($systemName, $queryId) === FALSE) {
-            self::generateQueryXML($systemName, $queryId);
-        }
+        //if (self::queryXMLExists($systemName, $queryId) === FALSE) {
+        self::generateQueryXML($systemName, $queryId);
+        //}
 
         $doc       = self::getQueryXML($systemName, $queryId);
         $queryNode = $doc->getElementsByTagName('basequery')->item(0);
@@ -945,9 +950,9 @@ class DALBaker
         $hookId = $fragment->getAttribute('hookid');
         list($targetSystem, $targetQuery) = explode('.', $hookId);
 
-        if (self::queryXMLExists($targetSystem, $targetQuery) === FALSE) {
-            self::generateQueryXML($targetSystem, $targetQuery);
-        }
+        //if (self::queryXMLExists($targetSystem, $targetQuery) === FALSE) {
+        self::generateQueryXML($targetSystem, $targetQuery);
+        //}
 
         $doc           = self::getQueryXML($targetSystem, $targetQuery);
         $fragmentsNode = $doc->getElementsByTagName('fragments')->item(0);
@@ -989,9 +994,9 @@ class DALBaker
         $hookId = $subQuery->getAttribute('hookid');
         list($targetSystem, $targetQuery) = explode('.', $hookId);
 
-        if (self::queryXMLExists($targetSystem, $targetQuery) === FALSE) {
-            self::generateQueryXML($targetSystem, $targetQuery);
-        }
+        //if (self::queryXMLExists($targetSystem, $targetQuery) === FALSE) {
+        self::generateQueryXML($targetSystem, $targetQuery);
+        //}
 
         $doc            = self::getQueryXML($targetSystem, $targetQuery);
         $subQueriesNode = $doc->getElementsByTagName('sub-queries')->item(0);
@@ -1499,8 +1504,8 @@ class DALBaker
         $path     = DAL::getQueryStorePath().'/'.$fileName;
         if (file_exists($path) === TRUE) {
             if (unlink($path) === FALSE) {
-				throw new DALException('Query object already exists, and was unable to be removed');
-			}
+                throw new DALException('Query object already exists, and was unable to be removed');
+            }
         }
 
         file_put_contents($path, $objData);
@@ -1853,7 +1858,6 @@ class DALBaker
         }
 
         $usedNames = array();
-		throw new Exception('Break point');
         foreach ($bindingList as $binding) {
             $bindName = $binding->getAttribute('name');
 
