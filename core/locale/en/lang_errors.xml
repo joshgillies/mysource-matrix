@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.91 2007/06/19 07:12:15 rhoward Exp $
+* $Id: lang_errors.xml,v 1.91.2.1 2007/12/18 00:31:47 mwegermann Exp $
 *
 */
 
@@ -1744,5 +1744,6 @@ Full Node Contents :
 	<error code="TRIG0002">You have chosen to set the value of a non-scalar attribute, but the value you have supplied does not qualify to be evaluated as a PHP expression.  The only allowable components for these expressions are the 'array' keyword, single- and double-quoted strings, digits and necessary punctuation.  The value has not been saved.</error>
 
 	<error code="TRIG0003">The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted</error>
+	<error code="TRIG0004">No tag is specified in trigger condition: 'Asset is tagged'</error>
 
 </errors>
