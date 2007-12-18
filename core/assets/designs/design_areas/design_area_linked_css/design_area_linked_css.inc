@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.23 2007/12/14 23:47:00 gsherwood Exp $
+* $Id: design_area_linked_css.inc,v 1.24 2007/12/18 22:08:40 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Design_Area_Linked_Css extends Design_Area
 	*/
 	public function getLinkedCSSInfo($field)
 	{
-		if (!isset($this->_tmp['css_assetid'])) {
+		if (empty($this->_tmp['css_assetid']) || (!isset($this->_tmp['css_assetid']))) {
 			$this->_tmp['css_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'linked_css_asset');
 		}
 		return (empty($this->_tmp['css_assetid'])) ? NULL : $this->_tmp['css_assetid'][$field];
