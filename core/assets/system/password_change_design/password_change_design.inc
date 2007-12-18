@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_change_design.inc,v 1.6 2007/11/29 00:06:31 lwright Exp $
+* $Id: password_change_design.inc,v 1.7 2007/12/18 06:10:33 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,8 +220,8 @@ class Password_Change_Design extends Design
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
 
 		$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id);
-		foreach ($dependants as $dependantid => $dependant_type_code) {
-			$dep_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_type_code);
+		foreach ($dependants as $dependantid => $dependant_data) {
+			$dep_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($dependantid, $dependant_data[0]['type_code']);
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dep_asset->id, 'permissions')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

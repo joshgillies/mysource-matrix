@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.13 2007/11/28 21:58:22 lwright Exp $
+* $Id: system_asset_fns.inc,v 1.14 2007/12/18 06:10:32 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,7 @@ function system_asset_fns_create_pre_check(Asset $asset)
 function system_asset_fns_create_cleanup(Asset $asset)
 {
 	// remove any write and admin permissions that have been set on this asset and it's dependants
-	$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+	$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id));
 	foreach ($assetids as $assetid) {
 		foreach (Array(SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 			$unset_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, $perm, NULL, FALSE, FALSE, TRUE);
