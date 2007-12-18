@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.158 2007/12/17 22:43:24 rong Exp $
+* $Id: search_manager.inc,v 1.159 2007/12/18 00:38:39 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -409,7 +409,8 @@ class Search_Manager extends Asset
 		if (empty($parents)) return $asset->id;
 
 		// the first dependant parent will be the first element on the array
-		$parent = array_shift(array_keys($parents));
+		$array_keys = array_keys($parents);
+		$parent = array_shift($array_keys);
 
 		return $parent;
 
@@ -623,6 +624,28 @@ class Search_Manager extends Asset
 
 		$param_data = Array();
 		$keys = array_keys($index_content);
+
+		$db = MatrixDAL::getDb();
+		$sql = 'INSERT INTO
+					sq_sch_idx
+					(
+						value,
+						assetid,
+						type_code,
+						component,
+						type,
+						score
+					)
+					VALUES
+					(
+						:value,
+						:assetid,
+						:type_code,
+						:component,
+						:type,
+						:score
+					)';
+
 		foreach ($keys as $key) {
 			$data =& $index_content[$key];
 			$value = $data['value'];
@@ -661,43 +684,22 @@ class Search_Manager extends Asset
 								'score'		=> $data['score'],
 							);
 
+			try {
+				$query = $db->prepare($sql);
+				$query->bindValue(':value',     $value,             PDO::PARAM_STR);
+				$query->bindValue(':assetid',   $assetid,           PDO::PARAM_STR);
+				$query->bindValue(':type_code', $data['type_code'], PDO::PARAM_STR);
+				$query->bindValue(':component', $data['component'], PDO::PARAM_STR);
+				$query->bindValue(':type',      $data['type'],      PDO::PARAM_STR);
+				$query->bindValue(':score',     $data['score'],     PDO::PARAM_INT);
+				$result = MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
+			}
+
 		}//end foreach
 
 		if (empty($param_data)) return FALSE;
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
-		$insert_st = $db->prepare(
-					'INSERT INTO
-						sq_sch_idx
-						(
-							value,
-							type_code,
-							type,
-							assetid,
-							component,
-							score
-						)
-						VALUES
-						(
-							?,
-							?,
-							?,
-							'.$db->quote($assetid).',
-							?,
-							?
-						)'
-					);
-		assert_valid_db_result($insert_st);
-		$result = $db->executeMultiple($insert_st, $param_data);
-		assert_valid_db_result($result);
-
-		$db->freePrepared($insert_st);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 
@@ -717,26 +719,26 @@ class Search_Manager extends Asset
 	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$sql = 'DELETE FROM
 					sq_sch_idx
 				WHERE
-					assetid = '.$db->quoteSmart((string) $assetid);
+				assetid = :assetid';
 		if (!empty($components)) {
 			for (reset($components); NULL !== ($key = key($components)); next($components)) {
-				$components[$key] = $db->quoteSmart((string) $components[$key]);
+				$components[$key] = $db->quote($components[$key]);
 			}
 			$sql .= ' AND component IN ('.implode(',', $components).')';
 		}
 
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
+			$result = MatrixDAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to flush indexable content due to database error: '.$e->getMessage());
+		}
 
 	}//end flushIndexableContent()
 
@@ -751,17 +753,22 @@ class Search_Manager extends Asset
 	*/
 	function getIndexedComponents($assetid)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT
 					component
 				FROM
 					sq_sch_idx
 				WHERE
-					assetid = '.$db->quoteSmart((string) $assetid);
+					assetid = :assetid';
 
-		$components = $db->getCol($sql);
-		assert_valid_db_result($components);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $assetid);
+			$components = MatrixDAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get indexed components due to database error: '.$e->getMessage());
+		}
 
 		return $components;
 
@@ -1040,7 +1047,8 @@ class Search_Manager extends Asset
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-		$this->addIndexableContent($assetid, $this->getIndexableMetadataContent($asset, $fieldids));
+		$indexable = $this->getIndexableMetadataContent($asset, $fieldids);
+		$this->addIndexableContent($assetid, $indexable);
 
 	}//end reindexMetadata()
 
@@ -2686,8 +2694,7 @@ class Search_Manager extends Asset
 	function &_getDBPlugin()
 	{
 		if (is_null($this->_db_plugin)) {
-			$db = $GLOBALS['SQ_SYSTEM']->db;
-			$db_type = $db->phptype;
+			$db_type = DAL::getDbType();
 
 			$dir = dirname(__FILE__).'/plugins/'.strtolower($db_type);
 			$class_name = 'search_manager_plugin_'.$db_type;
