@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.29 2007/11/29 03:38:30 bshkara Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.30 2007/12/18 22:52:06 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -351,7 +351,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
-		foreach ($children as $dep_child_id => $dep_child_type_code) {
+		foreach ($children as $dep_child_id => $dep_child_data) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'all');
 		}
 
@@ -486,6 +486,16 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		} else {
 			$link['link_type'] = $this->_running_vars['link_type'];
 		}
+
+		if (!isset($this->_running_vars['value'])) {
+			if (!empty($orig_link)) {
+				$orig_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['clone_assets'][$assetid]['parentid'], $orig->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
+			}//end if
+			$link['value'] = $orig_link['value'];
+		} else {
+			$link['value'] = $this->_running_vars['value'];
+		}
+
 		if ($this->_running_vars['to_parent_pos'] != -1) {
 			$this->_running_vars['to_parent_pos']++;
 		}
