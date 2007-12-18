@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_tagged.inc,v 1.3.4.1 2007/12/18 00:54:15 mwegermann Exp $
+* $Id: trigger_condition_asset_tagged.inc,v 1.3.4.2 2007/12/18 00:57:58 mwegermann Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3.4.1 $
+* @version $Revision: 1.3.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
