@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.252 2007/12/16 23:26:55 bshkara Exp $
+* $Id: mysource.inc,v 1.253 2007/12/18 05:45:34 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix
 */
 class MySource
@@ -356,7 +356,7 @@ class MySource
 			if ($this->user && !($this->user instanceof Public_User)) {
 				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
-				$this->backend = $backend;
+				$this->backend = &$backend;
 				$backend->paint();
 			} else {
 				$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
@@ -461,7 +461,7 @@ class MySource
 
 			}//end if is_null(asset)
 
-			$this->frontend_asset = $asset;
+			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
 			// buffer the content and do keyword replacement
@@ -1097,7 +1097,7 @@ class MySource
 				// login fails we make sure that we're logged out
 			case 'logout' :
 				$for_real = ($this->user && !($this->user instanceof Public_User));
-				$old_user = $this->user;
+				$old_user = &$this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$stalled_hipo_array = Array();
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -1129,7 +1129,7 @@ class MySource
 			break;
 			case 'real_logout' :
 				$for_real = ($this->user && !($this->user instanceof Public_User));
-				$old_user = $this->user;
+				$old_user = &$this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$this->_clearSession();
 				$this->loginPublicUser();
@@ -1140,7 +1140,7 @@ class MySource
 			break;
 			case 'send_security_key' :
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
-				$vars = $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
+				$vars = &$_SESSION['SQ_SYSTEM_SECURITY_KEY'];
 
 				// are we regenerating the security key?
 				if (isset($_GET['regen_key']) && $_GET['regen_key'] == 1) {
@@ -1425,7 +1425,7 @@ class MySource
 			array_push($this->_tmp['current_user_cache'], Array($this->user->id, $this->user->type()));
 		}
 
-		$this->user = $user;
+		$this->user = &$user;
 		$this->_user_is_root = $this->userRoot($user);
 		$this->_user_is_sys_admin = $this->userSystemAdmin($user);
 		$this->_user_is_public = $this->userPublic($user);
@@ -1460,7 +1460,7 @@ class MySource
 			$this->_user_is_public    = TRUE;
 
 		} else {
-			$this->user = $user;
+			$this->user = &$user;
 			$this->_user_is_root      = $this->userRoot($user);
 			$this->_user_is_sys_admin = $this->userSystemAdmin($user);
 			$this->_user_is_public    = $this->userPublic($user);
