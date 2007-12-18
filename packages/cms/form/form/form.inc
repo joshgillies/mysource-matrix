@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.176 2007/12/13 23:35:50 bshkara Exp $
+* $Id: form.inc,v 1.177 2007/12/18 00:24:12 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1842,7 +1842,6 @@ class Form extends Asset implements Bridge
 
 					// If form_info or form_summary, we need to make sure the
 					// HTML version gets printed
-					// Andrei: this is gay - for lazy users
 					if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
 						$lookup_keyword = $keyword.'_html';
 					}
