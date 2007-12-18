@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.12 2007/12/18 00:28:54 hnguyen Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.13 2007/12/18 22:57:34 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -352,7 +352,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 
 		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
-		foreach ($children as $dep_child_id => $dep_child_type_code) {
+		foreach ($children as $dep_child_id => $dep_child_data) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'links');
 		}
 

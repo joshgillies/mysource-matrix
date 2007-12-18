@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.42 2007/11/29 01:10:09 rong Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.43 2007/12/18 22:58:18 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -378,7 +378,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 
 		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 
-		foreach ($children as $dep_child_id => $dep_child_type_code) {
+		foreach ($children as $dep_child_id => $dep_child_data) {
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'workflow');
 		}
 
