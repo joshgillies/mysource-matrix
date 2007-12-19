@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.160 2007/12/19 00:55:45 rong Exp $
+* $Id: search_manager.inc,v 1.161 2007/12/19 03:12:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.160 $
+* @version $Revision: 1.161 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1821,7 +1821,6 @@ class Search_Manager extends Asset
 					foreach ($field_details['words'] as $search_term) {
 						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
 						$term_results = $this->_processWordSearch($info, $data_source, $base_query, $word_logic);
-
 						if (!isset($all_source_results[$search_term])) {
 							$all_source_results[$search_term] = Array();
 						}
@@ -2372,15 +2371,19 @@ class Search_Manager extends Asset
 							   JOIN sq_ast_lnk l on t.linkid = l.linkid
 						   WHERE l.minorid IN ('.implode(',', $quoted_rootids).')';
 			// getAssoc only gives us the first treeid for each minorid, which is actually just what we want!
-			$root_tree_ids = $db->getAssoc($treeid_sql);
-			assert_valid_db_result($root_tree_ids);
+			try {
+				$sub_q = $db->prepare($treeid_sql);
+				$root_tree_ids = MatrixDAL::executePdoGroupedAssoc($sub_q);
+			} catch (Exception $e) {
+				throw new Exception('Unable to root tree id due to database error: '.$e->getMessage());
+			}
 
 			if ($root_logic == 'AND') {
 				foreach (array_values($search_info['roots']) as $i => $rootid) {
 					$query['join'][] = 'INNER JOIN sq_ast_lnk l'.$i.' ON l'.$i.'.minorid = a.assetid'; // join the link tree and link tables
 					$query['join'][] = 'INNER JOIN sq_ast_lnk_tree t'.$i.' ON l'.$i.'.linkid =  t'.$i.'.linkid'; // join them to the asset table
 
-					$treeid = $root_tree_ids[$rootid];
+					$treeid = $root_tree_ids[$rootid][0]['treeid'];
 					$query['where'][] = 't'.$i.'.treeid LIKE '.$db->quote($treeid.'%');
 				}
 			} else {
@@ -2389,7 +2392,7 @@ class Search_Manager extends Asset
 
 				$treeid_wheres = Array();
 				foreach ($root_tree_ids as $treeid) {
-					$treeid_wheres[] = '(t.treeid LIKE '.$db->quote($treeid.'%').')';
+					$treeid_wheres[] = '(t.treeid LIKE '.$db->quote($treeid[0]['treeid'].'%').')';
 				}
 				if (!empty($treeid_wheres)) {
 					$query['where'][] = implode(' OR ', $treeid_wheres);
