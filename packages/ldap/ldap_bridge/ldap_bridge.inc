@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.65 2007/12/04 05:08:48 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.66 2007/12/19 01:17:50 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -653,8 +653,6 @@ class LDAP_Bridge extends Asset implements Bridge
 				$reg_string = array_shift($matches[2]);
 				$ou_groups[array_shift($matches[1])] = $reg_string;
 			}
-
-			if (empty($ou_groups)) return Array();
 
 			foreach ($mo_groups as $group_name) {
 				$result = $ldap->search($group_name, '(objectClass=*)');
