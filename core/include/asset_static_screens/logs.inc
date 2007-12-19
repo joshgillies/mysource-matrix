@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.22.4.1 2007/12/19 04:55:37 mwegermann Exp $
+* $Id: logs.inc,v 1.22.4.2 2007/12/19 05:12:41 mwegermann Exp $
 *
 */
 
@@ -19,9 +19,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Logs Static Screen Functions
 *
-* @author Greg Sherwood	<gsherwood@squiz.net>
+* @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.22.4.1 $
+* @version $Revision: 1.22.4.2 $
 * @package MySource_Matrix
 */
 
@@ -79,12 +79,13 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// if it is in limbo mode there will be already an element with sq_backend_log_type id
 	// therefore we will change the name of the combo box
 	if (SQ_IN_LIMBO) {
-	   $_combo_box_name = 'sq_backend_log_type2';
+		$_combo_box_name = 'sq_backend_log_type2';
 	}
-		combo_box($_combo_box_name, $type_options, FALSE, $selected_base_url);
+
+	combo_box($_combo_box_name, $type_options, FALSE, $selected_base_url);
 	echo '&nbsp;';
 
-	normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\'sq_backend_log_type\').value');
+	normal_button($prefix.'_go', translate('view'), 'self.location = document.getElementById(\''.$_combo_box_name.'\').value');
 
 	$o->closeRaw();
 
