@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.161 2007/12/19 03:12:45 rong Exp $
+* $Id: search_manager.inc,v 1.162 2007/12/19 23:06:54 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.161 $
+* @version $Revision: 1.162 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1091,9 +1091,11 @@ class Search_Manager extends Asset
 				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
 			}
 
-			if (isset($metadata[$field->id]['value'])) {
-				$value = $metadata[$field->id]['value'];
+			if (isset($metadata[$field->id][0]['value'])) {
+				$value = $metadata[$field->id][0]['value'];
 			} else {
+				// TODO: default can be %created% for metadata_date_field
+				// which will be converted into 1970-01-01 10:00:00
 				$value = $field->attr('default');
 			}
 			$value_components = Array();
@@ -1852,7 +1854,7 @@ class Search_Manager extends Asset
 			$plugin =& $this->_getDBPlugin();
 			$result = $plugin->processExcludeQuery($this, $search_info['exclude'], $base_query);
 
-			foreach ($result as $exclude_assetid) {
+			foreach (array_keys($result) as $exclude_assetid) {
 				if (isset($final_results[$exclude_assetid])) {
 					unset($final_results[$exclude_assetid]);
 				}
@@ -2215,7 +2217,6 @@ class Search_Manager extends Asset
 	function processBasicSearch($search_info)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
-		$db = MatrixDAL::getDb();
 		$query_comps = $this->constructBaseSearchQuery($search_info);
 		if (empty($query_comps)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
@@ -2225,17 +2226,15 @@ class Search_Manager extends Asset
 		$search_sql = implode_sql($query_comps);
 		$search_results = Array();
 
+		try {
+			$search_results = MatrixDAL::executeSqlGroupedAssoc($search_sql);
+		} catch (Exception $e) {
+			throw new Exception('Unable to process basic search due to database error: '.$e->getMessage());
+		}
+
 		if (isset($search_info['limit'])) {
 			// limiting the search results
-			$result = $db->limitQuery($search_sql, 0, $search_info['limit']);
-			assert_valid_db_result($result);
-
-			while ($result->fetchInto($row, DB_FETCHMODE_ASSOC)) {
-				$search_results[$row['assetid']] = 1;
-			}
-		} else {
-			$search_results = $db->getAssoc($search_sql);
-			assert_valid_db_result($search_results);
+			$search_results = array_slice($search_results, 0, $search_info['limit'], TRUE);
 		}
 
 		// get results from any shadow asset root nodes
