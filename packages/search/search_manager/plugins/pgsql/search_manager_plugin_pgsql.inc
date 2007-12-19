@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.16 2007/12/19 05:54:00 rong Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.17 2007/12/19 23:08:09 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -301,9 +301,6 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processExcludeQuery(&$sm, $search_term, $base_query)
 	{
-//TODO
-		$db = MatrixDAL::getDb();
-
 		$words = Array();
 		foreach ($search_term as $exclude_value) {
 			$words = array_merge($words, $this->generateWordList($exclude_value));
@@ -314,8 +311,13 @@ class Search_Manager_Plugin_PgSQL
 		$new_base['select'] = Array('a.assetid');
 		$new_base['group_by'] = Array('a.assetid');
 		$sql = implode_sql($new_base);
-		$result = $db->getCol($sql);
-		assert_valid_db_result($result);
+
+		try {
+			$result = MatrixDAL::executeSqlGrouped($sql);
+		} catch (Exception $e) {
+			throw new Exception('Unable to process exclude query due to database error: '.$e->getMessage());
+			return Array();
+		}
 
 		return $result;
 
