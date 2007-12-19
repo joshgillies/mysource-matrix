@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.211 2007/12/17 22:43:25 rong Exp $
+* $Id: search_page.inc,v 1.212 2007/12/19 23:08:59 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.211 $
+* @version $Revision: 1.212 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2604,12 +2604,13 @@ class Search_Page extends Listing_Engine
 			$cm->saveToCache($this->id, $this->type(), $assetid, $element_contents);
 		}
 
-		// summon the scores at this point
+		// summon the scores at this point. and work with new DAL result format
 		$score =& $this->_tmp['search_results'];
 		$score = (isset($score['type_code'])) ? $score['type_code'] : $score;
+		$weight = (is_array($score[$assetid])) ? $score[$assetid][0]['weight'] : $score[$assetid];
 
 		$element_replacements = Array(
-									'score'			=> $score[$assetid],
+									'score'			=> $weight,
 									'result_number'	=> $this->_tmp['start_element'] + $list_position,
 								);
 
