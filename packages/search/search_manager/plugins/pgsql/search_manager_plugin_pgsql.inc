@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.13 2007/12/17 22:43:25 rong Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.14 2007/12/19 01:12:16 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,7 +50,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		switch ($data_source['type']) {
 
@@ -69,9 +69,9 @@ class Search_Manager_Plugin_PgSQL
 				// work out what attribute type it is and perform a cast if
 				// it's a numeric search
 				if ($attr_type == 'int') {
-					$base_query['where'][] = 'CAST (ai.value AS int) = '.$db->quoteSmart((int)$search_term);
+					$base_query['where'][] = 'CAST (ai.value AS int) = '.$db->quote($search_term);
 				} else if ($attr_type == 'float') {
-					$base_query['where'][] = 'CAST(ai.value AS double precision) = '.$db->quoteSmart((float)$search_term);
+					$base_query['where'][] = 'CAST(ai.value AS double precision) = '.$db->quote($search_term);
 				} else {
 					$base_query['where'][] = 'ai.value LIKE '.$db->quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 				}
@@ -103,13 +103,7 @@ class Search_Manager_Plugin_PgSQL
 		}//end switch
 
 		$sql = implode_sql($base_query);
-		if (count($base_query['select']) > 2) {
-			$result = $db->getAll($sql);
-		} else {
-			$result = $db->getAssoc($sql);
-		}
-
-		assert_valid_db_result($result);
+		$result = MatrixDAL::executeSqlGroupedAssoc($sql);
 
 		return $result;
 
@@ -136,7 +130,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processNumericSearch(&$sm, $numeric_range, $data_source, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		switch ($data_source['type']) {
 
@@ -149,18 +143,18 @@ class Search_Manager_Plugin_PgSQL
 				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
 
 				if ($numeric_range['upper'] == $numeric_range['lower']) {
-					$search_compare = '= '.$db->quoteSmart($numeric_range['upper']);
+					$search_compare = '= '.$db->quote($numeric_range['upper']);
 				} else if (is_null($numeric_range['upper'])) {
-					$search_compare = '>= '.$db->quoteSmart($numeric_range['lower']);
+					$search_compare = '>= '.$db->quote($numeric_range['lower']);
 				} else if (is_null($numeric_range['lower'])) {
-					$search_compare = '<= '.$db->quoteSmart($numeric_range['upper']);
+					$search_compare = '<= '.$db->quote($numeric_range['upper']);
 				} else if ($numeric_range['upper'] > $numeric_range['lower']) {
 					// upper > lower as expected
-					$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['lower']).' AND '.$db->quoteSmart($numeric_range['upper']);
+					$search_compare = 'BETWEEN '.$db->quote($numeric_range['lower']).' AND '.$db->quote($numeric_range['upper']);
 				} else {
 					// accept lower > upper but we need to switch values because
 					// some DB engines won't accept BETWEEN upper AND lower
-					$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['upper']).' AND '.$db->quoteSmart($numeric_range['lower']);
+					$search_compare = 'BETWEEN '.$db->quote($numeric_range['upper']).' AND '.$db->quote($numeric_range['lower']);
 				}
 
 				if ($attr_type == 'int') {
@@ -214,7 +208,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processDateSearch(&$sm, $date_range, $data_source, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		switch ($data_source['type']) {
 
@@ -250,9 +244,9 @@ class Search_Manager_Plugin_PgSQL
 		// when one field is left blank, we are searching for anything before or after that date
 		// else we look between the given dates
 		if ($date_range['from'] == '---------- --:--:--' && $date_range['to'] != '---------- --:--:--') {
-			$base_query['where'][] = 'ai.value <= '.$db->quoteSmart($date_range['to']);
+			$base_query['where'][] = 'ai.value <= '.$db->quote($date_range['to']);
 		} else if ($date_range['to'] == '---------- --:--:--' && $date_range['from'] != '---------- --:--:--') {
-			$base_query['where'][] = 'ai.value >= '.$db->quoteSmart($date_range['from']);
+			$base_query['where'][] = 'ai.value >= '.$db->quote($date_range['from']);
 		} else {
 			$base_query['where'][] = 'ai.value BETWEEN '.$db->quote($date_range['from']).' AND '.$db->quote($date_range['to']);
 		}
@@ -285,7 +279,8 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processExcludeQuery(&$sm, $search_term, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+//TODO
+		$db = MatrixDAL::getDb();
 
 		$words = Array();
 		foreach ($search_term as $exclude_value) {
@@ -320,7 +315,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$query = Array(
 					'select'		=> Array(),
@@ -381,21 +376,21 @@ class Search_Manager_Plugin_PgSQL
 			}
 
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quoteSmart((String)$userids[$i]);
+				$userids[$i] = $db->quote($userids[$i]);
 			}
 			$usrids_str = implode(',', $userids);
 			$query['where'][] = 'p.userid  IN ('.$usrids_str.') OR '.'r.userid  IN ('.$usrids_str.')';
 			$query['where'][] = '(
-						(p.permission = '.$db->quoteSmart((String)SQ_PERMISSION_READ).'
+						(p.permission = '.$db->quote(SQ_PERMISSION_READ).'
 							AND (
-									p.userid <> '.$db->quoteSmart($public_userid).'
-									OR r.userid <> '.$db->quoteSmart($public_userid).'
-									OR (p.userid = '.$db->quoteSmart($public_userid).' AND granted = 1)
-									OR (r.userid = '.$db->quoteSmart($public_userid).' AND granted = 1)
+									p.userid <> '.$db->quote($public_userid).'
+									OR r.userid <> '.$db->quote($public_userid).'
+									OR (p.userid = '.$db->quote($public_userid).' AND granted = 1)
+									OR (r.userid = '.$db->quote($public_userid).' AND granted = 1)
 								)
 						)
 						OR
-						(p.permission > '.$db->quoteSmart((String)SQ_PERMISSION_READ).' AND p.granted = 1)
+						(p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1)
 						)';
 			$query['having'][] = 'MIN(p.granted) <> 0';
 			$query['group_by'][] = 'a.assetid';
@@ -469,28 +464,38 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT
 					LOWER(value), SUM(score)
 				FROM
 					sq_sch_idx
 				WHERE
-					assetid = '.$db->quoteSmart($asset->id).
-				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quoteSmart('metadata:%')).'
+				assetid = :assetid'.
+				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quote('metadata:%')).'
 				GROUP BY
 					LOWER(value)
 				ORDER BY
 					SUM(score) DESC';
 
-		$result = $db->getAssoc($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':assetid', $asset->id);
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to extract keywords due to database error: '.$e->getMessage());
+		}
 
 		// force lowercase keys (= keywords) - CASE_LOWER is default for this function
 		$result = array_change_key_case($result);
 
 		if ($include_scores) {
-			return $result;				// return result with scores
+			// return result with scores, change code to work with 3.18 result format
+			$result_w_score = Array();
+			foreach ($result as $key => $info) {
+				$result_w_score[$key] = $info[0]['sum'];
+			}
+			return $result_w_score;
 		} else {
 			return array_keys($result);	// just return the keywords
 		}
@@ -593,15 +598,15 @@ class Search_Manager_Plugin_PgSQL
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
+		$db = MatrixDAL::getDb();
+//TODO
 		$sql_components['select'][]	= 'DISTINCT target.assetid';
 		$sql_components['from'][] 	= 'sq_sch_idx source INNER JOIN sq_sch_idx target ON target.value = source.value';
-		$sql_components['where'][] 	= 'source.assetid = '.$db->quoteSmart($source_id);
-		$sql_components['where'][] 	= 'target.assetid <> '.$db->quoteSmart($source_id);
+		$sql_components['where'][] 	= 'source.assetid = '.$db->quote($source_id);
+		$sql_components['where'][] 	= 'target.assetid <> '.$db->quote($source_id);
 
 		if (!empty($type)) {
-			$sql_components['where'][] = 'target.type_code = '.$db->quoteSmart($type);
+			$sql_components['where'][] = 'target.type_code = '.$db->quote($type);
 		}
 
 		$sql = implode_sql($sql_components);
@@ -662,7 +667,7 @@ class Search_Manager_Plugin_PgSQL
 		}
 		$search_field = $search_page_fields[$search_field_name];
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
@@ -691,7 +696,7 @@ class Search_Manager_Plugin_PgSQL
 				break;
 				case 'standard' :
 					$param_field = $data_source['params']['field'];
-					$data_source_comps[] = 'ai.component = '.$db->quoteSmart('__'.$param_field.'__');
+					$data_source_comps[] = 'ai.component = '.$db->quote('__'.$param_field.'__');
 				break;
 
 				default :
