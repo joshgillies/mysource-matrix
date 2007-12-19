@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.133 2007/11/29 00:07:32 rong Exp $
+* $Id: html_form.inc,v 1.134 2007/12/19 05:45:04 gsherwood Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -904,7 +904,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 	<?php
 	}//end if
 	?>
-			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" /></td>
+			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" alt="Security key" border="0" /></td>
 		</tr>
 		<tr>
 		<?php
