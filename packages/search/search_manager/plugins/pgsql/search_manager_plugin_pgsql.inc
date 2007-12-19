@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.14 2007/12/19 01:12:16 rong Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.15 2007/12/19 03:14:12 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -103,7 +103,18 @@ class Search_Manager_Plugin_PgSQL
 		}//end switch
 
 		$sql = implode_sql($base_query);
-		$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+		if (count($base_query['select']) > 2) {
+			$result = MatrixDAL::executeSqlAssoc($sql);
+		} else {
+			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			// (3.18) only selecting assetid and search score
+			// use old format and don't worry about result format later
+			$result_old_format = Array();
+			foreach ($result as $assetid => $info) {
+				$result_old_format[$assetid] = $info[0]['search_score'];
+			}
+			return $result_old_format;
+		}
 
 		return $result;
 
