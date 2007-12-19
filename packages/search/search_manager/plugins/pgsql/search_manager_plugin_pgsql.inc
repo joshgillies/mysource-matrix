@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.15 2007/12/19 03:14:12 rong Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.16 2007/12/19 05:54:00 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -84,7 +84,7 @@ class Search_Manager_Plugin_PgSQL
 								'metadata_field_multiple_text'	=> 'selection',
 								'metadata_field_thesaurus'		=> 'thesaurus',
 							 );
-				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
+				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
 				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
 				$base_query['where'][] = 'ai.value LIKE '.$db->quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
@@ -184,15 +184,20 @@ class Search_Manager_Plugin_PgSQL
 			break;
 
 		}//end switch $data_source['type']
+
 		$sql = implode_sql($base_query);
-
 		if (count($base_query['select']) > 2) {
-			$result = $db->getAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 		} else {
-			$result = $db->getAssoc($sql);
+			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			// (3.18) only selecting assetid and search score
+			// use old format and don't worry about result format later
+			$result_old_format = Array();
+			foreach ($result as $assetid => $info) {
+				$result_old_format[$assetid] = $info[0]['search_score'];
+			}
+			return $result_old_format;
 		}
-
-		assert_valid_db_result($result);
 
 		return $result;
 
@@ -236,7 +241,7 @@ class Search_Manager_Plugin_PgSQL
 								'metadata_field_thesaurus'	=> 'thesaurus',
 								'metadata_field_date'		=> 'datetime',
 							 );
-				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
+				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
 				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
 			break;
@@ -264,11 +269,17 @@ class Search_Manager_Plugin_PgSQL
 
 		$sql = implode_sql($base_query);
 		if (count($base_query['select']) > 2) {
-			$result = $db->getAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 		} else {
-			$result = $db->getAssoc($sql);
+			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			// (3.18) only selecting assetid and search score
+			// use old format and don't worry about result format later
+			$result_old_format = Array();
+			foreach ($result as $assetid => $info) {
+				$result_old_format[$assetid] = $info[0]['search_score'];
+			}
+			return $result_old_format;
 		}
-		assert_valid_db_result($result);
 
 		return $result;
 
