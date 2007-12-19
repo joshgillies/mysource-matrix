@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.159 2007/12/18 00:38:39 rong Exp $
+* $Id: search_manager.inc,v 1.160 2007/12/19 00:55:45 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.159 $
+* @version $Revision: 1.160 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1084,7 +1084,12 @@ class Search_Manager extends Asset
 				continue;
 			}
 
-			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
+			// new condition for 3.18 because of the result format changes
+			if (is_array($field_type)) {
+				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type[0]['type_code']);
+			} else {
+				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
+			}
 
 			if (isset($metadata[$field->id]['value'])) {
 				$value = $metadata[$field->id]['value'];
@@ -1106,7 +1111,8 @@ class Search_Manager extends Asset
 			} else {
 
 				$keywords = retrieve_keywords_replacements($value, '.');
-				replace_keywords($value, $mm->generateKeywordReplacements($asset, $keywords, FALSE));
+				$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+				replace_keywords($value, $the_replacement);
 
 				switch ($field_type) {
 					case 'metadata_field_select':
@@ -1706,8 +1712,6 @@ class Search_Manager extends Asset
 	*/
 	function processSearch($search_info, $include_context=FALSE)
 	{
-
-		$db = $GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 
 		  /////////////////////////////
@@ -1815,7 +1819,8 @@ class Search_Manager extends Asset
 				} else {
 					$data_source_results = NULL;
 					foreach ($field_details['words'] as $search_term) {
-						$term_results = $this->_processWordSearch(remove_silent_chars($search_term, strpos($GLOBALS['SQ_SYSTEM']->db->phptype, 'oci') !== FALSE ? TRUE : FALSE), $data_source, $base_query, $word_logic);
+						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
+						$term_results = $this->_processWordSearch($info, $data_source, $base_query, $word_logic);
 
 						if (!isset($all_source_results[$search_term])) {
 							$all_source_results[$search_term] = Array();
@@ -2015,8 +2020,6 @@ class Search_Manager extends Asset
 	*/
 	function _processWordSearch($search_term, $data_source, $base_query, $word_logic='AND')
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
 		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
 		switch ($data_source['type']) {
 			case 'asset_attrib':
@@ -2058,8 +2061,6 @@ class Search_Manager extends Asset
 	*/
 	function _processDateSearch($date_range, $data_source, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
 		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
 		switch ($data_source['type']) {
 			case 'asset_attrib':
@@ -2101,8 +2102,6 @@ class Search_Manager extends Asset
 	*/
 	function _processNumericSearch($numeric_range, $data_source, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
 		$cache_key = $this->_tmp['cache_key'].$data_source['type'];
 		switch ($data_source['type']) {
 			case 'asset_attrib':
@@ -2217,7 +2216,7 @@ class Search_Manager extends Asset
 	function processBasicSearch($search_info)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$query_comps = $this->constructBaseSearchQuery($search_info);
 		if (empty($query_comps)) return Array();
 		$query_comps['select'][] = 'distinct a.assetid';
@@ -2350,7 +2349,7 @@ class Search_Manager extends Asset
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$query = Array(
 					'select'		=> Array(),
@@ -2366,7 +2365,7 @@ class Search_Manager extends Asset
 			// get the treeids of our search roots
 			$quoted_rootids = Array();
 			foreach ($search_info['roots'] as $rootid) {
-				$quoted_rootids[] = $db->quoteSmart((string)$rootid);
+				$quoted_rootids[] = $db->quote($rootid);
 			}
 			$treeid_sql = 'SELECT l.minorid, t.treeid
 						   FROM sq_ast_lnk_tree t
@@ -2425,7 +2424,7 @@ class Search_Manager extends Asset
 			$userids[] = $public_user->id;
 
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quoteSmart((String)$userids[$i]);
+				$userids[$i] = $db->quote($userids[$i]);
 			}
 
 			$usrids_str = implode(',', $userids);
@@ -2439,25 +2438,25 @@ class Search_Manager extends Asset
 			// We want to get all denied access as well. But if we are logged in, then we only want public granted access rows.
 			$check_group_role = $public_user_access ? '' :
 							'(
-								(p.permission = '.$db->quoteSmart((String)SQ_PERMISSION_READ).'
+								(p.permission = '.$db->quote(SQ_PERMISSION_READ).'
 									AND (
-											(p.userid <> '.$db->quoteSmart($public_user->id).
+											(p.userid <> '.$db->quote($public_user->id).
 											// If we are not checking for roles, and we are searching as public
 											(!$no_roles ?
 												($public_user_access ? '
 												OR' : '
-												AND').'	(r.userid IS NULL OR r.userid <> '.$db->quoteSmart($public_user->id).')'
+												AND').'	(r.userid IS NULL OR r.userid <> '.$db->quote($public_user->id).')'
 											: '').')
 
-											OR (p.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)'.
+											OR (p.userid = '.$db->quote($public_user->id).' AND granted = 1)'.
 											(!$no_roles ? '
-												OR (r.userid = '.$db->quoteSmart($public_user->id).' AND granted = 1)'
+												OR (r.userid = '.$db->quote($public_user->id).' AND granted = 1)'
 											: '')
 											.'
 										)
 								)
 								OR
-								(p.permission > '.$db->quoteSmart((String)SQ_PERMISSION_READ).' AND p.granted = 1)
+								(p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1)
 							)';
 
 			if (!empty($check_group_role)) {
