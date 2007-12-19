@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.17 2007/12/19 23:08:09 rong Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.18 2007/12/19 23:44:38 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -620,22 +620,28 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function getAssetidsByWordIntersection($source_id, $type=NULL)
 	{
+		$db = MatrixDAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		$db = MatrixDAL::getDb();
-//TODO
 		$sql_components['select'][]	= 'DISTINCT target.assetid';
 		$sql_components['from'][] 	= 'sq_sch_idx source INNER JOIN sq_sch_idx target ON target.value = source.value';
-		$sql_components['where'][] 	= 'source.assetid = '.$db->quote($source_id);
-		$sql_components['where'][] 	= 'target.assetid <> '.$db->quote($source_id);
+		$sql_components['where'][] 	= 'source.assetid = :source_id1';
+		$sql_components['where'][] 	= 'target.assetid <> :source_id2';
 
 		if (!empty($type)) {
-			$sql_components['where'][] = 'target.type_code = '.$db->quote($type);
+			$sql_components['where'][] = 'target.type_code = :type';
 		}
 
 		$sql = implode_sql($sql_components);
-		$result = $db->getCol($sql);
-		assert_valid_db_result($result);
+		try {
+			$query = $db->prepare($sql);
+			$query->bindValue(':source_id1', $source_id);
+			$query->bindValue(':source_id2', $source_id);
+			$query->bindValue(':type', $type);
+			$result = MatrixDAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get assetid by word intersection due to database error: '.$e->getMessage());
+		}
 
 		return $result;
 
@@ -737,8 +743,12 @@ class Search_Manager_Plugin_PgSQL
 		$query_comps['group_by'][] = 'ai.assetid';
 		$sql = implode_sql($query_comps);
 
-		$results = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, TRUE);
-		assert_valid_db_result($results);
+		try {
+			$results = MatrixDAL::executeSqlGroupedAssoc($sql);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get search list assets due to database error: '.$e->getMessage());
+			return Array();
+		}
 
 		$children = Array();
 		foreach ($results as $word => $word_data) {
@@ -747,6 +757,7 @@ class Search_Manager_Plugin_PgSQL
 			$children[$word]['first_letter'] = $base_data['first_letter'];
 			$children[$word]['type_code'] = NULL;
 		}
+
 		return $children;
 
 	}//end getSearchListAssets()
