@@ -1356,4 +1356,23 @@
 			</select>
 		</primary>
 	</query>
+
+	<!-- ROLLBACK -->
+	<query id="rollbackGetTimeStampFrom">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_rb_ast" column="sq_eff_from" />
+				</fields>
+				<from>
+					<table>sq_rb_ast</table>
+				</from>
+				<where>
+					<equal table="sq_rb_ast" column="assetid">:assetid</equal>
+					<equal table="sq_rb_ast" column="version">:version</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
 </queries>

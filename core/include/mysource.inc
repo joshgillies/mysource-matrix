@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.254 2007/12/18 23:34:23 lwright Exp $
+* $Id: mysource.inc,v 1.255 2007/12/19 00:29:03 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix
 */
 class MySource
@@ -294,6 +294,7 @@ class MySource
 				// are using for rollback so that and stored procedures that require
 				// the rollback timestamp can acquire it
 				$then = $_SESSION['sq_rollback_view']['rollback_time'];
+
 				$db   = MatrixDAL::getDb();
 
 				if (MatrixDAL::getDbType() == 'pgsql') {
@@ -307,6 +308,7 @@ class MySource
 				} catch (DALException $e) {
 					throw new Exception('Unable to set rollback timestamp due to database error: '.$e->getMessage());
 				}
+
 			} else {
 				define('SQ_ROLLBACK_VIEW', '0');
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
@@ -1163,20 +1165,16 @@ class MySource
 					// work out when the version of the asset was created
 					$assetid = $_GET['assetid'];
 					$version = $_GET['version'];
-
 					// note that we dont prep this query for rollback select
 					// because we are selecting directly from the rollback table
-					$sql = 'SELECT sq_eff_from AS efrom
-							FROM sq_rb_ast
-							WHERE assetid = :assetid
-								AND version = :version';
-
+					$then = NULL;
 					try {
-						$query = $db->prepare($sql);
-						$query->bindValue(':assetid', $assetid);
-						$query->bindValue(':version', $version);
-						$then = MatrixDAL::executePdoOne($query);
-					} catch (DALException $e) {
+						$bind_vars = Array(
+							'assetid'	=> $assetid,
+							'version'	=> $version,
+						);
+						$then = MatrixDAL::executeOne('core', 'rollbackGetTimeStampFrom', $bind_vars);
+					} catch (Exception $e) {
 						throw new Exception('Could not find version '.$version.' of asset ID #'.$assetid.' in rollback system due to database error: '.$e->getMessage());
 					}
 
