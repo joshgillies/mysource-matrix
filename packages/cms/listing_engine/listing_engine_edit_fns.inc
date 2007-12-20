@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.83 2007/12/06 04:24:21 rong Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.84 2007/12/20 23:43:56 colivar Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -643,7 +643,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				</tr>
 				<?php
 				foreach (array_keys($formats) as $assetid) {
-					$format = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid)));
+					$_format = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+					$format = reset($_format);
 					$link = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'contents'))
 					?>
 					<tr>
