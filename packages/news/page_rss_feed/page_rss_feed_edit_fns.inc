@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed_edit_fns.inc,v 1.16 2007/12/12 00:15:33 colivar Exp $
+* $Id: page_rss_feed_edit_fns.inc,v 1.17 2007/12/20 23:35:44 colivar Exp $
 *
 */
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -21,7 +21,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -118,7 +118,7 @@ class Page_RSS_Feed_Edit_Fns extends Page_Edit_Fns
 			}
 			foreach ($listing_ids as $listing_id) {
 				if (!in_array($listing_id, $existing_list_ids)) {
-					$listing_engine =& $GLOBALS['SQ_SYSTEM']->am->getAsset($listing_id);
+					$listing_engine = $GLOBALS['SQ_SYSTEM']->am->getAsset($listing_id);
 					$id = $asset->createLink($listing_engine, SQ_LINK_NOTICE, 'generate_rss');
 				}
 			}
