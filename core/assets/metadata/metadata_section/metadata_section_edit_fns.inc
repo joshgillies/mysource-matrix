@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.47 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.48 2007/12/20 22:50:35 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -250,7 +250,12 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			if ($edit_fns->processInlineValueInterface($field, $new_value)) {
 				// the process fn returned true, meaning something was submitted
 				// $new_value may be NULL, however, which signifies that we are reverting to default
-				$new_values[$field->id] = Array('name' => $field->name, 'value' => $new_value);
+				$new_values[$field->id] = Array	(
+											0	=> Array (
+													'name'	=> $field->name,
+													'value' => $new_value,
+												   ),
+										  );
 				$res = TRUE;
 			}
 		}
@@ -320,7 +325,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$tag_values[$field->name] = '';
 
 
-				if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id]['value'] : NULL), $tag_values[$field->name], $keywords)) {
+				if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL), $tag_values[$field->name], $keywords)) {
 					ob_end_clean();
 					return FALSE;
 				}
