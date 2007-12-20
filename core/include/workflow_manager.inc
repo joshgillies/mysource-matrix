@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.120 2007/12/14 23:21:14 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.121 2007/12/20 04:48:31 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -487,22 +487,10 @@ class Workflow_Manager extends MySource_Object
 				if (is_null($condition)) continue;
 				if ($condition->attr('notify')) {
 					// check if this is a roleid rather than a user_groupid or userid
-					$role = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $condition->attr('userid'));
+					$role = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $condition->attr('userid'), NULL, FALSE, TRUE);
 					if (!empty($role)) {
-						$roleid = array_keys($role);
-						$roleid = $roleid[0];
-						// this is a roleid so get the userids in the role
-						foreach ($role as $key => $value) {
-							if (in_array(0, $value)) {
-								// get all userids and include users which are globally applied under this role
-								$role_userids = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $roleid, NULL, FALSE, TRUE, TRUE, TRUE);
-							} else {
-								// get all userids and disregard globally applied users under this role
-								$role_userids = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, $roleid, NULL, FALSE, FALSE, TRUE, TRUE);
-							}
-						}
-						foreach ($role_userids as $roleid => $userids) {
-							for ($i=0;$i<count($userids);$i++) {
+						foreach ($role as $roleid => $userids) {
+							for ($i=0; $i<count($userids); $i++) {
 								$notify[] = $userids[$i];
 							}
 						}
@@ -668,10 +656,10 @@ class Workflow_Manager extends MySource_Object
 					if ($am->isTypeDecendant($asset_class, 'user')) {
 						$can_publish_cond[] = $asset->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
-						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id);
+						// expand global users
+						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id, NULL, FALSE, TRUE);
 						foreach ($roles as $roleid => $userids) {
 							foreach ($userids as $userid) {
-								if ($userid == '0') continue;
 								$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
 								if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
 									$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
@@ -1088,10 +1076,9 @@ class Workflow_Manager extends MySource_Object
 					if ($am->isTypeDecendant($asset_class, 'user')) {
 						$can_publish[] = $publisher->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
-						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, FALSE, TRUE);
+						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, TRUE, TRUE);
 						foreach ($roles as $roleid => $userids) {
 							foreach ($userids as $userid) {
-								if ($userid == '0') continue;
 								$can_publish[] = $userid;
 							}
 						}
