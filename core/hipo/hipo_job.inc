@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.93 2007/11/16 01:17:37 bshkara Exp $
+* $Id: hipo_job.inc,v 1.94 2007/12/20 06:02:27 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -271,7 +271,7 @@ class HIPO_Job extends MySource_Object
 			trigger_localised_error('HIPO0045', E_USER_WARNING);
 			return;
 		}
-		$this->_running_vars = $vars;
+		$this->_running_vars =& $vars;
 
 	}//end setRunningVars()
 
