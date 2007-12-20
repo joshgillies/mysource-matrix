@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.212 2007/12/19 23:08:59 rong Exp $
+* $Id: search_page.inc,v 1.213 2007/12/20 03:14:21 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.212 $
+* @version $Revision: 1.213 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -529,7 +529,7 @@ class Search_Page extends Listing_Engine
 						$assetid = $ds['params']['assetid'];
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
-							$this_field_type = get_class($asset);
+							$this_field_type = get_class_lower($asset);
 						}
 					break;
 					case 'asset_attrib':
@@ -969,7 +969,7 @@ class Search_Page extends Listing_Engine
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 
-							switch (get_class($asset)) {
+							switch (get_class_lower($asset)) {
 								case 'metadata_field_date' :
 									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 									$this->_printDateRange('queries_'.$query_var, $current_value);
@@ -1080,7 +1080,7 @@ class Search_Page extends Listing_Engine
 						if (!is_null($asset)) {
 							$params = $asset->vars;
 							$this->registerFormField('queries_'.$query_var);
-							switch (get_class($asset)) {
+							switch (get_class_lower($asset)) {
 								case 'metadata_field_date' :
 									$read_only = TRUE;
 									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
@@ -1245,7 +1245,7 @@ class Search_Page extends Listing_Engine
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
-							switch (get_class($asset)) {
+							switch (get_class_lower($asset)) {
 								case 'metadata_field_date' :
 									$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
 									$this->_printDateRangeDescription($current_value);
@@ -2350,7 +2350,7 @@ class Search_Page extends Listing_Engine
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 						if (!is_null($asset)) {
 							$params = $asset->vars;
-							switch (get_class($asset)) {
+							switch (get_class_lower($asset)) {
 								case 'metadata_field_date' :
 									$queries[$field_name] = $this->_processDateRange($query_var);
 								break;

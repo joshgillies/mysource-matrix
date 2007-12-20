@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.27 2007/12/18 00:35:14 rong Exp $
+* $Id: hipo_job_reindex.inc,v 1.28 2007/12/20 03:14:58 rong Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -112,7 +112,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_assetids'])) {
-			if (!$this->processReIndex($this->_steps[0], get_class($this))) {
+			if (!$this->processReIndex($this->_steps[0], get_class_lower($this))) {
 				return FALSE;
 			}
 		}

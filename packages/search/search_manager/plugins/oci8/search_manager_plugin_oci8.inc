@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.27 2007/12/17 22:43:24 rong Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.28 2007/12/20 03:14:47 rong Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -74,11 +74,11 @@ class Search_Manager_Plugin_OCI8
 								'metadata_field_multiple_text'	=> 'selection',
 								'metadata_field_thesaurus'		=> 'thesaurus',
 							 );
-				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
+				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
 				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
 
-				if ((get_class($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) || get_class($metadata_field) == 'metadata_field_multiple_text') {
+				if ((get_class_lower($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) || get_class_lower($metadata_field) == 'metadata_field_multiple_text') {
 					if (strpos($search_term,' AND ') !== FALSE) {
 						$split = ' AND ';
 						$split_type = '&';
@@ -246,7 +246,7 @@ class Search_Manager_Plugin_OCI8
 								'metadata_field_thesaurus'	=> 'thesaurus',
 								'metadata_field_date'		=> 'datetime',
 							 );
-				$key_type = array_get_index($key_types, get_class($metadata_field), 'text');
+				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
 				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
 			break;
