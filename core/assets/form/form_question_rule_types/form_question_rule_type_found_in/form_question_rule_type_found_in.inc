@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.8 2007/12/07 06:00:05 bshkara Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.9 2007/12/20 22:06:04 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule_Type_Found_In($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Form_Question_Rule($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -52,7 +52,7 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators()
+	public static function getOperators()
 	{
 		return Array(
 				1	=> translate('core_form_rule_found_in_true'),

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.9 2007/12/07 06:00:05 bshkara Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.10 2007/12/20 22:06:05 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,9 +40,9 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	* @return void
 	* @access public
 	*/
-	function Form_Question_Rule_Type_Select_Limit($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Form_Question_Rule($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -54,7 +54,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators()
+	public static function getOperators()
 	{
 		$operators = Array(
 						'=='	=> 'Must select exactly this many options...',

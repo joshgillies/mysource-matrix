@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.10 2007/09/06 00:44:58 bshkara Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.11 2007/12/20 22:06:04 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,9 +40,9 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule_Type_Numeric($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Form_Question_Rule($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 	* @return array
 	* @access public
 	*/
-	function getOperators()
+	public static function getOperators()
 	{
 		return Array(
 				1	=> translate('core_form_rule_numeric_true'),

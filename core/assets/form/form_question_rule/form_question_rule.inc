@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.4 2007/12/07 06:00:04 bshkara Exp $
+* $Id: form_question_rule.inc,v 1.5 2007/12/20 22:06:03 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,7 +39,7 @@ class Form_Question_Rule extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->Asset($assetid);
 
@@ -65,7 +65,7 @@ class Form_Question_Rule extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function isSelectiveEmailRule()
+	public static function isSelectiveEmailRule()
 	{
 		return TRUE;
 
@@ -81,7 +81,7 @@ class Form_Question_Rule extends Asset
 	* @return array
 	* @access public
 	*/
-	function getOperators()
+	public static function getOperators()
 	{
 		return Array();
 

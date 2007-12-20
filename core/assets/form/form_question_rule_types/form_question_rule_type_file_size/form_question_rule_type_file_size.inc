@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.4 2006/12/06 00:35:28 emcdonald Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.5 2007/12/20 22:06:04 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,9 +39,9 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule_Type_File_Size($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Form_Question_Rule($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -53,7 +53,7 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators()
+	public static function getOperators()
 	{
 		$operators = Array(
 						'<='	=> translate('core_form_rule_file_size_<='),

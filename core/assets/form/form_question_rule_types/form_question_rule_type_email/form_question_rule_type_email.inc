@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.9 2006/12/11 04:59:00 emcdonald Exp $
+* $Id: form_question_rule_type_email.inc,v 1.10 2007/12/20 22:06:03 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,9 +40,9 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule_Type_Email($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Form_Question_Rule($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -56,7 +56,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	* @return array
 	* @access public
 	*/
-	function getOperators()
+	public static function getOperators()
 	{
 		return Array(
 				1	=> translate('core_form_rule_email_true'),
