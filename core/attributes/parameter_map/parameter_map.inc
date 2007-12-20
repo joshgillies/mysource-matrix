@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.24 2007/06/22 07:03:51 arailean Exp $
+* $Id: parameter_map.inc,v 1.25 2007/12/20 22:36:30 colivar Exp $
 *
 */
 
@@ -45,7 +45,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			)
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -404,7 +404,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					if (empty($assetid)) return NULL;
 					switch (array_get_index($rule, 'attribute')) {
 						case SQ_PARAM_MAP_ATTR_OPTION_KEYWORD:
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							if (!empty($asset)) {
 								$keyword = array_get_index($rule, 'keyword', '');
 								// default to the assetid if no keyword is defined
