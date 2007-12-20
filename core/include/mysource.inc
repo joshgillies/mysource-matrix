@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.255 2007/12/19 00:29:03 colivar Exp $
+* $Id: mysource.inc,v 1.256 2007/12/20 05:05:48 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.256 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2250,8 +2250,8 @@ class MySource
 		}
 		// Use this when there is a transaction problem to create a log and then run this from the cmd line
 		// and look for the fn with the odd number of calls
-		// cat trans.log | awk '{ print $3 }' | sort | uniq -c # number of calls in a fn
-		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
+		// cat trans.log | awk '{ print $4 }' | sort | uniq -c # number of calls in a fn
+		// cat trans.log | awk '{ print $6 }' | sort | uniq -c # total number of each type of call
 		// $bt = debug_backtrace();
 		// if (isset($bt[1])) {
 		// error_log (MatrixDAL::getCurrentDbId().' TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
