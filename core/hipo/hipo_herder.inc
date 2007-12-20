@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.95 2007/12/15 04:03:54 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.96 2007/12/20 21:57:35 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -798,7 +798,7 @@ class HIPO_Herder extends MySource_Object
 		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class_lower($this));
 		$have_lock = (!empty($lock) && ($current_user_id == $lock['userid']));
 
-		$o = $backend->out;
+		$o =& $backend->out;
 
 		if (!empty($_POST['herder_posted'])) {
 
