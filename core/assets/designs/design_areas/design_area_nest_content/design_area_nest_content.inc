@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.28 2007/12/14 00:17:42 colivar Exp $
+* $Id: design_area_nest_content.inc,v 1.29 2007/12/20 22:38:01 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Design_Area_Nest_Content extends Design_Area
 	*/
 	public function _getNestAssetInfo($field)
 	{
-		if (!isset($this->_tmp['nest_assetid'])) {
+		if ((empty($this->_tmp['nest_assetid'])) || (!isset($this->_tmp['nest_assetid']))) {
 			$this->_tmp['nest_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, 'nest_content_asset');
 		}
 		return (empty($this->_tmp['nest_assetid'])) ? NULL : $this->_tmp['nest_assetid'][$field];
