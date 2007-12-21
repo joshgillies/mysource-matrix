@@ -13,7 +13,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2007/06/22 05:45:50 tbarrett Exp $
+* $Id: asset.xml,v 1.2 2007/12/21 05:03:26 gsherwood Exp $
 *
 */
 -->
@@ -26,12 +26,6 @@
 	<description>Exposes user assets based on data from an XML file</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>bridge</parent_type>
-	<requirements>
-		<requirement type="asset">
-			<code>bridge</code>
-			<version>0.1</version>
-		</requirement>
-	</requirements>
+	<parent_type>asset</parent_type>
 	<flash_menu_path>Data Sources</flash_menu_path>
 </asset_info>

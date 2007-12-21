@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss_edit_fns.inc,v 1.4 2007/11/15 05:13:03 rong Exp $
+* $Id: data_source_rss_edit_fns.inc,v 1.5 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,9 +34,9 @@ class Data_Source_RSS_Edit_Fns extends Data_Source_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Data_Source_RSS_Edit_Fns()
+	function __construct()
 	{
-		$this->Data_Source_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

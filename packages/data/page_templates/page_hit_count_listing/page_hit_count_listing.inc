@@ -37,9 +37,9 @@ class Page_Hit_Count_Listing extends Listing_Engine
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Hit_Count_Listing($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Listing_Engine($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

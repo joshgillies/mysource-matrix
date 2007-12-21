@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.10 2007/11/15 05:13:03 rong Exp $
+* $Id: data_source_rss.inc,v 1.11 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -41,9 +41,9 @@ class Data_Source_RSS extends Data_Source
 	* @param int	$assetid		assetid for the asset
 	*
 	*/
-	function Data_Source_RSS($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Data_Source($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

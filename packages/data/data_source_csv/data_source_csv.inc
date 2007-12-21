@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv.inc,v 1.1 2007/09/19 04:35:53 amiller Exp $
+* $Id: data_source_csv.inc,v 1.2 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -40,9 +40,9 @@ class Data_Source_Csv extends Data_Source
 	* @param int	$assetid		assetid for the asset
 	*
 	*/
-	function Data_Source_Csv($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Data_Source($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

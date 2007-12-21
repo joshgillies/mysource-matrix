@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: weatherco_feed_edit_fns.inc,v 1.1 2007/10/24 05:46:29 bshkara Exp $
+* $Id: weatherco_feed_edit_fns.inc,v 1.2 2007/12/21 05:03:26 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/data/data_source_xml/data_source_xml_edit_fns.in
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -36,9 +36,9 @@ class Weatherco_Feed_Edit_Fns extends Data_Source_Xml_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Weatherco_Feed_Edit_Fns()
+	function __construct()
 	{
-		$this->Data_Source_Xml_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

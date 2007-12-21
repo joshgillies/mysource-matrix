@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_edit_fns.inc,v 1.3 2007/10/31 03:06:55 bshkara Exp $
+* $Id: data_source_xml_edit_fns.inc,v 1.4 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -36,9 +36,9 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
     * Constructor
     *
     */
-    function Data_Source_Xml_Edit_Fns()
+    function __construct()
     {
-        $this->Data_Source_Edit_Fns();
+        parent::__construct();
 
     }//end constructor
 

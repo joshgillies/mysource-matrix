@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv_edit_fns.inc,v 1.1 2007/09/19 04:35:53 amiller Exp $
+* $Id: data_source_csv_edit_fns.inc,v 1.2 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -35,9 +35,9 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Data_Source_Csv_Edit_Fns()
+	function __construct()
 	{
-		$this->Data_Source_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

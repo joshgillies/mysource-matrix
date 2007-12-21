@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: weatherco_feed.inc,v 1.2 2007/10/31 23:41:18 bshkara Exp $
+* $Id: weatherco_feed.inc,v 1.3 2007/12/21 05:03:26 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/data/data_source_xml/data_source_xml.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -41,9 +41,9 @@ class Weatherco_Feed extends Data_Source_Xml
     * @param int    $assetid    the asset id to be loaded
     *
     */
-    function Weatherco_Feed($assetid=0)
+    function __construct($assetid=0)
     {
-        $this->Data_Source_Xml($assetid);
+        parent::__construct($assetid);
 
 	}//end constructor
 

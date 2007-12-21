@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.31 2007/10/15 06:45:40 nbhradwaj Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.32 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,27 +22,27 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 {
-	var $dsn = NULL;
-	var $result = NULL;
-	var $fields = Array();
-	var $selected_fields = Array();
-	var $group_by = Array();
-	var $conn = NULL;
+	public $dsn = NULL;
+	public $result = NULL;
+	public $fields = Array();
+	public $selected_fields = Array();
+	public $group_by = Array();
+	public $conn = NULL;
 
 
 	/**
 	* Constructor
 	*
 	*/
-	function Data_Source_DB_Edit_Fns()
+	function __construct()
 	{
-		$this->Data_Source_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

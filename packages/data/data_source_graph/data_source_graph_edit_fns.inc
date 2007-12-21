@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph_edit_fns.inc,v 1.20 2007/04/05 00:13:19 skim Exp $
+* $Id: data_source_graph_edit_fns.inc,v 1.21 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,7 +34,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* Option list for the type of graph
 	* @var array
 	*/
-	var $graph_types = Array(
+	public $graph_types = Array(
 						'Image_Graph_Plot_Bar',
 						'Image_Graph_Plot_Line',
 						'Image_Graph_Plot_Area',
@@ -53,7 +53,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* Option list for gradient types
 	* @var array
 	*/
-	var $fill_grad_types = Array(
+	public $fill_grad_types = Array(
 							'none'									=> '-- Leave Empty --',
 							'IMAGE_GRAPH_GRAD_VERTICAL'				=> 'Vertically',
 							'IMAGE_GRAPH_GRAD_HORIZONTAL'			=> 'Horizontally',
@@ -69,7 +69,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* Option list for mark types
 	* @var array
 	*/
-	var $marker_types = Array(
+	public $marker_types = Array(
 							'none'							=> '-- Leave Empty --',
 							'Image_Graph_Marker_Asterisk'	=> 'Mark Asterisk For A Dataset',
 							'Image_Graph_Marker_Average'	=> 'Mark Average For A Dataset',
@@ -87,7 +87,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* Option list for marker value types
 	* @var array
 	*/
-	var $value_marker_types = Array(
+	public $value_marker_types = Array(
 								'IMAGE_GRAPH_VALUE_X'	=> 'Mark x-Axis Values',
 								'IMAGE_GRAPH_VALUE_Y'	=> 'Mark y-Axis Values',
 							  );
@@ -96,7 +96,7 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* Option list for mark types
 	* @var array
 	*/
-	var $pointing_types = Array(
+	public $pointing_types = Array(
 							'none'									=> '-- Leave Empty --',
 							'Image_Graph_Marker_Pointing_Angular'	=> 'Image_Graph_Marker_Pointing_Angular',
 							'Image_Graph_Marker_Pointing_Radial'	=> 'Image_Graph_Marker_Pointing_Radial',
@@ -108,9 +108,9 @@ class Data_Source_Graph_Edit_Fns extends Image_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Data_Source_Graph_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

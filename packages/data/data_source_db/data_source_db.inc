@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.25 2007/07/13 01:50:57 tbarrett Exp $
+* $Id: data_source_db.inc,v 1.26 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,9 +41,9 @@ class Data_Source_DB extends Data_Source
 	* @param int	$assetid		assetid for the asset
 	*
 	*/
-	function Data_Source_DB($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Data_Source($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

@@ -10,12 +10,13 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.2 2007/06/25 01:58:25 tbarrett Exp $
+* $Id: xml_user_bridge.inc,v 1.3 2007/12/21 05:03:26 gsherwood Exp $
 *
 */
 
 
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
+require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 
@@ -25,19 +26,17 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
 
-register_implementation('xml_user_bridge', 'bridge');
-
-class XML_User_Bridge extends Bridge
+class XML_User_Bridge extends Asset implements Bridge
 {
 
-	var $groups = NULL;
-	var $group_members = NULL;
-	var $user_memberships = NULL;
+	public $groups = NULL;
+	public $group_members = NULL;
+	public $user_memberships = NULL;
 
 
 	/**
@@ -48,9 +47,9 @@ class XML_User_Bridge extends Bridge
 	* @return object
 	* @access public
 	*/
-	function XML_User_Bridge($assetid=0)
+	function __construct($assetid=0)
 	{
-		$res = $this->Bridge($assetid);
+		$res = parent::__construct($assetid);
 		$this->loadFromFile();
 		return $res;
 
@@ -81,7 +80,7 @@ class XML_User_Bridge extends Bridge
 	*/
 	function loadFromFile()
 	{
-		require_once 'XML/Tree.php';
+		#require_once 'XML/Tree.php';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		$filename = $this->data_path.'/contents.xml';
@@ -100,7 +99,7 @@ class XML_User_Bridge extends Bridge
 		}
 		if (!file_exists($filename)) return;
 
-		$input =& new XML_Tree($filename);
+		$input = new XML_Tree($filename);
 		$root  =& $input->getTreeFromFile();
 		if (PEAR::isError($root)) {
 			trigger_error('Could not parse XML', E_USER_WARNING);
@@ -136,7 +135,7 @@ class XML_User_Bridge extends Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$bits = explode(':', $assetid);
 		switch (count($bits)) {
@@ -145,7 +144,7 @@ class XML_User_Bridge extends Bridge
 			case 2:
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
 				$shadowid = $bits[1];
-				$ug =& new User_Group();
+				$ug = new User_Group();
 				$ug->id = $assetid;
 				$ug->name = $this->groups[$shadowid];
 				$ug->short_name = $this->groups[$shadowid];
@@ -157,7 +156,7 @@ class XML_User_Bridge extends Bridge
 				$personid = $bits[2];
 				$user_type = $this->attr('user_type');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-				$user =& new $user_type();
+				$user = new $user_type();
 				$user->id = $assetid;
 				$user->status = $this->status;
 				if (isset($this->group_members[$groupid][$personid])) {
@@ -556,6 +555,81 @@ class XML_User_Bridge extends Bridge
 		return $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $permission, $granted, $and_greater, $expand_groups, $all_info);
 
 	}//end getPermission()
+
+
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	public function getLineageFromURL($assetid, $protocol, $url)
+	{
+		return Array();
+
+	}//end getLineageFromURL()
+
+
+	/**
+	* Return the number of links in the system that involve the specified asset
+	*
+	* Can be restricted by either link type afnd/or asset type code
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc) (can be a string or an array of strings)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param int		$ignore_linkid		ignore the link represented by this link id when returning the count
+	*
+	* @return int
+	* @access public
+	*/
+	public function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
+	{
+		return 0;
+
+	}//end countLinks()
+
+
+	/**
+	* Remove a link by id
+	*
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this delete is part of a move operation
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function deleteAssetLink($linkid, $moving=FALSE)
+	{
+		return FALSE;
+
+	}//end deleteAssetLink()
+
+
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
+
+	}//end getAssetMapAssetInfo()
 
 
 }//end class

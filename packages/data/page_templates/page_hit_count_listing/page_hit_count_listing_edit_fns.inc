@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hit_count_listing_edit_fns.inc,v 1.1 2007/07/19 03:31:11 bshkara Exp $
+* $Id: page_hit_count_listing_edit_fns.inc,v 1.2 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Christophe Olivar <colivar@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -38,9 +38,9 @@ class Page_Hit_Count_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Hit_Count_Listing_Edit_Fns()
+	function __construct()
 	{
-		$this->Listing_Engine_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

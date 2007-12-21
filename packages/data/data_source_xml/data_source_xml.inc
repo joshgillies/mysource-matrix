@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.2 2007/10/31 23:37:32 bshkara Exp $
+* $Id: data_source_xml.inc,v 1.3 2007/12/21 05:03:25 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -39,7 +39,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var array
 	*/
-	var $_result = Array();
+	protected $_result = Array();
 
 
 	/**
@@ -47,7 +47,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var boolean
 	*/
-	var $_inside_relevant_tag = FALSE;
+	protected $_inside_relevant_tag = FALSE;
 
 
 	/**
@@ -55,7 +55,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var string
 	*/
-	var $_current_tag_name = '';
+	protected $_current_tag_name = '';
 
 
 	/**
@@ -63,7 +63,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var array
 	*/
-	var $_current_attributes = Array();
+	protected $_current_attributes = Array();
 
 
 	/**
@@ -71,7 +71,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var int
 	*/
-	var $_passes = 0;
+	protected $_passes = 0;
 
 
 	/**
@@ -79,7 +79,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var int
 	*/
-	var $_quotient = 0;
+	protected $_quotient = 0;
 
 
 	/**
@@ -87,7 +87,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var int
 	*/
-	var $_record_set_index = 0;
+	protected $_record_set_index = 0;
 
 
 	/**
@@ -96,9 +96,9 @@ class Data_Source_Xml extends Data_Source
 	* @param int    $assetid    the asset id to be loaded
 	*
 	*/
-	function Data_Source_Xml($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Data_Source($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 

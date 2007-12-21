@@ -10,12 +10,12 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge_edit_fns.inc,v 1.2 2007/06/22 06:43:29 tbarrett Exp $
+* $Id: xml_user_bridge_edit_fns.inc,v 1.3 2007/12/21 05:03:26 gsherwood Exp $
 *
 */
 
 
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 
@@ -25,11 +25,11 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * Functions to handle backend interface for this asset type
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
-class xml_user_bridge_Edit_Fns extends Bridge_Edit_Fns
+class XML_User_Bridge_Edit_Fns extends Asset_Edit_Fns
 {
 
 
@@ -39,9 +39,9 @@ class xml_user_bridge_Edit_Fns extends Bridge_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function xml_user_bridge_Edit_Fns()
+	function __construct()
 	{
-		$this->Asset_Edit_Fns();
+		parent::__construct();
 		$this->static_screens = Array(
 									'details'	=> Array(
 													'name'			=> 'Details',
