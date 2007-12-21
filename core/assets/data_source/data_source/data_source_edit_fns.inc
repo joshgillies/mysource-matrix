@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_edit_fns.inc,v 1.8 2007/12/21 23:08:40 gsherwood Exp $
+* $Id: data_source_edit_fns.inc,v 1.9 2007/12/21 23:45:13 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	*/
 	public function processShadow(Data_Source $asset, Backend_Outputter $o, $prefix)
 	{
-		if ($asset->writeAccess('attributes')) return FALSE;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$new_name = NULL;
 		$name = $asset->attr('shadow_name');
