@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_edit_fns.inc,v 1.7 2007/12/02 22:34:13 lwright Exp $
+* $Id: data_source_edit_fns.inc,v 1.8 2007/12/21 23:08:40 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -177,7 +177,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access protected
 	*/
-	protected function resultSetExists(&$asset, $prefix)
+	public function resultSetExists(&$asset, $prefix)
 	{
 		$result = $asset->getResultSet();
 		return !empty($result);
