@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.13 2007/11/15 05:11:59 rong Exp $
+* $Id: rss_feed_reader.inc,v 1.14 2007/12/21 23:09:51 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -34,98 +34,98 @@ class RSS_Feed_Reader
 	*
 	* @var array
 	*/
-	var $open_tags = Array();
+	public $open_tags = Array();
 
 	/**
 	* The tags that have sub tags are pushed into this array to keep track of index
 	*
 	* @var array
 	*/
-	var $parent_tags = Array();
+	public $parent_tags = Array();
 
 	/**
 	* The items are stored in this array which is an associative array
 	*
 	* @var array
 	*/
-	var $item = Array();
+	public $item = Array();
 
 	/**
 	* The image info is stored in here
 	*
 	* @var array
 	*/
-	var $image = Array();
+	public $image = Array();
 
 	/**
 	* The Channel info of the RSS is saved in this array
 	*
 	* @var array
 	*/
-	var $channel = Array();
+	public $channel = Array();
 
 	/**
 	* The text inpur of the RSS is saved in here
 	*
 	* @var array
 	*/
-	var $textinput = Array();
+	public $textinput = Array();
 
 	/**
 	* The attributes of the tag
 	*
 	* @var array
 	*/
-	var $attributes = Array();
+	public $attributes = Array();
 
 	/**
 	* Any of the unrecognised tags are pushed in to this array
 	*
 	* @var array
 	*/
-	var $unrecognised = Array();
+	public $unrecognised = Array();
 
 	/**
 	* The element that is currently being processed eg. items, channel, link, description etc.
 	*
 	* @var string
 	*/
-	var $element = '';
+	public $element = '';
 
 	/**
 	* The file pointer to read the file
 	*
 	* @var array
 	*/
-	var $fp = NULL;
+	public $fp = NULL;
 
 	/**
 	* The parser
 	*
 	* @var array
 	*/
-	var $parser;
+	public $parser;
 
 	/**
 	* The type of RSS (RSS 1.0, RSS 2.0 or Atom 1.0)
 	*
 	* @var array
 	*/
-	var $type = '';
+	public $type = '';
 
 	/**
 	* A flag to see if the file or the XML string has been parsed or not
 	*
 	* @var boolean
 	*/
-	var $parsed = FALSE;
+	public $parsed = FALSE;
 
 
 	/**
 	* Constructor
 	*
 	*/
-	function RSS_Feed_Reader()
+	function __construct()
 	{
 		$this->parser = xml_parser_create();
 
@@ -144,7 +144,7 @@ class RSS_Feed_Reader
 	* @return boolean
 	* @access public
 	*/
-	function setInputFile($file='')
+	public function setInputFile($file='')
 	{
 		$check = FALSE;
 		if (!empty($file)) {
@@ -154,7 +154,7 @@ class RSS_Feed_Reader
 					return FALSE;
 				}
 				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-				$this->fp = openSocketConnection($file, $errno, $errstr);
+				$this->fp = open_socket_connection($file, $errno, $errstr);
 			} else {
 				$this->fp = fopen($file, 'r');
 			}
@@ -181,7 +181,7 @@ class RSS_Feed_Reader
 	* @return boolean
 	* @access public
 	*/
-	function setInputString($xml)
+	public function setInputString($xml)
 	{
 		if (empty($xml)) {
 			trigger_error('Empty Strings Cannot Be Parsed', E_USER_ERROR);
@@ -200,15 +200,17 @@ class RSS_Feed_Reader
 	/**
 	* Parsers the file
 	*
-	* @return string
+	* Returns error message on error, TRUE on success.
+	*
+	* @return boolean|string
 	* @access public
 	*/
-	function parse()
+	public function parse()
 	{
 		$fp = $this->fp;
 		if (!$fp) {
-			trigger_error('Invalid File Pointer', E_USER_WARNING);
-			return;
+			trigger_error('Invalid file pointer', E_USER_WARNING);
+			return 'Invalid file pointer';
 		} else {
 			$this->parsed = TRUE;
 			if (!is_string($this->fp)) {
@@ -235,6 +237,8 @@ class RSS_Feed_Reader
 			}
 		}
 
+		return TRUE;
+
 	}//end parse()
 
 
@@ -244,7 +248,7 @@ class RSS_Feed_Reader
 	* @return array
 	* @access public
 	*/
-	function getRssType()
+	public function getRssType()
 	{
 		if ($this->_issetFile()) return $this->type;
 
@@ -257,7 +261,7 @@ class RSS_Feed_Reader
 	* @return array
 	* @access public
 	*/
-	function getItems()
+	public function getItems()
 	{
 		if ($this->_issetFile()) return $this->item;
 
@@ -270,7 +274,7 @@ class RSS_Feed_Reader
 	* @return array
 	* @access public
 	*/
-	function getTextInput()
+	public function getTextInput()
 	{
 		if ($this->_issetFile()) return $this->textinput;
 
@@ -283,7 +287,7 @@ class RSS_Feed_Reader
 	* @return array
 	* @access public
 	*/
-	function getChannelInfo()
+	public function getChannelInfo()
 	{
 		if ($this->_issetFile()) return $this->channel;
 
@@ -296,7 +300,7 @@ class RSS_Feed_Reader
 	* @return array
 	* @access public
 	*/
-	function getImageInfo()
+	public function getImageInfo()
 	{
 		if ($this->_issetFile()) return $this->image;
 
@@ -309,7 +313,7 @@ class RSS_Feed_Reader
 	* @return array
 	* @access public
 	*/
-	function getUnrecognisedElements()
+	public function getUnrecognisedElements()
 	{
 		if ($this->_issetFile()) return $this->unrecognised;
 
@@ -332,7 +336,7 @@ class RSS_Feed_Reader
 	* @return void
 	* @access public
 	*/
-	function startElementHandler($xp, $name, $attributes)
+	public function startElementHandler($xp, $name, $attributes)
 	{
 		if (!empty($name)) {
 			// for atom the tags are feed and entry for channel and item respectivel. This has to be renamed as channel and
@@ -382,7 +386,7 @@ class RSS_Feed_Reader
 	* @return void
 	* @access public
 	*/
-	function endElementHandler($xp, $name)
+	public function endElementHandler($xp, $name)
 	{
 		switch ($name) {
 			case 'ENTRY':
@@ -420,7 +424,7 @@ class RSS_Feed_Reader
 	* @return void
 	* @access public
 	*/
-	function characterHandler($xp, $data, $attributes=FALSE)
+	public function characterHandler($xp, $data, $attributes=FALSE)
 	{
 		$index = NULL;
 		// if the data is a string and has any white spaces then trim them off
@@ -559,7 +563,7 @@ class RSS_Feed_Reader
 	* @return boolean
 	* @access public
 	*/
-	function _issetFile()
+	public function _issetFile()
 	{
 		if (!isset($this->fp)) {
 			trigger_error('The XML That Has To Be Parsed Is To Be Set First Using setInputFile or setInputString');
