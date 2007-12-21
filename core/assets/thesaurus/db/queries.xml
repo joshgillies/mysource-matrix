@@ -700,11 +700,7 @@
 					<field>thesid</field>
 				</fields>
 				<values>
-					<value column="linkid">
-						<function function="seqNextVal">
-                            <arg>sq_thes_lnk_seq</arg>
-                        </function>	
-					</value>
+					<value column="linkid">:linkid</value>
 					<value column="major">:major</value>
 					<value column="minor">:minor</value>
 					<value column="relid">:relation</value>

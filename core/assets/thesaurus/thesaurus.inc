@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.51 2007/12/18 05:34:44 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.52 2007/12/21 00:10:42 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -765,6 +765,8 @@ class Thesaurus extends Asset implements Bridge
 
 		// inserting a term link is the easiest thing ever
         try {
+			$linkid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_lnk_seq\');');
+			$bind_vars['linkid']	= $linkid;
             $result = MatrixDAL::executeQuery('thesaurus', 'insertLink', $bind_vars);
         } catch (Exception $e) {
             throw new Exception('Unable to link a thesaurus term due to database error: '. $e->getMessage());
