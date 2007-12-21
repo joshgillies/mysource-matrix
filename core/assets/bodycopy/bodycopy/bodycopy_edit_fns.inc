@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.55 2007/12/14 03:28:21 rong Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.56 2007/12/21 00:50:40 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -364,7 +364,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$updated = FALSE;
 
 		// save css ids into global var
+		// we dont want note to be displayed so we added ob_start/ob_end_clean
+		ob_start();
 		$this->_saveCssIds($o);
+		ob_end_clean();
 
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {
