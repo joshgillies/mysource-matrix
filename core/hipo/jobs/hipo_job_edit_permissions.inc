@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.65 2007/12/03 04:52:12 bshkara Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.66 2007/12/21 02:54:32 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -249,6 +249,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function processPermissions(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
+			reset($this->_running_vars['todo_assetids']);
 			$assetid = key($this->_running_vars['todo_assetids']);
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);

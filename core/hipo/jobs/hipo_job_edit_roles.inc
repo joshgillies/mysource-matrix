@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.10 2007/12/18 22:54:06 hnguyen Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.11 2007/12/21 02:56:40 hnguyen Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -206,6 +206,7 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	function processRoles(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
+			reset($this->_running_vars['todo_assetids']);
 			$assetid = key($this->_running_vars['todo_assetids']);
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
