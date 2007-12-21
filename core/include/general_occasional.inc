@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.79 2007/11/30 01:26:15 bshkara Exp $
+* $Id: general_occasional.inc,v 1.80 2007/12/21 00:24:38 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 
@@ -349,6 +349,7 @@ function make_valid_web_paths($paths)
 			trigger_localised_error('SYS0114', E_USER_WARNING, $path);
 			continue;
 		}
+
 		// get rid of paths that start with the two underscores
 		if (preg_match('/^__/', $path)) {
 			trigger_localised_error('SYS0115', E_USER_WARNING);
@@ -356,7 +357,10 @@ function make_valid_web_paths($paths)
 		}
 
 		// no ampersands in web paths
-		$path = str_replace('&', '_and_',  $path);
+		$path = str_replace('&amp;', '_and_', $path);
+		$path = preg_replace('|&[^;]+;|', '', $path);
+		$path = preg_replace('|&#[0-9]+;|', '', $path);
+		$path = str_replace('&', '_and_', $path);
 
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
@@ -364,13 +368,26 @@ function make_valid_web_paths($paths)
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
 
+		// no quotes
+		$path = str_replace('"', '', $path);
+		$path = str_replace("'", '', $path);
+		$path = str_replace(chr(145), '', $path);
+		$path = str_replace(chr(146), '', $path);
+		$path = str_replace(chr(147), '', $path);
+		$path = str_replace(chr(148), '', $path);
+
 		// replace accents, handle utf-8 input
 		if (function_exists('mb_convert_encoding')) {
 			$path = mb_convert_encoding($path, 'HTML-ENTITIES', SQ_CONF_DEFAULT_CHARACTER_SET);
 		} else {
 			$path = htmlentities($path);
 		}
-		$path = html_entity_decode(preg_replace('/&([a-zA-Z])(ring|uml|acute|grave|circ|tilde);/', '$1', $path));
+
+		// replace accented characters
+		$path = preg_replace('/&([a-zA-Z])(ring|uml|acute|grave|circ|tilde);/', '$1', $path);
+
+		// and some more entities
+		$path = preg_replace('|&[^;]+;|', '', $path);
 
 		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
@@ -380,6 +397,7 @@ function make_valid_web_paths($paths)
 			$valid_paths[] = $path;
 		}
 	}//end foreach
+
 	return $valid_paths;
 
 }//end make_valid_web_paths()
