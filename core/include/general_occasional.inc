@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.76 2007/06/06 01:32:19 hnguyen Exp $
+* $Id: general_occasional.inc,v 1.76.2.1 2007/12/21 00:31:31 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.76.2.1 $
 * @package MySource_Matrix
 */
 
@@ -339,6 +339,14 @@ function make_valid_web_paths($paths)
 
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
+
+		// no quotes
+		$path = str_replace('"', '', $path);
+		$path = str_replace("'", '', $path);
+		$path = str_replace(chr(145), '', $path);
+		$path = str_replace(chr(146), '', $path);
+		$path = str_replace(chr(147), '', $path);
+		$path = str_replace(chr(148), '', $path);
 
 		// replace accents, handle utf-8 input
 		if (function_exists('mb_convert_encoding')) {
