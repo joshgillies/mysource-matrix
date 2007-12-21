@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_tags.inc,v 1.13 2007/12/18 22:57:34 hnguyen Exp $
+* $Id: hipo_job_edit_tags.inc,v 1.14 2007/12/21 02:49:31 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit content tags
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -243,6 +243,7 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
+			reset($this->_running_vars['todo_assetids']);
 			$assetid	= key($this->_running_vars['todo_assetids']);
 			$asset_type	= $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
