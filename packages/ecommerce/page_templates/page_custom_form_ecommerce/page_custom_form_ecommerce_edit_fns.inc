@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce_edit_fns.inc,v 1.7 2006/12/07 05:26:30 bcaldwell Exp $
+* $Id: page_custom_form_ecommerce_edit_fns.inc,v 1.8 2007/12/21 05:11:55 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -46,7 +46,7 @@ class Page_Custom_Form_Ecommerce_Edit_Fns extends Page_Custom_Form_Edit_Fns
 	{
 		// get the bodycopy attached to us
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'form_ecommerce', false, 'major', '', '1', '1');
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link[0]['minorid']);
 		if (is_null($form)) {
 			trigger_localised_error('ECOM0002', E_USER_ERROR, $asset->name, $asset->id);
 			return false;

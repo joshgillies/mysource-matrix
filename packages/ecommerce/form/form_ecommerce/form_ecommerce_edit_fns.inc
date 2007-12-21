@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.13 2007/03/22 05:53:42 arailean Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.14 2007/12/21 05:11:55 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -131,7 +131,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 			echo '</td>';
 			echo '<td>';
 			if ($ecom_enabled) {
-				$question =& $am->getAsset($q_id);
+				$question = $am->getAsset($q_id);
 				if ($question->isSelection()) {
 					echo '<table class="sq-backend-table">';
 					$options = $question->getOptions();

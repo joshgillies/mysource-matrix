@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.37 2007/12/21 03:24:15 colivar Exp $
+* $Id: form_ecommerce.inc,v 1.38 2007/12/21 05:11:55 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -317,7 +317,7 @@ class Form_Ecommerce extends Form_Email
 				}
 
 				$gateway = $this->attr('gateway_assetid');
-				$gateway_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
+				$gateway_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
 				$gateway_asset_url = $gateway_asset->getURL();
 
 				header('Location: '.$gateway_asset_url);
@@ -563,7 +563,7 @@ class Form_Ecommerce extends Form_Email
 				return $unreplaced_value;
 			}
 
-			$q_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
 
 			switch ($keyword_parts[1]) {
 				case 'id':
@@ -982,7 +982,7 @@ class Form_Ecommerce extends Form_Email
 
 		} else {
 			// folder already exists, get the reference
-			$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+			$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 		}
 
 
@@ -1076,7 +1076,7 @@ class Form_Ecommerce extends Form_Email
 		$assets_in_cart = $this->_getAssetItems();
 		foreach ($assets_in_cart as $asset_id => $count) {
 			$ecom_item['taxable'] = FALSE;
-			$asset =& $am->getAsset($asset_id);
+			$asset = $am->getAsset($asset_id);
 			$name = $this->_getPurchasableAssetName($asset);
 			$price = $this->_getPurchasableAssetPrice($asset);
 			if ($count > 1) {
@@ -1252,6 +1252,7 @@ class Form_Ecommerce extends Form_Email
 		$body =& $this->getBodycopy('Confirmation');
 
 		$keyword_list = $body->getKeywords();
+		$replacements = Array();
 		foreach ($keyword_list as $keyword) {
 			$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
 		}
@@ -1270,7 +1271,7 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function printReceiptView()
 	{
-		$body =& $this->getBodycopy('Receipt');
+		$body = $this->getBodycopy('Receipt');
 		$replacements = Array();
 
 		$keyword_list = $body->getKeywords();
@@ -1405,7 +1406,7 @@ class Form_Ecommerce extends Form_Email
 	function &_getParentPageAsset()
 	{
 		if (!isset($this->_tmp['parent_form_page_asset'])) {
-			$parent_page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_getParentPageAssetId());
+			$parent_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_getParentPageAssetId());
 			$this->_tmp['parent_form_page_asset'] =& $parent_page;
 		} else {
 			$parent_page =& $this->_tmp['parent_form_page_asset'];
@@ -1847,7 +1848,7 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _addAssetItem($assetid, $quantity=1)
 	{
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return FALSE;
 
 		if (!$this->_isPurchasableAsset($asset)) {

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce.inc,v 1.8 2007/01/08 03:27:17 emcdonald Exp $
+* $Id: page_custom_form_ecommerce.inc,v 1.9 2007/12/21 05:11:55 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -82,7 +82,7 @@ class Page_Custom_Form_Ecommerce extends Page_Custom_Form
 	function printBody()
 	{
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_ecommerce', true, '', 'major');
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
 
 		if (is_null($form)) {
 			trigger_localised_error('ECOM0002', E_USER_ERROR, $this->name, $this->id);

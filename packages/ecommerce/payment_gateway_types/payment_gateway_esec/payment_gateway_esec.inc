@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.19 2007/12/21 03:24:15 colivar Exp $
+* $Id: payment_gateway_esec.inc,v 1.20 2007/12/21 05:11:55 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -252,7 +252,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$null = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major');
 		if (empty($link)) return $null;
-		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $bodycopy;
 
 	}//end getBodycopy()
