@@ -10,14 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.22 2007/12/04 02:48:23 gsherwood Exp $
+* $Id: data_source.inc,v 1.23 2007/12/21 23:08:15 gsherwood Exp $
 *
 */
 
-
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
-
 
 /**
 * Data_Source
@@ -26,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -627,7 +625,8 @@ class Data_Source extends Asset implements Bridge
 	*/
 	public function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
-		$shadowid = array_pop(explode(':', $assetid));
+		$shadowid = explode(':', $assetid);
+		$shadowid = array_pop($shadowid);
 		$asset = NULL;
 		if (is_null($shadowid)) return $asset;
 		$result = $this->getResultSet();
