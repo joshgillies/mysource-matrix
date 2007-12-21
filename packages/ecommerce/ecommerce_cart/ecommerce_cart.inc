@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.30 2007/05/14 05:17:36 colivar Exp $
+* $Id: ecommerce_cart.inc,v 1.31 2007/12/21 03:24:15 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -47,9 +47,9 @@ class Ecommerce_Cart extends Listing_Engine
 	* @return void
 	* @access public
 	*/
-	function Ecommerce_Cart($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Listing_Engine($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -65,7 +65,7 @@ class Ecommerce_Cart extends Listing_Engine
 	function _createBodycopies()
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$asset =& new Bodycopy();
+		$asset = new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 		return $asset->create($copy_link);
@@ -85,7 +85,7 @@ class Ecommerce_Cart extends Listing_Engine
 			$cart =& $this->_tmp['cart_processor'];
 			$cart->initialiseCart();
 		} else {
-			$cart =& new Ecommerce_Cart_Processor();
+			$cart = new Ecommerce_Cart_Processor();
 		}
 
 		if ($this->attr('use_local_cart')) {

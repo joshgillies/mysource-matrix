@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.15 2006/12/05 04:59:50 bcaldwell Exp $
+* $Id: xml_array.inc,v 1.16 2007/12/21 03:24:13 colivar Exp $
 *
 */
 
 
 // From PEAR
-require_once 'XML/Parser.php';
+//require_once 'XML/Parser.php';
 
 /**
 * XML_Array
@@ -38,9 +38,9 @@ require_once 'XML/Parser.php';
 * @author  Blair Robertson <blair@squiz.net>
 * @package MySource_Matrix
 * @subpackage lib
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 */
-class XML_Array extends XML_Parser
+class XML_Array// extends XML_Parser
 {
 
 	/**

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.36 2007/08/29 03:43:27 lwright Exp $
+* $Id: form_ecommerce.inc,v 1.37 2007/12/21 03:24:15 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -960,7 +960,7 @@ class Form_Ecommerce extends Form_Email
 
 			// create a folder for the bodycopies
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-			$folder =& new Folder();
+			$folder = new Folder();
 			$folder->setAttrValue('name', 'Orders');
 
 			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'orders_folder', 'is_dependant' => 0, 'is_exclusive' => 1);
@@ -993,7 +993,7 @@ class Form_Ecommerce extends Form_Email
 		}
 
 		// create the Order asset
-		$order =& new Order();
+		$order = new Order();
 		$copy_link  = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);

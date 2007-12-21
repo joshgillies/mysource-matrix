@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.11 2007/05/14 05:17:36 colivar Exp $
+* $Id: product.inc,v 1.12 2007/12/21 03:24:15 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -41,12 +41,13 @@ class Product extends Page
 	* @return void
 	* @access public
 	*/
-	function Product($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
+
 
 
 	/**

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.18 2007/05/03 23:03:13 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.19 2007/12/21 03:24:15 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -42,10 +42,10 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	var $esec = NULL;
 
 
-	function Payment_Gateway_Esec($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->_esec =& new Esec_Processor_Integration_Interface();
-		$this->Payment_Gateway($assetid);
+		$this->_esec = new Esec_Processor_Integration_Interface();
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -84,7 +84,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy =& new Bodycopy();
+		$bodycopy = new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$bodycopy->setAttrValue('name', 'Display Format');
@@ -268,7 +268,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	{
 		$amount = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
 
-		$Esec =& new Esec_Processor_Integration_Interface();
+		$Esec = new Esec_Processor_Integration_Interface();
 		$card_types = $Esec->getCardTypes();
 
 		// format the amount
@@ -393,7 +393,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$amount      = $_SESSION['SQ_ECOM_AMOUNT'];
 		$card_info   = $_SESSION['SQ_ECOM_CARDINFO'];
 
-		$Esec =& new Esec_Processor_Integration_Interface();
+		$Esec = new Esec_Processor_Integration_Interface();
 
 		$Esec->setAmount($amount);
 		$Esec->setReference($ref_no);

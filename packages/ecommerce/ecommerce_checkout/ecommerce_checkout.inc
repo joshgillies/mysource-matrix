@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.52 2007/05/25 04:26:06 colivar Exp $
+* $Id: ecommerce_checkout.inc,v 1.53 2007/12/21 03:24:15 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -53,14 +53,13 @@ class Ecommerce_Checkout extends Page
 	* @return void
 	* @access public
 	*/
-	function Ecommerce_Checkout($assetid=0)
+	function __construct($assetid=0)
 	{
 		// initialise the temporary order container so as to avoid extra checking
 		if (!isset($_SESSION['sq_local_cart_contents'])) {
 			$_SESSION['sq_local_cart_contents'] = Array();
 		}
-
-		$this->Page($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -151,7 +150,7 @@ class Ecommerce_Checkout extends Page
 
 			if (!isset($_SESSION['sq_local_cart_contents']['editing_order'])) {
 				// clear global cart
-				$cart =& new Ecommerce_Cart_Processor();
+				$cart = new Ecommerce_Cart_Processor();
 				$cart->clearCart();
 				unset($cart);
 			}
@@ -220,7 +219,7 @@ class Ecommerce_Checkout extends Page
 		// if they are different, update the local cart
 		if (empty($request_action)) {
 			if (strcmp($this->print_context, 'checkout') == 0) {
-				$global_cart =& new Ecommerce_Cart_Processor();
+				$global_cart = new Ecommerce_Cart_Processor();
 
 				// unset previous order id and delivery information
 				unset($_SESSION['sq_local_cart_contents']['order_id']);
@@ -238,7 +237,7 @@ class Ecommerce_Checkout extends Page
 					}
 				} else {
 					// if global and local carts are different, update
-					$local_cart =& new Ecommerce_Cart_Processor();
+					$local_cart = new Ecommerce_Cart_Processor();
 					$local_cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 
 					if (strcmp($global_cart->hashCart(), $local_cart->hashCart()) != 0) {
@@ -461,7 +460,7 @@ class Ecommerce_Checkout extends Page
 
 		$bodycopy_folder = NULL;
 		foreach ($sub_assets as $link_value => $type) {
-			$asset =& new $type();
+			$asset = new $type();
 			$copy_link = Array(
 							'asset'			=> &$this,
 							'value'			=> $link_value,
@@ -487,7 +486,7 @@ class Ecommerce_Checkout extends Page
 			// now create context bodycopies
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 			foreach ($this->_getAvailableContexts() as $context_link_value => $context_bodycopy_name) {
-				$asset =& new Bodycopy();
+				$asset = new Bodycopy();
 
 				$copy_link = Array(
 								'asset'			=> &$bodycopy_folder,
@@ -540,7 +539,7 @@ class Ecommerce_Checkout extends Page
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 		$orders_folder =& $am->getAsset($order_folder_id);
-		$ecommerce_order =& new Ecommerce_Order();
+		$ecommerce_order = new Ecommerce_Order();
 
 		$order_link = Array(
 						'asset'		=> &$orders_folder,
@@ -760,7 +759,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getCartSummary($html=TRUE)
 	{
-		$cart =& new Ecommerce_Cart_Processor();
+		$cart = new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 
 		ob_start();
@@ -1215,7 +1214,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getItemsCountKeywordReplacement()
 	{
-		$cart =& new Ecommerce_Cart_Processor();
+		$cart = new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		return $cart->getUniqueCount();
 
@@ -1230,7 +1229,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getItemsTotalCountKeywordReplacement()
 	{
-		$cart =& new Ecommerce_Cart_Processor();
+		$cart = new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		return $cart->getCount();
 

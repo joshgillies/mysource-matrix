@@ -62,7 +62,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 			$asset_type = $sub_asset['type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
 
-			$asset =& new $asset_type();
+			$asset = new $asset_type();
 			$copy_link = Array(
 							'asset'			=> &$this,
 							'value'			=> $link_value,
@@ -88,7 +88,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		if ($success) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 			foreach ($this->getAvailableBodycopies() as $link_value => $bodycopy_name) {
-				$asset =& new Bodycopy();
+				$asset = new Bodycopy();
 
 				$copy_link = Array(
 								'asset'			=> &$bodycopy_folder,
@@ -644,7 +644,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$keywords_to_replace[] = 'order_receipt';
 
 		// get the order summary from the cart
-		$cart =& new Ecommerce_Cart_Processor();
+		$cart = new Ecommerce_Cart_Processor();
 		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 		$tmp_order_receipt_cart = '<pre>';
 		$tmp_order_receipt_cart_text = '';
