@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv_edit_fns.inc,v 1.2 2007/12/21 05:03:25 gsherwood Exp $
+* $Id: data_source_csv_edit_fns.inc,v 1.3 2007/12/21 23:46:03 gsherwood Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -54,13 +54,10 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintUploadFile(&$asset, &$o, $prefix)
 	{
-
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$o->openField(translate('csv_upload'));
 			file_upload($prefix.'_add_source_csv');
-
-			// csv upload instructions
 			$o->note(translate('data_source_csv_upload_instructions'));
 		$o->closeField();
 
@@ -84,7 +81,7 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 		$file_info = get_file_upload_info($prefix.'_add_source_csv');
 		if (!empty($file_info)) {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-			$csv =& new CSV($file_info['tmp_name']);
+			$csv = new CSV($file_info['tmp_name']);
 			$csv->import();
 
 			$asset->setAttrValue('cached_content', $csv->values);
@@ -111,7 +108,6 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintEditRecords(&$asset, &$o, $prefix)
 	{
-
 		if (!$asset->writeAccess('attributes')) {
 			echo '<pre>';
 			echo(print_r($asset->getItems(), TRUE));
