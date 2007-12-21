@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss_edit_fns.inc,v 1.5 2007/12/21 05:03:25 gsherwood Exp $
+* $Id: data_source_rss_edit_fns.inc,v 1.6 2007/12/21 23:10:07 gsherwood Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,7 +110,7 @@ class Data_Source_RSS_Edit_Fns extends Data_Source_Edit_Fns
 		$date_f = $asset->attr('date_field');
 
 		if ($wa) {
-			$shadow_asset =& $asset->getAsset($asset->id.':0');
+			$shadow_asset = $asset->getAsset($asset->id.':0');
 			$keywords = $shadow_asset->getAvailableKeywords();
 			$options = Array('' => '-- Leave Empty --');
 			// only get the ds__ fields with date keyword:

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.11 2007/12/21 05:03:25 gsherwood Exp $
+* $Id: data_source_rss.inc,v 1.12 2007/12/21 23:10:07 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -90,7 +90,7 @@ class Data_Source_RSS extends Data_Source
 		$result = $this->parseXML();
 		if (!$result) return Array();
 
-		$feed_reader =& $this->reader;
+		$feed_reader = $this->reader;
 		$result = $feed_reader->getItems();
 		$type = $feed_reader->getRssType();
 		foreach ($result as $index => $info) {
@@ -189,8 +189,8 @@ class Data_Source_RSS extends Data_Source
 	{
 		$url = $this->attr('url');
 		require_once SQ_FUDGE_PATH.'/rss_feeds/rss_feed_reader.inc';
-		$feed_reader =& new RSS_Feed_Reader();
-		$this->reader =& $feed_reader;
+		$feed_reader = new RSS_Feed_Reader();
+		$this->reader = $feed_reader;
 		if (!empty($url)) {
 			if ($feed_reader->setInputFile($url)) {
 				$result = $feed_reader->parse();
@@ -222,7 +222,7 @@ class Data_Source_RSS extends Data_Source
 			$keyword = substr($keyword, strlen('data_source_rss_'));
 			if (!empty($keyword)) {
 				$res = $this->parseXML();
-				$reader =& $this->reader;
+				$reader = $this->reader;
 				$function = 'get'.ucwords($keyword);
 				$result = $reader->{$function}();
 			}
