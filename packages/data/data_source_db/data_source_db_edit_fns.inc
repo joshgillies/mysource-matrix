@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.33 2007/12/22 01:47:19 gsherwood Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.34 2007/12/22 02:24:41 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,7 +123,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		}
 
 		if (!empty($new_connector_id)) {
-			$new_connector_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($new_connector_id);
+			$new_connector_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_connector_id);
 			$result_id = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $new_connector_asset, SQ_LINK_NOTICE, 'db_connector');
 
 			if (empty($result_id)) {

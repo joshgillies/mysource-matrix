@@ -10,11 +10,12 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_connector_edit_fns.inc,v 1.3 2007/06/25 01:39:05 lwright Exp $
+* $Id: db_connector_edit_fns.inc,v 1.4 2007/12/22 02:24:41 gsherwood Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/data/data_source_db/data_source_db_edit_fns.inc';
 
 /**
 * Db_Connector_Edit_Fns
@@ -22,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *     Edit functions for DB Connector
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -34,7 +35,7 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Db_Connector_Edit_Fns()
+	function __construct()
 	{
 		$this->Asset_Edit_Fns();
 
@@ -63,68 +64,8 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintDSN(&$asset, &$o, $prefix)
 	{
-		$wa = $asset->writeAccess('attributes');
-		$database = $asset->attr('database');
-		$host = $asset->attr('host');
-		$user = $asset->attr('user');
-		$password = $asset->attr('password');
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td><?php echo translate('database_name');?></td>
-				<td>
-					<?php
-					if ($wa) {
-						text_box('dsn[database]', $database, 35);
-					} else {
-						echo $database;
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
-				<td><?php echo translate('user_name');?></td>
-				<td>
-					<?php
-					if ($wa) {
-						text_box('dsn[user]', $user, 35);
-					} else {
-						echo $user;
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
-				<td><?php echo translate('host_name');?></td>
-				<td>
-					<?php
-					if ($wa) {
-						text_box('dsn[host]', $host, 35);
-					} else {
-						echo $host;
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
-				<td><?php echo translate('password');?></td>
-				<td>
-					<?php
-					if ($wa) {
-						password_box('dsn[password]', $password, 35);
-					} else {
-						echo translate('data_password_not_displayed');
-					}
-					?>
-				</td>
-			</tr>
-		</table>
-		<?php
-		if ($wa) {
-			return TRUE;
-		} else {
-			return FALSE;
-		}
+		$edit_fns = new Data_Source_DB_Edit_Fns();
+		return $edit_fns->paintDSN($asset, $o, $prefix);
 
 	}//end paintDSN()
 
@@ -141,36 +82,8 @@ class Db_Connector_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processDSN(&$asset, &$o, $prefix)
 	{
-		$db_type = $asset->attr('db_type');
-		$dsn = $asset->attr('dsn');
-		$new_dsn_string = NULL;
-		$new_dsn = $_POST['dsn'];
-		if (!empty($_POST['dsn']['dsn'])) {
-			$new_dsn_string = $_POST['dsn']['dsn'];
-			$new_dsn['user'] = NULL;
-			$new_dsn['password'] = NULL;
-			$new_dsn['host'] = NULL;
-			$new_dsn['database'] = NULL;
-		} else {
-			switch ($db_type) {
-				case 'postgres':
-					$new_dsn_string = "pgsql://$new_dsn[user]";
-				break;
-				case 'mysql':
-					$new_dsn_string = "mysql://$new_dsn[user]";
-				break;
-			}
-			!empty($new_dsn['password']) ? $new_dsn_string .= ":$new_dsn[password]" : NULL;
-			$new_dsn_string .= "@$new_dsn[host]/$new_dsn[database]";
-		}
-		if (strcasecmp($dsn, $new_dsn_string) != 0) {
-			foreach ($new_dsn as $key => $value) {
-				$asset->setAttrValue($key, $value);
-			}
-			$asset->setAttrValue('dsn', $new_dsn_string);
-			return TRUE;
-		}
-		return FALSE;
+		$edit_fns = new Data_Source_DB_Edit_Fns();
+		return $edit_fns->processDSN($asset, $o, $prefix);
 
 	}//end processDSN()
 

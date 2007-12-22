@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.27 2007/12/22 01:47:19 gsherwood Exp $
+* $Id: data_source_db.inc,v 1.28 2007/12/22 02:24:41 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -236,7 +236,9 @@ class Data_Source_DB extends Data_Source
 		$sql = trim($sql, ';');
 
 		try {
+			MatrixDAL::changeDb('data_source_db_'.$this->id);
 			$result = MatrixDAL::executeSqlAll($sql);
+			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
 			trigger_error("Query execution failed: $sql", E_USER_WARNING);
 			return $result;
@@ -255,16 +257,18 @@ class Data_Source_DB extends Data_Source
 	*/
 	function connectToDB()
 	{
-		$false = FALSE;
-
 		if (isset($this->_tmp['db_connection'])) {
 			return $this->_tmp['db_connection'];
 		}
 
 		$dsn = $this->getDSN();
-		if (empty($dsn)) return $false;
+		if (empty($dsn)) return FALSE;
 
-		$this->_tmp['db_connection'] = MatrixDAL::dbConnect($dsn, 'data_source_db_'.$this->id);
+		try {
+			$this->_tmp['db_connection'] = MatrixDAL::dbConnect($dsn, 'data_source_db_'.$this->id);
+		} catch (Exception $e) {
+			return FALSE;
+		}
 
 		return $this->_tmp['db_connection'];
 
@@ -274,7 +278,7 @@ class Data_Source_DB extends Data_Source
 	/**
 	* Get the DSN for db connection
 	*
-	* @return string
+	* @return array
 	* @access public
 	*/
 	function getDSN()
@@ -291,23 +295,7 @@ class Data_Source_DB extends Data_Source
 		}
 
 		if (empty($dsn)) {
-			$dsn = $this->attr('dsn');
-			$user = $this->attr('user');
-			$password = $this->attr('password');
-			$type = $this->attr('db_type');
-			switch ($type) {
-				case 'mysql':
-					$type = 'mysql';
-				break;
-				case 'oracle':
-					$type = 'oci';
-				break;
-				default:
-					$type = 'pgsql';
-				break;
-			}
-
-			$dsn = Array('DSN' => $dsn, 'user' => $user, 'password' => $password, 'type' => $type);
+			$dsn = $this->constructDSNArray($this);
 		}
 
 		$this->_tmp['db_DSN'] = $dsn;
@@ -315,6 +303,37 @@ class Data_Source_DB extends Data_Source
 		return $dsn;
 
 	}//end getDSN()
+
+
+	/**
+	* Get the DSN array for a db connection
+	*
+	* @param Asset	$asset	The asset to source the DSN data from
+	*
+	* @return array
+	* @access public
+	*/
+	function constructDSNArray($asset)
+	{
+		$dsn = $asset->attr('dsn');
+		$user = $asset->attr('user');
+		$password = $asset->attr('password');
+		$type = $asset->attr('db_type');
+		switch ($type) {
+			case 'mysql':
+				$type = 'mysql';
+			break;
+			case 'oracle':
+				$type = 'oci';
+			break;
+			default:
+				$type = 'pgsql';
+			break;
+		}
+
+		return Array('DSN' => $dsn, 'user' => $user, 'password' => $password, 'type' => $type);
+
+	}//end constructDSNArray()
 
 
 	/**
