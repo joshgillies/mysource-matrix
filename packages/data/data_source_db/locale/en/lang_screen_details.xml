@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2007/05/23 00:52:35 arailean Exp $
+* $Id: lang_screen_details.xml,v 1.6 2007/12/22 01:47:19 gsherwood Exp $
 *
 */
 -->
@@ -23,8 +23,12 @@
 		</field>
 	</section>
 	<section name="Connection Setup">
-		<field attribute="db_type">
-			<display_name>Database Type</display_name>
+		<field attribute="user">
+			<display_name>Username</display_name>
+			<note />
+		</field>
+		<field attribute="password">
+			<display_name>Password</display_name>
 			<note />
 		</field>
 		<field>
@@ -41,7 +45,7 @@
 				<process_function name="processDSNAlone" />
 			</function_call>
 			<display_name>OR Complete DSN</display_name>
-			<note>Please note that if you enter a DSN here then the fields in the Database Details section above will be ignored. To accept input from the other fields please leave this field empty.  Also note that passwords in the DSN will not be re-displayed after entry.</note>
+			<note>Please note that if you enter a DSN here then the fields in the Database Details section above will be ignored. To accept input from the other fields please leave this field empty.</note>
 		</field>
 	</section>
 	<section name="Use a Connector Asset">

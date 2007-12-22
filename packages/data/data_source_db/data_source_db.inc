@@ -10,12 +10,12 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.26 2007/12/21 05:03:25 gsherwood Exp $
+* $Id: data_source_db.inc,v 1.27 2007/12/22 01:47:19 gsherwood Exp $
 *
 */
 
 check_ssv_licence();
-require_once SQ_CORE_PACKAGE_PATH.'/../include/asset.inc';
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,6 @@ class Data_Source_DB extends Data_Source
 	*/
 	function _getAllowedLinks()
 	{
-
 		// any link is allowed
 		$allowed_link['asset']['card'] = 'M';
 		$allowed_link['asset']['exclusive'] = FALSE;
@@ -93,7 +92,7 @@ class Data_Source_DB extends Data_Source
 		} else {
 			$tables = explode(', ', $this->attr('tables'));
 			$fields = Array();
-			$conn =& $this->connectToDB();
+			$conn = $this->connectToDB();
 			foreach ($tables as $table) {
 				$query = 'select * from '.$table;
 				$result = $conn->getAll($query);
@@ -122,28 +121,25 @@ class Data_Source_DB extends Data_Source
 	*/
 	function &getResultSet()
 	{
-		if ($this->attr('mode') == 'execute') {
-			$query_string = $this->_getExecutableQueryString();
-			if (!empty($query_string)) {
-				$hash = md5($query_string);
+		$query_string = $this->_getExecutableQueryString();
+		if (!empty($query_string)) {
+			$hash = md5($query_string);
 
-				// Check the local cache
-				if (!isset($this->_tmp[$hash])) {
+			// Check the local cache
+			if (!isset($this->_tmp[$hash])) {
 
-					// Check the system cache
-					$result = $this->getCachedResultSet($hash);
-					if ($result !== FALSE) {
-						$this->_tmp[$hash] = $result;
-					} else {
-						// Not cached at all, so hit the DB
-						$this->_tmp[$hash] =& $this->_executeQuery($query_string);
-						$this->cacheResultSet($this->_tmp[$hash], $hash);
-					}
+				// Check the system cache
+				$result = $this->getCachedResultSet($hash);
+				if ($result !== FALSE) {
+					$this->_tmp[$hash] = $result;
+				} else {
+					// Not cached at all, so hit the DB
+					$this->_tmp[$hash] = $this->_executeQuery($query_string);
+					$this->cacheResultSet($this->_tmp[$hash], $hash);
 				}
-
-
-				return $this->_tmp[$hash];
 			}
+
+			return $this->_tmp[$hash];
 		}
 
 		// Fall-through failure case
@@ -181,12 +177,12 @@ class Data_Source_DB extends Data_Source
 		$raw_keywords =& $matches[1];
 		$keywords =& $matches[2];
 
-		$DB =& $this->connectToDB();
-		if ($DB === FALSE) return $sql;
+		$db = $this->connectToDB();
+		if ($db === FALSE) return $sql;
 
 		foreach ($keywords as $keyword) {
 			$value = $this->getDynamicVariableValue($keyword);
-			$replacements[] = $DB->escapeSimple($value);
+			$replacements[] = $db->quote($value);
 			$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
 		}
 
@@ -211,7 +207,7 @@ class Data_Source_DB extends Data_Source
 		$dynamic_vars = $this->attr('dynamic_vars');
 		if (!isset($dynamic_vars[$variable_name])) return '';
 
-		$parameter_map =& $this->getAttribute('parameter_map');
+		$parameter_map = $this->getAttribute('parameter_map');
 		$value = $parameter_map->getParameterValue($variable_name);
 
 		if (empty($value)) {
@@ -231,24 +227,20 @@ class Data_Source_DB extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function &_executeQuery($sql)
+	function _executeQuery($sql)
 	{
 		$result = Array();
 
-		$DB =& $this->connectToDB();
-		if ($DB === FALSE) return $result;
+		$db = $this->connectToDB();
+		if ($db === FALSE) return $result;
 		$sql = trim($sql, ';');
-		$db_result =& $DB->query($sql);
-		$assert_result = assert_valid_db_result($db_result, 'Query execution failed : '.$sql, FALSE, FALSE);
-		if (!$assert_result) return $result;
 
-		if ($db_result === DB_OK) return $result;
-
-		while ($row =& $db_result->fetchRow()) {
-			$result[] = $row;
+		try {
+			$result = MatrixDAL::executeSqlAll($sql);
+		} catch (Exception $e) {
+			trigger_error("Query execution failed: $sql", E_USER_WARNING);
+			return $result;
 		}
-
-		$db_result->free();
 
 		return $result;
 
@@ -261,7 +253,7 @@ class Data_Source_DB extends Data_Source
 	* @return object
 	* @access public
 	*/
-	function &connectToDB()
+	function connectToDB()
 	{
 		$false = FALSE;
 
@@ -272,14 +264,7 @@ class Data_Source_DB extends Data_Source
 		$dsn = $this->getDSN();
 		if (empty($dsn)) return $false;
 
-		$conn =& DB::connect($dsn);
-		if (DB::isError($conn)) {
-			trigger_error($conn->message, E_USER_WARNING);
-			return $false;
-		}
-
-		$conn->setFetchMode(DB_FETCHMODE_ASSOC);
-		$this->_tmp['db_connection'] =& $conn;
+		$this->_tmp['db_connection'] = MatrixDAL::dbConnect($dsn, 'data_source_db_'.$this->id);
 
 		return $this->_tmp['db_connection'];
 
@@ -300,12 +285,30 @@ class Data_Source_DB extends Data_Source
 
 		$dsn = '';
 
-		$connector_asset =& $this->_getConnectorAsset();
+		$connector_asset = $this->_getConnectorAsset();
 		if (!empty($connector_asset)) {
 			$dsn = $connector_asset->getDSN();
 		}
 
-		if (empty($dsn)) $dsn = $this->attr('dsn');
+		if (empty($dsn)) {
+			$dsn = $this->attr('dsn');
+			$user = $this->attr('user');
+			$password = $this->attr('password');
+			$type = $this->attr('db_type');
+			switch ($type) {
+				case 'mysql':
+					$type = 'mysql';
+				break;
+				case 'oracle':
+					$type = 'oci';
+				break;
+				default:
+					$type = 'pgsql';
+				break;
+			}
+
+			$dsn = Array('DSN' => $dsn, 'user' => $user, 'password' => $password, 'type' => $type);
+		}
 
 		$this->_tmp['db_DSN'] = $dsn;
 
@@ -320,15 +323,19 @@ class Data_Source_DB extends Data_Source
 	* @return object
 	* @access public
 	*/
-	function &_getConnectorAsset()
+	function _getConnectorAsset()
 	{
 		$connector_asset = NULL;
 
 		$connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'db_connector', FALSE, 'db_connector');
-		$connector_asset_id = $connector_link['minorid'];
+		if (empty($connector_link)) {
+			$connector_asset_id = NULL;
+		} else {
+			$connector_asset_id = $connector_link['minorid'];
+		}
 
 		if (!empty($connector_asset_id)) {
-			$connector_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_asset_id);
+			$connector_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_asset_id);
 		}
 
 		return $connector_asset;

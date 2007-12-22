@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_management.inc,v 1.11 2007/05/07 07:50:39 skim Exp $
+* $Id: data_source_db_management.inc,v 1.12 2007/12/22 01:47:19 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,19 +60,9 @@ class Data_Source_DB_Management extends Asset_Management
 											'default'	=> '',
 										   ),
 						'db_type'		=> Array(
-											'added'			=> '0.1',
-											'type'			=> 'selection',
-											'parameters'	=> Array (
-																'options'		=> Array(
-																					'postgres'	=> 'Postgres',
-																					'oracle'	=> 'Oracle',
-																					'mysql'		=> 'My SQL',
-																				   ),
-																'multiple'		=> FALSE,
-																'allow_other'	=> FALSE,
-																'allow_empty'	=> FALSE,
-															   ),
-											'default'		=> 'postgres',
+											'added'		=> '0.1',
+											'type'		=> 'text',
+											'default'	=> 'postgres',
 										   ),
 						'sql'			=> Array(
 											'added'		=> '0.1',

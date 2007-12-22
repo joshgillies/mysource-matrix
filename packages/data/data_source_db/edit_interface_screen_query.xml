@@ -10,75 +10,17 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_query.xml,v 1.9 2006/12/08 00:51:59 emcdonald Exp $
+* $Id: edit_interface_screen_query.xml,v 1.10 2007/12/22 01:47:19 gsherwood Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Choose Mode" write_access="write:attributes" limbo_access="1" show_if="notEditMode">
-		<field attribute="mode">
-			<selection style="list" />
-		</field>
-	</section>
-	<section name="Query Builder" write_access="write:attributes" limbo_access="1" show_if="notEditModeAndTablesNotEmpty">
+	<section name="SQL To Execute" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
-				<paint_function   name="paintTables"   />
-				<process_function name="processTables" />
-			</function_call>
-		</field>
-		<field show_if="tablesSelected">
-			<function_call>
-				<paint_function   name="paintFields" />
-				<process_function name="processFields" />
-			</function_call>
-		</field>
-		<field show_if="tablesSelected">
-			<function_call>
-				<paint_function   name="paintCustomFields" />
-				<process_function name="processCustomFields" />
-			</function_call>
-		</field>
-		<field show_if="tablesSelectedWithAggregates">
-			<function_call>
-				<paint_function   name="paintAggregateFunctions"   />
-				<process_function name="processAggregateFunctions" />
-			</function_call>
-		</field>
-		<field show_if="multiTablesSelectedWithJoinsOrWriteAccess">
-			<function_call>
-				<paint_function   name="paintJoins"   />
-				<process_function name="processJoins" />
-			</function_call>
-		</field>
-		<field show_if="multiTablesSelectedWithWriteAccess">
-			<function_call>
-				<paint_function   name="paintNewJoin"/>
-				<process_function name="processNewJoin" />
-			</function_call>
-		</field>
-		<field show_if="tablesSelectedWithWhereHaving">
-			<function_call>
-				<paint_function   name="paintWhereHaving"   />
-				<process_function name="processWhereHaving" />
-			</function_call>
-		</field>
-		<field show_if="tablesSelectedWithGroupbyOrderby">
-			<function_call>
-				<paint_function   name="paintGroupbyOrderby"   />
-				<process_function name="processGroupbyOrderby" />
-			</function_call>
-		</field>
-		<field attribute="limit" show_if="tablesSelectedAndNotEditMode">
-			<int width="5" />
-		</field>
-	</section>
-	<section name="Current SQL" write_access="write:attributes" limbo_access="1" show_if="queryNotEmpty">
-		<field>
-			<function_call>
-				<paint_function   name="paintQuerySoFar"   />
-				<process_function name="processQuerySoFar" />
+				<paint_function name="paintQuerySoFar"/>
+				<process_function name="processQuerySoFar"/>
 			</function_call>
 		</field>
 	</section>

@@ -10,90 +10,17 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_query.xml,v 1.7 2006/12/08 00:51:59 emcdonald Exp $
+* $Id: lang_screen_query.xml,v 1.8 2007/12/22 01:47:19 gsherwood Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Choose Mode">
-		<field attribute="mode">
-			<display_name>Mode</display_name>
-			<note>The default mode is 'Query Builder' mode that allows you to use a visual interface to build the query.  You can edit the query manually by selecting 'Edit Manually', or choose the execute the query by choosing 'Execute' option</note>
-		</field>
-	</section>
-	<section name="Query Builder">
+	<section name="SQL To Execute">
 		<field>
 			<function_call>
-				<paint_function name="paintTables" />
-				<process_function name="processTables" />
-			</function_call>
-			<display_name>Select Tables</display_name>
-			<note />
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintFields" />
-				<process_function name="processFields" />
-			</function_call>
-			<display_name>Select Fields</display_name>
-			<note />
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintCustomFields" />
-				<process_function name="processCustomFields" />
-			</function_call>
-			<display_name>Select Custom&lt;br /&gt;Fields (Optional)</display_name>
-			<note />
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintAggregateFunctions" />
-				<process_function name="processAggregateFunctions" />
-			</function_call>
-			<display_name>Select Aggregate&lt;br /&gt;Functions (Optional)</display_name>
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintJoins" />
-				<process_function name="processJoins" />
-			</function_call>
-			<display_name>Existing joins</display_name>
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintNewJoin" />
-				<process_function name="processNewJoin" />
-			</function_call>
-			<display_name>New join</display_name>
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintWhereHaving" />
-				<process_function name="processWhereHaving" />
-			</function_call>
-			<display_name>Where / Having Conditions</display_name>
-			<note />
-		</field>
-		<field>
-			<function_call>
-				<paint_function name="paintGroupbyOrderby" />
-				<process_function name="processGroupbyOrderby" />
-			</function_call>
-			<display_name>Group By / Order By</display_name>
-			<note />
-		</field>
-		<field attribute="limit">
-			<display_name>Number Of Record Sets &lt;br /&gt;to retrieve (Limit)</display_name>
-			<note />
-		</field>
-	</section>
-	<section name="Current SQL">
-		<field>
-			<function_call>
-				<paint_function name="paintQuerySoFar" />
-				<process_function name="processQuerySoFar" />
+				<paint_function name="paintQuerySoFar"/>
+				<process_function name="processQuerySoFar"/>
 			</function_call>
 			<display_name>SQL Query</display_name>
 			<note />

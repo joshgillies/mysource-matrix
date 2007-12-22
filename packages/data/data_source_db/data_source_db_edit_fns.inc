@@ -10,11 +10,13 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.32 2007/12/21 05:03:25 gsherwood Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.33 2007/12/22 01:47:19 gsherwood Exp $
 *
 */
+
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns.inc';
+
 /**
 * Data_Source_DB_Edit_Fns
 *
@@ -22,12 +24,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 {
+
 	public $dsn = NULL;
 	public $result = NULL;
 	public $fields = Array();
@@ -61,7 +64,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		// get root links
 		$connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'db_connector', FALSE, 'db_connector');
-		$connector_asset_id = $connector_link['minorid'];
+		if (empty($connector_link)) {
+			$connector_asset_id = NULL;
+		} else {
+			$connector_asset_id = $connector_link['minorid'];
+		}
 
 		if ($asset->writeAccess('links')) {
 			asset_finder($prefix.'_connector_node', $connector_asset_id, Array('db_connector'=>'D'));
@@ -147,12 +154,24 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	function paintDSN(&$asset, &$o, $prefix)
 	{
 		$wa = $asset->writeAccess('attributes');
+		$db_type = $asset->attr('db_type');
 		$database = $asset->attr('database');
 		$host = $asset->attr('host');
-		$user = $asset->attr('user');
-		$password = $asset->attr('password');
 		?>
 		<table class="sq-backend-table">
+			<tr>
+				<td><?php echo translate('database_type');?></td>
+				<td>
+					<?php
+					$options = Array('postgres' => 'PostgreSQL', 'oracle' => 'Oracle', 'mysql' => 'MySQL');
+					if ($wa) {
+						combo_box('dsn[db_type]', $options, FALSE, $db_type);
+					} else {
+						echo $options[$db_type];
+					}
+					?>
+				</td>
+			</tr>
 			<tr>
 				<td><?php echo translate('database_name');?></td>
 				<td>
@@ -166,18 +185,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('user_name');?></td>
-				<td>
-					<?php
-					if ($wa) {
-						text_box('dsn[user]', $user, 35);
-					} else {
-						echo $user;
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
 				<td><?php echo translate('host_name');?></td>
 				<td>
 					<?php
@@ -185,18 +192,6 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 						text_box('dsn[host]', $host, 35);
 					} else {
 						echo $host;
-					}
-					?>
-				</td>
-			</tr>
-			<tr>
-				<td><?php echo translate('password');?></td>
-				<td>
-					<?php
-					if ($wa) {
-						password_box('dsn[password]', $password, 35);
-					} else {
-						echo translate('data_password_not_displayed');
 					}
 					?>
 				</td>
@@ -224,27 +219,24 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function processDSN(&$asset, &$o, $prefix)
 	{
-		$db_type = $asset->attr('db_type');
 		$dsn = $asset->attr('dsn');
 		$new_dsn_string = NULL;
 		$new_dsn = $_POST['dsn'];
 		if (!empty($_POST['dsn']['dsn'])) {
 			$new_dsn_string = $_POST['dsn']['dsn'];
-			$new_dsn['user'] = NULL;
-			$new_dsn['password'] = NULL;
+			$new_dsn['db_type'] = NULL;
 			$new_dsn['host'] = NULL;
 			$new_dsn['database'] = NULL;
 		} else {
-			switch ($db_type) {
+			switch ($new_dsn['db_type']) {
 				case 'postgres':
-					$new_dsn_string = "pgsql://$new_dsn[user]";
+					$new_dsn_string = "pgsql:";
 				break;
 				case 'mysql':
-					$new_dsn_string = "mysql://$new_dsn[user]";
+					$new_dsn_string = "mysql:";
 				break;
 			}
-			!empty($new_dsn['password']) ? $new_dsn_string .= ":$new_dsn[password]" : NULL;
-			$new_dsn_string .= "@$new_dsn[host]/$new_dsn[database]";
+			$new_dsn_string .= "dbname=$new_dsn[database];host=$new_dsn[host]";
 		}
 		if (strcasecmp($dsn, $new_dsn_string) != 0) {
 			foreach ($new_dsn as $key => $value) {
@@ -272,23 +264,12 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$dsn = $asset->attr('dsn');
 		$wa = $asset->writeAccess('attributes');
-		$user = $asset->attr('user');
+		$database = $asset->attr('database');
 		if ($wa) {
-			text_area('dsn[dsn]', empty($user) ? $dsn : '', 70, 5);
+			text_area('dsn[dsn]', empty($database) ? $dsn : '', 70, 5);
 			return TRUE;
 		} else {
-			if (!empty($dsn)) {
-				$pos = strpos($dsn, ':');
-				$no_database = substr($dsn, $pos + 3, strlen($dsn) - 1);
-				if (($colon_pos = strpos($no_database, ':')) !== FALSE) {
-					// If the password is set, do not display it
-					$at_pos = strpos($no_database, '@');
-					$no_password = substr($no_database, 0, $colon_pos).substr($no_database, $at_pos, strlen($no_database) - 1);
-					echo substr($dsn, 0, $pos).'://'.$no_password;
-				} else {
-					echo $dsn;
-				}
-			}
+			if (!empty($dsn)) echo $dsn;
 			return FALSE;
 		}
 
@@ -1747,25 +1728,8 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintQuerySoFar(&$asset, &$o, $prefix)
 	{
-		$mode = $asset->attr('mode');
-		$wa = $asset->writeAccess('attributes') && ($mode == 'edit');
-		if ($asset->writeAccess('attributes')) {
-			$this->_queryProcessing($asset, $prefix);
-		}
+		$wa = $asset->writeAccess('attributes');
 		$sql = $asset->attr('sql');
-
-		switch ($mode) {
-			case 'edit':
-				// if we are currently in edit mode
-				hidden_field($prefix.'_from_edit', '1');
-			break;
-			case 'execute':
-				// we are currently in execute mode but we came here from edit mode
-				if (isset($_POST[$prefix.'_from_edit']) && ($_POST[$prefix.'_from_edit']) == 1) {
-					hidden_field($prefix.'_from_edit', '1');
-				}
-			break;
-		}
 
 		if ($wa) {
 			$dynamic_vars = $asset->attr('dynamic_vars');
@@ -1802,18 +1766,10 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 	function processQuerySoFar(&$asset, &$o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_sql'])) {
-			$asset->setAttrValue('sql', $_POST[$prefix.'_sql']);
+			return $asset->setAttrValue('sql', $_POST[$prefix.'_sql']);
 		}
-		$mode = $asset->attr('mode');
-		switch ($mode) {
-			case 'edit':
-				$this->_resetAttributes($asset, 'edit');
-			break;
-			case 'builder':
-				$asset->setAttrValue('reset_edit', FALSE);
-			break;
-		}
-		return TRUE;
+
+		return FALSE;
 
 	}//end processQuerySoFar()
 
@@ -2406,7 +2362,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		$o->openSection('Data Mappings');
 		$o->openRaw();
-		$map =& $asset->getAttribute('parameter_map');
+		$map = $asset->getAttribute('parameter_map');
 
 		$parameter_names = $map->getParameters();
 
@@ -2449,7 +2405,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 
 		$var_list = $asset->attr('dynamic_vars');
 
-		$map =& $asset->getAttribute('parameter_map');
+		$map = $asset->getAttribute('parameter_map');
 
 		$parameter_names = $map->getParameters();
 		foreach ($var_list as $name => $default) {

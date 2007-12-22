@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2007/05/22 01:51:05 arailean Exp $
+* $Id: lang_strings.xml,v 1.6 2007/12/22 01:47:19 gsherwood Exp $
 *
 *
 * DB DataSource Localised Strings File
@@ -58,6 +58,7 @@
 <string source="no_selected_fields">No Fields Selected</string>
 <string source="no_selected_tables">No Tables Selected</string>
 <string source="no_tables_found">No Tables Found</string>
+<string source="database_type">Database Type</string>
 <string source="database_name">Database Name</string>
 <string source="user_name">User Name</string>
 <string source="host_name">Host Name</string>
