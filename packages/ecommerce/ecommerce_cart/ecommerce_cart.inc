@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.31 2007/12/21 03:24:15 colivar Exp $
+* $Id: ecommerce_cart.inc,v 1.32 2007/12/23 23:16:02 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -225,7 +225,7 @@ class Ecommerce_Cart extends Listing_Engine
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 		if (empty($bodycopy_link)) return FALSE;
 
-		$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($format_bodycopy)) return FALSE;
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -476,7 +476,7 @@ class Ecommerce_Cart extends Listing_Engine
 		$cart =& $this->_getCart();
 		$cart_contents = $cart->getCart();
 
-		$parameter_map =& $this->getAttribute('parameter_map');
+		$parameter_map = $this->getAttribute('parameter_map');
 		$this->_tmp['cart_updated'] = FALSE;
 
 		$add_items = $parameter_map->getParameterValue('add_item');
@@ -626,8 +626,7 @@ class Ecommerce_Cart extends Listing_Engine
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		if (!isset($vars['keywords'])) return;
-		if (!is_a($broadcaster, 'content_type')) return;
-
+		if (!($broadcaster instanceof Content_Type)) return;
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
 
 		// the broadcaster could be our page contents bodycopy, in which case

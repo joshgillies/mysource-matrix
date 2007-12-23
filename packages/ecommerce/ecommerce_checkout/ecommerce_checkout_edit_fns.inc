@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6 2007/05/25 04:26:06 colivar Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.7 2007/12/23 23:16:02 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -126,7 +126,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			}
 			// otherwise, create the appropriate notice link
 			if ($node['assetid'] != 0) {
-				$new_node =& $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				$new_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
 				if (!$asset->createLink($new_node, SQ_LINK_NOTICE, 'delivery_method')) {
 					$ok = FALSE;
 					trigger_localised_error('CMS0016', E_USER_WARNING, $new_node->name, $new_node->id);

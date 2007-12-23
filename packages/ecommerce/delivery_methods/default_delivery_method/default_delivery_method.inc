@@ -16,7 +16,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
-require_once 'HTTP/Client.php';
+@require_once 'HTTP/Client.php';
 
 class Default_Delivery_Method extends Ecommerce_Delivery_Method
 {
@@ -493,7 +493,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 			$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'simple_form', TRUE, 'form');
 			if ($form_link) {
-				$this->_tmp['form'] =& $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], 'simple_form');
+				$this->_tmp['form'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], 'simple_form');
 			}
 		}
 

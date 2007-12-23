@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.38 2007/12/21 05:11:55 colivar Exp $
+* $Id: form_ecommerce.inc,v 1.39 2007/12/23 23:16:02 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -401,7 +401,7 @@ class Form_Ecommerce extends Form_Email
 		$asset_list = @$_SESSION[$this->getPrefix()]['order']['ecom_assets'];
 		if (empty($asset_list)) $asset_list = Array();
 		foreach ($asset_list as $id => $item) {
-			$asset =& $am->getAsset($id);
+			$asset = $am->getAsset($id);
 			$item_string = $asset->replaceKeywordsInString($asset_item_format);
 			$replacements['item_name'] = $item['name'];
 			$replacements['item_price'] = $item['price'];
