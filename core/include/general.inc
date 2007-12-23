@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.186 2007/11/27 23:49:55 lwright Exp $
+* $Id: general.inc,v 1.187 2007/12/23 23:27:41 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.186 $
+* @version $Revision: 1.187 $
 * @package MySource_Matrix
 */
 
@@ -46,7 +46,17 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	// NOTE: changes to this function should also be considered for the Cron_Job::_errorHandler()     //
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	$current_level = error_reporting();
+
+	// the function was prepended with an '@'
+	if ($current_level === 0) return;
+
+	// this error level is not set, so dont show the error
+	if (($err_no & $current_level) == 0) return;
+
 	static $num_errors = 0;
+	$num_errors++;
+
 	$err_msg = strip_tags($err_msg);
 
 	$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
@@ -56,270 +66,246 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$terminate = TRUE;
 	}
 
-	// if the function didn't have an '@' prepended OR if we are about to terminate
-	// catch the error
-	if (error_reporting() || $terminate) {
+	// Strip out the file path begining
+	$bt = debug_backtrace();
 
-		$num_errors++;
-
-		// Strip out the file path begining
-		$bt = debug_backtrace();
-
-		/*if (($err_no === E_STRICT) && (SQ_PHP_CLI)) {
-			echo "-> E_STRICT * {$err_msg} ({$err_file}:{$err_line})\n";
-			return;
-		}*/
-/*
-		if ($err_no !== E_STRICT) {
-			echo "\n";
-			echo 'backtrace:'."\n";
-			echo '=> '.$err_file.':'.$err_line."\n";
+	if (count($bt) > 1) {
+		$real_bt_index = 0;
+		while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) )) {
+			$real_bt_index++;
 		}
-		foreach ($bt as $bt_key => $bt_entry) {
-			if (isset($bt_entry['file']) && !(($err_file == $bt_entry['file']) && ($err_line == $bt_entry['line']))) {
-				if ($err_no !== E_STRICT) echo '-> '.array_get_index($bt_entry, 'file', '?').':'.array_get_index($bt_entry, 'line', '?')."\n";
-			}
-		}*/
+		$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
+		$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
+		$err_msg  = hide_system_root($err_msg);
+	}
 
-		if (count($bt) > 1) {
-			$real_bt_index = 0;
-			while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) )) {
-				$real_bt_index++;
-			}
-			$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
-			$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
-			$err_msg  = hide_system_root($err_msg);
-		}
+	// if this is a serious error, do a backtrace
+	$bt_str = '';
+	if ($terminate || (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2))) {
+		require_once SQ_FUDGE_PATH.'/dev/dev.inc';
+		$bt_str = hide_system_root(array_contents($bt, 3));
+	}
 
-		// if this is a serious error, do a backtrace
-		$bt_str = '';
-		if ($terminate || (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2))) {
-			require_once SQ_FUDGE_PATH.'/dev/dev.inc';
-			$bt_str = hide_system_root(array_contents($bt, 3));
-		}
+	$err_name  = get_error_name($err_no);
+	$bg_colour = get_error_colour($err_no);
 
-		$err_name  = get_error_name($err_no);
-		$bg_colour = get_error_colour($err_no);
+	// send a report to the system error log
+	if (ini_get('log_errors')) {
+		$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+		log_error($text_msg, $err_no, $err_file, $err_line);
+	}
 
-		// send a report to the system error log
-		if (ini_get('log_errors')) {
-			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-			log_error($text_msg, $err_no, $err_file, $err_line);
-		}
+	// OK, because we want our errors to actually be displayed, kill any output buffering
 
-		// OK, because we want our errors to actually be displayed, kill any output buffering
+	$buffers = Array();
+	while (ob_get_level() > SQ_INIT_OB_LEVEL) {
+		$buffers[] = ob_get_contents();
+		ob_end_clean();
+	}
 
-		$buffers = Array();
-		while (ob_get_level() > SQ_INIT_OB_LEVEL) {
-			$buffers[] = ob_get_contents();
-			ob_end_clean();
-		}
+	$type = ($GLOBALS['SQ_OUTPUT_TYPE'] == 'html' && SQ_PHP_CLI) ? 'text' : $GLOBALS['SQ_OUTPUT_TYPE'];
 
-		$type = ($GLOBALS['SQ_OUTPUT_TYPE'] == 'html' && SQ_PHP_CLI) ? 'text' : $GLOBALS['SQ_OUTPUT_TYPE'];
+	// if we are in XML output type then, send our error as XML
+	switch ($GLOBALS['SQ_OUTPUT_TYPE']) {
+		case 'xml' :
+			$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
 
-		// if we are in XML output type then, send our error as XML
-		switch ($GLOBALS['SQ_OUTPUT_TYPE']) {
-			case 'xml' :
-				$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
+			$root = simplexml_load_string('<xml></xml>');
+			$output = $root->addChild('error', $msg);
+			header('Content-Type: text/xml');
+			echo $output->asXML();
+			/* XML output
+				<?xml version="1.0"?>
+					<error>Unable to Move Asset, Link #64 not found [AMAP0032]</error>
+			*/
 
-				$root = simplexml_load_string('<xml></xml>');
-				$output = $root->addChild('error', $msg);
-				header('Content-Type: text/xml');
-				echo $output->asXML();
-				/* XML output
-					<?xml version="1.0"?>
-						<error>Unable to Move Asset, Link #64 not found [AMAP0032]</error>
-				*/
+			exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
+		break;
 
-				exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
-			break;
-
-			case 'text' :
-				// if they haven't put tags in the err msg assume it to be plain text
-				$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-				$lines = explode("\n", $err_msg);
-				$len = 7 + strlen($err_file);
-				$len = max($len, 7 + strlen($err_line));
-				foreach ($lines as $line) {
-					$len = max($len, strlen($line));
-				}
-				$len += 2;
-				$str =	'+'.str_repeat('-', $len)."+\n".
-						'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
-						'|'.str_repeat('-', $len)."|\n";
-				if (SQ_CONF_DEBUG & 1) {
-					$str .= '| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
-							'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
-							'|'.str_repeat('-', $len)."|\n";
-				}
-				foreach ($lines as $line) {
-					$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
-				}
-
-				$str .= '+'.str_repeat('-', $len)."+\n";
-
-				// if we are from the command line send this to std err
-				if (SQ_PHP_CLI) {
-					fwrite(STDERR, $str);
-				} else {
-					echo $str;
-				}
-
-				// Uncomment below for debugging from cmdline
-				#error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
-
-			break;
-
-			case 'html' :
-			default :
-
-				// if we are in the frontend and we're not supposed to see the errors
-				if (SQ_CONF_ERRORS_HIDE_FRONTEND && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
-					break;
-				}
-
-				// if they haven't put tags in the err msg assume it to be plain text
-				if ($err_msg == strip_tags($err_msg)) {
-					$err_msg = nl2br(htmlspecialchars($err_msg));
-				}
-
-				$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-				$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-
-				?>
-					</script></table></table></table></table><br/>
-					<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
-						<tr>
-							<td style="<?php echo $error_title; ?>">
-								<?php echo $err_name; ?>
-							</td>
-						</tr>
-						<tr>
-							<td style="<?php echo $error_data; ?>">
-				<?php
-				if (SQ_CONF_DEBUG & (1 | 2)) {
-				?>
-								<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
-					<?php
-					if (SQ_CONF_DEBUG & 1) {
-					?>
-									<tr>
-										<td style="<?php echo $error_title; ?>" align="right">File:</td>
-										<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
-										<td style="<?php echo $error_title; ?>" align="right">Line:</td>
-										<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
-									</tr>
-					<?php
-					}//end if (DEBUG & File+Line)
-					?>
-									<tr>
-										<td style="<?php echo $error_title; ?>" align="right">Message:</td>
-										<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
-									</tr>
-					<?php
-					// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
-					if ((SQ_CONF_DEBUG & 2) && $bt_str) {
-					?>
-									<tr>
-										<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
-										<td style="<?php echo $error_data; ?>" colspan="3">
-											<script language="JavaScript" type="text/javascript">
-												<!--
-													function print_backtrace_<?php echo $num_errors; ?>() {
-														var alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>', 'resizable=yes,scrollbars=yes,width=800,height=500');
-														alert_win.document.open();
-														alert_win.document.writeln("<html><head><title>MySource Backtrace</title></head><body><pre>");
-														alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
-														alert_win.document.writeln("</pre></body></html>");
-														alert_win.document.close();
-														alert_win.focus();
-													}
-
-												// -->
-											</script>
-											<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
-										</td>
-									</tr>
-					<?php
-					}//end if (DEBUG & Backtrace)
-					?>
-								</table>
-				<?php
-				} else {
-					echo $err_msg;
-
-				}//end if (SQ_CONF_DEBUG & (File+Line | Backtrace)
-				?>
-							</td>
-						</tr>
-					</table><br/>
-				<?php
-
-		}//end switch ($GLOBALS['SQ_OUTPUT_TYPE'])
-
-		// now just restore any buffered output here - it's as though nothing ever happened :)
-		for ($i = count($buffers) - 1; $i >= 0; $i--) {
-			ob_start();
-			echo $buffers[$i];
-		}
-
-		// mail the tech email if there was a fatal error
-		if ($terminate) {
-
+		case 'text' :
 			// if they haven't put tags in the err msg assume it to be plain text
 			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-			$db_type = 'N/A';
-			$db = $GLOBALS['SQ_SYSTEM']->db;
-			if (!is_null($db)) $db_type = $db->phptype;
-
-			$matrix_version = 'N/A';
-			if (defined('SQ_SYSTEM_VERSION')) {
-				$matrix_version = SQ_SYSTEM_VERSION;
+			$lines = explode("\n", $err_msg);
+			$len = 7 + strlen($err_file);
+			$len = max($len, 7 + strlen($err_line));
+			foreach ($lines as $line) {
+				$len = max($len, strlen($line));
+			}
+			$len += 2;
+			$str =	'+'.str_repeat('-', $len)."+\n".
+					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
+					'|'.str_repeat('-', $len)."|\n";
+			if (SQ_CONF_DEBUG & 1) {
+				$str .= '| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
+						'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
+						'|'.str_repeat('-', $len)."|\n";
+			}
+			foreach ($lines as $line) {
+				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
 			}
 
-			$str  = '*'.$err_name."*\n".
-					'File : '.$err_file."\n".
-					'Line : '.$err_line."\n".
-					'Version : '.$matrix_version."\n".
-					'DB Type : '.$db_type."\n".
-					"\n".
-					$err_msg."\n".
-					"------------------------------------------------------------------\n".
-					"*User Details*\n";
-			if (!empty($GLOBALS['SQ_SYSTEM']) && is_object($GLOBALS['SQ_SYSTEM']->user)) {
-					$str .= 'User: "'.$GLOBALS['SQ_SYSTEM']->user->name.'" (#'.$GLOBALS['SQ_SYSTEM']->user->id.")\n";
-			}
-			$str .= (!empty($_SERVER['REMOTE_ADDR']) ? 'IP Address: '.$_SERVER['REMOTE_ADDR']."\n" : '');
-			$str .= (!empty($_SERVER['HTTP_USER_AGENT']) ? 'User-Agent: '.$_SERVER['HTTP_USER_AGENT']."\n" : '');
+			$str .= '+'.str_repeat('-', $len)."+\n";
 
-			$str .= "------------------------------------------------------------------\n".
-					"*Root Urls*\n".
-					SQ_CONF_SYSTEM_ROOT_URLS."\n".
-					"------------------------------------------------------------------\n";
+			// if we are from the command line send this to std err
 			if (SQ_PHP_CLI) {
-				$str  .= "*Command and Arguments*\n".
-						implode(' ', $_SERVER['argv'])."\n";
+				fwrite(STDERR, $str);
 			} else {
-				$str  .= "*Current URL*\n".
-						current_protocol().'://'.array_get_index($_SERVER, 'HTTP_HOST', 'NO HOST').'/'.array_get_index($_SERVER, 'REQUEST_URI', 'NO REQUEST URI')."\n";
+				echo $str;
 			}
 
+			// Uncomment below for debugging from cmdline
+			#error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
-			$str .= "------------------------------------------------------------------\n".
-					"*Back Trace*\n".
-					$bt_str."\n";
+		break;
 
-			// ensure we have a valid email address to send error notifications to
-			// fail silently if none present
-			if (SQ_CONF_TECH_EMAIL) {
-				mail(SQ_CONF_TECH_EMAIL, '['.$err_name.'] '.SQ_CONF_SYSTEM_NAME, $str, 'From: '.SQ_CONF_TECH_EMAIL."\r\n");
+		case 'html' :
+		default :
+
+			// if we are in the frontend and we're not supposed to see the errors
+			if (SQ_CONF_ERRORS_HIDE_FRONTEND && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+				break;
 			}
 
-		}//end if ($terminate)
+			// if they haven't put tags in the err msg assume it to be plain text
+			if ($err_msg == strip_tags($err_msg)) {
+				$err_msg = nl2br(htmlspecialchars($err_msg));
+			}
 
-	}//end if error_reporting
+			$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
+			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 
-	if ($terminate) exit(1);
+			?>
+				</script></table></table></table></table><br/>
+				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
+					<tr>
+						<td style="<?php echo $error_title; ?>">
+							<?php echo $err_name; ?>
+						</td>
+					</tr>
+					<tr>
+						<td style="<?php echo $error_data; ?>">
+			<?php
+			if (SQ_CONF_DEBUG & (1 | 2)) {
+			?>
+							<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
+				<?php
+				if (SQ_CONF_DEBUG & 1) {
+				?>
+								<tr>
+									<td style="<?php echo $error_title; ?>" align="right">File:</td>
+									<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
+									<td style="<?php echo $error_title; ?>" align="right">Line:</td>
+									<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
+								</tr>
+				<?php
+				}//end if (DEBUG & File+Line)
+				?>
+								<tr>
+									<td style="<?php echo $error_title; ?>" align="right">Message:</td>
+									<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
+								</tr>
+				<?php
+				// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
+				if ((SQ_CONF_DEBUG & 2) && $bt_str) {
+				?>
+								<tr>
+									<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
+									<td style="<?php echo $error_data; ?>" colspan="3">
+										<script language="JavaScript" type="text/javascript">
+											<!--
+												function print_backtrace_<?php echo $num_errors; ?>() {
+													var alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>', 'resizable=yes,scrollbars=yes,width=800,height=500');
+													alert_win.document.open();
+													alert_win.document.writeln("<html><head><title>MySource Backtrace</title></head><body><pre>");
+													alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
+													alert_win.document.writeln("</pre></body></html>");
+													alert_win.document.close();
+													alert_win.focus();
+												}
+
+											// -->
+										</script>
+										<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
+									</td>
+								</tr>
+				<?php
+				}//end if (DEBUG & Backtrace)
+				?>
+							</table>
+			<?php
+			} else {
+				echo $err_msg;
+
+			}//end if (SQ_CONF_DEBUG & (File+Line | Backtrace)
+			?>
+						</td>
+					</tr>
+				</table><br/>
+			<?php
+
+	}//end switch ($GLOBALS['SQ_OUTPUT_TYPE'])
+
+	// now just restore any buffered output here - it's as though nothing ever happened :)
+	for ($i = count($buffers) - 1; $i >= 0; $i--) {
+		ob_start();
+		echo $buffers[$i];
+	}
+
+	// mail the tech email if there was a fatal error
+	if ($terminate) {
+
+		// if they haven't put tags in the err msg assume it to be plain text
+		$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+		$db_type = 'N/A';
+		$db = $GLOBALS['SQ_SYSTEM']->db;
+		if (!is_null($db)) $db_type = $db->phptype;
+
+		$matrix_version = 'N/A';
+		if (defined('SQ_SYSTEM_VERSION')) {
+			$matrix_version = SQ_SYSTEM_VERSION;
+		}
+
+		$str  = '*'.$err_name."*\n".
+				'File : '.$err_file."\n".
+				'Line : '.$err_line."\n".
+				'Version : '.$matrix_version."\n".
+				'DB Type : '.$db_type."\n".
+				"\n".
+				$err_msg."\n".
+				"------------------------------------------------------------------\n".
+				"*User Details*\n";
+		if (!empty($GLOBALS['SQ_SYSTEM']) && is_object($GLOBALS['SQ_SYSTEM']->user)) {
+				$str .= 'User: "'.$GLOBALS['SQ_SYSTEM']->user->name.'" (#'.$GLOBALS['SQ_SYSTEM']->user->id.")\n";
+		}
+		$str .= (!empty($_SERVER['REMOTE_ADDR']) ? 'IP Address: '.$_SERVER['REMOTE_ADDR']."\n" : '');
+		$str .= (!empty($_SERVER['HTTP_USER_AGENT']) ? 'User-Agent: '.$_SERVER['HTTP_USER_AGENT']."\n" : '');
+
+		$str .= "------------------------------------------------------------------\n".
+				"*Root Urls*\n".
+				SQ_CONF_SYSTEM_ROOT_URLS."\n".
+				"------------------------------------------------------------------\n";
+		if (SQ_PHP_CLI) {
+			$str  .= "*Command and Arguments*\n".
+					implode(' ', $_SERVER['argv'])."\n";
+		} else {
+			$str  .= "*Current URL*\n".
+					current_protocol().'://'.array_get_index($_SERVER, 'HTTP_HOST', 'NO HOST').'/'.array_get_index($_SERVER, 'REQUEST_URI', 'NO REQUEST URI')."\n";
+		}
+
+
+		$str .= "------------------------------------------------------------------\n".
+				"*Back Trace*\n".
+				$bt_str."\n";
+
+		// ensure we have a valid email address to send error notifications to
+		// fail silently if none present
+		if (SQ_CONF_TECH_EMAIL) {
+			mail(SQ_CONF_TECH_EMAIL, '['.$err_name.'] '.SQ_CONF_SYSTEM_NAME, $str, 'From: '.SQ_CONF_TECH_EMAIL."\r\n");
+		}
+
+		exit(1);
+
+	}//end if ($terminate)
 
 }//end sq_error_handler()
 
