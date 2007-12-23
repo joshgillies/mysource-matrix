@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.28 2007/12/22 02:24:41 gsherwood Exp $
+* $Id: data_source_db.inc,v 1.29 2007/12/23 21:55:36 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -324,7 +324,11 @@ class Data_Source_DB extends Data_Source
 				$type = 'mysql';
 			break;
 			case 'oracle':
+			case 'oci':
 				$type = 'oci';
+			break;
+			case 'pgsql':
+				$type = 'pgsql';
 			break;
 			default:
 				$type = 'pgsql';
