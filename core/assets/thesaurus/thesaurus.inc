@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.52 2007/12/21 00:10:42 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.53 2007/12/23 23:56:22 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -184,9 +184,9 @@ class Thesaurus extends Asset implements Bridge
 				sq_thes_term term
 				INNER JOIN sq_thes_lnk link ON term.termid = link.minor
 			WHERE
-				term.thesid = :assetid
+				term.thesid = :assetid_1
 				AND
-				link.thesid = :assetid
+				link.thesid = :assetid_2
 				AND
 				major = :termid
 		';
@@ -204,7 +204,8 @@ class Thesaurus extends Asset implements Bridge
 		';
 
 		$query = $db->prepare($sql);
-		$query->bindValue('assetid', $this->id);
+		$query->bindValue('assetid_1', $this->id);
+		$query->bindValue('assetid_2', $this->id);
 		$query->bindValue('termid', $termid);
 		if ($limit_relation) {
 			$query->bindValue('relid', $relid);
@@ -354,12 +355,19 @@ class Thesaurus extends Asset implements Bridge
                     );
 
         try {
-            $result = MatrixDAL::executeAssoc('thesaurus', 'getChildRelationsForTerm', $bind_vars);
+            $results = MatrixDAL::executeAssoc('thesaurus', 'getChildRelationsForTerm', $bind_vars);
         } catch (Exception $e) {
             throw new Exception('Unable to get child relations for term due to database error: '. $e->getMessage());
         }//end
+		if (!empty($results)) {
+			$new_res = Array();
+			foreach ($results as $result) {
+				$new_res[$result['relid']] = $result['relation'];
+			}//end foreach
+			$results = $new_res;
+		}//end if
 
-		return $result;
+		return $results;
 
 	}//end getChildRelationsForTerm()
 
@@ -1249,12 +1257,20 @@ class Thesaurus extends Asset implements Bridge
                      );
 
         try {
-            $result = MatrixDAL::executeAssoc('thesaurus', 'getActiveRelations', $bind_vars);
+            $results = MatrixDAL::executeAssoc('thesaurus', 'getActiveRelations', $bind_vars);
         } catch (Exception $e) {
             throw new Exception('Unable to get thesaurus active relations due to database error: '. $e->getMessage());
         }//end
 
-		return $result;
+		if(!empty($results)) {
+			$new_res = Array();
+			foreach ($results as $result) {
+				$new_res[$result['relid']] = $result['relation'];
+			}//end foreach
+			$results = $new_res;
+		}//end if
+
+		return $results;
 
 	}//end getActiveRelations()
 
