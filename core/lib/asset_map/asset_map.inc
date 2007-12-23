@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.264 2007/12/14 03:18:01 colivar Exp $
+* $Id: asset_map.inc,v 1.265 2007/12/23 23:50:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.264 $
+* @version $Revision: 1.265 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1322,7 +1322,7 @@ class Asset_Map
 			// get all the attribute values
 			$tmp_info = Array();
 			foreach ($v->attributes() as $a => $b) {
-				$tmp_info[$a] = (string)$b;
+				$tmp_info[$a] = urldecode((string)$b);
 			}
 
 			if (empty($tmp_info['assetid'])) continue;
