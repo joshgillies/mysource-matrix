@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.17 2007/12/16 04:13:01 gsherwood Exp $
+* $Id: import.inc,v 1.18 2007/12/23 21:54:56 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -261,6 +261,20 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 				$conf_value = $tmp[0];
 			}
 			$value = str_replace($orig, $conf_value, $value);
+		}
+
+		$matches = Array();
+		preg_match_all('|\[\[dal://([^\]_]+)_([^\]]+)\]\]|', $value, $matches);
+		if (!empty($matches[1]) && !empty($matches[2])) {
+			include SQ_DATA_PATH.'/private/conf/db.inc';
+			if (isset($db_conf[$matches[1][0]])) {
+				// DB name is correct
+				if (isset($db_conf[$matches[1][0]][$matches[2][0]])) {
+					// DSN section name is correct
+					$value = $db_conf[$matches[1][0]][$matches[2][0]];
+				}
+			}
+			
 		}
 
 		// construct-specific calls - will not work on a regular import
