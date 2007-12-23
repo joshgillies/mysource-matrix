@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.256 2007/12/20 05:05:48 colivar Exp $
+* $Id: mysource.inc,v 1.257 2007/12/23 23:28:53 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2182,6 +2182,7 @@ class MySource
 				$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, TRUE);
 
 			} catch (Exception $e) {
+				header('HTTP/1.0 500 Internal Server Error');
 				throw new Exception('Could not create database connection: '.$e->getMessage());
 			}
 
