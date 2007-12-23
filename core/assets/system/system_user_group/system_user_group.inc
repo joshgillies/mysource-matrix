@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group.inc,v 1.33 2007/06/05 01:14:15 lwright Exp $
+* $Id: system_user_group.inc,v 1.34 2007/12/23 23:29:40 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class System_User_Group extends User_Group
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -157,11 +157,12 @@ class System_User_Group extends User_Group
 	* @param int	$perm		the permission to check access for
 	* @param array	$assetids	An array of user_group and/or user ids to check for permission
 	*							If the array is empty, the current user will be checked
+	* @param boolean	$only_workflow	check only workflow
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _checkPermissionAccess($perm, $assetids=Array())
+	function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
 	{
 		// we have to be root to do anything in here
 		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;

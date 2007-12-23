@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.24 2007/10/29 05:28:01 lwright Exp $
+* $Id: system_asset_config.inc,v 1.25 2007/12/23 23:29:41 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -55,11 +55,12 @@ class System_Asset_Config extends Config
 	* @param Array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	* @param boolean	$send_message		whether to send a message using the messaging system
 	*
 	* @return boolean	indicates whether the file was written
 	* @access public
 	*/
-	function save($vars, $backup_existing=false)
+	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		// we don't really care about any values that they have entered
 		return parent::save(Array(), $backup_existing);

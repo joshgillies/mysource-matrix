@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user.inc,v 1.40 2006/12/06 04:40:10 emcdonald Exp $
+* $Id: root_user.inc,v 1.41 2007/12/23 23:29:40 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Root_User extends System_User
 	* @return mixed int|boolean
 	* @access public
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {

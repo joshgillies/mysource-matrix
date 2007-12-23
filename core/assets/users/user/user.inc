@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.121 2007/11/30 01:23:18 bshkara Exp $
+* $Id: user.inc,v 1.122 2007/12/23 23:29:41 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -494,14 +494,15 @@ class User extends Asset
 	* Returns TRUE if at least one of the passed assetids has the passed permission
 	* Does not check current status of lock
 	*
-	* @param int	$perm		the permission to check access for
-	* @param array	$assetids	An array of user_group and/or user ids to check for permission
-	*							If the array is empty, the current user will be checked
+	* @param int		$perm			the permission to check access for
+	* @param array		$assetids		An array of user_group and/or user ids to check for permission
+	*									If the array is empty, the current user will be checked
+	* @param boolean	$only_workflow	check only workflow
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function _checkPermissionAccess($perm, Array $assetids=Array())
+	public function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if (empty($assetids)) {
 			// root can do anything

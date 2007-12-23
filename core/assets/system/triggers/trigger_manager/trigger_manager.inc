@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.50 2007/12/02 23:38:16 lwright Exp $
+* $Id: trigger_manager.inc,v 1.51 2007/12/23 23:29:40 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,7 +79,7 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -762,16 +762,14 @@ class Trigger_Manager extends Asset implements Bridge
 	/**
 	* Returns TRUE if the supplied assets can be linked in the specified way
 	*
-	* @param object	&$major		the major asset in the proposed link
-	* @param object	&$minor		the minor asset in the proposed link
-	* @param string	$link_type	the type of link that is proposed
-	* @param int	$exclusive	(0|1) whether this will be the only significant link
-	*							with $minor as the minor asset
+	* @param Asset	$minor		the minor asset that we are linking to
+	* @param string	$link_type	the type of link this is
+	* @param int	$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function canCreateLink(&$major, &$minor, $link_type, $exclusive)
+	function canCreateLink(Asset $minor, $link_type, $exclusive)
 	{
 		return FALSE;
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.163 2007/12/20 03:46:31 rong Exp $
+* $Id: search_manager.inc,v 1.164 2007/12/23 23:29:43 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -79,7 +79,7 @@ class Search_Manager extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {

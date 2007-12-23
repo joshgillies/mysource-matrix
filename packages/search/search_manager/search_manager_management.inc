@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.18 2006/12/07 02:48:04 bcaldwell Exp $
+* $Id: search_manager_management.inc,v 1.19 2007/12/23 23:29:43 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.18 $ - 0.1
+* @version $Revision: 1.19 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -41,7 +41,7 @@ class Search_Manager_Management extends Asset_Management
 						'indexing'			=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
-												'default'		=> FALSE,
+												'default'		=> TRUE,
 												'description'	=> 'Turns indexing on or off',
 												'parameters'	=> Array(
 																	'allow_empty'	=> FALSE,

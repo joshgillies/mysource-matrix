@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.163 2007/12/12 05:50:26 gsherwood Exp $
+* $Id: file.inc,v 1.164 2007/12/23 23:29:40 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.163 $
+* @version $Revision: 1.164 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -227,7 +227,7 @@ class File extends Asset
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	public function cloneComponents(Asset $clone, $components, $override=FALSE)
+	public function cloneComponents(Asset $clone, Array $components, $override=FALSE)
 	{
 		// create some information so we know where to clone the file from
 		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
@@ -424,11 +424,13 @@ class File extends Asset
 	* Processes the changes required when a new status is set
 	*
 	* @param int	$new_status	the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$run_updated	specify it we want to run _upated
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function processStatusChange($new_status)
+	public function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
 	{
 		// let ourselves know not to do any extra updating
 		$this->_tmp['IGNORE_UPDATE'] = TRUE;
@@ -442,7 +444,7 @@ class File extends Asset
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::processStatusChange($new_status)) {
+		if (!parent::processStatusChange($new_status, $update_parents, $run_updated)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -744,7 +746,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	public function processBackend(Backend_Outputter $o, Array $link)
+	public function processBackend(Backend_Outputter $o, Array &$link)
 	{
 		if (in_array($_POST['asset_action'], Array('create', 'create_custom'))) {
 			$this->_tmp['uploading_file'] = 1;
