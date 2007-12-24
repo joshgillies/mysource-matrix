@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.17 2007/05/16 04:34:16 skim Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.18 2007/12/24 05:01:58 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -344,15 +344,15 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		// Create the new Site if its been selected
 		if ($this->_running_vars['create_new_site'] == TRUE) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('site');
-			$root_folder =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 			if (!empty($this->_running_vars['root_assetid'])) {
-				$root_link_parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
+				$root_link_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
 			} else {
 				$root_link_parent =& $root_folder;
 			}
 			$root_link = Array('asset' => &$root_link_parent, 'link_type' => SQ_LINK_TYPE_1);
 
-			$new_site =& new Site();
+			$new_site = new Site();
 
 			$new_site_name = $this->_running_vars['new_site_name'];
 
@@ -470,17 +470,17 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
-			$image_folder =& new Folder();
+			$image_folder = new Folder();
 
 			$image_folder->setAttrValue('name', 'Images');
 
-			$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
+			$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
 			$folder_import_link = Array('asset' => &$root_asset, 'link_type' => SQ_LINK_TYPE_2);
 
 			$image_folder->create($folder_import_link);
 			$this->_running_vars['image_folder_id'] = $image_folder->id;
 		} else {
-			$image_folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['image_folder_id']);
+			$image_folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['image_folder_id']);
 		}
 
 		$filename = $this->_running_vars['image_names'][$this->_running_vars['image_count']];
@@ -491,7 +491,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 		$temp_info = Array('name' => basename($filename), 'tmp_name' => $filename, 'non_uploaded_file' => TRUE);
 
-		$new_file =& new Image();
+		$new_file = new Image();
 		$new_file->_tmp['uploading_file'] = TRUE;
 		$new_file->setAttrValue('name', basename($filename));
 
@@ -745,12 +745,12 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 		// Get the top page
 		if (is_null($parent_asset)) {
-			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
+			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
 		}
 
 		$import_link = Array('asset' => &$parent_asset, 'link_type' => SQ_LINK_TYPE_1);
 
-		$new_page =& new Page_Standard();
+		$new_page = new Page_Standard();
 		if (trim($page_data['name']) == '') {
 			$page_data['name'] = 'Preface';
 		}
@@ -810,7 +810,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$content_types = $GLOBALS['SQ_SYSTEM']->am->getLinks($div->id, SQ_LINK_TYPE_2, 'content_type', FALSE);
 		$ct_link = current($content_types);
 
-		$ct =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ct_link['minorid']);
+		$ct = $GLOBALS['SQ_SYSTEM']->am->getAsset($ct_link['minorid']);
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$ct->setAttrValue('html', $content);
 		$ct->saveAttributes();
@@ -838,7 +838,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$content_types = $GLOBALS['SQ_SYSTEM']->am->getLinks($div->id, SQ_LINK_TYPE_2, 'content_type', FALSE);
 		$ct_link = current($content_types);
 
-		$ct =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ct_link['minorid']);
+		$ct = $GLOBALS['SQ_SYSTEM']->am->getAsset($ct_link['minorid']);
 		return $ct->attr('html');
 
 	}//end getPageContent()
@@ -856,7 +856,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	function processAdditional(&$step_data, $prefix)
 	{
 		// Get a link to our parent, as we'll use it a lot
-		$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['root_assetid']);
 
 		$import_link = Array('asset' => &$parent_asset, 'link_type' => SQ_LINK_TYPE_2);
 
@@ -876,7 +876,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('text_file');
 
-			$new_file =& new Text_File();
+			$new_file = new Text_File();
 			$new_file->_tmp['uploading_file'] = TRUE;
 			$new_file->setAttrValue('name', $filename);
 
@@ -888,7 +888,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		// Change anchors to point to correct assets
 		if ($this->_running_vars['fix_anchors']) {
 			foreach ($this->_running_vars['anchor_links'] as $id => $links) {
-				$page =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+				$page = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 				$html = $this->getPageContent($page);
 				foreach ($links as $link) {
 					$new_asset = './?a=';
@@ -908,7 +908,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 		if ($this->_running_vars['create_site_map']) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('page_site_map');
-			$site_map =& new Page_Site_Map();
+			$site_map = new Page_Site_Map();
 
 			$import_link['link_type'] = SQ_LINK_TYPE_1;
 			$site_map->setAttrValue('name', 'Table Of Contents');
