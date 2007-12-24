@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.28 2007/12/23 23:09:23 colivar Exp $
+* $Id: simple_form.inc,v 1.29 2007/12/24 02:50:04 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -293,7 +293,7 @@ class Simple_Form extends Asset implements Bridge
 
 		foreach (array_keys($links) as $i) {
 
-			$link = $links[$i];
+			$link = &$links[$i];
 			if ($link['minor_type_code'] == 'bodycopy') {
 				unset($links[$i]);
 				continue;
