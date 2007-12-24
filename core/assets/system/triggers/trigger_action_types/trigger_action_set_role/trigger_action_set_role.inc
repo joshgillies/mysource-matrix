@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_role.inc,v 1.11 2007/12/12 04:38:55 hnguyen Exp $
+* $Id: trigger_action_set_role.inc,v 1.12 2007/12/24 01:11:25 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,6 @@ class Trigger_Action_Set_Role extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		$result = TRUE;
-
 		// if no settings, fail
 		if (empty($settings['roleid'])) return FALSE;
 
@@ -65,10 +64,11 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		// check the optional settings, assign defaults
 		$roleid		        	= array_get_index($settings, 'roleid', 0);
 		$role_action			= array_get_index($settings, 'role_action', 'add');
-		$userid					= array_get_index($settings, 'userid', 0);
-		$userids				= Array($userid);
+		$userids				= array_get_index($settings, 'userid', Array());
 		$cascade				= array_get_index($settings, 'cascade', FALSE);
 		$cascade_to_dependents  = array_get_index($settings, 'cascade_to_dependents', FALSE);
+
+		if (!is_array($userids)) $userids = Array ($userids);
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -108,14 +108,13 @@ class Trigger_Action_Set_Role extends Trigger_Action
 						);
 
 				if (!$cascade) $vars['dependants_only'] = 1;
-
 				$errors = $hh->freestyleHIPO('hipo_job_edit_roles', $vars);
 				$result = empty($errors);
 			} else {
 				if (!empty($role_vars['add'])) {
 					foreach ($role_vars['add'] as $roleid => $userids) {
 						foreach ($userids as $userid) {
-							if (!$GLOBALS['SQ_SYSTEM']->am->setRole($state['assetid'], $roleid, $userid[0])) {
+							if (!$GLOBALS['SQ_SYSTEM']->am->setRole($state['assetid'], $roleid, $userid)) {
 								$result = FALSE;
 								break;
 							}
