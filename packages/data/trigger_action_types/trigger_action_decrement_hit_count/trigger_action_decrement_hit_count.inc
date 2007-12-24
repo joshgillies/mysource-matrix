@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Christophe Olivar <colivar@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,46 +67,52 @@ class Trigger_Action_Decrement_Hit_Count extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// we need to check if there is already an entry in the DB
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'SELECT
-					hitcount
-				FROM
-					sq_hit_count
-				WHERE
-					assetid = '.$db->quoteSmart((string) $state['assetid']);
-
-		$asset_hit_count = $db->getCol($sql);
-		assert_valid_db_result($asset_hit_count);
+		try {
+			$bind_vars = Array('assetid' => (string) $state['assetid']);
+			$asset_hit_count = MatrixDAL::executeAll('data_package', 'getHitCount', $bind_vars);
+		} catch (Exception $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			throw new Exception('Unable to decrement hit count due to database error: '.$e->getMessage());
+		}
 
 		// if there is already a entry in the DB we will just decrement the hit count
 		if (!empty($asset_hit_count)) {
-			if (isset($asset_hit_count[0])) {
-				if ((int) $asset_hit_count[0] == 1) {
+			if (isset($asset_hit_count[0]['hitcount'])) {
+				if ((int) $asset_hit_count[0]['hitcount'] == 1) {
 					$deleterow = TRUE;
 				} else {
 					$deleterow = FALSE;
-					$new_hit_count = (int) $asset_hit_count[0];
+					$new_hit_count = (int) $asset_hit_count[0]['hitcount'];
 					$new_hit_count--;
 					// we update the entry in the DB
-					$update_st = $db->query(
-					'update sq_hit_count
-							set hitcount = '.$db->quote($new_hit_count).'
-							where assetid = '.$db->quote($state['assetid'])
-					);
-					assert_valid_db_result($update_st);
-
+					try {
+					$bind_vars = Array(
+								  'assetid'		=> (string) $state['assetid'],
+								  'hitcount'	=> $new_hit_count,
+								 );
+						$result = MatrixDAL::executeQuery('data_package', 'updateHitCount', $bind_vars);
+					} catch (Exception $e) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						throw new Exception('Unable to decrement hit count due to database error: '.$e->getMessage());
+					}
 				}
 			} else {
 				// error
 			}
-		} if (isset($deleterow) && $deleterow) {
+		}
+
+		if (isset($deleterow) && $deleterow) {
 			// if the hit count is equal to 1, delete the row
-			$delete_st = $db->query(
-						'delete from sq_hit_count
-						where assetid = '.$db->quote($state['assetid'])
-					);
-			assert_valid_db_result($delete_st);
+			try {
+				$bind_vars = Array('assetid' => (string) $state['assetid']);
+				$result = MatrixDAL::executeQuery('data_package', 'deleteHitCount', $bind_vars);
+			} catch (Exception $e) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				throw new Exception('Unable to decrement hit count due to database error: '.$e->getMessage());
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

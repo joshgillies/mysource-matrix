@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Christophe Olivar <colivar@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -32,9 +32,9 @@ class Trigger_Action_Decrement_Hit_Count_Edit_Fns extends Trigger_Action_Edit_Fn
 	* Constructor
 	*
 	*/
-	function Trigger_Action_Decrement_Hit_Count_Edit_Fns()
+	function __construct()
 	{
-		$this->Trigger_Action_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

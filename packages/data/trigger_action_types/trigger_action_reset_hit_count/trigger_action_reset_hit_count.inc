@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Christophe Olivar <colivar@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,31 +66,24 @@ class Trigger_Action_Reset_Hit_Count extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// we need to check if there is already an entry in the DB
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'SELECT
-					hitcount
-				FROM
-					sq_hit_count
-				WHERE
-					assetid = '.$db->quoteSmart((string) $state['assetid']);
-
-		$asset_hit_count = $db->getCol($sql);
-		assert_valid_db_result($asset_hit_count);
+		try {
+			$bind_vars = Array('assetid' => (string) $state['assetid']);
+			$asset_hit_count = MatrixDAL::executeAll('data_package', 'getHitCount', $bind_vars);
+		} catch (Exception $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			throw new Exception('Unable to reset hit count due to database error: '.$e->getMessage());
+		}
 
 		// if there is already a entry in the DB we will remove it from the table
 		if (!empty($asset_hit_count)) {
-			if (isset($asset_hit_count[0])) {
-				$new_hit_count = (int) $asset_hit_count[0];
-				$new_hit_count++;
-				// we update the entry in the DB
-				$delete_st = $db->query(
-							'delete from sq_hit_count
-							where assetid = '.$db->quote($state['assetid'])
-						);
-				assert_valid_db_result($delete_st);
-			} else {
-				// error
+			try {
+				$bind_vars = Array('assetid' => (string) $state['assetid']);
+				$result = MatrixDAL::executeQuery('data_package', 'deleteHitCount', $bind_vars);
+			} catch (Exception $e) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				throw new Exception('Unable to decrement hit count due to database error: '.$e->getMessage());
 			}
 		}
 
