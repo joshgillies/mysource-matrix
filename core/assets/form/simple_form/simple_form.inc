@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.29 2007/12/24 02:50:04 colivar Exp $
+* $Id: simple_form.inc,v 1.30 2007/12/24 02:59:01 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1229,7 +1229,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 	{
 		$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
 
-		$bodycopy_link = reset($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format'));
+		$_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format');
+		$bodycopy_link = reset($_bodycopy_link);
 
 		if ($bodycopy_link) {
 			return ($bodycopy_link['link_type'] == SQ_LINK_TYPE_2);

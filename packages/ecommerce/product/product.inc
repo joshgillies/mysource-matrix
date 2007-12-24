@@ -10,13 +10,14 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.12 2007/12/21 03:24:15 colivar Exp $
+* $Id: product.inc,v 1.13 2007/12/24 02:59:02 colivar Exp $
 *
 */
 
 check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once dirname(__FILE__).'/../interfaces/buyable/buyable.inc';
 
 /**
 * Product
@@ -24,12 +25,12 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-register_implementation('product', 'buyable');
-class Product extends Page
+//register_implementation('product', 'buyable');
+class Product extends Page implements Buyable
 {
 
 
@@ -289,6 +290,12 @@ class Product extends Page
 
 	}//end getAssetKeywords()
 
+
+	public function getPrice() {
+		$price_obj = $this->attr('price_obj');
+		if (is_null($price_obj->value)) return 0;
+		return $price_obj->value;
+	}
 
 }//end class
 ?>

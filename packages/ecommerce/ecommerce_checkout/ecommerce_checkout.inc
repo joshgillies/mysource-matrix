@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.53 2007/12/21 03:24:15 colivar Exp $
+* $Id: ecommerce_checkout.inc,v 1.54 2007/12/24 02:59:02 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -271,7 +271,7 @@ class Ecommerce_Checkout extends Page
 
 				if (!empty($delivery_method_id) && !empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
 
-					$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
+					$delivery_method = $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
 					if (empty($delivery_method)) {
 						$this->print_context = 'checkout';
 						return;
@@ -409,7 +409,7 @@ class Ecommerce_Checkout extends Page
 		}
 
 		$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy', TRUE, $this->print_context);
-		$content_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($content_bodycopy_link['minorid'], $content_bodycopy_link['minor_type_code']);
+		$content_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($content_bodycopy_link['minorid'], $content_bodycopy_link['minor_type_code']);
 		if (is_null($content_bodycopy)) {
 			trigger_localised_error('ECOM0018', E_USER_WARNING);
 			return;
@@ -538,7 +538,7 @@ class Ecommerce_Checkout extends Page
 		// set runlevel
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-		$orders_folder =& $am->getAsset($order_folder_id);
+		$orders_folder = $am->getAsset($order_folder_id);
 		$ecommerce_order = new Ecommerce_Order();
 
 		$order_link = Array(
@@ -682,7 +682,7 @@ class Ecommerce_Checkout extends Page
 
 		$delivery_method_id = $this->_getActiveDeliveryMethodId();
 		if (!is_null($delivery_method_id)) {
-			$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
+			$delivery_method = $GLOBALS['SQ_SYSTEM']->am->getAsset($delivery_method_id);
 			$delivery_method_state = array_get_index($_SESSION['sq_local_cart_contents'], 'delivery_state', Array());
 			$delivery_method->setState($delivery_method_state);
 		}
@@ -736,7 +736,7 @@ class Ecommerce_Checkout extends Page
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 		foreach ($flat_charges as $charge_id) {
-			$tmp_charge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($charge_id);
+			$tmp_charge = $GLOBALS['SQ_SYSTEM']->am->getAsset($charge_id);
 			$price = $tmp_charge->attr('price');
 			if ($price <= 0) $price = 0;
 
@@ -1043,7 +1043,7 @@ class Ecommerce_Checkout extends Page
 		$this->_registerFormRequirement();
 		ob_start();
 		foreach ($this->_getDeliveryAssetIds() as $one_assetid) {
-			$delivery_method =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
+			$delivery_method = $GLOBALS['SQ_SYSTEM']->am->getAsset($one_assetid);
 
 			if ($active_delivery_method_id == $one_assetid) {
 				$display = 'block';

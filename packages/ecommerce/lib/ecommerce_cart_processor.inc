@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.11 2007/05/25 04:26:07 colivar Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.12 2007/12/24 02:59:02 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -286,11 +286,11 @@ class Ecommerce_Cart_Processor
 		}
 
 		if (!isset($this->cart[$assetid])) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if ($asset) {
 
 				// ugly, but we need to work around the backwards way Files store names
-				if (is_a($asset, 'File') || is_subclass_of($asset, 'File')) {
+				if ($asset instanceof File) {
 					$name = $asset->attr('title');
 				} else {
 					$name = $asset->name;
@@ -299,7 +299,7 @@ class Ecommerce_Cart_Processor
 				// only include a price if the object is a product
 				// only include taxable boolean if the object is a product
 				$taxable = FALSE;
-				if (is_a($asset, 'Product') || is_subclass_of($asset, 'Product')) {
+				if ($asset instanceof Product) {
 					$price = $asset->attr('price');
 
 					// get the taxable boolean

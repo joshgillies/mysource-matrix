@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order.inc,v 1.14 2007/01/08 03:27:17 emcdonald Exp $
+* $Id: ecommerce_order.inc,v 1.15 2007/12/24 02:59:02 colivar Exp $
 *
 */
 
@@ -168,7 +168,7 @@ class Ecommerce_Order extends Asset
 		$success = true;
 		foreach ($products as $id => $value) {
 			// put notice link
-			$product =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+			$product = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 
 			if ($GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $product, SQ_LINK_NOTICE) == 0) {
 				trigger_localised_error('ECOM0019', E_USER_WARNING);

@@ -349,7 +349,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 		// if the order id is not empty get the asset and get the form values entered from the user
 		if (!empty($this->state['transaction_id'])) {
-			$tmp_order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->state['transaction_id']);
+			$tmp_order = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->state['transaction_id']);
 			$transaction_id = $this->state['transaction_id'];
 			// get the keywords from the bodycopy and replace them with the values entered by the user
 			$keywords = $bodycopy->getKeywords();
@@ -594,13 +594,13 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
 		if (empty($folder_link)) return $null;
 
-		$folder =& $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+		$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
 		if (empty($bodycopy_link)) return $null;
 
-		$bodycopy =& $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		$bodycopy = $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 
 		if (!empty($bodycopy)) return $bodycopy;
 
@@ -626,8 +626,8 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 		$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_PROCESSING, 'Pending');
 
-		$email_receipt_attr =& $this->getAttribute('receipt_emails_format');
-		$email_recipient_attr =& $this->getAttribute('recipient_emails_format');
+		$email_receipt_attr = $this->getAttribute('receipt_emails_format');
+		$email_recipient_attr = $this->getAttribute('recipient_emails_format');
 
 		$receipt_value = @unserialize($email_receipt_attr->value);
 		$recipient_value = @unserialize($email_recipient_attr->value);

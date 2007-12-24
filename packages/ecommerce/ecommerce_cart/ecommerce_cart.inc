@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.32 2007/12/23 23:16:02 colivar Exp $
+* $Id: ecommerce_cart.inc,v 1.33 2007/12/24 02:59:02 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -125,15 +125,19 @@ class Ecommerce_Cart extends Listing_Engine
 		$group_by = $this->attr('group_by');
 
 		foreach ($cart_contents as $product_assetid => $product_info) {
-			$product_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
+			$product_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($product_assetid);
 			if (!empty($product_asset)) {
 				if ($group_by == 'letter') {
-					$asset_list[$product_assetid] = Array(
-														'type_code'		=> $product_asset->type(),
-														'first_letter'	=> substr($product_asset->attr('name'), 0, 1),
+					$asset_list[$product_assetid] = Array( 0 => Array(
+																	'type_code'		=> $product_asset->type(),
+																	'first_letter'	=> substr($product_asset->attr('name'), 0, 1),
+																)
 													);
 				} else {
-					$asset_list[$product_assetid] = $product_asset->type();
+					$asset_list[$product_assetid] = Array( 0 => Array(
+																	'type_code' => $product_asset->type()
+																	)
+														);
 				}
 			}
 		}
