@@ -202,9 +202,13 @@ class Page_Hit_Count_Listing extends Listing_Engine
 
 		// sort them by hit count
 		$full_query .= ' ORDER BY hitcount '.$sql_sort;
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$links = $db->getAll($full_query);
-		assert_valid_db_result($links);
+
+		try {
+			$links = MatrixDAL::executeSqlAll($full_query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get hit counts due to database error: '.$e->getMessage());
+		}
+
 		foreach ($links as $link_info) {
 			if ($group_by == 'letter') {
 				$assets_to_list[$link_info[$side_of_link.'id']] = Array(
@@ -212,7 +216,7 @@ class Page_Hit_Count_Listing extends Listing_Engine
 																	'first_letter'	=> $link_info['first_letter'],
 																  );
 			} else {
-				$assets_to_list[$link_info[$side_of_link.'id']] = $link_info['type_code'];
+				$assets_to_list[$link_info[$side_of_link.'id']] = Array(Array('type_code' => $link_info['type_code']));
 			}
 		}
 
@@ -223,43 +227,6 @@ class Page_Hit_Count_Listing extends Listing_Engine
 		return $assets_to_list;
 
 	}//end getAssetList()
-
-
-	/**
-	* this function returns an array with the asset_hitcount value
-	* This will be shown in the type format of the asset Hit Count Asset
-	*
-	* @param array	$assetids		an array containing the asset IDs
-	* @param string	$sorting_option	if the string is desc we will sort in a descending order if set to asc we will sort in an ascending order
-	*
-	* @return array
-	* @access private
-	*/
-	function getHitCounts($assetids, $sorting_option='desc')
-	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
-		if (count($assetids) == 0) return Array();
-
-		$in = '(';
-		foreach ($assetids as $key => $value) {
-			$in .= $db->quoteSmart((string) $value);
-			if ($key < (count($assetids)-1)) $in .= ', ';
-		}
-		$in .= ')';
-
-		$sql = 'SELECT
-					*
-				FROM
-					sq_hit_count
-				WHERE
-					assetid in '.$in.' order by hitcount '.$sorting_option;
-
-		$asset_hit_count = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_DEFAULT, FALSE);
-		assert_valid_db_result($asset_hit_count);
-		return $asset_hit_count;
-
-	}//end getHitCounts()
 
 
 	/**
@@ -292,17 +259,24 @@ class Page_Hit_Count_Listing extends Listing_Engine
 	function _printAsset($assetid, $list_position)
 	{
 		ob_start();
-		parent::_printAsset($assetid, $list_position);
-		$element_contents = ob_get_contents();
+			parent::_printAsset($assetid, $list_position);
+			$element_contents = ob_get_contents();
 		ob_end_clean();
 
-		// get the hit cout value
-		$_tmp_hitcount = $this->getHitCounts(Array($assetid));
+		// get the hit count value
+		try {
+			$bind_vars = Array('assetid' => $assetid);
+			$_tmp_hitcount = MatrixDAL::executeAll('data_package', 'getHitCount', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get hit count value due to database error: '.$e->getMessage());
+		}
+
 		if (empty($_tmp_hitcount)) {
 			$hitcount = 0;
 		} else {
-			$hitcount = $_tmp_hitcount[$assetid];
+			$hitcount = $_tmp_hitcount[0]['hitcount'];
 		}
+
 		$element_replacements = Array(
 									'asset_hitcount'	=> $hitcount,
 								);
