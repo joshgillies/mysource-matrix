@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.53 2007/12/23 23:56:22 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.54 2007/12/24 04:48:22 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -216,7 +216,7 @@ class Thesaurus extends Asset implements Bridge
 		} catch (Exception $e) {
 			throw new Exception('Unable to get thesaurus child terms due to database error: '. $e->getMessage());
 		}//end
-
+	
 		return $result;
 
 	}//end getChildTerms()
@@ -1127,13 +1127,22 @@ class Thesaurus extends Asset implements Bridge
 
 		$name = strtolower($name);
 
-		$bind_vars = Array (
-                        'thesid'	=> $this->id,
-                        'name'		=> $name,
-                    );
-
+        $sql = '
+            SELECT
+                termid
+            FROM
+                sq_thes_term
+            WHERE
+                lower(term) = :term
+                AND
+                thesid = :thesid
+        ';
+        
         try {
-            $result = MatrixDAL::executeOne('thesaurus', 'getTermIdByName', $bind_vars);
+        	$query = $db->prepare($sql);
+        	$query->bindValue('term', $name);
+        	$query->bindValue('thesid', $this->id);
+        	$result = MatrixDAL::executePdoOne($query);
         } catch (Exception $e) {
             throw new Exception('Unable to get thesaurus term id by name due to database error: '. $e->getMessage());
         }//end
