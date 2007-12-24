@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list_edit_fns.inc,v 1.3 2007/07/19 06:54:09 mbrydon Exp $
+* $Id: page_upcoming_events_list_edit_fns.inc,v 1.4 2007/12/24 03:47:06 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Functions to help print and process the backend interface of rolling calendar page assets
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -37,12 +37,10 @@ class Page_Upcoming_Events_List_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Upcoming_Events_List_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
-
+		parent::__construct();
 	}//end constructor
-
 
 	/**
 	* Paint the interface for setting the root nodes from which this calendar page draws events

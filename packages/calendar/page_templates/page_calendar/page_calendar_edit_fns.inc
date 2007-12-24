@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.40 2007/07/17 04:58:04 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.41 2007/12/24 03:47:07 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -38,9 +38,9 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Calendar_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
+		parent::__construct();
 		$this->static_screens['details']['force_unlock'] = 0;
 
 	}//end constructor

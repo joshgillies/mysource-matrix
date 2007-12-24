@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_edit_fns.inc,v 1.4 2006/12/07 05:51:52 bcaldwell Exp $
+* $Id: page_calendar_restricted_edit_fns.inc,v 1.5 2007/12/24 03:47:06 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *	Functions to help print and process the backend interface of rolling calendar page assets
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -39,12 +39,10 @@ class Page_Calendar_Restricted_Edit_Fns extends Page_Calendar_Rolling_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Page_Calendar_Restricted_Edit_Fns()
+	function __construct()
 	{
-		$this->Page_Edit_Fns();
-
+		parent::__construct();
 	}//end constructor
-
 
 	/**
 	* Paint the interface for setting the root nodes from which this calendar page draws events

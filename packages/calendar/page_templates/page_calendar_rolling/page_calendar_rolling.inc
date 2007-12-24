@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.26 2007/12/11 00:10:15 mwegermann Exp $
+* $Id: page_calendar_rolling.inc,v 1.27 2007/12/24 03:47:06 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -62,13 +62,11 @@ class Page_Calendar_Rolling extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Calendar_Rolling($assetid=0)
+	function __construct($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
-		$this->Page($assetid);
-
+		parent::__construct($assetid);
 	}//end constructor
-
 
 	/**
 	* Perform any additional processing required during the creation of this asset

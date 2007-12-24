@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted.inc,v 1.8 2007/08/13 23:42:39 hnguyen Exp $
+* $Id: page_calendar_restricted.inc,v 1.9 2007/12/24 03:47:06 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/page_templates/page_calendar_rolling/pa
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -41,10 +41,9 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Calendar_Restricted($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Page_Calendar_Rolling($assetid);
-
+		parent::__construct($assetid);
 	}//end constructor
 
 
@@ -166,8 +165,8 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 	* @return void
 	* @access public
 	*/
-    function printBody()
-    {
+	function printBody()
+	{
 		$end_date = substr($this->attr('end_date'), 0, 10);
 		if ($end_date == '----------') {
 			trigger_localised_error('CAL0063', E_USER_WARNING, $this->id);
@@ -175,7 +174,7 @@ class Page_Calendar_Restricted extends Page_Calendar_Rolling
 		}
 		parent::printBody();
 
-    }//end printBody()
+	}//end printBody()
 
 
 }//end class
