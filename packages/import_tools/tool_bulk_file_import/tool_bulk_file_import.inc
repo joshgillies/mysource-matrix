@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.6 2007/12/26 21:52:10 hnguyen Exp $
+* $Id: tool_bulk_file_import.inc,v 1.7 2007/12/26 22:56:23 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -61,8 +61,8 @@ class Tool_Bulk_File_Import extends Tool
 	*/
 	public static function paintTool(&$o, $type_code)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$itm =& $am->getSystemAsset('import_tools_manager');
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$itm = $am->getSystemAsset('import_tools_manager');
 		$import_option = $itm->attr('allowed_import_type');
 		$import_dir = $itm->attr('bulk_file_import_dir');
 		$process_local = ($import_option != 'Server Only');
@@ -532,7 +532,7 @@ class Tool_Bulk_File_Import extends Tool
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$vars = Array();
-		$itm =& $am->getSystemAsset('import_tools_manager');
+		$itm = $am->getSystemAsset('import_tools_manager');
 		$import_dir = $itm->attr('bulk_file_import_dir');
 		$import_option = $itm->attr('allowed_import_type');
 		$process_local = ($import_option != 'Server Only');
@@ -668,7 +668,7 @@ class Tool_Bulk_File_Import extends Tool
 			$vars['allow_unrestricted'] = array_get_index($_POST, $type_code.'_allow_unrestricted', TRUE);
 			$vars['link_type'] = array_get_index($_POST, $type_code.'_link_type', SQ_LINK_TYPE_1);
 			// We have all the required data, so queue up our HIPO and go to town
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$result = $hh->queueHipo('hipo_job_bulk_file_import', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs/');
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) $o->setRedirect($url);
