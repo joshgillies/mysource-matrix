@@ -1,7 +1,7 @@
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This MySource Matrix Module file is Copyright © Squiz Pty Ltd      |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
 * | ACN 084 670 600                                                    |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | IMPORTANT: This Module is not available under an open source       |
@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_static_screen_settings.xml,v 1.4 2007/08/07 23:10:53 hnguyen Exp $
+* $Id: lang_static_screen_settings.xml,v 1.5 2007/12/26 22:50:22 hnguyen Exp $
 *
 */
 -->
