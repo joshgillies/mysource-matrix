@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.59 2007/12/26 22:35:50 colivar Exp $
+* $Id: calendar_common.inc,v 1.60 2007/12/26 22:38:53 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -588,8 +588,7 @@ class Calendar_Common
 			}
 		}
 		if (empty($exception_ids)) return FALSE;
-//		$exception_links = $GLOBALS['SQ_SYSTEM']->db->getAssoc('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
-//		assert_valid_db_result($exception_links);
+
 		$exception_links = Array();
 		try {
 			$query = $db->prepare('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
