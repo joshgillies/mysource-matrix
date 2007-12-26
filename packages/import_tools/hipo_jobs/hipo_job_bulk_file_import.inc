@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.6 2007/12/26 22:00:47 hnguyen Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.7 2007/12/26 22:04:42 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -75,7 +75,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	* @return array
 	* @access public
 	*/
-	function getConfigVars()
+	public static function getConfigVars()
 	{
 		return Array(
 				'SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 5),
