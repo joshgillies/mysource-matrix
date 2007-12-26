@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tool_converter_edit_fns.inc,v 1.4 2006/12/07 01:09:31 emcdonald Exp $
+* $Id: import_tool_converter_edit_fns.inc,v 1.5 2007/12/26 21:53:35 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -86,14 +86,14 @@ class Import_Tool_Converter_Edit_Fns extends Asset_Edit_Fns
 	function processUpload(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		// Handle some file uploads
 		$import_dir = $asset->attr('upload_directory');
 		$compatible_types = $asset->attr('valid_file_types');
 
 		// Check if we have an existing asset selected and copy it over
 		if (isset($_POST[$prefix.'_existing_asset']) && ($_POST[$prefix.'_existing_asset']['assetid'] != '0')) {
-			$existing_asset =& $am->getAsset($_POST[$prefix.'_existing_asset']['assetid']);
+			$existing_asset = $am->getAsset($_POST[$prefix.'_existing_asset']['assetid']);
 			$file_data = $existing_asset->getExistingFile();
 			if (!empty($file_data)) {
 				copy($file_data['path'], $import_dir.'/'.str_replace(' ', '_', $file_data['filename']));
@@ -107,7 +107,7 @@ class Import_Tool_Converter_Edit_Fns extends Asset_Edit_Fns
 			trigger_error('Error Uploading Word Document', E_USER_WARNING);
 		} else {
 			if (!empty($new_file_upload)) {
-				$itm =& $am->getSystemAsset('import_tools_manager');
+				$itm = $am->getSystemAsset('import_tools_manager');
 				$max_size = $itm->attr('max_file_size');
 				if (!is_dir($import_dir)) {
 					create_directory($import_dir);
@@ -122,7 +122,7 @@ class Import_Tool_Converter_Edit_Fns extends Asset_Edit_Fns
 
 				$asset_type = $asset->attr('create_asset_type');
 				$am->includeAsset($asset_type);
-				$new_file =& new $asset_type;
+				$new_file = new $asset_type;
 				$new_file->_tmp['uploading_file'] = TRUE;
 				$new_file->setAttrValue('name', $filename);
 

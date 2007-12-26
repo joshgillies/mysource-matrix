@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager.inc,v 1.6 2007/05/07 22:27:21 lwright Exp $
+* $Id: import_tools_manager.inc,v 1.7 2007/12/26 21:53:21 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Manages searching and relevance weights for attributes of asset types.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -182,7 +182,7 @@ class Import_Tools_Manager extends Asset
 
 		$import_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 
-		$new_converter =& new $type_code;
+		$new_converter = new $type_code;
 
 		// Child Classes should have a default name set, so there is no need to set it here
 		$new_converter->create($import_link);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.4 2006/12/19 04:08:59 skim Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.5 2007/12/26 21:58:33 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -282,7 +282,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 		if (!empty($this->_running_vars['server_todo_counts'])) {
 
 			$todo = array_shift($this->_running_vars['server_todo_counts']);
-			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['root_id']);
+			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['root_id']);
 			$import_link = Array('asset' => &$parent_asset, 'link_type' => $this->_running_vars['link_type']);
 			switch (get_file_type($todo['file_name'])) {
 				case 'doc' :
@@ -309,7 +309,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 
 			// create an asset under the new parent of the correct type
 			$temp_info = Array('name' => $todo['file_name'], 'tmp_name' => $todo['full_path'], 'non_uploaded_file' => TRUE);
-			$new_file =& new $new_asset_type();
+			$new_file = new $new_asset_type();
 			$new_file->_tmp['uploading_file'] = TRUE;
 			$new_file->setAttrValue('name', $todo['file_name']);
 			$new_file->setAttrValue('allow_unrestricted', $this->_running_vars['allow_unrestricted']);
@@ -350,7 +350,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 		if (!empty($this->_running_vars['local_todo_counts'])) {
 
 			$todo = array_shift($this->_running_vars['local_todo_counts']);
-			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['root_id']);
+			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['root_id']);
 			$import_link = Array('asset' => &$parent_asset, 'link_type' => $this->_running_vars['link_type']);
 			switch ($todo['type']) {
 				case 'word' :
@@ -373,7 +373,7 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 
 			// create an asset under the new parent of the correct type
 			$temp_info = Array('name' => $todo['file_name'], 'tmp_name' => $todo['full_path'], 'non_uploaded_file' => TRUE);
-			$new_file =& new $new_asset_type();
+			$new_file = new $new_asset_type();
 			$new_file->_tmp['uploading_file'] = TRUE;
 			$new_file->setAttrValue('name', $todo['file_name']);
 			$new_file->setAttrValue('title', $todo['title']);
