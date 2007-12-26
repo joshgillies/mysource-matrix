@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.61 2007/12/26 23:00:13 colivar Exp $
+* $Id: calendar_common.inc,v 1.62 2007/12/26 23:21:13 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -395,10 +395,10 @@ class Calendar_Common
 						if ($last_date_components['wdom'] - $now['wdom'] != 1) {
 							// we have intervening weeks
 							// we want to know if any event started or ended in the intervening weeks
-							$mfw_conditions[] = '((frequency = '.$db->quoteSmart('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).')))';
+							$mfw_conditions[] = '((frequency = '.$db->quote('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).')))';
 						}
 					}
-					$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MFW').') AND ('.implode(' OR ', $mfw_conditions)."\n\n     ))";
+					$monthly_conditions[] = '((frequency = '.$db->quote('MFW').') AND ('.implode(' OR ', $mfw_conditions)."\n\n     ))";
 
 					// get MRW events
 					$mrw_conditions = Array();
@@ -429,12 +429,12 @@ class Calendar_Common
 							$mrw_conditions[] = '((start_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).') OR (end_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).'))';
 						}
 					}
-					$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MRW').') AND ('.implode(' OR ', $mrw_conditions).'))';
+					$monthly_conditions[] = '((frequency = '.$db->quote('MRW').') AND ('.implode(' OR ', $mrw_conditions).'))';
 
 					// get month events that cover the whole of our month
 					$sql_freqs[] = '(
 									/* begin month options */
-										(frequency LIKE '.$db->quoteSmart('M%').')
+										(frequency LIKE '.$db->quote('M%').')
 										AND (
 												(
 													(end_date_ms IS NOT NULL)

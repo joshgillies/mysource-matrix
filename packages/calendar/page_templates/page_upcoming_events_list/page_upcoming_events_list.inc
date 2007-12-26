@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.12 2007/12/24 03:47:06 colivar Exp $
+* $Id: page_upcoming_events_list.inc,v 1.13 2007/12/26 23:21:13 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -452,7 +452,7 @@ class Page_Upcoming_Events_List extends Page
 	*/
 	function _getEvents()
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		// build sql to restrict the tree locations
 		$root_nodes = $this->_getEventRootNodeIds();
 		if (empty($root_nodes)) {
@@ -477,14 +477,26 @@ class Page_Upcoming_Events_List extends Page
 			// get the single events
 			$date_sql = '(cd.start_date_ts BETWEEN '.$db->quote($start_ts).' AND '.$db->quote($end_ts).') OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts >= '.$db->quote($start_ts).')';
 			$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.')';
-			$single_result = $db->getAll($sql);
-			assert_valid_db_result($single_result);
+
+			$single_result = Array();
+			 try {
+				$query = $db->prepare($sql);
+				$single_result = MatrixDAL::executePdoAll($query);
+			} catch (Exception $e) {
+				throw new Exception($e->getMessage());
+			}//end
 			$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 			// get the recurring events
 			$sql = Calendar_Common::getRecurringEventQueryBase(array_keys($root_nodes), 'period', date('Y-m-d', $start_ts), $this->attr('num_events'));
-			$recur_result = $db->getAll($sql);
-			assert_valid_db_result($recur_result);
+
+			$recur_result = Array();
+			try {
+				$query = $db->prepare($sql);
+				$recur_result = MatrixDAL::executePdoAll($query);
+			} catch (Exception $e) {
+				throw new Exception($e->getMessage());
+			}//end
 			$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
 			$recur_result = Calendar_Common::expandEventList($recur_result, date('Y-m-d', $start_ts), date('Y-m-d', $end_ts));
 
