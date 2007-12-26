@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.4 2007/01/08 03:47:45 emcdonald Exp $
+* $Id: tool_bulk_file_import.inc,v 1.5 2007/12/26 21:49:02 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -59,7 +59,7 @@ class Tool_Bulk_File_Import extends Tool
 	* @return string
 	* @access public
 	*/
-	function paintTool(&$o, $type_code)
+	public static function paintTool(&$o, $type_code)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$itm =& $am->getSystemAsset('import_tools_manager');
