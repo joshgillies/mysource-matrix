@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.28 2007/01/08 03:25:04 emcdonald Exp $
+* $Id: calendar_event_cancellation.inc,v 1.29 2007/12/26 22:35:50 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -170,7 +170,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$parent_info = reset($GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($parent_link['majorid'])));
 			$new_type_code = str_replace('recurring', 'single', $parent_info['type_code']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_type_code);
-			$replacement_event =& new $new_type_code();
+			$replacement_event = new $new_type_code();
 		}
 		$replacement_event->setAttrValue('start_date', $start_date);
 		$replacement_event->setAttrValue('end_date', $end_date);

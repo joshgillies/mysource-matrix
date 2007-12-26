@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.58 2007/12/26 22:19:36 colivar Exp $
+* $Id: calendar_common.inc,v 1.59 2007/12/26 22:35:50 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -575,20 +575,29 @@ class Calendar_Common
 	*/
 	function processExceptions(&$res)
 	{
+		$db = MatrixDAL::getDb();
 		$exception_ids = Array();
 		foreach ($res as $id => $details) {
 			if (in_array($details['type_code'], Array('calendar_event_cancellation', 'calendar_event_modification'))) {
 				$id_bits = explode(':', $id);
 				$real_id = $id_bits[0];
-				$exception_ids[] = $GLOBALS['SQ_SYSTEM']->db->quoteSmart($real_id);
+				$exception_ids[] = $db->quote($real_id);
 				if ($details['type_code'] == 'calendar_event_cancellation') {
 					unset($res[$id]);
 				}
 			}
 		}
 		if (empty($exception_ids)) return FALSE;
-		$exception_links = $GLOBALS['SQ_SYSTEM']->db->getAssoc('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
-		assert_valid_db_result($exception_links);
+//		$exception_links = $GLOBALS['SQ_SYSTEM']->db->getAssoc('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
+//		assert_valid_db_result($exception_links);
+		$exception_links = Array();
+		try {
+			$query = $db->prepare('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
+			$exception_links = MatrixDAL::executePdoGrouped($query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+
 		foreach ($res as $key => $details) {
 			$id = explode(':', $key);
 			$id = $id[0];
