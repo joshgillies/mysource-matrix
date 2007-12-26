@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.13 2007/12/24 02:59:02 colivar Exp $
+* $Id: product.inc,v 1.14 2007/12/26 22:28:39 mwegermann Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../interfaces/buyable/buyable.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -155,7 +155,23 @@ class Product extends Page implements Buyable
 		?>
 		<form action="<?php echo $this->getURL(); ?>" method="post">
 		<?php
-			echo replace_keywords($this->attr('description'), $this->getAssetKeywords());
+
+			$replacement_array = Array();
+			$keywords = $this->getAssetKeywords();
+			// getAssetKeyword returns a array with the structure
+			// $keywords = array( key => array( description => $decription,
+			//                                  value => $value,
+			//                                )
+			//                  )
+			// but..
+			// replace_keywords expect array ( key => value)
+			// so we rebuild this structure
+			foreach ($keywords as $keyword => $info) {
+				$replacement_array[$keyword] = $info['value'];
+			}
+			$product_description = $this->attr('description');
+			echo replace_keywords($product_description, $replacement_array);
+
 		?>
 		</form>
 		</div>
