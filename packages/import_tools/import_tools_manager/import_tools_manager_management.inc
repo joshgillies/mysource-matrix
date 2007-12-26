@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_management.inc,v 1.6 2007/01/11 22:04:17 lwright Exp $
+* $Id: import_tools_manager_management.inc,v 1.7 2007/12/26 22:56:35 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $ - 0.1
+* @version $Revision: 1.7 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -124,7 +124,7 @@ class Import_Tools_Manager_Management extends Asset_Management
 
 			echo('INSTALLING NEW CONVERTERS - FROM VERSION '.$current_version."\n");
 
-			$itm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');
+			$itm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');
 			$itm->installConverters();
 
 			echo('FINISHED INSTALLING NEW CONVERTERS - FROM VERSION '.$current_version."\n");
