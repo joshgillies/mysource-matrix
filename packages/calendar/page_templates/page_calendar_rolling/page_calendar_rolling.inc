@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.27 2007/12/24 03:47:06 colivar Exp $
+* $Id: page_calendar_rolling.inc,v 1.28 2007/12/26 23:00:12 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -558,7 +558,7 @@ class Page_Calendar_Rolling extends Page
 	*/
 	function _getEvents($start_date=NULL, $end_date=NULL, $time=NULL)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		if (is_null($time)) $time = time();
 		if (is_null($start_date)) {
 			$unit = $this->attr('time_unit');
@@ -592,14 +592,28 @@ class Page_Calendar_Rolling extends Page
 		$end_date_stamp = $start_date_stamp + $length;
 		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
 		$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.') ORDER BY cd.start_date_ts';
-		$single_result = $db->getAll($sql);
-		assert_valid_db_result($single_result);
+
+		$single_result = Array();
+		 try {
+			$query = $db->prepare($sql);
+			$single_result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}//end
+
 		$single_result = Calendar_Common::condenseResultTreeids($single_result);
 
 		// get the recurring events
 		$sql = Calendar_Common::getRecurringEventQueryBase(array_keys($root_nodes), 'period', $start_date, (int) $length);
-		$recur_result = $db->getAll($sql);
-		assert_valid_db_result($recur_result);
+
+		$recur_result = Array();
+		 try {
+			$query = $db->prepare($sql);
+			$recur_result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}//end
+
 		$recur_result = Calendar_Common::condenseResultTreeids($recur_result);
 
 		$all_events = $single_result + $recur_result;

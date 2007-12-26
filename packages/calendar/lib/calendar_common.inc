@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.60 2007/12/26 22:38:53 colivar Exp $
+* $Id: calendar_common.inc,v 1.61 2007/12/26 23:00:13 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -326,7 +326,7 @@ class Calendar_Common
 
 				// DAILY-RECURRING
 				$sql_freqs[] = '(
-									(frequency = '.$db->quoteSmart('DED').')
+									(frequency = '.$db->quote('DED').')
 									AND
 									(
 										(period <= '.$length.')
@@ -338,16 +338,16 @@ class Calendar_Common
 								)';
 				if (($length > 2) || !in_array($now['wday'], Array(0, 6)) || !in_array($last_date_components['wday'], Array(0, 6))) {
 					// the period includes a weekday
-					$sql_freqs[] = '(frequency = '.$db->quoteSmart('DWD').')';
+					$sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
 				}
 				if (($length > 5) || in_array($now['wday'], Array(0, 6)) || in_array($last_date_components['wday'], Array(0, 6)) || ($last_date_components['wday'] < $now['wday'])) {
 					// the period includes a weekend day
-					$sql_freqs[] = '(frequency = '.$db->quoteSmart('DWE').')';
+					$sql_freqs[] = '(frequency = '.$db->quote('DWE').')';
 				}
 
 				// WEEKLY-RECURRING
 				$sql_freqs[] = '(
-									(frequency = '.$db->quoteSmart('WEW').')
+									(frequency = '.$db->quote('WEW').')
 									AND
 									(
 										((period * 7) <= '.$length.')
@@ -364,8 +364,8 @@ class Calendar_Common
 					// we are within one month
 
 					// get MFN and MRN events
-					$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].'))))';
-					$monthly_conditions[] = '((frequency = '.$db->quoteSmart('MRN').') AND ((start_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].') OR (end_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].')))';
+					$monthly_conditions[] = '((frequency = '.$db->quote('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].'))))';
+					$monthly_conditions[] = '((frequency = '.$db->quote('MRN').') AND ((start_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].') OR (end_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].')))';
 
 					// get MFW events
 					$mfw_conditions = Array();
@@ -456,34 +456,34 @@ class Calendar_Common
 					// start and end are in different months
 
 					// we want to see if the start or end is late enough in the first month
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday >= '.$now['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday >= '.$now['mday'].'))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday >= '.$now['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday >= '.$now['mday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MRN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday <= '.$now['rmday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday <= '.$now['rmday'].'))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MRN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday <= '.$now['rmday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday <= '.$now['rmday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom > '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom > '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom > '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom > '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom < '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom < '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
 					// or early enough in the last month
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MFN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_mday <= '.$last_date_components['mday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_mday <= '.$last_date_components['mday'].'))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MFN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_mday <= '.$last_date_components['mday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_mday <= '.$last_date_components['mday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MRN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday >= '.$last_date_components['rmday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday >= '.$last_date_components['rmday'].'))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MRN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday >= '.$last_date_components['rmday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday >= '.$last_date_components['rmday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom < '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom < '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom < '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom < '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom > '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) >= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom > '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) >= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quoteSmart('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
 					if ($last_date_components['ms'] - $now['ms'] > 1) {
 						// we have intervening months, so we want to see if the event starts or ends in one of them
-						$sql_freqs[] = '((frequency LIKE '.$db->quoteSmart('M').') AND ((MOD('.$last_date_components['ms'].' - start_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR (MOD('.$last_date_components['ms'].' - end_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
+						$sql_freqs[] = '((frequency LIKE '.$db->quote('M').') AND ((MOD('.$last_date_components['ms'].' - start_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR (MOD('.$last_date_components['ms'].' - end_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
 					}
 				}//end else
 
