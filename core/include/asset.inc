@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593.2.5 2007/11/02 04:39:21 rong Exp $
+* $Id: asset.inc,v 1.593.2.6 2007/12/26 22:44:09 mwegermann Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593.2.5 $
+* @version $Revision: 1.593.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3148,7 +3148,9 @@ class Asset extends MySource_Object
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$mm_keywords = $mm->generateKeywordReplacements($this, $default_keywords, FALSE);
 		foreach ($default_keywords as $keyword) {
-			$keywords[$keyword]['value'] = $mm_keywords[$keyword];
+			// we need to check. otherwise we get a undefined index error if mm_keywords for
+			// one of the default keywords is not set
+			if(isset($mm_keywords[$keyword])) $keywords[$keyword]['value'] = $mm_keywords[$keyword];
 		}
 
 		foreach ($this->vars as $name => $info) {
