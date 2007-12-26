@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.11 2007/05/14 05:17:36 colivar Exp $
+* $Id: product.inc,v 1.11.2.1 2007/12/26 22:36:53 mwegermann Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -153,7 +153,23 @@ class Product extends Page
 		?>
 		<form action="<?php echo $this->getURL(); ?>" method="post">
 		<?php
-			echo replace_keywords($this->attr('description'), $this->getAssetKeywords());
+
+			$replacement_array = Array();
+			$keywords = $this->getAssetKeywords();
+			// getAssetKeyword returns a array with the structure
+			// $keywords = array( key => array( description => $decription,
+			//                                  value => $value,
+			//                                )
+			//                  )
+			// but..
+			// replace_keywords expect array ( key => value)
+			// so we rebuild this structure
+			foreach ($keywords as $keyword => $info) {
+				$replacement_array[$keyword] = $info['value'];
+			}
+			$product_description = $this->attr('description');
+			echo replace_keywords($product_description, $replacement_array);
+
 		?>
 		</form>
 		</div>
