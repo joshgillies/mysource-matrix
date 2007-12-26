@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.85 2007/07/15 23:03:55 mbrydon Exp $
+* $Id: calendar_event_recurring.inc,v 1.86 2007/12/26 22:19:35 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1233,7 +1233,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function cacheCalendarData($updating=TRUE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 
 		$date_values = Array();
 		foreach (Array('start_date', 'end_date') as $date_comp) {
@@ -1260,7 +1260,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$date_values['assetid'] = $this->id;
 
 			for (reset($date_values); NULL !== ($key = key($date_values)); next($date_values)) {
-				$date_values[$key] = $db->quoteSmart($date_values[$key]);
+				$date_values[$key] = $db->quote($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
 
@@ -1274,8 +1274,12 @@ class Calendar_Event_Recurring extends Calendar_Event
 							'.$val_string.'
 						)';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$result = MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception($e->getMessage());
+			}
 
 		} else {
 			// asset id becomes a where condition
@@ -1285,14 +1289,18 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			$set_array = Array();
 			foreach ($date_values as $key => $value) {
-				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : $db->quoteSmart($value));
+				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : $db->quote($value));
 			}
 			$sql .= implode(',', $set_array);
 			$sql .=' WHERE
-						assetid = '.$db->quoteSmart($this->id);
+						assetid = '.$db->quote($this->id);
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			try {
+				$query = $db->prepare($sql);
+				$result = MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception($e->getMessage());
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
