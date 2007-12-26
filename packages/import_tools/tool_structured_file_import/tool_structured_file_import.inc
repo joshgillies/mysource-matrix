@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.9 2007/01/08 03:47:45 emcdonald Exp $
+* $Id: tool_structured_file_import.inc,v 1.10 2007/12/26 21:56:26 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -60,10 +60,10 @@ class Tool_Structured_File_Import extends Tool
 	* @return string
 	* @access public
 	*/
-	function paintTool(&$o, $type_code)
+	public static function paintTool(&$o, $type_code)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$itm =& $am->getSystemAsset('import_tools_manager');
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$itm = $am->getSystemAsset('import_tools_manager');
 
 		$import_dir = $itm->attr('import_dir');
 		if (empty($import_dir)) {
@@ -273,10 +273,10 @@ class Tool_Structured_File_Import extends Tool
 	* @return boolean
 	* @access public
 	*/
-	function processTool(&$o, $type_code)
+	public static function processTool(&$o, $type_code)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$itm =& $am->getSystemAsset('import_tools_manager');
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$itm = $am->getSystemAsset('import_tools_manager');
 		$vars = Array();
 		$vars['import_file'] = array_get_index($_POST, 'structured_file_import_filename', '');
 		$vars['remove_file'] = array_get_index($_POST, 'structured_file_remove_filename', '');
@@ -320,7 +320,7 @@ class Tool_Structured_File_Import extends Tool
 			}
 
 			// We have all the required data, so queue up our HIPO and go to town
-			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$hh->queueHipo('hipo_job_structured_file_import', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs/');
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) $o->setRedirect($url);
