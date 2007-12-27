@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.113.2.3 2007/10/22 02:28:41 nbhradwaj Exp $
+* $Id: page_asset_builder.inc,v 1.113.2.4 2007/12/27 03:12:00 mwegermann Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.113.2.3 $
+* @version $Revision: 1.113.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -95,6 +95,7 @@ class Page_Asset_Builder extends Page
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
 		foreach ($this->_getBodycopies() as $value => $details) {
+
 			$bodycopy =& new Bodycopy();
 			$bodycopy->setAttrValue('name', $details['name']);
 			$copy_link['value'] = $value;
@@ -460,9 +461,13 @@ class Page_Asset_Builder extends Page
 						foreach ($new_asset->vars as $attr_name => $attr_info) {
 							if ($attr_info['type'] == 'text') {
 								if ($attr_name == 'name' || $attr_name == 'short_name') {
-									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value'], ENT_NOQUOTES));
+									$attr_name_value = htmlspecialchars($attr_info['value'], ENT_NOQUOTES);
+									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+									$new_asset->setAttrValue($attr_name, $attr_name_value);
 								} else {
-									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value']));
+									$attr_name_value = htmlspecialchars($attr_info['value']);
+									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+									$new_asset->setAttrValue($attr_name, $attr_name_value);
 								}
 							}
 						}
@@ -554,7 +559,6 @@ class Page_Asset_Builder extends Page
 		return $success;
 
 	}//end _processGlobalActions()
-
 
 	/**
 	* Get the selectable create locations that the user has actually selected for the new asset
