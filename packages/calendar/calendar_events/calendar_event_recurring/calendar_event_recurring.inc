@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.87 2007/12/27 00:07:38 colivar Exp $
+* $Id: calendar_event_recurring.inc,v 1.88 2007/12/27 05:47:34 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1260,7 +1260,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$date_values['assetid'] = $this->id;
 
 			for (reset($date_values); NULL !== ($key = key($date_values)); next($date_values)) {
-				$date_values[$key] = $db->quote($date_values[$key]);
+				if (is_null($date_values[$key]))
+					$date_values[$key] = 'NULL';
+				else
+					$date_values[$key] = $db->quote($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
 

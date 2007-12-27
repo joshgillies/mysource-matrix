@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.62 2007/12/26 23:21:13 colivar Exp $
+* $Id: calendar_common.inc,v 1.63 2007/12/27 05:47:33 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -125,10 +125,10 @@ class Calendar_Common
 			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
 			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
 			foreach ($userids as $userid => $type) {
-				$quoted_userids[] = $db->quoteSmart((string)$userid);
+				$quoted_userids[] = $db->quote((string)$userid);
 			}
 			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
-			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quoteSmart(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quoteSmart(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quoteSmart(SQ_PERMISSION_READ).'))';
+			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quote(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quote(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quote(SQ_PERMISSION_READ).'))';
 		}
 		$sql .= ' AND ';
 
@@ -657,7 +657,7 @@ class Calendar_Common
 		}
 
 		// we can build most of our info from the getdate() function
-		if (($ts = strtotime($iso)) != -1) {
+		if (($ts = strtotime($iso)) != FALSE) {
 			$this_date = getdate($ts);
 			$this_date['yday']++;	// to make it 1-based
 
@@ -1037,7 +1037,7 @@ class Calendar_Common
 			break;
 
 			case 'M':
-				$first_occur = add_months_to_iso($first_day, -$event['period']).'-'.date('d', $first_day);
+				$first_occur = add_months_to_iso($first_day, -$event['period']).'-'.date('d', strtotime($first_day));
 			break;
 
 		}
