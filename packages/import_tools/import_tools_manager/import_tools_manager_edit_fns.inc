@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.8 2007/01/11 22:04:17 lwright Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.9 2007/12/27 05:09:26 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -107,7 +107,8 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processHeadings(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$asset->setAttrValue('heading_defaults', array_keys($_POST[$prefix.'_headings']));
+			$keys = array_keys($_POST[$prefix.'_headings']);
+			$asset->setAttrValue('heading_defaults', $keys);
 		}
 
 	}//end processHeadings()
