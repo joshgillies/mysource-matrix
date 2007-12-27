@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.18 2007/12/24 05:01:58 hnguyen Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.19 2007/12/27 00:35:47 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -169,35 +169,36 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		if (!$this->processTidying($this->_steps[0], $this->getCodeName())) {
+		$code_name = $this->getCodeName();
+		if (!$this->processTidying($this->_steps[0], $code_name)) {
 			return FALSE;
 		}
 
 		while (count($this->_running_vars['headings_to_process']) != 0) {
-			if (!$this->processHeadings($this->_steps[1], $this->getCodeName())) {
+			if (!$this->processHeadings($this->_steps[1], $code_name)) {
 				return FALSE;
 			}
 		}
 
 		while ($this->_running_vars['image_count'] != count($this->_running_vars['image_names'])) {
-			if (!$this->processImages($this->_steps[2], $this->getCodeName())) {
+			if (!$this->processImages($this->_steps[2], $code_name)) {
 				return FALSE;
 			}
 		}
 
 		do {
-			if (!$this->processScanning($this->_steps[3], $this->getCodeName())) {
+			if (!$this->processScanning($this->_steps[3], $code_name)) {
 				return FALSE;
 			}
 		} while ($this->_running_vars['running_count'] != 0);
 
 		while ($this->_running_vars['top_level_count'] != $this->_running_vars['running_count']) {
-			if (!$this->processSplitting($this->_steps[4], $this->getCodeName())) {
+			if (!$this->processSplitting($this->_steps[4], $code_name)) {
 				return FALSE;
 			}
 		}
 
-		if (!$this->processAdditional($this->_steps[5], $this->getCodeName())) {
+		if (!$this->processAdditional($this->_steps[5], $code_name)) {
 			return FALSE;
 		}
 
@@ -223,13 +224,15 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		// Remove any HTML comment lines exist
 		$this->_removeHtmlComment($file_data);
 
-		preg_match_all('/<style[^>]*>([^<]*)<\/\s*style>/i', $file_data, $style_matches=Array());
+		$style_matches = Array();
+		preg_match_all('/<style[^>]*>([^<]*)<\/\s*style>/i', $file_data, $style_matches);
 
 		foreach ($style_matches[1] as $style_data) {
 			$this->_running_vars['styles'][] = $style_data;
 		}
 
-		preg_match('/<title>(.*)<\/title>/i', $file_data, $title_matches=Array());
+		$title_matches = Array();
+		preg_match('/<title>(.*)<\/title>/i', $file_data, $title_matches);
 		if (!empty($title_matches)) {
 			$this->_running_vars['site_title'] = $title_matches[1];
 		} else {
@@ -255,8 +258,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$file_data = str_replace(chr(97), 'a', $file_data);
 		$file_data = str_replace(chr(160), '&nbsp;', $file_data);
 
-		preg_match('/<body[^>]*>/i', $file_data, $body_start_match=Array(), PREG_OFFSET_CAPTURE);
-		preg_match('/<\/\s*body\s*>/i', $file_data, $body_end_match=Array(), PREG_OFFSET_CAPTURE);
+		$body_start_match = Array();
+		$body_end_match = Array();
+		preg_match('/<body[^>]*>/i', $file_data, $body_start_match, PREG_OFFSET_CAPTURE);
+		preg_match('/<\/\s*body\s*>/i', $file_data, $body_end_match, PREG_OFFSET_CAPTURE);
 
 		if (empty($body_start_match)) {
 			$body_start = 0;
@@ -331,7 +336,8 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$this->_running_vars['headings_to_process'] = Array();
 		// Due to Word inserting newlines in some Heading tags, we need to strip them out, or our regex wont work
 		foreach ($this->_running_vars['headings'] as $heading) {
-			preg_match_all('/<\s*'.$heading.'/i', $body, $tidy_matches=Array(), PREG_OFFSET_CAPTURE);
+			$tidy_matches = Array();
+			preg_match_all('/<\s*'.$heading.'/i', $body, $tidy_matches, PREG_OFFSET_CAPTURE);
 			foreach ($tidy_matches[0] as $data) {
 				$this->_running_vars['headings_to_process'][] = Array('heading' => $heading, 'data' => $data);
 			}
@@ -359,8 +365,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			if (trim($new_site_name) == '') {
 				if ($this->_running_vars['site_title'] == '') {
 					$file_name = basename($this->_running_vars['import_file']);
-					$file_name = substr($file_name, 0, strrpos($file_name, '.'));
-					$new_site_name = ucwords(str_replace('_', ' ', $file_name));
+					$strrpos_file_name = strrpos($file_name, '.');
+					$file_name = substr($file_name, 0, $strrpos_file_name);
+					$replaced_file_name = str_replace('_', ' ', $file_name);
+					$new_site_name = ucwords($replaced_file_name);
 				} else {
 					// The doco has a title specified, so we should use it for the site.
 					$new_site_name = $this->_running_vars['site_title'];
@@ -406,8 +414,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		foreach ($this->_running_vars['headings_to_process'] as $id => $top_data) {
 			$data = $top_data['data'];
 			$heading = $top_data['heading'];
-			$replace = substr($this->_running_vars['file_data'], $data[1], strpos($this->_running_vars['file_data'], '</'.$heading.'>', $data[1]) - $data[1]);
-			$new_text = str_replace(Array("\n", "\r"), ' ', $replace);
+			$strpos_file_data = (strpos($this->_running_vars['file_data'], '</'.$heading.'>', $data[1]) - $data[1]);
+			$replace = substr($this->_running_vars['file_data'], $data[1], $strpos_file_data);
+			$replace_array = Array("\n", "\r");
+			$new_text = str_replace($replace_array, ' ', $replace);
 			$this->_running_vars['file_data'] = str_replace($replace, $new_text, $this->_running_vars['file_data']);
 			unset($this->_running_vars['headings_to_process'][$id]);
 			$i++;
@@ -499,7 +509,8 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			trigger_error('Failed to import Image: '.$filename, E_USER_WARNING);
 		}
 
-		$find = substr($image_dir_name, strrpos($image_dir_name, '/') + 1);
+		$strrpost_image_dir_name = strrpos($image_dir_name, '/') + 1;
+		$find = substr($image_dir_name, $strrpost_image_dir_name);
 		$test_reg = '/[\.\/]?'.$find.'\/'.str_replace('.', '\.', basename($filename)).'/i';
 		$test_reg = str_replace('(', '\(', $test_reg);
 		$test_reg = str_replace(')', '\)', $test_reg);
@@ -510,7 +521,8 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 
 		// Handle vector format. Some images have this type of tags, if they were drawn from Drawing tool in MS Word
 		// Convert them into <img> tags
-		preg_match_all('/<v:imagedata\s+src=["\']{1}([^>]+)["\']{1}>/i', $body_data, $result=Array());
+		$result = Array();
+		preg_match_all('/<v:imagedata\s+src=["\']{1}([^>]+)["\']{1}>/i', $body_data, $result);
 		if (!empty($result)) {
 			for ($i=0; $i < count($result[1]); $i++) {
 				$str = trim($result[1][$i]);
@@ -552,8 +564,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$single_page_name = $this->_running_vars['site_title'];
 			if ($single_page_name == '') {
 				$file_name = basename($this->_running_vars['import_file']);
-				$file_name = substr($file_name, 0, strrpos($file_name, '.'));
-				$single_page_name = ucwords(str_replace('_', ' ', $file_name));
+				$strrpos_file_name = strrpos($file_name, '.');
+				$file_name = substr($file_name, 0, $strrpos_file_name);
+				$str_replace_file_name = str_replace('_', ' ', $file_name);
+				$single_page_name = ucwords($str_replace_file_name);
 			}
 			$initial_data[] = Array (
 								'name'		=> $single_page_name,
@@ -754,7 +768,10 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		if (trim($page_data['name']) == '') {
 			$page_data['name'] = 'Preface';
 		}
-		$new_page->setAttrValue('name', trim(strip_tags($page_data['name'])));
+
+		$stripped_tag_name = strip_tags($page_data['name']);
+		$trimmed_tag_name = trim($stripped_tag_name);
+		$new_page->setAttrValue('name', $trimmed_tag_name);
 		$new_page->create($import_link);
 
 		if ($this->_running_vars['fix_anchors']) {
@@ -939,15 +956,18 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 	*/
 	function _removeHtmlComment(&$html)
 	{
-		preg_match_all('/<!--/', $html, $open_matches=Array(), PREG_OFFSET_CAPTURE);
-		preg_match_all('/-->/', $html, $close_matches=Array(), PREG_OFFSET_CAPTURE);
+		$open_matches = Array();
+		$close_matches = Array();
+		preg_match_all('/<!--/', $html, $open_matches, PREG_OFFSET_CAPTURE);
+		preg_match_all('/-->/', $html, $close_matches, PREG_OFFSET_CAPTURE);
 
 		$comments = Array();
 		$prev_close_pos = 0;
 		if (count($open_matches[0]) == count($close_matches[0])) {
-
-			preg_match_all('/<style>/', $html, $style_open_matches=Array(), PREG_OFFSET_CAPTURE);
-			preg_match_all('/<\/style>/', $html, $style_close_matches=Array(), PREG_OFFSET_CAPTURE);
+			$style_open_matches = Array();
+			$style_close_matches = Array();
+			preg_match_all('/<style>/', $html, $style_open_matches, PREG_OFFSET_CAPTURE);
+			preg_match_all('/<\/style>/', $html, $style_close_matches, PREG_OFFSET_CAPTURE);
 			$style_pos = Array();
 			if (count($style_open_matches[0]) == count($style_close_matches[0])) {
 
