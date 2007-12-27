@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.7 2007/12/26 22:56:23 hnguyen Exp $
+* $Id: tool_bulk_file_import.inc,v 1.8 2007/12/27 04:48:23 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -544,12 +544,13 @@ class Tool_Bulk_File_Import extends Tool
 			foreach ($dirs_array as $dir_name) {
 				$files = Tool_Bulk_File_Import::_getFileList($dir_name);
 				$num_of_files = count($files);
-				$stripped_dname = substr($dir_name, strrpos($dir_name, '/') + 1);
 
-				$tmp = array_get_index($_POST, 'file_import_dirname_'.str_replace(' ', '_', $stripped_dname), '');
+				$stripped_dname = substr($dir_name, strrpos($dir_name, '/') + 1);
+				$replaced_dname = str_replace(' ', '_', $stripped_dname);
+				$tmp = array_get_index($_POST, 'file_import_dirname_'.$replaced_dname, '');
 				if (!empty($tmp)) {
 
-					$tmp = array_get_index($_POST, str_replace(' ', '_', $stripped_dname).'_root_assetid', '');
+					$tmp = array_get_index($_POST, $replaced_dname.'_root_assetid', '');
 					if (!empty($tmp['assetid'])) {
 						if (!isset($vars['total_count'])) {
 							$vars['total_count'] = $num_of_files;
@@ -622,7 +623,8 @@ class Tool_Bulk_File_Import extends Tool
 							$error = TRUE;
 						} else if ($result == $file_info['name']) {
 
-							$file_id = substr($id, strlen('bulk_file_upload_file_chooser_'));
+							$text_length = strlen('bulk_file_upload_file_chooser_');
+							$file_id = substr($id, $text_length);
 
 							// get file type
 							foreach ($file_types as $file_type) {
@@ -710,7 +712,8 @@ class Tool_Bulk_File_Import extends Tool
 	*/
 	function _getMaxFileSize()
 	{
-		$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
+		$user_prefs_max_file_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
+		$max_size = strtolower($user_prefs_max_file_size);
 		if ($max_size) {
 			if (substr($max_size, -1) == 'k') {
 				$max_size = $max_size * 1024;
