@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.19 2007/12/27 00:35:47 hnguyen Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.20 2007/12/27 22:15:35 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -777,15 +777,18 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		if ($this->_running_vars['fix_anchors']) {
 			// Lets get any internal links, and store them for later
 			$anchor_record = Array();
-			preg_match_all('/<a[^>]*>/i', $page_data['data'], $anchor_tags=Array());
+			$anchor_tags = Array();
+			preg_match_all('/<a[^>]*>/i', $page_data['data'], $anchor_tags);
 			foreach ($anchor_tags[0] as $tag) {
-				preg_match('/name="([_a-z\d]+)"/i', $tag, $name_matches=Array());
+				$name_matches = Array();
+				preg_match('/name="([_a-z\d]+)"/i', $tag, $name_matches);
 
 				if (!empty($name_matches)) {
 					$this->_running_vars['anchor_names'][$name_matches[1]] = $new_page->id;
 				}
 
-				preg_match('/href="#([_a-z\d]+)"/i', $tag, $link_matches=Array());
+				$link_matches = Array();
+				preg_match('/href="#([_a-z\d]+)"/i', $tag, $link_matches);
 
 				if (!empty($link_matches)) {
 					$anchor_record[] = $link_matches[1];
