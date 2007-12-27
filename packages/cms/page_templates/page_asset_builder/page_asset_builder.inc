@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.121 2007/12/17 22:08:22 bshkara Exp $
+* $Id: page_asset_builder.inc,v 1.122 2007/12/27 03:11:14 mwegermann Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -462,9 +462,13 @@ class Page_Asset_Builder extends Page
 						foreach ($new_asset->vars as $attr_name => $attr_info) {
 							if ($attr_info['type'] == 'text') {
 								if ($attr_name == 'name' || $attr_name == 'short_name') {
-									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value'], ENT_NOQUOTES));
+									$attr_name_value = htmlspecialchars($attr_info['value'], ENT_NOQUOTES);
+									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+									$new_asset->setAttrValue($attr_name, $attr_name_value);
 								} else {
-									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value']));
+									$attr_name_value = htmlspecialchars($attr_info['value']);
+									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+									$new_asset->setAttrValue($attr_name, $attr_name_value);
 								}
 							}
 						}
