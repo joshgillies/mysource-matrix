@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.48 2007/12/06 04:28:51 lwright Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.49 2007/12/27 05:26:43 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -397,7 +397,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 					if ($link_name) {
 						echo get_asset_tag_line($da->id, 'details');
 					} else {
-						echo get_asset_tag_line($da->id, '');
+						echo $da->name.' (Id: #'.$da->id.')';
 					}
 					?>
 				</td>
