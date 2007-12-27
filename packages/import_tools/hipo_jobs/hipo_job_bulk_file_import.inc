@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.7 2007/12/26 22:04:42 hnguyen Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.8 2007/12/27 05:14:09 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -284,7 +284,8 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			$todo = array_shift($this->_running_vars['server_todo_counts']);
 			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($todo['root_id']);
 			$import_link = Array('asset' => &$parent_asset, 'link_type' => $this->_running_vars['link_type']);
-			switch (get_file_type($todo['file_name'])) {
+			$file_type = get_file_type($todo['file_name']);
+			switch ($file_type) {
 				case 'doc' :
 				case 'dot' :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('word_doc');
