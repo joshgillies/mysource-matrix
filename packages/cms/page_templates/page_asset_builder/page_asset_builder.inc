@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.111.2.4 2007/10/22 02:27:07 nbhradwaj Exp $
+* $Id: page_asset_builder.inc,v 1.111.2.5 2007/12/27 03:13:07 mwegermann Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.111.2.4 $
+* @version $Revision: 1.111.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -460,9 +460,13 @@ class Page_Asset_Builder extends Page
 						foreach ($new_asset->vars as $attr_name => $attr_info) {
 							if ($attr_info['type'] == 'text') {
 								if ($attr_name == 'name' || $attr_name == 'short_name') {
-									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value'], ENT_NOQUOTES));
+									$attr_name_value = htmlspecialchars($attr_info['value'], ENT_NOQUOTES);
+									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+									$new_asset->setAttrValue($attr_name, $attr_name_value);
 								} else {
-									$new_asset->setAttrValue($attr_name, htmlspecialchars($attr_info['value']));
+									$attr_name_value = htmlspecialchars($attr_info['value']);
+									$attr_name_value = str_replace('&amp;', '&', $attr_name_value);
+									$new_asset->setAttrValue($attr_name, $attr_name_value);
 								}
 							}
 						}
@@ -942,10 +946,10 @@ class Page_Asset_Builder extends Page
 		//////////////////////////////////////////
 		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$code_name = $this->_sanitiseLocationSetName($name);
-			
+
 			// the following line will remove any assets that no longer exist
 			$options = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($data['locations']), Array(), TRUE, 'name');
-			
+
 			if (!$this->attr('allow_public_user')) {
 				$remaining_options = Array();
 				$user_groups = $GLOBALS['SQ_SYSTEM']->user->getUserGroups();
