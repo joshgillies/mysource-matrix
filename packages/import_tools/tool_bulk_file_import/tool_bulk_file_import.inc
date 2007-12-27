@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.8 2007/12/27 04:48:23 hnguyen Exp $
+* $Id: tool_bulk_file_import.inc,v 1.9 2007/12/27 05:59:21 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -690,7 +690,7 @@ class Tool_Bulk_File_Import extends Tool
 	* @return array
 	* @access public
 	*/
-	function _getFileList($dir)
+	protected static function _getFileList($dir)
 	{
 		$files = list_files($dir);
 		foreach ($files as $key => $file_name) {
@@ -710,7 +710,7 @@ class Tool_Bulk_File_Import extends Tool
 	* @return int
 	* @access public
 	*/
-	function _getMaxFileSize()
+	protected static function _getMaxFileSize()
 	{
 		$user_prefs_max_file_size = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE');
 		$max_size = strtolower($user_prefs_max_file_size);
