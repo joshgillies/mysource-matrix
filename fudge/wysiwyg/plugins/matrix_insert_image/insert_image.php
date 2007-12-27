@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.45.2.1 2007/09/27 05:17:39 bshkara Exp $
+* $Id: insert_image.php,v 1.45.2.2 2007/12/27 00:45:21 gsherwood Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.45.2.1 $
+* @version $Revision: 1.45.2.2 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<title>Insert Image</title>
 
 		<?php
-		// add required js translation files, as we are using asset finder
+		//add required js translation files, as we are using asset finder
 		$include_list = Array(sq_web_path('lib').'/js/translation.js');
 
 		$locales = $GLOBALS['SQ_SYSTEM']->lm->getCumulativeLocaleParts($GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale());
@@ -90,7 +90,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					}
 				}
 				// pass data back to the calling window
-				var fields = ["f_alt", "f_align", "f_border",
+				var fields = ["f_alt", "f_align", "f_border", "f_image_class", "f_image_id",
 							"f_horiz", "f_vert", "f_width", "f_height"];
 				var param = new Object();
 				for (var i in fields) {
@@ -572,6 +572,18 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<td class="label"><?php echo translate('vertical'); ?>:</td>
 											<td>
 												<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
+											</td>
+										</tr>
+										<tr>
+											<td class="label"><?php echo translate('name'); ?>:</td>
+											<td>
+												<input type="text" name="image_id" id="f_image_id" size="20" title="Name" value="<?php echo $_REQUEST['f_image_id']?>" />
+											</td>
+										</tr>
+										<tr>
+											<td class="label"><?php echo translate('class'); ?>:</td>
+											<td>
+												<input type="text" name="image_class" id="f_image_class" size="20" title="Class" value="<?php echo $_REQUEST['f_image_class']?>" />
 											</td>
 										</tr>
 									</table>
