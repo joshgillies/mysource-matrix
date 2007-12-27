@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.11 2007/12/27 05:01:07 hnguyen Exp $
+* $Id: tool_structured_file_import.inc,v 1.12 2007/12/27 05:46:04 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -314,7 +314,7 @@ class Tool_Structured_File_Import extends Tool
 			$strrpos_files_name = strrpos($file_name, '/') + 1;
 			$stripped_fname = substr($file_name, $strrpos_files_name);
 			$replaced_fname = str_replace('.', '_', $stripped_fname);
-			if (isset($_POST['structured_file_remove_'.$replaced_fname)) {
+			if (isset($_POST['structured_file_remove_'.$replaced_fname])) {
 				$remove_list[] = $stripped_fname;
 			}
 		}
