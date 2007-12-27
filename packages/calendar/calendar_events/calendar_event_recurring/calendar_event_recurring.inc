@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.86 2007/12/26 22:19:35 colivar Exp $
+* $Id: calendar_event_recurring.inc,v 1.87 2007/12/27 00:07:38 colivar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1150,10 +1150,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$cancellation_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 			} else {
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
-				$cancellation_event =& new Calendar_Event_Cancellation();
+				$cancellation_event = new Calendar_Event_Cancellation();
 			}
 		} else {
-			$cancellation_event =& new Calendar_Event_Cancellation();
+			$cancellation_event = new Calendar_Event_Cancellation();
 		}
 		$cancellation_event->setAttrValue('start_date', $date.' '.($this->getStartTime() ? $this->getStartTime().':00' : '--:--:--'));
 		$end_date = add_days_to_iso($date, $this->getDuration() / 86400);
@@ -1198,10 +1198,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$modification_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 			} else {
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
-				$modification_event =& new Calendar_Event_Modification();
+				$modification_event = new Calendar_Event_Modification();
 			}
 		} else {
-			$modification_event =& new Calendar_Event_Modification();
+			$modification_event = new Calendar_Event_Modification();
 		}
 		$modification_event->setAttrValue('start_date', $date.' --:--:--');
 		$modification_event->setAttrValue('description', $description);

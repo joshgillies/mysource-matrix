@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_edit_fns.inc,v 1.2 2007/11/09 05:25:27 mbrydon Exp $
+* $Id: calendar_event_multi_date_edit_fns.inc,v 1.3 2007/12/27 00:07:38 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/calendar_events/calendar_event_recurrin
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -86,7 +86,8 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 				if ($asset->id) {
 					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('calendar_event_single', 'calendar_event_recurring'));
 					foreach ($children as $id => $type) {
-						$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
+						$_type = $type[0]['type_code'];
+						$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $_type);
 						$this->_printDateRow($prefix, $event_asset, $o, $wa);
 					}
 				}
@@ -238,6 +239,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 				if (isset($_POST[$prefix.'_existing_'.$id.'_delete'])) {
 					$GLOBALS['SQ_SYSTEM']->am->trashAsset($id);
 				} else {
+					$type = $type[0]['type_code'];
 					$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
 					$need_save = FALSE;
 					if ($type == 'calendar_event_single') {
