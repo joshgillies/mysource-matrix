@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.10 2007/12/26 21:56:26 hnguyen Exp $
+* $Id: tool_structured_file_import.inc,v 1.11 2007/12/27 05:01:07 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -108,7 +108,8 @@ class Tool_Structured_File_Import extends Tool
 						<?php
 						$tmp = 'var file_list =[';
 						for (reset($files_array); $key = key($files_array); next($files_array)) {
-							$stripped_fname = substr($files_array[$key], strrpos($files_array[$key], '/') + 1);
+							$strrpos_files_array = strrpos($files_array[$key], '/') + 1;
+							$stripped_fname = substr($files_array[$key], $strrpos_files_array);
 							$tmp .= '"'.str_replace('.', '_', $stripped_fname).'",';
 						}
 						echo substr($tmp, 0, -1).'];';
@@ -147,12 +148,14 @@ class Tool_Structured_File_Import extends Tool
 						</tr>
 						<?php
 							foreach ($files_array as $file_name) {
-								$stripped_fname = substr($file_name, strrpos($file_name, '/') + 1);
+								$strrpos_file_name = strrpos($file_name, '/') + 1;
+								$stripped_fname = substr($file_name, $strrpos_file_name);
+								$replaced_fname = str_replace('.', '_', $stripped_fname);
 								?>
 								<tr>
 									<td class="sq-backend-table-cell"><?php echo $stripped_fname; ?></td>
 									<td class="sq-backend-table-cell" style="text-align: center;"><?php radio_button('structured_file_import_filename', $file_name, FALSE, 'can_select();'); ?></td>
-									<td class="sq-backend-table-cell" style="text-align: center;"><?php check_box('structured_file_remove_'.str_replace('.', '_', $stripped_fname), '1', FALSE, 'uncheck_import_file();'); ?></td>
+									<td class="sq-backend-table-cell" style="text-align: center;"><?php check_box('structured_file_remove_'.$replaced_fname, '1', FALSE, 'uncheck_import_file();'); ?></td>
 								</tr>
 								<?php
 							}
@@ -308,8 +311,10 @@ class Tool_Structured_File_Import extends Tool
 		$files_array = list_files($import_dir, TRUE);
 		$remove_list = Array();
 		foreach ($files_array as $id => $file_name) {
-			$stripped_fname = substr($file_name, strrpos($file_name, '/') + 1);
-			if (isset($_POST['structured_file_remove_'.str_replace('.', '_', $stripped_fname)])) {
+			$strrpos_files_name = strrpos($file_name, '/') + 1;
+			$stripped_fname = substr($file_name, $strrpos_files_name);
+			$replaced_fname = str_replace('.', '_', $stripped_fname);
+			if (isset($_POST['structured_file_remove_'.$replaced_fname)) {
 				$remove_list[] = $stripped_fname;
 			}
 		}
