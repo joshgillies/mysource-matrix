@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2007/06/25 01:19:50 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2007/12/28 05:01:03 colivar Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 		<field>
 			<function_call>
 				<paint_function name="paintUserTypeChooser" />
-				<paint_function name="processUserTypeChooser" />
+				<process_function name="processUserTypeChooser" />
 			</function_call>
 		</field>
 	</section>
