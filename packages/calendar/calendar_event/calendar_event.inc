@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.80 2007/12/28 00:01:46 hnguyen Exp $
+* $Id: calendar_event.inc,v 1.81 2007/12/28 00:05:02 colivar Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -756,7 +756,10 @@ class Calendar_Event extends Asset
 			$date_values['assetid'] = $this->id;
 
 			for (reset($date_values); NULL !== ($key = key($date_values)); next($date_values)) {
-				$date_values[$key] = $db->quote($date_values[$key]);
+				if (is_null($date_values[$key]))
+					$date_values[$key] = 'NULL';
+				else
+					$date_values[$key] = $db->quote($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
 
