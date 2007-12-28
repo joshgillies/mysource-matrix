@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.54.2.2 2007/07/24 04:27:47 mbrydon Exp $
+* $Id: page_account_manager.inc,v 1.54.2.3 2007/12/28 00:57:40 mwegermann Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.54.2.2 $
+* @version $Revision: 1.54.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -753,11 +753,24 @@ class Page_Account_Manager extends Page_Asset_Builder
 				return FALSE;
 			}
 
+			// if we move an asset, we need to update the urls (lookups) as well.
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+ 			$vars = Array('assetids' => Array($user->id));
+			$hipo_empty_array = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
+
+			// if the hipo was not successfull - fullstop and rollback.
+			if (!empty($hipo_empty_array)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				return FALSE;
+			}
+
 			// all done
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		return TRUE;
 
 	}//end validateUser()
