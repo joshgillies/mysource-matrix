@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.88 2007/12/27 05:47:34 colivar Exp $
+* $Id: calendar_event_recurring.inc,v 1.89 2007/12/28 00:55:22 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -606,7 +606,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}//end switch
 
 		// recurs until (only include 'UNTIL' part if the stop date is defined)
-		$stop_date_attr =& $this->getAttribute('stop_date');
+		$stop_date_attr = $this->getAttribute('stop_date');
 		if ($stop_date_attr->value != '---------- --:--:--') {
 			$rule .= ';UNTIL='.date('Ymd\THis', iso8601_ts($stop_date_attr->value));
 		}
@@ -709,7 +709,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res = translate('cal_event_unknown_frequency', $this->attr('frequency'));
 		}//end switch
 
-		$stop_date_attr =& $this->getAttribute('stop_date');
+		$stop_date_attr = $this->getAttribute('stop_date');
 		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1) {
 			return $res.', '.translate('cal_event_recur_until_further_notice');
 		} else {
@@ -734,7 +734,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$cancellations = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation'), FALSE, 'major');
 
 			foreach ($cancellations as $cancelled_event) {
-				$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cancelled_event['minorid'], $cancelled_event['minor_type_code']);
+				$event = $GLOBALS['SQ_SYSTEM']->am->getAsset($cancelled_event['minorid'], $cancelled_event['minor_type_code']);
 				if ($event->readAccess()) {
 					$exception_string .= date('Ymd\THis', iso8601_ts($event->attr('start_date'))).',';
 				}
@@ -937,7 +937,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					// Only expecting one relevant link
 					$parent_link = reset($this->parent_links);
 
-					$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+					$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
 					$replacement = $parent_asset->getKeywordReplacement($keyword);
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 				}
@@ -1147,7 +1147,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_cancellation');
 		if ($existing_link = $this->getExceptionLink($date)) {
 			if ($existing_link['minor_type_code'] == 'calendar_event_cancellation') {
-				$cancellation_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+				$cancellation_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 			} else {
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
 				$cancellation_event = new Calendar_Event_Cancellation();
@@ -1195,7 +1195,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		if ($existing_link = $this->getExceptionLink($date)) {
 			if ($existing_link['minor_type_code'] == 'calendar_event_modification') {
-				$modification_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+				$modification_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 			} else {
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
 				$modification_event = new Calendar_Event_Modification();

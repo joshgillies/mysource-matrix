@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_restricted_management.inc,v 1.6 2006/12/18 00:53:43 tbarrett Exp $
+* $Id: page_calendar_restricted_management.inc,v 1.7 2007/12/28 00:51:01 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -134,7 +134,7 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 
 			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), TRUE, TRUE);
 			foreach ($pages as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 				echo 'Upgrading Asset #'.$assetid."...\n";
 
@@ -167,7 +167,7 @@ class Page_Calendar_Restricted_Management extends Asset_Management
 							'is_exclusive'	=> 1,
 							'value'			=> 'time_unit',
 						);
-				$bodycopy =& new Bodycopy();
+				$bodycopy = new Bodycopy();
 				$time_unit_details = array_get_index($asset->bodycopies, 'time_unit', Array());
 				$bodycopy->setAttrValue('name', array_get_index($time_unit_details, 'name'));
 				if (!$bodycopy->create($link, Array('content' => $unit_format))) {

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.29 2007/12/26 22:35:50 colivar Exp $
+* $Id: calendar_event_cancellation.inc,v 1.30 2007/12/28 00:54:24 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -163,7 +163,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			return FALSE;
 		}
 		if ($existing_link = $this->getReplacementLink()) {
-			$replacement_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+			$replacement_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
 		} else {
 			// create a replacement event
 			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, NULL, '', TRUE, NULL, 'minor');
@@ -232,7 +232,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		switch ($action_name) {
 			case 'addreplacement':
 				$parent_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring'));
-				$parent_object =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
+				$parent_object = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
 
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
 				$res .= '<tr><td style="vertical-align: top">'.translate('cal_event_start_and_end').'</td><td>';
@@ -309,7 +309,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 					trigger_localised_error('CAL0054', E_USER_ERROR);
 					return FALSE;
 				}
-				$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
+				$recurring_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 
 				if (!$this->synchronizeWithParent($recurring_event)) {
 					return FALSE;
@@ -345,7 +345,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', FALSE)) {
 					$recurring_events = array_keys($recurring_events);
-					$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
+					$recurring_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					echo '<a href="'.$root_url.'?a='.$recurring_events[0].'">'.$recurring_event->attr('name').'</a>';
 				}
 				?>

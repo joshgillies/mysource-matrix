@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_edit_fns.inc,v 1.8 2007/12/24 03:47:06 colivar Exp $
+* $Id: page_calendar_rolling_edit_fns.inc,v 1.9 2007/12/28 00:49:25 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Functions to help print and process the backend interface of rolling calendar page assets
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -476,7 +476,7 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processTypeFormats(&$asset, &$o, $prefix)
 	{
-		$folder =& $asset->getFolder('type_formats');
+		$folder = $asset->getFolder('type_formats');
 		$types = $this->_getAvailableTypes($asset);
 
 		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
@@ -515,7 +515,7 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 
 				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				$bodycopy =& new Bodycopy();
+				$bodycopy = new Bodycopy();
 				$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
 
 				if (!$bodycopy->create($copy_link)) {

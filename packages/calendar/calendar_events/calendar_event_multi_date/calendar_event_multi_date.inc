@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.3 2007/12/27 00:07:38 colivar Exp $
+* $Id: calendar_event_multi_date.inc,v 1.4 2007/12/28 00:51:42 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -91,7 +91,7 @@ class Calendar_Event_Multi_Date extends Asset
 
 		// Create bodycopy
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy =& new Bodycopy();
+		$bodycopy = new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 		$bodycopy->setAttrValue('name', 'Page Contents');
 		if (!$bodycopy->create($copy_link)) return FALSE;
@@ -142,13 +142,13 @@ class Calendar_Event_Multi_Date extends Asset
 	*/
 	function printBody()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this, 'default');
 
 		// if the cache is empty, go ahead and regenrate a new version
 		if (empty($cached_contents)) {
 			// get the bodycopy here to avoid caching of any possible error messages
-			$bodycopy =& $this->getBodycopy();
+			$bodycopy = $this->getBodycopy();
 			ob_start();
 				// we only want to cache if we actually have a bodycopy
 				if (!is_null($bodycopy)) {
@@ -278,9 +278,9 @@ class Calendar_Event_Multi_Date extends Asset
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$bodycopy =& $this->getBodycopy();
+					$bodycopy = $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
-					$edit =& $bodycopy->getEditFns();
+					$edit = $bodycopy->getEditFns();
 					ob_start();
 						if ($edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix())) {
 							$print_commit_button = TRUE;
@@ -318,9 +318,9 @@ class Calendar_Event_Multi_Date extends Asset
 		foreach ($keywords as $keyword) {
 			switch ($keyword) {
 				case 'contents' :
-					$bodycopy =& $this->getBodycopy();
+					$bodycopy = $this->getBodycopy();
 					if (is_null($bodycopy)) continue;
-					$edit =& $bodycopy->getEditFns();
+					$edit = $bodycopy->getEditFns();
 					$edit->processBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix());
 				break;
 			}

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_management.inc,v 1.9 2007/07/19 02:29:02 mbrydon Exp $
+* $Id: page_calendar_rolling_management.inc,v 1.10 2007/12/28 00:48:51 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -163,7 +163,7 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
 			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($pages as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				// convert the old days_past and days_future, and convert them into the new days_from and days_to
@@ -193,7 +193,7 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 
 			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), TRUE, TRUE);
 			foreach ($pages as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				echo 'Upgrading Asset #'.$assetid."...\n";
@@ -227,7 +227,7 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 							'is_exclusive'	=> 1,
 							'value'			=> 'time_unit',
 						);
-				$bodycopy =& new Bodycopy();
+				$bodycopy = new Bodycopy();
 				$time_unit_details = array_get_index($asset->bodycopies, 'time_unit', Array());
 				$bodycopy->setAttrValue('name', array_get_index($time_unit_details, 'name'));
 				if (!$bodycopy->create($link, Array('content' => $unit_format))) {
@@ -258,7 +258,7 @@ class Page_Calendar_Rolling_Management extends Asset_Management
 			// Give the "Type Formats" folder link a name
 			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($pages as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				$tf_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, SQ_LINK_TYPE_2, 'folder', TRUE, '', 'major', TRUE);
