@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.28 2007/12/26 23:00:12 colivar Exp $
+* $Id: page_calendar_rolling.inc,v 1.29 2007/12/28 00:00:20 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -96,7 +96,7 @@ class Page_Calendar_Rolling extends Page
 		$am->includeAsset('bodycopy');
 
 		// create a type formats folder
-		$type_formats_folder =& new Folder();
+		$type_formats_folder = new Folder();
 		$type_formats_folder->setAttrValue('name', 'Type Formats');
 		if (!$type_formats_folder->create($link)) return FALSE;
 
@@ -107,7 +107,7 @@ class Page_Calendar_Rolling extends Page
 			$content          = Array(
 									'content'	=> '%asset_name% (%event_start_date%)',
 								);
-			$format_bc =& new Bodycopy();
+			$format_bc = new Bodycopy();
 			$format_bc->setAttrValue('name', $am->getTypeInfo($event_type, 'name').' Format');
 			if (!$format_bc->create($tf_link, $content)) {
 				return FALSE;
@@ -125,7 +125,7 @@ class Page_Calendar_Rolling extends Page
 							'value'			=> $value,
 						 );
 
-			$bodycopy =& new Bodycopy();
+			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', array_get_index($details, 'name'));
 			if (!$bodycopy->create($copy_link, array_get_index($details, 'content'))) {
 				return FALSE;
@@ -175,7 +175,7 @@ class Page_Calendar_Rolling extends Page
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
 
 		// check if the broadcaster is in the type formats folder
-		$tf_folder =& $this->getFolder('type_formats');
+		$tf_folder = $this->getFolder('type_formats');
 		if (isset($broadcaster_parents[$tf_folder->id])) {
 			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
 			$tf_bcs = Array();
@@ -185,7 +185,7 @@ class Page_Calendar_Rolling extends Page
 			$bc_id = reset(array_intersect(array_keys($tf_bcs), array_keys($broadcaster_parents)));
 			if ($bc_id) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($tf_bcs[$bc_id]);
-				$dummy_asset =& new $tf_bcs[$bc_id];
+				$dummy_asset = new $tf_bcs[$bc_id];
 				$asset_keywords = $dummy_asset->getAvailableKeywords();
 				foreach ($asset_keywords as $kw => $desc) {
 					$vars['keywords'][$kw] = $desc;
@@ -258,7 +258,7 @@ class Page_Calendar_Rolling extends Page
 			return;
 		}
 
-		$pb =& $am->getAsset($pb_bodycopy_id, 'bodycopy');
+		$pb = $am->getAsset($pb_bodycopy_id, 'bodycopy');
 		$replacements = $this->_getPageContentsReplacements();
 		$pb->setKeywordReplacements($replacements);
 		$pb->printBody();
@@ -303,7 +303,7 @@ class Page_Calendar_Rolling extends Page
 			if (!empty($link['value'])) {
 				$needs_asset[$link['value']] = FALSE;
 				$metadata_keywords[$link['value']] = Array();
-				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+				$bc = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 				$type_formats[$link['value']] = $bc->getRawBodycopyContent();
 				$required_keywords[$link['value']] = $bc->getKeywords();
 				foreach ($required_keywords[$link['value']] as $keyword) {
@@ -388,7 +388,7 @@ class Page_Calendar_Rolling extends Page
 		$unit_bodycopy_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'time_unit');
 		if (empty($unit_bodycopy_link)) return FALSE;
 
-		$unit_bodycopy =& $am->getAsset($unit_bodycopy_link['minorid'], $unit_bodycopy_link['minor_type_code']);
+		$unit_bodycopy = $am->getAsset($unit_bodycopy_link['minorid'], $unit_bodycopy_link['minor_type_code']);
 		if (is_null($unit_bodycopy)) return FALSE;
 
 		$event_list = '';
@@ -413,7 +413,7 @@ class Page_Calendar_Rolling extends Page
 
 					// get asset keywords
 					if ($needs_asset[$format_type]) {
-						$asset =& $am->getAsset($id);
+						$asset = $am->getAsset($id);
 						foreach ($required_keywords[$format_type] as $keyword) {
 							if ($keyword == 'asset_contents') {
 								ob_start();
@@ -435,7 +435,7 @@ class Page_Calendar_Rolling extends Page
 					// get metadata keywords
 					if (!empty($metadata_keywords[$event['type_code']])) {
 						if (is_null($mm)) {
-							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						}
 						// get all the metadata keywords for this asset
 						$metadata_values = $mm->getMetadataFieldValues($id, array_values($metadata_keywords[$event['type_code']]));
@@ -660,7 +660,7 @@ class Page_Calendar_Rolling extends Page
 	function getFormats($type='type_formats')
 	{
 		if (!isset($this->_tmp['formats'][$type])) {
-			$folder =& $this->getFolder($type);
+			$folder = $this->getFolder($type);
 			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
 			if (empty($format_links)) return Array();
 
@@ -689,7 +689,7 @@ class Page_Calendar_Rolling extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
 		if (empty($link)) return $null;
 
-		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		return $folder;
