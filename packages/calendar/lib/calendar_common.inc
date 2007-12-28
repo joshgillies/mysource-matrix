@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.63 2007/12/27 05:47:33 colivar Exp $
+* $Id: calendar_common.inc,v 1.64 2007/12/28 00:01:54 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -887,7 +887,7 @@ class Calendar_Common
 				}
 
 				// insert intermediate days
-				$inter_date = date('Y-m-d', strtotime(max(add_days_to_iso($event_start_date, 1), $first_day),' +1 day'));
+				$inter_date = date('Y-m-d', strtotime(max(add_days_to_iso($event_start_date, 1), $first_day)));
 				$last_inter_date = min($last_day, add_days_to_iso($event_end_date, -1));
 				while ($inter_date <= $last_inter_date) {
 					//$inter_time = iso8601_ts($inter_date.' 12:00:00');
