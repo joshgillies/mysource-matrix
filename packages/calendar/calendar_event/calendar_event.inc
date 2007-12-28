@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.82 2007/12/28 00:34:38 hnguyen Exp $
+* $Id: calendar_event.inc,v 1.83 2007/12/28 00:37:51 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -320,7 +320,8 @@ class Calendar_Event extends Asset
 
 		// oh no, we're not using this to display anything... just to use its units extraction :-)
 		$params = Array();
-		$datetime = new Datetime_Field('', $value='', $params);
+		$value = '';
+		$datetime = new Datetime_Field('', $value, $params);
 
 		// check individual sections to make sure we can't commit part dates like '16th, 2005 48'
 		$start_components = $datetime->strToUnitsArray($start_date);
