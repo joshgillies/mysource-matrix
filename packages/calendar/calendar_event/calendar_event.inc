@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.81 2007/12/28 00:05:02 colivar Exp $
+* $Id: calendar_event.inc,v 1.82 2007/12/28 00:34:38 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -113,16 +113,17 @@ class Calendar_Event extends Asset
 	function delete($release_lock=TRUE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM
-					sq_cal_date_val
-				WHERE
-					 assetid = '.$db->quoteSmart($this->id);
-
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+		try {
+			$bind_vars	= Array (
+							'assetid'	=> $this->id,
+						  );
+			$result = MatrixDAL::executeQuery('calendar_event', 'deleteCalendarEvent', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete the eventid #:'.$this->id.' from the trash due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
