@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.62 2007/12/17 04:40:37 lwright Exp $
+* $Id: page_account_manager.inc,v 1.63 2007/12/28 02:14:51 mwegermann Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -751,6 +751,19 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			// set the status of the asset
 			if (!parent::_setCreateStatus($user)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				return FALSE;
+			}
+
+			// if we move an asset, we need to update the urls (lookups) as well.
+			$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+ 			$vars = Array('assetids' => Array($user->id));
+			$hipo_empty_array = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
+
+			// if the hipo was not successfull - fullstop and rollback.
+			if (!empty($hipo_empty_array)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
