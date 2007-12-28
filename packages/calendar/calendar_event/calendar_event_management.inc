@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_management.inc,v 1.10 2006/12/07 05:51:49 bcaldwell Exp $
+* $Id: calendar_event_management.inc,v 1.11 2007/12/28 00:53:53 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -112,7 +112,7 @@ class Calendar_Event_Management extends Asset_Management
 			$calendar_events = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			pre_echo('Updating '.count($calendar_events).' asset(s)...');
 			foreach ($calendar_events as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				// Recache our calendar data

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list_management.inc,v 1.4 2007/07/19 06:54:09 mbrydon Exp $
+* $Id: page_upcoming_events_list_management.inc,v 1.5 2007/12/28 00:57:29 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -136,7 +136,7 @@ class Page_Upcoming_Events_List_Management extends Asset_Management
 			// Name the links to the "Page Contents" and "Type Formats" folders
 			$pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
 			foreach ($pages as $assetid => $type_code) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				if (is_null($asset)) continue;
 
 				$contents_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, SQ_LINK_TYPE_2, 'bodycopy', TRUE, '', 'major', TRUE);
