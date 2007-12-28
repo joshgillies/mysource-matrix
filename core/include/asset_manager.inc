@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.651 2007/12/18 05:32:10 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.652 2007/12/28 03:11:25 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.651 $
+* @version $Revision: 1.652 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3092,7 +3092,11 @@ class Asset_Manager extends MySource_Object
 										);
 
 					}
-					$links[$assetid] = array_merge($links[$assetid], $shdw_links);
+					// in some cases the links[$assetid] value is null. If this is the case return an empty array
+					// Now php5 complains if the parameters of the array_merge function is not an array
+					$_links_to_merge = is_null($links[$assetid]) ? Array() : $links[$assetid];
+					$links[$assetid] = array_merge($_links_to_merge, $shdw_links);
+
 				}//end if side_of_link is major
 
 				continue;

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.3 2007/12/21 05:03:26 gsherwood Exp $
+* $Id: xml_user_bridge.inc,v 1.4 2007/12/28 03:11:26 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -99,22 +99,21 @@ class XML_User_Bridge extends Asset implements Bridge
 		}
 		if (!file_exists($filename)) return;
 
-		$input = new XML_Tree($filename);
-		$root  =& $input->getTreeFromFile();
-		if (PEAR::isError($root)) {
-			trigger_error('Could not parse XML', E_USER_WARNING);
-		}
-
+		$root = simplexml_load_file($filename);
 		$this->groups = Array();
 		$this->group_members = Array();
 		$this->user_memberships = Array();
-		foreach ($root->children as $group_node) {
-			if ($group_node->name != 'group') continue;
-			$groupid = $group_node->attributes['id'];
-			$this->groups[$groupid] = $group_node->attributes['name'];
-			foreach ($group_node->children as $member_node) {
-				$this->group_members[$groupid][$member_node->attributes['id']] = $member_node->attributes;
-				$this->user_memberships[$member_node->attributes['id']][] = $groupid;
+		foreach ($root->children() as $group_node) {
+			if ($group_node->getName() != 'group') continue;
+			$groupid = (int)$group_node->attributes()->id;
+			$this->groups[$groupid] = (string)$group_node->attributes()->name;
+			foreach ($group_node->children() as $member_node) {
+				$_attributes = Array();
+				foreach ($member_node->attributes() as $k => $v) {
+					$_attributes[$k] = (string)$v;
+				}
+				$this->group_members[$groupid][((int)$member_node->attributes()->id)] = $_attributes;
+				$this->user_memberships[(int)$member_node->attributes()->id][] = $groupid;
 			}
 		}
 

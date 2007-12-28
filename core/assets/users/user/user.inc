@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.122 2007/12/23 23:29:41 gsherwood Exp $
+* $Id: user.inc,v 1.123 2007/12/28 03:11:25 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -483,7 +483,7 @@ class User extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	protected function _getName($short_name=FALSE)
+	public function _getName($short_name=FALSE)
 	{
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
 
