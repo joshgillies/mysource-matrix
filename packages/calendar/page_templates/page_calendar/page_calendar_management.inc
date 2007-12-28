@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.55 2007/07/11 06:55:23 mbrydon Exp $
+* $Id: page_calendar_management.inc,v 1.56 2007/12/28 00:56:01 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -415,7 +415,7 @@ class Page_Calendar_Management extends Asset_Management
 				parent::_updateOwnedAttribute($name, $curr_attr);
 				// create customised values for those assets that used to have the default value
 				foreach (array_diff($all_assetids, array_keys($customised_assetids)) as $id) {
-					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 					$GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'attributes');
 					$asset->setAttrValue('columnise_day_view_by_root_node', array_keys($asset->attr('root_nodes')));
 					$asset->saveAttributes();
@@ -495,7 +495,7 @@ class Page_Calendar_Management extends Asset_Management
 			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
 			pre_echo('Upgrading '.count($all_assetids).' assets...');
 			foreach ($all_assetids as $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$asset->setAttrValue('day_column_width', $asset->attr('table_column_width'));
 				$asset->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
@@ -509,7 +509,7 @@ class Page_Calendar_Management extends Asset_Management
 			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
 			pre_echo('Upgrading '.count($all_assetids).' assets...');
 			foreach ($all_assetids as $assetid) {
-				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$attr  =  $asset->attr('enabled_views');
 				if (array_get_index($attr, 'event') == 'single_event') {
 					$attr['event'] = 'single_event_view';
