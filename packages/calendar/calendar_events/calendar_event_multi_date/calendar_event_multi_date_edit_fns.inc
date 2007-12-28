@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date_edit_fns.inc,v 1.3 2007/12/27 00:07:38 colivar Exp $
+* $Id: calendar_event_multi_date_edit_fns.inc,v 1.4 2007/12/28 00:08:50 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/calendar_events/calendar_event_recurrin
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -40,8 +40,8 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	function Calendar_Event_Multi_Date_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->_tmp['single_edit_fns'] =& new Calendar_Event_Single_Edit_Fns();
-		$this->_tmp['rec_edit_fns'] =& new Calendar_Event_Recurring_Edit_Fns();
+		$this->_tmp['single_edit_fns'] = new Calendar_Event_Single_Edit_Fns();
+		$this->_tmp['rec_edit_fns'] = new Calendar_Event_Recurring_Edit_Fns();
 
 	}//end constructor
 
@@ -87,7 +87,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('calendar_event_single', 'calendar_event_recurring'));
 					foreach ($children as $id => $type) {
 						$_type = $type[0]['type_code'];
-						$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $_type);
+						$event_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $_type);
 						$this->_printDateRow($prefix, $event_asset, $o, $wa);
 					}
 				}
@@ -180,9 +180,9 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	function _printDateTemplate($prefix, $o)
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_recurring');
-		$fake_rec_event =& new Calendar_Event_Recurring();
+		$fake_rec_event = new Calendar_Event_Recurring();
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_single');
-		$fake_single_event =& new Calendar_Event_Single();
+		$fake_single_event = new Calendar_Event_Single();
 		?>
 			<tr id="template" style="display: none">
 				<td style="white-space: nowrap; vertical-align: top">
@@ -240,7 +240,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->trashAsset($id);
 				} else {
 					$type = $type[0]['type_code'];
-					$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
+					$event_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type);
 					$need_save = FALSE;
 					if ($type == 'calendar_event_single') {
 						$need_save |= $this->_tmp['single_edit_fns']->processSingleStartEndChooser($event_asset, $o, $prefix.'_existing_'.$event_asset->id);
@@ -266,12 +266,12 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($_POST[$prefix.'_new_type_'.$i])) {
 				switch ($_POST[$prefix.'_new_type_'.$i]) {
 					case 'single':
-						$new_asset =& new Calendar_Event_Single();
+						$new_asset = new Calendar_Event_Single();
 						$this->_tmp['single_edit_fns']->processSingleStartEndChooser($new_asset, $o, $prefix.'_new_single_'.$i);
 					break;
 
 					case 'recurring':
-						$new_asset =& new Calendar_Event_Recurring();
+						$new_asset = new Calendar_Event_Recurring();
 						$this->_tmp['rec_edit_fns']->processRecurringStartEndChooser($new_asset, $o, $prefix.'_new_recurring_'.$i);
 						$this->_tmp['rec_edit_fns']->processFrequencyField($new_asset, $o, $prefix.'_new_recurring_'.$i);
 					break;
@@ -312,7 +312,7 @@ class Calendar_Event_Multi_Date_Edit_Fns extends Asset_Edit_Fns
 	{
 		// get the bodycopy attached to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', NULL, '1', '0');
-		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 
 		if (is_null($bodycopy)) {
 			trigger_localised_error('CORE0016', E_USER_ERROR, $asset->name);

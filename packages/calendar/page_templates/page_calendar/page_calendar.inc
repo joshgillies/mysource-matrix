@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.205 2007/12/26 22:19:36 colivar Exp $
+* $Id: page_calendar.inc,v 1.206 2007/12/28 00:10:51 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.205 $
+* @version $Revision: 1.206 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -173,7 +173,7 @@ class Page_Calendar extends Page
 
 		// create the event formats folder
 		$copy_link = Array('asset' => &$this, 'value' => 'type_formats' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$type_formats =& new Folder();
+		$type_formats = new Folder();
 		$type_formats->setAttrValue('name', 'Type Formats');
 		if (!$type_formats->create($copy_link)) {
 			$this->id = 0;
@@ -186,7 +186,7 @@ class Page_Calendar extends Page
 		$event_types = Array('single', 'recurring');
 		foreach ($event_types as $event_type) {
 			$copy_link['value'] = 'calendar_event_'.$event_type;
-			$asset =& new Bodycopy();
+			$asset = new Bodycopy();
 			$asset->setAttrValue('name', ucfirst($event_type).' Event Format');
 			if (!$asset->create($copy_link, $event_bodycopy_data)) {
 				$this->id = 0;
@@ -310,7 +310,7 @@ class Page_Calendar extends Page
 		$event_id = array_get_index($_REQUEST,'SQ_CALENDAR_EVENT_ID',FALSE);
 
 		if ($event_id) {
-			$event_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
+			$event_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['SQ_CALENDAR_EVENT_ID']);
 			if (!$event_asset->readAccess()) return;
 		}
 
@@ -334,7 +334,7 @@ class Page_Calendar extends Page
 			$cache_key = $this->_getCacheKey();
 			$cached_contents = '';
 			if (!empty($cache_key)) {
-				$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 			}
 			if (!empty($cached_contents)) {
@@ -375,11 +375,11 @@ class Page_Calendar extends Page
 				if ( (!empty($use_no_results_body_copy)) && ($nb_events == 0)) {
 				  $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents_no_results');
 				  if (empty($bodycopy_link)) return FALSE;
-				  $contents_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+				  $contents_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 				} else {
 				  $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
 				  if (empty($bodycopy_link)) return FALSE;
-				  $contents_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+				  $contents_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 				}
 
 				if (is_null($contents_bodycopy)) return FALSE;
@@ -581,7 +581,7 @@ class Page_Calendar extends Page
 		} else {
 			// it's a type format BC
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($tf_bc_link['value']);
-			$dummy =& new $tf_bc_link['value']();
+			$dummy = new $tf_bc_link['value']();
 			$vars['keywords'] = array_merge($vars['keywords'], $dummy->getAvailableKeywords());
 		}
 
@@ -1318,7 +1318,7 @@ class Page_Calendar extends Page
 	*/
 	function getEditView($event_id)
 	{
-		$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($event_id);
+		$event = $GLOBALS['SQ_SYSTEM']->am->getAsset($event_id);
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o = new Limbo_Outputter();
 		if (!$event->id) {
@@ -1356,7 +1356,7 @@ class Page_Calendar extends Page
 		$o->addHiddenField('asset_action', 'limbo');
 		$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 		$o->openRaw();
-		$ei =& $event->getEI();
+		$ei = $event->getEI();
 		$ei->printEditInterface('screen_details', $event, $o);
 		$o->closeRaw();
 		$o->commitButton(translate('cal_page_update_event'));
@@ -2064,7 +2064,7 @@ class Page_Calendar extends Page
 			foreach ($links as $bodycopy) {
 				$bodycopy_type_code = $bodycopy['value'];
 				$type_format_bodycopies[$bodycopy_type_code] = Array();
-				$type_format_bodycopies[$bodycopy_type_code]['obj'] =& $am->getAsset($bodycopy['minorid'], 'bodycopy');
+				$type_format_bodycopies[$bodycopy_type_code]['obj'] = $am->getAsset($bodycopy['minorid'], 'bodycopy');
 				$type_format_bodycopies[$bodycopy_type_code]['keywords'] = $type_format_bodycopies[$bodycopy_type_code]['obj']->getKeywords();
 				$data_reqs = $this->_getKeywordDataRequirements($type_format_bodycopies[$bodycopy_type_code]['keywords']);
 				$type_format_bodycopies[$bodycopy_type_code]['needs_asset'] = ($data_reqs == 2);
@@ -2128,7 +2128,7 @@ class Page_Calendar extends Page
 
 			$replacements = Array();
 			if ($bodycopy['needs_asset']) {
-				$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$event = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				foreach ($bodycopy['keywords'] as $keyword) {
 					if ($keyword == 'asset_contents') {
 						ob_start();
@@ -2350,7 +2350,7 @@ class Page_Calendar extends Page
 	{
 		$replacements = Array();
 		if ($this->_tmp['event_label_need_asset']) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($event_data['assetid']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($event_data['assetid']);
 			foreach ($this->_tmp['event_label_format_keywords'] as $keyword) {
 				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 			}
@@ -3157,7 +3157,7 @@ class Page_Calendar extends Page
 		}
 
 		// Otherwise we might have a dynamic parameter
-		$parameter_map =& $this->getAttribute('parameter_map');
+		$parameter_map = $this->getAttribute('parameter_map');
 		$raw_dynamic_root_nodes = $parameter_map->getParameterValue('replacement_root_node');
 		if (!empty($raw_dynamic_root_nodes)) {
 			$dynamic_root_nodes = Array();

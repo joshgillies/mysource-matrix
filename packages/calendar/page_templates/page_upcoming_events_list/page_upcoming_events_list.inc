@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.13 2007/12/26 23:21:13 colivar Exp $
+* $Id: page_upcoming_events_list.inc,v 1.14 2007/12/28 00:12:25 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -64,14 +64,14 @@ class Page_Upcoming_Events_List extends Page
 
 		// create a page contents bodycopy
 		$am->includeAsset('bodycopy');
-		$page_contents_bc =& new Bodycopy();
+		$page_contents_bc = new Bodycopy();
 		$page_contents_bc->setAttrValue('name', 'Page Contents');
 		$link = Array('asset' => &$this, 'value' => 'page_contents', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		if (!$page_contents_bc->create($link)) return FALSE;
 
 		// create a type formats folder
 		$am->includeAsset('folder');
-		$type_formats_folder =& new Folder();
+		$type_formats_folder = new Folder();
 		$type_formats_folder->setAttrValue('name', 'Type Formats');
 		$link = Array('asset' => &$this, 'value' => 'type_formats', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		if (!$type_formats_folder->create($link)) return FALSE;
@@ -80,7 +80,7 @@ class Page_Upcoming_Events_List extends Page
 		$tf_link = Array('asset' => &$type_formats_folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 		foreach (Array('calendar_event_single', 'calendar_event_recurring') as $event_type) {
 			$tf_link['value'] = $event_type;
-			$format_bc =& new Bodycopy();
+			$format_bc = new Bodycopy();
 			$format_bc->setAttrValue('name', $am->getTypeInfo($event_type, 'name').' Format');
 			if (!$format_bc->create($tf_link)) return FALSE;
 			$format_bc = NULL;
@@ -122,7 +122,7 @@ class Page_Upcoming_Events_List extends Page
 		if (!isset($vars['keywords'])) {
 			$vars['keywords'] = Array();
 		}
-		$tf_folder =& $this->getFolder('type_formats');
+		$tf_folder = $this->getFolder('type_formats');
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
 		if (isset($broadcaster_parents[$tf_folder->id])) {
 			$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
@@ -133,7 +133,7 @@ class Page_Upcoming_Events_List extends Page
 			$bc_id = reset(array_intersect(array_keys($tf_bcs), array_keys($broadcaster_parents)));
 			if ($bc_id) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($tf_bcs[$bc_id]);
-				$dummy_asset =& new $tf_bcs[$bc_id];
+				$dummy_asset = new $tf_bcs[$bc_id];
 				$asset_keywords = $dummy_asset->getAvailableKeywords();
 				foreach ($asset_keywords as $kw => $desc) {
 					$vars['keywords'][$kw] = $desc;
@@ -182,7 +182,7 @@ class Page_Upcoming_Events_List extends Page
 			return;
 		}
 
-		$pb =& $am->getAsset($pb_bodycopy_id, 'bodycopy');
+		$pb = $am->getAsset($pb_bodycopy_id, 'bodycopy');
 		$pb->setKeywordReplacements($this->_getPageContentsReplacements());
 		$pb->printBody();
 
@@ -224,7 +224,7 @@ class Page_Upcoming_Events_List extends Page
 			if (!empty($link['value'])) {
 				$needs_asset[$link['value']] = FALSE;
 				$metadata_keywords[$link['value']] = Array();
-				$bc =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+				$bc = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 				$type_formats[$link['value']] = $bc->getRawBodycopyContent();
 				$required_keywords[$link['value']] = $bc->getKeywords();
 				foreach ($required_keywords[$link['value']] as $keyword) {
@@ -250,7 +250,7 @@ class Page_Upcoming_Events_List extends Page
 
 		// Process multi-date events
 		// Obtain the bodycopy types we have customised
-		$tf_folder =& $this->getFolder('type_formats');
+		$tf_folder = $this->getFolder('type_formats');
 		$tf_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($tf_folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major');
 		$tf_bcs = Array();
 		$types_available = Array();
@@ -288,7 +288,7 @@ class Page_Upcoming_Events_List extends Page
 
 		// Print one instance of each Multi-Date Event
 		foreach ($multi_date_events as $multi_date_event_id => $value_set) {
-			$asset =& $am->getAsset($multi_date_event_id);
+			$asset = $am->getAsset($multi_date_event_id);
 
 			$type_code = $asset->type();
 			$format_type = $asset->type();
@@ -308,7 +308,7 @@ class Page_Upcoming_Events_List extends Page
 			if (!empty($metadata_keywords[$type_code])) {
 				if (!empty($metadata_keywords)) {
 					if (is_null($mm)) {
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					}
 					// get all the metadata keywords for this asset
 					$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords[$type_code]);
@@ -356,7 +356,7 @@ class Page_Upcoming_Events_List extends Page
 
 			// get asset keywords
 			if ($needs_asset[$format_type]) {
-				$asset =& $am->getAsset($id);
+				$asset = $am->getAsset($id);
 				foreach ($required_keywords[$format_type] as $keyword) {
 					if ($keyword == 'asset_contents') {
 						ob_start();
@@ -379,7 +379,7 @@ class Page_Upcoming_Events_List extends Page
 			if (!empty($metadata_keywords[$event['type_code']])) {
 				if (!empty($metadata_keywords)) {
 					if (is_null($mm)) {
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					}
 					// get all the metadata keywords for this asset
 					$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords[$event['type_code']]);
@@ -409,7 +409,7 @@ class Page_Upcoming_Events_List extends Page
 	*/
 	function _getEventRootNodeIds()
 	{
-		$parameter_map =& $this->getAttribute('parameter_map');
+		$parameter_map = $this->getAttribute('parameter_map');
 		$raw_dynamic_root_nodes = $parameter_map->getParameterValue('replacement_root_node');
 		if (!empty($raw_dynamic_root_nodes)) {
 			$dynamic_root_nodes = Array();
@@ -534,7 +534,7 @@ class Page_Upcoming_Events_List extends Page
 	function getFormats($type='type_formats')
 	{
 		if (!isset($this->_tmp['formats'][$type])) {
-			$folder =& $this->getFolder($type);
+			$folder = $this->getFolder($type);
 			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE);
 			if (empty($format_links)) return Array();
 
@@ -563,7 +563,7 @@ class Page_Upcoming_Events_List extends Page
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $type);
 		if (empty($link)) return $null;
 
-		$folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		return $folder;
