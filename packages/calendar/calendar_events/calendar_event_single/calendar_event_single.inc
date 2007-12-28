@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.19 2007/07/15 23:03:48 mbrydon Exp $
+* $Id: calendar_event_single.inc,v 1.20 2007/12/28 00:39:21 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -77,9 +77,9 @@ class Calendar_Event_Single extends Calendar_Event
 	*/
 	function _preCreateCheck(&$link)
 	{
-		if (is_a($link['asset'], 'calendar_event_cancellation')) {
+		if ($link['asset'] instanceof Calendar_Event_Cancellation) {
 			$replacee_link = $GLOBALS['SQ_SYSTEM']->am->getLink($link['asset']->id, NULL, '', TRUE, NULL, 'minor');
-			$replacee =& $GLOBALS['SQ_SYSTEM']->am->getAsset($replacee_link['majorid']);
+			$replacee = $GLOBALS['SQ_SYSTEM']->am->getAsset($replacee_link['majorid']);
 			if (substr($this->attr('start_date'), 0, 10) == substr($link['asset']->attr('start_date'), 0, 10)) {
 				$this->setAttrValue('name', 'Modified: '.$replacee->name);
 			} else {
@@ -117,7 +117,7 @@ class Calendar_Event_Single extends Calendar_Event
 				<td><?php
 					// get the parent recurring event asset
 					$recurring_events = array_keys($recurring_events);
-					$recurring_event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
+					$recurring_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
 						$cancellation_href = replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ID' => $recurring_events[0], 'SQ_CALENDAR_EVENT_ACTION' => NULL));
 					} else {
@@ -179,7 +179,7 @@ class Calendar_Event_Single extends Calendar_Event
 			// Only expecting one relevant link
 			$parent_link = reset($this->parent_links);
 
-			$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
 			$replacement = $parent_asset->getKeywordReplacement($keyword);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 		}
