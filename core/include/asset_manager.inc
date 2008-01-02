@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.652 2007/12/28 03:11:25 colivar Exp $
+* $Id: asset_manager.inc,v 1.653 2008/01/02 05:12:49 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.652 $
+* @version $Revision: 1.653 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2542,11 +2542,11 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($link_type)) {
 			$where .= '
-				  AND l.link_type = \''.$link_type.'\'';
+				  AND l.link_type = '.$db->quote($link_type);
 		}
 
 		if (!is_null($exclusive)) {
-			$where .= ' AND l.is_exclusive = \''.(($exclusive) ? '1' : '0').'\'';
+			$where .= ' AND l.is_exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 		}
 
 		if ($type_code) {
@@ -2554,11 +2554,11 @@ class Asset_Manager extends MySource_Object
 			$type_code_cond = '';
 			if (is_array($type_code)) {
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
-					$type_code[$i] = '\''.$type_code[$i].'\'';
+					$type_code[$i] = $db->quote($type_code[$i]);
 				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
-				$type_code_cond = '= \''.$type_code.'\'';
+				$type_code_cond = '= '.$db->quote($type_code);
 			}
 
 			if ($strict_type_code) {
@@ -2573,7 +2573,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!is_null($value)) {
-			$where .= ' AND (l.value = \''.$value.'\'';
+			$where .= ' AND (l.value = '.$db->quote($value);
 			if ($value == '') $where .= ' OR l.value IS NULL';
 			$where .= ')';
 		}
@@ -2584,7 +2584,7 @@ class Asset_Manager extends MySource_Object
 		$sql .= $where.' ORDER BY l.sort_order';
 
 		try {
-			$result = MatrixDAL::executeSqlAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 			if (!empty($result)) $result = $result[0];
 		} catch (Exception $e) {
 			throw new Exception('Unable to get link for asset with assetid: '.$assetid.' due to database error: '.$e->getMessage());
@@ -4434,16 +4434,18 @@ class Asset_Manager extends MySource_Object
 						majorid			=  :majorid
 						AND	sort_order	>= :sort_order';
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		try {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$query = $db->prepare($sql);
 			$query->bindValue(':majorid', $major->id);
 			$query->bindValue(':sort_order', $sort_order);
 			MatrixDAL::execPdoQuery($query);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} catch (Exception $e) {
 			throw new Exception('Unable to shift sort orders of children of "'.$major->name.'" (#'.$major->id.') up one, due to database error: '.$e->getMessage());
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// We insert into the link table first to preserve referential integrity
 		$sql = 'INSERT INTO
@@ -4474,8 +4476,9 @@ class Asset_Manager extends MySource_Object
 						:updated_userid
 					)';
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		try {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$query = $db->prepare($sql);
 			$query->bindValue(':linkid', $linkid);
 			$query->bindValue(':majorid', $major->id);
@@ -4488,10 +4491,11 @@ class Asset_Manager extends MySource_Object
 			$query->bindValue(':updated', ts_iso8601(time()));
 			$query->bindValue(':updated_userid', $GLOBALS['SQ_SYSTEM']->currentUserId());
 			MatrixDAL::execPdoQuery($query);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} catch (Exception $e) {
 			throw new Exception('Unable to add new link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			// This is a significant link, so do stuff with the tree
@@ -4596,18 +4600,19 @@ class Asset_Manager extends MySource_Object
 									:linkid,
 									:num_kids
 								)';
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 					try {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 						$query = $db->prepare($sql);
 						$query->bindValue(':treeid', $new_treeid);
 						$query->bindValue(':linkid', $linkid);
 						$query->bindValue(':num_kids', 0);
 						MatrixDAL::execPdoQuery($query);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					} catch (Exception $e) {
 						throw new Exception('Unable to add new tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 					}
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 					break;
 
@@ -4642,17 +4647,19 @@ class Asset_Manager extends MySource_Object
 								:num_kids
 							)';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				try {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					$query->bindValue(':treeid', $treeid.$free_treeid.':'.$linkid);
 					$query->bindValue(':linkid', 0);
 					$query->bindValue(':num_kids', 0);
 					MatrixDAL::execPdoQuery($query);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to reserve new tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 				// now try to select the last treeid from this branch , ordering
 				// by treeid. If a process got in before us, we will select it as
@@ -4704,8 +4711,9 @@ class Asset_Manager extends MySource_Object
 								OR	treeid = :treeid)
 								AND linkid <> 0)';
 
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 					try {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 						$query = $db->prepare($sql);
 						// The negative link ID is correct; we will replace with
 						// a positive version if we've drawn a winning tree ID
@@ -4714,10 +4722,11 @@ class Asset_Manager extends MySource_Object
 						$query->bindValue(':treeid_wildcard_1', $treeid.$free_treeid.':%');
 						$query->bindValue(':treeid', $treeid.$free_treeid);
 						MatrixDAL::execPdoQuery($query);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					} catch (Exception $e) {
 						throw new Exception('Unable to attempt to win tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 					}
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 					// Get the number of affected rows - if the update to our
 					// link ID worked, then we've won this tree ID
@@ -4735,15 +4744,17 @@ class Asset_Manager extends MySource_Object
 						WHERE
 						treeid = :treeid';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				try {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					$query->bindValue(':treeid', $treeid.$free_treeid.':'.$linkid);
 					MatrixDAL::execPdoQuery($query);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to attempt to drop lost tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 				$i++;
 			// only try to do this 50 times. this will only be exceeded if the number
@@ -4765,8 +4776,9 @@ class Asset_Manager extends MySource_Object
 						WHERE
 						treeid = :old_treeid';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				try {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					// The negative link ID is correct; we will replace with
 					// a positive version if we've drawn a winning tree ID
@@ -4774,10 +4786,11 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':linkid',     $linkid);
 					$query->bindValue(':old_treeid', $treeid.$free_treeid.':'.$linkid);
 					MatrixDAL::execPdoQuery($query);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to attempt to update won tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}
 
 			// if we don't have any existing tree entries then
@@ -4791,17 +4804,19 @@ class Asset_Manager extends MySource_Object
 						WHERE
 							treeid = :treeid';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				try {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					$query->bindValue(':linkid',   $linkid);
 					$query->bindValue(':num_kids', $minor_tree['num_kids']);
 					$query->bindValue(':treeid',   $free_treeid);
 					MatrixDAL::execPdoQuery($query);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to update top-level tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			} else {
 				$sql = 'UPDATE
@@ -4812,17 +4827,19 @@ class Asset_Manager extends MySource_Object
 						WHERE
 							treeid = :treeid';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				try {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					$query->bindValue(':linkid',   $linkid);
 					$query->bindValue(':num_kids', $minor_tree['num_kids']);
 					$query->bindValue(':treeid',   $existing_treeid.$free_treeid);
 					MatrixDAL::execPdoQuery($query);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to update tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 				// we have existing tree entries, do a insert..select to create entries for them all
 
@@ -4844,8 +4861,9 @@ class Asset_Manager extends MySource_Object
 								l.minorid = :minorid
 								AND treeid || :free_treeid_1 <> :treeid';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				try {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					$query->bindValue(':free_treeid',   $free_treeid);
 					$query->bindValue(':free_treeid_1',   $free_treeid);
@@ -4854,10 +4872,11 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':num_kids', $minor_tree['num_kids']);
 					$query->bindValue(':treeid',   $existing_treeid.$free_treeid);
 					MatrixDAL::execPdoQuery($query);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			}//end else
 
@@ -4882,18 +4901,20 @@ class Asset_Manager extends MySource_Object
 								t.linkid = :linkid
 						)';
 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 			try {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$query = $db->prepare($sql);
 				$query->bindValue(':tree_size',   SQ_CONF_ASSET_TREE_SIZE);
 				$query->bindValue(':tree_size_1', SQ_CONF_ASSET_TREE_SIZE);
 				$query->bindValue(':linkid',      $linkid);
 				$query->bindValue(':treeid',   '-');
 				MatrixDAL::execPdoQuery($query);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			// if this minor has already been linked so do a select into
 			if ($minor_tree['treeid'] != '') {
@@ -4922,8 +4943,9 @@ class Asset_Manager extends MySource_Object
 								AND	ct.treeid	LIKE :minor_treeid_wildcard
 								AND	ct.treeid	> :minor_treeid_1';
 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 				try {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$query = $db->prepare($sql);
 					$query->bindValue(':treeid', $free_treeid);
 					$query->bindValue(':minorid', $major->id);
@@ -4931,10 +4953,11 @@ class Asset_Manager extends MySource_Object
 					$query->bindValue(':minor_treeid', strlen($minor_tree['treeid'])+1);
 					$query->bindValue(':minor_treeid_1', $minor_tree['treeid']);
 					MatrixDAL::execPdoQuery($query);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert child tree entries for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 				}
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}//end if
 
 
