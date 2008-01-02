@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.342 2007/12/14 05:23:19 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.343 2008/01/02 23:46:57 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.342 $
+* @version $Revision: 1.343 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1287,7 +1287,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}//end foreach
 
-
 		// if there are some custom keywords, get some replacements from the owner
 		if (isset($keywords['custom']) && !empty($keywords['custom'])) {
 			$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
@@ -1376,6 +1375,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!$print_commit_button) {
 			$this->_tmp['layout_keyword_replacements']['commit_button'] = '';
+			$this->_tmp['layout_keyword_replacements']['commit_button_clean'] = '';
 		}
 
 		// tell the layout what the keyword replacements are
