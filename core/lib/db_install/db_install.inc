@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.52 2008/01/02 05:28:56 lwright Exp $
+* $Id: db_install.inc,v 1.53 2008/01/02 05:48:19 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -295,15 +295,15 @@ function get_database_indexes($tablename, $include_rollback=TRUE)
 				FROM
 					user_indexes
 				WHERE
-					table_name = :std_table';
+					LOWER(table_name) = :std_table';
 		if ($include_rollback) {
-			$sql .= ' OR table_name = :rollback_table';
+			$sql .= ' OR LOWER(table_name) = :rollback_table';
 		}
 	}
 
 	try {
 		$query = $db->prepare($sql);
-		$query->bindValue(':std_table',      'sq_'.$tablename,     PDO::PARAM_STR);
+		$query->bindValue(':std_table',      'sq_'.$tablename,    PDO::PARAM_STR);
 		$query->bindValue(':rollback_table', 'sq_rb_'.$tablename, PDO::PARAM_STR);
 
 		$indexes_in_db = DAL::executePdoAssoc($query, 0);
