@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.323.2.4 2007/10/12 06:23:46 bshkara Exp $
+* $Id: asset_edit_interface.inc,v 1.323.2.5 2008/01/02 23:47:55 colivar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.323.2.4 $
+* @version $Revision: 1.323.2.5 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1381,6 +1381,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!$print_commit_button) {
 			$this->_tmp['layout_keyword_replacements']['commit_button'] = '';
+			$this->_tmp['layout_keyword_replacements']['commit_button_clean'] = '';
 		}
 
 		// tell the layout what the keyword replacements are
