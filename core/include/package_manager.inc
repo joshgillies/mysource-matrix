@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.85 2007/12/03 01:01:52 gsherwood Exp $
+* $Id: package_manager.inc,v 1.86 2008/01/02 22:19:26 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -274,7 +274,7 @@ class Package_Manager extends MySource_Object
 				} else {
 					$query_name = 'updatePackage';
 				}
-				$query  = MatrixDAL::executeOne('core', $query_name, $bind_vars);
+				MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 			} catch (Exception $e) {
 				// In case it needs to be localised, split the two messages
 				// instead of doing one with a ?: switch in the middle
@@ -427,9 +427,15 @@ class Package_Manager extends MySource_Object
 				$db = DAL::getDb();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-				$sql = 'SELECT dir FROM sq_ast_typ WHERE type_code ='.$db->quote($info['type_code']);
+				$sql = 'SELECT dir FROM sq_ast_typ WHERE type_code = :type_code';
 
-				$result = DAL::executeSqlOne($sql);
+				try {
+					$query = $db->prepare($sql);
+					$query->bindValue(':type_code', $info['type_code']);
+					$result = DAL::executePdoOne($query);
+				} catch (DALException $e) {
+					throw new Exception ('Unable to get directory of type code '.$info['type_code'].' due to database error: '.$e->getMessage());
+				}
 
 				if (!empty($result) && ($result != $info['dir'])) {
 					// update path
