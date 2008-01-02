@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.103 2007/11/28 23:06:26 hnguyen Exp $
+* $Id: system_config.inc,v 1.104 2008/01/02 03:19:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -876,7 +876,7 @@ class System_Config extends Config
 		$write_access = $this->writeAccess();
 		if (!$write_access) return parent::processBackend($o);
 
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 		$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
@@ -890,6 +890,7 @@ class System_Config extends Config
 			$option_list->process($list_setting);
 			$_POST[$class][$list_setting] = $option_list->value;
 		}
+
 		return parent::processBackend($o);
 
 	}//end processBackend()
