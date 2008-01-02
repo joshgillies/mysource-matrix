@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.79 2007/10/29 22:16:34 lwright Exp $
+* $Id: asset_management.inc,v 1.80 2008/01/02 22:19:53 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -252,7 +252,7 @@ class Asset_Management extends MySource_Object
 		$sql = 'INSERT INTO sq_ast_typ
 				(type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation)
 				VALUES
-				(:type_code, :version, :name, :description, :instantiable, :allowed_access, :parent_type, :level, :dir, :customisation)';
+				(:type_code, :version, :name, :description, :instantiable, :allowed_access, :parent_type, :lvl, :dir, :customisation)';
 
 		try {
 			$query = $db->prepare($sql);
@@ -263,7 +263,7 @@ class Asset_Management extends MySource_Object
 			$query->bindValue('instantiable',   $info['instantiable'],   PDO::PARAM_STR);
 			$query->bindValue('allowed_access', $info['allowed_access'], PDO::PARAM_STR);
 			$query->bindValue('parent_type',    $info['parent_type'],    PDO::PARAM_STR);
-			$query->bindValue('level',          $level,                  PDO::PARAM_INT);
+			$query->bindValue('lvl',            $level,                  PDO::PARAM_INT);
 			$query->bindValue('dir',            $info['dir'],            PDO::PARAM_STR);
 			$query->bindValue('customisation',  0,                       PDO::PARAM_INT);
 			$result = DAL::execPdoQuery($query);
@@ -317,7 +317,7 @@ class Asset_Management extends MySource_Object
 					instantiable    = :instantiable,
 					allowed_access  = :allowed_access,
 					parent_type     = :parent_type,
-					lvl             = :level,
+					lvl             = :lvl,
 					dir             = :dir
 				WHERE
 					type_code = :type_code';
@@ -330,7 +330,7 @@ class Asset_Management extends MySource_Object
 			$query->bindValue(':instantiable',   $info['instantiable'],   PDO::PARAM_STR);
 			$query->bindValue(':allowed_access', $info['allowed_access'], PDO::PARAM_STR);
 			$query->bindValue(':parent_type',    $info['parent_type'],    PDO::PARAM_STR);
-			$query->bindValue(':level',          $level,                  PDO::PARAM_INT);
+			$query->bindValue(':lvl',            $level,                  PDO::PARAM_INT);
 			$query->bindValue(':dir',            $info['dir'],            PDO::PARAM_STR);
 			$query->bindValue(':type_code',      $asset_type,             PDO::PARAM_STR);
 			DAL::execPdoQuery($query);

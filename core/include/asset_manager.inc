@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.653 2008/01/02 05:12:49 bshkara Exp $
+* $Id: asset_manager.inc,v 1.654 2008/01/02 22:19:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.653 $
+* @version $Revision: 1.654 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -225,14 +225,14 @@ class Asset_Manager extends MySource_Object
 			$sql = 'INSERT INTO sq_ast_typ_inhd
 					(inhd_type_code, type_code, inhd_type_code_lvl, type_code_lvl)
 					VALUES
-					(:inhd_type_code, :type_code, :inhd_level, :level)';
+					(:inhd_type_code, :type_code, :inhd_lvl, :lvl)';
 
 			try {
 				$query = $db->prepare($sql);
 				$query->bindValue(':type_code',      $type_code,                 PDO::PARAM_STR);
 				$query->bindValue(':inhd_type_code', $inherited_type_code,       PDO::PARAM_STR);
-				$query->bindValue(':level',          $type_code_level,           PDO::PARAM_INT);
-				$query->bindValue(':inhd_level',     $inherited_type_code_level, PDO::PARAM_INT);
+				$query->bindValue(':lvl',            $type_code_level,           PDO::PARAM_INT);
+				$query->bindValue(':inhd_lvl',       $inherited_type_code_level, PDO::PARAM_INT);
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
@@ -261,8 +261,8 @@ class Asset_Manager extends MySource_Object
 			$sql = 'UPDATE
 						sq_ast_typ_inhd
 					SET
-						inhd_type_code_lvl = :inhd_level,
-						type_code_lvl = :level
+						inhd_type_code_lvl = :inhd_lvl,
+						type_code_lvl = :lvl
 					WHERE
 						inhd_type_code = :inhd_type_code
 						AND type_code = :type_code';
@@ -271,8 +271,8 @@ class Asset_Manager extends MySource_Object
 				$query = $db->prepare($sql);
 				$query->bindValue(':type_code',      $type_code,                 PDO::PARAM_STR);
 				$query->bindValue(':inhd_type_code', $inherited_type_code,       PDO::PARAM_STR);
-				$query->bindValue(':level',          $type_code_level,           PDO::PARAM_INT);
-				$query->bindValue(':inhd_level',     $inherited_type_code_level, PDO::PARAM_INT);
+				$query->bindValue(':lvl',            $type_code_level,           PDO::PARAM_INT);
+				$query->bindValue(':inhd_lvl',       $inherited_type_code_level, PDO::PARAM_INT);
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update inheritance information for type code "'.$type_code.'" due to database error: '.$e->getMessage());
