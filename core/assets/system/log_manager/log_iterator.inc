@@ -10,11 +10,9 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.8 2008/01/03 03:11:16 rong Exp $
+* $Id: log_iterator.inc,v 1.9 2008/01/03 03:12:04 rong Exp $
 *
 */
-
-require_once SQ_INCLUDE_PATH.'/init.inc';
 
 /**
 *
@@ -24,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/init.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Log_Iterator
