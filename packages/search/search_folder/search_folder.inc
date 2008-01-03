@@ -10,13 +10,13 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.30 2007/12/17 22:43:24 rong Exp $
+* $Id: search_folder.inc,v 1.31 2008/01/03 00:43:08 rong Exp $
 *
 */
 
 check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
 * Search_Folder
@@ -25,12 +25,11 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-register_implementation('search_folder', 'bridge');
-class Search_Folder extends Asset
+class Search_Folder extends Asset implements Bridge
 {
 
 
@@ -78,7 +77,7 @@ class Search_Folder extends Asset
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 
@@ -122,9 +121,7 @@ class Search_Folder extends Asset
 		// a clue that what is underneath.
 		$links = Array();
 		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) {
-			return $links;
-		}
+		if (isset($id_parts[1])) return $links;
 
 		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 
@@ -212,7 +209,7 @@ class Search_Folder extends Asset
 	* @return array
 	* @access public
 	*/
-	function getAssetMapLinks()
+	public function getAssetMapLinks()
 	{
 		if (!isset($this->_tmp['getAssetMapLinks'])) {
 
@@ -394,6 +391,47 @@ class Search_Folder extends Asset
 	}//end getLineageFromURL()
 
 
-}//end class
+	/**
+	* Return the number of links in the system that involve the specified asset
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param int		$ignore_linkid		ignore the link represented by this link
+	*										id when returning the count
+	*
+	* @return int
+	* @access public
+	*/
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
+	{
+		return 0;
 
+	}//end countLinks()
+
+
+	/**
+	* Remove a link by id
+	*
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this delete is part of a move operation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteAssetLink($linkid, $moving=FALSE)
+	{
+		return FALSE;
+
+	}//end deleteAssetLink()
+
+
+}//end class
 ?>
