@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_mass_clone.inc,v 1.5 2007/11/30 00:12:37 hnguyen Exp $
+* $Id: tool_mass_clone.inc,v 1.6 2008/01/03 00:17:07 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Provides a tool for making multiple clones of an asset
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -157,6 +157,7 @@ class Tool_Mass_Clone extends Tool
 				'to_parent_assetid'	=> $_REQUEST['clone_parent']['assetid'],
 				'to_parent_pos'		=> -1,
 				'link_type'			=> $_REQUEST['link_type'],
+				'value'				=> '',
 				'finalise_function'	=> Array($type_code, 'finaliseClone'),
 			   );
 
