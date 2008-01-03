@@ -10,9 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_iterator.inc,v 1.7 2007/11/28 22:16:23 lwright Exp $
+* $Id: log_iterator.inc,v 1.8 2008/01/03 03:11:16 rong Exp $
 *
 */
+
+require_once SQ_INCLUDE_PATH.'/init.inc';
 
 /**
 *
@@ -22,7 +24,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Log_Iterator
@@ -48,7 +50,7 @@ class Log_Iterator
 		$this->logname    = $logname;
 		$this->rotation_index = $rotation_index;
 
-		$log_manager = $GLOBALS['SQ_SYSTEM']->getSystemAsset('log_manager');
+		$log_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('log_manager');
 		$this->total_size = $log_manager->getLogSize($this->logname, $this->rotation_index);
 
 		if (empty($this->total_size)) {
@@ -69,7 +71,7 @@ class Log_Iterator
 	public function getNextEntry()
 	{
 		if ($this->offset < $this->total_size) {
-			$log_manager = $GLOBALS['SQ_SYSTEM']->getSystemAsset('log_manager');
+			$log_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('log_manager');
 			$line =& $log_manager->getLogLine($this->logname, $this->rotation_index, $this->offset);
 			$line_offset = array_get_index($line, 'offset', FALSE);
 
@@ -98,9 +100,9 @@ class Log_Iterator
 	* </pre>
 	*
 	* @return array
-	* @access private
+	* @access public
 	*/
-	protected function &getCurrentProgress()
+	public function &getCurrentProgress()
 	{
 		$result = Array(
 					'current'	=> $this->offset,
