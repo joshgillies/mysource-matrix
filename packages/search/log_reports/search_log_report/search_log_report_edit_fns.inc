@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.9 2007/12/17 22:43:24 rong Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.10 2008/01/03 03:16:29 rong Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -819,8 +819,8 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	*/
 	function paintRegenerate(&$asset, &$o, $prefix)
 	{
-		$generated_date = $asset->attr('generated_date');
-		if (!empty($generated_date)) {
+		$generated_user = $asset->attr('generated_user');
+		if (empty($generated_user)) {
 			echo translate('report_not_generated').'<br />';
 		} else {
 			echo '<p>';
