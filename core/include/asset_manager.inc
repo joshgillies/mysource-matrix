@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.654 2008/01/02 22:19:53 lwright Exp $
+* $Id: asset_manager.inc,v 1.655 2008/01/03 00:15:16 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.654 $
+* @version $Revision: 1.655 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1982,31 +1982,7 @@ class Asset_Manager extends MySource_Object
 			if (!isset($link['is_exclusive'])) {
 				$link['is_exclusive'] = 0;
 			}
-
-			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-				// is the original dependently linked? if so, look up the tree until we find the original's highest
-				// non-dependently-linked parent(s), adding all the assets we find as we go
-				$dependent_parents = Array();
-				if (!empty($source)) {
-					$dependent_parents = $this->getDependantParents($source->id);
-				}
-
-				// OK what we are going to do is make sure that the new parents lock is
-				// in the same chain as our current lock
-				$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
-				if (empty($parent_lock) || !in_array($parent_lock['source_assetid'], $dependent_parents)) {
-					if (!empty($parent_lock)) {
-						if (!$this->releaseLock($link['asset']->id, 'links')) {
-							return $null;
-						}
-					}
-
-					if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
-						return $null;
-					}
-				}
-			}
-
+		
 			$linkid = $link['asset']->createLink($clone, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
 			if (empty($linkid)) return $null;
 
@@ -2209,7 +2185,6 @@ class Asset_Manager extends MySource_Object
 		if (is_null($asset)) return FALSE;
 
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
-
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
