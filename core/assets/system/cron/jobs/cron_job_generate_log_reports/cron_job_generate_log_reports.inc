@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.9 2007/12/14 05:56:45 rong Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.10 2008/01/03 03:14:53 rong Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -218,7 +218,8 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 		// start up a hipo for each report
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
-		foreach ($log_reports as $reportid => $report_type) {
+		foreach ($log_reports as $reportid => $info) {
+			$report_type = $info['type_code'];
 			$report = $GLOBALS['SQ_SYSTEM']->am->getAsset($reportid, $report_type);
 			if ($report->logname == $logname) {
 				$vars   = Array(
