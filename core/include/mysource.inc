@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.257 2007/12/23 23:28:53 gsherwood Exp $
+* $Id: mysource.inc,v 1.258 2008/01/03 03:12:43 rong Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.257 $
+* @version $Revision: 1.258 $
 * @package MySource_Matrix
 */
 class MySource
@@ -133,7 +133,7 @@ class MySource
 	/**
 	* @var object Log_Manager
 	*/
-	protected $log_manager;
+	public $log_manager;
 
 	/**
 	* The logged in user
