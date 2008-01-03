@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.45 2007/10/30 01:07:05 lwright Exp $
+* $Id: step_01.php,v 1.46 2008/01/03 22:08:39 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -72,7 +72,10 @@ $cfg =& new Licence_Config();
 $cfg->save(Array(), TRUE);
 
 // Copy the DB config sample to the data directory
-copy(dirname(__FILE__).'/db-inc.sample', SQ_DATA_PATH.'/private/conf/db.inc');
+// Only overwrite the file if there is no file exists already
+if (!file_exists(SQ_DATA_PATH.'/private/conf/db.inc')) {
+	copy(dirname(__FILE__).'/db-inc.sample', SQ_DATA_PATH.'/private/conf/db.inc');
+}
 
 // reminder for chmod
 echo 'Remember to give your system\'s Apache user write access to'."\n";
