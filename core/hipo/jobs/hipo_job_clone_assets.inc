@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.26.2.1 2007/12/18 00:05:40 lmarchese Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.26.2.2 2008/01/03 00:47:03 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26.2.1 $
+* @version $Revision: 1.26.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -494,7 +494,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		}
 
 		if (!isset($this->_running_vars['value'])) {
-			$orig_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['clone_assets'][$assetid]['parentid'], $orig->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
+			if (empty($orig_link)) {
+				$orig_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->_running_vars['clone_assets'][$assetid]['parentid'], $orig->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
+			}//end if
 			$link['value'] = $orig_link['value'];
 		} else {
 			$link['value'] = $this->_running_vars['value'];
