@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.20 2007/12/27 22:15:35 hnguyen Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.21 2008/01/04 04:24:50 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -316,21 +316,32 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 				}
 			}
 			if ($success) {
-				if (function_exists('is_executable')) {
-					$path_to_tidy = $this->_running_vars['tidy_path'];
-					if (is_executable($path_to_tidy)) {
-						$command = "$path_to_tidy $tmp_fname -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1";
-						$tidy = Array();
-						exec($command, $tidy, $return_val);
-						if ($return_val == 0) {
-							$body = implode("\n", $tidy);
-						} else {
-							unset($tidy);
-						}
+				if (class_exists('tidy')) {
+					// tidy the HTML produced using the PHP5 Tidy
+					$tidy = new tidy;
+
+					$config = Array (
+								'output-xhtml'      => TRUE,
+								'preserve-entities' => TRUE,
+								'show-body-only'    => TRUE,
+								'wrap'              => FALSE,
+								'word-2000'         => TRUE,
+								'show-warnings'     => FALSE,
+								'show-errors'       => 0,
+								'force-output'      => TRUE,
+								'quote-marks'       => TRUE,
+							  );
+
+					$tidy->parseFile($tmp_fname, $config);
+					$tidy->cleanRepair();
+
+					if (!empty($tidy)) {
+						$body = $tidy;
 						unlink($tmp_fname);
-					}
-				}
-			}
+						unset($tidy);
+					}//end if
+				}//end if
+			}//end if
 		}//end if tidy
 
 		$this->_running_vars['headings_to_process'] = Array();
