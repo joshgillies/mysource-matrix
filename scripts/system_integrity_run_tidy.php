@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.5 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_integrity_run_tidy.php,v 1.6 2008/01/04 03:35:45 hnguyen Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Go through all WYSIWYG content types and re-run HTML Tidy
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -89,25 +89,32 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 			// If HTML Tidy is enabled, let's rock'n'roll
 		if (SQ_TOOL_HTML_TIDY_ENABLED) {
 
-			// tidy the HTML produced using the HTMLTidy program
-			$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
+			// tidy the HTML produced using the libtidy for PHP5
+			$tidy = new tidy;
 
-			// is_executable doesn't exist on windows pre 5.0.0
-			if (function_exists('is_executable')) {
-				if (is_executable($path_to_tidy)) {
-					$command = "/bin/echo ".escapeshellarg($old_html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
+			$config = Array (
+						'output-xhtml'      => TRUE,
+						'preserve-entities' => TRUE,
+						'show-body-only'    => TRUE,
+						'wrap'              => FALSE,
+						'word-2000'         => TRUE,
+						'show-warnings'     => FALSE,
+						'show-errors'		=> 0,
+						'force-output'      => TRUE,
+						'quote-marks'       => TRUE,
+					  );
 
-					$tidy = Array();
-					exec($command, $tidy);
-					$new_html = implode("\n", $tidy);
-					unset($tidy);
+			$tidy->parseString($old_html, $config);
+			$tidy->cleanRepair();
 
-					if (!$wysiwyg->setAttrValue('html', $new_html) || !$wysiwyg->saveAttributes()) {
-					printUpdateStatus('TIDY FAIL');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
-					continue;
-					}
-				}
+			$new_html = $tidy;
+
+			unset($tidy);
+
+			if (!$wysiwyg->setAttrValue('html', $new_html) || !$wysiwyg->saveAttributes()) {
+				printUpdateStatus('TIDY FAIL');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
+				continue;
 			}
 		}
 
