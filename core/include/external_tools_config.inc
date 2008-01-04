@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.25 2008/01/04 03:16:15 hnguyen Exp $
+* $Id: external_tools_config.inc,v 1.26 2008/01/04 03:17:45 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -39,7 +39,6 @@ class External_Tools_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-						'SQ_TOOL_HTML_TIDY_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
 						'SQ_TOOL_HTML_TIDY_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_PDFTOHTML_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
 						'SQ_TOOL_PDFTOHTML_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
