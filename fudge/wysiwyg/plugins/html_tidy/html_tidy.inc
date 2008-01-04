@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.54 2007/11/14 04:51:37 hnguyen Exp $
+* $Id: html_tidy.inc,v 1.55 2008/01/04 03:09:14 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -145,42 +145,38 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 			// If HTML Tidy is enabled, let's rock'n'roll
 			if ($this->check_usable() === TRUE) {
-				// tidy the HTML produced using the HTMLTidy program
-				$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
+                require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+                $tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
-				// is_executable doesn't exist on windows pre 5.0.0
-				if (function_exists('is_executable')) {
-					if (is_executable($path_to_tidy)) {
+				// tidy the HTML produced using the PHP5 Tidy
+				$tidy = new tidy;
 
-						require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
-						$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
+				$config = Array (
+							'output-xhtml'		=> TRUE,
+							'preserve-entities'	=> TRUE,
+							'show-body-only'	=> TRUE,
+							'wrap'				=> FALSE,
+							'word-2000'			=> TRUE,
+							'show-warnings'		=> FALSE,
+							'char-encoding'		=> $tidy_char_set,
+							'force-output'		=> TRUE,
+							'quote-marks'		=> TRUE,
+						  );
+				$tidy->parseString($html, $config);
+				$tidy->cleanRepair();
 
-						$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --preserve-entities yes --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --quote-marks 1 --word-2000 1 --force-output 1 --char-encoding ".$tidy_char_set;
+				if (empty($tidy) || empty($tidy_char_set)) {
+					$this->htmltidy_status = 'fail';
+				} else {
+					// Only now we update the HTML
+					$html = $tidy;
 
-						// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
-						// so HTMLTidy doesnt strip them out
-						if (!empty($this->_new_inline_tags)) {
-							$command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
-						}
-						$tidy = Array();
-						exec($command, $tidy);
-						if (empty($tidy) || empty($tidy_char_set)) {
-							$this->htmltidy_status = 'fail';
-						} else {
-							$html = implode("\n", $tidy);
-
-							// Change old style HTML Tags to XHTML compliant self closing tags (singletons)
-							$html = preg_replace('|<br>|is', '<br />', $html);
-							$html = preg_replace('|<hr>|is', '<hr />', $html);
-
-							// HTML Tidy adds a new line character after <pre> and beofre </pre> tag
-							// which causes problem when the content is put back to WYSIWYG, replaced with a space
-							$html = preg_replace('|<pre>\n|is', '<pre>', $html);
-							$html = preg_replace('|\n</pre>|is', '</pre>', $html);
-						}
-						unset($tidy);
-					}
+					// HTML Tidy adds a new line character after <pre> and beofre </pre> tag
+					// which causes problem when the content is put back to WYSIWYG, replaced with a space
+					$html = preg_replace('|<pre>\n|is', '<pre>', $html);
+					$html = preg_replace('|\n</pre>|is', '</pre>', $html);
 				}
+				unset($tidy);
 			}//end if
 		}//end else
 
@@ -198,7 +194,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	*/
 	public static function check_usable()
 	{
-		if (SQ_TOOL_HTML_TIDY_ENABLED && SQ_TOOL_HTML_TIDY_PATH != '') {
+		if (SQ_TOOL_HTML_TIDY_ENABLED && class_exists('tidy')) {
 			return TRUE;
 		}
 		return translate('wysiwyg_htmltidy_status_disabled');
