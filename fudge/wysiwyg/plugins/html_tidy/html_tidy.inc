@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.56 2008/01/04 03:36:30 hnguyen Exp $
+* $Id: html_tidy.inc,v 1.57 2008/01/04 03:40:09 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -163,6 +163,13 @@ class HTML_Tidy extends Wysiwyg_Plugin
 							'force-output'		=> TRUE,
 							'quote-marks'		=> TRUE,
 						  );
+
+				// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
+				// so HTMLTidy doesnt strip them out
+				if (!empty($this->_new_inline_tags)) {
+					$config['new-inline-tags']	= implode('","',$this->_new_inline_tags);
+				}
+
 				$tidy->parseString($html, $config);
 				$tidy->cleanRepair();
 
