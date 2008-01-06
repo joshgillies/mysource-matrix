@@ -1,5 +1,49 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.14.8
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2766: Multi-page Asset logs not viewable beyond first page
+* Fixed bug #2773: Thesaurus terms permission checking error
+* Fixed bug #2775: commit_button_clean keyword not hidden when status is pending approval
+* Fixed bug #2780: Validation for email being enforced
+* Fixed bug #2783: Error cloning asset through trigger when tag applied to asset being cloned
+* Fixed bug #2784: Login page error (on var="system_messages") no w3c validation
+* Fixed bug #2792: Photoshop Metadata Extraction toolkit problems
+* Fixed bug #2794: Details screen of the Layout asset not laid out correctly
+* Fixed bug #2796: "Create New DIV" frame nests unexpected content in Simple Edit
+* Fixed bug #2802: Roles receive workflow email notification even when not applied to the asset
+* Fixed bug #2806: Table Properties in WYSIWYG not highlighting vertical alignment selection
+* Fixed bug #2808: Unspecified error message by trigger condition 'Asset is tagged'
+* Fixed bug #2811: Mass Clone Tool not cloning
+* Fixed bug #2812: Custom Form Captcha image has no ALT tag
+* Fixed bug #2813: Certain quotes get converted to 147 and 148 in webpath
+
+CMS
+
+* Fixed bug #2779: Error Editing Form Submission (Form Submission)
+* Fixed bug #2785: Asset listing type format does not convert & to &amp; (Listing Engine)
+* Fixed bug #2788: Account manager page incorrect web paths (Account Manager Page)
+* Fixed bug #2820: Asset Builder incorrectly convert & to &amp; in created asset name (Asset Builder Page)
+
+Calendar
+
+* Fixed bug #2793: PHP notice on rolling cal page when not showing all days (Rolling Calendar Page)
+
+LDAP
+
+* Fixed bug #2814: LDAP Users with no OU in their DN dont get groups (LDAP Bridge)
+
+Ecommerce
+
+* Fixed bug #2816: Ecom Product Asset deisplaying PHP errors when previewed. (Product)
+
+
+
 VERSION 3.14.7
 
 Complete Changelog
