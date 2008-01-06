@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.24 2007/06/25 22:51:57 rong Exp $
+* $Id: table-editor.js,v 1.25 2008/01/06 23:16:54 colivar Exp $
 *
 */
 
@@ -1157,6 +1157,7 @@ TTable = function(name, rows, cols)
 													res += "-moz-opacity: " + table.style.MozOpacity + ";";
 			if (table.style.opacity != "" && table.style.opacity + "" != "undefined")
 													res += "opacity: " + table.style.opacity + ";";
+
 			return res;
 
 		}
@@ -1217,7 +1218,7 @@ TTable = function(name, rows, cols)
 			var row = table.rows[r];
 			temp.className = row.className;
 			temp.align = (row.align == "")?"left":row.align;
-			temp.valign = (row.valign + "" == "undefined")?"middle":row.valign;
+			temp.valign = (row.vAlign + "" == "undefined")?"middle":row.vAlign;
 			temp.extra = getExtra(row);
 			temp.style = getStyle(row);
 			temp.bg = (row.style.backgroundColor == "")?null:row.style.backgroundColor;
