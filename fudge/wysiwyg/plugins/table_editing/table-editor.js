@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.24 2007/06/25 22:51:57 rong Exp $
+* $Id: table-editor.js,v 1.24.2.1 2008/01/06 23:11:56 colivar Exp $
 *
 */
 
@@ -65,6 +65,7 @@ TCell = function(parent)
 		if (this.axis != null) out += ' axis="' + this.axis + '"';
 		if ((this.align != "left" && !this.th) || (this.align != "center" && this.th)) out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
+
 		if (this.headers.length > 0) {
 			out +=' headers="';
 			for (i = 0;i<this.headers.length;i++)
@@ -1164,7 +1165,6 @@ TTable = function(name, rows, cols)
 		var div = document.createElement("DIV");
 		div.innerHTML = table;
 		table = div.getElementsByTagName("TABLE")[0];
-
 		this.id			= table.id;
 		this.summary	= table.summary;
 		this.className	= table.className;
@@ -1217,7 +1217,7 @@ TTable = function(name, rows, cols)
 			var row = table.rows[r];
 			temp.className = row.className;
 			temp.align = (row.align == "")?"left":row.align;
-			temp.valign = (row.valign + "" == "undefined")?"middle":row.valign;
+			temp.valign = (row.vAlign + "" == "undefined")?"middle":row.vAlign;
 			temp.extra = getExtra(row);
 			temp.style = getStyle(row);
 			temp.bg = (row.style.backgroundColor == "")?null:row.style.backgroundColor;
