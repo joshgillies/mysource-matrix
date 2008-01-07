@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633 2007/12/26 23:03:44 mwegermann Exp $
+* $Id: asset.inc,v 1.634 2008/01/07 21:58:18 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633 $
+* @version $Revision: 1.634 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -756,7 +756,10 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':type_code', $this->type(), PDO::PARAM_STR);
-			$query->bindValue(':assetid',   $this->id, PDO::PARAM_STR);
+			// Only bind it if we are using the first query, not binding when going in the else above
+			if ($this->id) {
+				$query->bindValue(':assetid',   $this->id, PDO::PARAM_STR);
+			}//end if
 			$result = MatrixDAL::executePdoGroupedAssoc($query);
 
 			if (empty($result)) {
@@ -3844,7 +3847,6 @@ class Asset extends MySource_Object
 				if (!$this->accessEffective()) return FALSE;
 			}
 
-
 			// otherwise they can edit if they have permission access
 			return $this->_checkPermissionAccess($perm, Array(), $only_workflow);
 
@@ -3949,9 +3951,9 @@ class Asset extends MySource_Object
 		// we add it after the revoke check because we otherwise if the publc is revoked then everyone bar a sysadmin or Root
 		// will be blocked
 		$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-
 		// have they been granted access?
 		$common = array_intersect($assetids, $grants);
+
 		return (!empty($common));
 
 	}//end _checkPermissionAccess()
