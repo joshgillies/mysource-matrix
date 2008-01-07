@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.40.2.1 2007/09/27 05:17:39 bshkara Exp $
+* $Id: insert_link.php,v 1.40.2.2 2008/01/07 03:46:54 colivar Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix
 */
 
@@ -136,7 +136,8 @@ if (!isset($_GET['new_window'])) {
 					// Add hash
 					e = '^' + e + '(#(.*))?$';
 					var re = new RegExp(e, '');
-					var results = re.exec('<?php echo $_GET['url']?>');
+					// we need to make sure that the url does'nt have any single quote
+					var results = re.exec('<?php echo str_replace("'", '%27', $_GET['url']); ?>');
 
 					if (results) {
 						break;
@@ -146,7 +147,8 @@ if (!isset($_GET['new_window'])) {
 				if (results) {
 					setUrl(label, results[1]);
 				} else {
-					setUrl('', '<?php echo $_GET['url']?>');
+					// we need to make sure that the url does'nt have any single quote
+					setUrl('', '<?php str_replace("'", '%27', echo $_GET['url']);?>');
 				}
 				//var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
 				//var re = new RegExp(e, '');
