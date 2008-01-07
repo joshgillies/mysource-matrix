@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.41 2007/09/27 05:51:19 bshkara Exp $
+* $Id: insert_link.php,v 1.42 2008/01/07 03:50:56 colivar Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 
@@ -108,7 +108,6 @@ if (!isset($_GET['new_window'])) {
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
 
 		<script type="text/javascript">
-
 			function getFocus() {
 				setTimeout('self.focus()',100);
 			};
@@ -118,6 +117,7 @@ if (!isset($_GET['new_window'])) {
 			function Init() {
 				__dlg_init("matrixInsertLink");
 				enable_new_window(document.main_form, <?php echo $_GET['new_window']?>);
+
 
 				var patterns = {<?php
 					$url_protocol_options_sorted = $url_protocol_options;
@@ -136,8 +136,8 @@ if (!isset($_GET['new_window'])) {
 					// Add hash
 					e = '^' + e + '(#(.*))?$';
 					var re = new RegExp(e, '');
-					var results = re.exec('<?php echo $_GET['url']?>');
-
+					// we need to make sure that the url does'nt have any single quote
+					var results = re.exec('<?php echo str_replace("'", '%27', $_GET['url']); ?>');
 					if (results) {
 						break;
 					}
@@ -146,7 +146,8 @@ if (!isset($_GET['new_window'])) {
 				if (results) {
 					setUrl(label, results[1]);
 				} else {
-					setUrl('', '<?php echo $_GET['url']?>');
+					// we need to make sure that the url does not have any single quote
+					setUrl('', '<?php echo str_replace("'", '%27', $_GET['url']); ?>');
 				}
 				//var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
 				//var re = new RegExp(e, '');
