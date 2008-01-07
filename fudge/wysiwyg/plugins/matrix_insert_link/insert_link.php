@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.40.2.2 2008/01/07 03:46:54 colivar Exp $
+* $Id: insert_link.php,v 1.40.2.3 2008/01/07 03:49:38 colivar Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40.2.2 $
+* @version $Revision: 1.40.2.3 $
 * @package MySource_Matrix
 */
 
@@ -148,7 +148,7 @@ if (!isset($_GET['new_window'])) {
 					setUrl(label, results[1]);
 				} else {
 					// we need to make sure that the url does'nt have any single quote
-					setUrl('', '<?php str_replace("'", '%27', echo $_GET['url']);?>');
+					setUrl('', '<?php echo str_replace("'", '%27', $_GET['url']);?>');
 				}
 				//var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
 				//var re = new RegExp(e, '');
