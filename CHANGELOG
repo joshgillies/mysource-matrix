@@ -25,6 +25,7 @@ Core
 
 CMS
 
+* Fixed bug #2777: STRONG tags inserted into Text email (Custom Form)
 * Fixed bug #2779: Error Editing Form Submission (Form Submission)
 * Fixed bug #2785: Asset listing type format does not convert & to &amp; (Listing Engine)
 * Fixed bug #2788: Account manager page incorrect web paths (Account Manager Page)
