@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633 2007/12/26 23:03:44 mwegermann Exp $
+* $Id: asset.inc,v 1.633.2.1 2008/01/07 22:18:51 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633 $
+* @version $Revision: 1.633.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -756,7 +756,10 @@ class Asset extends MySource_Object
 		try {
 			$query = $db->prepare($sql);
 			$query->bindValue(':type_code', $this->type(), PDO::PARAM_STR);
-			$query->bindValue(':assetid',   $this->id, PDO::PARAM_STR);
+			// Only bind the variable if we have used it in the query above (not the else).
+			if ($this->id) {
+				$query->bindValue(':assetid',   $this->id, PDO::PARAM_STR);
+			}//end if
 			$result = MatrixDAL::executePdoGroupedAssoc($query);
 
 			if (empty($result)) {
