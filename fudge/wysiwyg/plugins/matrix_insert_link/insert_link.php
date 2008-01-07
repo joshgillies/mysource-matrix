@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.39.2.1 2007/09/27 05:37:32 bshkara Exp $
+* $Id: insert_link.php,v 1.39.2.2 2008/01/07 03:46:23 colivar Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39.2.1 $
+* @version $Revision: 1.39.2.2 $
 * @package MySource_Matrix
 */
 
@@ -120,7 +120,7 @@ if (!isset($_GET['new_window'])) {
 
 				var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
 				var re = new RegExp(e, '');
-				var results = re.exec('<?php echo $_GET['url']?>');
+				var results = re.exec('<?php echo str_replace("'", '%27', $_GET['url']);?>');
 				setUrl(results[1], results[2]);
 			};
 
