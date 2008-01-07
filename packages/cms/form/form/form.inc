@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.170.2.3 2008/01/07 00:10:04 colivar Exp $
+* $Id: form.inc,v 1.170.2.4 2008/01/07 00:12:05 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.170.2.3 $
+* @version $Revision: 1.170.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1987,7 +1987,7 @@ class Form extends Asset
 			$section =& $sections[$k];
 			$section->current_answers =& $this->current_answers;
 			echo ($html) ? '<tr><td colspan="2">' : "\n";
-			echo ($html) ? '<strong>'.$section->attr('name').'</strong>' : "** ".$section->attr('name')." **";
+			echo ($html) ? '<strong>'.$section->attr('name').'</strong>' : '** '.$section->attr('name').' **';
 			echo ($html) ? '</td></tr>' : "\n\n";
 
 			$sort_order = $section->attr('sort_order');
