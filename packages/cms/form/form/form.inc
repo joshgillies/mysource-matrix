@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.177 2007/12/18 00:24:12 gsherwood Exp $
+* $Id: form.inc,v 1.178 2008/01/07 00:09:14 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2001,7 +2001,7 @@ class Form extends Asset implements Bridge
 			$section =& $sections[$k];
 			$section->current_answers =& $this->current_answers;
 			echo ($html) ? '<tr><td colspan="2">' : "\n";
-			echo '<strong>'.$section->attr('name').'</strong>';
+			echo ($html) ? '<strong>'.$section->attr('name').'</strong>' : '** '.$section->attr('name').' **';
 			echo ($html) ? '</td></tr>' : "\n\n";
 
 			$sort_order = $section->attr('sort_order');
