@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.106.2.3 2007/12/20 03:32:31 bshkara Exp $
+* $Id: workflow_manager.inc,v 1.106.2.4 2008/01/07 01:06:20 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.106.2.3 $
+* @version $Revision: 1.106.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1281,17 +1281,30 @@ class Workflow_Manager extends MySource_Object
 			// complete any missing internal message fields that have not been supplied
 			if (empty($msg->replacements)) {
 				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				// Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
+				$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+				if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
+					$workflow_backend_href	= '/'.$workflow_backend_href;
+				}//end if
 				$msg_reps = Array(
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 								'asset_name'	=> $asset->name,
-								'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
+								'workflow_url'	=> current_url().$workflow_backend_href,
 							);
 				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
+					$preview_backend_href = $asset->getBackendHref('preview', FALSE);
+					if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
+						$preview_backend_href	= '/'.$preview_backend_href;
+					}//end if
+					$msg_reps['preview_url'] = current_url().$preview_backend_href;
 				} else {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
+					$details_backend_href = $asset->getBackendHref('preview', FALSE);
+					if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
+						$details_backend_href	= '/'.$details_backend_href;
+					}//end if
+					$msg_reps['preview_url'] = current_url().$details_backend_href;
 				}
 				$msg->replacements = $msg_reps;
 			}
