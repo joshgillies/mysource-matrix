@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.97 2008/01/03 04:03:31 bshkara Exp $
+* $Id: hipo_herder.inc,v 1.98 2008/01/08 02:15:38 colivar Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1006,9 +1006,11 @@ class HIPO_Herder extends MySource_Object
 								<?php
 									// if the current user is the owner of the hipo job or the current user is a sysadmin or a root
 									// then display the resume button
+									// also once the user clicked on the resume button, the hipo job will be resumed in a popup window
+									// and the resume button will be hidden
 									if (($source_job->userid === $current_user_id) || $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-										?>
-										<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>
+								?>
+										<a href="#" onclick="window.open('./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>', 'hipo_job', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');this.style.display='none';return false;" style="text-decoration: none;" ><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>
 										<?php
 									}
 								?>
