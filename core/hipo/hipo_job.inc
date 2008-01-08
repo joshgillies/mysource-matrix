@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.94 2007/12/20 06:02:27 hnguyen Exp $
+* $Id: hipo_job.inc,v 1.94.2.1 2008/01/08 23:25:16 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.94.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -540,13 +540,14 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Paints backend of this job
 	*
-	* @param object	&$o		Backend_Outputter, reference to the backend outputter
-	* @param string	$class	calling class name
+	* @param object		&$o				Backend_Outputter, reference to the backend outputter
+	* @param string		$class			calling class name
+    * @param boolean    $write_access   write access priviledge to the current asset
 	*
 	* @return void
 	* @access private
 	*/
-	public static function paintConfig(&$o, $class)
+	public static function paintConfig(&$o, $class, $write_access)
 	{
 
 	}//end paintConfig()
