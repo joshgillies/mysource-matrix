@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.54 2008/01/02 05:49:43 lwright Exp $
+* $Id: db_install.inc,v 1.55 2008/01/08 22:17:04 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -845,18 +845,18 @@ function xml_entity_decode($string)
 function get_installed_rollback_triggers()
 {
 	$db = DAL::getDb();
-	$trigger_like_sql = $db->quote('sq_%_rb_trg');
 
 	if (DAL::getDbType() == 'oci') {
-		$sql = 'SELECT trigger_name FROM user_triggers WHERE trigger_name';
-		$trigger_like_sql = strtoupper($trigger_like_sql);
+		$sql = 'SELECT trigger_name FROM user_triggers WHERE LOWER(trigger_name)';
 	} else if (DAL::getDbType() == 'pgsql') {
 		$sql = 'SELECT tgname FROM pg_trigger WHERE tgname';
 	}
-	$sql .= ' LIKE '.$trigger_like_sql;
+	$sql .= ' LIKE :trigger_pattern';
 
 	try {
-		$triggers = DAL::executeSqlAssoc($sql, 0);
+		$query = $db->prepare($sql);
+		$query->bindValue(':trigger_pattern', 'sq_%_rb_trg', PDO::PARAM_STR);
+		$triggers = DAL::executePdoAssoc($query, 0);
 	} catch (DALException $e) {
 		throw $e;
 	}
