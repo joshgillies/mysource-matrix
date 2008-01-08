@@ -146,7 +146,7 @@ class DALOracleConverter extends DALConverter
      */
     protected function handleFunctionSeqNextVal($seqName)
     {
-        $sql = 'SELECT '.$seqName[0].'.nextval FROM dual';
+        $sql = $seqName[0].'.nextval';
         return $sql;
 
     }//end handleFunctionSeqNextVal()
@@ -164,7 +164,7 @@ class DALOracleConverter extends DALConverter
      */
     protected function handleFunctionSeqCurrVal($seqName)
     {
-        $sql = 'SELECT '.$seqName[0].'.currval FROM dual';
+        $sql = $seqName[0].'.currval';
         return $sql;
 
     }//end handleFunctionSeqCurrVal()
