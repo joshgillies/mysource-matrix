@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.80 2008/01/02 22:19:53 lwright Exp $
+* $Id: asset_management.inc,v 1.81 2008/01/08 22:30:30 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -648,40 +648,35 @@ class Asset_Management extends MySource_Object
 
 		// TODO: this wil be replaced in the queries.xml with a seqNextVal()
 		// call replacing the addition of the explicit sequence value
-		$attributeid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_attr_seq\')');
+		//$attributeid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_attr_seq\')');
 		/*if (!assert_valid_db_result($attributeid, '', false, false)) {
 			return false;
 		}*/
 
-		// OK, all seems fine, let's add the bloody thing
-		$sql = 'INSERT INTO sq_ast_attr
-				(attrid, type_code, owning_type_code, name, type, uniq, parameters_type_code, default_type_code, default_val, parameters_val, is_admin, description)
-				VALUES
-				(:attrid, :type_code, :owning_type_code, :name, :type, :uniq, :parameters_type_code, :default_type_code, :default_val, :parameters, :is_admin, :description)';
-
+		// OK, all seems fine, let's add the attribute
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':attrid',               $attributeid,                        PDO::PARAM_INT);
-			$query->bindValue(':type_code',            $type_code,                          PDO::PARAM_STR);
-			$query->bindValue(':owning_type_code',     $attr_info['owning_type_code'],      PDO::PARAM_STR);
-			$query->bindValue(':name',                 $name,                               PDO::PARAM_STR);
-			$query->bindValue(':type',                 $attr_info['type'],                  PDO::PARAM_STR);
-			$query->bindValue(':uniq',                 $attr_info['uniq'],                  PDO::PARAM_STR);
-			$query->bindValue(':parameters_type_code', $attr_info['parameters_type_code'],  PDO::PARAM_STR);
-			$query->bindValue(':default_type_code',    $attr_info['default_type_code'],     PDO::PARAM_STR);
-			$query->bindValue(':default_val',          $attr_info['default_val'],           PDO::PARAM_STR);
-			$query->bindValue(':parameters',           serialize($attr_info['parameters']), PDO::PARAM_STR);
-			$query->bindValue(':is_admin',             $attr_info['is_admin'],              PDO::PARAM_BOOL);
-			$query->bindValue(':description',          $attr_info['description'],           PDO::PARAM_STR);
-			DAL::execPdoQuery($query);
-		} catch (Exception $e) {
+			$bind_vars = Array(
+							'type_code'				=> $type_code,
+							'owning_type_code'		=> $attr_info['owning_type_code'],
+							'name'					=> $name,
+							'type'					=> $attr_info['type'],
+							'uniq' 					=> $attr_info['uniq'],
+							'parameters_type_code'	=> $attr_info['parameters_type_code'],
+							'default_type_code'		=> $attr_info['default_type_code'],
+							'default_val'			=> $attr_info['default_val'],
+							'parameters_val'		=> serialize($attr_info['parameters']),
+							'is_admin'				=> $attr_info['is_admin'] ? 1 : 0,
+							'description'			=> $attr_info['description'],
+						 );
+			MatrixDAL::executeQuery('core', 'insertAssetAttribute', $bind_vars);
+		} catch (DALException $e) {
 			throw new Exception('Unable to add attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end _addAttribute()
 
