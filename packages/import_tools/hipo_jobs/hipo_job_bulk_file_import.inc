@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.8 2007/12/27 05:14:09 hnguyen Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.8.2.1 2008/01/08 23:32:02 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -51,10 +51,8 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	public static function paintConfig(&$o, $class)
+	public static function paintConfig(&$o, $class, $write_access)
 	{
-		$write_access = $this->writeAccess();
-
 		$o->openField('File Import Threshold');
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD]', SQ_HIPO_BULK_FILE_IMPORT_THRESHOLD, 5);
