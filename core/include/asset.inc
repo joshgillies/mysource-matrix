@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.634 2008/01/07 21:58:18 hnguyen Exp $
+* $Id: asset.inc,v 1.635 2008/01/08 22:30:54 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.634 $
+* @version $Revision: 1.635 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4894,13 +4894,11 @@ class Asset extends MySource_Object
 
 		if (!empty($current_urls)) {
 			// delete rows which have normal designs applied
-			$sql = 'DELETE FROM
-						sq_ast_lookup_value
-					WHERE
-						url IN ('.implode(',', $current_urls).')';
-
 			try {
-				$result = MatrixDAL::executeSqlOne($sql);
+				$bind_vars = Array(
+								'urls'	=> $current_urls,
+							 );
+				MatrixDAL::executeQuery('core', 'deleteLookupValuesByUrls', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URL from lookup value table due to database error: '.$e->getMessage());
 			}
@@ -4909,15 +4907,12 @@ class Asset extends MySource_Object
 			for ($i=0; $i<count($current_urls); $i++) {
 				$current_urls[$i] = str_replace('\'', '', $current_urls[$i]);
 				$current_urls[$i] .= '/';
-				$current_urls[$i] = $db->quote($current_urls[$i]);
 			}
-			$sql = 'DELETE FROM
-						sq_ast_lookup_value
-					WHERE
-						url IN ('.implode(',', $current_urls).')';
-
 			try {
-				$result = MatrixDAL::executeSqlOne($sql);
+				$bind_vars = Array(
+								'urls'	=> $current_urls,
+							 );
+				MatrixDAL::executeQuery('core', 'deleteLookupValuesByUrls', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URLs with overridden designs from lookup value table due to database error: '.$e->getMessage());
 			}
