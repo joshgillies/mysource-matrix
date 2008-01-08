@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.25 2007/11/28 22:29:00 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.26 2008/01/08 05:12:50 colivar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,11 +77,40 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
 
-		try {
-			$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
-		} catch (Exception $e) {
-			throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+		// check if we need to filter the url or remap url
+		$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
+		$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
+
+		$remap_urls = Array();
+		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
+			$bind_vars = Array(
+					'url' 		=> (string) '%'.$url_filter.'%',
+					'remap_url'	=> (string) '%'.$remap_url_filter.'%',
+					);
+			try {
+				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrlsFilter', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+			}
+
+		} else {
+			try {
+				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
+			} catch (Exception $e) {
+				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+			}
 		}
+
+		$o->openField('Original URL Filter');
+		text_box($prefix.'_URL_FILTER', $url_filter, 30);
+		$o->note(translate('remap_manager_url_filter_note'));
+		$o->closeField();
+		$o->openField('Remapped URL Filter');
+		text_box($prefix.'_REMAP_URL_FILTER', $remap_url_filter, 30);
+		$o->note(translate('remap_manager_remap_url_filter_note'));
+		$o->closeField();
+
+		$o->openField('&nbsp;');
 
 		if (empty($remap_urls)) {
 			echo translate('no_url_remappings');
