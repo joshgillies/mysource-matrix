@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.27 2007/12/04 00:03:19 colivar Exp $
+* $Id: event_manager.inc,v 1.28 2008/01/09 22:00:54 hnguyen Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -184,7 +184,7 @@ class Event_Manager extends MySource_Object
 		}
 
 		// we don't have an entry for this event
-		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][get_class_lower($broadcaster)][$event_name])) {
+		if (!isset($this->_tmp['event_listeners']['global'][$event_name]) && !isset($this->_tmp['event_listeners'][strtolower(get_class($broadcaster))][$event_name])) {
 			return false;
 		}
 
