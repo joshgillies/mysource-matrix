@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clear_cache.inc,v 1.26 2007/12/03 22:10:23 hnguyen Exp $
+* $Id: hipo_job_clear_cache.inc,v 1.27 2008/01/09 03:54:53 hnguyen Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -249,28 +249,40 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 		}
 
 		if (isset($this->_running_vars['delete_all']) && $this->_running_vars['delete_all'] == 'no') {
-			// so we have an assetid to start with, make sure it is a valid assetid
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
-			if (is_null($asset)) {
+
+			$assetids = $this->_running_vars['assetid'];
+			// Just in case some old code somewhere still passing the assetid as a string and not array.
+			if (!is_array($assetids)) {
+				$assetids = Array ($assetids);
+			}
+			if (empty($assetids)) {
 				trigger_localised_error('HIPO0032', E_USER_WARNING, $this->_running_vars['assetid']);
 				return FALSE;
-			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}//end if
 
-			switch ($this->_running_vars['level']) {
-				case 'single':
-					$this->_running_vars['todo_assetids'] = Array($this->_running_vars['assetid']);
-				break;
-				case 'dependants':
-					$this->_running_vars['todo_assetids'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->_running_vars['assetid'], $this->_running_vars['type_codes']));
-					$this->_running_vars['todo_assetids'][] = $this->_running_vars['assetid'];
-				break;
-				case 'children':
-					$this->_running_vars['todo_assetids'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->_running_vars['assetid'], $this->_running_vars['type_codes']));
-					$this->_running_vars['todo_assetids'][] = $this->_running_vars['assetid'];
-				break;
-			}
+			$child_assets = Array();
+			$this->_running_vars['todo_assetids'] = Array();
+			foreach ($assetids as $assetid) {
+				switch ($this->_running_vars['level']) {
+					case 'single':
+						$this->_running_vars['todo_assetids'][] = $assetid;
+					break;
+					case 'dependants':
+						$child_assets += $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid, $this->_running_vars['type_codes']);
+						$this->_running_vars['todo_assetids'][] = $assetid;
+					break;
+					case 'children':
+						$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $this->_running_vars['type_codes']);
+						$this->_running_vars['todo_assetids'][] = $assetid;
+					break;
+				}//end switch
 
+			}//end foreach
+
+			if (!empty($child_assets)) {
+				$child_assets	= array_keys($child_assets);
+				$this->_running_vars['todo_assetids'] = array_merge($this->_running_vars['todo_assetids'], $child_assets);
+			}//end if
 
 			$this->_running_vars['delete_all'] = FALSE;
 			$this->_running_vars['total'] = count($this->_running_vars['todo_assetids']);
