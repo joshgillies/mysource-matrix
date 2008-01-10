@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.60 2007/12/06 00:26:22 hnguyen Exp $
+* $Id: inbox_edit_fns.inc,v 1.61 2008/01/10 22:29:54 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -490,8 +490,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
-				$body = str_replace("\n", '<br />', $data['body']);
-				$body = str_replace('"', '\"', $body);
+				$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
+				$body = str_replace('"', '&quot;', $body);
 ?>
 				<script type="text/javascript">
 				//<![CDATA[
