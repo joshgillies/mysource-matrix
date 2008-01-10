@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.635 2008/01/08 22:30:54 lwright Exp $
+* $Id: asset.inc,v 1.636 2008/01/10 22:44:49 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.635 $
+* @version $Revision: 1.636 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3584,12 +3584,15 @@ class Asset extends MySource_Object
 		}
 		$where = '('.implode(' OR ', $in_clauses).')';
 
-		// get all updated time from DB
-		$sql = 'SELECT MAX(updated)
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
-				WHERE '.$where;
-		$most_recent = $db->getOne($sql);
-		assert_valid_db_result($most_recent);
+		try {
+			// get all updated time from DB
+			$sql = 'SELECT MAX(updated)
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast
+					WHERE '.$where;
+			$most_recent = MatrixDAL::executeSqlOne($sql);
+		} catch (Exception $e) {
+			throw new Exception('Can not get updated time for asset due to the following database error:'.$e->getMessage());
+		}//end try catch
 
 		return (!is_null($most_recent)) ? strtotime($most_recent) : 0;
 
@@ -4898,7 +4901,7 @@ class Asset extends MySource_Object
 				$bind_vars = Array(
 								'urls'	=> $current_urls,
 							 );
-				MatrixDAL::executeQuery('core', 'deleteLookupValuesByUrls', $bind_vars);
+				MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URL from lookup value table due to database error: '.$e->getMessage());
 			}
@@ -4912,7 +4915,7 @@ class Asset extends MySource_Object
 				$bind_vars = Array(
 								'urls'	=> $current_urls,
 							 );
-				MatrixDAL::executeQuery('core', 'deleteLookupValuesByUrls', $bind_vars);
+				MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URLs with overridden designs from lookup value table due to database error: '.$e->getMessage());
 			}
