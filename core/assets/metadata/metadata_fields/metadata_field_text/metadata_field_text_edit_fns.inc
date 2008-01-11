@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.28 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.29 2008/01/11 00:07:06 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,9 +77,14 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($write_access) {
 			$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
 			if ($asset->attr('multi_line')) {
-				text_area($prefix.'_value', $value, 45, 7, 0, $extras);
+				// if there is no character limit display the original text_area
+				if (!$asset->attr('char_limit')) {
+					text_area($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, $extras);
+				} else {
+					text_area($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, 'id="'.htmlspecialchars($prefix.'_value').'" onchange="var note=document.getElementById(\''.$prefix.'_value_note\'); note.innerHTML = \'\'; var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); tmp.value = tmp.value.substr(0,'.$asset->attr('char_limit').');"  onkeypress="setTimeout(function() { var note=document.getElementById(\''.$prefix.'_value_note\');  var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); if (tmp.value.length > '.$asset->attr('char_limit').') {note.innerHTML = js_translate(\'max_characters_warning\', \''.$asset->attr('char_limit').'\');} else {note.innerHTML = \'\'}   }, 50);" '.$extras);
+				}
 			} else {
-				text_box($prefix.'_value', $value, 30, '', FALSE, $extras);
+				text_box($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('char_limit'), FALSE, $extras);
 			}
 			if ($enable_default) {
 				echo ' &nbsp; &nbsp; &nbsp; ';
@@ -88,6 +93,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
 				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } }');
 				label(translate('use_default'), $prefix.'_default');
+			}
+			// the following text can be used to display the character limit
+			// we suppose that char limit is only a positive attribute
+			if ($asset->attr('char_limit')) {
+				?> <br/>Maximum <?php echo $asset->attr('char_limit'); ?> characters.<span style="color:red" id="<?php echo $prefix.'_value'; ?>_note"></span> <?php
 			}
 		} else {
 			echo $value;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2006/12/06 01:07:36 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2008/01/11 00:07:06 colivar Exp $
 *
 */
 -->
@@ -62,6 +62,15 @@
 		</field>
 		<field attribute="frontend">
 			<selection style="list" />
+		</field>
+		<field attribute="char_limit">
+			<int width="5" allow_negative="FALSE"/>
+		</field>
+		<field attribute="box_width">
+			<int width="5" allow_negative="FALSE"/>
+		</field>
+		<field attribute="box_height">
+			<int width="5" allow_negative="FALSE"/>
 		</field>
 	</section>
 </contents>
