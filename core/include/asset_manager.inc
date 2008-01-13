@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.10 2008/01/03 00:50:11 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.571.2.11 2008/01/13 21:57:22 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.10 $
+* @version $Revision: 1.571.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5340,10 +5340,13 @@ class Asset_Manager extends MySource_Object
 		if (isset($minorid_parts[1])) {
 			// Shadow asset found
 			if (implements_interface($major, 'bridge')) {
-				// Let the bridge handle it
-				$result = $major->deleteAssetLink($linkid);
-				$this->forgetAsset($asset);
-				if ($result != FALSE) return $result;
+				// Check if the bridge has implemented this function.
+				if (method_exists($major, 'deleteAssetLink')) {
+					// Let the bridge handle it
+					$result = $major->deleteAssetLink($linkid);
+					$this->forgetAsset($asset);
+					if ($result != FALSE) return $result;
+				}//end if
 			}
 			// Link between a normal asset and a shadow asset
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
