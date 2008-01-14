@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.259 2008/01/14 00:41:15 hnguyen Exp $
+* $Id: mysource.inc,v 1.260 2008/01/14 01:19:58 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.259 $
+* @version $Revision: 1.260 $
 * @package MySource_Matrix
 */
 class MySource
@@ -476,7 +476,7 @@ class MySource
 			// buffer the content and do keyword replacement
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
-					if ($asset->writeAccess()) {
+					if (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $asset->writeAccess()) {
 						$hh = $this->getHipoHerder();
 						$vars = Array(
 									'assetid'		=> $asset->id,
