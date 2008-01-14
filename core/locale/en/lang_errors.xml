@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.92 2007/12/18 00:34:50 mwegermann Exp $
+* $Id: lang_errors.xml,v 1.93 2008/01/14 00:45:32 hnguyen Exp $
 *
 */
 
@@ -1724,6 +1724,7 @@ Full Node Contents :
 
 	<error code="CORE0274">Tags must be selected from the tagging thesaurus</error>
 	<error code="CORE0275">Tag already set on asset #%1$s with a different weighting (%2$s)</error>
+	<error code="CORE0279">You do not have permission to clear the cache of this asset</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
