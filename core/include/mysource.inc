@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258 2008/01/03 03:12:43 rong Exp $
+* $Id: mysource.inc,v 1.259 2008/01/14 00:41:15 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258 $
+* @version $Revision: 1.259 $
 * @package MySource_Matrix
 */
 class MySource
@@ -437,6 +437,7 @@ class MySource
 								$content = ob_get_clean();
 
 								$this->_replaceKeyword($content);
+
 								echo $content;
 
 								exit(1);
@@ -470,10 +471,31 @@ class MySource
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
+
+
 			// buffer the content and do keyword replacement
 			ob_start();
+				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
+					if ($asset->writeAccess()) {
+						$hh = $this->getHipoHerder();
+						$vars = Array(
+									'assetid'		=> $asset->id,
+									'level'			=> 'single',
+									'type_codes'	=> Array(),
+									'delete_all'	=> 'no',
+								);
+						$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
+						if (SQ_CONF_SEND_CACHEABLE_HEADER) {
+							$this->_sendHTTPHeaders($asset);
+						} else {
+							$asset->printFrontend();
+						}
+					} else {
+						trigger_localised_error('CORE0279', E_USER_NOTICE);
+					}//end else
+				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
-				if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
 					$this->_sendHTTPHeaders($asset);
 				} else {
@@ -556,7 +578,6 @@ class MySource
 
 		// not cached or has expired
 		if (empty($cache_info)) {
-
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
