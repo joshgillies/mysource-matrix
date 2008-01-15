@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.17 2008/01/15 01:10:33 hnguyen Exp $
+* $Id: rollback_management.php,v 1.18 2008/01/15 03:20:56 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -172,7 +172,6 @@ if (!empty($ROLLBACK_DATE) && !empty($PURGE_FV_DATE)) {
 if (empty($SYSTEM_ROOT)) usage();
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
-//require_once 'XML/Tree.php';
 require SQ_DATA_PATH.'/private/db/table_columns.inc';
 
 // get the tables from table_columns into a var
