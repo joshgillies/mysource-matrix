@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.149.2.1 2007/11/16 04:06:44 rong Exp $
+* $Id: file.inc,v 1.149.2.2 2008/01/15 23:19:56 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149.2.1 $
+* @version $Revision: 1.149.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1071,9 +1071,10 @@ class File extends Asset
 		$allowed_extensions = explode(',', $allowed_extensions);
 
 		$in_global = in_array($extension, $allowed_extensions);
-		if (isset($this->allowed_extensions)) {
+		if (isset($this->allowed_extensions) && get_class($this) != 'file') {
 			// File or its subclass includes its own allowed_extensions array
 			$in_asset = in_array($extension, $this->allowed_extensions);
+
 			if ($in_global && $in_asset) {
 				return TRUE;
 			}
