@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.148.2.4 2008/01/15 23:26:33 hnguyen Exp $
+* $Id: file.inc,v 1.148.2.5 2008/01/16 00:03:16 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.148.2.4 $
+* @version $Revision: 1.148.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1067,28 +1067,18 @@ class File extends Asset
 			$allowed_extensions = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_ALLOWED_TYPES');
 		}
 
-		if (empty($allowed_extensions)) return TRUE;
-		$allowed_extensions = explode(',', $allowed_extensions);
 
-		$in_global = in_array($extension, $allowed_extensions);
-		if (isset($this->allowed_extensions) && get_class($this) != 'file') {
-			// File or its subclass includes its own allowed_extensions array
-			$in_asset = in_array($extension, $this->allowed_extensions);
-			if ($in_global && $in_asset) {
-				return TRUE;
-			}
-			if (!$in_global && $in_asset) {
-				trigger_localised_error('CORE0264', E_USER_WARNING, $filename, $this->type());
-			} else if ($in_global && !$in_asset) {
-				trigger_localised_error('CORE0265', E_USER_WARNING, $filename, $this->type());
-			} else {
+		if (!empty($allowed_extensions)) {
+			$allowed_extensions_list = explode(',', $allowed_extensions);
+			if (!in_array($extension, $allowed_extensions_list)) {
 				trigger_localised_error('CORE0266', E_USER_WARNING, $filename);
 			}
-			return FALSE;
-		} else {
-			if ($in_global) return TRUE;
-			trigger_localised_error('CORE0266', E_USER_WARNING, $filename);
-			return FALSE;
+		}
+
+		if (isset($this->allowed_extensions) && !empty($this->allowed_extensions)) {
+			if (!in_array($extension, $this->allowed_extensions)) {
+				trigger_localised_error('CORE0266', E_USER_WARNING, $filename);
+			}
 		}
 
 		return TRUE;
