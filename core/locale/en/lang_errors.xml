@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.93 2008/01/14 00:45:32 hnguyen Exp $
+* $Id: lang_errors.xml,v 1.94 2008/01/16 00:12:46 hnguyen Exp $
 *
 */
 
@@ -1697,8 +1697,6 @@ Full Node Contents :
 	<!-- Pre-uploaded max file size violation -->
 	<error code="CORE0262">File asset creation failed. Pre-uploaded File size was too large. The maximum pre-uploaded file size is %1$s but the current file was %2$s.</error>
 	<error code="CORE0263">"%1$s" is not a valid file types string.</error>
-	<error code="CORE0264">"%1$s" is not an allowed file type by Global/User Group Preferences although it is allowed for asset type, %2$s</error>
-	<error code="CORE0265">"%1$s" is not an allowed file type by asset type, %2$s although it is allowed by Global/User Group Preferences.</error>
 	<error code="CORE0266">"%1$s" is not an allowed file type.</error>
 	<error code="CORE0267">File without extension is not allowed.</error>
 
