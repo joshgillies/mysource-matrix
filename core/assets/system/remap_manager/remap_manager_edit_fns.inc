@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.26 2008/01/08 05:12:50 colivar Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.27 2008/01/17 02:48:11 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -477,6 +477,64 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $ok;
 
 	}//end processAddPageNotFoundRemap()
+
+
+	/**
+        * Paints the Automatic Remapping checkbox
+        *
+        * @param Remap_Manager		$asset	the asset to which we belong
+        * @param Backend_Outputter	$o	the outputter class
+        * @param string			$prefix	prefix for the form element
+        *
+        * @return boolean
+        * @access public
+        */
+        public function paintAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+        {
+                $write_access = $asset->writeAccess('attributes');
+                $remap_upon_webpath_change = $asset->attr('remap_upon_webpath_change');
+
+		$o->closeField();
+		$o->openField(translate('remap_manager_automatically_add_remaps_question'));
+
+                // paint checkbox
+                if ($write_access) {
+                        check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+                } else {
+                        ?>
+                                <img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+                        <?php
+                }
+
+		$o->note(translate('remap_manager_auto_add_remaps_note'));
+
+		$o->closeField();
+
+                return $write_access;
+
+        }//end paintAutomaticRemappingCheckbox()
+
+
+        /**
+        * Process the Automatic Remapping checkbox
+        *
+        * @param Remap_Manager		$asset	the asset to which we belong
+        * @param Backend_Outputter	$o	the outputter class
+        * @param string			$prefix	prefix for the form element
+        *
+        * @return boolean
+        * @access public
+        */
+        public function processAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+        {
+                if (!$asset->writeAccess('attributes')) return FALSE;
+
+                $remap_upon_webpath_change = isset($_POST[$prefix.'_remap_upon_webpath_change']);
+                $asset->setAttrValue('remap_upon_webpath_change', $remap_upon_webpath_change);
+
+                return TRUE;
+
+        }//end processAutomaticRemappingCheckbox()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.264 2008/01/14 00:45:05 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.265 2008/01/17 02:48:13 mbrydon Exp $
 *
 */
 
@@ -2248,5 +2248,8 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
 	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
 	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
+
+	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
+	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
 
 </strings>

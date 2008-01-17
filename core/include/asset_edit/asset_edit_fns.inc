@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.75 2007/12/12 06:10:58 rong Exp $
+* $Id: asset_edit_fns.inc,v 1.76 2008/01/17 02:48:12 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -310,7 +310,14 @@ class Asset_Edit_Fns extends MySource_Object
 	function processPaths(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_paths'])) return FALSE;
-		if (!$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']))) {
+		
+		// Add remaps only if they are to be automatically added when the web path is changed. The default behaviour
+		// is to add remaps. This functionality is controlled by a global switch in the Remap Manager and can be overridden
+		// on the Web Paths screen (per asset) on a one-shot basis when changing web paths
+
+		$auto_add_remaps = isset($_POST[$prefix.'_remap_upon_webpath_change']);
+
+		if (!$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']), $auto_add_remaps)) {
 			return FALSE;
 		}
 
@@ -695,6 +702,40 @@ class Asset_Edit_Fns extends MySource_Object
 		return !$this->isBeingCreated($asset);
 
 	}//end isNotBeingCreated()
+
+
+	/**
+        * Paints the Automatic Remapping checkbox
+        *
+        * @param Remap_Manager          $asset  the asset to which we belong
+        * @param Backend_Outputter      $o      the outputter class
+        * @param string                 $prefix prefix for the form element
+        *
+        * @return boolean
+        * @access public
+        */
+        function paintAutomaticRemapSetting(&$asset, &$o, $prefix)
+        {
+                $write_access = $asset->writeAccess('lookups');
+
+		if ($write_access) {
+			$o->closeField();
+
+			$o->openField(translate('web_paths_auto_add_remaps'));
+				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		                $remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
+
+		                // paint checkbox
+				check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+
+				$o->note(translate('web_paths_auto_add_remaps_note'));
+			$o->closeField();
+                }
+
+
+                return $write_access;
+
+        }//end paintAutomaticRemapSetting()
 
 
 }//end class

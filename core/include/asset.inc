@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.636 2008/01/10 22:44:49 hnguyen Exp $
+* $Id: asset.inc,v 1.637 2008/01/17 02:48:11 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.636 $
+* @version $Revision: 1.637 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4515,12 +4515,13 @@ class Asset extends MySource_Object
 	/**
 	* Attempts to override all current paths for this asset with those passed in the array
 	*
-	* @param array	$paths	array of paths to give this asset
+	* @param array		$paths			array of paths to give this asset
+	* @param boolean	$auto_add_remaps	whether or not to add remaps for the asset when updating lookups
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function saveWebPaths($paths)
+	public function saveWebPaths($paths, $auto_add_remaps = TRUE)
 	{
 		$current_paths = $this->getWebPaths();
 		$save_paths = Array();
@@ -4612,7 +4613,7 @@ class Asset extends MySource_Object
 		unset($this->_tmp['paths']);
 		unset($this->_tmp['lookups']);
 
-		if ($this->updateLookups()) {
+		if ($this->updateLookups($auto_add_remaps)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
@@ -4808,11 +4809,13 @@ class Asset extends MySource_Object
 	/**
 	* Called to force an update of this assets lookup information
 	*
+	* @param boolean	$auto_add_remaps	whether to add  remaps for this asset
+	*
 	* @return boolean
 	* @access private
 	* @see saveWebPaths()
 	*/
-	public function updateLookups()
+	public function updateLookups($auto_add_remaps = TRUE)
 	{
 		$paths = $this->getWebPaths();
 
@@ -5160,30 +5163,33 @@ class Asset extends MySource_Object
 			}//end for parents
 
 			if (!empty($old_urls)) {
-				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-				// get the first new URL
-				reset($done_urls);
-				$new_url = current($done_urls);
-				$old_url = $url_data['url'];
-				// don't add a remap if we don't have a URL to map to
-				if ($new_url != '') {
-					foreach ($old_urls as $url_data) {
-						$old_url = $url_data['url'];
-						// this URL is already in the list of new URLs, therefore we don't need a remap
-						// because we're only making a remap to ourselves
-						if (!in_array($old_url, $done_urls)) {
-							// don't remap __data URLs, because they aren't served by Matrix
-							foreach (explode("\n", SQ_CONF_SYSTEM_ROOT_URLS) as $root_url) {
-								$data_url = $root_url.'/__data';
-								if (substr($old_url, 0, strlen($data_url)) == $data_url) {
-									continue 2;
+				if ($auto_add_remaps) {
+					$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+
+					// get the first new URL
+					reset($done_urls);
+					$new_url = current($done_urls);
+					$old_url = $url_data['url'];
+					// don't add a remap if we don't have a URL to map to
+					if ($new_url != '') {
+						foreach ($old_urls as $url_data) {
+							$old_url = $url_data['url'];
+							// this URL is already in the list of new URLs, therefore we don't need a remap
+							// because we're only making a remap to ourselves
+							if (!in_array($old_url, $done_urls)) {
+								// don't remap __data URLs, because they aren't served by Matrix
+								foreach (explode("\n", SQ_CONF_SYSTEM_ROOT_URLS) as $root_url) {
+									$data_url = $root_url.'/__data';
+									if (substr($old_url, 0, strlen($data_url)) == $data_url) {
+										continue 2;
+									}
 								}
-							}
-							if ($url_data['http']) {
-								$rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
-							}
-							if ($url_data['https']) {
-								$rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
+								if ($url_data['http']) {
+									$rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
+								}
+								if ($url_data['https']) {
+									$rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
+								}
 							}
 						}
 					}
