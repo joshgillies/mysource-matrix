@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.266 2008/01/18 03:44:01 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.267 2008/01/21 01:35:40 hnguyen Exp $
 *
 */
 
@@ -380,6 +380,8 @@
 	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
+	<string source="workflow_email_link_updated">You have %s the changes successfully</string>
+	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>
 	<string source="set_status_to">Set Status to </string>
 	<string source="cron_manager_refresh_unknown">The Cron Manager refresh time is unknown</string>
@@ -1031,6 +1033,7 @@
 	<string source="require_comment">Require Comment</string>
 	<string source="require_comment_from_unlisted_users">Unlisted User Commenting</string>
 	<string source="require_comment_from_unlisted_users_explanation">Requires users not specified in the condition steps to comment when approving or rejecting.</string>
+	<string source="email_link_require_comment">Workflow step requires comment before proceeding</string>
 	<string source="must_enter_comment_error" js="1">You must enter a comment for this workflow step.</string>
 	<string source="step_not_completed_in_time_explanation">If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at "0" to disable this feature.</string>
 	<string source="members_must_approve">%s member(s) must approve</string>
