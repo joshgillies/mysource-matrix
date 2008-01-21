@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.54 2008/01/21 01:32:24 hnguyen Exp $
+* $Id: workflow.inc,v 1.55 2008/01/21 03:03:34 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 
@@ -230,15 +230,20 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 						}//end if
 						continue;
 					}
+
+					if ($wf_email_link_updated) {
+						$o->openField('');
+						ob_start();
+						echo '<b class="sq-backend-warning">['.translate('workflow_email_link_updated', ($_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'))).']</b>';
+						ob_end_flush();
+						$o->closeField();
+					}//end if
+
 					if (!empty($running_schemas)) {
-						if ($email_link_require_comment || $wf_email_link_updated || $no_access_to_edit) {
+						if ($email_link_require_comment) {
 							$o->openField('');
 							ob_start();
-								if ($email_link_require_comment) {
 									echo '<b class="sq-backend-warning">['.translate('email_link_require_comment').']</b>';
-								} else if ($wf_email_link_updated) {
-									echo '<b class="sq-backend-warning">['.translate('workflow_email_link_updated', $_REQUEST['workflow_link_action']). ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed').']</b>';
-								}
 							ob_end_flush();
 							$o->closeField();
 						}
