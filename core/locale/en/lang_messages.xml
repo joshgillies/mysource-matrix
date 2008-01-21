@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.20 2007/01/08 03:02:43 lwright Exp $
+* $Id: lang_messages.xml,v 1.21 2008/01/21 01:35:14 hnguyen Exp $
 *
 * Core Internal Messages File
 */
@@ -261,16 +261,21 @@ You can view the asset <![CDATA[<a href="%asset_url%">here</a>]]>.</body>
 		<body>%type_code% "%asset_name%" is currently in workflow.
 You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.
 
-A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>
-You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!--  asset-type, asset-name, old_step, new_step, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
+You can <![CDATA[<SQ_MSG_LINK href="%accept_url%">Accept</SQ_MSG_LINK>]]> or <![CDATA[<SQ_MSG_LINK href="%reject_url%">Reject</SQ_MSG_LINK>]]> the changes.
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]></body>
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>
+<!--  asset-type, asset-name, old_step, new_step, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.invitation.progress">
 		<subject>Workflow Approval Required</subject>
 		<body>%type_code% "%asset_name%" is currently in workflow and has progressed from step %previous_step_id% "%previous_step_name%" to step %current_step_id% "%current_step_name%".
 You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.
 
-A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
-You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!--  asset-type, asset-name, old_step, new_step, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
+You can <![CDATA[<SQ_MSG_LINK href="%accept_url%">Accept</SQ_MSG_LINK>]]> or <![CDATA[<SQ_MSG_LINK href="%reject_url%">Reject</SQ_MSG_LINK>]]> the changes.
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.</body>
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>
+
+<!--  asset-type, asset-name, old_step, new_step, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.log.safeedit.cancel">
 		<subject>Asset Safe Edit Cancelled</subject>
