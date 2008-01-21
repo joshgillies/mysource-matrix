@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.122 2008/01/07 03:37:23 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.123 2008/01/21 01:30:04 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -964,6 +964,10 @@ class Workflow_Manager extends MySource_Object
 					$current_step =& $this->getCurrentStep($workflow, $step);
 					$current_step_name =& $current_step['step_name'];
 
+					$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+
 					$msg_reps = Array(
 									'user_name'				=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -972,7 +976,9 @@ class Workflow_Manager extends MySource_Object
 									'previous_step_name'	=> $previous_step_name,
 									'current_step_id'		=> implode('.', $step),
 									'current_step_name'		=> $current_step_name,
-									'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
+									'workflow_url'			=> current_url().$workflow_backend_href,
+									'accept_url'			=> current_url().$accept_url,
+									'reject_url'			=> current_url().$reject_url,
 								);
 
 					$asset_edt_fns = $asset->getEditFns();
@@ -1260,12 +1266,18 @@ class Workflow_Manager extends MySource_Object
                 $workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
                 if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
                     $workflow_backend_href  = '/'.$workflow_backend_href;
-                }//end if				
+                }//end if
+
+                $accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+                $reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+
 				$msg_reps = Array(
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 								'asset_name'	=> $asset->name,
 								'workflow_url'	=> current_url().$workflow_backend_href,
+								'accept_url'	=> current_url().$accept_url,
+								'reject_url'	=> current_url().$reject_url,
 							);
 				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1678,6 +1690,10 @@ class Workflow_Manager extends MySource_Object
 			// send internal messages to everyone in the next step who can now publish the asset
 			$msg = $ms->newMessage($publishers);
 
+			$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+			$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+			$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+
 			$msg_reps = Array(
 							'user_name'				=> $user->name,
 							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1686,7 +1702,9 @@ class Workflow_Manager extends MySource_Object
 							'previous_step_name'	=> $step_before['step_name'],
 							'current_step_id'		=> implode('.',$workflow['current_step']),
 							'current_step_name'		=> $current_step['step_name'],
-							'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
+							'workflow_url'			=> current_url().$workflow_backend_href,
+							'accept_url'			=> current_url().$accept_url,
+							'reject_url'			=> current_url().$reject_url,
 						);
 
 			$asset_edt_fns = $asset->getEditFns();
