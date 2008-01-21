@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.135 2008/01/09 23:57:59 colivar Exp $
+* $Id: html_form.inc,v 1.136 2008/01/21 05:40:41 lmarchese Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -872,6 +872,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 */
 function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000')
 {
+
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
 	$password = generate_security_key($key_len);
@@ -912,7 +913,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 		<tr>
 		<?php
 			ob_start();
-				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;"><?php echo translate('security_key_link'); ?></a><?php
+				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1&t=' + new Date().getTime(); return false;"><?php echo translate('security_key_link'); ?></a><?php
 				$replacements_link = ob_get_contents();
 			ob_end_clean()
 		?>
@@ -996,7 +997,7 @@ function security_key_image_link($link_text)
 {
 	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
 	ob_start();
-		?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;"><?php echo $link_text; ?></a><?php
+		?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1&t=' + new Date().getTime(); return false;"><?php echo $link_text; ?></a><?php
 		$replacement_link = ob_get_contents();
 	ob_end_clean();
 
