@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.53 2007/12/10 06:22:36 rong Exp $
+* $Id: workflow.inc,v 1.54 2008/01/21 01:32:24 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 
@@ -113,12 +113,6 @@ function paintInlineWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Inte
 */
 function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, $keywords=NULL)
 {
-	$root = $ei->findScreen('static_screen_workflow');
-	if (is_null($root)) return FALSE;
-
-	$prefix = $owner->getPrefix();
-	$print_commit_button = FALSE;
-
 	$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$schemas = $wfm->getSchemas($owner->id);
 	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
@@ -129,6 +123,72 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 	$publishers = $wfm->whoCanPublish($owner->id);
 	$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 	$can_publish = in_array($current_userid, $publishers);
+
+	$email_link_require_comment = FALSE;	// Flag to display text when email link is used to approve or reject the workflow which requires comment.
+	$wf_email_link_updated = FALSE;			// Flag to display text when the asset has been accepted or rejected.
+	$no_access_to_edit = FALSE;				// Flag to display text when the user does not have permission to edit the asset.
+
+	$available_statii = $owner->getAvailableStatii();
+
+	if (isset($_REQUEST['asset_version'])) {
+		$link_asset_version = $_REQUEST['asset_version'];
+		$link_asset_version_wo_micro = substr($link_asset_version, 0, strrpos($link_asset_version, '.'));
+		$owner_version_wo_micro = substr($owner->version, 0, strrpos($owner->version, '.'));
+	}//end if
+
+	if (isset($_REQUEST['workflow_link_action'])) {
+		if (isset($_REQUEST['asset_version']) && version_compare($link_asset_version_wo_micro,$owner_version_wo_micro )== 0 ) {
+			if ($can_publish) {
+				ksort($available_statii);
+				$new_status = NULL;
+				if ($_REQUEST['workflow_link_action'] == 'approve') {
+					foreach ($available_statii as $status_val => $desc) {
+						if ($owner->status <= $status_val) {
+						$new_status = $status_val;
+						break;
+						}//end if
+					}//end foreach
+				} else if ($_REQUEST['workflow_link_action'] == 'reject') {
+					foreach ($available_statii as $status_val => $desc) {
+						if ($owner->status >= $status_val) {
+						$new_status = $status_val;
+						break;
+						}//end if
+					}//end foreach
+				}
+
+				if (!$wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id)) {
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$vars	= Array (
+								'assetid'			=> $owner->id,
+								'dependants_only'	=> TRUE,
+							  );
+					if ($new_status != NULL) {
+						$vars['new_status'] = $new_status;
+						$hh->freestyleHipo('hipo_job_edit_status', $vars);
+					}//end if
+					$wf_email_link_updated = TRUE;
+				} else {
+					$email_link_require_comment = TRUE;
+					$default_selection = $_REQUEST['workflow_link_action'];
+				}
+			} else {
+				$no_access_to_edit = TRUE;
+			}//end else if
+		} else {
+			trigger_localised_error('CORE0280', E_USER_WARNING);
+		}
+
+	}//end if
+
+	// Get the running schema again now things has been changed.
+	$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
+
+	$root = $ei->findScreen('static_screen_workflow');
+	if (is_null($root)) return FALSE;
+
+	$prefix = $owner->getPrefix();
+	$print_commit_button = FALSE;
 
 	foreach ($root->section as $section) {
 
@@ -165,17 +225,30 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 					// shouldn't be able to changes status, so don't show anything
 					if ((!$can_publish) && (!$admin_access)) {
+						if ($no_access_to_edit) {
+							trigger_localised_error('CORE0281', E_USER_WARNING, $_REQUEST['workflow_link_action']. ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed'));
+						}//end if
 						continue;
 					}
 					if (!empty($running_schemas)) {
-
+						if ($email_link_require_comment || $wf_email_link_updated || $no_access_to_edit) {
+							$o->openField('');
+							ob_start();
+								if ($email_link_require_comment) {
+									echo '<b class="sq-backend-warning">['.translate('email_link_require_comment').']</b>';
+								} else if ($wf_email_link_updated) {
+									echo '<b class="sq-backend-warning">['.translate('workflow_email_link_updated', $_REQUEST['workflow_link_action']). ($_REQUEST['workflow_link_action'] == 'approve' ? 'd' : 'ed').']</b>';
+								}
+							ob_end_flush();
+							$o->closeField();
+						}
 						$o->openField(translate('change_status'));
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) {
 								ob_start();
 
 							}
 							$available_statii = $owner->getAvailableStatii();
-							_paintStatusChange($owner, $o, $prefix, $available_statii);
+							_paintStatusChange($owner, $o, $prefix, $available_statii, $email_link_require_comment ? $new_status : 0);
 							?><span class="sq-backend-fineprint"><?php
 							if (!empty($available_statii)) {
 								echo '<br />'.translate('change_to_approve_or_reject');
@@ -799,8 +872,8 @@ function processWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interfac
 
 	// has a message been entered?
 	$message_body = '';
-	if (isset($_POST[$prefix.'_workflow_new_log_message'])) {
-		$message_body = trim($_POST[$prefix.'_workflow_new_log_message']);
+	if (isset($_REQUEST[$prefix.'_workflow_new_log_message'])) {
+		$message_body = trim($_REQUEST[$prefix.'_workflow_new_log_message']);
 	}
 
 	// are comments required?
