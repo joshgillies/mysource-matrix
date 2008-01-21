@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.42 2007/11/28 23:54:10 rong Exp $
+* $Id: details.inc,v 1.43 2008/01/21 03:04:24 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 
@@ -420,13 +420,13 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 * @return array
 * @access public
 */
-function _paintStatusChange(&$owner, &$o, $prefix, $statii)
+function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 {
 	if (!empty($statii)) {
 		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
 		$statii = array_reverse($statii, TRUE);
-		combo_box($prefix.'_change_status', $statii, FALSE, 0);
+		combo_box($prefix.'_change_status', $statii, FALSE, $default_status);
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children');
 		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
