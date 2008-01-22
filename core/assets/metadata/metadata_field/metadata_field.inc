@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.28 2007/07/26 06:58:05 lwright Exp $
+* $Id: metadata_field.inc,v 1.28.2.1 2008/01/22 05:38:48 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,6 +283,14 @@ class Metadata_Field extends Asset
 	*/
 	function saveAttributes($dont_run_updated=FALSE)
 	{
+		// We basically dont allow single or double quotation mark in the field name.
+		$field_name_original = $this->attr('name');
+		$field_name = str_replace('\'', '', $field_name_original);
+		$field_name = str_replace('\"', '', $field_name);
+		if ($field_name != $field_name_original) {
+			$this->setAttrValue('name', $field_name);
+		}//end if
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
