@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group.inc,v 1.5 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_in_user_group.inc,v 1.5.4.1 2008/01/23 22:36:21 colivar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,6 @@ class Condition_In_User_Group extends Condition
 	*/
 	function evaluate(&$asset, $condition_data)
 	{
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return FALSE;
 		if (empty($condition_data['groupids'])) return FALSE;
 
 		// because a user can theoretically use conditions to be part of groups
