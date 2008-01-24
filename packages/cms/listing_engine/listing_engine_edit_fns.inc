@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.84 2007/12/20 23:43:56 colivar Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.85 2008/01/24 05:22:53 hnguyen Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4093,6 +4093,69 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('proxy_types', $current_types);
 
 	}//end processProxyTypes()
+
+
+	/**
+	* Paint the interface for selecting assets to be excluded
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAssetExclusion(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$exclude_assets = $asset->attr('exclude_assets');
+
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+			multiple_asset_finder($prefix.'_exclude_asset', $exclude_assets);
+		} else {
+				echo '<ul>';
+				foreach ($exclude_assets as $index => $assetid) {
+						echo '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+				echo '</ul>';
+		}
+
+		return $write_access;
+
+	}//end paintAssetExclusion()
+
+
+
+	/**
+	* Processes the interface for selecting assets to be excluded
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAssetExclusion(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (empty($_POST[$prefix.'_exclude_asset'])) return FALSE;
+
+		$exclude_assets = $_POST[$prefix.'_exclude_asset'];
+		$save_exclude_assets = Array();
+		foreach ($exclude_assets as $index => $asset_info) {
+			if (!empty($asset_info['assetid'])) {
+				$save_exclude_assets[] = $asset_info['assetid'];
+			}//end if
+		}//end foreach
+
+		return $asset->setAttrValue('exclude_assets', $save_exclude_assets);
+
+	}//end processAssetExclusion()
 
 
 }//end class
