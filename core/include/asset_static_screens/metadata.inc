@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.40 2007/12/13 05:13:26 rong Exp $
+* $Id: metadata.inc,v 1.41 2008/01/25 00:36:15 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 
@@ -132,6 +132,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 
 						// paint the instructions for 'Use Default'
 						echo '<p>'.translate('metadata_explain_use_default').'</p>';
+
+						// paint the instructions for 'Cascade value'
+						echo '<p>'.translate('metadata_explain_cascade_value').'</p>';
 
 						// paint required field
 						echo '<p> '.translate('denotes_required_field', '<span class="sq-backend-warning">*</span>').'</p>';
@@ -304,6 +307,8 @@ function processMetadata(&$owner, &$o, $ei)
 	// if we dont have write access, dont process anything
 	if (!$owner->writeAccess('metadata')) return FALSE;
 
+	$cascade_values_asset_ids = Array();
+
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE);
 	$save = FALSE;
@@ -312,7 +317,7 @@ function processMetadata(&$owner, &$o, $ei)
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			$edit_fns = $schema->getEditFns();
-			if ($edit_fns->processInlineValueInterface($schema, $new_values)) {
+			if ($edit_fns->processInlineValueInterface($schema, $new_values, $cascade_values_asset_ids)) {
 				$save = TRUE;
 			}
 		}
@@ -320,6 +325,26 @@ function processMetadata(&$owner, &$o, $ei)
 	if ($save) {
 		$mm->setMetadata($owner->id, $new_values);
 		$mm->generateContentFile($owner->id);
+
+		// If the user has opted to cascade field values, we will handle these now
+		if (!empty($cascade_values_asset_ids)) {
+			$metadata_values_vars = Array();
+			foreach($cascade_values_asset_ids as $asset_id => $val) {
+				$field_value = Array($asset_id => $new_values[$asset_id]);
+				$metadata_values_vars[$asset_id] = Array('field_asset_id' => $asset_id, 'field_value' => $field_value);
+			}
+
+			// Time to feed the HIPO
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array(
+					'assets'			=> Array($owner->id => Array('type_code' => $owner->type())),
+					'metadata_field_value_changes'	=> $metadata_values_vars,
+					'dependants_only'		=> 1,
+				);
+
+			$hh->queueHipo('hipo_job_edit_metadata_field_values', $vars);
+
+		}
 	}
 	return FALSE; // no need to call saveAttributes
 

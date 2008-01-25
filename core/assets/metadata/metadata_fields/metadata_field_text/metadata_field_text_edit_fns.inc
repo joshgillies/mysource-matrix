@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.30 2008/01/11 01:09:00 colivar Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.31 2008/01/25 00:36:14 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,6 +94,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				check_box($prefix.'_default', '1', $is_default, 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } }');
 				label(translate('use_default'), $prefix.'_default');
 			}
+
+			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+			check_box($prefix.'_cascade_value', '1', FALSE);
+			label(translate('cascade_value'), $prefix.'_cascade_value');
+
 			// the following text can be used to display the character limit
 			// we suppose that char limit is only a positive attribute
 			if ($asset->attr('char_limit')) {
@@ -159,15 +164,17 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Field_Text $asset, &$new_value_str)
+	public function processInlineValueInterface(Metadata_Field_Text $asset, &$new_value_str, &$field_cascade_value)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
+		$processed = FALSE;
 
 		$prefix = $asset->getPrefix();
 		if (!empty($_POST[$prefix.'_default'])) {
 			// use default
 			$new_value_str = NULL;
-			return TRUE;
+			$processed = TRUE;
 		} else {
 			if (isset($_POST[$prefix.'_value'])) {
 				$value = $_POST[$prefix.'_value'];
@@ -178,12 +185,16 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					}
 				}
 				$new_value_str = Metadata_Field::encodeValueString(trim($value), $value_components);
-				return TRUE;
-			} else {
-				// nothing submitted
-				return FALSE;
+				$processed = TRUE;
 			}
 		}
+
+		if (isset($_POST[$prefix.'_cascade_value'])) {
+			$field_cascade_value = TRUE;
+			$processed = TRUE;
+		}
+
+		return $processed;
 
 	}//end processInlineValueInterface()
 

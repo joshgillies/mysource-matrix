@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.267 2008/01/21 01:35:40 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.268 2008/01/25 00:36:15 mbrydon Exp $
 *
 */
 
@@ -592,6 +592,7 @@
 	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page. For a complete list of available keyword replacements %s</string>
 	<string source="metadata_indexed_keywords">Since search indexing is enabled, you can generate a list of keywords from the index using %s</string>
 	<string source="metadata_explain_use_default">Deselect the <![CDATA[<b>Use Default</b>]]> checkbox to enter a value for a field.  To revert the field to the default value, select the <![CDATA[<b>Use Default</b>]]> checkbox.</string>
+	<string source="metadata_explain_cascade_value">Select the <![CDATA[<b>Cascade value</b>]]> checkbox to cascade the value for a field to this asset's children for which this Metadata Schema is applied.</string>
 	<string source="metadata_date_object_keys">%s to see the formatting keywords that can be used in this field. Note that you cannot use a tilde (~) to separate date fields.</string>
 	<string source="creation_date">Creation date</string>
 	<string source="last_updated_date">Last updated date</string>
@@ -752,6 +753,7 @@
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
 	<string source="hipo_cannot_modify_permission">Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
+	<string source="hipo_editing_metadata_field_values">Editing Metadata Field Values for "%s"</string>
 	<string source="hipo_skipping_metadata_schema">Skipping "%s" as it does not require metadata</string>
 	<string source="hipo_skipping_permission">Could not edit permissions for asset #%s, asset does not exist</string>
 	<string source="hipo_skipping_role">Could not edit roles for asset #%s, asset does not exist</string>
@@ -1349,6 +1351,7 @@
 
 	<string source="click_here">Click Here</string>
 	<string source="use_default">Use default</string>
+	<string source="cascade_value">Cascade value</string>
 	<string source="next_run">next run</string>
 	<string source="user_preferences">User Preferences</string>
 	<string source="none_selected">None selected</string>
@@ -1804,6 +1807,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_name_clone_assets">Clone Assets</string>
 	<string source="hipo_name_create_links">Create Links</string>
 	<string source="hipo_name_edit_metadata_schemas">Edit Metadata Schemas</string>
+	<string source="hipo_name_edit_metadata_field_values">Edit Metadata Field Values</string>
 	<string source="hipo_name_edit_permissions">Edit Permissions</string>
 	<string source="hipo_name_edit_status">Edit Status</string>
 	<string source="hipo_name_edit_workflow_schemas">Edit Workflow Schemas</string>
@@ -1835,6 +1839,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_updating_database">Updating Database</string>
 	<string source="hipo_updating_lookups">Updating Lookups</string>
 	<string source="hipo_updating_metadata_schemas">Updating Metadata Schemas</string>
+	<string source="hipo_updating_metadata_field_values">Updating Metadata Field Values</string>
 	<string source="hipo_updating_permissions">Updating Permissions</string>
 	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
 	<string source="hipo_updating_tags">Updating Tags</string>

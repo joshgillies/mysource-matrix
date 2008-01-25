@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.52 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.53 2008/01/25 00:36:15 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -268,18 +268,24 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Schema $asset, Array &$new_values)
+	public function processInlineValueInterface(Metadata_Schema $asset, Array &$new_values, Array &$schema_cascade_values_asset_ids)
 	{
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
+			$section_cascade_values_asset_ids = Array();
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if ($edit_fns->processInlineValueInterface($section, $new_values)) {
+			if ($edit_fns->processInlineValueInterface($section, $new_values, $section_cascade_values_asset_ids)) {
 				$res = TRUE;
+				
+				foreach($section_cascade_values_asset_ids as $asset_id => $val) {
+					$schema_cascade_values_asset_ids[$asset_id] = 1;
+				}
 			}
 		}
+
 		return $res;
 
 	}//end processInlineValueInterface()

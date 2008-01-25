@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.48 2007/12/20 22:50:35 hnguyen Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.49 2008/01/25 00:36:15 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -236,18 +236,19 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(Metadata_Section $asset, Array &$new_values)
+	function processInlineValueInterface(Metadata_Section $asset, Array &$new_values, Array &$section_cascade_value_asset_ids)
 	{
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
+			$field_cascade_value = FALSE;
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field) || !$field->attr('editable')) {
 				continue;
 			}
 			$edit_fns = $field->getEditFns();
 			$new_value = '';
-			if ($edit_fns->processInlineValueInterface($field, $new_value)) {
+			if ($edit_fns->processInlineValueInterface($field, $new_value, $field_cascade_value)) {
 				// the process fn returned true, meaning something was submitted
 				// $new_value may be NULL, however, which signifies that we are reverting to default
 				$new_values[$field->id] = Array	(
@@ -256,6 +257,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 													'value' => $new_value,
 												   ),
 										  );
+				if ($field_cascade_value) $section_cascade_value_asset_ids[$field->id] = 1;
+				
 				$res = TRUE;
 			}
 		}

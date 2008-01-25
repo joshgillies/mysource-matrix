@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.39 2007/12/11 03:15:41 colivar Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.40 2008/01/25 00:36:14 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,6 +140,12 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 
+		if ($write_access) {
+			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+			check_box($prefix.'_cascade_value', '1', FALSE);
+			label(translate('cascade_value'), $prefix.'_cascade_value');
+		}
+
 		return $write_access;
 
 	}//end paintValueInterface()
@@ -154,15 +160,17 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Field_Select $asset, &$new_value_str)
+	public function processInlineValueInterface(Metadata_Field_Select $asset, &$new_value_str, &$field_cascade_value)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
+		$processed = FALSE;
 
 		$prefix = $asset->getPrefix();
 		if (!empty($_POST[$prefix.'_default'])) {
 			// use default
 			$new_value_str = NULL;
-			return TRUE;
+			$processed = TRUE;
 		} else {
 			// Default is not checked, so process our select attribute
 			$selection = $asset->getSelectionAttribute();
@@ -171,12 +179,16 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				// Get the string into proper form for the metadata field function
 				$value = str_replace('|', '; ', $selection->value);
 				$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
-				return TRUE;
-			} else {
-				// nothing was submitted
-				return FALSE;
+				$processed = TRUE;
 			}
 		}
+
+		if (isset($_POST[$prefix.'_cascade_value'])) {
+			$field_cascade_value = TRUE;
+			$processed = TRUE;
+		}
+
+		return $processed;
 
 	}//end processInlineValueInterface()
 
