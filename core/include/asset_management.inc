@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.81 2008/01/08 22:30:30 lwright Exp $
+* $Id: asset_management.inc,v 1.82 2008/01/25 03:17:50 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -555,7 +555,9 @@ class Asset_Management extends MySource_Object
 
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.uniq, atr.parameters_val,
-							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description, atr.is_admin
+							atr.parameters_type_code, atr.default_type_code, '.
+							(MatrixDAL::getDbType() === 'oci' ? 'sq_lob_to_varchar(atr.default_val) as default_val' : 'atr.default_val').
+							', atr.description, atr.is_admin
 					FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
 					WHERE i.type_code = :type_code
 					  AND i.inhd_type_code <> :inhd_type_code
@@ -567,6 +569,7 @@ class Asset_Management extends MySource_Object
 			$min_sql = $sql.':min';
 
 			try {
+				bam($min_sql);
 				$query = $db->prepare($min_sql);
 				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
 				$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
