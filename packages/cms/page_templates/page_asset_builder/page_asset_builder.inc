@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.123 2008/01/21 05:17:06 lmarchese Exp $
+* $Id: page_asset_builder.inc,v 1.124 2008/01/25 03:48:23 mbrydon Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -549,6 +549,7 @@ class Page_Asset_Builder extends Page
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$metadata_values = Array();
 						$schemaids = $this->_getMetadataSchemasToApply();
+						$cascade_values_asset_ids = Array();
 						if (!empty($schemaids)) {
 							$metadata_run_level_changed = FALSE;
 							if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -561,7 +562,7 @@ class Page_Asset_Builder extends Page
 								$mm->setSchema($new_asset->id, $schema->id, TRUE);
 								if (!is_null($schema)) {
 									$edit_fns = $schema->getEditFns();
-									$edit_fns->processInlineValueInterface($schema, $metadata_values);
+									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids);
 								}
 							}
 							$mm->setMetadata($new_asset->id, $metadata_values);
@@ -1594,7 +1595,7 @@ class Page_Asset_Builder extends Page
 						if (is_null($metadata_edit_fns)) {
 							$metadata_edit_fns = $schema->getEditFns();
 						}
-						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE);
+						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE, FALSE);
 					}
 					$asset->paintBackend($o);
 					$o->addHiddenField('asset_action', 'create');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.42 2008/01/25 00:36:14 mbrydon Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.43 2008/01/25 03:48:19 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -241,7 +241,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function paintValueInterface(Metadata_Field_Date $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
+	public function paintValueInterface(Metadata_Field_Date $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
 	{
 
 		$prefix = $asset->getPrefix();
@@ -311,9 +311,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				<?php
 			}
 
-			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			check_box($prefix.'_cascade_value', '1', FALSE);
-			label(translate('cascade_value'), $prefix.'_cascade_value');
+			if ($print_cascade_values_option) {
+				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+				check_box($prefix.'_cascade_value', '1', FALSE);
+				label(translate('cascade_value'), $prefix.'_cascade_value');
+			}
 
 		} else if ($uses_keyword && isset($select_options[trim($value, '%')])) {
 			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[trim($value, '%')];

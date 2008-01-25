@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.31 2008/01/25 00:36:14 mbrydon Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.32 2008/01/25 03:48:19 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
+	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
 	{
 		$prefix = $asset->getPrefix();
 
@@ -95,9 +95,11 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				label(translate('use_default'), $prefix.'_default');
 			}
 
-			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			check_box($prefix.'_cascade_value', '1', FALSE);
-			label(translate('cascade_value'), $prefix.'_cascade_value');
+			if ($print_cascade_values_option) {
+				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+				check_box($prefix.'_cascade_value', '1', FALSE);
+				label(translate('cascade_value'), $prefix.'_cascade_value');
+			}
 
 			// the following text can be used to display the character limit
 			// we suppose that char limit is only a positive attribute

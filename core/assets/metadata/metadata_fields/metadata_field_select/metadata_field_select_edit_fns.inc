@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.40 2008/01/25 00:36:14 mbrydon Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.41 2008/01/25 03:48:19 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function paintValueInterface(Metadata_Field_Select $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
+	public function paintValueInterface(Metadata_Field_Select $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -140,7 +140,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 
-		if ($write_access) {
+		if ($write_access && $print_cascade_values_option) {
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
 			check_box($prefix.'_cascade_value', '1', FALSE);
 			label(translate('cascade_value'), $prefix.'_cascade_value');

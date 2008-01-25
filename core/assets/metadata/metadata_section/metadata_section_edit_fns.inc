@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.49 2008/01/25 00:36:15 mbrydon Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.50 2008/01/25 03:48:19 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -192,7 +192,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(Metadata_Section $asset, Backend_Outputter $o, Array $values, $write_access)
+	function paintInlineValueInterface(Metadata_Section $asset, Backend_Outputter $o, Array $values, $write_access, $print_cascade_values_option = TRUE)
 	{
 		$o->openSection($asset->name);
 		if ($write_access) {
@@ -214,7 +214,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
-			if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access)) {
+			if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option)) {
 				$res = TRUE;
 			}
 		}

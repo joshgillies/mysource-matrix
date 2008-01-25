@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.53 2008/01/25 00:36:15 mbrydon Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.54 2008/01/25 03:48:19 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -233,11 +233,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*											NULL means that there is no current value set
 	* @param boolean			$write_access	does the current user have write access to the asset
 	*											that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean		$print_cascade_values_option	print the Metadata Field checkbox option to 'Cascade Values'
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintInlineValueInterface(Metadata_Schema $asset, Backend_Outputter $o, $values, $write_access)
+	public function paintInlineValueInterface(Metadata_Schema $asset, Backend_Outputter $o, $values, $write_access, $print_cascade_values_option = TRUE)
 	{
 		$o->openSection($asset->name);
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
@@ -246,7 +247,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if ($edit_fns->paintInlineValueInterface($section, $o, $values, $write_access)) {
+			if ($edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option)) {
 				$res = TRUE;
 			}
 		}
