@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.22 2007/12/07 00:10:26 bshkara Exp $
+* $Id: db_extras.inc,v 1.23 2008/01/29 22:46:56 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -191,19 +191,25 @@ function db_extras_bitand($db_type, $val1, $val2)
 * Returns an sql fragment to be used for inserting dates
 * into the database.
 *
-* @param string	$db_type		the database type
-* @param string	$iso8601_date	the date in iso8601 format
+* @param string		$db_type		the database type
+* @param string		$iso8601_date	the date in iso8601 format
+* @param boolean	$add_quotes		if TRUE, add single quotes around the date.
+*									Omit if converting a bind variable or field
 *
 * @return string
 * @access public
 */
-function db_extras_todate($db_type, $iso8601_date)
+function db_extras_todate($db_type, $iso8601_date, $add_quotes=TRUE)
 {
 	// TODO:
+	if ($add_quotes === TRUE) {
+		$iso8601_date = '\''.$iso8601_date.'\'';
+	}
+
 	if ($db_type == 'pgsql') {
-		return 'TO_TIMESTAMP(\''.$iso8601_date.'\', \'YYYY-MM-DD HH24:MI:SS\')';
+		return 'TO_TIMESTAMP('.$iso8601_date.', \'YYYY-MM-DD HH24:MI:SS\')';
 	} else if ($db_type == 'oci') {
-		return 'TO_DATE(\''.$iso8601_date.'\',\'YYYY-MM-DD HH24:MI:SS\')';
+		return 'TO_DATE('.$iso8601_date.',\'YYYY-MM-DD HH24:MI:SS\')';
 	}
 
 }//end db_extras_todate()
@@ -232,18 +238,21 @@ function db_extras_prepare_todate($db_type)
 * Returns the result of a function call to a database.
 *
 * @param string	$db_type	the database type
-* @param string $sql		the function call including the arguments to the function
+* @param string	$sql		the function call including the arguments to the function
+* @param array	$bind_vars	an array of values to bind into the query - to be bound
+*							by value only
 *
 * @return the result of the function call
 * @access public
 */
-function db_get_function_result($db_type, $sql)
+function db_get_function_result($db_type, $sql, $bind_vars=Array())
 {
-	$result = null;
+	$db = MatrixDAL::getDb();
+	$result = NULL;
 
 	if ($db_type == 'pgsql') {
 		$sql = 'SELECT '.$sql;
-		$result = DAL::executeSqlOne($sql);
+		$result = MatrixDAL::executeSqlOne($sql);
 
 	} else if ($db_type == 'oci') {
 		// the reason that we don't do 'SELECT function() from DUAL' here is that
@@ -251,20 +260,20 @@ function db_get_function_result($db_type, $sql)
 		// you cannot perform DML operations from within a select query.
 		$sql = 'BEGIN :res := '.$sql.'; END;';
 
-		if (!$stmt = ociparse($db->connection, $sql)) {
-			$msg = ocierror($db->connection);
-			trigger_exception($msg['message'], false, true);
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdoByRef($query, 'res', $result, PDO::PARAM_INPUT_OUTPUT, 4000);
+
+			// Bind the other variables for input only
+			foreach ($bind_vars as $key => $value) {
+				MatrixDAL::bindValueToPdo($query, $key, $value);
+			}
+
+			MatrixDAL::execPdoQuery($query);
+		} catch (Exception $e) {
+			throw new Exception('Could not run function due to database error: '.$e->getMessage());
 		}
 
-		if (!ocibindbyname($stmt, ':res', $result, 2000)) {
-			$msg = ocierror($db->connection);
-			trigger_exception($msg['message'], false, true);
-		}
-
-		if (!ociexecute($stmt)) {
-			$msg = ocierror($db->connection);
-			trigger_exception($msg['message'], false, true);
-		}
 	}
 	return $result;
 
@@ -272,26 +281,28 @@ function db_get_function_result($db_type, $sql)
 
 
 /**
-* Returns a SQL LIMIT fragment for the passed database type.  Appropriated from DALConverter classes.
+* Converts an SQL query into a row-limited query.
+* Appropriated from DALConverter classes.
 *
+* @param string	$sql		SQL query
 * @param string	$db_type	the database type
-* @param array $limit		single LIMIT clause with 'rows' index and 'offset' index
+* @param int	$limit		row limit
+* @param int	$offset		Offset (row 0 = start from first row)
 *
 * @return the result of the function call
 * @access public
 */
-function db_extras_modify_limit_clause($db_type, array $limit)
+function db_extras_modify_limit_clause($sql, $db_type, $limit, $offset=0)
 {
 	if ($db_type == 'oci') {
-		$sql  = ')';
-		$sql .= ' WHERE row_num >= '.($limit['offset'] + 1);
+		$sql  = 'SELECT * FROM ('.$sql.')';
+		$sql .= ' WHERE ROWNUM BETWEEN '.($offset + 1).' AND '.($offset + $limit);
 	} else { // psql, db2, mysql
-		$sql  = ' LIMIT ';
-		$sql .= $limit['rows'].' OFFSET '.$limit['offset'];
+		$sql  = $sql.' LIMIT '.$limit.' OFFSET '.$offset;
 	}
 
 	return $sql;
-	
+
 }//end db_modify_limit_clause()
 
 
