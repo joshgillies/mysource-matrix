@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layer_handler.js,v 1.7 2006/12/05 05:10:21 bcaldwell Exp $
+* $Id: layer_handler.js,v 1.7.6.1 2008/01/29 00:57:36 lmarchese Exp $
 *
 */
 
@@ -116,6 +116,12 @@ function Layer_Handler(div_id, top, right, bottom, left) {
 	 ////////////////////////////////
 	// Make the layer visible
 	function show() {
+		if (is_ie4up) {
+			var top_offset = 20;
+			scroll_top = document.getElementById('sq-content').scrollTop
+			this.move(null,top_offset + scroll_top)
+		}
+
 		this.style.visibility = (is_nav4)? "show" : "visible";
 	}
 	 ////////////////////////////////
