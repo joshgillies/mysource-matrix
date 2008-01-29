@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.45 2008/01/04 03:19:21 hnguyen Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.46 2008/01/29 22:26:34 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,7 +300,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 		// prints the status of the last run of htmltidy tool as a tag icon
-		if (!SQ_TOOL_HTML_TIDY_ENABLED || class_exists('tidy')) {
+		if (!SQ_TOOL_HTML_TIDY_ENABLED || !class_exists('tidy')) {
 			// tool is not enabled
 			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
 		} else {
