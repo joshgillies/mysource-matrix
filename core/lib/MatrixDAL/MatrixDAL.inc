@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.3 2007/12/12 03:17:38 gsherwood Exp $
+* $Id: MatrixDAL.inc,v 1.4 2008/01/29 06:00:23 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once dirname(__FILE__).'/../DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
@@ -217,7 +217,12 @@ class MatrixDAL extends DAL
             throw new DALException($e->getMessage());
         }
 
-        $rows = (int)$query->rowCount();
+		if (self::getDbType() == 'oci') {
+			// OCI:
+			$rows = oci_num_rows($query);
+		} else {
+			$rows = (int)$query->rowCount();
+		}
 
         // DB2 returns -1 rows if no rows were affected.
         if ($rows === -1) {
@@ -229,6 +234,151 @@ class MatrixDAL extends DAL
         return $rows;
 
     }//end executeQuery()
+
+
+
+	/**
+	* Prepare SQL into a query statement.
+	*
+	* This function is being provided to provide a central point for queries
+	* to be prepared to be sent to the executePdo* functions. This is currently
+	* different in Oracle to the other DBs, as Oracle support in PDO is not
+	* up to scratch - so we return an OCI8 statement resource instead.
+	*
+	* When Oracle support is better in PDO, this function can remain, but only
+	* using the PDO functions. This allows the preparation of statements to
+	* only require DAL, rather than explicitly getting the database.
+	*
+	* @return mixed object|resource
+	* @access public
+	*/
+	public static function preparePdoQuery($sql)
+	{
+		$dbh = self::getDb();
+		$db_type = self::getDbType();
+
+		if ($db_type === 'oci') {
+			// OCI:
+			$query = oci_parse($dbh, $sql);
+		} else {
+			$query = $dbh->prepare($sql);
+		}
+
+		return $query;
+
+	}//end preparePdoQuery()
+
+
+	/**
+	* Bind a single variable to a PDO statement.
+	*
+	* Bind variables are to be specified WITHOUT the leading ":". This is a
+	* change from binding directly to a PDO statement, but this keeps
+	* consistency with binding to DAL query objects.
+	*
+	* Note that this function accepts both PDO and OCI8 statements - prepared
+	* using preparePdoQuery(), one would hope. When Oracle support is better in
+	* PDO, this function can remain, but only using the PDO functions. This
+	* allows the preparation of statements to only require DAL.
+	*
+	* @param object|resource	$query	A PDO or OCI8 statement to bind to.
+	* @param string				$name	Name of the bind variable.
+	*
+	* @return void
+	* @access public
+	*/
+	public static function bindValueToPdo($query, $name, $value, $dataType=NULL)
+	{
+		$dbh = self::getDb();
+		$db_type = self::getDbType();
+
+		if ($db_type === 'oci') {
+			// OCI:
+			// LOB handling needs a descriptor to be created.
+			if ($dataType == 'PDO::PARAM_LOB') {
+				$lob = oci_new_descriptor($dbh);
+				$lob->write($value);
+				$ret_val = oci_bind_by_name($query, ':'.$name, $lob, SQLT_CLOB);
+			} else {
+				$ret_val = oci_bind_by_name($query, ':'.$name, $value);
+			}
+			if ($ret_val === FALSE) {
+				throw new Exception('Unable to bind variable "'.$name.'" to query.');
+			}
+		} else {
+			if (is_null($dataType)) {
+				$query->bindValue(':'.$name, $value);
+			} else {
+				$query->bindValue(':'.$name, $value, $dataType);
+			}
+		}
+
+	}//end bindValueToPdo()
+
+
+	/**
+	* Bind a single variable to a PDO statement.
+	*
+	* Bind variables are to be specified WITHOUT the leading ":". This is a
+	* change from binding directly to a PDO statement, but this keeps
+	* consistency with binding to DAL query objects.
+	*
+	* Note that this function accepts both PDO and OCI8 statements - prepared
+	* using preparePdoQuery(), one would hope. When Oracle support is better in
+	* PDO, this function can remain, but only using the PDO functions. This
+	* allows the preparation of statements to only require DAL.
+	*
+	* @param object|resource	$query	A PDO or OCI8 statement to bind to.
+	* @param string				$name	Name of the bind variable.
+	*
+	* @return void
+	* @access public
+	*/
+	public static function bindValueToPdoByRef($query, $name, &$value, $dataType=NULL, $maxLength=NULL)
+	{
+		$dbh = self::getDb();
+		$db_type = self::getDbType();
+
+		if ($db_type === 'oci') {
+			// OCI:
+			// LOB handling needs a descriptor to be created.
+			if ($dataType == 'PDO::PARAM_LOB') {
+				$lob = oci_new_descriptor($dbh);
+				$lob->write($value);
+				$ret_val = oci_bind_by_name($query, ':'.$name, $lob, SQLT_CLOB);
+			} else {
+				if ($dataType & PDO::PARAM_INPUT_OUTPUT) {
+					$ret_val = oci_bind_by_name($query, ':'.$name, $value, $maxLength);
+				} else {
+					$ret_val = oci_bind_by_name($query, ':'.$name, $value);
+				}
+				if (!$ret_val) {
+					bam(array($query, ':'.$name, $value));
+					bam(array_contents(debug_backtrace(), 3));
+				}
+			}
+		} else {
+			if (is_null($dataType)) {
+				$query->bindValue(':'.$name, $value);
+			} else {
+				$query->bindValue(':'.$name, $value, $dataType, $maxLength);
+			}
+		}
+
+	}//end bindValueToPdoByRef()
+
+
+	/**
+	* Bind more than one variable to a PDO statement.
+	*
+	*
+	* @return void
+	* @access public
+	*/
+	public static function bindValuesToPdo($query, $name, $value)
+	{
+
+	}//end bindValuesToPdo()
 
 
     /**
