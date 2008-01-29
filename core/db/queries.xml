@@ -243,7 +243,7 @@
 					<table>sq_ast_lookup_value</table>
 				</from>
 				<where>
-					<equal table="sq_ast_lookup" column="asset">:assetid</equal>
+					<equal table="sq_ast_lookup" column="assetid">:assetid</equal>
 				</where>
 			</select>
 		</primary>
@@ -414,8 +414,50 @@
 		</primary>
 	</query>
 
+
 	<!-- //		ASSET MANAGER		// -->
 
+
+	<query id="getTypeDescendants">
+		<!-- Select descendants of a certain asset type. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_typ_inhd" column="type_code" />
+				</fields>
+				<from>
+					<table>sq_ast_typ_inhd</table>
+				</from>
+				<where>
+					<in table="sq_ast_typ_inhd" column="inhd_type_code">:type_codes</in>
+					<not-equal table="sq_ast_typ_inhd" column="inhd_type_code"><field table="sq_ast_typ_inhd" column="type_code"/></not-equal>
+				</where>
+				<order-by>
+					<field table="sq_ast_typ_inhd" column="inhd_type_code" />
+					<field table="sq_ast_typ_inhd" column="type_code_lvl" />
+				</order-by>
+			</select>
+		</primary>
+		<alternate>
+			<assert-true data="include_passed">
+				<select>
+					<fields>
+						<field table="sq_ast_typ_inhd" column="type_code" />
+					</fields>
+					<from>
+						<table>sq_ast_typ_inhd</table>
+					</from>
+					<where>
+						<in table="sq_ast_typ_inhd" column="inhd_type_code">:type_codes</in>
+					</where>
+					<order-by>
+						<field table="sq_ast_typ_inhd" column="inhd_type_code" />
+						<field table="sq_ast_typ_inhd" column="type_code_lvl" />
+					</order-by>
+				</select>
+			</assert-true>
+		</alternate>
+	</query>
 	<query id="getTypeCodeWithAllowedAccess">
 		<!-- Return the type code with the allowed access provided. -->
 		<primary>
@@ -448,6 +490,32 @@
 					<in table="sq_ast_lnk_tree" column="linkid">:linkid</in>
 				</where>
 			</select>
+		</primary>
+	</query>
+
+
+	<query id="getTreeIdsByMinorid">
+		<!-- Returns the treeids for linkids passed in.. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lnk_tree" column="treeid" />
+				</fields>
+				<from>
+					<table>sq_ast_lnk</table>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_ast_lnk"      column="linkid" />
+						<field table="sq_ast_lnk_tree" column="linkid" />
+					</join>
+				</joins>
+				<where>
+					<in table="sq_ast_lnk" column="minorid">:minorid</in>
+				</where>
+			</select>
+			<limit offset="0">1</limit>
 		</primary>
 	</query>
 
@@ -1452,6 +1520,33 @@
 					<equal table="sq_rb_ast" column="assetid">:assetid</equal>
 					<equal table="sq_rb_ast" column="version">:version</equal>
 				</where>
+			</select>
+		</primary>
+	</query>
+
+	<!-- //        SEQUENCE GENERATION        // -->
+
+	<query id="seqNextVal">
+		<primary>
+			<select>
+				<fields>
+					<function function="SeqNextVal" alias="value">
+						<arg><value>[seqName]</value></arg>
+					</function>
+				</fields>
+			</select>
+		</primary>
+	</query>
+
+
+	<query id="seqCurrVal">
+		<primary>
+			<select>
+				<fields>
+					<function function="SeqCurrVal" alias="value">
+						<arg><value>[seqName]</value></arg>
+					</function>
+				</fields>
 			</select>
 		</primary>
 	</query>
