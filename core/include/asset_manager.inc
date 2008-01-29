@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.656 2008/01/29 21:51:02 lwright Exp $
+* $Id: asset_manager.inc,v 1.657 2008/01/29 22:41:43 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.656 $
+* @version $Revision: 1.657 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6936,6 +6936,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAssetFromURL($protocol=NULL, $url=NULL, $exact_match=TRUE, $mute_errors=FALSE)
 	{
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
 		if (is_null($url)) $url = current_url(FALSE, TRUE);
 		if (!is_string($url)) {
 			trigger_localised_error('SYS0189', E_USER_WARNING);
