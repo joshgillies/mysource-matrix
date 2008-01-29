@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.84 2007/12/16 03:12:34 gsherwood Exp $
+* $Id: internal_message.inc,v 1.85 2008/01/29 21:50:27 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -194,7 +194,7 @@ class Internal_Message extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -282,24 +282,28 @@ class Internal_Message extends MySource_Object
 			// log a message for the system so it is not deleted
 			// TODO: this wil be replaced in the queries.xml with a seqNextVal()
 			// call replacing the addition of the explicit sequence value
-			$messageid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_internal_msg_seq\')');
+			if (MatrixDAL::getDbType() === 'oci') {
+				$messageid = MatrixDAL::executeSqlOne('SELECT sq_internal_msg_seq.nextval FROM DUAL');
+			} else {
+				$messageid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_internal_msg_seq\')');
+			}
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 
 			try {
-                $prepared = $db->prepare($sql);
-				$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
-				$prepared->bindValue(':userto',     0,               PDO::PARAM_STR);
-				$prepared->bindValue(':userfrom',   $this->from,     PDO::PARAM_STR);
-				$prepared->bindValue(':subject',    (empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->subject), PDO::PARAM_STR);
-				$prepared->bindValue(':body',       (empty($this->body) ? $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->body), PDO::PARAM_STR);
-				$prepared->bindValue(':type',       $this->type,     PDO::PARAM_STR);
-				$prepared->bindValue(':priority',   $this->priority, PDO::PARAM_INT);
-				$prepared->bindValue(':status',     $this->status,   PDO::PARAM_STR);
-				$prepared->bindValue(':sent',       $this->sent,     PDO::PARAM_STR);
-				$prepared->bindValue(':parameters', $param_string,   PDO::PARAM_STR);
-				DAL::execPdoQuery($prepared);
-			} catch (Exception $e) {
+                $query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'msgid',      $messageid,      PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'userto',     0,               PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'userfrom',   $this->from,     PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'subject',    (empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->subject), PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'body',       (empty($this->body) ? $lm->getInternalMessageBody($this->type, $this->replacements, SQ_CONF_DEFAULT_BACKEND_LOCALE) : $this->body), PDO::PARAM_LOB);
+				MatrixDAL::bindValueToPdo($query, 'type',       $this->type,     PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'priority',   $this->priority, PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'status',     $this->status,   PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'sent',       $this->sent,     PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'parameters', $param_string,   PDO::PARAM_LOB);
+				MatrixDAL::execPdoQuery($query);
+			} catch (DALException $e) {
 				throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
 			}
 
@@ -406,18 +410,18 @@ class Internal_Message extends MySource_Object
 					}//end try catch
 
 					try {
-                        $prepared = $db->prepare($sql);
-						$prepared->bindValue(':msgid',      $messageid,      PDO::PARAM_INT);
-						$prepared->bindValue(':userto',     $userid,         PDO::PARAM_STR);
-						$prepared->bindValue(':userfrom',   $this->from,     PDO::PARAM_STR);
-						$prepared->bindValue(':subject',    $subject,        PDO::PARAM_STR);
-						$prepared->bindValue(':body',       $log_body,       PDO::PARAM_STR);
-						$prepared->bindValue(':type',       $this->type,     PDO::PARAM_STR);
-						$prepared->bindValue(':priority',   $this->priority, PDO::PARAM_INT);
-						$prepared->bindValue(':status',     $this->status,   PDO::PARAM_STR);
-						$prepared->bindValue(':sent',       $this->sent,     PDO::PARAM_STR);
-						$prepared->bindValue(':parameters', $param_string,   PDO::PARAM_STR);
-						DAL::execPdoQuery($prepared);
+                        $query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'msgid',      $messageid,      PDO::PARAM_INT);
+						MatrixDAL::bindValueToPdo($query, 'userto',     $userid,         PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, 'userfrom',   $this->from,     PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, 'subject',    $subject,        PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, 'body',       $log_body,       PDO::PARAM_LOB);
+						MatrixDAL::bindValueToPdo($query, 'type',       $this->type,     PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, 'priority',   $this->priority, PDO::PARAM_INT);
+						MatrixDAL::bindValueToPdo($query, 'status',     $this->status,   PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, 'sent',       $this->sent,     PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, 'parameters', $param_string,   PDO::PARAM_LOB);
+						MatrixDAL::execPdoQuery($query);
 					} catch (Exception $e) {
 						throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
 					}

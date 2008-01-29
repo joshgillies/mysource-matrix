@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168 2007/12/20 22:47:43 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.169 2008/01/29 21:50:36 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168 $
+* @version $Revision: 1.169 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -126,10 +126,10 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql.$where);
-			$query->bindValue(':assetid', $assetid);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			if (!is_null($granted)) {
-				$query->bindValue(':granted', $granted ? 1 : 0);
+				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? 1 : 0);
 			}
 			$result = DAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -327,7 +327,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('schemaid', $schemaid);
 			if (!is_null($granted)) {
 				$query->bindValue('granted', ($granted ? '1' : '0'));
@@ -449,7 +449,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('assetid', $asset->id);
 			$metadata = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
@@ -739,7 +739,7 @@ class Metadata_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query = $db->prepare($sql.$where);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				$query->bindValue('assetid', $asset->id);
 				$updates = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
@@ -1433,7 +1433,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('assetid', $assetid);
 			$query->bindValue('field_assetid', $field_assetid);
 			$value = MatrixDAL::executePdoOne($query);
@@ -1529,7 +1529,7 @@ class Metadata_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 			try {
-				$query = $db->prepare($sql.$where);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				$query->bindValue('field_assetid', $field_assetid);
 				$count = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
@@ -1572,7 +1572,7 @@ class Metadata_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
 			try {
-				$query = $db->prepare($sql.$where);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				$query->bindValue('field_assetid', $field_assetid);
 				$default_val = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
@@ -1614,7 +1614,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('field_assetid', $field_assetid);
 			$row = MatrixDAL::executePdoAll($query);
 			if (isset($row[0]) && !empty($row[0])) {

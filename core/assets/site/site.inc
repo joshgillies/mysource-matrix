@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.108 2007/12/15 03:00:27 gsherwood Exp $
+* $Id: site.inc,v 1.109 2008/01/29 21:52:28 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -165,8 +165,8 @@ class Site extends Folder
 			$sql .= $where.' ORDER BY urlid';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':assetid', $this->id);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 				$result_x = MatrixDAL::executePdoGroupedAssoc($query);
 
 				// TODO: DAL always , whereas I THINK this depends on PEAR DB's
@@ -296,12 +296,12 @@ class Site extends Folder
 								AND	assetid	= :assetid';
 
 					try {
-						$query = $db->prepare($sql);
-						$query->bindValue(':url',     $save_urls[$save_urlid]['url']);
-						$query->bindValue(':http',    $save_urls[$save_urlid]['http']);
-						$query->bindValue(':https',   $save_urls[$save_urlid]['https']);
-						$query->bindValue(':urlid',   $save_urlid);
-						$query->bindValue(':assetid', $this->id);
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'url',     $save_urls[$save_urlid]['url']);
+						MatrixDAL::bindValueToPdo($query, 'http',    $save_urls[$save_urlid]['http']);
+						MatrixDAL::bindValueToPdo($query, 'https',   $save_urls[$save_urlid]['https']);
+						MatrixDAL::bindValueToPdo($query, 'urlid',   $save_urlid);
+						MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 						MatrixDAL::execPdoQuery($query);
 						$updated = TRUE;
 					} catch (Exception $e) {
@@ -311,8 +311,7 @@ class Site extends Folder
 
 			} else {
 				// we are a new one
-				// TODO: replace with seqNextVal() in queries.xml
-				$curr_urlid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_url_seq\');');
+				$curr_urlid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_url_seq'));
 
 				$sql = 'INSERT INTO
 							sq_ast_url
@@ -333,12 +332,12 @@ class Site extends Folder
 							)';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':url',     $save_urls[$save_urlid]['url']);
-					$query->bindValue(':http',    $save_urls[$save_urlid]['http']);
-					$query->bindValue(':https',   $save_urls[$save_urlid]['https']);
-					$query->bindValue(':urlid',   $curr_urlid);
-					$query->bindValue(':assetid', $this->id);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'url',     $save_urls[$save_urlid]['url']);
+					MatrixDAL::bindValueToPdo($query, 'http',    $save_urls[$save_urlid]['http']);
+					MatrixDAL::bindValueToPdo($query, 'https',   $save_urls[$save_urlid]['https']);
+					MatrixDAL::bindValueToPdo($query, 'urlid',   $curr_urlid);
+					MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 					MatrixDAL::execPdoQuery($query);
 					$updated = TRUE;
 				} catch (Exception $e) {
@@ -362,8 +361,8 @@ class Site extends Folder
 						 urlid = :urlid';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':urlid', $urlid);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'urlid', $urlid);
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete URLs from asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -450,12 +449,12 @@ class Site extends Folder
 					}
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':name', 'design::%');
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'name', 'design::%');
 			if ($this->_tmp['deleting_site'] == TRUE) {
-				$query->bindValue(':name_pl', 'paint_layout::%');
+				MatrixDAL::bindValueToPdo($query, 'name_pl', 'paint_layout::%');
 			}
-			$query->bindValue(':assetid', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -482,12 +481,12 @@ class Site extends Folder
 					}
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':name', 'design::%');
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'name', 'design::%');
 			if ($this->_tmp['deleting_site'] == TRUE) {
-				$query->bindValue(':name_pl', 'paint_layout::%');
+				MatrixDAL::bindValueToPdo($query, 'name_pl', 'paint_layout::%');
 			}
-			$query->bindValue(':assetid', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -499,8 +498,8 @@ class Site extends Folder
 					assetid = :assetid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $this->id);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -550,12 +549,12 @@ class Site extends Folder
 						)';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':url',     $urls[$urlid]['url']);
-				$query->bindValue(':assetid', $this->id);
-				$query->bindValue(':http',    ($this->force_secure) ? '0' : $urls[$urlid]['http']);
-				$query->bindValue(':https',   $urls[$urlid]['https']);
-				$query->bindValue(':urlid',   $urlid);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'url',     $urls[$urlid]['url']);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+				MatrixDAL::bindValueToPdo($query, 'http',    ($this->force_secure) ? '0' : $urls[$urlid]['http']);
+				MatrixDAL::bindValueToPdo($query, 'https',   $urls[$urlid]['https']);
+				MatrixDAL::bindValueToPdo($query, 'urlid',   $urlid);
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -579,11 +578,11 @@ class Site extends Folder
 							)';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':url',   $urls[$urlid]['url']);
-					$query->bindValue(':name',  $name);
-					$query->bindValue(':value', $designid);
-					$query->bindValue(':depth', $site_depth);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'url',   $urls[$urlid]['url']);
+					MatrixDAL::bindValueToPdo($query, 'name',  $name);
+					MatrixDAL::bindValueToPdo($query, 'value', $designid);
+					MatrixDAL::bindValueToPdo($query, 'depth', $site_depth);
 					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -609,11 +608,11 @@ class Site extends Folder
 							)';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':url',   $urls[$save_urlid]['url'].'/');
-					$query->bindValue(':name',  $name);
-					$query->bindValue(':value', $designid);
-					$query->bindValue(':depth', $site_depth+1);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'url',   $urls[$save_urlid]['url'].'/');
+					MatrixDAL::bindValueToPdo($query, 'name',  $name);
+					MatrixDAL::bindValueToPdo($query, 'value', $designid);
+					MatrixDAL::bindValueToPdo($query, 'depth', $site_depth+1);
 					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
@@ -764,9 +763,9 @@ class Site extends Folder
 			$sql .= $where.$limit;
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':assetid', $asset->id);
-				$query->bindValue(':url', $url.'%');
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
+				MatrixDAL::bindValueToPdo($query, 'url', $url.'%');
 				$result = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get default design for asset: '.$asset->id.' due to database error: '.$e->getMessage());
