@@ -29,10 +29,18 @@ require_once dirname(__FILE__).'/Query.inc';
  *
  * DAL class also handles database connection and access.
  *
+ * NB: the Matrix (MySource 3.x) version of the DAL is resorting to using OCI8
+ * functionality, instead of PDO, when connecting to Oracle (v.9+) databases.
+ * This is due to the instability and lack of support of PDO_OCI towards CLOB
+ * fields at the moment (as of January 2008). When PDO_OCI better supports the
+ * CLOB field type, Oracle support will again use PDO_OCI. Returns from OCI8
+ * will be changed to expected PDO format for consistency.
+ *
  * @since 4.0.0
  */
 class DAL
 {
+
 
     /**
      * PDO connection pool.
@@ -312,7 +320,10 @@ class DAL
     public static function executeGrouped($systemid, $queryid)
     {
         $query = self::getQuery($systemid, $queryid);
-        return self::getGrouped($query);
+        $res = self::getGrouped($query);
+        $query->closeCursor();
+        unset($query);
+        return $res;
 
     }//end executeGrouped()
 
@@ -333,6 +344,8 @@ class DAL
     {
         $query = self::getQuery($systemid, $queryid);
         $res   = self::getAssoc($query, $col);
+        $query->closeCursor();
+        unset($query);
 
         return $res;
 
@@ -353,7 +366,11 @@ class DAL
     public static function executeAll($systemid, $queryid)
     {
         $query = self::getQuery($systemid, $queryid);
-        return self::getAll($query);
+        $res = self::getAll($query);
+        $query->closeCursor();
+        unset($query);
+
+        return $res;
 
     }//end executeAll()
 
@@ -379,6 +396,9 @@ class DAL
         if (is_resource($result) === TRUE) {
             $result = stream_get_contents($result);
         }
+
+        $query->closeCursor();
+        unset($query);
 
         return $result;
 
@@ -427,6 +447,9 @@ class DAL
         }
 
         self::_endQueryTimer();
+
+        $query->closeCursor();
+        unset($query);
 
         return $rows;
 
@@ -492,16 +515,36 @@ class DAL
 
 
     /**
-     * Executes the given PDO statment.
+     * Executes the given PDO statement and returns the number of returned
+     * or affected rows.
      *
      * @param PDOStatement $query PDOStatement object.
      *
      * @since  4.0.0
-     * @return void
+     * @return int
      */
-    public static function execPdoQuery(PDOStatement $query)
+    public static function execPdoQuery($query)
     {
-        $query->execute();
+        $dbh = self::getDb();
+
+        if (!((gettype($query) !== 'PDOStatement') || (is_resource($query) && (get_resource_type($query) === 'oci8 statement')))) {
+            throw new Exception('Invalid parameter 1 given to '.__FUNCTION__.'()');
+        }
+
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $result = oci_execute($query, OCI_DEFAULT);
+            if ($result === FALSE) {
+                bam(array_contents(debug_backtrace(), 3));
+                throw new DALException('Unable to execute query :'.oci_error($dbh));
+            }
+            $rows = oci_num_rows($query);
+        } else {
+            $query->execute();
+            $rows = (int)$query->rowCount();
+        }
+
+        return $rows;
 
     }//end execPdoQuery()
 
@@ -519,19 +562,43 @@ class DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executePdoAssoc(PDOStatement $query, $col=NULL)
+    public static function executePdoAssoc($query, $col=NULL)
     {
+        if (!((gettype($query) !== 'PDOStatement') || (is_resource($query) && (get_resource_type($query) === 'oci8 statement')))) {
+            throw new Exception('Invalid parameter 1 given to '.__FUNCTION__.'()');
+        }
+
         try {
             self::execPdoQuery($query);
         } catch (PDOException $e) {
             throw new DALException($e->getMessage());
         }
 
-        $result = NULL;
-        if ($col !== NULL) {
-            $result = $query->fetchAll(PDO::FETCH_COLUMN, $col);
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $dbh = self::getDb();
+
+            if ($col === NULL) {
+                $result = Array();
+                while ($current_row = oci_fetch_array($query, OCI_ASSOC | OCI_RETURN_LOBS | OCI_RETURN_NULLS)) {
+                    $result[] = array_change_key_case($current_row, CASE_LOWER);
+                }
+            } else {
+                $result = Array();
+                while ($current_row = oci_fetch_array($query, OCI_NUM | OCI_RETURN_LOBS | OCI_RETURN_NULLS)) {
+                    $result[] = $current_row[$col];
+                }
+            }
+            oci_cancel($query);
+            oci_free_statement($query);
+            unset($query);
         } else {
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            $result = NULL;
+            if ($col !== NULL) {
+                $result = $query->fetchAll(PDO::FETCH_COLUMN, $col);
+            } else {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+            }
         }
 
         return $result;
@@ -547,15 +614,31 @@ class DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executePdoAll(PDOStatement $query)
+    public static function executePdoAll($query)
     {
+        if (!((gettype($query) !== 'PDOStatement') || (is_resource($query) && (get_resource_type($query) === 'oci8 statement')))) {
+            throw new Exception('Invalid parameter 1 given to '.__FUNCTION__.'()');
+        }
+
         try {
             self::execPdoQuery($query);
         } catch (PDOException $e) {
             throw $e;
         }
 
-        $result = $query->fetchAll();
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $dbh = self::getDb();
+            $result = Array();
+            while ($current_row = oci_fetch_array($query, OCI_BOTH | OCI_RETURN_LOBS | OCI_RETURN_NULLS)) {
+                $result[] = array_change_key_case($current_row, CASE_LOWER);
+            }
+            oci_cancel($query);
+            oci_free_statement($query);
+            unset($query);
+        } else {
+            $result = $query->fetchAll();
+        }
 
         return $result;
 
@@ -571,8 +654,12 @@ class DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executePdoGrouped(PDOStatement $query)
+    public static function executePdoGrouped($query)
     {
+        if (!((gettype($query) !== 'PDOStatement') || (is_resource($query) && (get_resource_type($query) === 'oci8 statement')))) {
+            throw new Exception('Invalid parameter 1 given to '.__FUNCTION__.'()');
+        }
+
         $result = array();
         try {
             self::execPdoQuery($query);
@@ -580,7 +667,19 @@ class DAL
             throw new DALException($e->getMessage());
         }
 
-        while ($row = $query->fetch(PDO::FETCH_NUM)) {
+        while (TRUE) {
+            if (self::getDbType() === 'oci') {
+                // OCI:
+                $row = oci_fetch_array($query, OCI_NUM | OCI_RETURN_LOBS | OCI_RETURN_NULLS);
+                if (is_array($row)) {
+                    $row = array_change_key_case($row, CASE_LOWER);
+                }
+            } else {
+                $row = $query->fetch(PDO::FETCH_NUM);
+            }
+
+            if ($row === FALSE) break;
+
             if (isset($result[$row[0]]) === FALSE) {
                 $result[$row[0]] = array();
             }
@@ -593,6 +692,13 @@ class DAL
             }
 
             $result[$row[0]][] = $current;
+        }
+
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            oci_cancel($query);
+            oci_free_statement($query);
+            unset($query);
         }
 
         return $result;
@@ -609,19 +715,36 @@ class DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executePdoGroupedAssoc(PDOStatement $query)
+    public static function executePdoGroupedAssoc($query)
     {
+        if (!((gettype($query) !== 'PDOStatement') || (is_resource($query) && (get_resource_type($query) === 'oci8 statement')))) {
+            throw new Exception('Invalid parameter 1 given to '.__FUNCTION__.'()');
+        }
+
         $result = array();
+
         try {
             self::execPdoQuery($query);
         } catch (PDOException $e) {
             throw new DALException($e->getMessage());
         }
 
-        while ($row = $query->fetch(PDO::FETCH_ASSOC)) {
+        while (TRUE) {
+            if (self::getDbType() === 'oci') {
+                // OCI:
+                $row = oci_fetch_array($query, OCI_ASSOC | OCI_RETURN_LOBS | OCI_RETURN_NULLS);
+                if (is_array($row)) {
+                    $row = array_change_key_case($row, CASE_LOWER);
+                }
+            } else {
+                $row = $query->fetch(PDO::FETCH_ASSOC);
+            }
+
+            if ($row === FALSE) break;
+
             // If we don't know the first field yet, find out what it is
             // because it should be the same for each row
-            if (!isset($first_field)) {
+            if (isset($first_field) === FALSE) {
                 reset($row);
                 $first_field = key($row);
             }
@@ -634,6 +757,14 @@ class DAL
             $current = $row;
             unset($current[$first_field]);
             $result[$first_value][] = $current;
+            unset($row);
+        }
+
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            oci_cancel($query);
+            oci_free_statement($query);
+            unset($query);
         }
 
         return $result;
@@ -649,15 +780,31 @@ class DAL
      * @since  4.0.0
      * @return array
      */
-    public static function executePdoOne(PDOStatement $query)
+    public static function executePdoOne($query)
     {
+        if (!((gettype($query) !== 'PDOStatement') || (is_resource($query) && (get_resource_type($query) === 'oci8 statement')))) {
+            throw new Exception('Invalid parameter 1 given to '.__FUNCTION__.'()');
+        }
+
         try {
             self::execPdoQuery($query);
         } catch (PDOException $e) {
             throw new DALException($e->getMessage());
         }
 
-        $result = $query->fetchColumn();
+        if (self::getDbType() === 'oci') {
+            $result_row = oci_fetch_array($query, OCI_NUM | OCI_RETURN_LOBS | OCI_RETURN_NULLS);
+            $result = $result_row[0];
+            oci_cancel($query);
+            oci_free_statement($query);
+            unset($query);
+        } else {
+            $result = $query->fetchColumn();
+
+            if (is_resource($result) === TRUE) {
+                $result = stream_get_contents($result);
+            }
+        }
 
         return $result;
 
@@ -677,7 +824,23 @@ class DAL
     public static function executeSql($sql)
     {
         $dbh  = self::getDb();
-        $rows = $dbh->exec($sql);
+
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $query = oci_parse($dbh, $sql);
+            if ($query === FALSE) {
+                throw new DALException('Unable to prepare query :'.$oci_error($dbh));
+            }
+
+            self::execPdoQuery($query);
+            $rows = oci_num_rows($query);
+
+            if ($rows === FALSE) {
+
+            }
+        } else {
+            $rows = $dbh->exec($sql);
+        }
         return $rows;
 
     }//end executeSql()
@@ -700,7 +863,12 @@ class DAL
     {
         $dbh = self::getDb();
 
-        $query = $dbh->prepare($sql);
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $query = oci_parse($dbh, $sql);
+        } else {
+            $query = $dbh->prepare($sql);
+        }
         return self::executePdoAssoc($query, $col);
 
     }//end executeSqlAssoc()
@@ -718,8 +886,15 @@ class DAL
     {
         $dbh = self::getDb();
 
-        $query = $dbh->prepare($sql);
-        return self::executePdoAll($query);
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $query = oci_parse($dbh, $sql);
+        } else {
+            $query = $dbh->prepare($sql);
+        }
+        $res = self::executePdoAll($query);
+
+        return $res;
 
     }//end executeSqlAll()
 
@@ -737,8 +912,15 @@ class DAL
     {
         $dbh = self::getDb();
 
-        $query = $dbh->prepare($sql);
-        return self::executePdoGrouped($query);
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $query = oci_parse($dbh, $sql);
+        } else {
+            $query = $dbh->prepare($sql);
+        }
+        $res = self::executePdoGrouped($query);
+
+        return $res;
 
     }//end executeSqlGrouped()
 
@@ -756,8 +938,15 @@ class DAL
     {
         $dbh = self::getDb();
 
-        $query = $dbh->prepare($sql);
-        return self::executePdoGroupedAssoc($query);
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $query = oci_parse($dbh, $sql);
+        } else {
+            $query = $dbh->prepare($sql);
+        }
+        $res = self::executePdoGroupedAssoc($query);
+
+        return $res;
 
     }//end executeSqlGroupedAssoc()
 
@@ -774,8 +963,15 @@ class DAL
     {
         $dbh = self::getDb();
 
-        $query = $dbh->prepare($sql);
-        return self::executePdoOne($query);
+        if (self::getDbType() === 'oci') {
+            // OCI:
+            $query = oci_parse($dbh, $sql);
+        } else {
+            $query = $dbh->prepare($sql);
+        }
+        $res = self::executePdoOne($query);
+
+        return $res;
 
     }//end executeSqlOne()
 
@@ -838,7 +1034,13 @@ class DAL
 
         if ($dbInfo['transactionSupport'] === TRUE) {
             $dbh = self::getDb();
-            $dbh->beginTransaction();
+
+            if (self::getDbType() === 'oci') {
+                // OCI: Oracle does not require an explicit BEGIN statement.
+                ;
+            } else {
+                $dbh->beginTransaction();
+            }
             self::$_dbhPool[$currentDb]['inTransaction'] = TRUE;
         }
 
@@ -857,7 +1059,16 @@ class DAL
 
         if (self::$_dbhPool[$currentDb]['inTransaction'] === TRUE) {
             $dbh = self::getDb();
-            $dbh->commit();
+
+            if (self::getDbType() === 'oci') {
+                // OCI:
+                $return = oci_commit($dbh);
+                if ($return === FALSE) {
+                    throw new DALException('Unable to commit on connection ID "'.$currentDb.'": '.oci_error($dbh));
+                }
+            } else {
+                $dbh->commit();
+            }
             self::$_dbhPool[$currentDb]['inTransaction'] = FALSE;
         }
 
@@ -878,7 +1089,16 @@ class DAL
 
         if (self::$_dbhPool[$currentDb]['inTransaction'] === TRUE) {
             $dbh = self::getDb();
-            $dbh->rollBack();
+
+            if (self::getDbType() === 'oci') {
+                // OCI:
+                $return = oci_rollback($dbh);
+                if ($return === FALSE) {
+                    throw new DALException('Unable to roll back on connection ID "'.$currentDb.'": '.oci_error($dbh));
+                }
+            } else {
+                $dbh->rollBack();
+            }
             self::$_dbhPool[$currentDb]['inTransaction'] = FALSE;
         }
 
@@ -940,14 +1160,26 @@ class DAL
                 $pass = $dsn['password'];
             }
 
-            $new_dbh = new PDO($dsn['DSN'], $user, $pass);
-            $new_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $new_dbh->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
-            $new_dbh->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
+            if ($dsn['type'] === 'oci') {
+                // OCI: Oracle in PDO is far too buggy to be considered usable (tested
+                // in 5.1.x to 5.3dev). Therefore we'll be resigned to using
+                // legacy OCI8 extension functions.
+                $new_dbh = oci_connect($dsn['user'], $dsn['password'], $dsn['DSN']);
+                if ($new_dbh === FALSE) {
+                    throw new Exception('Unable to connect to database "'.$conn_id.'": '.oci_error());
+                }
+            } else {
 
-            if ($dsn['type'] === 'mysql') {
-                $new_dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, TRUE);
-                $new_dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, TRUE);
+                $new_dbh = new PDO($dsn['DSN'], $user, $pass);
+                $new_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                $new_dbh->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+                $new_dbh->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
+
+                if ($dsn['type'] === 'mysql') {
+                    $new_dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, TRUE);
+                    $new_dbh->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, TRUE);
+                }
+
             }
 
             self::$_dbhPool[$conn_id] = array(
@@ -1088,6 +1320,14 @@ class DAL
             // allow them to close the connection.
             throw new DALException('Connection with ID "'.$conn_id.'" cannot be closed because it still exists in the stack.');
         } else {
+            if (self::getDbType(FALSE, $conn_id) === 'oci') {
+                // OCI: Must close Oracle connections first
+                $return = oci_close(self::$_dbhPool[$conn_id]);
+                if ($return === FALSE) {
+                    throw new DALException('Unable to close connection ID "'.$currentDb.'": '.oci_error(self::$_dbhPool[$conn_id]));
+                }
+            }
+
             unset(self::$_dbhPool[$conn_id]);
         }
 
@@ -1251,7 +1491,13 @@ class DAL
         //$conf = include dirname(__FILE__).'/DALConf.inc';
         $dbInfo = self::$_dbhPool[$conn_id];
         $dbh = $dbInfo['dbh'];
-        $dbType = $dbh->getAttribute(PDO::ATTR_DRIVER_NAME);
+
+        if (is_resource($dbh) && (get_resource_type($dbh) === 'oci8 connection')) {
+            // OCI: The connection handle for OCI is a resource and not an object
+            $dbType = 'oci';
+        } else {
+            $dbType = $dbh->getAttribute(PDO::ATTR_DRIVER_NAME);
+        }
 
         if ($readable === TRUE) {
             return self::$_dbNames[$dbType];
@@ -1433,6 +1679,31 @@ class DAL
         return self::$_queryLog;
 
     }//end getLoggedQueries()
+
+
+    /**
+     * Does the fetching of an OCI LOB object.
+     *
+     * @param OCI-Lob    $lob   Freshly-cooked OCI LOBster
+     *
+     * @since  4.0.0
+     * @return array
+     */
+    protected static function _fetchOciClob(OCI_Lob $lob)
+    {
+        // If this is a LOB, we need to read through it as if it was
+                // a file stream
+        $result = '';
+        $lob->rewind();
+        $result = '';
+        while (!$lob->eof()) {
+            $result .= $lob->read(4096);
+        }
+        $lob->close();
+
+        return $result;
+
+    }//end _fetchOCILob()
 
 
 }//end class
