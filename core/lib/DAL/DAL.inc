@@ -589,9 +589,6 @@ class DAL
                     $result[] = $current_row[$col];
                 }
             }
-            oci_cancel($query);
-            oci_free_statement($query);
-            unset($query);
         } else {
             $result = NULL;
             if ($col !== NULL) {
@@ -633,9 +630,6 @@ class DAL
             while ($current_row = oci_fetch_array($query, OCI_BOTH | OCI_RETURN_LOBS | OCI_RETURN_NULLS)) {
                 $result[] = array_change_key_case($current_row, CASE_LOWER);
             }
-            oci_cancel($query);
-            oci_free_statement($query);
-            unset($query);
         } else {
             $result = $query->fetchAll();
         }
@@ -692,13 +686,6 @@ class DAL
             }
 
             $result[$row[0]][] = $current;
-        }
-
-        if (self::getDbType() === 'oci') {
-            // OCI:
-            oci_cancel($query);
-            oci_free_statement($query);
-            unset($query);
         }
 
         return $result;
@@ -760,13 +747,6 @@ class DAL
             unset($row);
         }
 
-        if (self::getDbType() === 'oci') {
-            // OCI:
-            oci_cancel($query);
-            oci_free_statement($query);
-            unset($query);
-        }
-
         return $result;
 
     }//end executePdoGroupedAssoc()
@@ -795,9 +775,6 @@ class DAL
         if (self::getDbType() === 'oci') {
             $result_row = oci_fetch_array($query, OCI_NUM | OCI_RETURN_LOBS | OCI_RETURN_NULLS);
             $result = $result_row[0];
-            oci_cancel($query);
-            oci_free_statement($query);
-            unset($query);
         } else {
             $result = $query->fetchColumn();
 
