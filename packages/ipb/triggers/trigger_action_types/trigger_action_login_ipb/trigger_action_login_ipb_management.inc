@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_login_ipb_management.inc,v 1.2 2006/12/07 03:11:02 bcaldwell Exp $
+* $Id: trigger_action_login_ipb_management.inc,v 1.3 2008/01/29 04:04:47 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -33,10 +33,12 @@ class Trigger_Action_Login_Ipb_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager installing this asset
+	*
 	*/
-	function Trigger_Action_Login_Ipb_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
 

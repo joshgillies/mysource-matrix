@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_login_ipb.inc,v 1.4 2007/01/11 05:37:26 amiller Exp $
+* $Id: trigger_action_login_ipb.inc,v 1.5 2008/01/29 04:04:47 lwright Exp $
 *
 */
 
@@ -26,12 +26,28 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Login_Ipb extends Trigger_Action
 {
+
+
+	/**
+	* Constructor
+	*
+	* This constructor is included for consistency, but will not actually be
+	* called, because trigger actions are only called statically.
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -51,7 +67,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		// check settings, state
 		if (empty($settings['ipbsdk_path']) || !file_exists($settings['ipbsdk_path'])) {
@@ -88,7 +104,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 		// We have to supress error reporting level since IPB and IPBSDK
 		// generates many PHP Notice warnings
 		$old_reporting_level = error_reporting(0);
-		$SDK =& new IPBSDK();
+		$SDK = new IPBSDK();
 		if (!$SDK->login($username, $password, 1)) {
 			// Do we want any error reporting?
 		}
@@ -109,7 +125,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		$ipbsdk_path = array_get_index($settings, 'ipbsdk_path', '');
 		ob_start();
@@ -148,7 +164,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		$ipbsdk_path = array_get_index($request_data, 'ipbsdk_path', '');
 		$ipbsdk_path = trim($ipbsdk_path);
@@ -172,7 +188,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 	* @return array
 	* @access public
 	*/
-	function getLocks($settings, &$state)
+	public static function getLocks($settings, &$state)
 	{
 		return Array(
 				$state['assetid']	=> Array(
