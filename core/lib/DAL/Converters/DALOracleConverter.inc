@@ -296,6 +296,12 @@ class DALOracleConverter extends DALConverter
      */
     protected function convertSelectQuery(array $sqlArray, $level=0, array $ignore=array())
     {
+		// If there are no tables specified in a SELECT query,
+		// use DUAL automatically.
+		if (empty($sqlArray['FROM'])) {
+			$sqlArray['FROM'] = Array('dual');
+		}
+
         $sql = parent::convertSelectQuery($sqlArray, $level, $ignore);
 
         // Start with.
