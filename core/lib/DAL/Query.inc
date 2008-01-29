@@ -362,11 +362,29 @@ class Query
 
         // Prepare PDO statement.
         $dbh   = DAL::getDb();
-        $query = $dbh->prepare($sql);
-        // Add bindings to PDO.
-        foreach ($this->_bindings as $binding) {
-            // $query->bindValue($binding['name'], $binding['value'], $binding['type']);
-			$query->bindValue($binding['name'], $binding['value']);
+
+        if (DAL::getDbType() === 'oci') {
+
+            $query = oci_parse($dbh, $sql);
+            // Add bindings
+            foreach ($this->_bindings as $binding) {
+                // TODO: Handle insert/update of CLOB fields - this needs to be determined at bake time
+                if ($binding['type'] === PDO::PARAM_LOB) {
+                    oci_bind_by_name($query, $binding['name'], $binding['value'], -1, SQLT_CLOB);
+                } else {
+                    oci_bind_by_name($query, $binding['name'], $binding['value'], -1);
+                }
+            }
+
+        } else {
+
+            $query = $dbh->prepare($sql);
+            // Add bindings to PDO.
+            foreach ($this->_bindings as $binding) {
+                // $query->bindValue($binding['name'], $binding['value'], $binding['type']);
+                $query->bindValue($binding['name'], $binding['value']);
+            }
+
         }
 
         return $query;
