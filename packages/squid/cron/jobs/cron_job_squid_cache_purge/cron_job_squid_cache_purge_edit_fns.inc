@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_squid_cache_purge_edit_fns.inc,v 1.2 2006/12/07 02:54:14 bcaldwell Exp $
+* $Id: cron_job_squid_cache_purge_edit_fns.inc,v 1.3 2008/01/29 03:46:32 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -35,9 +35,9 @@ class Cron_Job_Squid_Cache_Purge_Edit_Fns extends Cron_Job_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Cron_Job_Squid_Cache_Purge_Edit_Fns()
+	function __construct()
 	{
-		$this->Cron_Job_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 
@@ -45,16 +45,16 @@ class Cron_Job_Squid_Cache_Purge_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Prints the tasks interface in a one line format
 	*
-	* @param object	&$asset					the owning asset
-	* @param object	&$o						the backend outputter
-	* @param string	$prefix					prefix for form elements
-	* @param string	$when					prepared when string
-	* @param string	$form_extra_elements	anything that goes into the 'extra' field
+	* @param Asset				$asset					the owning asset
+	* @param Backend_Outputter	$o						the backend outputter
+	* @param string				$prefix					prefix for form elements
+	* @param string				$when					prepared when string
+	* @param string				$form_extra_elements	anything that goes into the 'extra' field
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
+	public function paintInLineBackend(Asset $asset, Backend_Outputter $o, $prefix, $when='', $form_extra_elements='')
 	{
 		$preposition = ($asset->attr('type') == 'one_off') ? translate('squid_clear_at') : translate('squid_clear_every');
 		echo translate('squid_clear_this', $preposition);
@@ -68,14 +68,14 @@ class Cron_Job_Squid_Cache_Purge_Edit_Fns extends Cron_Job_Edit_Fns
 	/**
 	* Process the tasks interface
 	*
-	* @param object	&$asset	the owning asset
-	* @param object	&$o		the backend outputter
-	* @param string	$prefix	prefix for form elements
+	* @param Asset				$asset	the owning asset
+	* @param Backend_Outputter	$o		the backend outputter
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInLineBackend(&$asset, &$o, $prefix)
+	public function processInLineBackend(Asset $asset, Backend_Outputter $o, $prefix)
 	{
 		$when = $this->_processWhenBox($asset, $o, $prefix);
 		if ($when) {

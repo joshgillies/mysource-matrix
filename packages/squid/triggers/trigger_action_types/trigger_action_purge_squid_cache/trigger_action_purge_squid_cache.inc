@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_purge_squid_cache.inc,v 1.3 2007/01/08 04:01:22 emcdonald Exp $
+* $Id: trigger_action_purge_squid_cache.inc,v 1.4 2008/01/29 03:46:33 lwright Exp $
 *
 */
 
@@ -25,12 +25,28 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
 class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 {
+
+
+	/**
+	* Constructor
+	*
+	* Added for consistency. However, this is only ever called statically,
+	* so the constructor will never actually be called.
+	*
+	* @param string	$assetid	The ID of this asset
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -43,7 +59,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		if (empty($state['assetid'])) return FALSE;
 
@@ -71,7 +87,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		return translate('squid_tool_hostname_note');
 
@@ -89,7 +105,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		return FALSE;
 

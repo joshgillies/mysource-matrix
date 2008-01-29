@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_squid_cache_purge_management.inc,v 1.2 2006/12/07 02:54:14 bcaldwell Exp $
+* $Id: cron_job_squid_cache_purge_management.inc,v 1.3 2008/01/29 03:46:32 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -33,10 +33,12 @@ class Cron_Job_Squid_Cache_Purge_Management extends Asset_Management
 	/**
 	* Constructor
 	*
+	* @param Package_Manager	$pm	The package manager installing this asset
+	*
 	*/
-	function Cron_Job_Squid_Cache_Purge_Management(&$pm)
+	function __construct(Package_Manager $pm)
 	{
-		$this->Asset_Management($pm);
+		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
 						'type'			=> Array(
