@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.83 2008/01/29 21:51:02 lwright Exp $
+* $Id: asset_management.inc,v 1.84 2008/01/29 22:02:03 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -555,9 +555,7 @@ class Asset_Management extends MySource_Object
 
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.uniq, atr.parameters_val,
-							atr.parameters_type_code, atr.default_type_code, '.
-							(MatrixDAL::getDbType() === 'oci' ? 'sq_lob_to_varchar(atr.default_val) as default_val' : 'atr.default_val').
-							', atr.description, atr.is_admin
+							atr.parameters_type_code, atr.default_type_code, atr.default_val, atr.description, atr.is_admin
 					FROM sq_ast_typ_inhd i, sq_ast_attr atr, sq_ast_typ at
 					WHERE i.type_code = :type_code
 					  AND i.inhd_type_code <> :inhd_type_code
