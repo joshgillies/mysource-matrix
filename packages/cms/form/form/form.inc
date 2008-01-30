@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178 2008/01/07 00:09:14 colivar Exp $
+* $Id: form.inc,v 1.179 2008/01/30 22:37:07 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1161,7 +1161,7 @@ class Form extends Asset implements Bridge
 							'use_bodycopy_main'			=> 'Page Contents',
 							'use_bodycopy_thank_you'	=> 'Thank You',
 						  );
-			$replace_keywords = Array ( 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
+			$replace_keywords = Array ( 'question_name', 'response', 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
 			foreach ($bodycopies as $attribute => $bodycopy_name) {
 				$bodycopy = NULL;
 				$attr_value = $clone->attr($attribute);
