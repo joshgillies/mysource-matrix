@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.268 2008/01/25 00:36:15 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.269 2008/01/31 05:56:06 mbrydon Exp $
 *
 */
 
@@ -2163,8 +2163,11 @@ Are you sure you want to proceed?</string>
 	<string source="asset_field_type_code">Type Code</string>
 
 
+	<string source="tool_asset_sorter_usage_notes"><![CDATA[<p>This tool provides sorting functionality for assets in the Asset Map. Assets may be sorted either by 'Asset Field' or 'Asset Attribute'.</p><p><b>To sort by 'Asset Field'</b>, select the 'Asset Field' sort type and a 'Sort Field' above.</p><p><b>To sort by 'Asset Attribute'</b>, select the 'Asset Attribute' sort type then select an Asset Type above and click 'Commit'. A list of attributes for the selected asset type will then appear below the Asset Type. Select an attribute and click 'Commit' to sort by the selected attribute.</p>]]></string>
 	<string source="tool_asset_sorter_sort_options">Sort Options</string>
+	<string source="tool_asset_sorter_sort_type">Sort Type</string>
 	<string source="tool_asset_sorter_sort_field">Sort Field</string>
+	<string source="tool_asset_sorter_sort_attribute">Sort Attribute</string>
 	<string source="tool_asset_sorter_sort_direction">Sort Direction</string>
 	<string source="tool_asset_sorter_must_select_parent">You must select a parent asset whose children you want to sort</string>
 	<string source="tool_asset_sorter_complete_heading">Asset sorting complete</string>
