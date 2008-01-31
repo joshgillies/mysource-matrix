@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.9 2007/12/13 23:55:56 rong Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.10 2008/01/31 04:55:06 lmarchese Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -244,6 +244,16 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 				</td>
 			</tr>
+			<tr <?php echo (!$display_fields['html_layout']) ? 'style="display:none;"' : ''; ?>>
+				<td class="sq-backend-table-header">HTML Layout:</td>
+				<td class="sq-backend-table-cell">
+					<?php radio_button($prefix.'_html_layout', 'table', $current_settings['html_layout'] == 'table', '', 'id="'.$prefix.'_html_layout_table_id'); ?>
+					<?php label('Table', $prefix.'_html_layout_table_id'); ?>
+					<?php radio_button($prefix.'_html_layout', 'div', $current_settings['html_layout'] == 'div', '', 'id="'.$prefix.'_html_layout_div_id'); ?>
+					<?php label('Div', $prefix.'_html_layout_div_id'); ?>
+				</td>
+			</tr>
+			
 			<?php
 			?>
 			</table>
@@ -306,6 +316,11 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			} else {
 				$current_settings['caption_position'] = 'bottom';
 			}
+			if (isset($_POST[$prefix.'_html_layout'])) {
+				$current_settings['html_layout'] = $_POST[$prefix.'_html_layout'];
+			} else {
+				$current_settings['html_layout'] = 'table';
+			}
 			$current_settings['constrain_proportions'] = isset($_POST[$prefix.'_proportions']);
 
 			$onclick = $asset->getAttribute('on_click');
@@ -341,18 +356,33 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 					// Print out js for showing the popup preview
 					?>
 					<div class="<?php echo $preview_classes['surrounding_container']; ?>" id="<?php echo $prefix; ?>_roll_preview" style="visibility: hidden; z-index: 5; position: absolute; left">
-						<table class="<?php echo $preview_classes['preview_image_table']; ?>">
-							<tr>
-								<td class="<?php echo $preview_classes['close_preview_cell']; ?>" onclick="<?php echo $prefix; ?>_preview_close()" style="cursor: pointer;">
-									Close
-								</td>
-							</tr>
-							<tr>
-								<td class="<?php echo $preview_classes['image_table_cell']; ?>">
-									<img src="./?a=<?php echo $current_image->id; ?>" class="<?php echo $preview_classes['image_tag']; ?>" />
-								</td>
-							</tr>
-						</table>
+						<?php
+						if ($current_settings['html_layout'] == 'table') { 
+						?>
+							<table class="<?php echo $preview_classes['preview_image_table']; ?>">
+								<tr>
+									<td class="<?php echo $preview_classes['close_preview_cell']; ?>" onclick="<?php echo $prefix; ?>_preview_close()" style="cursor: pointer;">
+										Close
+									</td>
+								</tr>
+								<tr>
+									<td class="<?php echo $preview_classes['image_table_cell']; ?>">
+										<img src="./?a=<?php echo $current_image->id; ?>" class="<?php echo $preview_classes['image_tag']; ?>" />
+									</td>
+								</tr>
+							</table>
+						<?php
+						} else {
+						?>
+							<div class="<?php echo $preview_classes['close_preview_div']; ?>" onclick="<?php echo $prefix; ?>_preview_close()" style="cursor: pointer;">
+								Close
+							</div>
+							<div class="<?php echo $preview_classes['image_div']; ?>">
+								<img src="./?a=<?php echo $current_image->id; ?>" class="<?php echo $preview_classes['image_tag']; ?>" />
+							</div>
+						<?php
+						}
+						?>
 					</div>
 
 					<script type="text/javascript">
@@ -410,56 +440,107 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 					</script>
 				<?php
 				}//end if
-				?>
-				<table class="<?php echo $classes['surrounding_container']; ?>">
-					<?php
-					if ($current_settings['caption_position'] == 'top') {
-						?>
-						<tr><td class="<?php echo $classes['caption_table_cell']; ?>"><?php echo $caption?></td></tr>
-						<?php
-					}
+
+				if ($current_settings['html_layout'] == 'table') { 
 					?>
-					<tr>
-						<td class="<?php echo $classes['image_table_cell']; ?>" style="width:<?php echo $current_settings['width']; ?>px; height: <?php echo $current_settings['height']; ?>px;">
+					<table class="<?php echo $classes['surrounding_container']; ?>">
 						<?php
-						if ($image_linked) {
+						if ($current_settings['caption_position'] == 'top') {
 							?>
-							<a href="./?a=<?php echo $current_image->id; ?>"
-							<?php
-								if ($on_click_option == 'new_window') {
-									echo 'target="blank"';
-								}
-								?>
-							>
+							<tr><td class="<?php echo $classes['caption_table_cell']; ?>"><?php echo $caption?></td></tr>
 							<?php
 						}
 						?>
-						<img id="<?php echo $prefix; ?>_img" src="./?a=<?php echo $current_image->id; ?>" style="<?php echo $image_width.$image_height; ?>" class="<?php echo $classes['image_tag']; ?>" alt="<?php echo $image_alt; ?>"
+						<tr>
+							<td class="<?php echo $classes['image_table_cell']; ?>" style="width:<?php echo $current_settings['width']; ?>px; height: <?php echo $current_settings['height']; ?>px;">
 							<?php
-							// Add onclick events for inline previewing
-							if ($on_click_option == 'inline') {
-								echo 'onclick="return '.$prefix.'_preview(event);"';
+							if ($image_linked) {
+								?>
+								<a href="./?a=<?php echo $current_image->id; ?>"
+								<?php
+									if ($on_click_option == 'new_window') {
+										echo 'target="blank"';
+									}
+									?>
+								>
+								<?php
 							}
 							?>
-						/>
-						<?php
-						if ($image_linked) {
+							<img id="<?php echo $prefix; ?>_img" src="./?a=<?php echo $current_image->id; ?>" style="<?php echo $image_width.$image_height; ?>" class="<?php echo $classes['image_tag']; ?>" alt="<?php echo $image_alt; ?>"
+								<?php
+								// Add onclick events for inline previewing
+								if ($on_click_option == 'inline') {
+									echo 'onclick="return '.$prefix.'_preview(event);"';
+								}
+								?>
+							/>
+							<?php
+							if ($image_linked) {
+								?>
+								</a>
+								<?php
+							}
 							?>
-							</a>
+							</td>
+						</tr>
+						<?php
+						if ($current_settings['caption_position'] == 'bottom') {
+							?>
+							<tr><td class="<?php echo $classes['caption_table_cell']; ?>"><?php echo $caption ?></td></tr>
 							<?php
 						}
 						?>
-						</td>
-					</tr>
+					</table>
 					<?php
-					if ($current_settings['caption_position'] == 'bottom') {
-						?>
-						<tr><td class="<?php echo $classes['caption_table_cell']; ?>"><?php echo $caption?></td></tr>
-						<?php
-					}
+					} else {
+					// we are using div html layout 
 					?>
-				</table>
-				<?php
+						<?php
+						if ($current_settings['caption_position'] == 'top') {
+						?>
+							<div class="<?php echo $classes['caption_div']; ?>"><?php echo $caption ?></div>
+						<?php
+						}
+						?>
+						<div class="<?php echo $classes['image_div']; ?>" style="width:<?php echo $current_settings['width']; ?>px; height: <?php echo $current_settings['height']; ?>px;">
+							<?php
+							if ($image_linked) {
+								?>
+								<a href="./?a=<?php echo $current_image->id; ?>"
+								<?php
+									if ($on_click_option == 'new_window') {
+										echo 'target="blank"';
+									}
+									?>
+								>
+								<?php
+							}
+							?>
+							<img id="<?php echo $prefix; ?>_img" src="./?a=<?php echo $current_image->id; ?>" style="<?php echo $image_width.$image_height; ?>" class="<?php echo $classes['image_tag']; ?>" alt="<?php echo $image_alt; ?>"
+								<?php
+								// Add onclick events for inline previewing
+								if ($on_click_option == 'inline') {
+									echo 'onclick="return '.$prefix.'_preview(event);"';
+								}
+								?>
+							/>
+							<?php
+							if ($image_linked) {
+								?>
+								</a>
+								<?php
+							}
+							?>
+						</div>
+						<?php
+						if ($current_settings['caption_position'] == 'bottom') {
+						?>
+							<div class="<?php echo $classes['caption_div']; ?>"><?php echo $caption ?></div>
+						<?php
+						}
+						?>
+					<?php
+					}//end else
 				$html = ob_get_contents();
 			ob_end_clean();
 			$asset->setAttrValue('html', $html);

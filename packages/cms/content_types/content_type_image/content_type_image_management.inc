@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_management.inc,v 1.4 2007/12/04 02:59:09 bshkara Exp $
+* $Id: content_type_image_management.inc,v 1.5 2008/01/31 04:55:06 lmarchese Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,6 +63,43 @@ class Content_Type_Image_Management extends Asset_Management
 					  );
 
 	}//end constructor
+
+
+	/**
+	* Upgrade script
+	*
+	* @param string	$current_version	the version we are upgrading FROM
+	*
+	* @return boolean
+	* @access private
+	* @see Asset_Management::_upgrade()
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		if (version_compare($current_version, '0.2', '<')) {
+			pre_echo('UPGRADING FILE ASSETS - FROM VERSION '.$current_version);
+			$preferences = Array();
+			if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+				include SQ_DATA_PATH.'/private/conf/preferences.inc';
+				
+				$preferences['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default']['html_layout'] = 'table';
+				$preferences['SQ_CONTENT_TYPE_IMAGE_FIELDS']['default']['html_layout'] = TRUE;
+				$preferences['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['image_div'] = 'image_div';
+				$preferences['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['caption_div'] = 'caption_div';
+				$preferences['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['image_div'] = 'preview_image_div';
+				$preferences['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['close_preview_div'] = 'close_preview_div';
+				// save the updated preferences file
+				if (!@string_to_file($preferences, SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+					return FALSE;
+				}
+			}
+		}//end if version 0.2
+
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class
