@@ -132,7 +132,7 @@ class DALPostgresConverter extends DALConverter
      */
     protected function handleFunctionSeqNextVal(array $seqName)
     {
-        $sql = 'SELECT nextVal(\''.$seqName[0].'\')';
+        $sql = '(SELECT nextVal(\''.$seqName[0].'\'))';
         return $sql;
 
     }//end handleFunctionSeqNextVal()
@@ -151,7 +151,7 @@ class DALPostgresConverter extends DALConverter
      */
     protected function handleFunctionSeqCurrVal(array $seqName)
     {
-        $sql = 'SELECT currVal(\''.$seqName[0].'\')';
+        $sql = '(SELECT currVal(\''.$seqName[0].'\'))';
         return $sql;
 
     }//end handleFunctionSeqCurrVal()
