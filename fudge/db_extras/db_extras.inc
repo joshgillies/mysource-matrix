@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.24 2008/01/31 00:30:53 hnguyen Exp $
+* $Id: db_extras.inc,v 1.25 2008/01/31 00:38:04 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -252,9 +252,9 @@ function db_get_function_result($db_type, $sql, $bind_vars=Array())
 
 	if ($db_type == 'pgsql') {
 		$sql = 'SELECT '.$sql;
-		$query	= $db->prepare($sql);
+		$query	= MatrixDAL::preparePdoQuery($sql);
 		foreach ($bind_vars as $key => $value) {
-			$query->bindValue($key, $value);
+			MatrixDAL::bindValueToPdo($query, $key, $value);
 		}
 		$result = MatrixDAL::executePdoOne($query);
 
