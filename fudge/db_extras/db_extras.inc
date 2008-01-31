@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.23 2008/01/29 22:46:56 lwright Exp $
+* $Id: db_extras.inc,v 1.24 2008/01/31 00:30:53 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -252,7 +252,11 @@ function db_get_function_result($db_type, $sql, $bind_vars=Array())
 
 	if ($db_type == 'pgsql') {
 		$sql = 'SELECT '.$sql;
-		$result = MatrixDAL::executeSqlOne($sql);
+		$query	= $db->prepare($sql);
+		foreach ($bind_vars as $key => $value) {
+			$query->bindValue($key, $value);
+		}
+		$result = MatrixDAL::executePdoOne($query);
 
 	} else if ($db_type == 'oci') {
 		// the reason that we don't do 'SELECT function() from DUAL' here is that
