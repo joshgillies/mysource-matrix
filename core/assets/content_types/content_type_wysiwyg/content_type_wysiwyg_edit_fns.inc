@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.46 2008/01/29 22:26:34 hnguyen Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.47 2008/02/01 01:12:59 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -308,6 +308,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$status = $asset->attr('htmltidy_status');
 			$status_msg = translate('wysiwyg_htmltidy_status_wait');
 			$image_filename = 'htmltidy_'.$status;
+			$htmltidy_accessibility_filename = 'htmltidy_accessibility';
 			switch ($status) {
 				case 'pass':
 					$status_msg = translate('wysiwyg_htmltidy_status_pass');
@@ -320,6 +321,15 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				break;
 			}//end switch
 			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
+
+			// Do not remove the line below, they are 'new line' seperated for a reason, that is how htmltidy_errors need to be seperated so it does not break the javascript underneath in printBodycopyIcon() call.
+			$res = (str_replace('
+', '<br />', htmlentities($asset->attr('htmltidy_errors'))));
+			$jvscript = 'alert(\''.htmlentities($res).'\');';
+
+            $accessibility_msg  = var_export($asset->attr('htmltidy_errors'),TRUE);
+            Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+
 		}
 
 	}//end paintBackendStatusIcons()
@@ -372,6 +382,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$html_tidy =& $wysiwyg->get_plugin('html_tidy');
 		if (!is_null($html_tidy)) {
 			$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
+			$asset->setAttrValue('htmltidy_errors', $html_tidy->htmltidy_errors);
 		}//end if
 		return $asset->setAttrValue('html', $html);
 
