@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.657 2008/01/29 22:41:43 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.658 2008/02/01 05:17:06 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.657 $
+* @version $Revision: 1.658 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -701,7 +701,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
-			if ($type_code != 'asset') {
+			if ($type_code[$i] != 'asset') {
 				assert_isset_array_index($this->_asset_types, $type_code[$i], 'Asset Type "'.$type_code[$i].'" is not installed on the system');
 			}
 		}
