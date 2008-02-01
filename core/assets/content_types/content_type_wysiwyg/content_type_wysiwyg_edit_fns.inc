@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.47 2008/02/01 01:12:59 hnguyen Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.48 2008/02/01 04:56:17 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -308,7 +308,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$status = $asset->attr('htmltidy_status');
 			$status_msg = translate('wysiwyg_htmltidy_status_wait');
 			$image_filename = 'htmltidy_'.$status;
-			$htmltidy_accessibility_filename = 'htmltidy_accessibility';
 			switch ($status) {
 				case 'pass':
 					$status_msg = translate('wysiwyg_htmltidy_status_pass');
@@ -327,6 +326,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 ', '<br />', htmlentities($asset->attr('htmltidy_errors'))));
 			$jvscript = 'alert(\''.htmlentities($res).'\');';
 
+			$htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
             $accessibility_msg  = var_export($asset->attr('htmltidy_errors'),TRUE);
             Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
 
