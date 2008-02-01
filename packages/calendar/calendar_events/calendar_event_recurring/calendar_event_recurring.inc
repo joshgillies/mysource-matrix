@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.89 2007/12/28 00:55:22 hnguyen Exp $
+* $Id: calendar_event_recurring.inc,v 1.90 2008/02/01 04:25:51 lmarchese Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1344,14 +1344,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$our_keywords[] = 'event_start_time_ical'; // = 'Start time (iCalendar)';
 		$our_keywords[] = 'event_end_time_ical'; // = 'End time (iCalendar)';
 		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
-		$our_keywords[] = 'event_start_datetime_XX'; // = dynamic keyword to print start date and time
-		$our_keywords[] = 'event_end_datetime_XX'; // = dynamic keyword to print end date and time
+		$our_keywords[] = 'event_start_datetime_'; // = dynamic keyword to print start date and time
+		$our_keywords[] = 'event_end_datetime_'; // = dynamic keyword to print end date and time
 		$our_keywords[] = 'event_frequency';
 		$our_keywords[] = 'instance_end_datetime';
 		$our_keywords[] = 'instance_start_datetime';
-		$our_keywords[] = 'instance_start_datetime_XX';
-		$our_keywords[] = 'instance_end_datetime_XX';
-		$our_keywords[] = 'event_stop_date_XX';
+		$our_keywords[] = 'instance_start_datetime_';
+		$our_keywords[] = 'instance_end_datetime_';
+		$our_keywords[] = 'event_stop_date_';
 		$our_keywords[] = 'event_ical_frequency';
 		$our_keywords[] = 'event_ical_exceptions';
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.83 2007/12/28 00:37:51 hnguyen Exp $
+* $Id: calendar_event.inc,v 1.84 2008/02/01 04:25:51 lmarchese Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -191,8 +191,8 @@ class Calendar_Event extends Asset
 		$our_keywords[] = 'event_duration'; // = 'Duration of the Event';
 		$our_keywords[] = 'edit_link'; // = 'Link to edit this event in Limbo (if user has permission)';
 		$our_keywords[] = 'delete_link'; // = 'Link to delete this event altogether (if user has permission)';
-		$our_keywords[] = 'event_start_datetime_XX'; // = dynamic keyword to print start date and time
-		$our_keywords[] = 'event_end_datetime_XX'; // = dynamic keyword to print end date and time
+		$our_keywords[] = 'event_start_datetime_'; // = dynamic keyword to print start date and time
+		$our_keywords[] = 'event_end_datetime_'; // = dynamic keyword to print end date and time
 
 
 		foreach ($our_keywords as $keyword) {
