@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.29 2007/12/28 00:00:20 hnguyen Exp $
+* $Id: page_calendar_rolling.inc,v 1.29.2.1 2008/02/01 01:32:41 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -395,6 +395,11 @@ class Page_Calendar_Rolling extends Page
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
 		$mm = NULL;
 
+		// Store the date supplied in the URL (if supplied) so it can be restored after use
+		$orig_date_param = '';
+		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+			$orig_date_param = $_REQUEST['SQ_CALENDAR_DATE'];
+		}
 
 		foreach ($events_by_time_unit as $unit_count => $events_by_date) {
 
@@ -483,6 +488,13 @@ class Page_Calendar_Rolling extends Page
 			$event_list .= ob_get_clean();
 
 		}//end foreach ($events_by_time_unit)
+
+		// Restore supplied date value
+		if ($orig_date_param != '') {
+			$_REQUEST['SQ_CALENDAR_DATE'] = $orig_date_param;
+		} else {
+			unset($_REQUEST['SQ_CALENDAR_DATE']);
+		}
 
 		return Array('event_list' => $event_list);
 
