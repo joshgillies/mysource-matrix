@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.10 2006/12/07 05:26:29 bcaldwell Exp $
+* $Id: lang_errors.xml,v 1.10.6.1 2008/02/01 04:41:16 bshkara Exp $
 *
 */
 
@@ -39,5 +39,6 @@
 	<error code="ECOM0021">Ecommerce Order creation failed during saving attributes</error>
 	<error code="ECOM0022">Unable to acquire lock on Ecommerce Order. Save failed</error>
 	<error code="ECOM0023">Unable to create Ecommerce Order</error>
+	<error code="ECOM0024">Unable to update product quantity information for asset with Id: #%s</error>
 
 </errors>
