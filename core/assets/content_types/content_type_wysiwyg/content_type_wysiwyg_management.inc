@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_management.inc,v 1.9 2007/12/03 23:12:50 lwright Exp $
+* $Id: content_type_wysiwyg_management.inc,v 1.10 2008/02/01 01:12:20 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,14 @@ class Content_Type_WYSIWYG_Management extends Asset_Management
 												'default'		=> 'wait',
 												'description'	=> 'Status of the last html tidy clean up action. (wait,pass,fail)',
 											   ),
+						'htmltidy_errors'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> 'No error found',
+												'description'	=> 'Status of the last html tidy clean up action. (wait,pass,fail)',
+											   ),
 					  );
+
 
 	}//end constructor
 
