@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9 2007/07/11 06:45:36 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.9.4.1 2008/02/01 04:10:48 lmarchese Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -37,8 +37,8 @@
 <string source="cal_evt_keyword_event_end_time_ical">Event End (iCalendar)</string>
 <string source="cal_evt_keyword_event_datetime_summary">Event start/end summary</string>
 <string source="cal_evt_keyword_event_duration">Event Duration</string>
-<string source="cal_evt_keyword_event_start_datetime_XX">Event Start expressed with PHP date format XX</string>
-<string source="cal_evt_keyword_event_end_datetime_XX">Event End expressed with PHP date format XX</string>
+<string source="cal_evt_keyword_event_start_datetime_">Event Start expressed with PHP date format which follow the last underscore character of the keyword.</string>
+<string source="cal_evt_keyword_event_end_datetime_">Event End expressed with PHP date format which follow the last underscore character of the keyword.</string>
 
 <string source="cal_evt_keyword_edit_link">Link to edit this event in Limbo (if user has permission)</string>
 <string source="cal_evt_keyword_delete_link">Link to delete this event altogether (if user has permission)</string>
