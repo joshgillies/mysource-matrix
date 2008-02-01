@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.58 2008/02/01 01:19:59 hnguyen Exp $
+* $Id: html_tidy.inc,v 1.59 2008/02/01 04:55:22 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -159,7 +159,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 							'show-body-only'		=> TRUE,
 							'wrap'					=> FALSE,
 							'word-2000'				=> TRUE,
-							'show-warnings'			=> FALSE,
+							'show-warnings'			=> TRUE,
 							'show-errors'			=> 1,
 							'char-encoding'			=> $tidy_char_set,
 							'force-output'			=> TRUE,
@@ -173,11 +173,22 @@ class HTML_Tidy extends Wysiwyg_Plugin
 					$config['new-inline-tags']	= implode('","',$this->_new_inline_tags);
 				}
 
+				$html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+						<html><head><title></title>
+						<meta name="description" content="test content" />
+						</head><body>
+						'.$html.'
+						</body></html>';
 				$tidy->parseString($html, $config);
 				$tidy->cleanRepair();
 
-				$this->htmltidy_errors = $tidy->errorBuffer;
-
+				$error = $tidy->errorBuffer;
+				$ignore_errors_list = $this->getIgnoredErrors();
+				foreach ($ignore_errors_list as $err) {
+					$error = str_replace($err, '', $error);
+				}
+				$this->htmltidy_errors = trim($error);
+				
 				if (empty($tidy) || empty($tidy_char_set)) {
 					$this->htmltidy_status = 'fail';
 				} else {
@@ -214,6 +225,17 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 	}//end check_usable()
 
+
+	function getIgnoredErrors()
+	{
+		$ignore_list = Array();
+		$ignore_list[] = 'line 1 column 1 - Access: [3.3.1.1]: use style sheets to control presentation.';
+		$ignore_list[] = '
+Accessibility Checks: Version 0.1
+';
+
+		return $ignore_list;
+	}//end errorToIgnore
 
 }//end class
 
