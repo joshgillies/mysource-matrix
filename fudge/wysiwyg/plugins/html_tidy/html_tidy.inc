@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.57 2008/01/04 03:40:09 hnguyen Exp $
+* $Id: html_tidy.inc,v 1.58 2008/02/01 01:19:59 hnguyen Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -59,6 +59,8 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	* @var string
 	*/
 	var $htmltidy_status = 'pass';
+
+	var $htmltidy_errors = NULL;
 
 
 	/**
@@ -152,16 +154,17 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				$tidy = new tidy;
 
 				$config = Array (
-							'output-xhtml'		=> TRUE,
-							'preserve-entities'	=> TRUE,
-							'show-body-only'	=> TRUE,
-							'wrap'				=> FALSE,
-							'word-2000'			=> TRUE,
-							'show-warnings'		=> FALSE,
-							'show-errors'		=> 0,
-							'char-encoding'		=> $tidy_char_set,
-							'force-output'		=> TRUE,
-							'quote-marks'		=> TRUE,
+							'output-xhtml'			=> TRUE,
+							'preserve-entities'		=> TRUE,
+							'show-body-only'		=> TRUE,
+							'wrap'					=> FALSE,
+							'word-2000'				=> TRUE,
+							'show-warnings'			=> FALSE,
+							'show-errors'			=> 1,
+							'char-encoding'			=> $tidy_char_set,
+							'force-output'			=> TRUE,
+							'quote-marks'			=> TRUE,
+							'accessibility-check'	=> SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL,
 						  );
 
 				// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
@@ -172,6 +175,8 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 				$tidy->parseString($html, $config);
 				$tidy->cleanRepair();
+
+				$this->htmltidy_errors = $tidy->errorBuffer;
 
 				if (empty($tidy) || empty($tidy_char_set)) {
 					$this->htmltidy_status = 'fail';
