@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2007/05/14 05:17:36 colivar Exp $
+* $Id: lang_strings.xml,v 1.6.2.1 2008/02/01 04:39:47 bshkara Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -30,5 +30,6 @@
 <string source="ecom_cart_keyword_checkout_cart_href">Cart Checkout Href</string>
 <string source="ecom_cart_keyword_product_quantity">Product Quantity</string>
 <string source="ecom_cart_keyword_product_total">Product Total</string>
+<string source="ecom_cart_keyword_insufficient_quantity_message">Insufficient Product Quantity Message</string>
 </strings>
 
