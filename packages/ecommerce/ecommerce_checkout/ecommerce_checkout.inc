@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.55 2008/02/04 00:00:31 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.56 2008/02/04 01:13:40 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -335,6 +335,7 @@ class Ecommerce_Checkout extends Page
 					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
 				}
 				if (empty($order_asset)) {
+					// check quantities before creating a new order
 					if ($this->attr('enforce_quantities')) {
 						// do we have enough products to create an order?
 						if (!$this->_updateQuantities(FALSE)) {
@@ -424,7 +425,7 @@ class Ecommerce_Checkout extends Page
 	function _updateQuantities($update=TRUE)
 	{
 		$local_cart_contents = $_SESSION['sq_local_cart_contents']['cart_contents'];
-		$ok = FALSE;
+		$ok = TRUE;
 		foreach ($local_cart_contents as $assetid => $info) {
 			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 				// determine which to use: metadata field or attribute name
@@ -434,11 +435,10 @@ class Ecommerce_Checkout extends Page
 					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 					$current_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
 					$new_quantity = $current_quantity - $info['quantity'];
-					if ($new_quantity >= 0) {
-						$ok = TRUE;
-					} else {
+					if ($new_quantity < 0) {
 						// we cannot put this order through because there are not enough items
 						$this->insufficient_quantities = TRUE;
+						$ok = FALSE;
 						// add name of asset to error list for displaying on frontend
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$this->insufficient_quantity_assets[] = $asset->name;
@@ -462,11 +462,10 @@ class Ecommerce_Checkout extends Page
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					$current_quantity = $asset->attr($quantity_attribute);
 					$new_quantity = $current_quantity - $info['quantity'];
-					if ($new_quantity >= 0) {
-						$ok = TRUE;
-					} else {
+					if ($new_quantity < 0) {
 						// we cannot put this order through because there are not enough items
 						$this->insufficient_quantities = TRUE;
+						$ok = FALSE;
 						// add name of asset to error list for displaying on frontend
 						$this->insufficient_quantity_assets[] = $asset->name;
 					}
