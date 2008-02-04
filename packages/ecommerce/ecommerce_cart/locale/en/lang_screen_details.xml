@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2006/12/07 05:26:28 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.9 2008/02/04 00:28:13 bshkara Exp $
 *
 */
 -->
@@ -31,11 +31,6 @@
 		<field attribute="ecommerce_checkout_id">
 			<display_name>Ecommerce Checkout Asset</display_name>
 			<note>The Ecommerce Checkout asset we want to link this cart to</note>
-		</field>
-		<field attribute="use_local_cart">
-			<display_name>Cart Source</display_name>
-			<note>Set this option to "Local Cart" to make the cart use items from
-			the order currently being edited, instead of the logged in user's items.</note>
 		</field>
 		<field>
 			<display_name>Cart Items to List</display_name>
