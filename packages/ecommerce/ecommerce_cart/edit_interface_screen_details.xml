@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11.6.2 2008/02/01 05:46:53 bshkara Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11.6.3 2008/02/04 00:27:48 bshkara Exp $
 *
 */
 -->
@@ -26,9 +26,6 @@
 	<section name="Cart Settings" write_access="write:attributes">
 		<field attribute="ecommerce_checkout_id">
 			<assetid type_codes="ecommerce_checkout:D" />
-		</field>
-		<field attribute="use_local_cart">
-			<boolean true_text="ecom_cart_local_cart" false_text="ecom_cart_global_cart" />
 		</field>
 		<field>
 			<function_call>
