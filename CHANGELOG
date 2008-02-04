@@ -1,5 +1,39 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.5
+
+Complete Changelog
+-----------------------------------
+
+Core
+
+* Fixed bug #2636: Workflow email link incorrect
+* Fixed bug #2801: Insert Div window positioning in IE
+* Fixed bug #2806: Table Properties in WYSIWYG not highlighting vertical alignment selection
+* Fixed bug #2825: Mandatory metadata link does not work on newly created assets
+* Fixed bug #2827: Unescaped URL
+* Fixed bug #2833: deleteAssetLink missing from simple_form.inc
+* Fixed bug #2842: Can't send multi-line internal message
+* Fixed bug #2849: Can not create specific file asset (PDF,DOC, JPG) using File Asset if File Extension Restriction in Global Preferences or User Group Preferences is used.
+* Fixed bug #2856: Single quotation mark in metadata field name cause Matrix to throw fatal error
+* Fixed bug #2857: Paint Layout based on IP authentication
+* Fixed bug #2860: PHP date information does not work as expected in conditional keywords
+
+CMS
+
+* Fixed bug #2777: STRONG tags inserted into Text email (Custom Form)
+* Fixed bug #2866: Custom form - response keywords doesn't update in a cloned form (Custom Form)
+
+Calendar
+
+* Fixed bug #2862: If Calendar Page is nested in Rolling Calendar, Date Incorrect
+
+E-Commerce
+
++ Product Asset now exposes its keywords to the Simple Edit interface
+
+
+
 VERSION 3.16.4
 
 Featured Changes
