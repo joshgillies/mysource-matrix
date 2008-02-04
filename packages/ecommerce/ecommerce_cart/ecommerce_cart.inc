@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.30.2.2 2008/02/04 00:20:09 bshkara Exp $
+* $Id: ecommerce_cart.inc,v 1.30.2.3 2008/02/04 01:05:49 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.30.2.2 $
+* @version $Revision: 1.30.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -619,7 +619,8 @@ class Ecommerce_Cart extends Listing_Engine
 							$this->insufficient_quantities = FALSE;
 						}
 					}
-					$this->insufficient_quantity_assets = array_unique($this->insufficient_quantity_assets);
+					if (is_array($this->insufficient_quantity_assets))
+						$this->insufficient_quantity_assets = array_unique($this->insufficient_quantity_assets);
 				}
 			}//end else
 		}//end if
