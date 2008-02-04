@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.5 2007/05/25 04:26:06 colivar Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.6 2008/02/04 00:00:31 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -91,6 +91,38 @@ class Ecommerce_Checkout_Management extends Asset_Management
 												'default'	=> Array(),
 											);
 
+		$this->vars['quantity_attribute'] = Array(
+												'added'		=> '0.3',
+												'type'		=> 'text',
+												'default'	=> '',
+											);
+
+		$this->vars['quantity_field'] = Array(
+											'added'		=> '0.3',
+											'type'		=> 'assetid',
+											'default'	=> '',
+										);
+
+		$this->vars['enforce_quantities'] = Array(
+												'added'			=> '0.3',
+												'type'			=> 'boolean',
+												'default'		=> 'FALSE',
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											);
+
+		$this->vars['quantity_message_cart'] = Array(
+												'added'		=> '0.3',
+												'type'		=> 'text',
+												'default'	=> 'There is an insufficient amount of items in stock to proceed with your order. Your order quantities have been altered to reflect the amount available. Items which are currently not in stock have been deleted from your cart. These items with insufficient quantities are listed below:',
+											   );
+
+		$this->vars['quantity_message_checkout'] = Array(
+													'added'		=> '0.3',
+													'type'		=> 'text',
+													'default'	=> 'There is an insufficient amount of items in stock to proceed with your order. Your order has not been processed. The items with insufficient quantities are listed below:',
+												   );
 
 	}//end constructor
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.4 2007/05/22 03:44:53 colivar Exp $
+* $Id: edit_interface_screens.xml,v 1.5 2008/02/04 00:00:31 bshkara Exp $
 *
 */
 -->
@@ -19,4 +19,5 @@
 	<screen code_name="components" display_name="Processing Components" force_unlock="0" />
 	<screen code_name="formatting_options" display_name="Display Formatting Options" />
 	<screen code_name="extra_options" display_name="Display Extra Options" />
+	<screen code_name="quantity_tracking" display_name="Quantity Tracking" />
 </screens>
