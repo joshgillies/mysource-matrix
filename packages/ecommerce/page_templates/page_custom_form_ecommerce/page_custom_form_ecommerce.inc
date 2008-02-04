@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce.inc,v 1.8 2007/01/08 03:27:17 emcdonald Exp $
+* $Id: page_custom_form_ecommerce.inc,v 1.8.4.1 2008/02/04 23:50:44 colivar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -45,13 +45,20 @@ class Page_Custom_Form_Ecommerce extends Page_Custom_Form
 	function _createAdditional(&$link)
 	{
 		if (!page::_createAdditional($link)) return false;
-
+		
 		// create a new form_ecommerce (form with emailing abilities)
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_ecommerce');
 		$form = new Form_Ecommerce();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$form->setAttrValue('name', 'Ecommerce Form Contents');
+		
+		// We provide the parent id to the ecom form
+		// this id can be used while creating the asset and when getUrl is being used
+		// if the following line is removed, the creation of this asset under a folder 
+		// with metadata field and the keyword %asset_url% will fail 
+		$form->_tmp['parent_form_page_assetid'] =& $this->id;
+		
 		return $form->create($copy_link);
 
 	}//end _createAdditional()
