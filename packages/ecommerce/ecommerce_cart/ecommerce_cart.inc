@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.30.2.1 2008/02/01 04:39:33 bshkara Exp $
+* $Id: ecommerce_cart.inc,v 1.30.2.2 2008/02/04 00:20:09 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.30.2.1 $
+* @version $Revision: 1.30.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -592,8 +592,6 @@ class Ecommerce_Cart extends Listing_Engine
 			} else {
 				$checkout_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_id);
 				if ($checkout_asset->attr('enforce_quantities')) {
-					// all assets with insufficient product quantities
-					$this->insufficient_quantity_assets = Array();
 					// determine which to use: metadata field or attribute name
 					$quantity_field = $checkout_asset->attr('quantity_field');
 					$quantity_attribute = $checkout_asset->attr('quantity_attribute');
@@ -621,6 +619,7 @@ class Ecommerce_Cart extends Listing_Engine
 							$this->insufficient_quantities = FALSE;
 						}
 					}
+					$this->insufficient_quantity_assets = array_unique($this->insufficient_quantity_assets);
 				}
 			}//end else
 		}//end if
