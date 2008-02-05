@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layer_handler.js,v 1.7.4.2 2008/01/29 01:58:28 lmarchese Exp $
+* $Id: layer_handler.js,v 1.7.4.3 2008/02/05 02:46:19 bshkara Exp $
 *
 */
 
@@ -116,19 +116,28 @@ function Layer_Handler(div_id, top, right, bottom, left) {
 	 ////////////////////////////////
 	// Make the layer visible
 	function show() {
+		
 		if (is_ie4up) {
 			var top_offset = 20;
 			// if the commit button is anchored to bottom of frame a custom css is used for IE (edit_ie6.css)
 			// so we need to pick the y-offset for the sq-content div that is scrollable 
 			// otherwise (commit button bottom of page) we pick y-offset for the body that is scrollable.
-			scroll_top_1 = document.getElementById('sq-content').scrollTop
-			scroll_top_2 = document.body.scrollTop
-			if (scroll_top_1 <= scroll_top_2) {
-				scroll_top = scroll_top_2
+			// NOTE: sq-content is only available in the backend interface
+			// so we calculate the y-offset for limbo differently
+			if (document.getElementById('sq-content')) {
+				scroll_top_content = document.getElementById('sq-content').scrollTop;
+				scroll_top_body = document.body.scrollTop;
+				if (scroll_top_content <= scroll_top_body) {
+					scroll_top = scroll_top_body;
+				} else {
+					scroll_top = scroll_top_content;
+				}
+				this.move(null,top_offset + scroll_top);
 			} else {
-				scroll_top = scroll_top_1
+				// we are in the limbo interface AND in IE so we use this:
+				scroll_top = document.documentElement.scrollTop;
+				this.move(null,top_offset + scroll_top);
 			}
-			this.move(null,top_offset + scroll_top)
 		}
 
 		this.style.visibility = (is_nav4)? "show" : "visible";
