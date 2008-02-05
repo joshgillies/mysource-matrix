@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655 2008/01/03 00:15:16 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.655.2.1 2008/02/05 21:59:57 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655 $
+* @version $Revision: 1.655.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3856,7 +3856,7 @@ class Asset_Manager extends MySource_Object
 			foreach ($include_type_list['type_code'] as $include_type) {
 				if (!empty($include_type)) {
 					if (isset($include_inherit) && !empty($include_inherit) && array_shift($include_inherit)) {
-						$include_types += $this->getTypeDescendants($include_type, TRUE);
+						$include_types = array_merge($this->getTypeDescendants($include_type, TRUE), $include_types);
 					} else {
 						$include_types[] = $include_type;
 					}
