@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.63 2007/12/28 02:14:51 mwegermann Exp $
+* $Id: page_account_manager.inc,v 1.64 2008/02/06 23:37:17 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -239,7 +239,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function printLimbo()
 	{
-		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('ignore_frames', '1', TRUE);
+		// if there is no backend outputter object it is likely we are using a login design
+		// the backend outputter will be present however when the user logs in
+		if (isset($GLOBALS['SQ_SYSTEM']->backend->out)) {
+			$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('ignore_frames', '1', TRUE);
+		}
 
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
 		$this->_current_state = 'logged_in';
