@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_assetid_remap.inc,v 1.8 2007/12/11 02:57:26 rong Exp $
+* $Id: trigger_action_add_assetid_remap.inc,v 1.9 2008/02/07 22:49:21 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,11 +97,20 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 
 				foreach ($urls as $url_info) {
 					if ( ($pos = strpos($url_info['url'], $tiny_url['url'].'/')) === 0 ) {
-						if ($url_info['http'] == 1) $protocol = 'http://';
-						if ($url_info['https'] == 1) $protocol = 'https://';
+						// a URL can have both HTTP and HTTPS options ticked
+						$protocols = Array();
+						if ($url_info['http'] == 1) {
+							$protocols[] = 'http://';
+						}
 
-						$old_url = $protocol.$tiny_url['url'].'/'.$state['asset']->id;
-						$mapped_tiny_urls[$old_url] = $protocol.$url_info['url'];
+						if ($url_info['https'] == 1) {
+							$protocols[] = 'https://';
+						}
+
+						for ($i=0; $i<count($protocols); $i++) {
+							$old_url = $protocols[$i].$tiny_url['url'].'/'.$state['asset']->id;
+							$mapped_tiny_urls[$old_url] = $protocols[$i].$url_info['url'];
+						}
 
 						// If the asset has multiple webpaths, we just have to choose the first URL.
 						break;
