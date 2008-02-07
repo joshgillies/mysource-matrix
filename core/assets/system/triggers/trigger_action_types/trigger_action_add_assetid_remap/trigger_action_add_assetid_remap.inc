@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_assetid_remap.inc,v 1.2 2007/04/04 04:14:19 skim Exp $
+* $Id: trigger_action_add_assetid_remap.inc,v 1.2.2.1 2008/02/07 22:21:12 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,11 +97,19 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 
 				foreach ($urls as $url_info) {
 					if ( ($pos = strpos($url_info['url'], $tiny_url['url'].'/')) === 0 ) {
-						if ($url_info['http'] == 1) $protocol = 'http://';
-						if ($url_info['https'] == 1) $protocol = 'https://';
+						// a URL can have both HTTP and HTTPS options ticked
+						if ($url_info['http'] == 1) {
+							$protocols[] = 'http';
+						}
 
-						$old_url = $protocol.$tiny_url['url'].'/'.$state['asset']->id;
-						$mapped_tiny_urls[$old_url] = $protocol.$url_info['url'];
+						if ($url_info['https'] == 1) {
+							$protocols[] = 'http';
+						}
+
+						for ($i=0; $i<count($protocols); $i++) {
+							$old_url = $protocols[$i].$tiny_url['url'].'/'.$state['asset']->id;
+							$mapped_tiny_urls[$old_url] = $protocols[$i].$url_info['url'];
+						}
 
 						// If the asset has multiple webpaths, we just have to choose the first URL.
 						break;
