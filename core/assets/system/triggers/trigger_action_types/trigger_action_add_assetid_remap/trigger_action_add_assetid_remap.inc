@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_assetid_remap.inc,v 1.2.2.1 2008/02/07 22:21:12 bshkara Exp $
+* $Id: trigger_action_add_assetid_remap.inc,v 1.2.2.2 2008/02/07 22:32:45 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,12 +98,13 @@ class Trigger_Action_Add_Assetid_Remap extends Trigger_Action
 				foreach ($urls as $url_info) {
 					if ( ($pos = strpos($url_info['url'], $tiny_url['url'].'/')) === 0 ) {
 						// a URL can have both HTTP and HTTPS options ticked
+						$protocols = Array();
 						if ($url_info['http'] == 1) {
-							$protocols[] = 'http';
+							$protocols[] = 'http://';
 						}
 
 						if ($url_info['https'] == 1) {
-							$protocols[] = 'http';
+							$protocols[] = 'https://';
 						}
 
 						for ($i=0; $i<count($protocols); $i++) {
