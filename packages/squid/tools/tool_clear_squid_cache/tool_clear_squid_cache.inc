@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.3 2007/01/08 04:01:22 emcdonald Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.3.6.1 2008/02/08 05:50:37 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -56,7 +56,7 @@ class Tool_Clear_Squid_Cache extends Tool
 	* @return void
 	* @access public
 	*/
-	function paintTool(&$o, $type_code)
+	public static function paintTool(&$o, $type_code)
 	{
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
@@ -186,7 +186,7 @@ class Tool_Clear_Squid_Cache extends Tool
 	* @return boolean
 	* @access public
 	*/
-	function processTool(&$o, $type_code)
+	public static function processTool(&$o, $type_code)
 	{
 		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_squid_cache_purge');

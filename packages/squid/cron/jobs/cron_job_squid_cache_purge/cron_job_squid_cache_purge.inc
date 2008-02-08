@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_squid_cache_purge.inc,v 1.3 2007/01/08 04:01:22 emcdonald Exp $
+* $Id: cron_job_squid_cache_purge.inc,v 1.3.6.1 2008/02/08 05:50:37 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -38,9 +38,9 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Cron_Job_Squid_Cache_Purge($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Cron_Job($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -51,10 +51,10 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
-	* @access private
+	* @access protected
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE)
 	{
 		// the ownerid must be set at the creation of this cron job
 		return translate('squid_cron_name', $this->attr('ownerid'));
@@ -115,10 +115,10 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @param string	&$msg	accepted by reference, used to return any messages about completion etc from _exec
 	*
 	* @return int
-	* @access private
+	* @access protected
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
-	function _exec(&$msg)
+	protected function _exec(&$msg)
 	{
 		// based on the options in the tool interface and settings in the global prefs
 		$assetid = $this->attr('ownerid');

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_purge_squid_cache.inc,v 1.3 2007/01/08 04:01:22 emcdonald Exp $
+* $Id: trigger_action_purge_squid_cache.inc,v 1.3.6.1 2008/02/08 05:50:37 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -43,7 +43,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	function execute($settings, &$state)
+	public static function execute($settings, &$state)
 	{
 		if (empty($state['assetid'])) return FALSE;
 
@@ -71,7 +71,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		return translate('squid_tool_hostname_note');
 
@@ -89,7 +89,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	function processInterface(&$settings, $request_data)
+	public static function processInterface(&$settings, $request_data)
 	{
 		return FALSE;
 
