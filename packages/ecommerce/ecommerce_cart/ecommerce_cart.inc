@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.33 2007/12/24 02:59:02 colivar Exp $
+* $Id: ecommerce_cart.inc,v 1.33.2.1 2008/02/10 22:39:57 bshkara Exp $
 *
 */
 
@@ -31,12 +31,25 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Ecommerce_Cart extends Listing_Engine
 {
+
+	/**
+	* Whether there are insufficient product quantities
+	* @var boolean
+	*/
+	var $insufficient_quantities = FALSE;
+
+
+	/**
+	* Current assets which have insufficient quantities
+	* @var object
+	*/
+	var $insufficient_quantity_assets = NULL;
 
 
 	/**
@@ -493,7 +506,7 @@ class Ecommerce_Cart extends Listing_Engine
 				if (isset($cart_contents[$assetid]['quantity'])) {
 					// we updated the quantity for the product
 					$amount = $cart_contents[$assetid]['quantity'];
-					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount+$quantity))) {
+					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount+$quantity, $assetid))) {
 						$this->_tmp['cart_updated'] = TRUE;
 					}
 
@@ -501,7 +514,7 @@ class Ecommerce_Cart extends Listing_Engine
 				}
 
 				// only add if it's not going to break our Quantity selection
-				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $quantity) == $quantity) {
+				if ($this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $quantity, $assetid) == $quantity) {
 					if ($cart->addItem($assetid, $quantity)) {
 						$this->_tmp['cart_updated'] = TRUE;
 					}
@@ -521,13 +534,13 @@ class Ecommerce_Cart extends Listing_Engine
 					if (isset($quantity[$assetid])) {
 						$amount = $quantity[$assetid];
 					}
-					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount))) {
+					if ($cart->updateItem($assetid, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, $amount, $assetid))) {
 						$this->_tmp['cart_updated'] = TRUE;
 					}
 				}
 			} else {
 				// radio
-				if ($cart->updateItem($quantity, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, 1))) {
+				if ($cart->updateItem($quantity, $this->_validateItemUpdate(SQ_CART_PRESET_QUANTITY, 1, $assetid))) {
 					$this->_tmp['cart_updated'] = TRUE;
 				}
 			}
@@ -565,14 +578,56 @@ class Ecommerce_Cart extends Listing_Engine
 	*
 	* @param string	$selection_name	the id of the asset selection
 	* @param int	$quantity		the quantity to be assigned to the selection
+	* @param int	$assetid		the id of the asset we are validating
 	*
 	* @return int
 	* @access private
 	*/
-	function _validateItemUpdate($selection_name, $quantity)
+	function _validateItemUpdate($selection_name, $quantity, $assetid)
 	{
 		$selections     = $this->attr('asset_selections');
 		$final_quantity = $quantity;
+
+		// ensure we have enough items to add to the cart
+		$checkout_id = $this->attr('ecommerce_checkout_id');
+		if (!empty($checkout_id)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($checkout_id)) {
+				trigger_localised_error('ECOM003', E_USER_WARNING, $checkout_id);
+			} else {
+				$checkout_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_id);
+				if ($checkout_asset->attr('enforce_quantities')) {
+					// determine which to use: metadata field or attribute name
+					$quantity_field = $checkout_asset->attr('quantity_field');
+					$quantity_attribute = $checkout_asset->attr('quantity_attribute');
+					if (!empty($quantity_field)) {
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$available_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
+						if ($quantity > $available_quantity) {
+							$this->insufficient_quantities = TRUE;
+							// add name of asset to error list for displaying on frontend
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$this->insufficient_quantity_assets[] = $asset->name;
+							$final_quantity = $available_quantity;
+						} else {
+							$this->insufficient_quantities = FALSE;
+						}
+					} else if (!empty($quantity_attribute)) {
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$available_quantity = $asset->attr($quantity_attribute);
+						if ($quantity > $available_quantity) {
+							$this->insufficient_quantities = TRUE;
+							// add name of asset to error list for displaying on frontend
+							$this->insufficient_quantity_assets[] = $asset->name;
+							$final_quantity = $available_quantity;
+						} else {
+							$this->insufficient_quantities = FALSE;
+						}
+					}
+					if (is_array($this->insufficient_quantity_assets))
+						$this->insufficient_quantity_assets = array_unique($this->insufficient_quantity_assets);
+				}
+			}//end else
+		}//end if
 
 		if (empty($selections[$selection_name]['options'])) {
 			return $final_quantity;
@@ -687,26 +742,59 @@ class Ecommerce_Cart extends Listing_Engine
 		$GLOBALS['SQ_SYSTEM']->lm->includeAssetStrings('page_asset_listing');
 
 		$keywords += Array(
-						'cart_updated'			=> translate('ecom_cart_keyword_cart_updated'),
-						'product_count'			=> translate('ecom_cart_keyword_product_count'),
-						'total_value'			=> translate('ecom_cart_keyword_total_value'),
-						'cart_update_button'	=> translate('ecom_cart_keyword_cart_update_button'),
-						'checkout_cart_button'	=> translate('ecom_cart_keyword_checkout_cart_button'),
-						'checkout_cart_href'	=> translate('ecom_cart_keyword_checkout_cart_href'),
-						'asset_listing'			=> translate('cms_listing_asset_listing'),
-						'previous_page'			=> translate('cms_listing_previous_page_link'),
-						'next_page'				=> translate('cms_listing_next_page_link'),
-						'page_list'				=> translate('cms_listing_page_list'),
-						'page_number'			=> translate('cms_listing_page_number'),
-						'asset_count'			=> translate('cms_listing_asset_count'),
-						'page_asset_count'		=> translate('cms_listing_page_asset_count'),
-						'first_asset_position'	=> translate('cms_listing_first_asset_position'),
-						'last_asset_position'	=> translate('cms_listing_last_asset_position'),
+						'cart_updated'					=> translate('ecom_cart_keyword_cart_updated'),
+						'product_count'					=> translate('ecom_cart_keyword_product_count'),
+						'total_value'					=> translate('ecom_cart_keyword_total_value'),
+						'cart_update_button'			=> translate('ecom_cart_keyword_cart_update_button'),
+						'checkout_cart_button'			=> translate('ecom_cart_keyword_checkout_cart_button'),
+						'checkout_cart_href'			=> translate('ecom_cart_keyword_checkout_cart_href'),
+						'insufficient_quantity_message'	=> translate('ecom_cart_keyword_insufficient_quantity_message'),
+						'asset_listing'					=> translate('cms_listing_asset_listing'),
+						'previous_page'					=> translate('cms_listing_previous_page_link'),
+						'next_page'						=> translate('cms_listing_next_page_link'),
+						'page_list'						=> translate('cms_listing_page_list'),
+						'page_number'					=> translate('cms_listing_page_number'),
+						'asset_count'					=> translate('cms_listing_asset_count'),
+						'page_asset_count'				=> translate('cms_listing_page_asset_count'),
+						'first_asset_position'			=> translate('cms_listing_first_asset_position'),
+						'last_asset_position'			=> translate('cms_listing_last_asset_position'),
 					 );
 
 		return $keywords;
 
 	}//end getContentsKeywords()
+
+
+	/**
+	* Get insufficient_quantity_message keyword replacement
+	*
+	* @return string
+	* @access protected
+	*/
+	function getInsufficientQuantityMessageKeywordReplacement()
+	{
+		if ($this->insufficient_quantities) {
+			$checkout_id = $this->attr('ecommerce_checkout_id');
+			if (!empty($checkout_id)) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($checkout_id)) {
+					trigger_localised_error('ECOM003', E_USER_WARNING, $checkout_id);
+				} else {
+					$checkout_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_id);
+					ob_start();
+					echo $checkout_asset->attr('quantity_message_cart');
+					echo '<ul>';
+					foreach ($this->insufficient_quantity_assets as $asset_name) {
+						echo '<li>';
+						echo $asset_name;
+						echo '</li>';
+					}
+					echo '</ul>';
+					return ob_get_clean();
+				}
+			}
+		}
+
+	}//end getInsufficientQuantityMessageKeywordReplacement()
 
 
 	/**

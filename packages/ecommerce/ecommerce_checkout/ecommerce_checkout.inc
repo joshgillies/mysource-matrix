@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.54 2007/12/24 02:59:02 colivar Exp $
+* $Id: ecommerce_checkout.inc,v 1.54.2.1 2008/02/10 22:39:57 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -43,6 +43,13 @@ class Ecommerce_Checkout extends Page
 	*
 	*/
 	var $print_context;
+
+
+	/**
+	* Whether there are insufficient product quantities
+	* @var boolean
+	*/
+	var $insufficient_quantities = FALSE;
 
 
 	/**
@@ -328,6 +335,17 @@ class Ecommerce_Checkout extends Page
 					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
 				}
 				if (empty($order_asset)) {
+					// check quantities before creating a new order
+					if ($this->attr('enforce_quantities')) {
+						// do we have enough products to create an order?
+						if (!$this->_updateQuantities(FALSE)) {
+							$this->print_context = 'failure';
+							break;
+						} else {
+							$this->insufficient_quantities = FALSE;
+						}
+					}
+
 					$order_asset =& $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
 					if (is_null($order_asset)) {
 						$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
@@ -361,6 +379,11 @@ class Ecommerce_Checkout extends Page
 
 					$this->_tmp['failure_summary'] = $delivery_method->getFailureSummary();
 					$this->print_context = 'failure';
+				} else {
+					// delivery succeeded and we can update product quantities
+					if ($this->attr('enforce_quantities')) {
+						$this->_updateQuantities();
+					}
 				}
 
 				// Save attributes, LOCKING
@@ -389,6 +412,79 @@ class Ecommerce_Checkout extends Page
 		return;
 
 	}//end _processInterface()
+
+
+	/**
+	* Validates or updates the quantities of items stored in the current cart
+	*
+	* @param boolean	$update	Whether to update the product quantity values
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _updateQuantities($update=TRUE)
+	{
+		$local_cart_contents = $_SESSION['sq_local_cart_contents']['cart_contents'];
+		$ok = TRUE;
+		foreach ($local_cart_contents as $assetid => $info) {
+			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
+				// determine which to use: metadata field or attribute name
+				$quantity_field = $this->attr('quantity_field');
+				$quantity_attribute = $this->attr('quantity_attribute');
+				if (!empty($quantity_field)) {
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$current_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
+					$new_quantity = $current_quantity - $info['quantity'];
+					if ($new_quantity < 0) {
+						// we cannot put this order through because there are not enough items
+						$this->insufficient_quantities = TRUE;
+						$ok = FALSE;
+						// add name of asset to error list for displaying on frontend
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$this->insufficient_quantity_assets[] = $asset->name;
+					}
+					if ($update) {
+						$metadata = Array(
+										$quantity_field	=> Array(
+															Array(
+																'value'	=> $new_quantity,
+															),
+														   ),
+									);
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+						if (!$mm->setMetadata($assetid, $metadata) || !$mm->generateContentFile($assetid)) {
+							trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
+							$this->print_context = 'failure';
+						}
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+				} else if (!empty($quantity_attribute)) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$current_quantity = $asset->attr($quantity_attribute);
+					$new_quantity = $current_quantity - $info['quantity'];
+					if ($new_quantity < 0) {
+						// we cannot put this order through because there are not enough items
+						$this->insufficient_quantities = TRUE;
+						$ok = FALSE;
+						// add name of asset to error list for displaying on frontend
+						$this->insufficient_quantity_assets[] = $asset->name;
+					}
+					if ($update) {
+						$asset->setAttrValue($quantity_attribute, $new_quantity);
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+						if (!$asset->saveAttributes()) {
+							trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
+							$this->print_context = 'failure';
+						}
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+				}
+			}//end if
+		}//end foreach
+
+		return $ok;
+
+	}//end _updateQuantities()
 
 
 	/**
@@ -960,8 +1056,9 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getFailureContextKeywords()
 	{
-		$keywords['failure_summary']			= translate('ecom_checkout_keyword_failure_summary');
-		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
+		$keywords['failure_summary']						= translate('ecom_checkout_keyword_failure_summary');
+		$keywords['insufficient_quantity_message']			= translate('ecom_checkout_keyword_insufficient_quantity_message');
+		$keywords['return_to_checkout_button']				= translate('ecom_checkout_keyword_return_to_checkout_button');
 
 		return $keywords;
 
@@ -1204,6 +1301,30 @@ class Ecommerce_Checkout extends Page
 		return ob_get_clean();
 
 	}//end getFailureSummaryKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'insufficient_quantity_message' keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getInsufficientQuantityMessageKeywordReplacement()
+	{
+		if ($this->insufficient_quantities) {
+			ob_start();
+			echo $this->attr('quantity_message_checkout');
+			echo '<ul>';
+			foreach ($this->insufficient_quantity_assets as $asset_name) {
+				echo '<li>';
+				echo $asset_name;
+				echo '</li>';
+			}
+			echo '</ul>';
+			return ob_get_clean();
+		}
+
+	}//end getInsufficientQuantityMessageKeywordReplacement()
 
 
 	/**
