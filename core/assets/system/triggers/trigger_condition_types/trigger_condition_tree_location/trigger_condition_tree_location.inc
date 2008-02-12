@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.13 2006/12/05 23:53:33 bcaldwell Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.13.6.1 2008/02/12 23:42:32 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,7 +97,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			foreach ($settings['treeid'] as $settings_tree) {
 
 				// if the asset in question is under the tree specified in the settings...
-				if ($settings_tree == $state_tree) {
+				if ($settings_tree === $state_tree) {
 					$result = FALSE;
 					break;
 				} else {
