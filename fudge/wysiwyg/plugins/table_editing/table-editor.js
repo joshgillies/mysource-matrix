@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.25 2008/01/06 23:16:54 colivar Exp $
+* $Id: table-editor.js,v 1.26 2008/02/12 22:56:53 bshkara Exp $
 *
 */
 
@@ -1218,7 +1218,8 @@ TTable = function(name, rows, cols)
 			var row = table.rows[r];
 			temp.className = row.className;
 			temp.align = (row.align == "")?"left":row.align;
-			temp.valign = (row.vAlign + "" == "undefined")?"middle":row.vAlign;
+			// IE reports empty string for undefined vAlign
+			temp.valign = ((row.vAlign + "" == "undefined") || (row.vAlign == ""))?"middle":row.vAlign;
 			temp.extra = getExtra(row);
 			temp.style = getStyle(row);
 			temp.bg = (row.style.backgroundColor == "")?null:row.style.backgroundColor;
