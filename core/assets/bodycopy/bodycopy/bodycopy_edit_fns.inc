@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.43.2.1 2007/08/30 04:36:24 bshkara Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.43.2.2 2008/02/13 04:08:46 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43.2.1 $
+* @version $Revision: 1.43.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 			$where = '    url = '.$db->quote($url).'
-					  AND name LIKE '.$db->quote('design::%');
+					  AND name LIKE '.$db->quote('design::%frontend%');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$designid = $db->getOne($sql.$where);
