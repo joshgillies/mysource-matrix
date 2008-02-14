@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122 2007/12/27 03:11:14 mwegermann Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.1 2008/02/14 23:45:38 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.122.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -967,7 +967,7 @@ class Page_Asset_Builder extends Page
 						$remaining_options[$key] = $value;
 					}
 				}
-				$options =& $remaining_options;
+				$options = $remaining_options;
 			}
 			ob_start();
 				switch ($data['input_style']) {
