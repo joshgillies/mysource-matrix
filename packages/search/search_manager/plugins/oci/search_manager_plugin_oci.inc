@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.29 2008/02/18 05:06:43 lwright Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.1 2008/02/18 23:15:56 lwright Exp $
 *
 */
 
@@ -22,11 +22,11 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_Manager_Plugin_OCI8
+class Search_Manager_Plugin_OCI
 {
 
 
