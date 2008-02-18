@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.262 2008/02/18 04:10:09 lwright Exp $
+* $Id: mysource.inc,v 1.263 2008/02/18 22:49:29 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.262 $
+* @version $Revision: 1.263 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1260,6 +1260,8 @@ class MySource
 			$_SESSION['userid'] = $this->user->id;
 			$_SESSION['user_type_code'] = $this->user->type();
 			$_SESSION['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
+			$_SESSION['user'] = serialize($this->user);
+			$_SESSION['user_serialised_ts'] = time();
 		}
 
 	}//end loginPublicUser()
@@ -1364,7 +1366,7 @@ class MySource
 		$_SESSION['userid'] = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
 		$_SESSION['user'] = serialize($user);
-		$_SESSION['user_serialized_ts'] = time();
+		$_SESSION['user_serialised_ts'] = time();
 		if (!$this->_user_is_public) {
 			$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 		}
