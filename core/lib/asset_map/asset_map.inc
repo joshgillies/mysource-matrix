@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.266 2008/02/18 04:07:01 lwright Exp $
+* $Id: asset_map.inc,v 1.267 2008/02/18 04:08:05 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.266 $
+* @version $Revision: 1.267 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -903,7 +903,6 @@ class Asset_Map
 					foreach ($bind_vars as $key => $value) {
 						MatrixDAL::bindValueToPdo($query, $key, $value);
 					}
-					error_log($sql.' '.$where);
 					$results = MatrixDAL::executePdoOne($query);
 					$num_kids = (!empty($results)) ? $results : 0;
 
@@ -1107,7 +1106,6 @@ class Asset_Map
 				MatrixDAL::bindValueToPdo($query2, $key, $value);
 			}
 			$db_result = MatrixDAL::executePdoAssoc($query2);
-			error_log(array_contents($db_result));
 			if (!empty($db_result))
 			{
 				foreach ($db_result as $key => $value) {
