@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.28 2007/12/20 03:14:47 rong Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.29 2008/02/18 05:06:43 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -60,7 +60,7 @@ class Search_Manager_Plugin_OCI8
 
 			case 'asset_attrib':
 				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
-				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attribute->name);
 
 				$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
 				if (!$contains_str) return Array();
@@ -75,8 +75,8 @@ class Search_Manager_Plugin_OCI8
 								'metadata_field_thesaurus'		=> 'thesaurus',
 							 );
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
-				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
-				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
+				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
 
 				if ((get_class_lower($metadata_field) == 'metadata_field_select' && $metadata_field->attr('multiple')) || get_class_lower($metadata_field) == 'metadata_field_multiple_text') {
 					if (strpos($search_term,' AND ') !== FALSE) {
@@ -95,7 +95,7 @@ class Search_Manager_Plugin_OCI8
 						$sub_contains_qry .= '{[option]'.$sterm.'[/option]}'.$split_type;
 					}
 					$sub_contains_qry = trim($sub_contains_qry,$split_type);
-					$contains_str = ' contains(ai.value, '.$db->quoteSmart($sub_contains_qry).', 1) > 0';
+					$contains_str = ' contains(ai.value, '.MatrixDAL::quote($sub_contains_qry).', 1) > 0';
 				} else {
 					$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic, 1, (($key_type != 'text')));
 				}
@@ -106,7 +106,7 @@ class Search_Manager_Plugin_OCI8
 			case 'standard':
 				$field = $data_source['params']['field'];
 				if (isset($sm->standard_text_fields[$field])) {
-					$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
+					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
 
 					$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
 					if (!$contains_str) return Array();
@@ -119,12 +119,17 @@ class Search_Manager_Plugin_OCI8
 		}//end switch
 		$sql = implode_sql($base_query);
 		if (count($base_query['select']) > 2) {
-			$result = $db->getAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 		} else {
-			$result = $db->getAssoc($sql);
+			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			// (3.18) only selecting assetid and search score
+			// use old format and don't worry about result format later
+			$result_old_format = Array();
+			foreach ($result as $assetid => $info) {
+				$result_old_format[$assetid] = $info[0]['search_score'];
+			}
+			return $result_old_format;
 		}
-
-		assert_valid_db_result($result);
 
 		return $result;
 
@@ -161,21 +166,21 @@ class Search_Manager_Plugin_OCI8
 				$attr_info = $attr_info[$attrid];
 
 				$attr_type = $attr_info['type'];
-				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attr_info['name']);
 
 				if ($numeric_range['upper'] == $numeric_range['lower']) {
-					$search_compare = '= '.$db->quoteSmart($numeric_range['upper']);
+					$search_compare = '= '.MatrixDAL::quote($numeric_range['upper']);
 				} else if (is_null($numeric_range['upper'])) {
-					$search_compare = '>= '.$db->quoteSmart($numeric_range['lower']);
+					$search_compare = '>= '.MatrixDAL::quote($numeric_range['lower']);
 				} else if (is_null($numeric_range['lower'])) {
-					$search_compare = '<= '.$db->quoteSmart($numeric_range['upper']);
+					$search_compare = '<= '.MatrixDAL::quote($numeric_range['upper']);
 				} else if ($numeric_range['upper'] > $numeric_range['lower']) {
 					// upper > lower as expected
-					$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['lower']).' AND '.$db->quoteSmart($numeric_range['upper']);
+					$search_compare = 'BETWEEN '.MatrixDAL::quote($numeric_range['lower']).' AND '.MatrixDAL::quote($numeric_range['upper']);
 				} else {
 					// accept lower > upper but we need to switch values because
 					// some DB engines won't accept BETWEEN upper AND lower
-					$search_compare = 'BETWEEN '.$db->quoteSmart($numeric_range['upper']).' AND '.$db->quoteSmart($numeric_range['lower']);
+					$search_compare = 'BETWEEN '.MatrixDAL::quote($numeric_range['upper']).' AND '.MatrixDAL::quote($numeric_range['lower']);
 				}
 
 				if ($attr_type == 'int') {
@@ -195,14 +200,18 @@ class Search_Manager_Plugin_OCI8
 
 		}//end switch $data_source['type']
 		$sql = implode_sql($base_query);
-
 		if (count($base_query['select']) > 2) {
-			$result = $db->getAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 		} else {
-			$result = $db->getAssoc($sql);
+			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			// (3.18) only selecting assetid and search score
+			// use old format and don't worry about result format later
+			$result_old_format = Array();
+			foreach ($result as $assetid => $info) {
+				$result_old_format[$assetid] = $info[0]['search_score'];
+			}
+			return $result_old_format;
 		}
-
-		assert_valid_db_result($result);
 
 		return $result;
 
@@ -236,7 +245,7 @@ class Search_Manager_Plugin_OCI8
 			case 'asset_attrib':
 				// TODO: restrict by asset type here?
 				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
-				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attribute->name);
 			break;
 
 			case 'metadata':
@@ -247,14 +256,14 @@ class Search_Manager_Plugin_OCI8
 								'metadata_field_date'		=> 'datetime',
 							 );
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
-				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
-				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
+				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
 			break;
 
 			case 'standard':
 				$field = $data_source['params']['field'];
 				if (isset($sm->standard_date_fields[$field])) {
-					$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
+					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
 				} else {
 					trigger_error('Invalid standard date search field '.$field, E_USER_WARNING);
 				}
@@ -262,19 +271,24 @@ class Search_Manager_Plugin_OCI8
 
 		}
 		if ($date_range['from'] != '---------- --:--:--') {
-			$base_query['where'][] = $this->_getDateCompareWithClobSql('ai.value', $db->quote($date_range['from']), '>=');
+			$base_query['where'][] = $this->_getDateCompareWithClobSql('ai.value', MatrixDAL::quote($date_range['from']), '>=');
 		}
 		if ($date_range['to'] != '---------- --:--:--') {
-			$base_query['where'][] = $this->_getDateCompareWithClobSql('ai.value', $db->quote($date_range['to']),  '<=');
+			$base_query['where'][] = $this->_getDateCompareWithClobSql('ai.value', MatrixDAL::quote($date_range['to']),  '<=');
 		}
 		$sql = implode_sql($base_query);
 		if (count($base_query['select']) > 2) {
-			$result = $db->getAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 		} else {
-			$result = $db->getAssoc($sql);
+			$result = MatrixDAL::executeSqlGroupedAssoc($sql);
+			// (3.18) only selecting assetid and search score
+			// use old format and don't worry about result format later
+			$result_old_format = Array();
+			foreach ($result as $assetid => $info) {
+				$result_old_format[$assetid] = $info[0]['search_score'];
+			}
+			return $result_old_format;
 		}
-
-		assert_valid_db_result($result);
 
 		return $result;
 
@@ -312,8 +326,7 @@ class Search_Manager_Plugin_OCI8
 			$new_base['select'] = Array('a.assetid');
 			$new_base['group_by'] = Array('a.assetid');
 			$sql = implode_sql($new_base);
-			$result = $db->getCol($sql);
-			assert_valid_db_result($result);
+			$result = MatrixDAL::executeSqlAssoc($sql, 0);
 		} else {
 			$result = Array();
 		}
@@ -357,18 +370,17 @@ class Search_Manager_Plugin_OCI8
 							   JOIN sq_ast_lnk l on t.linkid = l.linkid
 						   WHERE l.minorid IN ('.implode(',', $search_info['roots']).')';
 			// getAssoc only gives us the first treeid for each minorid, which is actually just what we want!
-			$root_treeids = $db->getAssoc($treeid_sql);
-			assert_valid_db_result($root_treeids);
+			$root_treeids = MatrixDAL::executeSqlGroupedAssoc($treeid_sql);
 
 			if ($root_logic == 'AND') {
 				foreach (array_values($search_info['roots']) as $i => $rootid) {
-					$treeid = $root_treeids[$rootid];
+					$treeid = $root_treeids[$rootid][0]['treeid'];
 					$query['where'][] = ' EXISTS (
 											SELECT 1 FROM
 												sq_ast_lnk l INNER JOIN sq_ast_lnk_tree t ON l.linkid = t.linkid
 											WHERE
 													a.assetid = l.minorid
-											AND substr(t.treeid, 1, '.strlen($treeid).') = '.$db->quoteSmart($treeid).'
+											AND substr(t.treeid, 1, '.strlen($treeid).') = '.MatrixDAL::quote($treeid).'
 										)';
 				}
 			} else {
@@ -380,8 +392,9 @@ class Search_Manager_Plugin_OCI8
 							AND ';
 
 				$treeids_where = Array();
-				foreach ($root_treeids as $treeid) {
-							$treeids_where[] = 'substr(t.treeid, 1, '.strlen($treeid).') = '.$db->quoteSmart($treeid);
+				foreach ($root_treeids as $treeid_value) {
+							$treeid = $treeid_value[0]['treeid'];
+							$treeids_where[] = 'substr(t.treeid, 1, '.strlen($treeid).') = '.MatrixDAL::quote($treeid);
 				}
 				$sql .= '('.implode(' OR ', $treeids_where).')';
 				$query['where'][] = $sql.')';
@@ -396,7 +409,7 @@ class Search_Manager_Plugin_OCI8
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 			array_push($userids, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quote($userids[$i]);
+				$userids[$i] = MatrixDAL::quote($userids[$i]);
 			}
 			$query['where'][] = 'ap.userid  IN ('.implode(',', $userids).')';
 
@@ -407,13 +420,13 @@ class Search_Manager_Plugin_OCI8
 			$statuses = $search_info['statuses'];
 			if (array_sum($statuses) != SQ_SC_STATUS_ALL) {
 				foreach ($statuses as $i => $status) {
-					$statuses[$i] = $db->quote($status);
+					$statuses[$i] = MatrixDAL::quote($status);
 				}
 				$query['where'][] = 'a.status IN ('.implode(', ', $statuses).')';
 			}
 		} else {
 			// if there are no status restrictions, default to LIVE assets only
-			$query['where'][] = 'a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+			$query['where'][] = 'a.status  >= '.MatrixDAL::quote(SQ_STATUS_LIVE);
 		}
 
 		// ASSET TYPE RESTRICTIONS
@@ -422,9 +435,9 @@ class Search_Manager_Plugin_OCI8
 			$normal_types = Array();
 			for (reset($search_info['asset_types']); NULL !== ($i = key($search_info['asset_types'])); next($search_info['asset_types'])) {
 				if ($search_info['asset_types'][$i] == 1) {
-					$inherited_types[] = $db->quote($i);
+					$inherited_types[] = MatrixDAL::quote($i);
 				} else {
-					$normal_types[] = $db->quote($i);
+					$normal_types[] = MatrixDAL::quote($i);
 				}
 			}
 
@@ -479,11 +492,10 @@ class Search_Manager_Plugin_OCI8
 				FROM
 					sq_sch_idx
 				WHERE
-					assetid = '.$db->quoteSmart($asset->id).
-				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quoteSmart('metadata:%'));
+					assetid = '.MatrixDAL::quote($asset->id).
+				  ($include_metadata ? '' : ' AND component NOT LIKE '.MatrixDAL::quote('metadata:%'));
 
-		$result = $db->getAll($sql);
-		assert_valid_db_result($result);
+		$result = MatrixDAL::executeSqlAssoc($sql);
 
 		// TODO: change it so the words are split up
 		$word_scores = Array();
@@ -973,9 +985,9 @@ class Search_Manager_Plugin_OCI8
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($use_contains) {
-			$sql = 'contains('.$column.', '.$db->quoteSmart(trim($terms)).', '.$score.') > 0';
+			$sql = 'contains('.$column.', '.MatrixDAL::quote(trim($terms)).', '.$score.') > 0';
 		} else {
-			$sql = $db->quoteSmart(trim($terms)).' like '.$db->quoteSmart('%').' || '.$column.' || '.$db->quoteSmart('%');
+			$sql = MatrixDAL::quote(trim($terms)).' like '.MatrixDAL::quote('%').' || '.$column.' || '.MatrixDAL::quote('%');
 		}
 
 		if ($exact && !$multiple) {
@@ -1028,7 +1040,7 @@ class Search_Manager_Plugin_OCI8
 
 		$query_array['where_joiner'] = 'AND';
 		if ($type) {
-			$query_array['where'][] = 'ai.type_code = '.$db->quoteSmart($type);
+			$query_array['where'][] = 'ai.type_code = '.MatrixDAL::quote($type);
 		}
 
 		$terms = implode(' or ', $keywords);
@@ -1058,7 +1070,7 @@ class Search_Manager_Plugin_OCI8
 				}
 			}
 
-			$contains_str = 'contains(value, '.$db->quoteSmart(trim($terms)).', 1) > 0';
+			$contains_str = 'contains(value, '.MatrixDAL::quote(trim($terms)).', 1) > 0';
 
 			$paginated_query_array = $query_array;
 			$paginated_query_array['where'][] = $contains_str;
@@ -1067,8 +1079,7 @@ class Search_Manager_Plugin_OCI8
 			}
 
 			$sql = implode_sql($paginated_query_array);
-			$result = $db->getCol($sql);
-			assert_valid_db_result($result);
+			$result = MatrixDAL::executeSqlAssoc($sql, 0);
 			$found_ids = array_merge($found_ids, array_unique($result));
 		}
 
@@ -1216,18 +1227,18 @@ class Search_Manager_Plugin_OCI8
 
 					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
 					$name = $attr_info[$attrid]['name'];
-					$data_source_comps[] = 'ai.component = '.$db->quote('attr:'.$name);
-					$data_source_comps_values[] = $db->quote('attr:'.$name);
+					$data_source_comps[] = 'ai.component = '.MatrixDAL::quote('attr:'.$name);
+					$data_source_comps_values[] = MatrixDAL::quote('attr:'.$name);
 				break;
 				case 'metadata' :
 					$assetid = $data_source['params']['assetid'];
-					$data_source_comps[] = 'ai.component = '.$db->quote('metadata:'.$assetid);
-					$data_source_comps_values[] = $db->quote('metadata:'.$assetid);
+					$data_source_comps[] = 'ai.component = '.MatrixDAL::quote('metadata:'.$assetid);
+					$data_source_comps_values[] = MatrixDAL::quote('metadata:'.$assetid);
 				break;
 				case 'standard' :
 					$param_field = $data_source['params']['field'];
-					$data_source_comps[] = 'ai.component = '.$db->quoteSmart('__'.$param_field.'__');
-					$data_source_comps_values[] = $db->quoteSmart('__'.$param_field.'__');
+					$data_source_comps[] = 'ai.component = '.MatrixDAL::quote('__'.$param_field.'__');
+					$data_source_comps_values[] = MatrixDAL::quote('__'.$param_field.'__');
 				break;
 
 				default :
@@ -1254,8 +1265,7 @@ class Search_Manager_Plugin_OCI8
 						$noise_words_str.'\', \''.
 						$white_words_str.'\'))';
 
-		$results = $db->getAll($sql);
-		assert_valid_db_result($results);
+		$results = MatrixDAL::executeSqlAssoc($sql);
 		$children = Array();
 		if (!empty($results)) {
 			foreach ($results as $ele) {
