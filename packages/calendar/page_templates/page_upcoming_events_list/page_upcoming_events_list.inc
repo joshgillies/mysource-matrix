@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.14 2007/12/28 00:12:25 hnguyen Exp $
+* $Id: page_upcoming_events_list.inc,v 1.15 2008/02/18 05:16:08 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -475,12 +475,16 @@ class Page_Upcoming_Events_List extends Page
 			$recur_result = Array();
 
 			// get the single events
-			$date_sql = '(cd.start_date_ts BETWEEN '.$db->quote($start_ts).' AND '.$db->quote($end_ts).') OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts >= '.$db->quote($start_ts).')';
+			$date_sql = '(cd.start_date_ts BETWEEN :start_date_ts AND :end_date_ts) OR (cd.start_date_ts < :start_date_ts_1 AND cd.end_date_ts >= :start_date_ts_2)';
 			$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.')';
 
 			$single_result = Array();
-			 try {
-				$query = $db->prepare($sql);
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'start_date_ts',   $start_ts);
+				MatrixDAL::bindValueToPdo($query, 'start_date_ts_1', $start_ts);
+				MatrixDAL::bindValueToPdo($query, 'start_date_ts_2', $start_ts);
+				MatrixDAL::bindValueToPdo($query, 'end_date_ts',     $end_ts);
 				$single_result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());
@@ -492,7 +496,7 @@ class Page_Upcoming_Events_List extends Page
 
 			$recur_result = Array();
 			try {
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$recur_result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());

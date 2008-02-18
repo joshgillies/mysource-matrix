@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.64 2007/12/28 00:01:54 colivar Exp $
+* $Id: calendar_common.inc,v 1.65 2008/02/18 05:16:07 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -60,7 +60,7 @@ class Calendar_Common
 		}
 		$sql .= "\n".'FROM '.Calendar_Common::_getTableList()."\n";
 		$sql .= 'WHERE a.type_code IN ( '.implode(',', $type_codes).') '."\n";
-		$sql .= "\t".'AND (a.status >= '.$db->quote(SQ_STATUS_LIVE).")\n\t";
+		$sql .= "\t".'AND (a.status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).")\n\t";
 
 		$sql .= ' AND '.Calendar_Common::_getTreeClause($root_ids);
 
@@ -69,10 +69,10 @@ class Calendar_Common
 			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
 			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
 			foreach ($userids as $userid => $type) {
-				$quoted_userids[] = $db->quote((string)$userid);
+				$quoted_userids[] = MatrixDAL::quote((string)$userid);
 			}
 			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
-			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quote(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quote(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quote(SQ_PERMISSION_READ).'))';
+			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
 		}
 
 		return $sql;
@@ -118,17 +118,17 @@ class Calendar_Common
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$sql .= ', p.granted as granted';
 		}
-		$sql .= "\nFROM ".Calendar_Common::_getTableList()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quote(SQ_STATUS_LIVE).")\n";
+		$sql .= "\nFROM ".Calendar_Common::_getTableList()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".MatrixDAL::quote(SQ_STATUS_LIVE).")\n";
 
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
 			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
 			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
 			foreach ($userids as $userid => $type) {
-				$quoted_userids[] = $db->quote((string)$userid);
+				$quoted_userids[] = MatrixDAL::quote((string)$userid);
 			}
 			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
-			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.$db->quote(SQ_PERMISSION_WRITE).' OR (status >= '.$db->quote(SQ_STATUS_LIVE).' AND p.permission >= '.$db->quote(SQ_PERMISSION_READ).'))';
+			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
 		}
 		$sql .= ' AND ';
 
@@ -145,26 +145,26 @@ class Calendar_Common
 				$prev_month_end_wday = date('w', strtotime(sprintf('%04d-%02d-%02d', $year, $month, 1).' -1 day'));
 
 				if (($now['wday'] != 0) && ($now['wday'] != 6)) {
-					$sql_freqs[] = 'frequency = '.$db->quote('DWD');
+					$sql_freqs[] = 'frequency = '.MatrixDAL::quote('DWD');
 				} else {
-					$sql_freqs[] = 'frequency = '.$db->quote('DWE');
+					$sql_freqs[] = 'frequency = '.MatrixDAL::quote('DWE');
 				}
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND mod(('.$db->quote($now['ds']).' - start_date_ds), period) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DED').' AND mod(('.MatrixDAL::quote($now['ds']).' - start_date_ds), period) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND mod(('.$db->quote($now['ds']).' - start_date_ds), (period*7)) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('WEW').' AND mod(('.MatrixDAL::quote($now['ds']).' - start_date_ds), (period*7)) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0))';
 
 				$sql_freqs[] = '
-				(SUBSTR(frequency, 1, 1) = '.$db->quote('M').') AND (
+				(SUBSTR(frequency, 1, 1) = '.MatrixDAL::quote('M').') AND (
 					(
 						/* there is an instance that starts in our month */
-					   (MOD('.$db->quote($now['ms']).' - start_date_ms, period) = 0)
+					   (MOD('.MatrixDAL::quote($now['ms']).' - start_date_ms, period) = 0)
 					   AND (
 							/* our view date is between the start and end of the instance */
-							((frequency = '.$db->quote('MFN').') AND (('.$db->quote($now['mday']).' - start_date_mday) BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
-							OR ((frequency = '.$db->quote('MRN').') AND ((start_date_rmday - '.$db->quote($now['rmday']).') BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
-							OR ((frequency = '.$db->quote('MFW').') AND (('.$db->quote($now['mday']).' - (((start_date_wdom - 1) * 7) + MOD(start_date_wday + 7 - '.$now['month_start_wday'].', 7) + 1)) BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
-							OR ((frequency = '.$db->quote('MRW').') AND ((((start_date_rwdom - 1) * 7) + MOD('.($now['month_end_wday'] + 7).' - start_date_wday, 7) + 1 - '.$now['rmday'].') BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
+							((frequency = '.MatrixDAL::quote('MFN').') AND (('.MatrixDAL::quote($now['mday']).' - start_date_mday) BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
+							OR ((frequency = '.MatrixDAL::quote('MRN').') AND ((start_date_rmday - '.MatrixDAL::quote($now['rmday']).') BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
+							OR ((frequency = '.MatrixDAL::quote('MFW').') AND (('.MatrixDAL::quote($now['mday']).' - (((start_date_wdom - 1) * 7) + MOD(start_date_wday + 7 - '.$now['month_start_wday'].', 7) + 1)) BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
+							OR ((frequency = '.MatrixDAL::quote('MRW').') AND ((((start_date_rwdom - 1) * 7) + MOD('.($now['month_end_wday'] + 7).' - start_date_wday, 7) + 1 - '.$now['rmday'].') BETWEEN 0 AND (COALESCE((end_date_ds - start_date_ds), 0))))
 					  )
 					) OR (
 							/* An instance that started in a previous month doesnt end til a subsequent month */
@@ -174,14 +174,14 @@ class Calendar_Common
 						((start_date_ms != end_date_ms) AND (MOD('.$now['ms'].' - end_date_ms, period) = 0))
 					   AND (
 						   /* its end is PROBABLY after our view date - we can only be ~90% sure here */
-							((frequency = '.$db->quote('MFN').')
-							   AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', 'start_date_mday').') / 86400)))
-							OR ((frequency = '.$db->quote('MRN').')
-								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', '((start_date_mday + 3) - (FLOOR((start_date_mday + 3) / 31) * MOD(start_date_mday + 3, 31)))').') / 86400)))
-							OR ((frequency = '.$db->quote('MFW').')
-								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', '(7 * start_date_wdom) - (FLOOR((7 * start_date_wdom) / 31) * MOD(7 * start_date_wdom, 31))').') / 86400)))
-							OR ((frequency = '.$db->quote('MRW').')
-								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', '(31 - ((start_date_rwdom - 1) * 7))').') / 86400)))
+							((frequency = '.MatrixDAL::quote('MFN').')
+							   AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.MatrixDAL::quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', 'start_date_mday').') / 86400)))
+							OR ((frequency = '.MatrixDAL::quote('MRN').')
+								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.MatrixDAL::quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', '((start_date_mday + 3) - (FLOOR((start_date_mday + 3) / 31) * MOD(start_date_mday + 3, 31)))').') / 86400)))
+							OR ((frequency = '.MatrixDAL::quote('MFW').')
+								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.MatrixDAL::quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', '(7 * start_date_wdom) - (FLOOR((7 * start_date_wdom) / 31) * MOD(7 * start_date_wdom, 31))').') / 86400)))
+							OR ((frequency = '.MatrixDAL::quote('MRW').')
+								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.MatrixDAL::quote($now['ts']).' - '.Calendar_Common::_ts2Sql('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', 'MOD('.$now['mon'].' + 10 - MOD('.($now['ms']-1).' - start_date_ms, period), 12) + 1', '(31 - ((start_date_rwdom - 1) * 7))').') / 86400)))
 						)
 					) OR (
 							/* An instance that started last month has run into our month
@@ -189,11 +189,11 @@ class Calendar_Common
 							   and it ends on/after our view date */
 							(MOD('.$now['ms'].' - start_date_ms, period) = 1)
 							   AND (
-								((frequency = '.$db->quote('MFN').')
+								((frequency = '.MatrixDAL::quote('MFN').')
 									AND ((start_date_mday + (end_date_ds - start_date_ds)) - '.$prev_month_length.' >= '.$now['mday'].'))
-								OR ((frequency = '.$db->quote('MFD').')
+								OR ((frequency = '.MatrixDAL::quote('MFD').')
 									AND (((MOD(7 + '.$prev_month_start_wday.' - start_date_wday, 7) + 1) + ((start_date_wdom - 1) * 7) + (end_date_ds - start_date_ds)) - '.$prev_month_length.' >= '.$now['mday'].'))
-								OR ((frequency = '.$db->quote('MRD').')
+								OR ((frequency = '.MatrixDAL::quote('MRD').')
 										AND ((('.$prev_month_length.' - MOD(7 + '.$prev_month_end_wday.' - start_date_wday, 7)) + (end_date_ds - start_date_ds)) - '.$prev_month_length.' >= '.$now['mday'].'))
 								)
 					 )
@@ -212,30 +212,30 @@ class Calendar_Common
 
 				$last_day = $now['ds'] + 6;
 
-				$sql_freqs[] = 'frequency = '.$db->quote('DWD');
-				$sql_freqs[] = 'frequency = '.$db->quote('DWE');
+				$sql_freqs[] = 'frequency = '.MatrixDAL::quote('DWD');
+				$sql_freqs[] = 'frequency = '.MatrixDAL::quote('DWE');
 
 				// note: the slightly redundant "*1.0" is so Postgres interprets it as a
 				// double instead of an int, blowing away our attempts to use floor()
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND ((FLOOR(('.$db->quote($now['ds']-1).' - start_date_ds) / (period*1.0)) < FLOOR(('.$db->quote($now['ds']+6).' - start_date_ds) / (period*1.0))) or mod(('.$db->quote($now['ds']).' - start_date_ds), period) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0)))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DED').' AND ((FLOOR(('.MatrixDAL::quote($now['ds']-1).' - start_date_ds) / (period*1.0)) < FLOOR(('.MatrixDAL::quote($now['ds']+6).' - start_date_ds) / (period*1.0))) or mod(('.MatrixDAL::quote($now['ds']).' - start_date_ds), period) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0)))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND ((FLOOR(('.$db->quote($now['ds']-1).' - start_date_ds)/(period*7.0)) < FLOOR(('.$db->quote($now['ds']+6).' - start_date_ds)/(period*7.0))) OR MOD(('.$db->quote($now['ds']).' - start_date_ds), period) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0)))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('WEW').' AND ((FLOOR(('.MatrixDAL::quote($now['ds']-1).' - start_date_ds)/(period*7.0)) < FLOOR(('.MatrixDAL::quote($now['ds']+6).' - start_date_ds)/(period*7.0))) OR MOD(('.MatrixDAL::quote($now['ds']).' - start_date_ds), period) BETWEEN 0 AND COALESCE(end_date_ds - start_date_ds,0)))';
 
 				$sql_freqs_m = Array();
 
 				// every X months on xth of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND start_date_mday BETWEEN '.$db->quote(intval($day)).' AND '.$db->quote(min($day+6, $days_in_month)).')';
+				$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MFN').' AND start_date_mday BETWEEN '.MatrixDAL::quote(intval($day)).' AND '.MatrixDAL::quote(min($day+6, $days_in_month)).')';
 
 				// every X months on xth weekday of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MFW').' AND start_date_wdom IN ( '.$db->quote($now['wdom']).($req_next_week ? ','.$db->quote($now['wdom']+1) : '').'))';
+				$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MFW').' AND start_date_wdom IN ( '.MatrixDAL::quote($now['wdom']).($req_next_week ? ','.MatrixDAL::quote($now['wdom']+1) : '').'))';
 
 				// every X months on xth last day of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MRN').' AND start_date_rmday BETWEEN '.$db->quote(max($days_in_month - $day - 5, 1)).' AND '.$db->quote(intval($days_in_month - $day + 1)).')';
+				$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MRN').' AND start_date_rmday BETWEEN '.MatrixDAL::quote(max($days_in_month - $day - 5, 1)).' AND '.MatrixDAL::quote(intval($days_in_month - $day + 1)).')';
 
 				// every X months on xth last weekday of the month
-				$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND start_date_rwdom IN ( '.$db->quote($now['rwdom']).($req_rev_next_week ? ','.$db->quote($now['rwdom']-1) : '').'))';
+				$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MRW').' AND start_date_rwdom IN ( '.MatrixDAL::quote($now['rwdom']).($req_rev_next_week ? ','.MatrixDAL::quote($now['rwdom']-1) : '').'))';
 
-				$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($now['ms']).' - start_date_ms, period) = 0))';
+				$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.MatrixDAL::quote($now['ms']).' - start_date_ms, period) = 0))';
 
 				// rolling over to a new month? Oh crap :o
 				if ($req_next_month) {
@@ -254,41 +254,41 @@ class Calendar_Common
 					// wipe the table clean
 					$sql_freqs_m = Array();
 
-					$sql_freqs_m[] = '(frequency = '.$db->quote('MFN').' AND start_date_mday BETWEEN '.$db->quote(1).' AND '.$db->quote($day+6-$days_in_month).')';
+					$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MFN').' AND start_date_mday BETWEEN '.MatrixDAL::quote(1).' AND '.MatrixDAL::quote($day+6-$days_in_month).')';
 
 					// every X months on xth weekday of the month - it's always going to
 					// be the first week of a new month
-					$sql_freqs_m[] = '(frequency = '.$db->quote('MFW').' AND start_date_wdom = 1)';
+					$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MFW').' AND start_date_wdom = 1)';
 
 					// every X months on xth last day of the month
-					$sql_freqs_m[] = '(frequency = '.$db->quote('MRN').' AND start_date_rmday BETWEEN '.$db->quote($days_in_month * 2 - $day - 5).' AND '.$db->quote(intval($days_in_month)).')';
+					$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MRN').' AND start_date_rmday BETWEEN '.MatrixDAL::quote($days_in_month * 2 - $day - 5).' AND '.MatrixDAL::quote(intval($days_in_month)).')';
 
 					// every X months on xth last weekday of the month
-					$sql_freqs_m[] = '(frequency = '.$db->quote('MRW').' AND start_date_rwdom IN ( '.$db->quote(count($wdom_list)).($req_rev_next_week ? ','.$db->quote(count($wdom_list)-1) : '').'))';
+					$sql_freqs_m[] = '(frequency = '.MatrixDAL::quote('MRW').' AND start_date_rwdom IN ( '.MatrixDAL::quote(count($wdom_list)).($req_rev_next_week ? ','.MatrixDAL::quote(count($wdom_list)-1) : '').'))';
 
-					$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($now['ms']+1).' - start_date_ms, period) = 0))';
+					$sql_freqs[] = '(('.implode("\n\t".' OR ', $sql_freqs_m).') AND (MOD('.MatrixDAL::quote($now['ms']+1).' - start_date_ms, period) = 0))';
 				}
 
-				$sql_freqs[] = '(frequency IN ('.$db->quote('MFN').', '.$db->quote('MRN').') AND (end_date_ds - start_date_ds >= '.$day.'))';
+				$sql_freqs[] = '(frequency IN ('.MatrixDAL::quote('MFN').', '.MatrixDAL::quote('MRN').') AND (end_date_ds - start_date_ds >= '.$day.'))';
 
-				$sql_freqs[] = '(frequency IN ('.$db->quote('MFW').', '.$db->quote('MRW').') AND (end_date_ds - start_date_ds >= 1 + ((start_date_rwdom-1) * 7)))';
+				$sql_freqs[] = '(frequency IN ('.MatrixDAL::quote('MFW').', '.MatrixDAL::quote('MRW').') AND (end_date_ds - start_date_ds >= 1 + ((start_date_rwdom-1) * 7)))';
 
 			break;
 
 			case 'month' :
 				$last_day = $now['ds'] + days_in_month($month,$year) - 1;
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
-				$sql_freqs[] = '(frequency = '.$db->quote('DWE').')';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DWD').')';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DWE').')';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (FLOOR(('.$db->quote($now['ds']-1).' - start_date_ds)/period) < FLOOR(('.$db->quote($last_day).' - start_date_ds)/period)))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DED').' AND (FLOOR(('.MatrixDAL::quote($now['ds']-1).' - start_date_ds)/period) < FLOOR(('.MatrixDAL::quote($last_day).' - start_date_ds)/period)))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND period = 1)';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('WEW').' AND period = 1)';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (floor(('.$db->quote($now['ds']-1).' - start_date_ds)/(period*7)) < FLOOR('.$db->quote($last_day).' - start_date_ds)/(period*7)))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('WEW').' AND (floor(('.MatrixDAL::quote($now['ds']-1).' - start_date_ds)/(period*7)) < FLOOR('.MatrixDAL::quote($last_day).' - start_date_ds)/(period*7)))';
 
 				// all monthly views can be lumped together on this one
-				$sql_freqs[] = '(frequency LIKE '.$db->quote('M%').' AND (MOD(('.$db->quote($now['ms']).' - start_date_ms), period) = 0))';
+				$sql_freqs[] = '(frequency LIKE '.MatrixDAL::quote('M%').' AND (MOD(('.MatrixDAL::quote($now['ms']).' - start_date_ms), period) = 0))';
 
 				$iso = $year.'-'.sprintf('%02d', $month).'-01';
 
@@ -297,19 +297,19 @@ class Calendar_Common
 			case 'year' :
 				$last_day = $now['ds']+364+is_leap_year($year);
 
-				$sql_freqs[] = 'frequency = '.$db->quote('DWD');
-				$sql_freqs[] = 'frequency = '.$db->quote('DWE');
+				$sql_freqs[] = 'frequency = '.MatrixDAL::quote('DWD');
+				$sql_freqs[] = 'frequency = '.MatrixDAL::quote('DWE');
 
-				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (FLOOR(('.$db->quote($now['ds']-1).' - start_date_ds)/period) < FLOOR(('.$db->quote($last_day).' - start_date_ds)/period)))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DED').' AND (FLOOR(('.MatrixDAL::quote($now['ds']-1).' - start_date_ds)/period) < FLOOR(('.MatrixDAL::quote($last_day).' - start_date_ds)/period)))';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND period = 1)';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('WEW').' AND period = 1)';
 
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (FLOOR(('.$db->quote($now['ds']-1).' - start_date_ds)/(period*7)) < FLOOR(('.$db->quote($last_day).' - start_date_ds)/(period*7))))';
+				$sql_freqs[] = '(frequency = '.MatrixDAL::quote('WEW').' AND (FLOOR(('.MatrixDAL::quote($now['ds']-1).' - start_date_ds)/(period*7)) < FLOOR(('.MatrixDAL::quote($last_day).' - start_date_ds)/(period*7))))';
 
 				// all monthly views can be lumped together on this one
 				// but we need to do something like the 'every day' type thing to work out
 				// whether an occurrence will happen this year
-				$sql_freqs[] = '(frequency LIKE '.$db->quote('M%').' AND (FLOOR(('.($year * 12).' - start_date_ms) / period) < FLOOR(('.(($year + 1) * 12).' - start_date_ms) / period)))';
+				$sql_freqs[] = '(frequency LIKE '.MatrixDAL::quote('M%').' AND (FLOOR(('.($year * 12).' - start_date_ms) / period) < FLOOR(('.(($year + 1) * 12).' - start_date_ms) / period)))';
 			break;
 
 			case 'period' :
@@ -326,7 +326,7 @@ class Calendar_Common
 
 				// DAILY-RECURRING
 				$sql_freqs[] = '(
-									(frequency = '.$db->quote('DED').')
+									(frequency = '.MatrixDAL::quote('DED').')
 									AND
 									(
 										(period <= '.$length.')
@@ -338,16 +338,16 @@ class Calendar_Common
 								)';
 				if (($length > 2) || !in_array($now['wday'], Array(0, 6)) || !in_array($last_date_components['wday'], Array(0, 6))) {
 					// the period includes a weekday
-					$sql_freqs[] = '(frequency = '.$db->quote('DWD').')';
+					$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DWD').')';
 				}
 				if (($length > 5) || in_array($now['wday'], Array(0, 6)) || in_array($last_date_components['wday'], Array(0, 6)) || ($last_date_components['wday'] < $now['wday'])) {
 					// the period includes a weekend day
-					$sql_freqs[] = '(frequency = '.$db->quote('DWE').')';
+					$sql_freqs[] = '(frequency = '.MatrixDAL::quote('DWE').')';
 				}
 
 				// WEEKLY-RECURRING
 				$sql_freqs[] = '(
-									(frequency = '.$db->quote('WEW').')
+									(frequency = '.MatrixDAL::quote('WEW').')
 									AND
 									(
 										((period * 7) <= '.$length.')
@@ -364,8 +364,8 @@ class Calendar_Common
 					// we are within one month
 
 					// get MFN and MRN events
-					$monthly_conditions[] = '((frequency = '.$db->quote('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].'))))';
-					$monthly_conditions[] = '((frequency = '.$db->quote('MRN').') AND ((start_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].') OR (end_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].')))';
+					$monthly_conditions[] = '((frequency = '.MatrixDAL::quote('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday BETWEEN '.$now['mday'].' AND '.$last_date_components['mday'].'))))';
+					$monthly_conditions[] = '((frequency = '.MatrixDAL::quote('MRN').') AND ((start_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].') OR (end_date_rwdom BETWEEN '.$last_date_components['rwdom'].' AND '.$now['rwdom'].')))';
 
 					// get MFW events
 					$mfw_conditions = Array();
@@ -395,10 +395,10 @@ class Calendar_Common
 						if ($last_date_components['wdom'] - $now['wdom'] != 1) {
 							// we have intervening weeks
 							// we want to know if any event started or ended in the intervening weeks
-							$mfw_conditions[] = '((frequency = '.$db->quote('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).')))';
+							$mfw_conditions[] = '((frequency = '.MatrixDAL::quote('MFW').') AND ((start_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).') OR (end_date_wdom BETWEEN '.($now['wdom'] + 1).' AND '.($last_date_components['wdom'] - 1).')))';
 						}
 					}
-					$monthly_conditions[] = '((frequency = '.$db->quote('MFW').') AND ('.implode(' OR ', $mfw_conditions)."\n\n     ))";
+					$monthly_conditions[] = '((frequency = '.MatrixDAL::quote('MFW').') AND ('.implode(' OR ', $mfw_conditions)."\n\n     ))";
 
 					// get MRW events
 					$mrw_conditions = Array();
@@ -429,12 +429,12 @@ class Calendar_Common
 							$mrw_conditions[] = '((start_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).') OR (end_date_rwdom BETWEEN '.($now['rwdom'] - 1).' AND '.($last_date_components['rwdom'] + 1).'))';
 						}
 					}
-					$monthly_conditions[] = '((frequency = '.$db->quote('MRW').') AND ('.implode(' OR ', $mrw_conditions).'))';
+					$monthly_conditions[] = '((frequency = '.MatrixDAL::quote('MRW').') AND ('.implode(' OR ', $mrw_conditions).'))';
 
 					// get month events that cover the whole of our month
 					$sql_freqs[] = '(
 									/* begin month options */
-										(frequency LIKE '.$db->quote('M%').')
+										(frequency LIKE '.MatrixDAL::quote('M%').')
 										AND (
 												(
 													(end_date_ms IS NOT NULL)
@@ -456,34 +456,34 @@ class Calendar_Common
 					// start and end are in different months
 
 					// we want to see if the start or end is late enough in the first month
-					$sql_freqs[] = '((frequency = '.$db->quote('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday >= '.$now['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday >= '.$now['mday'].'))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MFN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_mday >= '.$now['mday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_mday >= '.$now['mday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MRN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday <= '.$now['rmday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday <= '.$now['rmday'].'))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MRN').') AND (((MOD('.$now['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday <= '.$now['rmday'].')) OR ((MOD('.$now['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday <= '.$now['rmday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom > '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom > '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom > '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom > '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) >= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom < '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom < '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
 					// or early enough in the last month
-					$sql_freqs[] = '((frequency = '.$db->quote('MFN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_mday <= '.$last_date_components['mday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_mday <= '.$last_date_components['mday'].'))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MFN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_mday <= '.$last_date_components['mday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_mday <= '.$last_date_components['mday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MRN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday >= '.$last_date_components['rmday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday >= '.$last_date_components['rmday'].'))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MRN').') AND (((MOD('.$last_date_components['ms'].' - start_date_ms, period) = 0) AND (start_date_rmday >= '.$last_date_components['rmday'].')) OR ((MOD('.$last_date_components['ms'].' - end_date_ms, period) = 0) AND (end_date_rmday >= '.$last_date_components['rmday'].'))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom < '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MFW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_wdom < '.$now['wdom'].') OR (((start_date_wdom = '.$now['wdom'].') AND (start_date_mday - ((start_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom < '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MFW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_wdom < '.$now['wdom'].') OR (((end_date_wdom = '.$now['wdom'].') AND (end_date_mday - ((end_date_wdom - 1) * 7) <= '.($now['mday'] - (($now['wdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom > '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) >= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MRW').') AND (MOD('.$now['ms'].' - start_date_ms, period) = 0) AND ((start_date_rwdom > '.$now['rwdom'].') OR (((start_date_rwdom = '.$now['rwdom'].') AND (start_date_rmday - ((start_date_rwdom - 1) * 7) >= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
-					$sql_freqs[] = '((frequency = '.$db->quote('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
+					$sql_freqs[] = '((frequency = '.MatrixDAL::quote('MRW').') AND (MOD('.$now['ms'].' - end_date_ms, period) = 0) AND ((end_date_rwdom > '.$now['rwdom'].') OR (((end_date_rwdom = '.$now['rwdom'].') AND (end_date_rmday - ((end_date_rwdom - 1) * 7) <= '.($now['rmday'] - (($now['rwdom'] - 1) * 7)).')))))';
 
 					if ($last_date_components['ms'] - $now['ms'] > 1) {
 						// we have intervening months, so we want to see if the event starts or ends in one of them
-						$sql_freqs[] = '((frequency LIKE '.$db->quote('M').') AND ((MOD('.$last_date_components['ms'].' - start_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR (MOD('.$last_date_components['ms'].' - end_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
+						$sql_freqs[] = '((frequency LIKE '.MatrixDAL::quote('M').') AND ((MOD('.$last_date_components['ms'].' - start_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR (MOD('.$last_date_components['ms'].' - end_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
 					}
 				}//end else
 
@@ -494,7 +494,7 @@ class Calendar_Common
 
 		// stop date
 		$sql .= ' AND ('.$last_day.' >= start_date_ds)';
-		$sql .= ' AND (stop_date = '.$db->quote('----------').' OR stop_date >= '.$db->quote($iso).')';
+		$sql .= ' AND (stop_date = '.MatrixDAL::quote('----------').' OR stop_date >= '.MatrixDAL::quote($iso).')';
 
 		$sql .= ' AND '.Calendar_Common::_getTreeClause($root_ids);
 
@@ -581,7 +581,7 @@ class Calendar_Common
 			if (in_array($details['type_code'], Array('calendar_event_cancellation', 'calendar_event_modification'))) {
 				$id_bits = explode(':', $id);
 				$real_id = $id_bits[0];
-				$exception_ids[] = $db->quote($real_id);
+				$exception_ids[] = MatrixDAL::quote($real_id);
 				if ($details['type_code'] == 'calendar_event_cancellation') {
 					unset($res[$id]);
 				}
@@ -591,7 +591,7 @@ class Calendar_Common
 
 		$exception_links = Array();
 		try {
-			$query = $db->prepare('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
+			$query = MatrixDAL::preparePdoQuery('SELECT majorid, minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk WHERE minorid IN ('.implode(', ',	$exception_ids).')');
 			$exception_links = MatrixDAL::executePdoGrouped($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -820,7 +820,7 @@ class Calendar_Common
 		$tree_options = Array();
 		foreach ($treeids as $assetid => $treeids) {
 			foreach ($treeids as $treeid) {
-				$tree_options[] .= '(t.treeid LIKE '.$db->quote($treeid[0].'%').')';
+				$tree_options[] .= '(t.treeid LIKE '.MatrixDAL::quote($treeid[0].'%').')';
 			}
 		}
 		return '('.implode(' OR ', $tree_options).')';
@@ -1256,7 +1256,7 @@ class Calendar_Common
 		$type_codes[] = $type_code;
 
 		foreach ($type_codes as $tc_key => $tc_value) {
-			$type_codes[$tc_key] = $db->quote($tc_value);
+			$type_codes[$tc_key] = MatrixDAL::quote($tc_value);
 		}
 
 		return $type_codes;

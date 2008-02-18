@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.30 2008/02/01 01:32:17 mbrydon Exp $
+* $Id: page_calendar_rolling.inc,v 1.31 2008/02/18 05:16:08 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -602,12 +602,16 @@ class Page_Calendar_Rolling extends Page
 		// get the single events
 		$start_date_stamp = Calendar_Common::_getDayStamp($start_date);
 		$end_date_stamp = $start_date_stamp + $length;
-		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' AND '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($start_date_stamp).')';
+		$date_sql = '(cd.start_date_ds BETWEEN :start_date_ds AND :end_date_ds) OR (cd.start_date_ds < :start_date_ds_1 AND cd.end_date_ds >= :start_date_ds_2)';
 		$sql = Calendar_Common::getSingleEventQueryBase(array_keys($root_nodes)).' AND ('.$date_sql.') ORDER BY cd.start_date_ts';
 
 		$single_result = Array();
-		 try {
-			$query = $db->prepare($sql);
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdO($query, 'start_date_ds',   $start_date_stamp);
+			MatrixDAL::bindValueToPdO($query, 'start_date_ds_1', $start_date_stamp);
+			MatrixDAL::bindValueToPdO($query, 'start_date_ds_2', $start_date_stamp);
+			MatrixDAL::bindValueToPdO($query, 'end_date_ds',     $end_date_stamp);
 			$single_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -620,7 +624,7 @@ class Page_Calendar_Rolling extends Page
 
 		$recur_result = Array();
 		 try {
-			$query = $db->prepare($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
