@@ -43,7 +43,7 @@
 
 
 		// get all the page_asset_listings
-		$assets_id =  $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_asset_listing', FALSE);
+		$assets_id =  $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_asset_listing', TRUE);
         // if no asset listings are found exit
         if (empty($assets_id)) {
             echo 'NO PAGE ASSET LISTINGS FOUND'."\n";
