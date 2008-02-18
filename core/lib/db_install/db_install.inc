@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.56 2008/01/29 21:51:48 lwright Exp $
+* $Id: db_install.inc,v 1.57 2008/02/18 03:57:03 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -340,7 +340,7 @@ function get_database_sequences()
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			$query->bindValue(':pattern', '^(pg_|sql_)', PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'pattern', '^(pg_|sql_)', PDO::PARAM_STR);
 		} catch (DALException $e) {
 			throw $e;
 		}
@@ -668,7 +668,6 @@ function db_install($xml_file, $verbose=TRUE)
 */
 function grant_secondary_user_perms($verbose=TRUE)
 {
-	$db = MatrixDAL::getDb();
 	if (DAL::getDbType() == 'pgsql') {
 		$db_conf = require(SQ_SYSTEM_ROOT.'/data/private/conf/db.inc');
 
@@ -678,18 +677,20 @@ function grant_secondary_user_perms($verbose=TRUE)
 		$cache_dsn     = $db_conf['dbcache'];
 
 		// grant to the primary user
-		$grant_sql = 'SELECT sq_grant_access('.$db->quote($primary_dsn['user']).')';
+		$grant_sql = 'SELECT sq_grant_access(:user)';
 		try {
-			DAL::executeSql($grant_sql);
+			$query = MatrixDAL::preparePdoQuery($grant_sql);
+			MatrixDAL::preparePdoQuery($query, 'user', $primary_dsn['user']);
+			MatrixDAL::execPdoQuery($grant_sql);
 		} catch (DALException $e) {
 			throw $e;
 		}
 
 		// grant to the secondary user, if different
 		if ($primary_dsn['user'] != $secondary_dsn['user']) {
-			$grant_sql = 'SELECT sq_grant_access('.$db->quote($secondary_dsn['user']).')';
 			try {
-				DAL::executeSql($grant_sql);
+				MatrixDAL::preparePdoQuery($query, 'user', $secondary_dsn['user']);
+				MatrixDAL::execPdoQuery($grant_sql);
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -697,9 +698,9 @@ function grant_secondary_user_perms($verbose=TRUE)
 
 		// grant to the tertiary user, if different to the first two
 		if (($primary_dsn['user'] != $tertiary_dsn['user']) && ($secondary_dsn['user'] != $tertiary_dsn['user'])) {
-			$grant_sql = 'SELECT sq_grant_access('.$db->quote($tertiary_dsn['user']).')';
 			try {
-				DAL::executeSql($grant_sql);
+				MatrixDAL::preparePdoQuery($query, 'user', $tertiary_dsn['user']);
+				MatrixDAL::execPdoQuery($grant_sql);
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -713,12 +714,11 @@ function grant_secondary_user_perms($verbose=TRUE)
 		if (!is_null($cache_dsn)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db = MatrixDAL::getDb();
 
 			if (DAL::getDbType() == 'pgsql') {
-				$grant_sql = 'SELECT sq_grant_access('.$db->quote($cache_dsn['user']).')';
 				try {
-					DAL::executeSql($grant_sql);
+					MatrixDAL::preparePdoQuery($query, 'user', $cache_dsn['user']);
+					MatrixDAL::execPdoQuery($grant_sql);
 				} catch (DALException $e) {
 					throw $e;
 				}
