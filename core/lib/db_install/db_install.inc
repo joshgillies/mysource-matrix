@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.60 2008/02/18 05:46:55 lwright Exp $
+* $Id: db_install.inc,v 1.61 2008/02/18 23:19:52 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -807,7 +807,7 @@ function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 			if (is_null($package)) {
 				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' CREATED'."\n".implode("\n", $display_names));
 			} else {
-				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' FOR PACKAGE '.$package.' CREATED'."\n".implode("\n", $element_names));
+				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' FOR PACKAGE '.$package.' CREATED'."\n".implode("\n", $display_names));
 			}
 		}
 	}//end if
