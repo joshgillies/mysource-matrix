@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.57 2008/02/18 03:57:03 lwright Exp $
+* $Id: db_install.inc,v 1.58 2008/02/18 05:43:51 lwright Exp $
 *
 */
 
@@ -22,9 +22,9 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
-* @subpackage lib
+* @subpackage lib`
 */
 
 
@@ -689,7 +689,8 @@ function grant_secondary_user_perms($verbose=TRUE)
 		// grant to the secondary user, if different
 		if ($primary_dsn['user'] != $secondary_dsn['user']) {
 			try {
-				MatrixDAL::preparePdoQuery($query, 'user', $secondary_dsn['user']);
+				$query = MatrixDAL::preparePdoQuery($grant_sql);
+				MatrixDAL::bindValueToPdo($query, 'user', $secondary_dsn['user']);
 				MatrixDAL::execPdoQuery($grant_sql);
 			} catch (DALException $e) {
 				throw $e;
@@ -699,7 +700,8 @@ function grant_secondary_user_perms($verbose=TRUE)
 		// grant to the tertiary user, if different to the first two
 		if (($primary_dsn['user'] != $tertiary_dsn['user']) && ($secondary_dsn['user'] != $tertiary_dsn['user'])) {
 			try {
-				MatrixDAL::preparePdoQuery($query, 'user', $tertiary_dsn['user']);
+				$query = MatrixDAL::preparePdoQuery($grant_sql);
+				MatrixDAL::bindValueToPdo($query, 'user', $tertiary_dsn['user']);
 				MatrixDAL::execPdoQuery($grant_sql);
 			} catch (DALException $e) {
 				throw $e;
@@ -717,7 +719,8 @@ function grant_secondary_user_perms($verbose=TRUE)
 
 			if (DAL::getDbType() == 'pgsql') {
 				try {
-					MatrixDAL::preparePdoQuery($query, 'user', $cache_dsn['user']);
+					$query = MatrixDAL::preparePdoQuery($grant_sql);
+					MatrixDAL::bindValueToPdo($query, 'user', $cache_dsn['user']);
 					MatrixDAL::execPdoQuery($grant_sql);
 				} catch (DALException $e) {
 					throw $e;
