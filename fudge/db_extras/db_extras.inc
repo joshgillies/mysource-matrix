@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.25 2008/01/31 00:38:04 hnguyen Exp $
+* $Id: db_extras.inc,v 1.26 2008/02/18 05:27:52 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -54,8 +54,9 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 {
 
 	switch ($db->phptype) {
-		// Sub Query Compatable DB's
-		case 'pgsql' :
+		// Sub-query compatible DB's
+		case 'pgsql':
+		case 'oci8':
 
 			$find = Array();
 			for ($i = 0; $i < count($subs); $i++) {
@@ -67,23 +68,22 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 
 			break;
 
-		// Non Compatiable DB's
-		default :
+		// Non-compatible DB's (...none now MySQL is not supported)
+		default:
 
 			$find    = Array();
 			$replace = Array();
 			for ($i = 0; $i < count($subs); $i++) {
 				$find[$i] = '~SQ'.$i.'~';
 
-				$result = $db->getCol($subs[$i]);
-				if (DB::isError($result)) return $result;
+				$result = MatrixDAL::executeSqlAssoc($subs[$i], 0);
 
 				$replace[$i] = '';
 				for ($j = 0, $total= count($result); $j < $total; $j++) {
-					$replace[$i] .= (($replace[$i]) ? ',' : '').$db->quote($result[$j]);
+					$replace[$i] .= (($replace[$i]) ? ',' : '').MatrixDAL::quote($result[$j]);
 				}
 
-				if ($replace[$i] == '') $replace[$i] = $db->quote($default_value);
+				if ($replace[$i] == '') $replace[$i] = MatrixDAL::quote($default_value);
 
 			}//end for
 
@@ -117,7 +117,7 @@ function db_extras_insert_select(&$db, $insert, $select)
 		case 'pgsql' :
 		case 'oci8'  :
 
-			$result = $db->query($insert.' '.$select);
+			$result = MatrixDAL::executeSql($insert.' '.$select);
 			if (DB::isError($result)) return $result;
 			return TRUE;
 
@@ -125,7 +125,7 @@ function db_extras_insert_select(&$db, $insert, $select)
 
 		// Non Compatible DB's
 		default :
-
+			// ??? A bit difficult with
 			$select_result = $db->query($select);
 			if (DB::isError($select_result)) return $select_result;
 
@@ -135,7 +135,7 @@ function db_extras_insert_select(&$db, $insert, $select)
 				if (!$field_total) continue;
 				$sql = $insert.' VALUES (';
 				for ($j = 0; $j < $field_total; $j++) {
-					$sql .= (($j) ? ',' : '').$db->quote($row[$j]);
+					$sql .= (($j) ? ',' : '').MatrixDAL::quote($row[$j]);
 				}
 				$sql .= ')';
 
@@ -173,8 +173,8 @@ function db_extras_insert_select(&$db, $insert, $select)
 */
 function db_extras_bitand($db_type, $val1, $val2)
 {
-	if ((int) $val1 != $val1) $val1 = $db->quote($val1);
-	if ((int) $val2 != $val2) $val2 = $db->quote($val2);
+	if ((int) $val1 != $val1) $val1 = MatrixDAL::quote($val1);
+	if ((int) $val2 != $val2) $val2 = MatrixDAL::quote($val2);
 
 	if ($db_type == 'oci') {
 		$bit_op = 'BITAND('.$val1.', '.$val2.')';
