@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.84 2008/01/29 22:02:03 lwright Exp $
+* $Id: asset_management.inc,v 1.85 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -95,7 +95,7 @@ class Asset_Management extends MySource_Object
 
 		$this->_pm = $pm;
 		$this->_am = $GLOBALS['SQ_SYSTEM']->am;
-		$this->_db = $GLOBALS['SQ_SYSTEM']->db;
+		$this->_db = MatrixDAL::getDb();
 
 	}//end constructor
 
@@ -646,13 +646,6 @@ class Asset_Management extends MySource_Object
 			return false;
 		}
 
-		// TODO: this wil be replaced in the queries.xml with a seqNextVal()
-		// call replacing the addition of the explicit sequence value
-		//$attributeid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_attr_seq\')');
-		/*if (!assert_valid_db_result($attributeid, '', false, false)) {
-			return false;
-		}*/
-
 		// OK, all seems fine, let's add the attribute
 		try {
 				$bind_vars = Array(
@@ -701,24 +694,28 @@ class Asset_Management extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// find the attributeid
-		$sql = 'SELECT attrid FROM sq_ast_attr WHERE owning_type_code = '.$this->_db->quote($type_code).' AND name='.$this->_db->quote($name);
-		$attributeid = $this->_db->getOne($sql);
+		$sql = 'SELECT attrid FROM sq_ast_attr WHERE owning_type_code = :type_code AND name = :name';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'type_code', $type_code);
+		MatrixDAL::bindValueToPdo($query, 'name',      $name);
+		$attributeid = MatrixDAL::executePdoOne($query);
 
-		assert_valid_db_result($attributeid);
 		if (is_null($attributeid)) {
 			trigger_localised_error('SYS0050', E_USER_WARNING, $typecode, $name);
 			return false;
 		}
 
 		// delete the attribute values
-		$sql = 'DELETE FROM sq_ast_attr_val WHERE attrid='.$this->_db->quote($attributeid);
-		$result = $this->_db->query($sql);
-		assert_valid_db_result($result);
+		$sql = 'DELETE FROM sq_ast_attr_val WHERE attrid = :attrid';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'attrid', $attributeid);
+		MatrixDAL::execPdoQuery($query);
 
 		// delete the attribute
-		$sql = 'DELETE FROM sq_ast_attr WHERE attrid='.$this->_db->quote($attributeid);
-		$result = $this->_db->query($sql);
-		assert_valid_db_result($result);
+		$sql = 'DELETE FROM sq_ast_attr WHERE attrid = :attrid';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'attrid', $attributeid);
+		MatrixDAL::execPdoQuery($query);
 
 		// get rid of it in our array
 		if (isset($this->vars[$name])) {
@@ -748,7 +745,6 @@ class Asset_Management extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = MatrixDAL::getDb();
 
 		// if they have defined an update fn for this, then we don't need to do anything
 		if (!empty($this->vars[$name]['update_fn'])) {

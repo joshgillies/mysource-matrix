@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.638 2008/01/29 21:46:39 lwright Exp $
+* $Id: asset.inc,v 1.639 2008/02/18 04:10:08 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.638 $
+* @version $Revision: 1.639 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1694,7 +1694,7 @@ class Asset extends MySource_Object
 		if ($deletes_var_list) {
 			$deletes_attributeids = '';
 			foreach ($deletes_var_list as $var_name) {
-				$deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attrid']);
+				$deletes_attributeids .= (($deletes_attributeids) ? ',' : '').MatrixDAL::quote($this->vars[$var_name]['attrid']);
 			}
 
 			$sql = 'DELETE FROM
@@ -3567,7 +3567,7 @@ class Asset extends MySource_Object
 			if (isset($id_parts[1])) {
 				unset($assetids[$key]);
 			} else {
-				$assetids[$key] = $db->quote((string) $assetid);
+				$assetids[$key] = MatrixDAL::quote((string) $assetid);
 			}
 		}
 
@@ -4691,7 +4691,7 @@ class Asset extends MySource_Object
 							OR (l.url || \'/\' = lv.url))
 					';
 			$where = 'l.assetid = :assetid
-					  AND lv.name LIKE '.$db->quote('design::%');
+						AND lv.name LIKE '.MatrixDAL::quote('design::%');
 
 			$order_by = ' ORDER BY lv.depth ASC';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -4862,7 +4862,7 @@ class Asset extends MySource_Object
 		$old_web_paths = Array();
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
-			$current_urls[] = $db->quote($url);
+			$current_urls[] = MatrixDAL::quote($url);
 			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid'])) {
 				// get the asset lineage and use that as the basis for indexing old URLs
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);

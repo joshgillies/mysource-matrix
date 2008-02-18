@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.52 2007/12/11 22:26:31 lwright Exp $
+* $Id: settings.inc,v 1.53 2008/02/18 04:10:10 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 */
 
@@ -377,14 +377,14 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 							$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
 							for ($i = 0; $i < count($types); $i++) {
-								$types[$i] = $db->quote($types[$i]);
+								$types[$i] = '\''.$types[$i].'\'';
 							}
 							$type_code_cond = 'IN ('.implode(', ', $types).')';
 
 							$user_types = $am->getTypeAncestors($user->type());
 							$user_types[] = $user->type();
 							for ($i = 0; $i < count($user_types); $i++) {
-								$user_types[$i] = $db->quote($user_types[$i]);
+								$user_types[$i] = '\''.$user_types[$i].'\'';
 							}
 							$user_type_cond = 'IN ('.implode(', ', $user_types).')';
 
@@ -394,7 +394,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 									  AND type_code '.$type_code_cond;
 
 							try {
-								$result = MatrixDAL::executeSqlAssoc($sql, 0);
+								$query = MatrixDAL::preparePdoQuery($sql);
+								$result = MatrixDAL::executeSqlAssoc($query, 0);
 							} catch (Exception $e) {
 								throw new Exception('Unable to get type codes for these user types: '.$user_types.' due to database error: '.$e->getMessage());
 							}

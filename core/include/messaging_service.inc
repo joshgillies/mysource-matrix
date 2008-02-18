@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.67 2007/12/16 01:30:30 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.68 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -450,6 +450,8 @@ class Messaging_Service extends MySource_Object
 	{
 		$db = DAL::getDb();
 
+		$bind_vars = Array();
+
 		if (!is_null($get_user_name) && $get_user_name != 'name') {
 			$get_user_name = 'short_name';
 		}
@@ -458,18 +460,20 @@ class Messaging_Service extends MySource_Object
 		if (is_string($get_user_name)) {
 			$sql .= ',
 					CASE
-						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = '.$db->quote('0').' THEN '.$db->quote(SQ_SYSTEM_SHORT_NAME.' System').'
+						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN :system_name
 						ELSE a.'.$get_user_name.'
 					END as from_name';
-			$sql  .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = '.$db->quote('0').' THEN \'root_user\''.
+			$sql  .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN \'root_user\''.
 					' ELSE a.type_code END as type_code';
+			$bind_vars['system_name'] = SQ_SYSTEM_SHORT_NAME.' System';
 		}
 
 		$sql  .= ' FROM sq_internal_msg m';
 		if (is_null($userid)) {
-			$where = 'm.userto != '.$db->quote('0');
+			$where = 'm.userto != \'0\'';
 		} else {
 			$where = 'm.userto = :userid';
+			$bind_vars['userid'] = $userid;
 		}
 
 		if (is_string($get_user_name)) {
@@ -482,47 +486,53 @@ class Messaging_Service extends MySource_Object
 		if (!is_null($type)) {
 			if (substr($type, -2) == '.*') {
 				$where .= ' AND m.type LIKE :substrtype';
+				$bind_vars['substrtype'] = substr($type, 0, -1).'%';
 			} else {
 				$where .= ' AND m.type = :type';
+				$bind_vars['type'] = $type;
 			}
 		}
 		if (!empty($statii)) {
+			$statii_strs = Array();
 			for ($i = 0; $i < count($statii); $i++) {
-				$statii[$i] = $db->quote($statii[$i]);
+				$statii[$i] = '\''.$statii[$i].'\'';
 			}
 			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
 		if (!empty($messageids)) {
 			for ($i = 0; $i < count($messageids); $i++) {
-				$messageids[$i] = $db->quote($messageids[$i]);
+				$messageids[$i] = '\''.$messageids[$i].'\'';
 			}
 			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
 		}
 		if (!empty($parameters)) {
 			foreach ($parameters as $param_key => $param_value) {
-				$where .= ' AND m.parameters LIKE '.$db->quote('%'.$param_key.':'.$param_value.';%');
+				$where .= ' AND m.parameters LIKE :parameters';
+				$bind_vars['parameters'] = '%'.$param_key.':'.$param_value.';%';
 			}
 		}
 		if (!is_null($from)) {
-			$where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
+			$where .= ' AND m.sent >= :sent_from';
+			$bind_vars['sent_from'] = ts_iso8601($from);
 		}
 		if (!is_null($to)) {
-			$where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
+			$where .= ' AND m.sent <= :sent_to';
+			$bind_vars['sent_to'] = ts_iso8601($to);
 		}
 
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
 
 		if ($max_msgs) {
-            $sql .= " LIMIT $max_msgs"; // TODO
+			$sql = db_extras_modify_limit_clause($sql, $max_msgs);
 		}
 
 		// Begin try block
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':userid', $userid);
-			$query->bindValue(':type', $type);
-			$query->bindValue(':substrtype', substr($type, 0, -1).'%');
-			$result = DAL::executePdoAll($query);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach ($bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+			$result = MatrixDAL::executePdoAll($query);
 
 		} catch (Exception $e) {
 			throw new Exception('Unable to get message information due to database error: '.$e->getMessage());

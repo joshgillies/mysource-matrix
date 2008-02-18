@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.35 2007/11/27 02:48:39 bshkara Exp $
+* $Id: linking.inc,v 1.36 2008/02/18 04:10:10 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -89,10 +89,10 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 				';
 
 		foreach ($assetid_keys as $assetid_key_index => $assetid_key) {
-			$assetid_keys[$assetid_key_index] = $db->quote((string) $assetid_key);
+			$assetid_keys[$assetid_key_index] = '\''.((string) $assetid_key).'\'';
 		}
 		$where = ' where cl.minorid IN ('.implode(', ', $assetid_keys).')
-				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
+				  AND ct.treeid LIKE pt.treeid || \'%\'
 				  AND pt.treeid <= ct.treeid';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
@@ -103,7 +103,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 		$sql .= $where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
 		try {
-			$query = $db->prepare($sql);
+			$query  = MatrixDAL::preparePdoQuery($sql);
 			$result = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());

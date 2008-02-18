@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.124 2008/01/29 21:49:23 lwright Exp $
+* $Id: workflow_manager.inc,v 1.125 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -314,9 +314,9 @@ class Workflow_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query = $db->prepare($sql.$where);
-				$query->bindValue(':assetid', $assetid);
-				$query->bindValue(':schemaid', $schemaid);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+				MatrixDAL::bindValueToPdo($query, 'schemaid', $schemaid);
 				$results = MatrixDAL::executePdoGroupedAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get workflow schema(s) for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -1262,14 +1262,14 @@ class Workflow_Manager extends MySource_Object
 			// complete any missing internal message fields that have not been supplied
 			if (empty($msg->replacements)) {
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-                // Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
-                $workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
-                if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
-                    $workflow_backend_href  = '/'.$workflow_backend_href;
-                }//end if
+				// Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
+				$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+				if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
+					$workflow_backend_href  = '/'.$workflow_backend_href;
+				}//end if
 
-                $accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
-                $reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+				$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+				$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
 				$msg_reps = Array(
 								'user_name'		=> $user->name,
@@ -1281,17 +1281,17 @@ class Workflow_Manager extends MySource_Object
 							);
 				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-                    $preview_backend_href = $asset->getBackendHref('preview', FALSE);
-                    if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
-                        $preview_backend_href   = '/'.$preview_backend_href;
-                    }//end if
-                    $msg_reps['preview_url'] = current_url().$preview_backend_href;
+					$preview_backend_href = $asset->getBackendHref('preview', FALSE);
+					if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
+						$preview_backend_href   = '/'.$preview_backend_href;
+					}//end if
+					$msg_reps['preview_url'] = current_url().$preview_backend_href;
 				} else {
-                    $details_backend_href = $asset->getBackendHref('preview', FALSE);
-                    if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
-                        $details_backend_href   = '/'.$details_backend_href;
-                    }//end if
-                    $msg_reps['preview_url'] = current_url().$details_backend_href;
+					$details_backend_href = $asset->getBackendHref('preview', FALSE);
+					if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
+						$details_backend_href   = '/'.$details_backend_href;
+					}//end if
+					$msg_reps['preview_url'] = current_url().$details_backend_href;
 				}
 				$msg->replacements = $msg_reps;
 			}
@@ -1467,8 +1467,8 @@ class Workflow_Manager extends MySource_Object
 					assetid	 = :assetid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $assetid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to clear workflow for asset: '.$assetid.' due to database error: '.$e->getMessage());

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.188 2008/01/14 00:44:28 hnguyen Exp $
+* $Id: general.inc,v 1.189 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.188 $
+* @version $Revision: 1.189 $
 * @package MySource_Matrix
 */
 
@@ -257,8 +257,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		// if they haven't put tags in the err msg assume it to be plain text
 		$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 		$db_type = 'N/A';
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		if (!is_null($db)) $db_type = $db->phptype;
+		$db = MatrixDAL::getDb();
+		if (!is_null($db)) $db_type =  MatrixDAL::getDbType();
 
 		$matrix_version = 'N/A';
 		if (defined('SQ_SYSTEM_VERSION')) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.87 2008/01/29 21:50:15 lwright Exp $
+* $Id: package_manager.inc,v 1.88 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -426,8 +426,21 @@ class Package_Manager extends MySource_Object
 
 				if (!empty($result) && ($result != $info['dir'])) {
 					// update path
-					$sql = 'UPDATE sq_ast_typ SET dir='.$db->quote($info['dir']).' WHERE type_code='.$db->quote($info['type_code']);
-					MatrixDAL::executeSql($sql);
+					$sql = 'UPDATE
+								sq_ast_typ
+							SET
+								dir = :dir
+							WHERE
+								type_code = :type_code';
+
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'dir',       $info['dir']);
+						MatrixDAL::bindValueToPdo($query, 'type_code', $info['type_code']);
+						MatrixDAL::execPdoQuery($query);
+					} catch (DALException $e) {
+						throw new Exception ('Unable to update directory of type code '.$info['type_code'].' due to database error: '.$e->getMessage());
+					}
 				}
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

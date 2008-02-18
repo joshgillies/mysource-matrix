@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.169 2008/01/29 21:50:36 lwright Exp $
+* $Id: metadata_manager.inc,v 1.170 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -472,7 +472,7 @@ class Metadata_Manager extends MySource_Object
 	function _cleanupMetadataValues($assetid)
 	{
 		$db = MatrixDAL::getDb();
-		$fieldid_conds = Array('assetid = '.((string)$db->quote($assetid)));
+		$fieldid_conds = Array('assetid = \''.((string) $assetid).'\'');
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
 			$fieldid_conds[] = '(fieldid NOT IN (
@@ -486,7 +486,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		try {
-			$res = MatrixDAL::query($sql);
+			MatrixDAL::executeSql($sql);
 		} catch (Exception $e) {
 			throw new Exception('Unable to clean up metadata values due to the following database error:'.$e->getMessage());
 		}
@@ -574,7 +574,6 @@ class Metadata_Manager extends MySource_Object
 
 		// get the values without any replacements or special processing
 		$db = DAL::getDb();
-		$db->show_queries = TRUE;
 
 		$values = $this->getMetadata($asset->id);
 		foreach ($schemas as $schemaid) {
@@ -593,9 +592,9 @@ class Metadata_Manager extends MySource_Object
 			$sql_parts = $am->generateGetChildrenQuery($schema, 'metadata_field', FALSE);
 			// if they only want specific fields, then restrict the search to those
 			if (!empty($field_names)) {
-				$sql_parts['where'] .= ' AND a.name IN ('.$db->quote($field_names[0]);
+				$sql_parts['where'] .= ' AND a.name IN (\''.$field_names[0].'\'';
 				for ($i = 1; $i < count($field_names); $i++) {
-					$sql_parts['where'] .= ', '.$db->quote($field_names[$i]);
+					$sql_parts['where'] .= ', \''.$field_names[$i].'\'';
 				}
 				$sql_parts['where'] .= ')';
 			}
@@ -1525,12 +1524,13 @@ class Metadata_Manager extends MySource_Object
 						sq_ast_typ_inhd ati
 							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ati.type_code = a.type_code';
 			$where = 'a.assetid = :field_assetid
-						AND	ati.inhd_type_code	= '.$db->quote('metadata_field');
+					AND	ati.inhd_type_code = :inhd_type_code';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				$query->bindValue('field_assetid', $field_assetid);
+				MatrixDAL::bindValueToPdo($query, 'field_assetid', $field_assetid);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code', 'metadata_field');
 				$count = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to determine whether the asset is a metadata field due to the following database error:'.$e->getMessage());

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.261 2008/01/29 21:49:08 lwright Exp $
+* $Id: mysource.inc,v 1.262 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.261 $
+* @version $Revision: 1.262 $
 * @package MySource_Matrix
 */
 class MySource
@@ -298,13 +298,15 @@ class MySource
 				$db   = MatrixDAL::getDb();
 
 				if (MatrixDAL::getDbType() == 'pgsql') {
-					$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quote($then).')';
+					$sql  = 'SELECT sq_set_rollback_timestamp(:then)';
 				} else if (MatrixDAL::getDbType() == 'oci8') {
-					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp('.$db->quote($then).'); END;';
+					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp(:then); END;';
 				}
 
 				try {
-					MatrixDAL::executeSql($sql);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, ':then', $then);
+					MatrixDAL::execPdoQuery($sql);
 				} catch (DALException $e) {
 					throw new Exception('Unable to set rollback timestamp due to database error: '.$e->getMessage());
 				}
@@ -515,8 +517,6 @@ class MySource
 		}
 
 		$this->_setApacheNotes();
-
-		//$this->db->disconnect();
 
 	}//end start()
 
@@ -2385,9 +2385,9 @@ class MySource
 		$then = $_SESSION['sq_rollback_view']['rollback_time'];
 
 		if (!empty($where)) $where .= ' AND ';
-		$where .= $table_alias.'sq_eff_from <= '.$db->quote($then).'
+		$where .= $table_alias.'sq_eff_from <= \''.$then.'\'
 				  AND ('.$table_alias.'sq_eff_to IS NULL
-					   OR '.$table_alias.'sq_eff_to > '.$db->quote($then).')';
+					   OR '.$table_alias.'sq_eff_to > \''.$then.'\')';
 
 		return ' '.$prefix.' '.$where;
 
@@ -2546,14 +2546,12 @@ class MySource
 				   WHERE source_lockid = :source_lockid';
 
 		try {
-			if (MatrixDAL::getDbType() == 'oci') {
-				$sql = str_replace(':expires', db_extras_todate(MatrixDAL::getDbType(), ':expires', FALSE), $sql);
-			}
+			$sql = str_replace(':expires', db_extras_todate(MatrixDAL::getDbType(), ':expires', FALSE), $sql);
 
 			$query = MatrixDAL::preparePdoQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'expires',       $expires);
 			MatrixDAL::bindValueToPdo($query, 'source_lockid', $current_lock['source_lockid']);
-			$result = MatrixDAL::executePdoAll($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
 			// of returning an error message for now

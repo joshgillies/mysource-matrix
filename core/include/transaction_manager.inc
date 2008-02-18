@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.27 2008/01/29 21:42:14 lwright Exp $
+* $Id: transaction_manager.inc,v 1.28 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -92,15 +92,11 @@ class Transaction_Manager extends MySource_Object
 		}
 
 		if ($this->_levels[$dsn] == 1) {
-			//if ($dsn['type'] != 'oci8') {
-				// first time we have started a transaction
-				try {
-					MatrixDAL::beginTransaction();
-				} catch (DALException $e) {
-					throw $e;
-				}
-				//assert_valid_db_result($result);
-			//}
+			try {
+				MatrixDAL::beginTransaction();
+			} catch (DALException $e) {
+				throw $e;
+			}
 		}
 
 		return TRUE;

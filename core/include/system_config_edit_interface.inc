@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.37 2007/11/14 01:08:08 hnguyen Exp $
+* $Id: system_config_edit_interface.inc,v 1.38 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -375,8 +375,7 @@ class System_Config_Edit_Interface extends MySource_Object
         $date = ts_iso8601(time());
 
 		try {
-			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), $date);
-			$time_val = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+			$time_val = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => $date));
 			$bind_vars	= Array (
 							'expireTime'	=> $time_val,
 						  );

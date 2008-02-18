@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.85 2008/01/29 21:50:27 lwright Exp $
+* $Id: internal_message.inc,v 1.86 2008/02/18 04:10:09 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -404,9 +404,9 @@ class Internal_Message extends MySource_Object
 					// log the internal message to the DB
 					// TODO: replace with seqNextVal() in queries.xml
 					try {
-						$messageid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_internal_msg_seq\');');
+						$messageid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_internal_msg_seq'));
 					} catch (Exception $e) {
-						throw new Exception("Unable to get the next messageid due to the following database error:".$e->getMessage());
+						throw new Exception("Unable to get next internal message ID due to database error:".$e->getMessage());
 					}//end try catch
 
 					try {
