@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.59 2008/02/18 05:44:48 lwright Exp $
+* $Id: db_install.inc,v 1.60 2008/02/18 05:46:55 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -681,7 +681,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 		try {
 			$query = MatrixDAL::preparePdoQuery($grant_sql);
 			MatrixDAL::bindValueToPdo($query, 'user', $primary_dsn['user']);
-			MatrixDAL::execPdoQuery($grant_sql);
+			MatrixDAL::execPdoQuery($query);
 		} catch (DALException $e) {
 			throw $e;
 		}
@@ -691,7 +691,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			try {
 				$query = MatrixDAL::preparePdoQuery($grant_sql);
 				MatrixDAL::bindValueToPdo($query, 'user', $secondary_dsn['user']);
-				MatrixDAL::execPdoQuery($grant_sql);
+				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -702,7 +702,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			try {
 				$query = MatrixDAL::preparePdoQuery($grant_sql);
 				MatrixDAL::bindValueToPdo($query, 'user', $tertiary_dsn['user']);
-				MatrixDAL::execPdoQuery($grant_sql);
+				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -721,7 +721,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 				try {
 					$query = MatrixDAL::preparePdoQuery($grant_sql);
 					MatrixDAL::bindValueToPdo($query, 'user', $cache_dsn['user']);
-					MatrixDAL::execPdoQuery($grant_sql);
+					MatrixDAL::execPdoQuery($query);
 				} catch (DALException $e) {
 					throw $e;
 				}
