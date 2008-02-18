@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.8 2008/01/29 05:58:12 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.9 2008/02/18 03:55:09 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -112,6 +112,7 @@ class MatrixDALBaker extends DALBaker
         }
 
         if (file_exists($filename)) {
+            bam('Process '.$filename);
             self::processQueriesFile($package.'_package', $filename);
             return TRUE;
         }
@@ -299,12 +300,12 @@ class MatrixDALBaker extends DALBaker
         }
 
         $usedNames = array();
-		$lobCount  = 0;
+        $lobCount  = 0;
 
         foreach ($bindingList as $binding) {
-			$requiresLob = FALSE;
+            $requiresLob = FALSE;
             $bindName = $binding->getAttribute('name');
-			// We need to determine what data type the column is.
+            // We need to determine what data type the column is.
             $columnType = $binding->getAttribute('column_type');
             if ($columnType !== '') {
                 //$dataType = self::_getPdoDataType($system, $table, $column, $columnType);
@@ -314,10 +315,10 @@ class MatrixDALBaker extends DALBaker
                 $system   = $binding->getAttribute('system');
                 //$dataType = self::_getPdoDataType($system, $table, $column);
 
-				if (self::_fieldRequiresOciClob($table, $column) === TRUE) {
-					// OCI;
-					$requiresLob = TRUE;
-				}
+                if (self::_fieldRequiresOciClob($table, $column) === TRUE) {
+                    // OCI;
+                    $requiresLob = TRUE;
+                }
             }
 
             $varName = '';
@@ -341,16 +342,16 @@ class MatrixDALBaker extends DALBaker
                     $bindCall = "\nif (array_key_exists('$index',\$data) === TRUE) {\n";
                 }
 
-				if ((MatrixDAL::getDbType() === 'oci') && ($requiresLob === TRUE)) {
-					// OCI:
-					$lobCount++;
-					$bindCall .= "\$lob{$lobCount} = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);\n";
-					$bindCall .= "\$query->bind('$bindName', \$lob{$lobCount}, PDO::PARAM_LOB);\n";
-					$bindCall .= "\$lob{$lobCount}->writeTemporary($varName, OCI_TEMP_CLOB);\n";
-				} else {
+                if ((MatrixDAL::getDbType() === 'oci') && ($requiresLob === TRUE)) {
+                    // OCI:
+                    $lobCount++;
+                    $bindCall .= "\$lob{$lobCount} = oci_new_descriptor(MatrixDAL::getDb(), OCI_D_LOB);\n";
+                    $bindCall .= "\$query->bind('$bindName', \$lob{$lobCount}, PDO::PARAM_LOB);\n";
+                    $bindCall .= "\$lob{$lobCount}->writeTemporary($varName, OCI_TEMP_CLOB);\n";
+                } else {
                 //$bindCall .= "\$query->bind('$bindName', $varName, $dataType);\n";
-                	$bindCall .= "\$query->bind('$bindName', $varName);\n";
-				}
+                    $bindCall .= "\$query->bind('$bindName', $varName);\n";
+                }
 
                 if (isset($placeHolders[$bindName]) === FALSE) {
                     $bindCall .= "}\n\n";
@@ -440,11 +441,11 @@ class MatrixDALBaker extends DALBaker
         // TODO:
         $ovenDir = SQ_LIB_PATH.'/DAL/Oven/core/coreQueries.xml';
 
-		try {
-			$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-		} catch (Exception $e) {
-			$packages = Array();
-		}
+        try {
+            $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+        } catch (Exception $e) {
+            $packages = Array();
+        }
 
         // If no packages have been installed yet, we want to at least include
         // the core package.
@@ -478,44 +479,44 @@ class MatrixDALBaker extends DALBaker
     }//end _tableRequiresRollback()
 
 
-	/**
+    /**
      * Determines from the MySource Matrix tables.xml schema whether a
      * certain field is defined as a CLOB in Oracle.
      *
      * This is necessary to know for Oracle, as there is an extra step that
-	 * must be handled - a "LOB descriptor" must be made for a field, and then
-	 * that descriptor is bound, rather than the field value itself.
-	 *
-	 * Even when PDO works again, the query must be rewritten in a different
-	 * way because of how Oracle handles LOB fields.
+     * must be handled - a "LOB descriptor" must be made for a field, and then
+     * that descriptor is bound, rather than the field value itself.
+     *
+     * Even when PDO works again, the query must be rewritten in a different
+     * way because of how Oracle handles LOB fields.
      *
      * @param string $table  The table to be searched for.
-	 * @param string $field  The field to be searched for.
+     * @param string $field  The field to be searched for.
      *
      * @since  MySource 3.18.0 RC2
      * @return boolean
      */
     protected static function _fieldRequiresOciClob($table, $field)
     {
-		// OCI:
-		if ((empty($table) === TRUE) || (empty($field) === TRUE)) {
-			// This bind variable was not completely inside a "column" attribute
-			// (eg. it might be inside a function). Assume it's not a LOB for now
-			return FALSE;
-		}
+        // OCI:
+        if ((empty($table) === TRUE) || (empty($field) === TRUE)) {
+            // This bind variable was not completely inside a "column" attribute
+            // (eg. it might be inside a function). Assume it's not a LOB for now
+            return FALSE;
+        }
 
         // lop off 'sq_' prefix if it exists
         if (substr($table, 0, 3) == 'sq_') {
             $table = substr($table, 3);
         }
 
-		// Is this a view? Assume innocent until proven guilty
+        // Is this a view? Assume innocent until proven guilty
         if (substr($table, 0, 3) == 'vw_') {
             return FALSE;
         }
 
-		// lop off 'rb_' prefix if it exists. If this is a rollback table, then
-		// the type of column will be the same as that of the main table
+        // lop off 'rb_' prefix if it exists. If this is a rollback table, then
+        // the type of column will be the same as that of the main table
         if (substr($table, 0, 3) == 'rb_') {
             $table = substr($table, 3);
         }
@@ -526,11 +527,11 @@ class MatrixDALBaker extends DALBaker
         // TODO:
         $ovenDir = SQ_LIB_PATH.'/DAL/Oven/core/coreQueries.xml';
 
-		try {
-			$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-		} catch (Exception $e) {
-			$packages = Array();
-		}
+        try {
+            $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+        } catch (Exception $e) {
+            $packages = Array();
+        }
 
         // If no packages have been installed yet, we want to at least include
         // the core package.
@@ -541,7 +542,7 @@ class MatrixDALBaker extends DALBaker
         // Loop through each tables.xml file, see if we can find a table entry
         // for this table that requires rollback.
         foreach ($packages as $package_name) {
-			$package_name = $package_name['code_name'];
+            $package_name = $package_name['code_name'];
             if ($package_name === '__core__') {
                 $dir = SQ_CORE_PACKAGE_PATH;
             } else {
@@ -549,39 +550,39 @@ class MatrixDALBaker extends DALBaker
             }
             $filename = $dir.'/tables.xml';
 
-			if (file_exists($filename) === TRUE) {
+            if (file_exists($filename) === TRUE) {
                 $doc = new DOMDocument('1.0', 'iso-8859-1');
                 $doc->load($filename);
 
-				// We are going to take advantage of the fact that a [C]LOB
-				// field in Oracle is always going to be specified as a "type
-				// variation" in Matrix's "tables.xml" file. PostgreSQL types
-				// generally come first, and "TEXT" was also used for MySQL
-				// when Matrix supported that, so Oracle's type is demoted to
-				// a type variation.
+                // We are going to take advantage of the fact that a [C]LOB
+                // field in Oracle is always going to be specified as a "type
+                // variation" in Matrix's "tables.xml" file. PostgreSQL types
+                // generally come first, and "TEXT" was also used for MySQL
+                // when Matrix supported that, so Oracle's type is demoted to
+                // a type variation.
 
-				// First find out if such a field actually exists...
-				$xpath = new DOMXPath($doc);
+                // First find out if such a field actually exists...
+                $xpath = new DOMXPath($doc);
                 $count = $xpath->evaluate('count(/schema/tables/table[@name="'.$table.'"]/columns/column[@name="'.$field.'"])');
                 if ($count > 0) {
-					// we found it, let's see if it has a OCI variation, and
-					// that it's of the correct type
-					$nodes = $xpath->query('/schema/tables/table[@name="'.$table.'"]/columns/column[@name="'.$field.'"]/type_variations/oci');
-					foreach ($nodes as $node) {
-						if (strtoupper($node->nodeValue) == 'CLOB') {
-							return TRUE;
-						}
-					}
+                    // we found it, let's see if it has a OCI variation, and
+                    // that it's of the correct type
+                    $nodes = $xpath->query('/schema/tables/table[@name="'.$table.'"]/columns/column[@name="'.$field.'"]/type_variations/oci');
+                    foreach ($nodes as $node) {
+                        if (strtoupper($node->nodeValue) == 'CLOB') {
+                            return TRUE;
+                        }
+                    }
 
-					// we couldn't find anything
-					return FALSE;
-				}
+                    // we couldn't find anything
+                    return FALSE;
+                }
             }
         }
 
         // could not find the field! Throw an exception.
         return FALSE;
-		//throw new Exception('Could not determine if '.$table.'.'.$field.' requires a LOB. The field does not exist in the table definition.');
+        //throw new Exception('Could not determine if '.$table.'.'.$field.' requires a LOB. The field does not exist in the table definition.');
 
     }//end _tableRequiresRollback()
 
