@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.38 2007/11/29 00:45:22 colivar Exp $
+* $Id: int.inc,v 1.39 2008/02/18 04:13:31 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -157,9 +157,9 @@ class Asset_Attribute_Int extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		// empty string is OK if enabled
-		if ($value === '') {
+		if (($value === '') || is_null($value)) {
 			$allow_empty = array_get_index($this->_params, 'allow_empty', TRUE);
-			if ($allow_empty && ($value === '')) {
+			if ($allow_empty && (($value === '') || is_null($value))) {
 				return TRUE;
 			} else {
 				// we'll be nice and turn this into int zero rather than erroring
