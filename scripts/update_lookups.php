@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_lookups.php,v 1.4 2007/08/23 04:17:43 bshkara Exp $
+* $Id: update_lookups.php,v 1.5 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -51,13 +51,11 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 $sql = 'SELECT urlid, url FROM sq_ast_url';
-$root_urls = $db->getAssoc($sql);
-assert_valid_db_result($root_urls);
-
+$root_urls = MatrixDAL::executeSqlGroupedAssoc($sql);
 ksort($root_urls);
 
 foreach ($root_urls as $urlid => $url) {
-	echo $urlid.'. '.$root_urls[$urlid]."\n";
+	echo $urlid.'. '.$root_urls[$urlid][0]['url']."\n";
 }
 
 echo "\n";
@@ -71,7 +69,7 @@ while (!in_array($chosen_url, array_keys($root_urls))) {
 	}
 }
 
-$from_url   = $root_urls[$chosen_url];
+$from_url   = $root_urls[$chosen_url][0]['url'];
 $from_urlid = $chosen_url;
 $to_url     = get_line('Please enter the url to change to: ');
 
@@ -89,12 +87,14 @@ while ($confirm != 'y' && $confirm != 'n') {
 $sql = 'UPDATE
 			sq_ast_url
 		SET
-				url = '.$db->quoteSmart($to_url).'
+			url = :url
 		WHERE
-				urlid = '.$db->quoteSmart($from_urlid);
+			urlid = :urlid'
 
-$result = $db->query($sql);
-assert_valid_db_result($result);
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, 'url',   $to_url);
+MatrixDAL::bindValueToPdo($query, 'urlid', $from_urlid);
+MatrixDAL::execPdoQuery($query);
 
 // update any urls that use this url in the lookup and lookup value tables
 foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
@@ -102,12 +102,12 @@ foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
 	$sql = 'UPDATE
 				'.$tablename.'
 			SET
-				url = '.$db->quoteSmart($to_url).' || SUBSTR(url, '.strlen($from_url).' + 1)
+				url = :to_url || SUBSTR(url, :from_url_length + 1)
 			WHERE
-				url LIKE '.$db->quoteSmart($from_url.'%');
+				url LIKE :from_url_wildcard';
 
 			if ($tablename == 'sq_ast_lookup') {
-				$sql .= ' AND root_urlid = '.$db->quoteSmart($from_urlid);
+				$sql .= ' AND root_urlid = :from_urlid';
 			} else if ($tablename == 'sq_ast_lookup_value') {
 				$sql .= 'AND url IN (
 							SELECT
@@ -117,12 +117,16 @@ foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
 							INNER JOIN
 								sq_ast_lookup_value v ON ((l.url = v.url) OR (l.url || \'/\' = v.url))
 							WHERE
-								l.root_urlid = '.$db->quoteSmart($from_urlid).'
+								l.root_urlid = :from_urlid
 						)';
 			}
 
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::bindValueToPdo($query, 'to_url',            $to_url);
+	MatrixDAL::bindValueToPdo($query, 'from_url_wildcard', $from_url.'%');
+	MatrixDAL::bindValueToPdo($query, 'from_url_length',   strlen($from_url));
+	MatrixDAL::bindValueToPdo($query, 'from_urlid',        $from_urlid);
+	MatrixDAL::execPdoQuery($query);
 }
 
 bam('LOOKUPS CHANGED FROM '.$from_url.' TO '.$to_url);

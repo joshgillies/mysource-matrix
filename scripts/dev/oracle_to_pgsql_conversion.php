@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oracle_to_pgsql_conversion.php,v 1.2 2006/12/06 05:42:20 bcaldwell Exp $
+* $Id: oracle_to_pgsql_conversion.php,v 1.3 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Migrates an existing Oracle-based Matrix database into an PostgreSQL database
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -29,17 +29,29 @@ ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 
 // Let's setup some datasources
-define('PGSQL_DSN', 'pgsql://username:password@unix()/database');
-define('ORACLE_DSN', 'oci8://username:password@(
-            DESCRIPTION=(
-                          ADDRESS_LIST=(
-                                        ADDRESS=(PROTOCOL=TCP)
-                                        (HOST=127.0.0.1)
-                                        (PORT=1521))
-                        )
-                        (CONNECT_DATA=(SID=ORCL)
-                        (SERVER=DEDICATED))
-            )');
+$pgsql_dsn = Array(
+				'DSN'      => 'pgsql:dbname=database',
+				'user'     => 'username',
+				'password' => 'password',
+				'type'     => 'pgsql',
+			 );
+
+$oci_dsn = Array(
+				'DSN'      => '(
+					DESCRIPTION=(
+								  ADDRESS_LIST=(
+												ADDRESS=(PROTOCOL=TCP)
+												(HOST=127.0.0.1)
+												(PORT=1521))
+								)
+								(CONNECT_DATA=(SID=ORCL)
+								(SERVER=DEDICATED))
+					)',
+				'user'     => 'password',
+				'password' => 'username',
+				'type'     => 'oci',
+			 );
+
 
 if (php_sapi_name() != 'cli') trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
@@ -59,15 +71,8 @@ require_once 'DB.php';
 require_once $SYSTEM_ROOT.'/fudge/dev/dev.inc';
 require_once $SYSTEM_ROOT.'/core/include/general.inc';
 
-$pg_db  = & DB::connect(PGSQL_DSN);
-$oci_db = & DB::connect(ORACLE_DSN);
-
-if (PEAR::isError($pg_db)) dbDie($pg_db);
-if (PEAR::isError($oci_db)) dbDie($oci_db);
-
-$pg_db->setFetchMode(DB_FETCHMODE_ASSOC);
-$oci_db->setFetchMode(DB_FETCHMODE_ASSOC);
-$oci_db->autoCommit(false);
+MatrixDAL::dbConnect($pgsql_dsn, 'pgsql_db');
+MatrixDAL::dbConnect($oci_dsn, 'oci_db');
 
 $info = parse_tables_xml($SYSTEM_ROOT.'/core/assets/tables.xml');
 
@@ -77,23 +82,25 @@ $info = parse_tables_xml($SYSTEM_ROOT.'/core/assets/tables.xml');
 bam('Dropping PostgreSQL sequences');
 
 	// $oci_seqs = $oci_db->getAll('SELECT sequence_name FROM user_sequences');
-	$pg_seqs = $pg_db->getAll('SELECT relname FROM pg_catalog.pg_statio_user_sequences');
+	MatrixDAL::changeDb('pgsql_db');
+	$pg_seqs = MatrixDAL::executeSqlAssoc('SELECT relname FROM pg_catalog.pg_statio_user_sequences', 0);
 	bam(print_r($pg_seqs, true));
 
-	foreach($pg_seqs as $key => $value) {
-		$del_seqs[] = strtolower(substr($value['relname'], 0, strlen($value['relname']) - 4));
+	foreach($pg_seqs as $value) {
+		$del_seqs[] = strtolower(substr($value, 0, strlen($value) - 4));
 	}
 
+	MatrixDAL::changeDb('oci_db');
 	foreach ($info['sequences'] as $sequence) {
-		$sequence_values[$sequence] = $oci_db->nextId('sq_'.$sequence);
+		$sequence_values[$sequence] = MatrixDAL::executeSqlOne('SELECT '.$sequence.'.nextval FROM DUAL');
 	}
 	bam($sequence_values);
 
+	MatrixDAL::changeDb('pgsql_db');
 	if(isset($del_seqs)) {
 		foreach ($del_seqs as $sequence) {
 			printName('Dropping: '.strtolower($sequence));
-			$ok = $pg_db->dropSequence($sequence);
-			if (PEAR::isError($ok)) dbDie($ok);
+			MatrixDAL::executeSql('DROP SEQUENCE '.$sequence);
 			printUpdateStatus('OK');
 		}
 	}
@@ -104,8 +111,7 @@ bam('Truncating PostgreSQL Tables');
 	foreach ($info['tables'] as $tablename => $table_info) {
 
 		printName('Truncating: sq_'.$tablename);
-		$ok = $pg_db->query('TRUNCATE sq_'.$tablename);
-		if (PEAR::isError($ok)) dbDie($ok);
+		$ok = MatrixDAL::executeSql('TRUNCATE sq_'.$tablename);
 		printUpdateStatus('OK');
 
 	}//end foreach
@@ -120,28 +126,33 @@ foreach ($info['tables'] as $tablename => $table_info) {
 
 	printName('Grabbing source data');
 
-		$source_data = $oci_db->getAll('select * from sq_'.$tablename);
+	MatrixDAL::changeDb('oci_db');
+	$source_data = MatrixDAL::executeSqlassoc('select * from sq_'.$tablename);
 
 	printUpdateStatus('OK');
 
 	printName('Inserting Data ('.count($source_data).' rows)');
+	MatrixDAL::changeDb('pgsql_db');
 
 		$i = 1;
 		foreach($source_data as $key => $data) {
 
 			$sql = generateSQL($tablename, $data);
-			$ok = $pg_db->query($sql);
-			if (PEAR::isError($ok)) {
+
+			try {
+				MatrixDAL::executeSql($sql);
+			} catch (DALException $e) {
 				bam($data);
-				dbDie($ok);
+				throw $e;
 			}
+
 			$i++;
 			if ($i % 1000 == 0) {
 				echo '.';
 			}
 		}
 
-	$pg_db->commit();
+	MatrixDAL::commit();
 	printUpdateStatus('OK');
 
 }//end foreach
@@ -155,8 +166,7 @@ foreach ($info['sequences'] as $sequence) {
 	$new_seq_start = $sequence_values[$sequence];
 
 	printName('Creating sq_'.$sequence.'_seq ('.$new_seq_start.')');
-	$ok = $pg_db->query('CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start);
-	if (PEAR::isError($ok)) dbDie($ok);
+	MatrixDAL::executeSql('CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start);
 	printUpdateStatus('OK');
 }
 
@@ -369,15 +379,6 @@ function printUpdateStatus($status)
 
 }//end printUpdateStatus()
 
-function dbDie(&$db)
-{
-	echo 'Standard Message: ' . $db->getMessage() . "\n";
-    echo 'Standard Code: ' . $db->getMessage() . "\n";
-    echo 'DBMS/User Message: ' . $db->getUserInfo() . "\n";
-    echo 'DBMS/Debug Message: ' . $db->getDebugInfo() . "\n";
-    exit;
-
-}
 
 ?>
 

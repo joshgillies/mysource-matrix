@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.18 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: recreate_link_tree.php,v 1.19 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -55,9 +55,8 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 
 //--        MAIN()        --//
 
-$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-$pgdb = ($db->phptype == 'pgsql');
+$db = MatrixDAL::getDb();
+$pgdb = (MatrixDAL::getDbType() == 'pgsql');
 
 $script_start = time();
 
@@ -71,29 +70,49 @@ if ($pgdb) {
 
 echo $sql,"\n";
 
-$sql = 'SELECT l.majorid, l.linkid, l.minorid
+// Work out how many significant links we actually have
+$sql = 'SELECT COUNT(*) FROM sq_ast_lnk l WHERE	'.db_extras_bitand($db, 'l.link_type', MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT)).' > 0';
+$num_links = MatrixDAL::executeSqlOne($sql);
+echo_headline('ANALYSING '.$num_links.' SIGNIFICANT LINKS');
+
+// Because DAL doesn't support row-by-row fetch, we'll do chunked fetch instead,
+// 2000 at a time. If we don't get that many results, we'll do one last query
+// in case anything had been added since - if we get zero results, we are done
+$base_sql = 'SELECT l.majorid, l.linkid, l.minorid
 		FROM
 			sq_ast_lnk l
 		WHERE
-			'.db_extras_bitand($db, 'l.link_type', $db->quote(SQ_SC_LINK_SIGNIFICANT)).' > 0
+			'.db_extras_bitand($db, 'l.link_type', MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT)).' > 0
 		ORDER BY l.sort_order';
 
-$result = $db->query($sql);
-assert_valid_db_result($result);
-
-echo_headline('ANALYSING '.$result->numRows().' SIGNIFICANT LINKS');
-
+$offset = 0;
+$chunk_size = 2000;
 $echo_i = 0;
-$index = Array();
-while (null !== ($data = $result->fetchRow())) {
-	$majorid = $data['majorid'];
-	unset($data['majorid']);
-	if (!isset($index[$majorid])) $index[$majorid] = Array();
-	$index[$majorid][] = $data;
 
-	$echo_i++;
-	if ($echo_i % 200 == 0) fwrite(STDERR, '.');
-}
+while (TRUE) {
+	$sql = db_extras_modify_limit_clause($base_sql, MatrixDAL::getDbType(), $chunk_size, $offset);
+	$result = MatrixDAL::executeSqlAssoc($sql);
+
+	// If no further results, we're done.
+	if (count($result) == 0) break;
+
+	$index = Array();
+	foreach ($result as $data) {
+		$majorid = $data['majorid'];
+		unset($data['majorid']);
+		if (!isset($index[$majorid])) $index[$majorid] = Array();
+		$index[$majorid][] = $data;
+
+		$echo_i++;
+		if ($echo_i % 200 == 0) fwrite(STDERR, '.');
+	}
+
+	// advance the chains by as many results we actually got
+	$offset += count($result)
+
+}//end while
+
+
 fwrite(STDERR, "\n");
 
 $result->free();
@@ -106,7 +125,7 @@ if ($pgdb) {
 			.'-'."\t".'1'."\t".(string)count($index[1]);
 
 } else {
-	$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.$db->quoteSmart('-').', '.$db->quoteSmart(1).', '.$db->quoteSmart(count($index[1])).');';
+	$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.MatrixDAL::quote('-').', '.MatrixDAL::quote(1).', '.MatrixDAL::quote(count($index[1])).');';
 
 }
 
@@ -179,7 +198,7 @@ function recurse_tree_create($majorid, $path)
 		if ($pgdb) {
 			$sql = $treeid."\t".(string)$data['linkid']."\t".(string)$num_kids;
 		} else {
-			$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.$db->quoteSmart($treeid).','.$db->quoteSmart((int) $data['linkid']).','.$db->quoteSmart($num_kids).');';
+			$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.MatrixDAL::quote($treeid).','.MatrixDAL::quote((int) $data['linkid']).','.MatrixDAL::quote($num_kids).');';
 		}
 
 		echo $sql,"\n";

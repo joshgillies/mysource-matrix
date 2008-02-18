@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_asset_type.php,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: remove_asset_type.php,v 1.4 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * assets of exactly the type you specify
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -56,28 +56,49 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed loggin in as root user\n", E_USER_ERROR);
+	trigger_error("Failed login in as root user\n", E_USER_ERROR);
 }
 
 // make some noiz
 $db = $GLOBALS['SQ_SYSTEM']->db;
 
-$assets_of_type = $db->getCol("SELECT assetid FROM sq_ast WHERE type_code=".$db->quote($DELETING_ASSET_TYPE));
+$sql = 'SELECT assetid FROM sq_ast WHERE type_code = :type_code';
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
+$assets_of_type = MatrixDAL::executePdoAssoc($query, 0);
+
 if (!empty($assets_of_type)) {
 	$asset_ids_set = '('.implode(', ', $assets_of_type).')';
-	$res =& $db->query('DELETE FROM sq_ast_attr_val WHERE assetid in '.$asset_ids_set);
-	assert_valid_db_result($res);
-	$res =& $db->query('DELETE FROM sq_ast_lnk WHERE minorid in '.$asset_ids_set);
-	assert_valid_db_result($res);
-	$res =& $db->query('DELETE FROM sq_ast WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
-	assert_valid_db_result($res);
+	$sql = 'DELETE FROM sq_ast_attr_val WHERE assetid in '.$asset_ids_set;
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::execPdoQuery($query);
+
+	$sql = 'DELETE FROM sq_ast_lnk WHERE minorid in '.$asset_ids_set;
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::execPdoQuery($query);
+
+	$sql = 'DELETE FROM sq_ast WHERE type_code = :type_code';
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
+	MatrixDAL::execPdoQuery($query);
 }
-$res =& $db->query('DELETE FROM sq_ast_attr WHERE type_code ='.$db->quote($DELETING_ASSET_TYPE).' OR owning_type_code = '.$db->quote($DELETING_ASSET_TYPE));
-assert_valid_db_result($res);
-$res =& $db->query('DELETE FROM sq_ast_typ WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
-assert_valid_db_result($res);
-$res =& $db->query('DELETE FROM sq_ast_typ_inhd WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
-assert_valid_db_result($res);
+
+$sql = 'DELETE FROM sq_ast_attr WHERE type_code = :type_code OR owning_type_code = :owning_type_code';
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
+MatrixDAL::bindValueToPdo($query, 'owning_type_code', $DELETING_ASSET_TYPE);
+MatrixDAL::execPdoQuery($query);
+
+$sql = 'DELETE FROM sq_ast_typ WHERE type_code = :type_code';
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
+MatrixDAL::execPdoQuery($query);
+
+$sql = 'DELETE FROM sq_ast_typ_inhd WHERE type_code = :type_code';
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, ':type_code', $DELETING_ASSET_TYPE);
+MatrixDAL::execPdoQuery($query);
+
 assert_true(unlink(dirname(dirname(__FILE__)).'/data/private/db/asset_types.inc'), 'failed removing asset_types.inc');
 echo "\nDone\n";
 ?>

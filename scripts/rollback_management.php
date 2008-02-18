@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.18 2008/01/15 03:20:56 hnguyen Exp $
+* $Id: rollback_management.php,v 1.19 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -237,9 +237,9 @@ function truncate_rollback_entries($table_name)
 
 	$sql = 'TRUNCATE TABLE sq_rb_'.$table_name;
 	try {
-		$result = $db->executeSql($sql);
+		$result = MatrixDAL::executeSql($sql);
 	} catch (Exception $e) {
-		throw new Exception('Unable to truncate table '.$table_name.' due to the following error: '.$e->getMessage());	
+		throw new Exception('Unable to truncate table '.$table_name.' due to the following error: '.$e->getMessage());
 	}//end try catch
 
 	if (!$QUIET) {
@@ -265,7 +265,7 @@ function close_rollback_entries($table_name, $date)
 	$sql = 'UPDATE sq_rb_'.$table_name.' SET sq_eff_to = :date WHERE sq_eff_to IS NULL';
 
 	try {
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
@@ -300,7 +300,7 @@ function open_rollback_entries($table_name, $date)
 		SELECT '.implode(',', $columns).',:date , NULL FROM sq_'.$table_name;
 
 	try {
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
@@ -335,7 +335,7 @@ function align_rollback_entries($table_name, $date)
 			WHERE sq_eff_from < :date1';
 
 	try {
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		$query->bindValue('date1', $date);
 		$query->bindValue('date2', $date);
 		$result = MatrixDAL::executePdoOne($query);
@@ -369,7 +369,7 @@ function delete_rollback_entries($table_name, $date)
 		WHERE sq_eff_to <= :date';
 
 	try {
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
@@ -457,7 +457,7 @@ function purge_file_versioning($date)
 	$SQL = 'SELECT * FROM '.$history_table.' h JOIN '.$file_table.' f ON h.fileid = f.fileid WHERE to_date <= :date';
 
 	try {
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoAssoc($query);
 	} catch (Exception $e) {
@@ -478,7 +478,7 @@ function purge_file_versioning($date)
 	$SQL = 'DELETE FROM '.$history_table.' WHERE to_date <= :date';
 
 	try {
-		$query = $db->prepare($SQL);
+		$query = MatrixDAL::preparePdoQuery($SQL);
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {

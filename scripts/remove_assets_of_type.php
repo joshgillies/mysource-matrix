@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_assets_of_type.php,v 1.6 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: remove_assets_of_type.php,v 1.7 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * assets of exactly the type you specify
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -66,32 +66,43 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-$db =& $GLOBALS['SQ_SYSTEM']->db;
+$sql = 'SELECT assetid FROM sq_ast WHERE type_code = :type_code';
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
+$assets_of_type = MatrixDAL::executePdoAssoc($query, 0);
 
-$assets_of_type = $db->getCol('SELECT assetid FROM sq_ast WHERE type_code='.$db->quote($DELETING_ASSET_TYPE));
-assert_valid_db_result($assets_of_type);
 if (!empty($assets_of_type)) {
 	$asset_ids_set = '('.implode(', ', $assets_of_type).')';
 
-	$res =& $db->query('DELETE FROM sq_ast_attr_val WHERE assetid in '.$asset_ids_set);
-	assert_valid_db_result($res);
-	$res =& $db->query('DELETE FROM sq_ast WHERE type_code = '.$db->quote($DELETING_ASSET_TYPE));
-	assert_valid_db_result($res);
+	$sql = 'DELETE FROM sq_ast_attr_val WHERE assetid in '.$asset_ids_set;
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::execPdoQuery($query);
 
-	$res =& $db->getAll('SELECT linkid FROM sq_ast_lnk WHERE minorid in '.$asset_ids_set.' OR majorid in '.$asset_ids_set);
-	assert_valid_db_result($res);
+	$sql = 'DELETE FROM sq_ast WHERE type_code = :type_code';
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
+	MatrixDAL::execPdoQuery($query);
+
+	$sql = 'SELECT linkid FROM sq_ast_lnk WHERE minorid in '.$asset_ids_set.' OR majorid in '.$asset_ids_set;
+	$query = MatrixDAL::preparePdoQuery($sql);
+	$res = MatrixDAL::executePdoQuery($query);
+
 	if (!empty($res)) {
 		$links_array = Array();
 		foreach ($res as $value) {
-			array_push($links_array, $value['linkid']);
+			array_push($links_array, MatrixDAL::quote($value['linkid']));
 		}
 		$links_set = '('.implode(', ', $links_array).')';
 
-		$res =& $db->query('DELETE FROM sq_ast_lnk WHERE linkid in '.$links_set);
-		assert_valid_db_result($res);
-		$res =& $db->query('UPDATE sq_ast_lnk_tree SET linkid=0 where linkid in '.$links_set);
-		assert_valid_db_result($res);
+		$sql = 'DELETE FROM sq_ast_lnk WHERE linkid in '.$links_set;
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::execPdoQuery($query);
+
+		$sql = 'UPDATE sq_ast_lnk_tree SET linkid=0 where linkid in '.$links_set;
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::execPdoQuery($query);
 	}
+
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 }

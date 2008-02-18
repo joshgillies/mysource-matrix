@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.5 2007/12/10 06:23:45 rong Exp $
+* $Id: remove_form_submission.php,v 1.6 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -46,14 +46,14 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 if (count($argv) != 5) {
 	echo 'Usage: remove_form_submission.php <system_root> <custom_form_id> <from_date> <to_date>'."\n";
 	echo 'Date format: YYYY-MM-DD'."\n";
-	die;
+	exit(1);
 } else if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}/',$argv[3]) != TRUE) {
 	// simple date format YYYY-MM-DD check, nothing fancy
 	trigger_error('\'From date\' must be in the format \'YYYY-MM-DD\'', E_USER_WARNING);
-	die;
+	exit(1);
 } else if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}/',$argv[4]) != TRUE) {
 	trigger_error('\'To date\' must be in the format \'YYYY-MM-DD\'', E_USER_WARNING);
-	die;
+	exit(1);
 }
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 $from_value = iso8601_date_component($argv[3]).' 00:00:00';
@@ -64,11 +64,11 @@ $assetid = $argv[2];
 $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 if (is_null($asset)) {
 	trigger_error("#$assetid is not a valid asset ID", E_USER_WARNING);
-	die;
+	exit(1);
 }
 if (!is_a($asset, 'page_custom_form')) {
 	trigger_error("Asset #$assetid is not a custom form asset", E_USER_WARNING);
-	die;
+	exit(1);
 } else {
 	$form = $asset->getForm();
 	$sub_folder = $form->getSubmissionsFolder();
@@ -88,25 +88,31 @@ $sql = 'SELECT
 			JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 			JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 			ON l.minorid = a.assetid';
-$where = 'l.majorid IN ('.$db->quote($asset->id).', '.$db->quote($sub_folder->id).')
-		AND i.inhd_type_code = '.$db->quote('form_submission').'
-		AND a.created BETWEEN '.db_extras_todate($db, $from_value).'
-			AND '.db_extras_todate($db, $to_value);
+$where = 'l.majorid IN (:assetid, :subfolder_assetid)
+			AND i.inhd_type_code = :inhd_type_code
+			AND a.created BETWEEN '.db_extras_todate(MatrixDAL::getDbType(), ':created_from', FALSE).'
+			AND '.db_extras_todate(MatrixDAL::getDbType(), ':created_to', FALSE);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 $sql = $sql.$where.' ORDER BY a.created DESC';
-$assetids = $db->getCol($sql);
-assert_valid_db_result($assetids);
+
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, 'assetid',           $asset->id);
+MatrixDAL::bindValueToPdo($query, 'subfolder_assetid', $sub_folder->id);
+MatrixDAL::bindValueToPdo($query, 'inhd_type_code',    'form_submission');
+MatrixDAL::bindValueToPdo($query, 'created_from',      $from_value);
+MatrixDAL::bindValueToPdo($query, 'created_to',        $to_value);
+$assetids = MatrixDAL::executePdoAssoc($sql, 0);
 
 if (empty($assetids)) {
 	echo "No form submission found for '$asset->name' (#$assetid) within the specified date range\n";
-	die;
+	exit();
 }
 echo 'Found '.count($assetids)." form submission(s) for '$asset->name' (#$assetid)\n(Date range: $from_value to $to_value)\n";
 
 // quote the assetids to be used in the IN clause
 foreach ($assetids as $key => $assetid) {
-	$assetids[$key] = $db->quoteSmart((String)$assetid);
+	$assetids[$key] = MatrixDAL::quote((String)$assetid);
 }
 
 // break up the assets into chunks of 1000 so that oracle does not complain
@@ -124,20 +130,20 @@ $in2 = '('.implode(' OR ', $minorid_in).')';
 
 // start removing entries from the database
 echo "Removing assets ...\n";
-$res = $db->query('DELETE FROM sq_ast WHERE '.$in1);
-assert_valid_db_result($res);
+$sql = 'DELETE FROM sq_ast WHERE '.$in1;
+MatrixDAL::executeSql($sql);
 
 echo "\tUpdating link table...\n";
-$res = $db->query('DELETE FROM sq_ast_lnk WHERE '.$in2);
-assert_valid_db_result($res);
+$sql = 'DELETE FROM sq_ast_lnk WHERE '.$in2;
+MatrixDAL::executeSql($sql);
 
 echo "\tUpdating link tree table ...\n";
-$res = $db->query('DELETE FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_ast_lnk)');
-assert_valid_db_result($res);
+$sql = 'DELETE FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_ast_lnk)';
+MatrixDAL::executeSql($sql);
 
 echo "\tUpdating attribute value table ...\n";
-$res = $db->query('DELETE FROM sq_ast_attr_val WHERE '.$in1);
-assert_valid_db_result($res);
+$sql = 'DELETE FROM sq_ast_attr_val WHERE '.$in1;
+MatrixDAL::executeSql($sql);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

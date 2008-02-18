@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: run_cron_job.php,v 1.3 2006/12/06 05:42:20 bcaldwell Exp $
+* $Id: run_cron_job.php,v 1.4 2008/02/18 05:28:41 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -29,7 +29,7 @@ if (php_sapi_name() != 'cli') trigger_error("You can only run this script from t
 if (count($_SERVER['argv']) != 3) {
 	echo "Usage:\n\n";
 	echo "\tphp ".basename($_SERVER['argv'][0])." <SYSTEM_ROOT> <cron job assetid>\n\n";
-	die();
+	exit();
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
@@ -52,8 +52,12 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 $cron_job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ASSETID);
-if (is_null($cron_job)) die('Not a valid assetid');
-if (!is_a($cron_job, 'cron_job')) die('Not a cron job');
+if (is_null($cron_job)) {
+	trigger_error('Asset ID passed (#'.$ASSETID.') does not point to a valid asset', E_USER_ERROR);
+}
+if (!is_a($cron_job, 'cron_job')) {
+	trigger_error('Asset ID passed (#'.$ASSETID.') does not point to a Cron Job asset', E_USER_ERROR);
+}
 
 $result = $cron_job->run();
 
