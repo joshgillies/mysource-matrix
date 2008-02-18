@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265 2007/12/23 23:50:09 hnguyen Exp $
+* $Id: asset_map.inc,v 1.266 2008/02/18 04:07:01 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265 $
+* @version $Revision: 1.266 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -207,10 +207,10 @@ class Asset_Map
 								AND u.url = :url';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':previd', $previd);
-					$query->bindValue(':currentid', $currentid);
-					$query->bindValue(':url', $asset_lineage[$i]['url']);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'previd', $previd);
+					MatrixDAL::bindValueToPdo($query, 'currentid', $currentid);
+					MatrixDAL::bindValueToPdo($query, 'url', $asset_lineage[$i]['url']);
 					$sort_order = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get the sort orders for URL: '.$asset_lineage[$i]['url'].' due to database error: '.$e->getMessage());
@@ -222,9 +222,9 @@ class Asset_Map
 								AND sort_order < :sort_order
 								AND link_type > 2';
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':previd', $previd);
-					$query->bindValue(':sort_order', $sort_order);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'previd', $previd);
+					MatrixDAL::bindValueToPdo($query, 'sort_order', $sort_order);
 					$count = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
@@ -769,7 +769,7 @@ class Asset_Map
 					$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 					array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-						$userids[$k] = $db->quote((String)$userids[$k]);
+						$userids[$k] = '\''.((string) $userids[$k]).'\'';
 					}
 					$userids_str = implode(',', $userids);
 					$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
@@ -792,8 +792,8 @@ class Asset_Map
 				$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status, u.url,
 							l.link_type, l.sort_order, ap.path,
 							(CASE u.'.$primary_protocol.'
-								WHEN '.$db->quote('1').' THEN :primary_protocol
-								WHEN '.$db->quote('0').' THEN :secondary_protocol
+								WHEN \'1\' THEN :primary_protocol
+								WHEN \'0\' THEN :secondary_protocol
 							END) AS protocol';
 				$bind_vars['primary_protocol'] = $primary_protocol;
 				$bind_vars['secondary_protocol'] = $secondary_protocol;
@@ -818,17 +818,24 @@ class Asset_Map
 											LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
 											WHERE l2.assetid = :assetid AND (';
 					$sql = $sql.'(
-								(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
-										p.userid <> '.$db->quote($public_userid).'
-										OR r.userid <> '.$db->quote($public_userid).'
-										OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-										OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+								(p.permission = :p_permission AND (
+										p.userid <> :p_userid
+										OR r.userid <> :r_userid
+										OR (p.userid = :p_userid_1 AND p.granted = 1)
+										OR (r.userid = :r_userid_1 AND p.granted = 1)
 									)
 								)
 								OR	(
-										p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
+										p.permission > :p_permission_1 AND p.granted = 1
 									)
 							) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
+
+					$bind_vars['p_permission'] = SQ_PERMISSION_READ;
+					$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
+					$bind_vars['p_userid'] = $public_userid;
+					$bind_vars['p_userid_1'] = $public_userid;
+					$bind_vars['r_userid'] = $public_userid;
+					$bind_vars['r_userid_1'] = $public_userid;
 				}
 
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
@@ -836,21 +843,25 @@ class Asset_Map
 
 				$where = ' l.assetid = :assetid';
 				$bind_vars['assetid'] = $assetid;
+
 				if ($linkid && is_numeric($linkid)) {
-					$where .= ' AND l.linkid = '.$db->quote((string)$linkid);
+					$where .= ' AND l.linkid = :linkid';
+					$bind_vars['linkid'] = $linkid;
 				}
 
-				$where .=' AND l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
+				$where .=' AND l.link_type <= :max_link_type';
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
+				$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
+
 				$sql .= ' '.$where;
 
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				foreach ($bind_vars as $key => $value) {
-					$query->bindValue(':'.$key, $value);
+					MatrixDAL::bindValueToPdo($query, $key, $value);
 				}
-				$assets = DAL::executePdoAssoc($query);
+				$assets = MatrixDAL::executePdoAssoc($query);
 				$asset = (!empty($assets)) ? $assets[0] : Array();
 
 			} catch (Exception $e) {
@@ -882,17 +893,18 @@ class Asset_Map
 					$bind_vars = Array();
 					$sql = 'SELECT COUNT(*)
 							FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
-					$where = 'majorid = :assetid AND link_type <= :SQ_LINK_TYPE_2';
-					$bind_vars['assetid'] = $assetid;
-					$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
+					$where = 'majorid = :assetid AND link_type <= :max_link_type';
+					$bind_vars['assetid']       = $assetid;
+					$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
-					$query = $db->prepare($sql.' '.$where);
+					$query = MatrixDAL::preparePdoQuery($sql.' '.$where);
 					foreach ($bind_vars as $key => $value) {
-						$query->bindValue(':'.$key, $value);
+						MatrixDAL::bindValueToPdo($query, $key, $value);
 					}
-					$results = DAL::executePdoOne($query);
+					error_log($sql.' '.$where);
+					$results = MatrixDAL::executePdoOne($query);
 					$num_kids = (!empty($results)) ? $results : 0;
 
 				} catch (Exception $e) {
@@ -953,7 +965,7 @@ class Asset_Map
 				$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 				array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-					$userids[$k] = $db->quote((String)$userids[$k]);
+					$userids[$k] = '\''.((string) $userids[$k]).'\'';
 				}
 				$userids_str = implode(',', $userids);
 				$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
@@ -977,8 +989,8 @@ class Asset_Map
 			$sql = 'SELECT l.assetid, l.short_name, l.name, l.type_code, l.status,
 						l.linkid, l.link_type, l.sort_order, ap.path, u.url,
 						(CASE u.'.$primary_protocol.'
-							WHEN '.$db->quote('1').' THEN :primary_protocol
-							WHEN '.$db->quote('0').' THEN :secondary_protocol
+							WHEN \'1\' THEN :primary_protocol
+							WHEN \'0\' THEN :secondary_protocol
 						END) AS protocol';
 			$bind_vars['primary_protocol'] = $primary_protocol;
 			$bind_vars['secondary_protocol'] = $secondary_protocol;
@@ -998,17 +1010,24 @@ class Asset_Map
 										LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
 										WHERE l2.majorid = :assetid AND (';
 				$sql = $sql.'(
-							(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
-									p.userid <> '.$db->quote($public_userid).'
-									OR r.userid <> '.$db->quote($public_userid).'
-									OR (p.userid = '.$db->quote($public_userid).' AND p.granted = 1)
-									OR (r.userid = '.$db->quote($public_userid).' AND p.granted = 1)
+							(p.permission = :p_permission AND (
+									p.userid <> :p_userid
+									OR r.userid <> :r_userid
+									OR (p.userid = :p_userid_1 AND p.granted = 1)
+									OR (r.userid = :r_userid_1 AND p.granted = 1)
 								)
 							)
 							OR	(
-									p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1
+									p.permission > :p_permission_1 AND p.granted = 1
 								)
 						) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
+
+				$bind_vars['p_permission'] = SQ_PERMISSION_READ;
+				$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
+				$bind_vars['p_userid'] = $public_userid;
+				$bind_vars['p_userid_1'] = $public_userid;
+				$bind_vars['r_userid'] = $public_userid;
+				$bind_vars['r_userid_1'] = $public_userid;
 			}
 
 			$u_where = 'l.assetid = u.assetid';
@@ -1021,11 +1040,14 @@ class Asset_Map
 
 			$where = 'l.majorid = :assetid';
 			$bind_vars['assetid'] = $assetid;
+
 			if ($dependants_only) {
-				$where .= ' AND l.is_dependant = '.$db->quote('1');
+				$where .= ' AND l.is_dependant = :is_dependant';
+				$bind_vars['is_dependant'] = '1';
 			}
 			$where .= ' AND
-						l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
+						l.link_type <= :max_link_type';
+			$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
@@ -1033,9 +1055,9 @@ class Asset_Map
 			$sql .= ' '.$where;
 			$sql .= ' ORDER BY sort_order';
 
-			$query = $db->prepare($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $key => $value) {
-				$query->bindValue(':'.$key, $value);
+				MatrixDAL::bindValueToPdo($query, $key, $value);
 			}
 			$db_result = MatrixDAL::executePdoAssoc($query);
 
@@ -1064,7 +1086,7 @@ class Asset_Map
 		unset($bind_vars);
 		try {
 			$bind_vars = Array();
-			$sql = 'SELECT majorid, COUNT(*)
+			$sql = 'SELECT majorid, COUNT(*) as link_count
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
 
 			$sub_sql = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
@@ -1073,22 +1095,23 @@ class Asset_Map
 			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'lnk_', 'WHERE', FALSE);
 			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ast_', 'WHERE', FALSE);
 
-			$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= :SQ_LINK_TYPE_2';
-			$bind_vars['SQ_LINK_TYPE_2'] = SQ_LINK_TYPE_2;
+			$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= :max_link_type';
+			$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', FALSE);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', FALSE);
 			$where .= ' GROUP BY majorid ';
 
-			$query2 = $db->prepare($sql.' '.$where);
+			$query2 = MatrixDAL::preparePdoQuery($sql.' '.$where);
 			foreach($bind_vars as $key => $value) {
-				$query2->bindValue(':'.$key, $value);
+				MatrixDAL::bindValueToPdo($query2, $key, $value);
 			}
 			$db_result = MatrixDAL::executePdoAssoc($query2);
+			error_log(array_contents($db_result));
 			if (!empty($db_result))
 			{
 				foreach ($db_result as $key => $value) {
-					$num_kids[$value['majorid']] = $value['count'];
+					$num_kids[$value['majorid']] = $value['link_count'];
 				}
 			}
 		} catch (Exception $e) {
