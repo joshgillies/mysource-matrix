@@ -22,6 +22,21 @@ require_once dirname(__FILE__).'/DAL.inc';
 class Query
 {
 
+
+    /**
+     * OCI8: LOB stack.
+     *
+     * Maintains a list of OCI8 LOB resources that we need to release after a
+     * DAL query is run.
+     * The only reason why this is public is because we need to add to it from
+     * the ovened queries..
+     *
+     * @var   array $lobStack
+     * @since 4.0.0
+     */
+    public $_lobStack  = Array();
+
+
     /**
      * The ID of this query.
      *
@@ -371,6 +386,9 @@ class Query
                 // TODO: Handle insert/update of CLOB fields - this needs to be determined at bake time
                 if ($binding['type'] === PDO::PARAM_LOB) {
                     oci_bind_by_name($query, $binding['name'], $binding['value'], -1, SQLT_CLOB);
+
+                    // Add to LOB stack so we can release it later
+                    $this->_lobStack[] = $binding['value'];
                 } else {
                     oci_bind_by_name($query, $binding['name'], $binding['value'], -1);
                 }
@@ -550,6 +568,27 @@ class Query
         $this->_keywords = array_merge($this->_keywords, $keywords);
 
     }//end keywords()
+
+
+    /**
+     * Releases any OCI8 CLOB objects that may have been created here
+     *
+     * @since  4.0.0
+     * @return array
+     */
+    public function releaseLobs()
+    {
+        // OCI8:
+        if (DAL::getDBType() === 'oci') {
+            foreach($this->_lobStack as $key => $lob) {
+                $lob->close();
+                oci_free_descriptor($lob);
+                unset($this->_lobStack[$key]);
+            }
+        }
+
+    }//end releaseLobs()
+
 
 
 }//end class

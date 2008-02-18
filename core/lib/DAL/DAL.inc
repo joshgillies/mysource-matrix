@@ -209,6 +209,9 @@ class DAL
         $query  = $dalQuery->prepare();
         $result = self::executePdoAssoc($query, $col);
 
+        // OCI8: release any created LOB objects
+        $dalQuery->releaseLobs();
+
         self::_endQueryTimer();
 
         return $result;
@@ -231,6 +234,9 @@ class DAL
         $query  = $dalQuery->prepare();
         $result = self::executePdoAll($query);
 
+        // OCI8: release any created LOB objects
+        $dalQuery->releaseLobs();
+
         self::_endQueryTimer();
 
         return $result;
@@ -252,6 +258,9 @@ class DAL
 
         $query = $dalQuery->prepare();
         $result = self::executePdoOne($query);
+
+        // OCI8: release any created LOB objects
+        $dalQuery->releaseLobs();
 
         self::_endQueryTimer();
 
@@ -321,8 +330,7 @@ class DAL
     {
         $query = self::getQuery($systemid, $queryid);
         $res = self::getGrouped($query);
-        $query->closeCursor();
-        unset($query);
+
         return $res;
 
     }//end executeGrouped()
@@ -344,8 +352,6 @@ class DAL
     {
         $query = self::getQuery($systemid, $queryid);
         $res   = self::getAssoc($query, $col);
-        $query->closeCursor();
-        unset($query);
 
         return $res;
 
@@ -367,8 +373,6 @@ class DAL
     {
         $query = self::getQuery($systemid, $queryid);
         $res = self::getAll($query);
-        $query->closeCursor();
-        unset($query);
 
         return $res;
 
@@ -397,9 +401,6 @@ class DAL
             $result = stream_get_contents($result);
         }
 
-        $query->closeCursor();
-        unset($query);
-
         return $result;
 
     }//end executeOne()
@@ -423,18 +424,19 @@ class DAL
         $query = NULL;
         if (($systemid instanceof Query) === TRUE) {
             self::_startQueryTimer($systemid->getQueryid());
-            $query = $systemid;
-            $query = $query->prepare();
+            $dalQuery = $systemid;
+            $query = $dalQuery->prepare();
         } else if ($queryid === NULL) {
             throw new DALException('No queryid provided for executeQuery.');
         } else {
             self::_startQueryTimer($queryid);
-            $query = self::getQuery($systemid, $queryid);
-            $query = $query->prepare();
+            $dalQuery = self::getQuery($systemid, $queryid);
+            $query = $dalQuery->prepare();
         }
 
         try {
             self::execPdoQuery($query);
+            $dalQuery->releaseLobs();
         } catch (PDOException $e) {
             throw new DALException($e->getMessage());
         }
@@ -447,9 +449,6 @@ class DAL
         }
 
         self::_endQueryTimer();
-
-        $query->closeCursor();
-        unset($query);
 
         return $rows;
 
@@ -535,7 +534,6 @@ class DAL
             // OCI:
             $result = oci_execute($query, OCI_DEFAULT);
             if ($result === FALSE) {
-                bam(array_contents(debug_backtrace(), 3));
                 throw new DALException('Unable to execute query :'.oci_error($dbh));
             }
             $rows = oci_num_rows($query);
@@ -1656,31 +1654,6 @@ class DAL
         return self::$_queryLog;
 
     }//end getLoggedQueries()
-
-
-    /**
-     * Does the fetching of an OCI LOB object.
-     *
-     * @param OCI-Lob    $lob   Freshly-cooked OCI LOBster
-     *
-     * @since  4.0.0
-     * @return array
-     */
-    protected static function _fetchOciClob(OCI_Lob $lob)
-    {
-        // If this is a LOB, we need to read through it as if it was
-                // a file stream
-        $result = '';
-        $lob->rewind();
-        $result = '';
-        while (!$lob->eof()) {
-            $result .= $lob->read(4096);
-        }
-        $lob->close();
-
-        return $result;
-
-    }//end _fetchOCILob()
 
 
 }//end class
