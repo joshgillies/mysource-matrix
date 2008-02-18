@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.58 2008/02/18 05:43:51 lwright Exp $
+* $Id: db_install.inc,v 1.59 2008/02/18 05:44:48 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -680,7 +680,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 		$grant_sql = 'SELECT sq_grant_access(:user)';
 		try {
 			$query = MatrixDAL::preparePdoQuery($grant_sql);
-			MatrixDAL::preparePdoQuery($query, 'user', $primary_dsn['user']);
+			MatrixDAL::bindValueToPdo($query, 'user', $primary_dsn['user']);
 			MatrixDAL::execPdoQuery($grant_sql);
 		} catch (DALException $e) {
 			throw $e;
