@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.11 2006/12/07 01:00:47 bcaldwell Exp $
+* $Id: ldap_change_dn.php,v 1.12 2008/02/18 05:12:06 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -97,163 +97,121 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
 	printActionName('Changing asset ownership');
-	$sql = 'UPDATE sq_ast
-			SET created_userid = '.$db->quote($new_dn).'
-			WHERE created_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+	// Change created ownership
+	$bind_vars = Array(
+					'old_userid'	=> $old_dn,
+					'new_userid'	=> $new_dn,
+				 );
 
-	$sql = 'UPDATE sq_ast
-	        SET updated_userid = '.$db->quote($new_dn).'
-			WHERE updated_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
-
-	$sql = 'UPDATE sq_ast
-	        SET published_userid = '.$db->quote($new_dn).'
-			WHERE published_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
-
-	$sql = 'UPDATE sq_ast
-	        SET status_changed_userid = '.$db->quote($new_dn).'
-			WHERE status_changed_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
-
-	$sql = 'UPDATE sq_ast_lnk
-	        SET updated_userid = '.$db->quote($new_dn).'
-			WHERE updated_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+	MatrixDAL::executeQuery('core', 'changeCreatedAssetDateUser',       $bind_vars);
+	MatrixDAL::executeQuery('core', 'changeUpdatedAssetDateUser',       $bind_vars);
+	MatrixDAL::executeQuery('core', 'changePublishedAssetDateUser',     $bind_vars);
+	MatrixDAL::executeQuery('core', 'changeStatusChangedAssetDateUser', $bind_vars);
+	MatrixDAL::executeQuery('core', 'changeLinkUpdatedDateUser',       $bind_vars);
 	printActionStatus('OK');
-
 
 	printActionName('Changing asset ownership (rollback)');
 	$sql = 'UPDATE sq_rb_ast
-			SET created_userid = '.$db->quote($new_dn).'
-			WHERE created_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET created_userid = '.MatrixDAL::quote($new_dn).'
+			WHERE created_userid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 
 	$sql = 'UPDATE sq_rb_ast
-			SET updated_userid = '.$db->quote($new_dn).'
-			WHERE updated_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET updated_userid = '.MatrixDAL::quote($new_dn).'
+			WHERE updated_userid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 
 	$sql = 'UPDATE sq_rb_ast
-			SET published_userid = '.$db->quote($new_dn).'
-			WHERE published_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET published_userid = '.MatrixDAL::quote($new_dn).'
+			WHERE published_userid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 
 	$sql = 'UPDATE sq_rb_ast
-			SET status_changed_userid = '.$db->quote($new_dn).'
-			WHERE status_changed_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET status_changed_userid = '.MatrixDAL::quote($new_dn).'
+			WHERE status_changed_userid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 
 	$sql = 'UPDATE sq_rb_ast_lnk
-			SET updated_userid = '.$db->quote($new_dn).'
-			WHERE updated_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET updated_userid = '.MatrixDAL::quote($new_dn).'
+			WHERE updated_userid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 	printActionStatus('OK');
 
 	printActionName('Changing shadow links');
 	$sql = 'UPDATE sq_shdw_ast_lnk
-			SET minorid = '.$db->quote($new_dn).'
-			WHERE minorid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET minorid = '.MatrixDAL::quote($new_dn).'
+			WHERE minorid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 
-	$sql = 'UPDATE sq_shdw_ast_lnk
-	        SET updated_userid = '.$db->quote($new_dn).'
-			WHERE updated_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+	MatrixDAL::executeQuery('core', 'changeShadowLinkUpdatedDateUser', $bind_vars);
 	printActionStatus('OK');
 
 	printActionName('Changing shadow links (rollback)');
 	$sql = 'UPDATE sq_rb_shdw_ast_lnk
-		    SET minorid = '.$db->quote($new_dn).'
-			WHERE minorid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET minorid = '.MatrixDAL::quote($new_dn).'
+			WHERE minorid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 
 	$sql = 'UPDATE sq_rb_shdw_ast_lnk
-			SET updated_userid = '.$db->quote($new_dn).'
-			WHERE updated_userid = '.$db->quote($old_dn);
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
+			SET updated_userid = '.MatrixDAL::quote($new_dn).'
+			WHERE updated_userid = '.MatrixDAL::quote($old_dn);
+	$result = MatrixDAL::executeSql($sql);
 	printActionStatus('OK');
 
 	printActionName('Changing asset permissions');
 		$sql = 'UPDATE sq_ast_perm
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-	printActionStatus('OK');
+				SET userid = '.MatrixDAL::quote($new_dn).'
+				WHERE userid = '.MatrixDAL::quote($old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
 
 	printActionName('Changing asset permissions (rollback)');
 		$sql = 'UPDATE sq_rb_ast_perm
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-	printActionStatus('OK');
+				SET userid = '.MatrixDAL::quote($new_dn).'
+				WHERE userid = '.MatrixDAL::quote($old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
 
 	printActionName('Changing internal messages');
 		$sql = 'UPDATE sq_internal_msg
-				SET userto = '.$db->quote($new_dn).'
-				WHERE userto = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+				SET userto = '.MatrixDAL::quote($new_dn).'
+				WHERE userto = '.MatrixDAL::quote($old_dn);
+		$result = MatrixDAL::executeSql($sql);
 
 		$sql = 'UPDATE sq_internal_msg
-				SET userfrom = '.$db->quote($new_dn).'
-				WHERE userfrom = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-	printActionStatus('OK');
+				SET userfrom = '.MatrixDAL::quote($new_dn).'
+				WHERE userfrom = '.MatrixDAL::quote($old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
 
 	printActionName('Changing screen access');
 		$sql = 'UPDATE sq_ast_edit_access
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-	printActionStatus('OK');
+				SET userid = '.MatrixDAL::quote($new_dn).'
+				WHERE userid = '.MatrixDAL::quote($old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
 
 	printActionName('Changing screen access (rollback)');
 		$sql = 'UPDATE sq_rb_ast_edit_access
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-	printActionStatus('OK');
+				SET userid = '.MatrixDAL::quote($new_dn).'
+				WHERE userid = '.MatrixDAL::quote($old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
 
 	printActionName('Changing locks');
+	MatrixDAL::executeQuery('core', 'changeAllLocksHeldUser', $bind_vars);
+
+	// ??? This doesn't look correct...
 		$sql = 'UPDATE sq_lock
-				SET userid = '.$db->quote($new_dn).'
-				WHERE userid = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
+				SET lockid = '.MatrixDAL::quote('asset.'.$new_dn).'
+				WHERE lockid = '.MatrixDAL::quote('asset.'.$old_dn);
+		$result = MatrixDAL::executeSql($sql);
 
 		$sql = 'UPDATE sq_lock
-				SET lockid = '.$db->quote('asset.'.$new_dn).'
-				WHERE lockid = '.$db->quote('asset.'.$old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'UPDATE sq_lock
-				SET source_lockid = '.$db->quote('asset.'.$new_dn).'
-				WHERE source_lockid = '.$db->quote('asset.'.$old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-	printActionStatus('OK');
+				SET source_lockid = '.MatrixDAL::quote('asset.'.$new_dn).'
+				WHERE source_lockid = '.MatrixDAL::quote('asset.'.$old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
