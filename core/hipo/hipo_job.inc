@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.95 2008/01/08 23:18:36 hnguyen Exp $
+* $Id: hipo_job.inc,v 1.96 2008/02/18 04:52:18 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -500,8 +500,7 @@ class HIPO_Job extends MySource_Object
 
 		try {
 			// get timestamp for db type TODO
-			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
-			$last_updated = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+			$last_updated = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601($now)));
 			$bind_vars = Array(
 							'code_name'			=> $code_name,
 							'job_type'			=> get_class($this),
@@ -515,7 +514,7 @@ class HIPO_Job extends MySource_Object
 							'last_updated'		=> $last_updated,
 						 );
 
-			$result = MatrixDAL::executeOne('core', 'insertHipoJob', $bind_vars);
+			MatrixDAL::executeQuery('core', 'insertHipoJob', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to insert new HIPO job due to database error: '.$e->getMessage());
 		}
@@ -813,7 +812,7 @@ class HIPO_Job extends MySource_Object
 		if ($delete) {
 			try {
 				$bind_vars['code_name'] = $this->code_name;
-				$result = MatrixDAL::executeOne('core', 'deleteHipoJobFromCodeName', $bind_vars);
+				MatrixDAL::executeQuery('core', 'deleteHipoJobFromCodeName', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete HIPO job with code name: '.$code_name.' due to database error: '.$e->getMessage());
 			}
@@ -823,8 +822,7 @@ class HIPO_Job extends MySource_Object
 
 			try {
 				// get timestamp for db type TODO
-				$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
-				$last_updated = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
+				$last_updated = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601($now)));
 				$bind_vars	= Array (
 								'hipo_vars'		=> serialize($this->_hipo_vars),
 								'options'		=> serialize($this->_options),
@@ -833,7 +831,7 @@ class HIPO_Job extends MySource_Object
 								'last_updated'	=> $last_updated,
 								'code_name'		=> $this->code_name,
 							  );
-				$result = MatrixDAL::executeOne('core', 'updateHipoJobVars', $bind_vars);
+				MatrixDAL::executeQuery('core', 'updateHipoJobVars', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update HIPO job vars due to database error: '.$e->getMessage());
 			}
@@ -868,22 +866,17 @@ class HIPO_Job extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
-		$prepared = $db->prepare(
-								'UPDATE
-									sq_hipo_job
-								SET
-									last_updated	= '.db_extras_prepare_todate($db).'
-								WHERE
-									code_name	= ?');
-		assert_valid_db_result($prepared);
+		$sql = 	'UPDATE
+					sq_hipo_job
+				SET
+					last_updated	= '.db_extras_todate(MatrixDAL::getDbType(), ':new_time', FALSE).'
+				WHERE
+					code_name	= :code_name';
 
-		$values = Array(
-					ts_iso8601($new_time),
-					'YYYY-MM-DD HH24:MI:SS',
-					$this->code_name,
-				  );
-		$result = $db->execute($prepared, $values);
-		assert_valid_db_result($result);
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'new_time',  ts_iso8601($new_time));
+		MatrixDAL::bindValueToPdo($query, 'code_name', $this->code_name);
+		MatrixDAL::execPdoQuery($query);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1644,10 +1637,14 @@ class HIPO_Job extends MySource_Object
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
+		// Treat PHP 5.2 catchable fatals as PHP 5.1 fatals
+		if (defined('E_RECOVERABLE_ERROR') && ($err_no == E_RECOVERABLE_ERROR)) {
+			$terminate = TRUE;
+		}
+
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
 		if (error_reporting() || $terminate) {
-
 			// Strip out the file path begining
 			$err_file = hide_system_root($err_file);
 			$err_msg  = hide_system_root($err_msg);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.37 2007/11/15 05:36:26 hnguyen Exp $
+* $Id: hipo_config.inc,v 1.38 2008/02/18 04:52:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -66,15 +66,15 @@ class HIPO_Config extends Config
 	{
 		// if our config file doesn't exist then we can't load the job's because they require it
 		if (!file_exists($this->config_file)) return;
-
+		
 		// ask each of the jobs for their config vars
 		$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-
+		
 		foreach($packages as $package) {
 			if ($package['code_name'] == '__core__') {
 				$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 			} else {
-				$hipo_job_path = SQ_SYSTEM_ROOT.'/packages/'.$package['code_name'].'/hipo_jobs';
+				$hipo_job_path = SQ_SYSTEM_ROOT.'/packages/'.strtolower($package['code_name']).'/hipo_jobs';
 			}
 
 			if (is_dir($hipo_job_path)) {
@@ -83,7 +83,7 @@ class HIPO_Config extends Config
 				while (FALSE !== ($file = $d->read())) {
 					if ($file == '.' || $file == '..') {
 						continue;
-					}
+						}
 					// skip hidden files
 					if (strpos($file, '.') == 0) continue;
 
