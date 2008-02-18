@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.62 2007/12/13 00:22:25 bshkara Exp $
+* $Id: form_section.inc,v 1.63 2008/02/18 05:26:27 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -435,8 +435,7 @@ class Form_Section extends Asset implements Bridge
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
 
-		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
-		assert_valid_db_result($queried_parents);
+		$queried_parents = MatrixDAL::executeSqlAssoc(implode(' ', $query));
 		$parents = Array();
 
 		foreach ($queried_parents as $queried_parent) {

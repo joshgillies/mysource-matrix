@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.12 2007/12/07 04:27:36 rong Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.13 2008/02/18 05:26:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -72,7 +72,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			} catch (Exception $e) {
 				throw new Exception('Unable to get tree id from minor id: '.$e->getMessage());
 			}
-			$where[] = 'SUBSTR(t.treeid, 1, '.strlen($parent_treeid).') = '.$db->quote($parent_treeid);
+			$where[] = 'SUBSTR(t.treeid, 1, '.strlen($parent_treeid).') = '.MatrixDAL::quote($parent_treeid);
 			$tables[] = 'sq_ast_lnk l';
 			$tables[] = 'sq_ast_lnk_tree t';
 			$where[] = 'l.linkid = t.linkid';
@@ -88,7 +88,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		if ($period_length) {
 			$operator = $owner->attr('status_change_comparator_more_than') ? '<' : '>';
 			$timestamp = time() - $period_length;
-			$where[] = 'a.status_changed '.$operator.' '.$db->quote(ts_iso8601($timestamp));
+			$where[] = 'a.status_changed '.$operator.' '.db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($timestamp));
 		}
 
 		$sql = 'SELECT
@@ -99,7 +99,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 					('.implode(') AND (', $where).')
 				ORDER BY
 					a.type_code';
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		$result = MatrixDAL::executePdoAssoc($query);
 
 		if (empty($result)) {

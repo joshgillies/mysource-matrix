@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.6 2007/12/10 06:32:47 rong Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.7 2008/02/18 05:26:27 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,20 +176,28 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 				// RESEND VALIDATION TIMEOUT //
 				$resend_period = $asset->attr('resend_validation_period');
 				if ($resend_period > 0) {
+					$date_sql = db_extras_todate(MatrixDAL::getDbType(), ':created', FALSE);
+					
 					$sql = 'SELECT
 								a.assetid, l.linkid
 							FROM sq_ast a
 								JOIN sq_ast_lnk l
 								ON a.assetid = l.minorid
 							WHERE
-								l.majorid = '.$db->quote($pending_group->id).' AND
-								l.link_type = '.$db->quoteSmart(SQ_LINK_TYPE_1).' AND
-								a.created < '.db_extras_todate($db, ts_iso8601(time() - $resend_period));
+								l.majorid = :majorid AND
+								l.link_type = :link_type AND
+								a.created < '.$date_sql;
 
-					$user_assetids = $db->getAssoc($sql);
-					assert_valid_db_result($user_assetids);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'majorid',   $pending_group->id);
+					MatrixDAL::bindValueToPdo($query, 'link_type', SQ_LINK_TYPE_1);
+					MatrixDAL::bindValueToPdo($query, 'created',   ts_iso8601(time() - $resend_period));
+					$user_assetids = MatriDAL::executePdoAll($query);					
 
-					foreach($user_assetids as $user_assetid => $user_linkid) {
+					foreach($user_assetids as $user_row) {
+						$user_assetid = $user_row['assetid'];
+						$user_linkid  = $user_row['linkid']; 
+						
 						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 
 						// Resend the validation and update the link to TYPE_2
@@ -203,19 +211,26 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 				// REMOVE ACCOUNT TIMEOUT //
 				$remove_period = $asset->attr('remove_account_period');
 				if ($remove_period > 0) {
+					$date_sql = db_extras_todate(MatrixDAL::getDbType(), ':created', FALSE);
+					
 					$sql = 'SELECT
 								a.assetid, l.linkid
 							FROM sq_ast a
 								JOIN sq_ast_lnk l
 								ON a.assetid = l.minorid
 							WHERE
-								l.majorid = '.$db->quote($pending_group->id).' AND
-								a.created < '.db_extras_todate($db, ts_iso8601(time() - $remove_period));
+								l.majorid = :majorid AND
+								a.created < '.$date_sql;
 
-					$user_assetids = $db->getAssoc($sql);
-					assert_valid_db_result($user_assetids);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'majorid', $pending_group->id);
+					MatrixDAL::bindValueToPdo($query, 'created', ts_iso8601(time() - $remove_period));
+					$user_assetids = MatriDAL::executePdoAll($query);	
 
-					foreach($user_assetids as $user_assetid => $user_linkid) {
+					foreach($user_assetids as $user_row) {
+						$user_assetid = $user_row['assetid'];
+						$user_linkid  = $user_row['linkid']; 
+						
 						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($user_assetid);
@@ -255,27 +270,6 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 		return SQ_CRON_JOB_COMPLETED;
 
 	}//end _exec()
-
-
-	/**
-	* Deal with a workflow step that has been running for longer than its expiry time
-	*
-	* To do this we find the administrators of the asset and send them a message
-	* explaining the situation.
-	*
-	* @param string	$assetid		ID of the asset whose workflow has expired
-	* @param string	$asset_name		Name of that asset
-	* @param string	$schema_name	Name of the workflow schema
-	* @param array	$step_data		Workflow step data
-	*
-	* @return void
-	* @access private
-	*/
-	function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $step_data)
-	{
-
-
-	}//end _processExpiredWorkflowStep()
 
 
 	/**

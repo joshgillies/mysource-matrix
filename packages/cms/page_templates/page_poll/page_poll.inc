@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.21 2007/12/06 05:06:45 rong Exp $
+* $Id: page_poll.inc,v 1.22 2008/02/18 05:26:28 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -622,9 +622,6 @@ class Page_Poll extends Page
 		if (!is_array($option_ids)) {
 			$option_ids = Array($option_ids);
 		}
-
-		error_log($question->id);
-		error_log(implode('; ', $option_ids));
 
 		$options = $question->attr('options');
 		$save = FALSE;

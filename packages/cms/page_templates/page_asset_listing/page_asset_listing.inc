@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.116 2007/12/14 00:16:59 colivar Exp $
+* $Id: page_asset_listing.inc,v 1.117 2008/02/18 05:26:27 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -163,7 +163,7 @@ class Page_Asset_Listing extends Listing_Engine
 						$links = NULL;
 
 						try {
-							$_query = $db->prepare(implode(' ', $query));
+							$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
 							$links = MatrixDAL::executePdoAll($_query);
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());
@@ -279,9 +279,9 @@ class Page_Asset_Listing extends Listing_Engine
 							// inherited, and which are not
 							foreach ($group['restrict_types']['type_code'] as $key => $type) {
 								if ($group['restrict_types']['inherit'][$key]) {
-									$inherited_types[] = $db->quote($type);
+									$inherited_types[] = MatrixDAL::quote($type);
 								} else {
-									$uninherited_types[] = $db->quote($type);
+									$uninherited_types[] = MatrixDAL::quote($type);
 								}
 							}
 
@@ -325,7 +325,7 @@ class Page_Asset_Listing extends Listing_Engine
 						// The fifth param to getAssoc() lets us get this
 						$links = NULL;
 						try {
-							$query = $db->prepare($sql);
+							$query = MatrixDAL::preparePdoQuery($sql);
 							$links = MatrixDAL::executePdoGrouped($query);
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());

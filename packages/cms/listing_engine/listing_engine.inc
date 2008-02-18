@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.243 2008/01/24 05:22:53 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.244 2008/02/18 05:26:27 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.243 $
+* @version $Revision: 1.244 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1147,7 +1147,7 @@ class Listing_Engine extends Page
 		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
 			// find which of the assets have the right statuses
 			foreach (array_unique(array_merge($real_assetids, $bridge_assetids)) as $assetid) {
-				$query_assetids[] = $db->quote((string) $assetid);
+				$query_assetids[] = MatrixDAL::quote((string) $assetid);
 			}
 			$in_clauses = Array();
 			foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1163,7 +1163,7 @@ class Listing_Engine extends Page
 
 			$status_matches = Array();
 			try {
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$status_matches = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Execption $e) {
 				throw new Exception($e->getMessage());
@@ -1190,7 +1190,7 @@ class Listing_Engine extends Page
 			if ($may_have_sublives) {
 				$sub_live_assets = Array();
 				foreach ($status_matches as $assetid) {
-					$query_assetids[] = $db->quote((string) $assetid);
+					$query_assetids[] = MatrixDAL::quote((string) $assetid);
 				}
 				$in_clauses = Array();
 				foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1202,10 +1202,11 @@ class Listing_Engine extends Page
 							sq_ast
 						WHERE
 								('.implode(' OR ', $in_clauses).')
-							AND status < '.$db->quote(SQ_STATUS_LIVE);
+							AND status < :status';
 				$sub_live_assets = NULL;
 				try {
-					$query = $db->prepare($sql);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'status', SQ_STATUS_LIVE);
 					$sub_live_assets = MatrixDAL::executePdoGroupedAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());

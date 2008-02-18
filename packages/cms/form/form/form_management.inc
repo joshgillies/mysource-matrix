@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.53 2007/12/06 04:33:39 rong Exp $
+* $Id: form_management.inc,v 1.54 2008/02/18 05:26:27 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -206,154 +206,6 @@ class Form_Management extends Asset_Management
 			   );
 
 	}//end _getFileList()
-
-
-	/**
-	* Upgrade
-	*
-	* @param string	$current_version	the version of the asset that is currenly installed
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _upgrade($current_version)
-	{
-		// first do things as normal
-		$res = parent::_upgrade($current_version);
-
-		if (version_compare($current_version, '0.6', '<')) {
-			pre_echo('UPGRADING FORM TO v0.6');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
-			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
-			foreach ($descendants as $i => $desc) {
-				$descendants[$i] = $db->quote($desc);
-			}
-			$form_assetids =  $db->getCol('SELECT assetid FROM sq_ast WHERE type_code IN ('.implode(',', $descendants).')');
-			assert_valid_db_result($form_assetids);
-
-			foreach ($form_assetids as $form_id) {
-				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
-				// delete the content file so it gets regenerated next run
-				if (is_file($form->data_path.'/content_file.php')) {
-					unlink($form->data_path.'/content_file.php');
-				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
-			}
-			pre_echo('DONE');
-		}
-
-
-		if (version_compare($current_version, '0.7', '<')) {
-			pre_echo('UPGRADING FORM TO v0.7');
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-			// It's going to be best to do this via an SQL query
-			$sql = 'UPDATE
-						sq_ast_lnk
-					SET
-						is_dependant = 1
-					WHERE
-						majorid IN (
-									SELECT
-										assetid
-									FROM
-										sq_ast
-									WHERE
-										type_code IN (
-														SELECT
-															type_code
-														FROM
-															sq_ast_typ_inhd
-														WHERE
-															inhd_type_code = '.$db->quoteSmart('form').'
-													 )
-								   )
-					AND
-						minorid IN (
-									SELECT
-										assetid
-									FROM
-										sq_ast
-									WHERE
-										type_code IN (
-														SELECT
-															type_code
-														FROM
-															sq_ast_typ_inhd
-														WHERE
-															inhd_type_code = '.$db->quoteSmart('form_section').'
-													 )
-								   )';
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			pre_echo('DONE');
-		}//end if
-
-		if (version_compare($current_version, '0.11', '<')) {
-			pre_echo('UPGRADING FORM TO v0.11');
-			$db = $GLOBALS['SQ_SYSTEM']->db;
-			$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form', TRUE);
-			foreach ($descendants as $i => $desc) {
-				$descendants[$i] = $db->quote($desc);
-			}
-			$form_assetids =  $db->getCol('SELECT assetid FROM sq_ast WHERE type_code IN ('.implode(',', $descendants).')');
-			assert_valid_db_result($form_assetids);
-
-			pre_echo('Upgrading '.count($form_assetids).' asset(s)...');
-
-			foreach ($form_assetids as $form_id) {
-				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
-				// delete the content file so it gets regenerated next run
-				if (is_file($form->data_path.'/content_file.php')) {
-					unlink($form->data_path.'/content_file.php');
-				}
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
-			}
-
-			pre_echo('DONE');
-		}
-
-		if (version_compare($current_version, '0.10', '<')) {
-			pre_echo('UPGRADING FORM TO v0.10');
-			$formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
-			foreach ($formids as $formid) {
-				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
-				if (!$form->_createSubmissionsFolder()) {
-					trigger_error('Error creating submissions folder for Form #'.$formid, E_USER_WARNING);
-				}
-			}
-			pre_echo(count($formids).' FORMS UPDATED');
-		}
-
-		// attribute clean up, following bugfix #2461 and #2462
-		if (version_compare($current_version, '0.12', '<')) {
-			$formids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
-			foreach ($formids as $formid) {
-				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($formid);
-				// remove questions that are not present in the sort order array
-				$sort_order = $form->attr('sort_order');
-				$questions = $form->attr('questions');
-				$new_questions = Array();
-				foreach ($sort_order as $shadowid) {
-					$id_parts = explode(':q', $shadowid);
-					$new_questions[$id_parts[1]] = $questions[$id_parts[1]];
-				}
-				$form->setAttrValue('questions', $new_questions);
-				$form->saveAttributes();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
-			}
-			pre_echo(count($formids).' FORMS UPDATED');
-		}
-
-		return $res;
-
-	}//end _upgrade()
 
 
 }//end class
