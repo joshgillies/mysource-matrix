@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.28 2007/12/14 05:56:45 rong Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.29 2008/02/18 04:52:49 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -222,7 +222,6 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		$url = 'http://'.current($root_urls).'/'.$href;
 		$type = 'asset.workflow.stale';
 		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, TRUE, FALSE, TRUE);
-		error_log(array_contents($admins));
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 

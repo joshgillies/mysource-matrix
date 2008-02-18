@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.65 2007/12/12 04:56:04 gsherwood Exp $
+* $Id: cache_manager.inc,v 1.66 2008/02/18 04:52:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -347,14 +347,6 @@ class Cache_Manager extends Asset
 			} catch (DALException $e) {
 				throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
 			}
-/*
-			$sql = 'DELETE FROM
-						sq_cache
-					WHERE
-						('.implode(' OR ', $in_clauses).')';
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);*/
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -384,15 +376,7 @@ class Cache_Manager extends Asset
 				$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'getCacheFilePathsByAsset', $bind_vars));
 				$result = array_unique($result);
 			}
-/*
-			$sql = 'SELECT
-						path
-					FROM
-						sq_cache
-					WHERE
-						('.implode(' OR ', $in_clauses).')';
-			$result = $db->getAll($sql);
-			assert_valid_db_result($result);*/
+
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return $result;
 		}

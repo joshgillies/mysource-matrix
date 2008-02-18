@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.41 2007/12/03 21:59:31 hnguyen Exp $
+* $Id: user_group_edit_fns.inc,v 1.42 2008/02/18 04:52:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,9 +61,9 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query	= $db->prepare($sql.$where);
+			$query	= MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('userid', $asset->id);
-			
+
 			$result	= MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get current restriction information for userid #'.$asset->id.' due to the following database error:'.$e->getMessage());

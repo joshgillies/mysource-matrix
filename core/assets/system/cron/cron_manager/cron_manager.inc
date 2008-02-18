@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.78 2007/12/13 02:57:57 lwright Exp $
+* $Id: cron_manager.inc,v 1.79 2008/02/18 04:52:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -750,9 +750,7 @@ class Cron_Manager extends Asset
 	public function getJobsToRun($start_ts, $end_ts, $ignore_jobs=Array())
 	{
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-
-		$db = MatrixDAL::getDb();
-
+		
 		if ($end_ts < $start_ts) {
 			trigger_localised_error('CRON0014', E_USER_WARNING);
 			return Array();
@@ -807,13 +805,13 @@ class Cron_Manager extends Asset
 		$build_up = Array();
 
 		$build_up['hour']['bridge'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').')
-										BETWEEN '.$db->quote('%A%'.$start_f['minutes']).'
-										AND '.$db->quote('%B%59').'
+										BETWEEN '.MatrixDAL::quote('%A%'.$start_f['minutes']).'
+										AND '.MatrixDAL::quote('%B%59').'
 										OR ('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').')
-										BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']);
-
-		$build_up['hour']['all'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') BETWEEN '.$db->quote('%A%'.$start_f['minutes']).'
-									AND '.$db->quote('%B%'.$end_f['minutes']);
+										BETWEEN '.MatrixDAL::quote('%C%00').' AND '.MatrixDAL::quote('%D%'.$end_f['minutes']);
+		
+		$build_up['hour']['all'] = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') BETWEEN '.MatrixDAL::quote('%A%'.$start_f['minutes']).'
+									AND '.MatrixDAL::quote('%B%'.$end_f['minutes']);
 
 		$build_up['day']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'), Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'), $build_up['hour']['bridge']);
 		$build_up['day']['all'] = str_replace(Array('%A%', '%B%'), Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'), $build_up['hour']['all']);
@@ -849,7 +847,7 @@ class Cron_Manager extends Asset
 		$type = 'all';
 
 		if ($over_one_hour_ago) {
-			$hourly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('HR=%');
+			$hourly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.MatrixDAL::quote('HR=%');
 		} else {
 			// if it has ticked over the hour since the last call
 			$type = ($end['minutes'] < $start['minutes']) ? 'bridge' : 'all';
@@ -858,7 +856,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_day_ago) {
-			$daily = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('DL=%');
+			$daily = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.MatrixDAL::quote('DL=%');
 		} else {
 			// if it has ticked over the day since the last call
 			$type = ($end['hours'] < $start['hours']) ? 'bridge' : 'all';
@@ -867,7 +865,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_week_ago) {
-			$weekly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('WK=%');
+			$weekly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.MatrixDAL::quote('WK=%');
 		} else {
 			// if it has ticked over the week since the last call
 			$type = ($end['wday'] < $start['wday']) ? 'bridge' : 'all';
@@ -876,7 +874,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_month_ago) {
-			$monthly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('MT=%');
+			$monthly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.MatrixDAL::quote('MT=%');
 		} else {
 			// if it has ticked over the month since the last call
 			$type = ($end['mday'] < $start['mday']) ? 'bridge' : 'all';
@@ -885,7 +883,7 @@ class Cron_Manager extends Asset
 
 
 		if ($over_one_year_ago) {
-			$yearly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.$db->quote('YR=%');
+			$yearly = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') LIKE '.MatrixDAL::quote('YR=%');
 		} else {
 			// if it has ticked over the year since the last call
 			$type = ($end['mon'] < $start['mon']) ? 'bridge' : 'all';
@@ -894,23 +892,23 @@ class Cron_Manager extends Asset
 
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
-		$every_time = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') = '.$db->quote('ET=');
+		$every_time = '('.$this->_clob2Str('COALESCE(av.custom_val, at.default_val)').') = '.MatrixDAL::quote('ET=');
 
 		// repeating cron job with time interval option added to the query str
-		$repeating_time_interval = 'UPPER(av.custom_val) LIKE '.$db->quote('%TI=%');
+		$repeating_time_interval = 'UPPER(av.custom_val) LIKE '.MatrixDAL::quote('%TI=%');
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
 				  FROM ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.type_code = a.type_code
 						LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ON (av.assetid = a.assetid AND av.attrid = at.attrid)';
-		$where = 'l.majorid = '.$db->quote($this->id).'
+		$where = 'l.majorid = '.MatrixDAL::quote($this->id).'
 				  AND a.type_code IN (
 									SELECT type_code
 									FROM sq_ast_typ_inhd
-									WHERE inhd_type_code = '.$db->quote('cron_job').'
+									WHERE inhd_type_code = '.MatrixDAL::quote('cron_job').'
 									)
-				  AND at.name = '.$db->quote('when').'
+				  AND at.name = '.MatrixDAL::quote('when').'
 				  AND ('.$hourly.'
 					OR '.$daily.'
 					OR '.$weekly.'
@@ -923,7 +921,7 @@ class Cron_Manager extends Asset
 
 		if (!empty($ignore_jobs)) {
 			for ($i = 0; $i < count($ignore_jobs); $i++) {
-				$ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
+				$ignore_jobs[$i] = MatrixDAL::quote($ignore_jobs[$i]);
 			}
 			$where .= ' AND a.assetid NOT IN ('.implode(',', $ignore_jobs).')';
 		}

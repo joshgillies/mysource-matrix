@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.11 2008/01/31 05:56:06 mbrydon Exp $
+* $Id: tool_asset_sorter.inc,v 1.12 2008/02/18 04:52:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -187,8 +187,6 @@ class Tool_Asset_Sorter extends Tool
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = MatrixDAL::getDb();
-
 		// Counter to track maximum sort order of assets sorted so far
 		$index_delta = 0;
 
@@ -201,17 +199,21 @@ class Tool_Asset_Sorter extends Tool
 			$sql = 'SELECT l.linkid
 					FROM sq_ast a, sq_ast_attr t, sq_ast_attr_val v, sq_ast_lnk l
 					WHERE majorid = :parentid
-						AND link_type IN ('.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote(SQ_LINK_TYPE_2).')
+						AND link_type IN (:link_type_1, :link_type_2)
 						AND a.assetid = l.minorid
-						AND a.type_code = '.$db->quote($sort_asset_type).'
-						AND t.name = '.$db->quote($sort_asset_attribute).'
+						AND a.type_code = :sort_asset_type
+						AND t.name = :sort_asset_attr
 						AND a.assetid = v.assetid
 						AND t.attrid = v.attrid
 					ORDER BY v.custom_val '.$direction;
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':parentid', $parentid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'parentid',        $parentid);
+				MatrixDAL::bindValueToPdo($query, 'link_type_1',     SQ_LINK_TYPE_1);
+				MatrixDAL::bindValueToPdo($query, 'link_type_2',     SQ_LINK_TYPE_2);
+				MatrixDAL::bindValueToPdo($query, 'sort_asset_type', $sort_asset_type);
+				MatrixDAL::bindValueToPdo($query, 'sort_asset_attr', $sort_asset_attribute);
 				$linkids = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get link ids for parent: '.$parentid.' due to database error: '.$e->getMessage());
@@ -226,8 +228,8 @@ class Tool_Asset_Sorter extends Tool
 					FROM sq_ast_lnk l
 						JOIN sq_ast a ON l.minorid = a.assetid
 					WHERE majorid = :parentid
-						AND link_type IN ('.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote(SQ_LINK_TYPE_2).')
-						AND a.type_code != '.$db->quote($sort_asset_type).'
+						AND link_type IN (:link_type_1, :link_type_2)
+						AND a.type_code != '.MatrixDAL::quote($sort_asset_type).'
 					ORDER BY l.sort_order';
 		} else {
 			// Sort by Asset Field
@@ -235,13 +237,15 @@ class Tool_Asset_Sorter extends Tool
 					FROM sq_ast_lnk l
 						JOIN sq_ast a ON l.minorid = a.assetid
 					WHERE majorid = :parentid
-						AND link_type IN ('.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote(SQ_LINK_TYPE_2).')
+						AND link_type IN (:link_type_1, :link_type_2)
 					ORDER BY a.'.$sort_field.' '.$direction.', a.assetid DESC';
 		}
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':parentid', $parentid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'parentid',    $parentid);
+			MatrixDAL::bindValueToPdo($query, 'link_type_1', SQ_LINK_TYPE_1);
+			MatrixDAL::bindValueToPdo($query, 'link_type_2', SQ_LINK_TYPE_2);
 			$linkids = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get link ids for parent: '.$parentid.' due to database error: '.$e->getMessage());

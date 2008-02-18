@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.57 2008/02/13 04:34:24 colivar Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.58 2008/02/18 04:52:48 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,18 +73,23 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 
-			$where = 'name LIKE '.$db->quote('design::%frontend%').' AND
-						(('.$db->quote($url).' = url)
-						OR (('.$db->quote($url).' LIKE url || \'/%\')
-						AND ('.$db->quote($url).' NOT LIKE url || \'%/$\'))
-						OR (('.$db->quote($url.'/').' = url)))';
+			$where = 'name LIKE :lookup_name AND
+						((:url = url)
+						OR ((:url_1 LIKE url || \'/%\')
+						AND (:url_2 NOT LIKE url || \'%/$\'))
+						OR ((:url_slash = url)))';
 
 			$order_by = ' ORDER BY depth DESC';
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query = $db->prepare($sql.$where.$order_by);
+				$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
+				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%');
+				MatrixDAL::bindValueToPdo($query, 'url', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_1', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_2', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
 				$designid = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
