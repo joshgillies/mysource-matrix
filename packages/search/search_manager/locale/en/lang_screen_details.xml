@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2006/12/07 02:48:04 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.9 2008/02/18 22:52:11 lwright Exp $
 *
 */
 -->
@@ -66,7 +66,7 @@
 	<section name="Search Options" write_access="write:attributes">
 		<field attribute="enable_begins_with">
 			<display_name>Enable Contains Search</display_name>
-			<note>Disabling this option will lower the search time. However, searching for "room" keyword will not find "bedroom", but it will find "roommate".</note>
+			<note>If this option is set to "No", searches will be limited to finding assets with words <![CDATA[<strong>beginning</strong>]]> with the search terms provided, rather than searching anywhere within the word. (For instance, searching for "room" keyword will not find "bedroom", but it will find "roommate".) With this limitation in mind, turning "Contains" searches off may increase the speed of searches within the system.</note>
 		</field>
 	</section>
 </contents>
