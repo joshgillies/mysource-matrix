@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.6 2008/02/19 00:56:14 lwright Exp $
+* $Id: MatrixDAL.inc,v 1.7 2008/02/19 03:12:17 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once dirname(__FILE__).'/../DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
@@ -304,7 +304,8 @@ class MatrixDAL extends DAL
                 $ret_val = oci_bind_by_name($query, ':'.$name, $value);
             }
             if ($ret_val === FALSE) {
-                throw new Exception('Unable to bind variable "'.$name.'" to query.');
+                $oci_error = oci_error($query);
+                throw new Exception('Unable to bind variable "'.$name.'" to query: '.$oci_error['code'].' '.$oci_error['message']);
             }
         } else {
             if (is_null($dataType)) {
@@ -354,7 +355,7 @@ class MatrixDAL extends DAL
                     $ret_val = oci_bind_by_name($query, ':'.$name, $value);
                 }
                 if (!$ret_val) {
-                    $oci_error = oci_error($dbh);
+                    $oci_error = oci_error($query);
                     throw new DALException('Unable to bind Oracle variable by reference: '.$oci_error['code'].' '.$oci_error['message']);
                 }
             }
