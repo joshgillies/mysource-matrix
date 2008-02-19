@@ -534,7 +534,8 @@ class DAL
             // OCI:
             $result = oci_execute($query, OCI_DEFAULT);
             if ($result === FALSE) {
-                throw new DALException('Unable to execute query :'.oci_error($dbh));
+                $oci_error = oci_error($query);
+                throw new DALException('Unable to execute query: '.$oci_error['message']);
             }
             $rows = oci_num_rows($query);
         } else {
@@ -804,7 +805,8 @@ class DAL
             // OCI:
             $query = oci_parse($dbh, $sql);
             if ($query === FALSE) {
-                throw new DALException('Unable to prepare query :'.$oci_error($dbh));
+                $oci_error = oci_error($query);
+                throw new DALException('Unable to prepare query :'.$oci_error['code'].' '.$oci_error['message']);
             }
 
             self::execPdoQuery($query);
@@ -1039,7 +1041,8 @@ class DAL
                 // OCI:
                 $return = oci_commit($dbh);
                 if ($return === FALSE) {
-                    throw new DALException('Unable to commit on connection ID "'.$currentDb.'": '.oci_error($dbh));
+                    $oci_error = oci_error($dbh);
+                    throw new DALException('Unable to commit on connection ID "'.$currentDb.'": '.$oci_error['code'].' '.$oci_error['message']);
                 }
             } else {
                 $dbh->commit();
@@ -1069,7 +1072,8 @@ class DAL
                 // OCI:
                 $return = oci_rollback($dbh);
                 if ($return === FALSE) {
-                    throw new DALException('Unable to roll back on connection ID "'.$currentDb.'": '.oci_error($dbh));
+                    $oci_error = oci_error($dbh);
+                    throw new DALException('Unable to roll back on connection ID "'.$currentDb.'": '.$oci_error['code'].' '.$oci_error['message']);
                 }
             } else {
                 $dbh->rollBack();
@@ -1141,7 +1145,8 @@ class DAL
                 // legacy OCI8 extension functions.
                 $new_dbh = oci_connect($dsn['user'], $dsn['password'], $dsn['DSN']);
                 if ($new_dbh === FALSE) {
-                    throw new Exception('Unable to connect to database "'.$conn_id.'": '.oci_error());
+                    $oci_error = oci_error();
+                    throw new Exception('Unable to connect to database "'.$conn_id.'": '.$oci_error['code'].' '.$oci_error['message']);
                 }
             } else {
 
@@ -1299,7 +1304,8 @@ class DAL
                 // OCI: Must close Oracle connections first
                 $return = oci_close(self::$_dbhPool[$conn_id]);
                 if ($return === FALSE) {
-                    throw new DALException('Unable to close connection ID "'.$currentDb.'": '.oci_error(self::$_dbhPool[$conn_id]));
+                    $oci_error = oci_error(self::$_dbhPool[$conn_id]);
+                    throw new DALException('Unable to close connection ID "'.$currentDb.'": '.$oci_error['code'].' '.$oci_error['message']);
                 }
             }
 
