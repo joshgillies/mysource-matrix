@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.1 2008/02/18 23:15:56 lwright Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.2 2008/02/19 05:09:20 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -53,7 +53,7 @@ class Search_Manager_Plugin_OCI
 		switch ($data_source['type']) {
 
 			case 'include_all':
-				$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
+				$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic);
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
 			break;
@@ -62,7 +62,7 @@ class Search_Manager_Plugin_OCI
 				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
 				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attribute->name);
 
-				$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
+				$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic);
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
 			break;
@@ -97,7 +97,7 @@ class Search_Manager_Plugin_OCI
 					$sub_contains_qry = trim($sub_contains_qry,$split_type);
 					$contains_str = ' contains(ai.value, '.MatrixDAL::quote($sub_contains_qry).', 1) > 0';
 				} else {
-					$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic, 1, (($key_type != 'text')));
+					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic, 1, (($key_type != 'text')));
 				}
 				if (!$contains_str) return Array();
 				$base_query['where'][] = $contains_str;
@@ -108,7 +108,7 @@ class Search_Manager_Plugin_OCI
 				if (isset($sm->standard_text_fields[$field])) {
 					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
 
-					$contains_str = $this->_buildContainsQuery('ai.value', $search_term, $word_logic);
+					$contains_str = $this->_buildContainsQuery($sm, 'ai.value', $search_term, $word_logic);
 					if (!$contains_str) return Array();
 					$base_query['where'][] = $contains_str;
 				} else {
@@ -319,7 +319,7 @@ class Search_Manager_Plugin_OCI
 		}
 		$words = array_unique($words);
 		$new_base = $base_query;
-		$contains_str = $this->_buildContainsQuery('ai.value', implode(' or ', $words));
+		$contains_str = $this->_buildContainsQuery($sm, 'ai.value', implode(' or ', $words));
 
 		if ($contains_str) {
 			$new_base['where'][] = $contains_str;
@@ -881,16 +881,17 @@ class Search_Manager_Plugin_OCI
 	* limit) and will switch to LIKE instead. This is lot slower than the text
 	* package function but avoids the possible truncation.
 	*
-	* @param string	$column		the column with the ctx_context index
-	* @param string	$terms		the terms from the text box (unquoted)
-	* @param string	$word_logic	operator to use for intra-word logic
-	* @param string	$score		the score to use in the score() function
-	* @param string	$exact		whether to require an exact match
+	* @param Search_Manager	$sm			The search manager
+	* @param string			$column		the column with the ctx_context index
+	* @param string			$terms		the terms from the text box (unquoted)
+	* @param string			$word_logic	operator to use for intra-word logic
+	* @param string			$score		the score to use in the score() function
+	* @param string			$exact		whether to require an exact match
 	*
 	* @return mixed string|boolean
 	* @access private
 	*/
-	function _buildContainsQuery($column, $terms, $word_logic='AND', $score=1, $exact=FALSE)
+	function _buildContainsQuery(Search_Manager $sm, $column, $terms, $word_logic='AND', $score=1, $exact=FALSE)
 	{
 		$phrase_placeholder      = '@';
 		$preg_phrase_placeholder = preg_quote($phrase_placeholder, '/');
@@ -957,7 +958,11 @@ class Search_Manager_Plugin_OCI
 				// (we think)
 				$word = str_replace('_', '{_}', $word);
 				$word = str_replace('%', '{%}', $word);
-				$word = '%'.$word.'%';
+				// Naming of this attribute is not good. If TRUE, full searching
+				// is actually enabled!
+				if ($sm->attr('enable_begins_with')) {
+					$word = '%'.$word.'%';
+				}
 			}
 			$terms = preg_replace('/#/', " $word ", $terms, 1);
 		}
