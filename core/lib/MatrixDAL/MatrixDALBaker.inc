@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.9 2008/02/18 03:55:09 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.10 2008/02/20 22:41:04 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -112,7 +112,6 @@ class MatrixDALBaker extends DALBaker
         }
 
         if (file_exists($filename)) {
-            bam('Process '.$filename);
             self::processQueriesFile($package.'_package', $filename);
             return TRUE;
         }
