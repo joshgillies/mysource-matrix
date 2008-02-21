@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.30 2008/02/18 04:55:30 lwright Exp $
+* $Id: data_source_db.inc,v 1.31 2008/02/21 01:15:07 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -241,7 +241,7 @@ class Data_Source_DB extends Data_Source
 
 		try {
 			MatrixDAL::changeDb('data_source_db_'.$this->id);
-			$result = MatrixDAL::executeSqlAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
 			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
