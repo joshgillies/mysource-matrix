@@ -318,6 +318,30 @@ class DAL
 
 
     /**
+     * Returns all rows grouped by first column, with subsequent fields keyed
+     * by their field name.
+     *
+     * @param Query $dalQuery SQL Query to execute.
+     *
+     * @since  4.0.0
+     * @return array
+     * @throws DALException If query execution fails.
+     */
+    public static function getGroupedAssoc(Query $dalQuery)
+    {
+        self::_startQueryTimer($dalQuery->getQueryid());
+
+        $query  = $dalQuery->prepare();
+        $result = self::executePdoGroupedAssoc($query);
+
+        self::_endQueryTimer();
+
+        return $result;
+
+    }//end getGroupedAssoc()
+
+
+    /**
      * Returns all rows grouped by first column.
      *
      * @param string $systemid System's ID.
@@ -330,6 +354,26 @@ class DAL
     {
         $query = self::getQuery($systemid, $queryid);
         $res = self::getGrouped($query);
+
+        return $res;
+
+    }//end executeGrouped()
+
+
+    /**
+     * Returns all rows grouped by first column, with subsequent fields keyed
+     * by their field name..
+     *
+     * @param string $systemid System's ID.
+     * @param string $queryid  ID of the SQL query.
+     *
+     * @since  4.0.0
+     * @return array
+     */
+    public static function executeGroupedAssoc($systemid, $queryid)
+    {
+        $query = self::getQuery($systemid, $queryid);
+        $res = self::getGroupedAssoc($query);
 
         return $res;
 
