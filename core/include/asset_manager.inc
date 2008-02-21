@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.661 2008/02/19 03:19:42 lwright Exp $
+* $Id: asset_manager.inc,v 1.662 2008/02/21 04:13:13 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.661 $
+* @version $Revision: 1.662 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7206,7 +7206,7 @@ class Asset_Manager extends MySource_Object
 		// possible urls that we are looking for.
 		// we do this because its faster than performing a 'url LIKE l.url%'
 		$in_sql = 'sq_get_lineage_from_url(:url)';
-		$bind_vars = '';
+		$bind_vars = Array();
 
 		// if we are oracle type-cast the function result to a table
 		$db_type = MatrixDAL::getDbType();
