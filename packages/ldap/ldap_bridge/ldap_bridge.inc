@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.67 2008/02/18 05:12:06 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.68 2008/02/21 04:12:33 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -276,7 +276,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				$sql = 'SELECT inhd_type_code FROM sq_ast_typ_inhd WHERE type_code = :type_code ORDER BY inhd_type_code_lvl DESC';
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'type_code', $type_code);
-				$result = MatrixDAL::executePdoAssoc($sql, 0);
+				$result = MatrixDAL::executePdoAssoc($query, 0);
 				$type_codes[$type_code] = $result;
 			}
 
