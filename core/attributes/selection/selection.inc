@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.56 2006/12/05 05:40:44 bcaldwell Exp $
+* $Id: selection.inc,v 1.56.4.1 2008/02/21 00:34:10 colivar Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.4.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -473,7 +473,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		if (is_array($value)) $value = $this->_ar2str($value);
 
-		if ($this->value !== $value && $this->setValue($value)) {
+		if ($this->setValue($value)) {
 			$this->processed = TRUE;
 		} else {
 			$this->processed = FALSE;
