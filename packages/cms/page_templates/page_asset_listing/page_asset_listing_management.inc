@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.34.6.1 2007/10/29 00:43:16 colivar Exp $
+* $Id: page_asset_listing_management.inc,v 1.34.6.2 2008/02/21 05:35:20 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34.6.1 $
+* @version $Revision: 1.34.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,6 +59,17 @@ class Page_Asset_Listing_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   );
+		$this->vars['parameter_map'] = Array(
+										'added'			=> '0.15',
+										'type'			=> 'parameter_map',
+										'default'		=> Array(),
+										'parameters'	=> Array(
+															'parameters'	=> Array(
+																				'root_node'			=> 'Replacement Root node for the listing (must be a child of the static root node)',
+																				'asset_selection'	=> 'Array of specific asset IDs or selection group (specified assets must be children of the static related node)',
+																			   ),
+														   ),
+									   );
 
 	}//end constructor
 
