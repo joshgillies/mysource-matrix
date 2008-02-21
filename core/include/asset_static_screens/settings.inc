@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.53 2008/02/18 04:10:10 lwright Exp $
+* $Id: settings.inc,v 1.54 2008/02/21 04:13:38 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 
@@ -395,7 +395,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 
 							try {
 								$query = MatrixDAL::preparePdoQuery($sql);
-								$result = MatrixDAL::executeSqlAssoc($query, 0);
+								$result = MatrixDAL::executePdoAssoc($query, 0);
 							} catch (Exception $e) {
 								throw new Exception('Unable to get type codes for these user types: '.$user_types.' due to database error: '.$e->getMessage());
 							}
