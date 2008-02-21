@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.263 2008/02/18 22:49:29 bshkara Exp $
+* $Id: mysource.inc,v 1.264 2008/02/21 23:38:41 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.263 $
+* @version $Revision: 1.264 $
 * @package MySource_Matrix
 */
 class MySource
@@ -299,7 +299,7 @@ class MySource
 
 				if (MatrixDAL::getDbType() == 'pgsql') {
 					$sql  = 'SELECT sq_set_rollback_timestamp(:then)';
-				} else if (MatrixDAL::getDbType() == 'oci8') {
+				} else if (MatrixDAL::getDbType() == 'oci') {
 					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp(:then); END;';
 				}
 
