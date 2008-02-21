@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.31 2008/02/21 01:15:07 lwright Exp $
+* $Id: data_source_db.inc,v 1.32 2008/02/21 04:11:26 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,8 +95,8 @@ class Data_Source_DB extends Data_Source
 			$conn = $this->connectToDB();
 			foreach ($tables as $table) {
 				try {
-					$query = 'select * from '.$table;
-					$result = MatrixDAL::executeSqlAssoc($query);
+					$sql = 'select * from '.$table;
+					$result = MatrixDAL::executeSqlAssoc($sql);
 
 					if (!empty($result)) {
 						$record = $result(0);
