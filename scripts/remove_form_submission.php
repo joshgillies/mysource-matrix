@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.6 2008/02/18 05:28:41 lwright Exp $
+* $Id: remove_form_submission.php,v 1.7 2008/02/21 04:21:35 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -102,7 +102,7 @@ MatrixDAL::bindValueToPdo($query, 'subfolder_assetid', $sub_folder->id);
 MatrixDAL::bindValueToPdo($query, 'inhd_type_code',    'form_submission');
 MatrixDAL::bindValueToPdo($query, 'created_from',      $from_value);
 MatrixDAL::bindValueToPdo($query, 'created_to',        $to_value);
-$assetids = MatrixDAL::executePdoAssoc($sql, 0);
+$assetids = MatrixDAL::executePdoAssoc($querys, 0);
 
 if (empty($assetids)) {
 	echo "No form submission found for '$asset->name' (#$assetid) within the specified date range\n";

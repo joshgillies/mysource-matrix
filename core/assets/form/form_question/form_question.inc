@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.28 2008/02/18 04:52:48 lwright Exp $
+* $Id: form_question.inc,v 1.29 2008/02/21 04:21:00 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -205,7 +205,7 @@ class Form_Question extends Asset
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'type_code', $this->vars['question_type_code']['value']);
-			$existing = MatrixDAL::executeSqlGroupedAssoc($query);
+			$existing = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Can not get default val and name base on type code due to the following database error	'.$e->getMessage());
 		}//end try catch

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.14 2008/02/18 05:28:41 lwright Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.15 2008/02/21 04:21:36 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -93,7 +93,7 @@ foreach ($assets as $assetid => $type_code) {
 	$query = MatrixDAL::preparePdoQuery($sql);
 	MatrixDAL::bindValueToPdo($query, 'minorid', $assetid);
 	MatrixDAL::bindValueToPdo($query, 'link_type', SQ_LINK_NOTICE);
-	$links = MatrixDAL::executePdoAssoc($sql);
+	$links = MatrixDAL::executePdoAssoc($query);
 
 	$updated = FALSE;
 	$errors = FALSE;
