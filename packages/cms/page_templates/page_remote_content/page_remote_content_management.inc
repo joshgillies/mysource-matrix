@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.21 2007/12/06 05:11:57 rong Exp $
+* $Id: page_remote_content_management.inc,v 1.22 2008/02/22 02:50:58 colivar Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -163,9 +163,9 @@ class Page_Remote_Content_Management extends Asset_Management
 													'added'		=> '1.7',
 													'type'		=> 'serialise',
 													'default'	=> Array(
-																	'all'			=> TRUE,
+																	'all'			=> FALSE,
 																	'remote_url'	=> FALSE,
-																	'remote_domain'	=> FALSE,
+																	'remote_domain'	=> TRUE,
 																	'white_list'	=> FALSE,
 																   ),
 												   ),
