@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265 2007/12/23 23:50:09 hnguyen Exp $
+* $Id: asset_map.inc,v 1.265.2.1 2008/02/22 05:38:26 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265 $
+* @version $Revision: 1.265.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -816,7 +816,7 @@ class Asset_Map
 											FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
 											INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
 											LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
-											WHERE l2.assetid = :assetid AND (';
+											WHERE l2.assetid = :assetid_1 AND (';
 					$sql = $sql.'(
 								(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
 										p.userid <> '.$db->quote($public_userid).'
@@ -834,8 +834,9 @@ class Asset_Map
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
-				$where = ' l.assetid = :assetid';
-				$bind_vars['assetid'] = $assetid;
+				$where = ' l.assetid = :assetid_2';
+				$bind_vars['assetid_1'] = $assetid;
+				$bind_vars['assetid_2'] = $assetid;
 				if ($linkid && is_numeric($linkid)) {
 					$where .= ' AND l.linkid = '.$db->quote((string)$linkid);
 				}
@@ -996,7 +997,7 @@ class Asset_Map
 										FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
 										INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
 										LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
-										WHERE l2.majorid = :assetid AND (';
+										WHERE l2.majorid = :assetid_1 AND (';
 				$sql = $sql.'(
 							(p.permission = '.$db->quote(SQ_PERMISSION_READ).' AND (
 									p.userid <> '.$db->quote($public_userid).'
@@ -1019,8 +1020,9 @@ class Asset_Map
 			$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
 
-			$where = 'l.majorid = :assetid';
-			$bind_vars['assetid'] = $assetid;
+			$where = 'l.majorid = :assetid_2';
+			$bind_vars['assetid_1'] = $assetid;
+			$bind_vars['assetid_2'] = $assetid;
 			if ($dependants_only) {
 				$where .= ' AND l.is_dependant = '.$db->quote('1');
 			}
