@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.267 2008/02/18 04:08:05 lwright Exp $
+* $Id: asset_map.inc,v 1.268 2008/02/22 05:38:39 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.267 $
+* @version $Revision: 1.268 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -816,7 +816,7 @@ class Asset_Map
 											FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
 											INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
 											LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
-											WHERE l2.assetid = :assetid AND (';
+											WHERE l2.assetid = :assetid_1 AND (';
 					$sql = $sql.'(
 								(p.permission = :p_permission AND (
 										p.userid <> :p_userid
@@ -841,8 +841,9 @@ class Asset_Map
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_url u '.$u_where.' ';
 				$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where.' ';
 
-				$where = ' l.assetid = :assetid';
-				$bind_vars['assetid'] = $assetid;
+				$where = ' l.assetid = :assetid_2';
+				$bind_vars['assetid_1'] = $assetid;
+				$bind_vars['assetid_2'] = $assetid;
 
 				if ($linkid && is_numeric($linkid)) {
 					$where .= ' AND l.linkid = :linkid';
@@ -856,11 +857,11 @@ class Asset_Map
 				$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
 				$sql .= ' '.$where;
-
 				$query = MatrixDAL::preparePdoQuery($sql);
 				foreach ($bind_vars as $key => $value) {
 					MatrixDAL::bindValueToPdo($query, $key, $value);
 				}
+
 				$assets = MatrixDAL::executePdoAssoc($query);
 				$asset = (!empty($assets)) ? $assets[0] : Array();
 
@@ -1007,7 +1008,7 @@ class Asset_Map
 										FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor l2
 										INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON l2.assetid = p.assetid
 										LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r on p.userid = r.roleid
-										WHERE l2.majorid = :assetid AND (';
+										WHERE l2.majorid = :assetid_1 AND (';
 				$sql = $sql.'(
 							(p.permission = :p_permission AND (
 									p.userid <> :p_userid
@@ -1037,8 +1038,9 @@ class Asset_Map
 			$ap_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($ap_where, 'ap', 'ON');
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_path ap '.$ap_where;
 
-			$where = 'l.majorid = :assetid';
-			$bind_vars['assetid'] = $assetid;
+			$where = 'l.majorid = :assetid_2';
+			$bind_vars['assetid_1'] = $assetid;
+			$bind_vars['assetid_2'] = $assetid;
 
 			if ($dependants_only) {
 				$where .= ' AND l.is_dependant = :is_dependant';
