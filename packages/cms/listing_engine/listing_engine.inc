@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.227.2.4 2007/12/13 23:38:39 mwegermann Exp $
+* $Id: listing_engine.inc,v 1.227.2.5 2008/02/22 00:19:19 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.227.2.4 $
+* @version $Revision: 1.227.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2050,6 +2050,14 @@ class Listing_Engine extends Page
 	*/
 	function _printAsset($assetid, $list_position)
 	{
+		// allows for asset listings within asset listings, see #2727
+		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {;
+			$prev_list_current_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
+		} else {
+			$prev_list_current_asset_id = null;
+		}
+		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $assetid;
+
 		$mm         = NULL;
 		$contents   = '';
 		$keywords   = Array();
@@ -2422,6 +2430,12 @@ class Listing_Engine extends Page
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
+
+		if ($prev_list_current_asset_id) {
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $prev_list_current_asset_id;
+		} else {
+			unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id']);
+		}
 
 	}//end _printAsset()
 
