@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.662 2008/02/21 04:13:13 lwright Exp $
+* $Id: asset_manager.inc,v 1.663 2008/02/24 23:03:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.662 $
+* @version $Revision: 1.663 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -347,9 +347,12 @@ class Asset_Manager extends MySource_Object
 			$db = MatrixDAL::getDb();
 
 			if (is_array($type_code)) {
-				$type_code_cond = 'IN (:type_code)';
+				foreach ($type_code as $key => $asset_type) {
+					$type_code[$key] = $db->quote($type_code[$key]);
+				}
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
-				$type_code_cond = ' = :type_code';
+				$type_code_cond = ' = '.$db->quote($type_code);
 			}
 
 			// if they have not specified any fields, then we want to select *
@@ -381,7 +384,12 @@ class Asset_Manager extends MySource_Object
 			if (!is_array($type_code) && !empty($field)) {
 				return $result[$type_code][0][$field];
 			}
-			return $result[$type_code][0];
+
+			if (is_array($type_code)) {
+				return $result;
+			} else {
+				return $result[$type_code][0];
+			}
 
 		} else {
 			// else we should have our own store of asset types
@@ -2872,9 +2880,8 @@ class Asset_Manager extends MySource_Object
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 			$where = 'l.'.$side_of_link.'id = :assetid
-					  AND l.'.$other_side.'id  IN (:prepared_otherids)';
+					  AND l.'.$other_side.'id  IN ('.implode(',', $prepared_otherids).')';
 			$bind_vars['assetid'] = $assetid;
-			$bind_vars['prepared_otherids'] = implode(',', $prepared_otherids);
 
 			if (!is_null($link_types)) {
 				$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
