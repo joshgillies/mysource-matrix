@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.55 2008/02/18 04:52:50 lwright Exp $
+* $Id: thesaurus.inc,v 1.56 2008/02/25 00:53:18 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -556,7 +556,7 @@ class Thesaurus extends Asset implements Bridge
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
-		$termid = MatrixDAL::executeOne('core', 'seqNextVal', 'sq_thes_term_seq');
+		$termid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_thes_term_seq'));
 		$bind_vars = Array (
 						'thesid'	=> $this->id,
 						'term'		=> $term,
