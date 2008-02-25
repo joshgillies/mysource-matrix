@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.44 2007/12/10 23:37:57 lwright Exp $
+* $Id: image_variety.inc,v 1.45 2008/02/25 23:29:13 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,6 +135,24 @@ class Image_Variety extends Asset
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
+
+
+	/**
+	* Processes the changes required when a new status is set
+	*
+	* Ignore the status changes since the bridge handles it.
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parent	Specify if we want to update the parent as well
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parent=TRUE)
+	{
+		return TRUE;
+
+	}//end processStatusChange()
 
 
 	/**
@@ -553,12 +571,12 @@ class Image_Variety extends Asset
 
 			try {
 				$bind_vars = Array(
-							'url'			=> $url.'/'.$web_path,
-							'assetid'		=> $this->id,
-							'http'			=> ($this->force_secure) ? '0' : $url_data['http'],
-							'https'			=> $url_data['https'],
-							'root_urlid'	=> 0,
-						 );
+								'url'			=> $url.'/'.$web_path,
+								'assetid'		=> $this->id,
+								'http'			=> ($this->force_secure) ? '0' : $url_data['http'],
+								'https'			=> $url_data['https'],
+								'root_urlid'	=> 0,
+							 );
 
 				MatrixDAL::executeQuery('core', 'insertLookup', $bind_vars);
 			} catch (DALException $e) {
@@ -722,7 +740,7 @@ class Image_Variety extends Asset
 
 			readfile($file);
 			@ob_flush();
-		}
+		}//end if
 
 	}//end printFrontend()
 
