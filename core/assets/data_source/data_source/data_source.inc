@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.23 2007/12/21 23:08:15 gsherwood Exp $
+* $Id: data_source.inc,v 1.24 2008/02/25 03:36:44 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -601,7 +601,7 @@ class Data_Source extends Asset implements Bridge
 		}
 		if (!empty($links)) {
 			foreach ($links as $link) {
-				$children[$link['minorid']] = $link['minor_type_code'];
+				$children[$link['minorid']][0]['type_code'] = $link['minor_type_code'];
 			}
 		}
 		return $children;
