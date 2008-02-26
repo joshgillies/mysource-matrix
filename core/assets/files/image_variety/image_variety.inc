@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.40 2007/06/01 00:07:52 colivar Exp $
+* $Id: image_variety.inc,v 1.40.2.1 2008/02/26 00:09:46 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,6 +135,24 @@ class Image_Variety extends Asset
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
+
+
+	/**
+	* Processes the changes required when a new status is set
+	*
+	* Ignore the status changes since the bridge handles it.
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parent	Specify if we want to update the parent as well
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parent=TRUE)
+	{
+		return TRUE;
+
+	}//end processStatusChange()
 
 
 	/**
@@ -469,9 +487,7 @@ class Image_Variety extends Asset
 	{
 		// if we aren't meant to be having the public paths, let our parent run as normal
 		$image =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (!empty($image)) {
-			$public = $image->usePublicPath();
-		}
+		if (!empty($image)) $public = $image->usePublicPath();
 		if (!$public) return parent::updateLookups();
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -750,7 +766,7 @@ class Image_Variety extends Asset
 
 			readfile($file);
 			@ob_flush();
-		}
+		}//end if
 
 	}//end printFrontend()
 
