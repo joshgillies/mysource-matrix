@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.640 2008/02/25 22:45:04 colivar Exp $
+* $Id: asset.inc,v 1.641 2008/02/26 00:51:31 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.640 $
+* @version $Revision: 1.641 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4995,23 +4995,22 @@ class Asset extends MySource_Object
 						}
 
 						// check if no other asset is using the new URL
-                        $sql = 'SELECT assetid from sq_ast_lookup where url like \''.$new_url.'\'';
-                        $existing_asset_with_url_id = NULL;
-                        try {
-	                        $query = $db->prepare($sql);
-    	                    $existing_asset_with_url_id = MatrixDAL::executePdoAssoc($query, 0);
-                        } catch (Exception $e) {
-        	                throw new Exception('Unable run a select query: '.$e->getMessage());
-                        }
-                        if (!empty($existing_asset_with_url_id)) {
-                            // if an existing asset has the same url as new URL. Thrown an error and Rollback
-                            $existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);
+						$sql = 'SELECT assetid from sq_ast_lookup where url like \''.$new_url.'\'';
+						$existing_asset_with_url_id = NULL;
+						try {
+							$query = $db->prepare($sql);
+							$existing_asset_with_url_id = MatrixDAL::executePdoAssoc($query, 0);
+						} catch (Exception $e) {
+							throw new Exception('Unable run a select query: '.$e->getMessage());
+						}
+						if (!empty($existing_asset_with_url_id)) {
+							// if an existing asset has the same url as new URL. Thrown an error and Rollback
+							$existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);
 							trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id[0]]['name'], $existing_asset_with_url_id[0]);
-                            $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-                            return FALSE;
-                        }
-                        assert_valid_db_result($existing_asset_with_url_id);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
 
 						try {
 							$bind_vars	= Array (
