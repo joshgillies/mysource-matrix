@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.51 2008/02/26 03:58:29 bshkara Exp $
+* $Id: tables.xml,v 1.52 2008/02/26 05:11:09 bshkara Exp $
 *
 */
 -->
@@ -213,7 +213,7 @@
 					<default />
 					<description />
 				</column>
-				<column name="value" allow_null="0">
+				<column name="value" allow_null="1">
 					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default>''</default>

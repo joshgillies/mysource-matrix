@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.664 2008/02/26 03:58:29 bshkara Exp $
+* $Id: asset_manager.inc,v 1.665 2008/02/26 05:11:09 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.664 $
+* @version $Revision: 1.665 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2567,6 +2567,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($value)) {
 			$where .= ' AND (l.value = :link_value';
+			if ($value == '') $where .= ' OR l.value IS NULL';
 			$where .= ')';
 
 			$bind_vars['link_value'] = $value;
@@ -2886,7 +2887,11 @@ class Asset_Manager extends MySource_Object
 				$where .= ' AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
 			}
 			if (!is_null($value)) {
-				$where .= ' AND l.value = :value';
+				if (empty($value)) {
+					$where .= ' AND (l.value = :value OR l.value IS NULL)';
+				} else {
+					$where .= ' AND l.value = :value';
+				}
 				$bind_vars['value'] = $value;
 			}
 			if (!is_null($dependant)) {
