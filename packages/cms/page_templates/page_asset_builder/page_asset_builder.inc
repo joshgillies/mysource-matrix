@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.113.2.5 2008/02/14 23:43:17 hnguyen Exp $
+* $Id: page_asset_builder.inc,v 1.113.2.6 2008/02/27 22:02:54 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.113.2.5 $
+* @version $Revision: 1.113.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -425,11 +425,19 @@ class Page_Asset_Builder extends Page
 						break;
 					}
 
+					// If the link value is set, grab it, otherwise return a blank ''
+					$grab_link_value = $this->attr('link_value');
+					if (!empty($grab_link_value)) {
+						$link_value = trim($grab_link_value);
+					} else {
+						$link_value = '';
+					}
+
 					// start the transaction to create the asset
 					$link = Array(
 								'asset'			=> &$parent,
 								'link_type'		=> $create_locations[$create_parentid],
-								'value'			=> '',
+								'value'			=> $link_value,
 								'sort_order'	=> -1,
 							);
 
@@ -559,6 +567,7 @@ class Page_Asset_Builder extends Page
 		return $success;
 
 	}//end _processGlobalActions()
+
 
 	/**
 	* Get the selectable create locations that the user has actually selected for the new asset
@@ -752,9 +761,7 @@ class Page_Asset_Builder extends Page
 			// make sure all the create locations actually exist
 			$details = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($res), Array(), TRUE, 'name');
 			foreach ($res as $i => $v) {
-				if (empty($details[$i])) {
-					unset($res[$i]);
-				}
+				if (empty($details[$i])) unset($res[$i]);
 			}
 
 			return $res;
@@ -1474,7 +1481,9 @@ class Page_Asset_Builder extends Page
 		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 		$o =& new Limbo_Outputter();
 		$o->addHiddenField($this->id.'_ASSET_BUILDER_CREATE_TYPE', key($create_types)); // first asset type is selected initially
-		if (count($create_types) > 1) $o->addOnSubmit('disableHiddenInputs();');
+		if (count($create_types) > 1) {
+			$o->addOnSubmit('disableHiddenInputs();');
+		}
 
 		// Get the Metadata schemas ready
 		$metadata_schemas = $this->_getMetadataSchemasToApply();

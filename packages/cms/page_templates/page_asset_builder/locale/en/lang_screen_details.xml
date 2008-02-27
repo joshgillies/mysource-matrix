@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2007/03/08 00:09:30 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.11.4.1 2008/02/27 22:03:06 bpearson Exp $
 *
 */
 -->
@@ -60,6 +60,10 @@
 		<field attribute="submit_to_page_url">
 			<display_name>Form Submission URL</display_name>
 			<note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the form should submit to the same URL it's displayed at, or to this page's own URL.</note>
+		</field>
+		<field attribute="link_value">
+			<display_name>Set Link Value</display_name>
+			<note>If this option holds a value, each link will be created with the value. If this option is left blank, then each link will be created without a value.</note>
 		</field>
 		<field>
 			<display_name>Create Form Customisation</display_name>
