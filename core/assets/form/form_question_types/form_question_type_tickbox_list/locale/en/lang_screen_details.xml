@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.7 2008/02/27 23:29:46 bpearson Exp $
 */
 -->
 
@@ -36,7 +36,7 @@
 		</field>
 		<field attribute="options">
 			<display_name>Options</display_name>
-			<note>Enter possible options (the list will exapand as necessary)</note>
+			<note>Enter possible options (the list will expand as necessary)</note>
 		</field>
 		<field>
 			<display_name>Default</display_name>
