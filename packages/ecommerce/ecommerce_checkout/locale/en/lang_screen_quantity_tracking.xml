@@ -1,0 +1,45 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_quantity_tracking.xml,v 1.2.2.2 2008/02/27 04:26:24 bshkara Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Product Quantities" write_access="write:attributes">
+		<field attribute="enforce_quantities">
+			<display_name>Enforce Quantities</display_name>
+			<note>Whether the cart should update product quantity information upon successful order delivery, and check items for availability as they are added to the cart.</note>
+		</field>
+		<field attribute="quantity_attribute">
+			<display_name>Quantity Attribute Name</display_name>
+			<note>Enter the attribute name of the product asset which hold's the product's quantity.
+			&lt;br/&gt;You must enter either an attribute name or select a metadata field below if you would like to enforce
+			quantities before checkout.</note>
+		</field>
+		<field attribute="quantity_field">
+			<display_name>Quantity Metadata Field</display_name>
+			<note>Select a metadata field which hold's the product's quantity.
+			&lt;br/&gt;You must select a metadata field or enter an attribute name above if you would like to enforce
+			quantities before checkout.</note>
+		</field>
+		<field attribute="quantity_message_cart">
+			<display_name>Cart Insufficient Quantity Message</display_name>
+			<note>Message displayed when there is an insufficient amount of products to proceed to checkout. A list of items which have insufficient quantities will automatically follow this message.</note>
+		</field>
+		<field attribute="quantity_message_checkout">
+			<display_name>Checkout Insufficient Quantity Message</display_name>
+			<note>Message displayed when there is an insufficient amount of products to proceed to order confirmation. A list of items which have insufficient quantities will automatically follow this message.</note>
+		</field>
+	</section>
+</contents>
