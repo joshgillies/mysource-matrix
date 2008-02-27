@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.125 2008/02/14 23:45:04 hnguyen Exp $
+* $Id: page_asset_builder.inc,v 1.126 2008/02/27 22:12:53 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -497,11 +497,19 @@ class Page_Asset_Builder extends Page
 						break;
 					}
 
+					// If the link value is set, grab it, otherwise return a blank ''
+					$grab_link_value = $this->attr('link_value');
+					if (!empty($grab_link_value)) {
+						$link_value = trim($grab_link_value);
+					} else {
+						$link_value = '';
+					}
+
 					// start the transaction to create the asset
 					$link = Array(
 								'asset'			=> &$parent,
 								'link_type'		=> $create_locations[$create_parentid],
-								'value'			=> '',
+								'value'			=> $link_value,
 								'sort_order'	=> -1,
 							);
 

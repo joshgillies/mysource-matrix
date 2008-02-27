@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2008/01/21 05:17:06 lmarchese Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15 2008/02/27 22:12:53 bpearson Exp $
 *
 */
 -->
@@ -50,6 +50,9 @@
 		</field>
 		<field attribute="submit_to_page_url">
 			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
+		</field>
+		<field attribute="link_value">
+			<text width="25" height="1" />
 		</field>
 		<field>
 			<function_call>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.34 2008/01/21 05:17:06 lmarchese Exp $
+* $Id: page_asset_builder_management.inc,v 1.35 2008/02/27 22:12:53 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -65,6 +65,12 @@ class Page_Asset_Builder_Management extends Asset_Management
 											'type'		=> 'serialise',
 											'default'	=> Array(),
 										 );
+
+		$this->vars['link_value'] = Array(
+										'added'		=> '0.8',
+										'type'		=> 'text',
+										'default'	=> '',
+									);
 
 		/**
 		* Locations under which created assets will always be linked
