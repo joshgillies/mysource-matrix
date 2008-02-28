@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.56 2008/02/25 00:53:18 lwright Exp $
+* $Id: thesaurus.inc,v 1.57 2008/02/28 00:06:59 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -609,6 +609,30 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function addTermNote($termid, $note_name, $note_value)
 	{
+		// before adding the Term Note we need to check if the note hasnt been added
+		// if the term note is already in the table we will throw an error 
+		$db = MatrixDAL::getDb();
+		$sql = 'SELECT a.termid, a.name, a.value, a.thesid, b.term 
+				FROM sq_thes_term_note a, sq_thes_term b
+				WHERE a.termid = '.$db->quote($termid).' AND
+					a.name = '.$db->quote($note_name).' AND
+					a.value = '.$db->quote($note_value).' AND
+					a.thesid = '.$db->quote($this->id).' AND
+					b.thesid = a.thesid AND b.termid = a.termid 
+					';
+		$result = NULL;
+	        try {
+			$query = $db->prepare($sql);log_dump($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+
+		if (!empty($result)) {
+			// throw an error and return TRUE
+			trigger_localised_error('CORE0282', E_USER_WARNING, $note_name.":".$note_value, $result[0]['term']);
+			return TRUE;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
