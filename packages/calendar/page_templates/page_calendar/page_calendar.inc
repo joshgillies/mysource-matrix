@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.208 2008/02/28 23:29:13 lwright Exp $
+* $Id: page_calendar.inc,v 1.209 2008/02/28 23:36:12 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.208 $
+* @version $Revision: 1.209 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2583,7 +2583,7 @@ class Page_Calendar extends Page
 		$end_ts = strtotime("$next_year-$next_month-01 00:00:00 GMT") - 1;
 
 		// Get our single events
-		$date_sql = '((cd.start_date_year = :start_date_year AND (cd.start_date_mon = :start_date_month OR cd.end_date_mon)) OR (cd.start_date_ts < :start_date_ts AND cd.end_date_ts > :end_date_ts))';
+		$date_sql = '((cd.start_date_year = :start_date_year AND (cd.start_date_mon = :start_date_month OR cd.end_date_mon = :end_date_month)) OR (cd.start_date_ts < :start_date_ts AND cd.end_date_ts > :end_date_ts))';
 		$sql = Calendar_Common::getSingleEventQueryBase($root_ids)."\n AND (".$date_sql.')';
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
