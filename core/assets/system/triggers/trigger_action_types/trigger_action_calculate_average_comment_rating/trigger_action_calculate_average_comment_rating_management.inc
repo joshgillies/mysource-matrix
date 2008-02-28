@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating_management.inc,v 1.1.2.1 2008/02/28 22:47:11 bshkara Exp $
+* $Id: trigger_action_calculate_average_comment_rating_management.inc,v 1.1.2.2 2008/02/28 22:50:51 bshkara Exp $
 *
 */
 
@@ -22,9 +22,9 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix_Packages
-* @subpackage diird
+* @subpackage __core__
 */
 class Trigger_Action_Calculate_Average_Comment_Rating_Management extends Asset_Management
 {
