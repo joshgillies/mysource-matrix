@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.31 2008/02/18 04:52:48 lwright Exp $
+* $Id: simple_form.inc,v 1.32 2008/02/29 00:27:36 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -443,19 +443,19 @@ class Simple_Form extends Asset implements Bridge
 		$entries = $this->attr('questions');
 		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
-				$children[$this->id.':q'.$questionid] = $data['type_code'];
+				$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['type_code']));
 			}
 		} else {
 			foreach ($type_code as $this_type_code) {
 				foreach ($entries as $questionid => $data) {
 					if ($strict_type_code) {
 						if ($data['type_code'] == $this_type_code) {
-							$children[$this->id.':q'.$questionid] = $data['type_code'];
+							$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['type_code']));
 						}
 					} else {
 						$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($this_type_code) + Array($this_type_code);
 						if (in_array($data['type_code'], $type_desc)) {
-							$children[$this->id.':q'.$questionid] = $data['type_code'];
+							$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['type_code']));
 						}
 					}
 				}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.57 2008/02/28 00:06:59 colivar Exp $
+* $Id: thesaurus.inc,v 1.58 2008/02/29 00:25:38 colivar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -945,6 +945,7 @@ class Thesaurus extends Asset implements Bridge
 						'assetid'	=> $this->id,
 						'termid'	=> $termid,
 					);
+
 		try {
 			$result = MatrixDAL::executeAll('thesaurus', 'getTermById', $bind_vars);
 			if (!empty($result) && isset($result[0])) {
@@ -1988,7 +1989,7 @@ class Thesaurus extends Asset implements Bridge
 			}
 
 			foreach ($terms as $term_info) {
-				$result[$this->id.':'.$term_info['termid']] = 'thesaurus_term';
+				$result[$this->id.':'.$term_info['termid']] = Array(Array('type_code' => 'thesaurus_term'));
 			}
 		}
 
