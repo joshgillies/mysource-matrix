@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.255.2.3 2007/09/25 04:56:51 nbhradwaj Exp $
+* $Id: lang_strings.xml,v 1.255.2.4 2008/02/29 00:11:51 bshkara Exp $
 *
 */
 
@@ -1181,6 +1181,8 @@
 	<string source="trigger_create_design_customisation_usage">This trigger will create a design customisation of the design asset in which the trigger condition is matched.</string>
 	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation</string>
 	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming</string>
+
+	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
 
 	<!-- common single word strings -->
 
