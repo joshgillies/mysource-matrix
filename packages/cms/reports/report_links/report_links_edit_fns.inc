@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.39 2007/12/10 01:26:52 rong Exp $
+* $Id: report_links_edit_fns.inc,v 1.40 2008/02/29 01:15:54 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,7 +62,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
 
 		if (!isset($job->_running_vars['results'])) {
-			$job->_running_vars['todo'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', FALSE);
+			$list_content_types = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', FALSE);
+			$list_page_redirects = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'page_redirect', FALSE);
+			$job->_running_vars['todo'] = $list_content_types + $list_page_redirects;
 			$job->_running_vars['done'] = Array();
 			$job->_running_vars['results'] = Array();
 
@@ -96,62 +98,126 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 				if (!is_null($asset)) {
-					$step_data['message'] = translate('cms_report_links_generating');
+					if (($asset instanceof Page_Redirect)) {
+						// Look for Page_Redirect for links
+						$step_data['message'] = translate('cms_report_links_generating');
 
-					$content = '';
-					$wysiwyg_html = $asset->attr('html');
-
-					$master_matches = Array();
-					preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
-					$matches = $master_matches[2];
-					foreach ($matches as $match) {
-						// skip keywords
-						$keywords = retrieve_keywords_replacements($match);
-						if (count($keywords) == 1 && $match == '%'.$keywords[0].'%') {
-							continue;
-						}
-
-						if (!$match) continue;
-						$link_valid = '0';
-						$link_description = '';
-						$link_type = '';
-						$results = Array();
-						preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
-
-
+						$content = '';
+						$match = $asset->attr('redirect_url');
+						$confirm_internal = $asset->getRedirectAsset();
 						$validated_results = FALSE;
-						if (!empty($results)) {
-							$link_type = 'internal';
-							$validated_results = $this->validateInternalLink($results);
-						} else {
-							if (strpos(strtolower($match), 'mailto') === 0) {
-								$link_type = 'mailto';
-								$match = preg_replace('/mailto:/i','',$match);
-								list($match) = explode('?',$match);
-								$match = trim($match);
-								$validated_results = $this->validateEmailLink($match);
+
+						if (!is_null($confirm_internal)) {
+							// If no redirect_url, then an internal link
+							if ($GLOBALS['SQ_SYSTEM']->am->assetExists($confirm_internal->id)) {
+								// Because this is a special way of handling links with page redirect
+								// We need to match the results as if the results have validated
+								// Therefore the $match value is needed for the XML tp parse the correct asset
+								$link_type = 'internal';
+								$validated_results = Array('valid' => '1', 'description' => '');
+								$match = './?a='.$confirm_internal->id;
 							} else {
-								$link_type = 'external';
-								$validated_results = $this->validateExternalLink($match);
+								$link_type = 'internal';
+								$validated_results = Array('valid' => '1', 'description' => translate('cms_report_links_asset_not_exist', $confirm_internal->id));
+								$match = './?a='.$confirm_internal->id;
 							}
+						} else {
+							$results = '';
+							preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
+
+							if (!empty($results)) {
+								$link_type = 'internal';
+								$validated_results = $this->validateInternalLink($results);
+							} else {
+								if (strpos(strtolower($match), 'mailto') === 0) {
+									$link_type = 'mailto';
+									$match = preg_replace('/mailto:/i','',$match);
+									list($match) = explode('?',$match);
+									$match = trim($match);
+									$match = ltrim($match, '/');
+									$validated_results = $this->validateEmailLink($match);
+								} else {
+									$link_type = 'external';
+									$validated_results = $this->validateExternalLink($match);
+								}
+							}
+
 						}
 
 						if ($validated_results === FALSE) continue;
 
-						$content .= "\t\t".'<link type="'.$link_type.'" valid="'.$validated_results['valid'].'">'."\n";
-						$content .= "\t\t\t".'<html><![CDATA['.$match.']]></html>'."\n";
-						$content .= "\t\t\t".'<description><![CDATA['.$validated_results['description'].']]></description>'."\n";
-						$content .= "\t\t".'</link>'."\n";
-					}//end foreach
+						$link_info = Array (
+										'type'	=> $link_type,
+										'url'	=> $match,
+									);
+						$content = $this->_addReportContent($content,$link_info,$validated_results);
 
-					if (!empty($content)) {
-						$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
-						fwrite($temp_file, $content);
-					}
+						if (!empty($content)) {
+							$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
+							fwrite($temp_file, $content);
+						}
 
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-					unset($asset);
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						unset($asset);
+					} else {
+						// Finally, scan the HTML for links
+						$step_data['message'] = translate('cms_report_links_generating');
 
+						$content = '';
+						$wysiwyg_html = $asset->attr('html');
+
+						$master_matches = Array();
+						preg_match_all('%(href|src)=[\'"]([^\'\s"]*)%', $wysiwyg_html, $master_matches);
+						$matches = $master_matches[2];
+						foreach ($matches as $match) {
+							// skip keywords
+							$keywords = retrieve_keywords_replacements($match);
+							if (count($keywords) == 1 && $match == '%'.$keywords[0].'%') {
+								continue;
+							}
+
+							if (!$match) continue;
+							$link_valid = '0';
+							$link_description = '';
+							$link_type = '';
+							$results = Array();
+							preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
+
+
+							$validated_results = FALSE;
+							if (!empty($results)) {
+								$link_type = 'internal';
+								$validated_results = $this->validateInternalLink($results);
+							} else {
+								if (strpos(strtolower($match), 'mailto') === 0) {
+									$link_type = 'mailto';
+									$match = preg_replace('/mailto:/i','',$match);
+									list($match) = explode('?',$match);
+									$match = trim($match);
+									$validated_results = $this->validateEmailLink($match);
+								} else {
+									$link_type = 'external';
+									$validated_results = $this->validateExternalLink($match);
+								}
+							}
+
+							if ($validated_results === FALSE) continue;
+
+							$link_info = Array (
+											'type'	=> $link_type,
+											'url'	=> $match,
+										);
+							$content = $this->_addReportContent($content,$link_info,$validated_results);
+						}//end foreach
+
+						if (!empty($content)) {
+							$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
+							fwrite($temp_file, $content);
+						}
+
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						unset($asset);
+					}	
 				} else {
 					$step_data['message'] = translate('cms_report_links_skipping_asset', $assetid);
 					$job->_addError(translate('cms_report_links_asset_not_exist', $assetid));
@@ -195,13 +261,34 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		} else {
 			$total = count($job->_running_vars['todo']) + count($job->_running_vars['done']);
 			$step_data['percent_done'] = (count($job->_running_vars['done']) / $total) * 100;
-			$step_data['complete']     = FALSE;
+			$step_data['complete']	   = FALSE;
 		}
 
 		fclose($temp_file);
 		return TRUE;
 
 	}//end generateReport()
+
+	/**
+	* Add Report Content
+	*
+	* @param string $content	 The content field (in case something is added before this
+	* @param array  $link_info  The link type and url
+	* @param array  $results	 The validated results in the format<br />
+	*
+	* @return string
+	* @access private
+	*/
+	function _addReportContent($content,$link_info,$results=Array('valid'=>'0','description'=>''))
+	{
+		$content .= "\t\t".'<link type="'.$link_info['type'].'" valid="'.$results['valid'].'">'."\n";
+		$content .= "\t\t\t".'<html><![CDATA['.$link_info['url'].']]></html>'."\n";
+		$content .= "\t\t\t".'<description><![CDATA['.$results['description'].']]></description>'."\n";
+		$content .= "\t\t".'</link>'."\n";
+
+		return $content;
+
+	}//end _addReportContent()
 
 
 	/**
@@ -430,7 +517,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$display_options = $asset->attr('display_options');
 
 		// TODO: this translation has a 'note' prefix that is supposed to look like
-		//      a field header... could this be set up as a field?
+		//		a field header... could this be set up as a field?
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 			echo translate('cms_report_links_current');
 		}
@@ -495,7 +582,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 									<!-- ASSET NAME -->
 									<td class="sq-backend-table-cell" style="width: 260px; padding-right: 1px; padding-top:6px; text-align: left;">
-										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo  $from_info['assetid']; ?>] <?php echo  $from_name ?></a>
+										<a href="<?php echo $from_info['backend_url']; ?>" title="<?php echo translate('edit_this_asset'); ?>">[#<?php echo  $from_info['assetid']; ?>] <?php echo	$from_name ?></a>
 									</td>
 
 									<!-- LINKED STATUS -->
@@ -715,8 +802,13 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$asset_preview_url = '';
 		} else {
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
+			// It faults here if there is only one dependant
 			$first_dep = array_pop($dependants);
-			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($first_dep);
+			if (!empty($first_dep)) {
+				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($first_dep);
+			} else {
+				$parent = NULL;
+			}
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
 				$asset_name = $parent->name;
