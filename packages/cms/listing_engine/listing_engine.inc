@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.245 2008/02/22 00:57:23 bshkara Exp $
+* $Id: listing_engine.inc,v 1.246 2008/02/29 05:19:38 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.245 $
+* @version $Revision: 1.246 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1266,7 +1266,10 @@ class Listing_Engine extends Page
 			if (!isset($allowed_types[$type_code])) {
 				unset($todo[$assetid]);
 			} else {
-				$todo[$assetid] = $allowed_types[$type_code];
+				$todo[$assetid] = Array('0' => Array(
+												'type_code'	=> $allowed_types[$type_code],
+											   ),
+								  );
 			}
 		}
 
