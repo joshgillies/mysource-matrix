@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.52 2008/02/18 04:52:50 lwright Exp $
+* $Id: trigger_manager.inc,v 1.53 2008/02/29 00:48:34 bshkara Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1041,7 +1041,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 		$parents = $state_hash['parents'];
 		foreach ($parents as $id => $type) {
-			$parent_id_array[]   = '\''.$id.'\'';
+			$parent_id_array[]   = $id;
 			$parent_type_array[$type] = '\''.$type.'\'';
 		}
 
@@ -1149,7 +1149,7 @@ class Trigger_Manager extends Asset implements Bridge
 		 try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach ($bind_vars as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($bind_var, $bind_value);
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 			}
 			$result = MatrixDAL::executePdoAssoc($query, 0);
 		 } catch (Exception $e) {
