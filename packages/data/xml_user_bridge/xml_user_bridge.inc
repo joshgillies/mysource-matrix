@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.4 2007/12/28 03:11:26 colivar Exp $
+* $Id: xml_user_bridge.inc,v 1.5 2008/02/29 05:02:04 colivar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -349,11 +349,12 @@ class XML_User_Bridge extends Asset implements Bridge
 	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
 	{
 		$bits = explode(':', $assetid);
+		$res = Array();
 		switch (count($bits)) {
 			case 1:
 				if ($assetid == $this->id) {
 					foreach ($this->group_members as $groupid => $members) {
-						$res[$this->id.':'.$groupid] = 'user_group';
+						$res[$this->id.':'.$groupid] = Array(Array('type_code' => 'user_group'));
 					}
 					return $res;
 				} else {
@@ -363,7 +364,7 @@ class XML_User_Bridge extends Asset implements Bridge
 			case 2:
 				$res = Array();
 				foreach (array_get_index($this->group_members, $bits[1], Array()) as $memberid => $details) {
-					$res[$assetid.':'.$memberid] = 'bulkmail_user';
+					$res[$assetid.':'.$memberid] = Array(Array('type_code' => 'bulkmail_user'));
 				}
 				return $res;
 			break;
