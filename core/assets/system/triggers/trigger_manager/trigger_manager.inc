@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.53 2008/02/29 00:48:34 bshkara Exp $
+* $Id: trigger_manager.inc,v 1.54 2008/02/29 05:45:38 bshkara Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1014,26 +1014,31 @@ class Trigger_Manager extends Asset implements Bridge
 			$state_hash['treeid'] = Array();
 		}
 
+		$treeid_count = 0;
+		$propagate_flag_count = 0;
+		$no_propagate_flag_count = 0;
+		$current_tree_length_count = 0;
 		foreach ($state_hash['treeid'] as $current_treeid) {
 			if (empty($current_treeid)) continue;
 
 			$treeid_sql_array[] = '
 						(
-							(treeid != :current_treeid AND SUBSTR(:current_treeid_1, 1, LENGTH(treeid)) = treeid)
+							(treeid != :current_treeid'.'_'.++$treeid_count.' AND SUBSTR(:current_treeid'.'_'.++$treeid_count.', 1, LENGTH(treeid)) = treeid)
 							AND (
-								tree_propagate = :propagate_flag
-								OR (tree_propagate = :no_propagate_flag AND LENGTH(treeid) = :current_tree_length)
+								tree_propagate = :propagate_flag'.'_'.++$propagate_flag_count.'
+								OR (tree_propagate = :no_propagate_flag'.'_'.++$no_propagate_flag_count.' AND LENGTH(treeid) = :current_tree_length'.'_'.++$current_tree_length_count.')
 							)
 						)';
-			$bind_vars['current_treeid']      = $current_treeid;
-			$bind_vars['current_treeid_1']    = $current_treeid;
-			$bind_vars['current_tree_length'] = strlen($current_treeid) - SQ_CONF_ASSET_TREE_SIZE;
-			$bind_vars['propagate_flag']      = SQ_TRIG_TREE_PROPAGATE;
-			$bind_vars['no_propagate_flag']   = SQ_TRIG_TREE_NO_PROPAGATE;
 
+			for ($i=1; $i<=$treeid_count; $i++) {
+				$bind_vars['current_treeid_'.$i] = $current_treeid;
+			}
+			$bind_vars['propagate_flag_'.$propagate_flag_count]				= SQ_TRIG_TREE_PROPAGATE;
+			$bind_vars['no_propagate_flag_'.$no_propagate_flag_count]		= SQ_TRIG_TREE_NO_PROPAGATE;
+			$bind_vars['current_tree_length_'.$current_tree_length_count]	= strlen($current_treeid) - SQ_CONF_ASSET_TREE_SIZE;
 		}
-		$treeid_sql = implode($treeid_sql_array, ' OR ');
 
+		$treeid_sql = implode($treeid_sql_array, ' OR ');
 
 		//// PARENTS
 		$parent_id_array = Array();
