@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.2 2008/02/29 00:50:15 bshkara Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<package>__core__</package>
+	<type_code>trigger_action_calculate_average_comment_rating</type_code>
+	<version>0.1</version>
+	<name>Calculate Average Comment Rating</name>
+	<description>Calculates average ratings and sets a metadata field with this value for the parent asset.</description>
+	<instantiable>no</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>trigger_action</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>trigger_manager</code>
+			<version>0.4</version>
+		</requirement>
+		<requirement type="asset">
+			<code>trigger_action</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path/>
+</asset_info>
