@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.165 2008/02/18 05:06:43 lwright Exp $
+* $Id: search_manager.inc,v 1.166 2008/02/29 05:18:50 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -731,6 +731,8 @@ class Search_Manager extends Asset
 
 			if (!empty($components)) {
 				$bind_vars['components'] = $components;
+			} else {
+				$bind_vars['components'] = NULL;
 			}
 
 			MatrixDAL::executeQuery('search_manager', 'flushIndexableContent', $bind_vars);
