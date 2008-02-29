@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.14 2008/02/18 04:11:03 lwright Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.15 2008/02/29 05:59:45 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -522,7 +522,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			try {
 				$bind_vars['treeid'] = $root_treeid.'_%';
-				$total = MatrixDAL::executeOne('structured_asset_report', 'linkTreeCount', $bind_vars);
+				$total = MatrixDAL::executeOne('structured_asset_info', 'linkTreeCount', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get link tree count for "'.$root_treeid.'": '.$e->getMessage());
 				$total = 0;
@@ -1248,7 +1248,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 							'assetid'	=> $assetid,
 							'treeid'	=> $parent_treeid.'_%',
 						 );
-			$treeid = MatrixDAL::executeOne('structured_asset_report', 'getTreeid', $bind_vars);
+			$treeid = MatrixDAL::executeOne('structured_asset_info', 'getTreeid', $bind_vars);
 		} catch (Exception $e) {
 			$treeid = '';
 		}

@@ -1,4 +1,4 @@
-<queries id="structured_asset_report">
+<queries id="structured_asset_info">
 <query id="linkTreeCount">
 		<primary>
 			<select>
