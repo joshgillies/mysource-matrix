@@ -10,11 +10,10 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.2 2008/02/28 22:50:51 bshkara Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.3 2008/03/03 22:36:49 lwright Exp $
 *
 */
 
-check_ssv_licence();
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 
@@ -27,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
