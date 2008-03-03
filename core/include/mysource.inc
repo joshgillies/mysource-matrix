@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.228.2.3 2007/11/02 01:15:14 inegretski Exp $
+* $Id: mysource.inc,v 1.228.2.4 2008/03/03 22:19:09 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.228.2.3 $
+* @version $Revision: 1.228.2.4 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2136,7 +2136,7 @@ class MySource
 				if (!SQ_PHP_CLI) {
 					header('HTTP/1.0 500 Internal Server Error');
 				}
-				trigger_error($this->_db_conns[$conn]->message, E_USER_ERROR);
+				trigger_error($this->_db_conns[$conn]->message.' ['.$conn.':'.$this->_db_conns[$conn]->userinfo.']', E_USER_ERROR);
 			}
 
 			// make sure all results are assoc arrays
