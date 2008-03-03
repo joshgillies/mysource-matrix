@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.105 2008/01/14 00:42:32 hnguyen Exp $
+* $Id: system_config.inc,v 1.106 2008/03/03 22:56:15 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -54,7 +54,7 @@ class System_Config extends Config
 						'SQ_CONF_SYSTEM_ROOT_URLS'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_SYSTEM_PARENT_DOMAINS'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_STATIC_ROOT_URL'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_WEB_PATH_SEPARATOR'			=> Array('editable'	=> 1, 'default'	=> '_'),
+						'SQ_CONF_WEB_PATH_SEPARATOR'			=> Array('editable'	=> 1, 'default'	=> '-'),
 						'SQ_CONF_STATIC_ROOT_HTTP'				=> Array('editable' => 1, 'default' => TRUE),
 						'SQ_CONF_STATIC_ROOT_HTTPS'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_EMAIL'					=> Array('editable' => 1, 'default' => ''),
