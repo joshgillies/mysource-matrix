@@ -1,5 +1,75 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.6
+
+Featured Changes
+-----------------------------------
+
+Listing Engine "Current Asset ID" Dynamic Parameter
+
+    Listing Engine assets now expose a new "Session" dynamic parameter, "list_current_asset_id", that contains the ID of the asset currently being listed. This can be used in a nested listing (for example) to use this asset ID elsewhere.
+
+
+Replacement Asset IDs Option
+
+    Asset Listing Page assets now have a new "Replacement Asset IDs to Include" dynamic parameter. If then these replacement assets are used instead, provided it satisfies all other criteria for listing.
+
+
+Script to Change Metadata Sort Option
+
+    This new script allows you to change all metadata sorting options for Asset Listing Pages from the "raw" (key) values to the "presentation" value, or vice versa. This script provides the SQL to  perform the action, but does not run it: the SQL can then be executed using your client of choice.
+
+
+E-Commerce Product Quantity Tracking
+
+    You can now specify an asset attribute or metadata field to represent a "quantity on hand" of that product, which is deducted from whenever an order is made. If quantity tracking is enabled, you will not be able to make an order of a product if there is not enough to fill your order.
+
+
+Script to Re-Index the Search Manager
+
+    This new script allows you to re-index the entire system, or all assets underneath a specified root node, from the command line. This script requires indexing to be turned on in the Search Manager.
+
+
+Set Link Value in Asset Builder
+
+    A new "Set Link Value" options is available on the Details screen of the Asset Builder Page asset. This allows allow assignment of a link value between a created asset and its create location(s) upon creation.
+
+
+Links Report Now Follows Redirect Page Links
+
+    Redirect Page assets are now followed and reachability of destinations reported when generating the Links Report.
+
+
+Trigger Action: Calculate Average Comment Rating
+
+    This new trigger action calculates the average percentage rating for all Comment assets residing underneath a parent asset. The calculated average value is then set to a specified metadata field if the relevant metadata schema is applied to the parent asset.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2801: Insert Div window positioning in IE
+* Fixed bug #2839: Workflow notifies all editors when approver cannot approve asset due to missing mandatory metadata
+* Fixed bug #2878: WYSIWYG CSS randomly not detected when using login designs
+* Fixed bug #2880: Can't use Table Properties Row selector in IE
+* Fixed bug #2884: Editing metadata from the front end on dropdown menu not saving changes
+* Fixed bug #2887: Image Variety within Workflow
+* Fixed bug #2888: MySource ERROR on webpath insertion
+
+CMS
+
+* Fixed bug #2869: Site Map does not list assets underneath Folder assets, if 'Inherit' is specified (Site Map)
+* Fixed bug #2874: Account Manager fails to display with login design applied (Account Manager Page)
+* Fixed bug #2883: Asset Builder not showing all selectable locations (Asset Builder Page)
+
+Ecommerce
+
+* Fixed bug #2865: Cannot create an Ecom Form under a folder with a specific metadata schema (Ecommerce Form)
+
+
+
 VERSION 3.16.5
 
 Complete Changelog
