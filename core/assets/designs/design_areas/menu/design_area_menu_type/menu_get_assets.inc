@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.6 2008/02/18 04:52:48 lwright Exp $
+* $Id: menu_get_assets.inc,v 1.7 2008/03/04 00:31:35 bshkara Exp $
 *
 */
 
@@ -77,13 +77,6 @@ function menu_get_assets($id_name, $majorids)
 						p.permission > :p_permission_1 AND p.granted = \'1\'
 					)
 			)';
-
-			$bind_vars['p_permission']   = SQ_PERMISSION_READ;
-			$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
-			$bind_vars['p_userid']       = $public_userid;
-			$bind_vars['p_userid_1']     = $public_userid;
-			$bind_vars['r_userid']       = $public_userid;
-			$bind_vars['r_userid_1']     = $public_userid;
 		}
 
 		if (!empty($USERIDS_COND)) {
@@ -92,6 +85,13 @@ function menu_get_assets($id_name, $majorids)
 							  HAVING MIN(p.granted) <> \'0\'';
 		}
 	}//end if
+
+	$bind_vars['p_permission']   = SQ_PERMISSION_READ;
+	$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
+	$bind_vars['p_userid']       = $public_userid;
+	$bind_vars['p_userid_1']     = $public_userid;
+	$bind_vars['r_userid']       = $public_userid;
+	$bind_vars['r_userid_1']     = $public_userid;
 
 	$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 			   FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
