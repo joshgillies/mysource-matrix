@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.58 2008/02/18 04:52:48 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.59 2008/03/05 06:07:49 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,13 +84,16 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
+				bam($sql.$where.$order_by);
 				$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
-				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%');
+				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%frontend%');
 				MatrixDAL::bindValueToPdo($query, 'url', $url);
 				MatrixDAL::bindValueToPdo($query, 'url_1', $url);
 				MatrixDAL::bindValueToPdo($query, 'url_2', $url);
 				MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
 				$designid = MatrixDAL::executePdoOne($query);
+				bam($url);
+				bam(MatrixDAL::executePdoAssoc($query));
 			} catch (Exception $e) {
 				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
 			}//end try catch
@@ -98,6 +101,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			if ($designid) {
 				$design = $am->getAsset($designid);
 				$stylesheets = $design->getStylesheets();
+				bam($stylesheets);
 
 				// save the ids of all the css files into a global var so the wysiwyg style
 				// drop down plugin can access this information without another querey
@@ -111,6 +115,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				$o->note(translate('bodycopy_asset_has_no_design', $GLOBALS['sq_preview_url']));
 			}
 		} else {
+			bam('No preview!');
 			$o->note(translate('bodycopy_asset_has_no_preview'));
 		}
 
@@ -370,9 +375,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		// save css ids into global var
 		// we dont want note to be displayed so we added ob_start/ob_end_clean
-		ob_start();
+		#ob_start();
 		$this->_saveCssIds($o);
-		ob_end_clean();
+		#ob_end_clean();
 
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {
