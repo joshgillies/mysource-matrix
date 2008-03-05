@@ -488,6 +488,8 @@ class Query
     /**
      * Recurses the query array and replaces the place holder with given value.
      *
+     * Unravelled because array_walk_recursive() is buggy on some systems.
+     *
      * @param string $placeHolder Name of the place holder.
      * @param mixed  $value       Value that will replace the placeHolder.
      *
@@ -496,8 +498,24 @@ class Query
      */
     private function _findAndReplacePlaceHolder($placeHolder, $value)
     {
+        $arrays = Array();
+        $arrays[] =& $this->_arrayRepresentation['query'];
+
         try {
-            array_walk_recursive($this->_arrayRepresentation['query'], array($this, '_findAndReplaceCallBack'), array($placeHolder, $value));
+            for ($i = 0; $i < count($arrays); $i++) {
+                $this_array =& $arrays[$i];
+
+                foreach(array_keys($this_array) as $key) {
+                    if ($this_array[$key] === $placeHolder) {
+                        $this_array[$key] = $value;
+                        throw new Exception('Replace done');
+                    }
+
+                    if (is_array($this_array[$key])) {
+                        $arrays[] =& $this_array[$key];
+                    }
+                }
+            }
         } catch (Exception $e) {
             // Place holder was replaced.
             return TRUE;
