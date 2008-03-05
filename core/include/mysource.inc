@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.264 2008/02/21 23:38:41 lwright Exp $
+* $Id: mysource.inc,v 1.265 2008/03/05 22:36:25 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.264 $
+* @version $Revision: 1.265 $
 * @package MySource_Matrix
 */
 class MySource
@@ -305,8 +305,8 @@ class MySource
 
 				try {
 					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, ':then', $then);
-					MatrixDAL::execPdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'then', $then);
+					MatrixDAL::execPdoQuery($query);
 				} catch (DALException $e) {
 					throw new Exception('Unable to set rollback timestamp due to database error: '.$e->getMessage());
 				}
