@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.86 2008/02/18 04:10:09 lwright Exp $
+* $Id: internal_message.inc,v 1.87 2008/03/05 22:26:31 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -539,6 +539,12 @@ class Internal_Message extends MySource_Object
 				}
 				if (isset($tmpReplacements['preview_url'])) {
 					$tmpReplacements['preview_url']  .= '&SQ_BACKEND_PAGE=main';
+				}
+				if (isset($tmpReplacements['accept_url'])) {
+					$tmpReplacements['accept_url']  .= '&SQ_BACKEND_PAGE=main';
+				}
+				if (isset($tmpReplacements['reject_url'])) {
+					$tmpReplacements['reject_url']  .= '&SQ_BACKEND_PAGE=main';
 				}
 			}
 		}
