@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.59 2008/03/05 06:07:49 lwright Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.60 2008/03/06 23:40:56 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,7 +115,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				$o->note(translate('bodycopy_asset_has_no_design', $GLOBALS['sq_preview_url']));
 			}
 		} else {
-			bam('No preview!');
 			$o->note(translate('bodycopy_asset_has_no_preview'));
 		}
 
