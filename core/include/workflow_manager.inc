@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.106.2.4 2008/01/07 01:06:20 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.106.2.5 2008/03/06 22:39:23 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.106.2.4 $
+* @version $Revision: 1.106.2.5 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -961,6 +961,9 @@ class Workflow_Manager extends MySource_Object
 			$msg->parameters['assetid'] = $asset->id;
 			$msg->replacements = $msg_reps;
 			$ms->enqueueMessage($msg);
+
+			// fire the 'Workflow Approval' event
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_approval', $asset);
 		}
 
 		// now check if any workflows have progressed to the next step
@@ -1010,6 +1013,7 @@ class Workflow_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 		return TRUE;
 
 	}//end recordPublish()
@@ -1314,7 +1318,7 @@ class Workflow_Manager extends MySource_Object
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
-		}
+		}//end if
 
 		return TRUE;
 
@@ -1429,6 +1433,10 @@ class Workflow_Manager extends MySource_Object
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
+
+			// fire the 'Workflow Rejection' event
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_rejection', $asset);
+
 		}//end if
 
 		return TRUE;
