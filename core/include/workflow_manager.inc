@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.125 2008/02/18 04:10:09 lwright Exp $
+* $Id: workflow_manager.inc,v 1.126 2008/03/06 23:20:53 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -111,7 +111,7 @@ class Workflow_Manager extends MySource_Object
 			}
 
 			$this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running] = $schemas;
-		}
+		}//end if
 
 		return $this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running];
 
@@ -198,11 +198,11 @@ class Workflow_Manager extends MySource_Object
 
 		try {
 			$bind_vars = Array(
-								'assetid'	=> (string)$assetid,
-								'schemaid'	=> (string)$schemaid,
-								'wflow'		=> NULL,
-								'granted'	=> $granted ? 1 : 0,
-							  );
+							'assetid'	=> (string)$assetid,
+							'schemaid'	=> (string)$schemaid,
+							'wflow'		=> NULL,
+							'granted'	=> $granted ? 1 : 0,
+						 );
 			MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to set workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -255,9 +255,9 @@ class Workflow_Manager extends MySource_Object
 
 		try {
 			$bind_vars = Array(
-								'assetid'	=> (string)$asset->id,
-								'schemaid'	=> (string)$schemaid,
-							  );
+							'assetid'	=> (string)$asset->id,
+							'schemaid'	=> (string)$schemaid,
+						 );
 			MatrixDAL::executeQuery('core', 'deleteWorkflowSchema', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to delete workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -331,7 +331,7 @@ class Workflow_Manager extends MySource_Object
 			} else {
 				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflows[$schemaid];
 			}
-		}
+		}//end if
 
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
 			return Array();
@@ -393,10 +393,10 @@ class Workflow_Manager extends MySource_Object
 
 			try {
 				$bind_vars = Array(
-									'wflow'		=> serialize($workflow[$schema->name]),
-									'assetid'	=> $asset->id,
-									'schemaid'	=> $schema->id,
-								  );
+								'wflow'		=> serialize($workflow[$schema->name]),
+								'assetid'	=> $asset->id,
+								'schemaid'	=> $schema->id,
+							 );
 				MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -901,10 +901,10 @@ class Workflow_Manager extends MySource_Object
 
 				try {
 					$bind_vars = Array(
-										'wflow'		=> $new_workflow,
-										'assetid'	=> $assetid,
-										'schemaid'	=> $schemaid,
-									  );
+									'wflow'		=> $new_workflow,
+									'assetid'	=> $assetid,
+									'schemaid'	=> $schemaid,
+								 );
 					MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -943,6 +943,9 @@ class Workflow_Manager extends MySource_Object
 			$msg->parameters['assetid'] = $asset->id;
 			$msg->replacements = $msg_reps;
 			$ms->enqueueMessage($msg);
+
+			// fire the 'Workflow Approval' event
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_approval', $asset);
 		}
 
 		// now check if any workflows have progressed to the next step
@@ -994,6 +997,7 @@ class Workflow_Manager extends MySource_Object
 					$ms->enqueueMessage($msg);
 				}//end if step has advanced
 			}//end foreach $steps_after
+
 		}//end if not silent workflow party
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1220,10 +1224,10 @@ class Workflow_Manager extends MySource_Object
 
 			try {
 				$bind_vars = Array(
-									'wflow'		=> $workflow,
-									'assetid'	=> $assetid,
-									'schemaid'	=> $schemaid,
-								  );
+								'wflow'		=> $workflow,
+								'assetid'	=> $assetid,
+								'schemaid'	=> $schemaid,
+							 );
 				MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -1294,14 +1298,14 @@ class Workflow_Manager extends MySource_Object
 					$msg_reps['preview_url'] = current_url().$details_backend_href;
 				}
 				$msg->replacements = $msg_reps;
-			}
+			}//end if
 			if (empty($msg->type)) {
 				$msg->type = 'asset.workflow.invitation';
 			}
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
-		}
+		}//end if
 
 		return TRUE;
 
@@ -1416,6 +1420,10 @@ class Workflow_Manager extends MySource_Object
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
+
+			// fire the 'Workflow Rejection' event
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_rejection', $asset);
+
 		}//end if
 
 		return TRUE;
@@ -1501,8 +1509,8 @@ class Workflow_Manager extends MySource_Object
 
 		try {
 			$bind_vars = Array(
-								'assetid'	=> (string)$assetid,
-							  );
+							'assetid'	=> (string)$assetid,
+						 );
 			MatrixDAL::executeQuery('core', 'purgeWorkflow', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to purge workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -1629,10 +1637,10 @@ class Workflow_Manager extends MySource_Object
 		$new_workflow = serialize($workflow);
 		try {
 			$bind_vars = Array(
-								'wflow'		=> $new_workflow,
-								'assetid'	=> $assetid,
-								'schemaid'	=> $schemaid,
-							  );
+							'wflow'		=> $new_workflow,
+							'assetid'	=> $assetid,
+							'schemaid'	=> $schemaid,
+						 );
 			MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
