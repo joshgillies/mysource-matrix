@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.36.2.1 2008/02/29 01:15:20 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.36.2.2 2008/03/06 22:30:38 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.2.1 $
+* @version $Revision: 1.36.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -420,62 +420,112 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				}
 			}
 
+			$validated_results = Array(
+									'valid'			=> '0',
+									'description'	=> '',
+								 );
+
 			if (!$socket) {
 				$description = translate('cms_report_links_invalid_url');
 				$valid = '0';
+				$validated_results['valid'] = $valid;
+				$validated_results['description'] = $description;
 			} else {
 				stream_set_timeout($socket, 5);
 				$response = fread($socket, 128);
 				$headers = fread($socket, 2000);
 				$info = stream_get_meta_data($socket);
 
-				if (preg_match('|200 ok|i', $response)) {
-					$description = '';
-					$valid = '1';
-				} else if (preg_match('|302 found|i', $response)) {
-					$description = '';
-					$valid = '1';
-				} else if (preg_match('|304 not modified|i', $response)) {
-					$description = '';
-					$valid = '1';
-				} else if (preg_match('|404 not found|i', $response)) {
-					$description = translate('cms_report_links_404');
-					$valid = '0';
-				} else if (preg_match('|407 proxy authentication required|i', $response)) {
-					$description = translate('cms_report_links_407');
-					$valid = '0';
-				} else if (preg_match('|301 moved|i', $response)) {
-					$valid = '1';
-					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-					if (isset($matches[1])) {
-						$description = translate('cms_report_links_301_with_new_link', $matches[1]);
-					} else {
-						$description = translate('cms_report_links_301');
+				if (preg_match('|405 method not allowed|i', $response)) {
+					// Special case need a GET to double check
+					$newsocket = fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
+					if ($newsocket) {
+						fwrite($newsocket, 'GET '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
 					}
-				} else if (preg_match('|302 moved|i', $response)) {
-					// should this
-					$valid = '1';
-					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-					if (isset($matches[1])) {
-						$description = translate('cms_report_links_302_with_new_link', $matches[1]);
-					} else {
-						$description = translate('cms_report_links_302');
-					}
-				} else if ($info['timed_out']) {
-					$description = translate('cms_report_links_server_timeout');
-					$valid = '0';
+
+					stream_set_timeout($newsocket, 5);
+					$newresponse = fread($newsocket, 128);
+					$newheaders = fread($newsocket, 2000);
+					$newinfo = stream_get_meta_data($newsocket);
+
+					$validated_results = $this->_checkResponse($newheaders, $newresponse, $newinfo);
+
+					fclose($newsocket);
 				} else {
-					$description = translate('cms_report_links_unknown_response', $response);
-					$valid = '0';
-				}
+					$validated_results = $this->_checkResponse($headers, $response, $info);
+				}//end else
+
 				fclose($socket);
+
 			}//end else
 
 		}//end else
 
-		return Array('valid' => $valid, 'description' => $description);
+		return $validated_results;
 
 	}//end validateExternalLink()
+
+
+	/**
+	* Check the response of the external link
+	*
+	* @param	string	$headers	the captured headers
+	* @param	string	$response	the captured response
+	* @param	array	$info		the captured stream info
+	*
+	* @return array
+	* @access private
+	*/
+	function _checkResponse($headers, $response, $info)
+	{
+		if (preg_match('|200 ok|i', $response)) {
+			$description = '';
+			$valid = '1';
+		} else if (preg_match('|302 found|i', $response)) {
+			$description = '';
+			$valid = '1';
+		} else if (preg_match('|304 not modified|i', $response)) {
+			$description = '';
+			$valid = '1';
+		} else if (preg_match('|404 not found|i', $response)) {
+			$description = translate('cms_report_links_404');
+			$valid = '0';
+		} else if (preg_match('|407 proxy authentication required|i', $response)) {
+			$description = translate('cms_report_links_407');
+			$valid = '0';
+		} else if (preg_match('|301 moved|i', $response)) {
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_301');
+			}
+		} else if (preg_match('|302 moved|i', $response)) {
+			// should this
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_302_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_302');
+			}
+		} else if ($info['timed_out']) {
+			$description = translate('cms_report_links_server_timeout');
+			$valid = '0';
+		} else {
+			$description = translate('cms_report_links_unknown_response', $response);
+			$valid = '0';
+		}
+
+		// Format results
+		$validated_results['valid'] = $valid;
+		$validated_results['description'] = $description;
+
+		// Return results
+		return $validated_results;
+
+	}//end _checkResponse()
 
 
 	/**
@@ -1451,5 +1501,6 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 
 }//end class
+
 
 ?>
