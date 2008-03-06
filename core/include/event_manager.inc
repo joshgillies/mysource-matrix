@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.29 2008/02/18 04:10:09 lwright Exp $
+* $Id: event_manager.inc,v 1.30 2008/03/06 23:53:50 bshkara Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -223,7 +223,16 @@ class Event_Manager extends MySource_Object
 				if (!($broadcaster instanceof asset)) return true;
 				if (!$broadcaster->id) return;
 
-				if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
+				// let's not query the tree unless we have to
+				if ($options['is_dependant'] && !$options['is_exclusive']) {
+					// no use doing this more than once because we will always get the same result
+					if (!isset($assetids)) {
+						if ($side_of_link === 'minor')
+							$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($broadcaster->id);
+						else
+							$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($broadcaster->id);
+					} else continue;
+				} else if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
 				} else {
 
