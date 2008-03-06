@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.40 2008/02/29 01:15:54 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.41 2008/03/06 23:19:44 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -149,7 +149,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						$link_info = Array (
 										'type'	=> $link_type,
 										'url'	=> $match,
-									);
+									 );
 						$content = $this->_addReportContent($content,$link_info,$validated_results);
 
 						if (!empty($content)) {
@@ -206,7 +206,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							$link_info = Array (
 											'type'	=> $link_type,
 											'url'	=> $match,
-										);
+										 );
 							$content = $this->_addReportContent($content,$link_info,$validated_results);
 						}//end foreach
 
@@ -217,7 +217,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						unset($asset);
-					}	
+					}//end else
 				} else {
 					$step_data['message'] = translate('cms_report_links_skipping_asset', $assetid);
 					$job->_addError(translate('cms_report_links_asset_not_exist', $assetid));
@@ -268,6 +268,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		return TRUE;
 
 	}//end generateReport()
+
 
 	/**
 	* Add Report Content
@@ -419,6 +420,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				}
 			}
 
+			$validated_results = Array(
+									'valid'			=> '0',
+									'description'	=> '',
+								 );
+
 			if (!$socket) {
 				$description = translate('cms_report_links_invalid_url');
 				$valid = '0';
@@ -428,53 +434,95 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$headers = fread($socket, 2000);
 				$info = stream_get_meta_data($socket);
 
-				if (preg_match('|200 ok|i', $response)) {
-					$description = '';
-					$valid = '1';
-				} else if (preg_match('|302 found|i', $response)) {
-					$description = '';
-					$valid = '1';
-				} else if (preg_match('|304 not modified|i', $response)) {
-					$description = '';
-					$valid = '1';
-				} else if (preg_match('|404 not found|i', $response)) {
-					$description = translate('cms_report_links_404');
-					$valid = '0';
-				} else if (preg_match('|407 proxy authentication required|i', $response)) {
-					$description = translate('cms_report_links_407');
-					$valid = '0';
-				} else if (preg_match('|301 moved|i', $response)) {
-					$valid = '1';
-					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-					if (isset($matches[1])) {
-						$description = translate('cms_report_links_301_with_new_link', $matches[1]);
-					} else {
-						$description = translate('cms_report_links_301');
+				if (preg_match('|405 method not allowed|i', $response)) {
+					// Special case need a GET to double check
+					$newsocket = fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
+					if ($newsocket) {
+							fwrite($newsocket, 'GET '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
 					}
-				} else if (preg_match('|302 moved|i', $response)) {
-					// should this
-					$valid = '1';
-					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-					if (isset($matches[1])) {
-						$description = translate('cms_report_links_302_with_new_link', $matches[1]);
-					} else {
-						$description = translate('cms_report_links_302');
-					}
-				} else if ($info['timed_out']) {
-					$description = translate('cms_report_links_server_timeout');
-					$valid = '0';
+
+					stream_set_timeout($newsocket, 5);
+					$newresponse = fread($newsocket, 128);
+					$newheaders = fread($newsocket, 2000);
+					$newinfo = stream_get_meta_data($newsocket);
+
+					$validated_results = $this->_checkResponse($newheaders, $newresponse, $newinfo);
+
+					fclose($newsocket);
 				} else {
-					$description = translate('cms_report_links_unknown_response', $response);
-					$valid = '0';
-				}
+					$validated_results = $this->_checkResponse($headers, $response, $info);
+				}//end else
+
 				fclose($socket);
 			}//end else
 
 		}//end else
 
-		return Array('valid' => $valid, 'description' => $description);
+		return $validated_results;
 
 	}//end validateExternalLink()
+
+
+	/**
+	* Check the response of the external link
+	*
+	* @param	string	$headers	the captured headers
+	* @param	string	$response	the captured response
+	* @param	array	$info		the captured stream info
+	*
+	* @return array
+	* @access private
+	*/
+	function _checkResponse($headers, $response, $info)
+	{
+		if (preg_match('|200 ok|i', $response)) {
+			$description = '';
+			$valid = '1';
+		} else if (preg_match('|302 found|i', $response)) {
+			$description = '';
+			$valid = '1';
+		} else if (preg_match('|304 not modified|i', $response)) {
+			$description = '';
+			$valid = '1';
+		} else if (preg_match('|404 not found|i', $response)) {
+			$description = translate('cms_report_links_404');
+			$valid = '0';
+		} else if (preg_match('|407 proxy authentication required|i', $response)) {
+			$description = translate('cms_report_links_407');
+			$valid = '0';
+		} else if (preg_match('|301 moved|i', $response)) {
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_301');
+			}
+		} else if (preg_match('|302 moved|i', $response)) {
+			// should this
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_302_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_302');
+			}
+		} else if ($info['timed_out']) {
+			$description = translate('cms_report_links_server_timeout');
+			$valid = '0';
+		} else {
+			$description = translate('cms_report_links_unknown_response', $response);
+			$valid = '0';
+		}
+
+		// Format the results
+		$validated_results['valid'] = $valid;
+		$validated_results['description'] = $description;
+
+		// Return the results
+		return $validated_results;
+
+	}//end _checkResponse()
 
 
 	/**
@@ -517,7 +565,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		$display_options = $asset->attr('display_options');
 
 		// TODO: this translation has a 'note' prefix that is supposed to look like
-		//		a field header... could this be set up as a field?
+		// 		a field header... could this be set up as a field?
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 			echo translate('cms_report_links_current');
 		}
@@ -835,7 +883,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 			$asset_string = '
 				<a href="'.$asset_preview_url.'" target="_blank" title="'.$asset_name.'">'.$asset_string.'</a>';
-		}
+		}//end else
 
 		return Array(
 				'assetid'		=> $assetid,
