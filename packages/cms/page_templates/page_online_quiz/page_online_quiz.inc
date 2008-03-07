@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.17.2.1 2007/08/29 05:00:44 lwright Exp $
+* $Id: page_online_quiz.inc,v 1.17.2.2 2008/03/07 04:00:36 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1076,7 +1076,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 							if ($question_type == 'online_quiz_question_multichoice') {
 								if (isset($matches[1]) && isset($matches[2])) {
 									// Check permissions to this asset before listing (read permission must be there)
-									if ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id))) {
+									if ($question->readAccess()) {
 										$assets_to_list[$question_asset_id] = $question_type;
 									}
 								}
@@ -2729,7 +2729,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$replacement = '%question_'.$question_asset_id.'_'.$keyword.'%';
 
 		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
-		if ((!is_null($question)) && ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
+		if ((!is_null($question)) && ($question->readAccess())) {
 			$replacement = $question->getKeywordReplacement($keyword);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question);
 		}
@@ -2753,7 +2753,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$replacement = '%result_'.$question_asset_id.'_'.$keyword.'%';
 
 		$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_asset_id, 'online_quiz_question_multichoice');
-		if ((!is_null($question)) && ($question->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
+		if ((!is_null($question)) && ($question->readAccess())) {
 			$question_results = $question->getResults();
 
 			// Some replacements are not provided in the question results, so we have to ask for these...
@@ -2880,7 +2880,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$replacement = '%question_group_'.$question_group_asset_id.'_'.$keyword.'%';
 
 		$question_group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($question_group_asset_id, 'online_quiz_question_group');
-		if ((!is_null($question_group)) && ($question_group->readAccess(Array($GLOBALS['SQ_SYSTEM']->user->id)))) {
+		if ((!is_null($question_group)) && ($question_group->readAccess())) {
 			$group_questions = array_keys($question_group->getQuestions());
 			$quiz_questions = array_keys($this->getQuestions());
 
