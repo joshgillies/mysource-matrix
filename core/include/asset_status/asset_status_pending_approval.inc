@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.39.4.1 2007/09/13 05:12:50 hnguyen Exp $
+* $Id: asset_status_pending_approval.inc,v 1.39.4.2 2008/03/09 23:23:13 hnguyen Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.4.1 $
+* @version $Revision: 1.39.4.2 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -214,7 +214,8 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					}
 				}
 
-				if ($new_status == SQ_STATUS_APPROVED) {
+				// Since asset_status_editing_approval inherit from this object, it inherits this function, so when the asset go either from pending approval to approved, or editing approval to approved, lets send the asset workflow complete log message.
+				if ($new_status == SQ_STATUS_APPROVED || $new_status == SQ_STATUS_EDITING_APPROVED) {
 
 					$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
