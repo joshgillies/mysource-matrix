@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.35.2.2 2008/03/09 21:50:31 bpearson Exp $
+* $Id: email_format.inc,v 1.35.2.3 2008/03/09 22:04:03 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35.2.2 $
+* @version $Revision: 1.35.2.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -433,8 +433,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$mail = Mail::factory('mail', "-f$from_addr");
 
 		$hdrs = Array(
-					'From'			=> $from,
-					'Subject'		=> $subject,
+					'From'		=> $from,
+					'Subject'	=> $subject,
 				);
 
 		foreach ($to as $to_email) {
@@ -450,9 +450,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			// Unset the $mime->_parts (which holds all the attachments for the email)
 			// This was not done before, causing an incremental attaching of files
 			// for multiple recipients (please see Bug #2897)
-			if (count($mime->_parts) > 0) {
-				unset($mime->_parts);
-			}
+			if (count($mime->_parts) > 0) unset($mime->_parts);
 
 			foreach ($attachments as $file_path) {
 				if (file_exists($file_path)) {
