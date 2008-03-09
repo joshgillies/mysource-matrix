@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.35.2.1 2007/05/23 01:49:25 rhoward Exp $
+* $Id: email_format.inc,v 1.35.2.2 2008/03/09 21:50:31 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -445,6 +445,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			if (empty($to_email) || !valid_email($to_addr)) {
 				continue;
+			}
+
+			// Unset the $mime->_parts (which holds all the attachments for the email)
+			// This was not done before, causing an incremental attaching of files
+			// for multiple recipients (please see Bug #2897)
+			if (count($mime->_parts) > 0) {
+				unset($mime->_parts);
 			}
 
 			foreach ($attachments as $file_path) {
