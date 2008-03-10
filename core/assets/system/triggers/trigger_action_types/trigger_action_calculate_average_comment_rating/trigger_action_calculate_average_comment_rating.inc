@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.2 2008/02/29 00:50:15 bshkara Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.3 2008/03/10 06:06:04 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 	*/
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		$fieldid = array_get_index($settings, 'fieldid', '');
+		$fieldid = array_get_index($settings, 'fieldid', '0');
 		ob_start();
 
 			echo translate('trigger_avg_comment_rating_metadata_field');
@@ -145,10 +145,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				$type_code = Array(
 								'metadata_field_text'	=> 'I',
 							 );
-				if (empty($fieldid['assetid']))
-					echo asset_finder($prefix.'[fieldid]', 0, $type_code);
-				else
-					echo asset_finder($prefix.'[fieldid]', $fieldid['assetid'], $type_code);
+				echo asset_finder($prefix.'[fieldid]', $fieldid['assetid'], $type_code);
 			} else {
 				if (empty($fieldid['assetid'])) {
 					echo '<b>['.translate('no_asset_selected').']</b>';
