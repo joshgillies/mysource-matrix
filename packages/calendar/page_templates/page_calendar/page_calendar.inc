@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.201.2.1 2007/10/30 00:55:22 bshkara Exp $
+* $Id: page_calendar.inc,v 1.201.2.2 2008/03/10 02:47:45 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.201.2.1 $
+* @version $Revision: 1.201.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -548,7 +548,14 @@ class Page_Calendar extends Page
 			if ($view == $cal_view) break;
 			if ($type) $up_view = $view;
 		}
-		$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.'&amp;SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
+
+		// Check if the up view is an event, then we need to pass an event id
+		$eventview = '';
+		if ($up_view == 'event' && !empty($event_id)) {
+			$eventview = '&amp;SQ_CALENDAR_EVENT_ID='.$event_id;
+		}
+
+		$replacements['up_link'] = $up_view ? '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$up_view.$eventview.'&amp;SQ_CALENDAR_DATE='.$cal_date.'">'.str_replace('%v%', ucfirst($up_view), $this->attr('up_link_text')).'</a>' : '';
 
 		return $replacements;
 
