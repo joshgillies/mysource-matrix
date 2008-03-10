@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.74 2007/12/06 05:11:57 rong Exp $
+* $Id: page_remote_content.inc,v 1.75 2008/03/10 01:33:19 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-@require_once 'HTTP/Client.php';
+require_once 'HTTP/Client.php';
 require_once 'persistent_cookie_manager.inc';
 
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
