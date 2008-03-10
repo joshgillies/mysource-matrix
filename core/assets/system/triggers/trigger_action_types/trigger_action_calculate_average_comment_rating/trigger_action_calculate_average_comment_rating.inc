@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.3 2008/03/03 22:36:49 lwright Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.4 2008/03/10 06:04:15 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,8 +82,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['minorid']);
 					$rating = $asset->attr('rating');
 					// means this rating hasn't been set, i.e. default value
-					if ($rating === '-1')
-						continue;
+					if ($rating === '-1') continue;
 					$sumofratings += $rating;
 				}
 				// set the average for this parent (percentage)
@@ -135,7 +134,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		$fieldid = array_get_index($settings, 'fieldid', '');
+		$fieldid = array_get_index($settings, 'fieldid', '0');
 		ob_start();
 
 			echo translate('trigger_avg_comment_rating_metadata_field');
