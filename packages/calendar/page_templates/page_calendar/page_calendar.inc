@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.206.2.1 2008/03/12 04:04:19 lwright Exp $
+* $Id: page_calendar.inc,v 1.206.2.2 2008/03/12 04:50:43 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.206.2.1 $
+* @version $Revision: 1.206.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2452,10 +2452,10 @@ class Page_Calendar extends Page
 		$single_events = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, ':start_date_year', $year);
-			MatrixDAL::bindValueToPdo($query, ':end_date_year',   $year);
-			MatrixDAL::bindValueToPdo($query, ':start_date_ts',   $start_ts);
-			MatrixDAL::bindValueToPdo($query, ':end_date_ts',     $start_ts);
+			MatrixDAL::bindValueToPdo($query, 'start_date_year', $year);
+			MatrixDAL::bindValueToPdo($query, 'end_date_year',   $year);
+			MatrixDAL::bindValueToPdo($query, 'start_date_ts',   $start_ts);
+			MatrixDAL::bindValueToPdo($query, 'end_date_ts',     $start_ts);
 			$single_events = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
