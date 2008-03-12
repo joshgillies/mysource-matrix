@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.10 2008/01/03 03:14:53 rong Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.11 2008/03/12 01:20:56 hnguyen Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,7 +147,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	protected function _exec(&$msg)
 	{
 		// set the UMASK to u=rw,g=rw,o=r (0002), so that the system can write to the the logfiles the cronjob creates
-		if (substr(PHP_OS, 0, 3) != 'WIN') umask(0113);
+		if (substr(PHP_OS, 0, 3) != 'WIN') $old_mask = umask(0113);
 
 		$lm = $GLOBALS['SQ_SYSTEM']->getLogManager();
 
@@ -158,6 +158,8 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 
 		// get all the log_reports in the system before looping through, if they exist
 		$status = $this->generateReports($rotated_logs);
+
+		if (isset($old_mask)) umask($old_mask);
 
 		return SQ_CRON_JOB_COMPLETED;
 
