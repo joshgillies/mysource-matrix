@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.170 2008/02/18 04:10:09 lwright Exp $
+* $Id: metadata_manager.inc,v 1.171 2008/03/12 02:55:01 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1244,8 +1244,9 @@ class Metadata_Manager extends MySource_Object
 						if (substr($keyword, 0, 11) == 'asset_role_') {
 							echo '$metadata_roles_info = Array();'."\n";
 							if (preg_match('/asset_role_([^_]*)(.*)$/', $keyword, $matches)) {
+								$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
 								$role_assetid = $matches[1];
-								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, TRUE, TRUE);'."\n";
+								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, '.(($fetch_global_roles)?'TRUE':'FALSE').', TRUE);'."\n";
 								echo 'if (!empty($metadata_roles)) {'."\n";
 								echo '	foreach ($metadata_roles['.$role_assetid.'] as $role_userid) {'."\n";
 								echo '		$user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($role_userid);'."\n";

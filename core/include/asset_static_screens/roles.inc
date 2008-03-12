@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: roles.inc,v 1.11 2007/12/16 22:44:04 bshkara Exp $
+* $Id: roles.inc,v 1.12 2008/03/12 02:55:02 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Roles Static Screen Functions
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -140,6 +140,17 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 			continue;
 		}
 
+		if (SQ_CONF_ENABLE_ROLES_SYSTEM == '0') {
+			$o->openField('');
+			ob_start();
+			echo translate('roles_system_disabled');
+			ob_end_flush();
+			$o->closeField();
+			$o->closeSection();
+
+			return $admin_access;
+		}
+
 		foreach ($section->field as $field) {
 
 			$field_access = $ei->_getAccess($owner, $field, $prefix);
@@ -166,8 +177,13 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 							<table class="sq-backend-table">
 							<td class="sq-backend-table-header"><?php echo translate('roles'); ?></td>
 							<td class="sq-backend-table-header"><?php echo translate('users'); ?></td>
+							<?php
+							if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
+							?>
 							<td class="sq-backend-table-header"><?php echo translate('global'); ?></td>
 							<?php
+							}
+
 							foreach ($roles as $roleid => $ids) {
 								$userids = Array();
 								foreach ($ids as $row => $userid) {
@@ -188,9 +204,15 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 										<td class="sq-backend-table-cell-alt">
 											<?php echo multiple_asset_finder($prefix.'_userids_'.$roleid, $userids, Array('user' => 'D', 'user_group' => 'D')); ?>
 										</td>
+									<?php
+									if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
+									?>								
 										<td class="sq-backend-table-cell-alt">
 											<?php echo check_box($prefix.'_globally_assign_'.$roleid, 1, $global_role); ?>
 										</td>
+									<?php
+									}
+									?>
 									</tr>
 									<?php
 								} else {
@@ -207,9 +229,15 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 											}
 											?>
 										</td>
+									<?php
+									if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
+									?>
 										<td class="sq-backend-table-cell-alt" rowspan="<?php echo $userid_count; ?>">
 											<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($global_role) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 										</td>
+									<?php
+									}
+									?>
 									</tr>
 									<?php
 									foreach ($userids as $userid) {
@@ -233,7 +261,9 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 						echo asset_finder($prefix.'_role_new', 0, Array('role' => 'I')).'</p>';
 						echo '<p>'.translate('select_users_for_role').'<br />';
 						echo multiple_asset_finder($prefix.'_userids_new', Array(), Array('user' => 'D', 'user_group' => 'D')).'</p>';
-						echo check_box($prefix.'_globally_assign_new').translate('allow_global_assignment');
+						if (SQ_CONF_ENABLE_GLOBAL_ROLES == '1') {
+							echo check_box($prefix.'_globally_assign_new').translate('allow_global_assignment');
+						}
 					break;
 				}//end switch
 

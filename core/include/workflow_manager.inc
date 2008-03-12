@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.126 2008/03/06 23:20:53 bpearson Exp $
+* $Id: workflow_manager.inc,v 1.127 2008/03/12 02:55:01 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -487,16 +487,19 @@ class Workflow_Manager extends MySource_Object
 				if (is_null($condition)) continue;
 				if ($condition->attr('notify')) {
 					// check if this is a roleid rather than a user_groupid or userid
-					$role = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $condition->attr('userid'), NULL, FALSE, TRUE);
-					if (!empty($role)) {
-						foreach ($role as $roleid => $userids) {
-							for ($i=0; $i<count($userids); $i++) {
-								$notify[] = $userids[$i];
+					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+						$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
+						$role = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $condition->attr('userid'), NULL, FALSE, $fetch_global_roles);
+						if (!empty($role)) {
+							foreach ($role as $roleid => $userids) {
+								for ($i=0; $i<count($userids); $i++) {
+									$notify[] = $userids[$i];
+								}
 							}
+						} else {
+							// the user or group in this condition wants to be notified
+							$notify[] = $condition->attr('userid');
 						}
-					} else {
-						// the user or group in this condition wants to be notified
-						$notify[] = $condition->attr('userid');
 					}
 				}
 			}//end foreach
@@ -505,7 +508,6 @@ class Workflow_Manager extends MySource_Object
 		if (!empty($notify)) {
 			$notify = array_unique($notify);
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-
 			$msg = $ms->newMessage($notify);
 			$msg->type    = 'asset.status.notify';
 			$msg_reps     = Array(
@@ -657,14 +659,17 @@ class Workflow_Manager extends MySource_Object
 						$can_publish_cond[] = $asset->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
 						// expand global users
-						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id, NULL, FALSE, TRUE);
-						foreach ($roles as $roleid => $userids) {
-							foreach ($userids as $userid) {
-								$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
-								if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-									$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
-								} else {
-									$can_publish_cond[] = $userid;
+						if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+							$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
+							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id, NULL, FALSE, TRUE);
+							foreach ($roles as $roleid => $userids) {
+								foreach ($userids as $userid) {
+									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
+									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
+										$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
+									} else {
+										$can_publish_cond[] = $userid;
+									}
 								}
 							}
 						}
@@ -938,6 +943,7 @@ class Workflow_Manager extends MySource_Object
 
 		// send internal messages to everyone who could approve before to let them know that someone did
 		if (!$this->silentWorkflowParty($asset->id)) {
+
 			$msg = $ms->newMessage($publishers_before);
 			$msg->type    = 'asset.workflow.announce.approve';
 			$msg->parameters['assetid'] = $asset->id;
@@ -1086,10 +1092,13 @@ class Workflow_Manager extends MySource_Object
 					if ($am->isTypeDecendant($asset_class, 'user')) {
 						$can_publish[] = $publisher->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
-						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, TRUE, TRUE);
-						foreach ($roles as $roleid => $userids) {
-							foreach ($userids as $userid) {
-								$can_publish[] = $userid;
+						if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+							$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
+							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, $fetch_global_roles, TRUE);
+							foreach ($roles as $roleid => $userids) {
+								foreach ($userids as $userid) {
+									$can_publish[] = $userid;
+								}
 							}
 						}
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
@@ -1262,7 +1271,6 @@ class Workflow_Manager extends MySource_Object
 			if (is_null($msg)) $msg = $ms->newMessage();
 			// added the publishers to the list of people that are to be notified
 			$msg->to = array_merge($msg->to, $publishers);
-
 			// complete any missing internal message fields that have not been supplied
 			if (empty($msg->replacements)) {
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
@@ -1656,7 +1664,6 @@ class Workflow_Manager extends MySource_Object
 		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
 		$user       = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 
-
 		$log = $ms->newMessage();
 
 		$msg_reps = Array(
@@ -1685,7 +1692,6 @@ class Workflow_Manager extends MySource_Object
 		// send internal messages to everyone who could approve before to let them know they have lost their chance
 
 		if (!$this->silentWorkflowParty($asset->id)) {
-
 			$msg = $ms->newMessage($publishers_before);
 			$msg->type    = 'asset.workflow.announce.escalated';
 			$msg->parameters['assetid'] = $asset->id;

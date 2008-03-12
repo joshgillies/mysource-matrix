@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.19 2008/02/18 05:06:44 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.20 2008/03/12 02:55:05 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -386,7 +386,9 @@ class Search_Manager_Plugin_PgSQL
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
-			$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+			}
 
 			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
@@ -402,14 +404,23 @@ class Search_Manager_Plugin_PgSQL
 				$userids[$i] = MatrixDAL::quote($userids[$i]);
 			}
 			$usrids_str = implode(',', $userids);
-			$query['where'][] = 'p.userid  IN ('.$usrids_str.') OR '.'r.userid  IN ('.$usrids_str.')';
-			$query['where'][] = '(
+			$where = 'p.userid  IN ('.$usrids_str.')';
+			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				$where .= ' OR '.'r.userid  IN ('.$usrids_str.')';
+			}
+			$query['where'][] = $where;
+			$where = '(
 						(p.permission = '.MatrixDAL::quote(SQ_PERMISSION_READ).'
 							AND (
 									p.userid <> '.MatrixDAL::quote($public_userid).'
-									OR r.userid <> '.MatrixDAL::quote($public_userid).'
-									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)
-									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)
+									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)';
+
+			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				$where .= '				OR r.userid <> '.MatrixDAL::quote($public_userid).'
+									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)';
+			}
+
+			$query['where'][] = $where . '
 								)
 						)
 						OR

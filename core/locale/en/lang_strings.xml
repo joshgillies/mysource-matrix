@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.271 2008/02/29 00:50:40 bshkara Exp $
+* $Id: lang_strings.xml,v 1.272 2008/03/12 02:55:02 mbrydon Exp $
 *
 */
 
@@ -1455,6 +1455,7 @@
 	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
 	<string source="manually_cascade_roles_note">Manually cascading role assignments will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="no_roles_set">No roles have been assigned</string>
+	<string source="roles_system_disabled">The Roles System is disabled</string>
 	<string source="select_a_role">Select a role:</string>
 	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
 	<string source="roles">Roles</string>
@@ -2045,6 +2046,11 @@ Are you sure you want to proceed?</string>
 	<string source="http_header_send_no_cache_header_field_note">If enabled, the "no-cache" Cache-Control option will be sent when serving File asset types. This option can be used to resolve inline file display issues in Internet Explorer.</string>
 	<string source="http_header_send_404_cacheable_header_field">Send 404 Cacheable Header</string>
 	<string source="http_header_send_404_cacheable_header_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers for 404 response to allow Proxy server to cache.</string>
+
+	<!-- Roles configuration strings -->
+	<string source="roles_configuration_section_name">Roles Configuration</string>
+	<string source="roles_configuration_enable_global_roles">Enable Global Roles</string>
+	<string source="roles_configuration_enable_roles_system">Enable Roles System</string>
 
 	<!-- Status Changes -->
 	<string source="status_change_place_under_construction">Place Under Construction</string>

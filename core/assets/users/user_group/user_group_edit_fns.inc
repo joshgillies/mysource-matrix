@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.42 2008/02/18 04:52:50 lwright Exp $
+* $Id: user_group_edit_fns.inc,v 1.43 2008/03/12 02:55:01 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -594,16 +594,22 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		$o->openSection(translate('role_directly_assigned_section_'.$string_code_suffix));
 			$o->openRaw();
-			$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE, FALSE, FALSE, FALSE);
-			if (empty($roles)) {
-				echo translate('no_roles_set');
+
+			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '0') {
+				echo translate('roles_system_disabled');
 			} else {
-				$this->_printRoleTable($prefix, 'direct', $roles, $write_access);
-				if ($write_access) {
-					echo translate('role_new_user').': ';
-					echo asset_finder($prefix.'_reassignee', 0, Array('user' => 'D', 'user_group' => 'D'));
+				$roles = $GLOBALS['SQ_SYSTEM']->am->getRole(NULL, NULL, $asset->id, TRUE, FALSE, FALSE, FALSE);
+				if (empty($roles)) {
+					echo translate('no_roles_set');
+				} else {
+					$this->_printRoleTable($prefix, 'direct', $roles, $write_access);
+					if ($write_access) {
+						echo translate('role_new_user').': ';
+						echo asset_finder($prefix.'_reassignee', 0, Array('user' => 'D', 'user_group' => 'D'));
+					}
 				}
 			}
+
 			$o->closeRaw();
 		$o->closeSection();
 

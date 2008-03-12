@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.166 2008/02/29 05:18:50 lwright Exp $
+* $Id: search_manager.inc,v 1.167 2008/03/12 02:55:05 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2395,7 +2395,7 @@ class Search_Manager extends Asset
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
-			$no_roles = (isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) ? TRUE : FALSE;
+			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
 			if (!$no_roles) {
 				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
