@@ -48,7 +48,7 @@ New Re-Cache Suffix
 User Name on Asset History Screen
 
 	The History screen of an asset now shows the name of the user that committed each version.
-s
+
 
 Exclude Assets From Asset Listing Page
 
@@ -134,6 +134,7 @@ CMS
 Calendar
 
 * Fixed bug #2862: If Calendar Page is nested in Rolling Calendar, Date Incorrect (Rolling Calendar Page)
+* Fixed bug #2902: Event Label Format keywords dont work in List views on Calendar details screen (Calendar Page)
 
 E-Commerce
 
