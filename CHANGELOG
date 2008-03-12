@@ -1,5 +1,147 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.0 RC2
+
+Featured Changes
+-----------------------------------
+
+Resume HIPO Jobs In New Window
+
+	The HIPO Herder screen now allows users the option to resume stalled HIPO Jobs in a new window, leaving the main window free to do other tasks. The original option to open in the main window still remains.
+
+
+Filter By URL In Remap Manager
+
+	This feature allows URLs on the Remap Manager asset's "Remapped URLs" list to be filtered by their original and/or remapped URL.
+
+
+Clear Matrix Cache for Multiple Root Nodes
+
+	The Clear Matrix Cache tool now allows multiple non-dependant assets to be cleared in a single run.
+
+
+Direct Entry of Asset ID in Asset Finder
+
+	The Asset Finder widget has been changed slightly. The widget now supports the manual entering of an asset ID in the smaller box to the right of the "Id: #" label.
+
+
+Character Limit for Metadata Text Field
+
+	Metadata Text Field assets now contain an option to constrain the number of characters that said metadata field can contain.
+
+
+Size of Metadata Text Field
+
+	Metadata Text Field assets now contain an option to customise the size of the field as displayed by such methods as Simple Edit keywords.
+
+
+Option to Control Remapping of Web Paths
+
+	This feature allows users to override the previous behaviour of creating entries in the Remap Manager whenever a web path is changed. The default setting is set in the Remap Manager asset, and can be overridden on a change-by-change basis on an asset's Web Paths screen.
+
+
+New Re-Cache Suffix
+
+	This new suffix (default "_recache") will display the most recent version of an asset (like "_nocache"), but will also clear and re-populate the Matrix cache for that asset. This suffix will only work if the user has write access to that asset.
+
+
+User Name on Asset History Screen
+
+	The History screen of an asset now shows the name of the user that committed each version.
+s
+
+Exclude Assets From Asset Listing Page
+
+	The Asset Listing Page can now be set to exclude one or more assets from being listed in that asset
+
+
+Approve/Reject Links In Workflow Emails
+
+	The emails sent to users involved in the running workflow of an asset now have direct links to approve or reject the workflow.
+
+
+Metadata Value Cascading
+
+	This feature allows default and/or custom values to be cascaded to child assets on a field-by-field, asset-by-asset basis.
+
+
+CAPTCHA Field in Asset Builder Page
+
+	This feature aads the option to insert a CAPTCHA test to an Asset Builder Page. When the "Require CAPTCHA" option is enabled, a number of CAPTCHA-related keywords will be made available to the Logged In bodycopy. The look and size of the CAPTCHA can also be modified.
+
+
+Image Content Type Can Use DIVs
+
+	The Image Content Type asset now has the option to wrap the image in a DIV tag, instead of the default behaviour of a TABLE tag. The default is determined by a user preference.
+
+
+New Sorting Options for Asset Sorting Tool
+
+	The Asset Sorting Tool can now sort assets by Asset Attribute as well as by standard asset fields.
+
+
+Use HTML Tidy as Accessibility Checker
+
+	This feature uses the HTML Tidy extension of PHP 5 to conduct automated components of WCAG accessibility checks. Failed accessibility checks are available as a new icon mouse-over, next to the Bodycopy's current HTML Tidy status indicator.
+
+
+Workflow Approval/Rejection Trigger Events
+
+	These new Trigger Events are fired when a running workflow is completed and resolved in either approval or rejection.
+
+
+Option to Disable Roles
+
+	These System Configuration options will allow you to disable the Roles system, or just the Global Roles component. This will increase performance for systems that do not need them.
+
+
+Metadata Value Trigger Condition
+
+	This new Trigger Condition returns the result of a match between a specified value, and the value of an asset's metadata field.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
++ Experimental PHP 5 support for Oracle databases
+* Fixed bug #2801: Insert Div window positioning in IE
+* Fixed bug #2825: Mandatory metadata link does not work on newly created assets
+* Fixed bug #2837: Fatal Error Step03 get_class_lower()
+* Fixed bug #2839: Workflow notifies all editors when approver cannot approve asset due to missing mandatory metadata
+* Fixed bug #2842: Can't send multi-line internal message
+* Fixed bug #2849: Can not create specific file asset (PDF,DOC, JPG) using File Asset if File Extension Restriction in Global Preferences or User Group Preferences is used.
+* Fixed bug #2856: Single quotation mark in metadata field name cause Matrix to throw fatal error
+* Fixed bug #2857: Paint Layout based on IP authentication
+* Fixed bug #2860: PHP date information does not work as expected in conditional keywords
+* Fixed bug #2878: WYSIWYG CSS randomly not detected when using login designs
+* Fixed bug #2880: Can't use Table Properties Row selector in IE
+* Fixed bug #2884: Editing metadata from the front end on dropdown menu not saving changes
+* Fixed bug #2887: Image Variety within Workflow
+* Fixed bug #2888: MySource ERROR on webpath insertion
+* Fixed bug #2905: Workflow internal message link invalid
+
+CMS
+
+* Fixed bug #2777: STRONG tags inserted into Text email (Custom Form Page)
+* Fixed bug #2866: Custom form - response keywords doesn't update in a cloned form (Custom Form Page)
+* Fixed bug #2869: Site Map does not list assets underneath Folder assets, if 'Inherit' is specified (Site Map)
+* Fixed bug #2874: Account Manager fails to display with login design applied (Account Manager Page)
+* Fixed bug #2883: Asset Builder not showing all selectable locations (Asset Builder Page)
+* Fixed bug #2907: Online Quiz Question Group keyword replacements are not replaced for the Root User (Online Quiz)
+
+Calendar
+
+* Fixed bug #2862: If Calendar Page is nested in Rolling Calendar, Date Incorrect (Rolling Calendar Page)
+
+E-Commerce
+
+* Fixed bug #2815: E-Com Product Asset Simple Edit Issue (Product)
+* Fixed bug #2865: Cannot create an Ecom Form under a folder with a specific metadata schema (Ecommerce Form)
+
+
+
 VERSION 3.18.0 RC1
 
 Featured Changes
