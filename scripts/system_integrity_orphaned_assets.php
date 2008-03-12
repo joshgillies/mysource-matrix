@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.13 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.13.8.1 2008/03/12 04:04:04 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -86,11 +86,14 @@ foreach ($assets as $assetid => $type_code) {
 			FROM
 				sq_ast_lnk
 			WHERE
-					minorid		= '.$db->quote($assetid).'
-				AND	link_type	<> '.$db->quote(SQ_LINK_NOTICE);
+				minorid = :minorid
+				AND
+				link_type <> :link_type';
 
-	$links = $db->getAll($sql);
-	assert_valid_db_result($links);
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::bindValueToPdo($query, 'minorid', $assetid);
+	MatrixDAL::bindValueToPdo($query, 'link_type', SQ_LINK_NOTICE);
+	$links = MatrixDAL::executePdoAssoc($query);
 
 	$updated = FALSE;
 	$errors = FALSE;
@@ -125,7 +128,7 @@ foreach ($assets as $assetid => $type_code) {
 							FROM
 								sq_ast_lnk_tree t
 							WHERE
-								t.linkid = '.$db->quote($link['linkid']);
+								t.linkid = :linkid';
 
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
@@ -134,8 +137,9 @@ foreach ($assets as $assetid => $type_code) {
 						WHERE
 							treeid in ('.$sub_sql.')';
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'linkid', $link['linkid']);
+				MatrixDAL::execPdoQuery($query);
 
 
 				// we can delete all the links under these nodes because it will be a clean start
@@ -146,8 +150,8 @@ foreach ($assets as $assetid => $type_code) {
 								sq_ast_lnk_tree pt,
 								sq_ast_lnk_tree ct
 							WHERE
-									pt.linkid = '.$db->quote($link['linkid']).'
-								AND	ct.treeid LIKE pt.treeid || '.$db->quote('%').'
+									pt.linkid = :linkid
+								AND	ct.treeid LIKE pt.treeid || '.MatrixDAL::quote('%').'
 								AND	ct.treeid > pt.treeid';
 
 				$sql = 'DELETE FROM
@@ -155,8 +159,9 @@ foreach ($assets as $assetid => $type_code) {
 						WHERE
 							treeid in ('.$sub_sql.')';
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'linkid', $link['linkid']);
+				MatrixDAL::execPdoQuery($query);
 
 				// we are going to set the treeid nodes that this link is associated
 				// with to zero so that we can find it as a gap when we createLink() later on
@@ -164,14 +169,17 @@ foreach ($assets as $assetid => $type_code) {
 				$sql = 'UPDATE
 							sq_ast_lnk_tree
 						SET
-							linkid = '.$db->quoteSmart('0').',
-							num_kids = '.$db->quoteSmart('0').'
+							linkid = :linkid,
+							num_kids = :num_kids
 
 						WHERE
-							linkid = '.$db->quote($link['linkid']);
+							linkid = :old_linkid';
 
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'linkid',     '0');
+				MatrixDAL::bindValueToPdo($query, 'num_kids',   '0');
+				MatrixDAL::bindValueToPdo($query, 'old_linkid', $link['linkid']);
+				MatrixDAL::execPdoQuery($query);
 
 			}//end if significant link
 
@@ -181,20 +189,23 @@ foreach ($assets as $assetid => $type_code) {
 					SET
 						sort_order = sort_order - 1
 					WHERE
-							majorid		= '.$db->quote($link['majorid']).'
-						AND	sort_order 	> '.$db->quote($link['sort_order']);
+							majorid = :majorid
+						AND
+							sort_order > :sort_order';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'majorid',    $link['majorid']);
+			MatrixDAL::bindValueToPdo($query, 'sort_order', $link['sort_order']);
+			MatrixDAL::execPdoQuery($query);
 
-			$where_cond = ' linkid  = '.$db->quote($link['linkid']);
 			$sql = 'DELETE FROM
 						sq_ast_lnk
 					WHERE
-						linkid  = '.$db->quote($link['linkid']);
+						linkid  = :linkid';
 
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'linkid', $link['linkid']);
+			MatrixDAL::execPdoQuery($query);
 
 			// tell the asset it has updated
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.5 2007/02/21 21:25:57 amiller Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.5.6.1 2008/03/12 04:05:13 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -38,11 +38,12 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* Constructor
 	*
 	* @param string	$code_name		a unique codename the HIPO
+	*
 	*/
-	function HIPO_Job_Tool_Clear_Squid_Cache($code_name='')
+	function __construct($code_name='')
 	{
 		$this->uses_trans = FALSE;
-		$this->HIPO_Job($code_name);
+		parent::__construct($code_name);
 		$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings('squid');
 
 	}//end constructor
@@ -57,7 +58,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* @return string
 	* @access public
 	*/
-	function getCodeName()
+	public function getCodeName()
 	{
 		return parent::getCodeName().'-'.$this->_running_vars['assetid'];
 
@@ -70,7 +71,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* @return string
 	* @access public
 	*/
-	function getHipoName()
+	public function getHipoName()
 	{
 		return translate('squid_hipo_name_clear_squid_cache');
 
@@ -84,7 +85,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* @return string
 	* @access public
 	*/
-	function getInitialStepData()
+	public function getInitialStepData()
 	{
 		return Array(
 				Array(
@@ -110,7 +111,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function freestyle()
+	public function freestyle()
 	{
 		while (!empty($this->_running_vars['todo_urls'])) {
 			if (!$this->processClearCache($this->_steps[0], get_class($this))) {
@@ -128,7 +129,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function prepare()
+	public function prepare()
 	{
 		// get the prefs setting for squidclient
 		$this->_running_vars['hostnames'] = explode("\n", trim($GLOBALS['SQ_SYSTEM']->getUserPrefs('tool_clear_squid_cache', 'SQ_SQUID_CACHE_HOSTNAMES')));
@@ -171,7 +172,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function processClearCache(&$step_data, $prefix)
+	public function processClearCache(Array &$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_urls'])) {
 
@@ -191,7 +192,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 				$protocol = 'https';
 			}
 
-			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
 			foreach ($hostnames as $hostname) {
 
@@ -289,7 +290,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	* @return void
 	* @access public
 	*/
-	function requestPage($url, $host, $port)
+	public function requestPage($url, $host, $port)
 	{
 		// set the correct port if it isn't the default one
 		if ($port != '') {

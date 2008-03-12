@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168 2007/12/20 22:47:43 hnguyen Exp $
+* $Id: metadata_manager.inc,v 1.168.2.1 2008/03/12 04:04:00 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168 $
+* @version $Revision: 1.168.2.1 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -126,10 +126,10 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql.$where);
-			$query->bindValue(':assetid', $assetid);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			if (!is_null($granted)) {
-				$query->bindValue(':granted', $granted ? 1 : 0);
+				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? 1 : 0);
 			}
 			$result = DAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -327,7 +327,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('schemaid', $schemaid);
 			if (!is_null($granted)) {
 				$query->bindValue('granted', ($granted ? '1' : '0'));
@@ -449,7 +449,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('assetid', $asset->id);
 			$metadata = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
@@ -472,7 +472,7 @@ class Metadata_Manager extends MySource_Object
 	function _cleanupMetadataValues($assetid)
 	{
 		$db = MatrixDAL::getDb();
-		$fieldid_conds = Array('assetid = '.((string)$db->quote($assetid)));
+		$fieldid_conds = Array('assetid = \''.((string) $assetid).'\'');
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
 			$fieldid_conds[] = '(fieldid NOT IN (
@@ -486,7 +486,7 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		try {
-			$res = MatrixDAL::query($sql);
+			MatrixDAL::executeSql($sql);
 		} catch (Exception $e) {
 			throw new Exception('Unable to clean up metadata values due to the following database error:'.$e->getMessage());
 		}
@@ -574,7 +574,6 @@ class Metadata_Manager extends MySource_Object
 
 		// get the values without any replacements or special processing
 		$db = DAL::getDb();
-		$db->show_queries = TRUE;
 
 		$values = $this->getMetadata($asset->id);
 		foreach ($schemas as $schemaid) {
@@ -593,9 +592,9 @@ class Metadata_Manager extends MySource_Object
 			$sql_parts = $am->generateGetChildrenQuery($schema, 'metadata_field', FALSE);
 			// if they only want specific fields, then restrict the search to those
 			if (!empty($field_names)) {
-				$sql_parts['where'] .= ' AND a.name IN ('.$db->quote($field_names[0]);
+				$sql_parts['where'] .= ' AND a.name IN (\''.$field_names[0].'\'';
 				for ($i = 1; $i < count($field_names); $i++) {
-					$sql_parts['where'] .= ', '.$db->quote($field_names[$i]);
+					$sql_parts['where'] .= ', \''.$field_names[$i].'\'';
 				}
 				$sql_parts['where'] .= ')';
 			}
@@ -739,7 +738,7 @@ class Metadata_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query = $db->prepare($sql.$where);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				$query->bindValue('assetid', $asset->id);
 				$updates = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
@@ -1245,8 +1244,9 @@ class Metadata_Manager extends MySource_Object
 						if (substr($keyword, 0, 11) == 'asset_role_') {
 							echo '$metadata_roles_info = Array();'."\n";
 							if (preg_match('/asset_role_([^_]*)(.*)$/', $keyword, $matches)) {
+								$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
 								$role_assetid = $matches[1];
-								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, TRUE, TRUE);'."\n";
+								echo '$metadata_roles = $am->getRole($metadata_asset->id, '.$role_assetid.', NULL, FALSE, '.(($fetch_global_roles)?'TRUE':'FALSE').', TRUE);'."\n";
 								echo 'if (!empty($metadata_roles)) {'."\n";
 								echo '	foreach ($metadata_roles['.$role_assetid.'] as $role_userid) {'."\n";
 								echo '		$user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($role_userid);'."\n";
@@ -1433,7 +1433,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('assetid', $assetid);
 			$query->bindValue('field_assetid', $field_assetid);
 			$value = MatrixDAL::executePdoOne($query);
@@ -1525,12 +1525,13 @@ class Metadata_Manager extends MySource_Object
 						sq_ast_typ_inhd ati
 							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ati.type_code = a.type_code';
 			$where = 'a.assetid = :field_assetid
-						AND	ati.inhd_type_code	= '.$db->quote('metadata_field');
+					AND	ati.inhd_type_code = :inhd_type_code';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 			try {
-				$query = $db->prepare($sql.$where);
-				$query->bindValue('field_assetid', $field_assetid);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				MatrixDAL::bindValueToPdo($query, 'field_assetid', $field_assetid);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code', 'metadata_field');
 				$count = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to determine whether the asset is a metadata field due to the following database error:'.$e->getMessage());
@@ -1572,7 +1573,7 @@ class Metadata_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
 			try {
-				$query = $db->prepare($sql.$where);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				$query->bindValue('field_assetid', $field_assetid);
 				$default_val = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
@@ -1614,7 +1615,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mdv');
 
 		try {
-			$query = $db->prepare($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			$query->bindValue('field_assetid', $field_assetid);
 			$row = MatrixDAL::executePdoAll($query);
 			if (isset($row[0]) && !empty($row[0])) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.51 2007/12/23 23:29:40 gsherwood Exp $
+* $Id: trigger_manager.inc,v 1.51.2.1 2008/03/12 04:03:53 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1005,35 +1005,40 @@ class Trigger_Manager extends Asset implements Bridge
 		// if no state_hash, then fail
 		if (empty($state_hash)) return Array();
 		$db = MatrixDAL::getDb();
-
-		$PROPAGATE      = $db->quote(SQ_TRIG_TREE_PROPAGATE);
-		$NO_PROPAGATE   = $db->quote(SQ_TRIG_TREE_NO_PROPAGATE);
+		$bind_vars = Array();
 
 		// compose the link_tree SQL block
-		$treeid_sql_array[] = 'treeid = '.$db->quote('-1');
+		$treeid_sql_array[] = 'treeid = :null_treeid';
+		$bind_vars['null_treeid'] = (string)'-1';
 		if (empty($state_hash['treeid'])) {
 			$state_hash['treeid'] = Array();
 		}
 
+		$treeid_count = 0;
+		$propagate_flag_count = 0;
+		$no_propagate_flag_count = 0;
+		$current_tree_length_count = 0;
 		foreach ($state_hash['treeid'] as $current_treeid) {
 			if (empty($current_treeid)) continue;
 
-			$tree_length = strlen($current_treeid) - SQ_CONF_ASSET_TREE_SIZE;
-			$tree_length = $db->quote($tree_length);
-			$current_treeid = $db->quote($current_treeid);
-
 			$treeid_sql_array[] = '
 						(
-							(treeid != '.$current_treeid.' AND SUBSTR('.$current_treeid.', 1, LENGTH(treeid)) = treeid)
+							(treeid != :current_treeid'.'_'.++$treeid_count.' AND SUBSTR(:current_treeid'.'_'.++$treeid_count.', 1, LENGTH(treeid)) = treeid)
 							AND (
-								tree_propagate = '.$PROPAGATE.'
-								OR (tree_propagate = '.$NO_PROPAGATE.' AND LENGTH(treeid) = '.$tree_length.')
+								tree_propagate = :propagate_flag'.'_'.++$propagate_flag_count.'
+								OR (tree_propagate = :no_propagate_flag'.'_'.++$no_propagate_flag_count.' AND LENGTH(treeid) = :current_tree_length'.'_'.++$current_tree_length_count.')
 							)
 						)';
 
+			for ($i=1; $i<=$treeid_count; $i++) {
+				$bind_vars['current_treeid_'.$i] = $current_treeid;
+			}
+			$bind_vars['propagate_flag_'.$propagate_flag_count]				= SQ_TRIG_TREE_PROPAGATE;
+			$bind_vars['no_propagate_flag_'.$no_propagate_flag_count]		= SQ_TRIG_TREE_NO_PROPAGATE;
+			$bind_vars['current_tree_length_'.$current_tree_length_count]	= strlen($current_treeid) - SQ_CONF_ASSET_TREE_SIZE;
 		}
-		$treeid_sql = implode($treeid_sql_array, ' OR ');
 
+		$treeid_sql = implode($treeid_sql_array, ' OR ');
 
 		//// PARENTS
 		$parent_id_array = Array();
@@ -1041,15 +1046,16 @@ class Trigger_Manager extends Asset implements Bridge
 
 		$parents = $state_hash['parents'];
 		foreach ($parents as $id => $type) {
-			$parent_id_array[]   = $db->quote($id);
-			$parent_type_array[$type] = $db->quote($type);
+			$parent_id_array[]   = $id;
+			$parent_type_array[$type] = '\''.$type.'\'';
 		}
 
 		// parent IDs
-		$parent_id_sql = 'parentid = '.$db->quote('-1');
+		$parent_id_sql = 'parentid = :null_parentid';
+		$bind_vars['null_parentid'] = (string)'-1';
 		if (!empty($parent_id_array)) {
 			for (reset($parent_id_array); NULL !== ($k = key($parent_id_array)); next($parent_id_array)) {
-				$parent_id_array[$k] = $db->quote((string) $parent_id_array[$k]);
+				$parent_id_array[$k] = '\''.(string) $parent_id_array[$k].'\'';
 			}
 
 			foreach (array_chunk($parent_id_array, 200) as $chunk) {
@@ -1058,31 +1064,38 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 
 		// parent types
-		$parent_type_sql = 'parent_type = '.$db->quote('-1');
+		$parent_type_sql = 'parent_type = :null_parent_type';
+		$bind_vars['null_parent_type'] = (string)'-1';
 		if (!empty($parent_type_array)) {
 			$parent_type_sql .= ' OR parent_type IN ('.implode(',', $parent_type_array).')';
 		}
 
 
 		//// CHILDREN
-		$child_id_sql   = 'childid = '.$db->quote('-1');
-		$child_type_sql = 'child_type = '.$db->quote('-1');
+		$child_id_sql   = 'childid = :null_childid';
+		$child_type_sql = 'child_type = :null_child_type';
+		$bind_vars['null_childid']    = (string)'-1';
+		$bind_vars['null_child_type'] = (string)'-1';
 
 		if (!empty($state_hash['treeid'])) {
 			// children will always be the same, regardless which treeid is used, so just choose the first one off the top
 			$treeid        = reset($state_hash['treeid']);
-			$quoted_treeid = $db->quote($treeid);
 
+			// TODO: This gets included twice, so needs to be modified to
+			// change the bind variables in the second query.
 			// get all the immediate children
 			$child_fromwhere_sql = '
 				FROM
 					(sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid)
 					INNER JOIN sq_ast a ON l.minorid = a.assetid
 				WHERE
-					t.treeid LIKE '.$db->quote($treeid.'%').'
-					AND t.treeid > '.$quoted_treeid.'
-					AND LENGTH(t.treeid) <= LENGTH('.$quoted_treeid.') + 4
+					t.treeid LIKE :childsql_treeid_wildcard
+					AND t.treeid > :childsql_treeid
+					AND LENGTH(t.treeid) <= :childsql_treeid_length
 			';
+			$bind_vars['childsql_treeid_wildcard'] = $treeid.'%';
+			$bind_vars['childsql_treeid']          = $treeid;
+			$bind_vars['childsql_treeid_length']   = strlen($treeid) + SQ_CONF_ASSET_TREE_SIZE;
 
 			$child_id_sql .= '
 				OR childid IN
@@ -1102,21 +1115,27 @@ class Trigger_Manager extends Asset implements Bridge
 		}//end if
 
 		// event
-		$event_sql = 'event = '.$db->quote('-1');
+		$event_sql = 'event = :null_event_id';
+		$bind_vars['null_event_id'] = (string)'-1';
 		if (!is_null($state_hash['event'])) {
-			$event_sql .= ' OR event = '.$db->quote($state_hash['event']);
+			$event_sql .= ' OR event = :event_id';
+			$bind_vars['event_id'] = $state_hash['event'];
 		}
 
 		// broadcaster's asset ID
-		$assetid_sql = 'assetid = '.$db->quote('-1');
+		$assetid_sql = 'assetid = :null_bc_assetid';
+		$bind_vars['null_bc_assetid'] = (string)'-1';
 		if (!is_null($state_hash['assetid'])) {
-			$assetid_sql .= ' OR assetid = '.$db->quote($state_hash['assetid']);
+			$assetid_sql .= ' OR assetid = :bc_assetid';
+			$bind_vars['bc_assetid'] = $state_hash['assetid'];
 		}
 
 		// broadcaster's asset Type
-		$asset_type_sql = 'asset_type = '.$db->quote('-1');
+		$asset_type_sql = 'asset_type = :null_bc_asset_type';
+		$bind_vars['null_bc_asset_type'] = (string)'-1';
 		if (!is_null($state_hash['asset_type'])) {
-			$asset_type_sql .= ' OR asset_type = '.$db->quote($state_hash['asset_type']);
+			$asset_type_sql .= ' OR asset_type = :bc_asset_type';
+			$bind_vars['bc_asset_type'] = $state_hash['asset_type'];
 		}
 
 		// compose query
@@ -1133,7 +1152,10 @@ class Trigger_Manager extends Asset implements Bridge
 
 		$result = NULL;
 		 try {
-			$query = $db->prepare($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach ($bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
 			$result = MatrixDAL::executePdoAssoc($query, 0);
 		 } catch (Exception $e) {
 			 throw new Exception('unable to get the candidate triggers: '.$e->getMessage());
@@ -1374,12 +1396,12 @@ class Trigger_Manager extends Asset implements Bridge
 								:name
 							)';
 
-				$prepared = $db->prepare($sql);
-				$prepared->bindValue(':id', $trigger['id']);
-				$prepared->bindValue(':data', serialize($trigger['data']));
-				$prepared->bindValue(':active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
-				$prepared->bindValue(':desc', $trigger['description']);
-				$prepared->bindValue(':name', $trigger['name']);
+				$prepared = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($prepared, 'id', $trigger['id']);
+				MatrixDAL::bindValueToPdo($prepared, 'data', serialize($trigger['data']));
+				MatrixDAL::bindValueToPdo($prepared, 'active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
+				MatrixDAL::bindValueToPdo($prepared, 'desc', $trigger['description']);
+				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
 				$result = MatrixDAL::execPdoQuery($prepared);
 
 			} else {
@@ -1394,12 +1416,12 @@ class Trigger_Manager extends Asset implements Bridge
 						WHERE
 						id = :id';
 
-				$prepared = $db->prepare($sql);
-				$prepared->bindValue(':id', $trigger['id']);
-				$prepared->bindValue(':data', serialize($trigger['data']));
-				$prepared->bindValue(':active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
-				$prepared->bindValue(':desc', $trigger['description']);
-				$prepared->bindValue(':name', $trigger['name']);
+				$prepared = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($prepared, 'id', $trigger['id']);
+				MatrixDAL::bindValueToPdo($prepared, 'data', serialize($trigger['data']));
+				MatrixDAL::bindValueToPdo($prepared, 'active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
+				MatrixDAL::bindValueToPdo($prepared, 'desc', $trigger['description']);
+				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
 				$result = MatrixDAL::execPdoQuery($prepared);
 			}
 
@@ -1482,7 +1504,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 			foreach ($combination as $hash_id => $hash_data) {
 				$field_array[] = $hash_id;
-				$value_array[] = $db->quote($hash_data);
+				$value_array[] = '\''.($hash_data).'\'';
 			}
 
 			$sql = 'INSERT INTO
@@ -1497,7 +1519,7 @@ class Trigger_Manager extends Asset implements Bridge
 
 			$result = NULL;
 			try {
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$result = MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('could not create the trigger hash due to database error: '.$e->getMessage());
@@ -1614,8 +1636,8 @@ class Trigger_Manager extends Asset implements Bridge
 					WHERE
 					triggerid = :triggerid';
 
-			$query = $db->prepare($sql);
-			$query->bindValue(':triggerid', $trigger_id);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'triggerid', $trigger_id);
 			$result = MatrixDAL::execPdoQuery($query);
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1790,8 +1812,8 @@ class Trigger_Manager extends Asset implements Bridge
 
 			$where  = 'id = :id';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$query = $db->prepare($select.' '.$where);
-			$query->bindValue(':id', $trigger_id);
+			$query = MatrixDAL::preparePdoQuery($select.' '.$where);
+			MatrixDAL::bindValueToPdo($query, 'id', $trigger_id);
 			$trigger_db = MatrixDAL::executePdoAll($query);
 			if (!empty($trigger_db)) {
 				$trigger_db = $trigger_db[0];
@@ -1848,7 +1870,7 @@ class Trigger_Manager extends Asset implements Bridge
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause();
 			$order  = 'ORDER BY active DESC , name ASC';
 
-			$query	= $db->prepare($select.' '.$where.' '.$order);
+			$query	= MatrixDAL::preparePdoQuery($select.' '.$where.' '.$order);
 			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get trigger info list due to the following database error:'.$e->getMessage());

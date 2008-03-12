@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.14 2007/12/18 06:10:32 gsherwood Exp $
+* $Id: system_asset_fns.inc,v 1.14.2.1 2008/03/12 04:03:51 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,9 +46,9 @@ function system_asset_fns_create_pre_check(Asset $asset)
 	$sql  .= $where;
 
 	try {
-		$query = $db->prepare($sql);
-		$query->bindValue(':type_code', $asset->type(), PDO::PARAM_STR);
-		$exists = DAL::executePdoOne($query);
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'type_code', $asset->type(), PDO::PARAM_STR);
+		$exists = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to check for existing system asset of type "'.$type_code.'" due to database error: '.$e->getMessage());
 	}

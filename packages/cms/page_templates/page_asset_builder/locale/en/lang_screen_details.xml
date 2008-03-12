@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2007/03/08 00:09:30 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.11.6.1 2008/03/12 04:04:22 lwright Exp $
 *
 */
 -->
@@ -61,6 +61,10 @@
 			<display_name>Form Submission URL</display_name>
 			<note>If this page will be nested (in another page, or in a design), its form will be visible at a URL different to this page's URL.  Use this setting to control whether the form should submit to the same URL it's displayed at, or to this page's own URL.</note>
 		</field>
+		<field attribute="link_value">
+			<display_name>Set Link Value</display_name>
+			<note>If this option holds a value, each link will be created with the value. If this option is left blank, then each link will be created without a value</note>
+		</field>
 		<field>
 			<display_name>Create Form Customisation</display_name>
 			<note>If an asset type is selected for create form customisation, a layout asset will be created under this page and will be be used when displaying the create form for that asset type.  Fields from the details or metadata screens may be included in the layout.</note>
@@ -68,6 +72,24 @@
 				<paint_function   name="paintCreateFormCustomisation" />
 				<process_function name="processCreateFormCustomisation" />
 			</function_call>
+		</field>
+	</section>
+		<section name="CAPTCHA" write_access="write:attributes">
+		<field attribute="require_captcha">
+			<display_name>Require CAPTCHA</display_name>
+			<note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included for form submissions to be accepted.</note>
+		</field>
+		<field attribute="captcha_length">
+			<display_name>CAPTCHA Key Length</display_name>
+			<note>Number of characters in the CAPTCHA key</note>
+		</field>
+		<field attribute="captcha_zoom">
+			<display_name>CAPTCHA Character Zoom</display_name>
+			<note>Each character will be randomly zoomed between x1 and this figure.</note>
+		</field>
+		<field attribute="captcha_link_text">
+			<display_name>CAPTCHA Regen Link Text</display_name>
+			<note>This text will appear when the %form_captcha_link% keyword is used.</note>
 		</field>
 	</section>
 </contents>

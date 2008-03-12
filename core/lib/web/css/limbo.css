@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo.css,v 1.1 2007/07/11 01:40:57 lwright Exp $
+* $Id: limbo.css,v 1.1.4.1 2008/03/12 04:04:03 lwright Exp $
 *
 */
 
@@ -438,8 +438,24 @@ td.sq-backend-lock-table-cell-alt {
 
 .sq-form-asset-finder {
 	border:				1px dashed #D0D0D0;
-}
+        border-right:none;
+ }
 
+   .sq-asset-finder-id-label {
+           border-left:none;
+           margin-right:0.3em;
+           border-right:1px dashed #D0D0D0;
+   }
+
+   .sq-asset-finder-id-label {
+           padding-top:0.2em;
+           position:relative;
+           top:1px;
+   }
+
+   * html .sq-asset-finder-id-label {
+           top:0;
+   }
 
 
 /* NEW MESSAGES POPUP STYLES */

@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
-* | ACN 084 670 600													   |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source	   |
+* | IMPORTANT: This Module is not available under an open source       |
 * | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this	   |
-* | Module if you have the written consent of Squiz.				   |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.5.4.1 2008/02/10 22:39:58 bshkara Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.5.4.2 2008/03/12 04:04:43 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5.4.1 $
+* @version $Revision: 1.5.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -123,7 +123,6 @@ class Ecommerce_Checkout_Management extends Asset_Management
 													'type'		=> 'text',
 													'default'	=> 'There is an insufficient amount of items in stock to proceed with your order. Your order has not been processed. The items with insufficient quantities are listed below:',
 												   );
-
 
 	}//end constructor
 

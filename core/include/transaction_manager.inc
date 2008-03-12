@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.26 2007/12/13 02:57:57 lwright Exp $
+* $Id: transaction_manager.inc,v 1.26.2.1 2008/03/12 04:04:00 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object
@@ -82,7 +82,7 @@ class Transaction_Manager extends MySource_Object
 	*/
 	public function begin($db_name)
 	{
-		$dsn_array = DAL::getDsn($db_name);
+		$dsn_array = MatrixDAL::getDsn($db_name);
 		$dsn = $dsn_array['dsn'];
 
 		if (isset($this->_levels[$dsn])) {
@@ -92,15 +92,11 @@ class Transaction_Manager extends MySource_Object
 		}
 
 		if ($this->_levels[$dsn] == 1) {
-			//if ($dsn['type'] != 'oci8') {
-				// first time we have started a transaction
-				try {
-					DAL::beginTransaction();
-				} catch (DALException $e) {
-					throw $e;
-				}
-				//assert_valid_db_result($result);
-			//}
+			try {
+				MatrixDAL::beginTransaction();
+			} catch (DALException $e) {
+				throw $e;
+			}
 		}
 
 		return TRUE;
@@ -120,7 +116,7 @@ class Transaction_Manager extends MySource_Object
 	*/
 	public function commit($db_name)
 	{
-		$dsn_array = DAL::getDsn($db_name);
+		$dsn_array = MatrixDAL::getDsn($db_name);
 		$dsn = $dsn_array['dsn'];
 
 		if (empty($this->_levels[$dsn])) {
@@ -132,7 +128,7 @@ class Transaction_Manager extends MySource_Object
 		if (!empty($this->_rollback[$dsn])) {
 			trigger_localised_error('SYS0220', E_USER_WARNING);
 			try {
-				DAL::rollback();
+				MatrixDAL::rollback();
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -144,7 +140,7 @@ class Transaction_Manager extends MySource_Object
 		if ($this->_levels[$dsn] == 0) {
 			// this is the last commit
 			try {
-				DAL::commit();
+				MatrixDAL::commit();
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -167,7 +163,7 @@ class Transaction_Manager extends MySource_Object
 	*/
 	public function rollback($db_name)
 	{
-		$dsn_array = DAL::getDsn($db_name);
+		$dsn_array = MatrixDAL::getDsn($db_name);
 		$dsn = $dsn_array['dsn'];
 
 		if (empty($this->_levels[$dsn])) {
@@ -183,7 +179,7 @@ class Transaction_Manager extends MySource_Object
 
 			// this is the last rollback
 			try {
-				DAL::rollback();
+				MatrixDAL::rollback();
 			} catch (DALException $e) {
 				throw $e;
 			}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.39 2007/12/10 21:57:51 colivar Exp $
+* $Id: page_whats_new.inc,v 1.39.2.1 2008/03/12 04:04:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -134,7 +134,7 @@ class Page_Whats_New extends Listing_Engine
 				trigger_localised_error('CMS0054', E_USER_WARNING, $from_time);
 				return Array();
 			}
-			$where .= ' AND a.'.$field.' >= '.$db->quote($from_date.' '.$from_time);
+			$where .= ' AND a.'.$field.' >= '.db_extras_todate(MatrixDAL::getDbType(), $from_date.' '.$from_time);
 		}
 
 		$to = $to->getISO8601();
@@ -154,7 +154,7 @@ class Page_Whats_New extends Listing_Engine
 				trigger_localised_error('CMS0056', E_USER_WARNING, $to_time);
 				return Array();
 			}
-			$where .= ' AND a.'.$field.' <= '.$db->quote($to_date.' '.$to_time);
+			$where .= ' AND a.'.$field.' <= '.db_extras_todate(MatrixDAL::getDbType(), $to_date.' '.$to_time);
 		}
 
 		// if there are no date conditions - we dont display anything
@@ -180,7 +180,7 @@ class Page_Whats_New extends Listing_Engine
 
 				$new_links = NULL;
 				try {
-					$_query = $db->prepare(implode(' ', $query));
+					$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
 					$new_links = MatrixDAL::executePdoAll($_query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());

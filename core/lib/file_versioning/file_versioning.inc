@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.35 2007/12/18 23:54:09 colivar Exp $
+* $Id: file_versioning.inc,v 1.35.2.1 2008/03/12 04:04:02 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.2.1 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -153,10 +153,10 @@ class File_Versioning
 					AND '.((is_null($version)) ? 'to_date IS NULL' : 'version = :version');
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':fileid', $fileid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'fileid', $fileid);
 			if (!is_null($version)) {
-				$query->bindValue(':version', $version);
+				MatrixDAL::bindValueToPdo($query, 'version', $version);
 			}
 			$result = MatrixDAL::executePdoAssoc($query);
 			if (!empty($result)) {
@@ -253,9 +253,9 @@ class File_Versioning
 					AND filename = :filename';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':path',     dirname($file_path));
-			$query->bindValue(':filename', basename($file_path));
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'path',     dirname($file_path));
+			MatrixDAL::bindValueToPdo($query, 'filename', basename($file_path));
 			$fileid = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get file versioning information for file "'.hide_system_root($file_path).'" due to database error: '.$e->getMessage());
@@ -287,10 +287,10 @@ class File_Versioning
 		$insert = 'INSERT INTO sq_file_vers_lock (fileid) VALUES (:fileid)';
 
 		try {
-			$select_query = $db->prepare($select);
-			$select_query->bindValue(':fileid', $fileid);
-			$insert_query = $db->prepare($insert);
-			$insert_query->bindValue(':fileid', $fileid);
+			$select_query = MatrixDAL::preparePdoQuery($select);
+			MatrixDAL::bindValueToPdo($select_query, 'fileid', $fileid);
+			$insert_query = MatrixDAL::preparePdoQuery($insert);
+			MatrixDAL::bindValueToPdo($insert_query, 'fileid', $fileid);
 		} catch (Exception $e) {
 			throw new Exception('Unable to prepare file versioning locking queries for file ID "'.$fileid.'" due to database error: '.$e->getMessage());
 		}
@@ -350,8 +350,8 @@ class File_Versioning
 		$sql = 'DELETE FROM sq_file_vers_lock
 		WHERE fileid = :fileid';
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':fileid', $fileid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'fileid', $fileid);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to unlock file ID "'.$fileid.'" due to database error: '.$e->getMessage());
@@ -435,9 +435,9 @@ class File_Versioning
 					OR :path LIKE '.$concat_2;
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':path_wildcard', $rep_path.'/'.basename($real_file).'%');
-				$query->bindValue(':path',          $rep_path.'/'.basename($real_file));
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'path_wildcard', $rep_path.'/'.basename($real_file).'%');
+				MatrixDAL::bindValueToPdo($query, 'path',          $rep_path.'/'.basename($real_file));
 				$fileid = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get file versioning information for file "'.hide_system_root($file_path).'" due to database error: '.$e->getMessage());
@@ -456,18 +456,17 @@ class File_Versioning
 
 		// if there is no current file we need to insert the new DB record
 		if (empty($current_info)) {
-			// TODO: needs to be changed to seqNextVal() in queries.xml
-			$fileid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_file_vers_file_seq\')');
+			$fileid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_file_vers_file_seq'));
 			$fileid = (int) $fileid;
 
 			$sql = 'INSERT INTO sq_file_vers_file (fileid, path, filename)
 					VALUES (:fileid, :path, :filename)';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':fileid',   $fileid);
-				$query->bindValue(':path',     $rep_path);
-				$query->bindValue(':filename', $filename);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'fileid',   $fileid);
+				MatrixDAL::bindValueToPdo($query, 'path',     $rep_path);
+				MatrixDAL::bindValueToPdo($query, 'filename', $filename);
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert new file versioning information for file "'.$filename.'" due to database error: '.$e->getMessage());
@@ -526,11 +525,11 @@ class File_Versioning
 
 		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
 				FROM sq_file_vers_history
-				WHERE fileid = '.$db->quote($fileid);
+				WHERE fileid = :fileid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':fileid', $fileid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'fileid', $fileid);
 			$version = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get version information for file ID '.$fileid.' due to database error: '.$e->getMessage());
@@ -538,21 +537,23 @@ class File_Versioning
 
 		$now = time();
 		$date = ts_iso8601($now);
-		if (MatrixDAL::getDbType() == 'oci') {
-			// TODO:
-			$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
-		}
+		/*if (MatrixDAL::getDbType() == 'oci') {
+			$date = db_extras_todate(MatrixDAL::getDbType(), $date);
+		}*/
 
 		$sql = 'UPDATE sq_file_vers_history
-				SET to_date = :date
+				SET to_date = :to_date
 				WHERE fileid = :fileid
 				  AND to_date IS NULL';
 
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':fileid', $fileid);
-			$query->bindValue(':date',   $date);
+			if (MatrixDAL::getDbType() == 'oci') {
+				$sql = str_replace(':to_date', db_extras_todate(MatrixDAL::getDbType(), ':to_date', FALSE), $sql);
+			}
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'fileid',  $fileid);
+			MatrixDAL::bindValueToPdo($query, 'to_date', $date);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
@@ -577,16 +578,19 @@ class File_Versioning
 				(:fileid, :version, :from_date, :to_date, :file_size, :md5, :sha1, :removal, :extra_info)';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':fileid',     $fileid);
-			$query->bindValue(':version',    $version);
-			$query->bindValue(':from_date',  $date);
-			$query->bindValue(':to_date',    NULL);
-			$query->bindValue(':file_size',  $file_size);
-			$query->bindValue(':md5',        $md5);
-			$query->bindValue(':sha1',       $sha1);
-			$query->bindValue(':removal',    $removal);
-			$query->bindValue(':extra_info', $extra_info);
+			if (MatrixDAL::getDbType() == 'oci') {
+				$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
+			}
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'fileid',     $fileid);
+			MatrixDAL::bindValueToPdo($query, 'version',    $version);
+			MatrixDAL::bindValueToPdo($query, 'from_date',  $date);
+			MatrixDAL::bindValueToPdo($query, 'to_date',    NULL);
+			MatrixDAL::bindValueToPdo($query, 'file_size',  $file_size);
+			MatrixDAL::bindValueToPdo($query, 'md5',        $md5);
+			MatrixDAL::bindValueToPdo($query, 'sha1',       $sha1);
+			MatrixDAL::bindValueToPdo($query, 'removal',    $removal);
+			MatrixDAL::bindValueToPdo($query, 'extra_info', $extra_info);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to insert version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
@@ -700,30 +704,33 @@ class File_Versioning
 				//       date if they want an expired version
 				$sql = 'SELECT version, removal
 						FROM sq_file_vers_history
-						WHERE fileid = '.$db->quote($info['fileid']).'
+						WHERE fileid = :fileid
 						  AND to_date IS NULL';
 				$nice_date = ts_iso8601(time());
 			} else {
 				$nice_date = ts_iso8601($date);
-				$date = $db->quote(ts_iso8601($date));
-				if (MatrixDAL::getDbType() == 'oci8') {
-					$date = 'TO_DATE('.$date.', '.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
-				}
+				$date = ts_iso8601($date);
 
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 				$sql = 'SELECT version, removal
 						FROM sq_file_vers_history
 						WHERE fileid = :fileid
-						  AND from_date <= :date
-						  AND (to_date IS NULL OR to_date > :date_1)
+						  AND from_date <= :from_date
+						  AND (to_date IS NULL OR to_date > :from_date_1)
 						ORDER BY version DESC';
 			}//end if
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':fileid', $info['fileid']);
-				$query->bindValue(':date',   $date);
-				$query->bindValue(':date_1', $date);
+				if (MatrixDAL::getDbType() == 'oci') {
+					$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
+					$sql = str_replace(':from_date_1', db_extras_todate(MatrixDAL::getDbType(), ':from_date_1', FALSE), $sql);
+				}
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'fileid', $info['fileid']);
+				if (!is_null($date)) {
+					MatrixDAL::bindValueToPdo($query, 'from_date',   $date);
+					MatrixDAL::bindValueToPdo($query, 'from_date_1', $date);
+				}
 
 				$result = MatrixDAL::executePdoAll($query);
 				if (!empty($result)) {
@@ -746,13 +753,13 @@ class File_Versioning
 		} else {
 			$sql = 'SELECT version, removal
 					FROM sq_file_vers_history
-					WHERE fileid = '.$db->quote($info['fileid']).'
-					  AND version = '.$db->quote($version);
+					WHERE fileid = :fileid
+						AND version = :version';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':fileid', $info['fileid']);
-				$query->bindValue(':version', $version);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'fileid', $info['fileid']);
+				MatrixDAL::bindValueToPdo($query, 'version', $version);
 
 				$result = MatrixDAL::executePdoAll($query);
 				if (!empty($result)) {

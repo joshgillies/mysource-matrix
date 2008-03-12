@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.18 2007/12/19 23:44:38 rong Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.18.2.1 2008/03/12 04:05:08 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -55,7 +55,7 @@ class Search_Manager_Plugin_PgSQL
 		switch ($data_source['type']) {
 
 			case 'include_all':
-				$base_query['where'][] = 'ai.value LIKE '.$db->quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
+				$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 			break;
 
 			case 'asset_attrib':
@@ -64,16 +64,16 @@ class Search_Manager_Plugin_PgSQL
 				$attr_info = $attr_info[$attrid];
 
 				$attr_type = $attr_info['type'];
-				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attr_info['name']);
 
 				// work out what attribute type it is and perform a cast if
 				// it's a numeric search
 				if ($attr_type == 'int') {
-					$base_query['where'][] = 'CAST (ai.value AS int) = '.$db->quote($search_term);
+					$base_query['where'][] = 'CAST (ai.value AS int) = '.MatrixDAL::quote($search_term);
 				} else if ($attr_type == 'float') {
-					$base_query['where'][] = 'CAST(ai.value AS double precision) = '.$db->quote($search_term);
+					$base_query['where'][] = 'CAST(ai.value AS double precision) = '.MatrixDAL::quote($search_term);
 				} else {
-					$base_query['where'][] = 'ai.value LIKE '.$db->quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
+					$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 				}
 			break;
 
@@ -85,16 +85,16 @@ class Search_Manager_Plugin_PgSQL
 								'metadata_field_thesaurus'		=> 'thesaurus',
 							 );
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
-				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
-				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
-				$base_query['where'][] = 'ai.value LIKE '.$db->quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
+				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
+				$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 			break;
 
 			case 'standard':
 				$field = $data_source['params']['field'];
 				if (isset($sm->standard_text_fields[$field])) {
-					$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
-					$base_query['where'][] = 'ai.value LIKE '.$db->quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
+					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
+					$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 				} else {
 					trigger_error('Invalid standard search field '.$field, E_USER_WARNING);
 				}
@@ -151,21 +151,21 @@ class Search_Manager_Plugin_PgSQL
 				$attr_info = $attr_info[$attrid];
 
 				$attr_type = $attr_info['type'];
-				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attr_info['name']);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attr_info['name']);
 
 				if ($numeric_range['upper'] == $numeric_range['lower']) {
-					$search_compare = '= '.$db->quote($numeric_range['upper']);
+					$search_compare = '= '.MatrixDAL::quote($numeric_range['upper']);
 				} else if (is_null($numeric_range['upper'])) {
-					$search_compare = '>= '.$db->quote($numeric_range['lower']);
+					$search_compare = '>= '.MatrixDAL::quote($numeric_range['lower']);
 				} else if (is_null($numeric_range['lower'])) {
-					$search_compare = '<= '.$db->quote($numeric_range['upper']);
+					$search_compare = '<= '.MatrixDAL::quote($numeric_range['upper']);
 				} else if ($numeric_range['upper'] > $numeric_range['lower']) {
 					// upper > lower as expected
-					$search_compare = 'BETWEEN '.$db->quote($numeric_range['lower']).' AND '.$db->quote($numeric_range['upper']);
+					$search_compare = 'BETWEEN '.MatrixDAL::quote($numeric_range['lower']).' AND '.MatrixDAL::quote($numeric_range['upper']);
 				} else {
 					// accept lower > upper but we need to switch values because
 					// some DB engines won't accept BETWEEN upper AND lower
-					$search_compare = 'BETWEEN '.$db->quote($numeric_range['upper']).' AND '.$db->quote($numeric_range['lower']);
+					$search_compare = 'BETWEEN '.MatrixDAL::quote($numeric_range['upper']).' AND '.MatrixDAL::quote($numeric_range['lower']);
 				}
 
 				if ($attr_type == 'int') {
@@ -231,7 +231,7 @@ class Search_Manager_Plugin_PgSQL
 			case 'asset_attrib':
 				// TODO: restrict by asset type here?
 				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($data_source['params']['attrid']);
-				$base_query['where'][] = 'ai.component = '.$db->quote('attr:'.$attribute->name);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('attr:'.$attribute->name);
 			break;
 
 			case 'metadata':
@@ -242,14 +242,14 @@ class Search_Manager_Plugin_PgSQL
 								'metadata_field_date'		=> 'datetime',
 							 );
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
-				$base_query['where'][] = 'ai.type = '.$db->quote($key_type);
-				$base_query['where'][] = 'ai.component = '.$db->quote('metadata:'.(int)$data_source['params']['assetid']);
+				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
+				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
 			break;
 
 			case 'standard':
 				$field = $data_source['params']['field'];
 				if (isset($sm->standard_date_fields[$field])) {
-					$base_query['where'][] = 'ai.component = '.$db->quote('__'.$field.'__');
+					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
 				} else {
 					trigger_error('Invalid standard date search field '.$field, E_USER_WARNING);
 				}
@@ -260,11 +260,11 @@ class Search_Manager_Plugin_PgSQL
 		// when one field is left blank, we are searching for anything before or after that date
 		// else we look between the given dates
 		if ($date_range['from'] == '---------- --:--:--' && $date_range['to'] != '---------- --:--:--') {
-			$base_query['where'][] = 'ai.value <= '.$db->quote($date_range['to']);
+			$base_query['where'][] = 'ai.value <= '.MatrixDAL::quote($date_range['to']);
 		} else if ($date_range['to'] == '---------- --:--:--' && $date_range['from'] != '---------- --:--:--') {
-			$base_query['where'][] = 'ai.value >= '.$db->quote($date_range['from']);
+			$base_query['where'][] = 'ai.value >= '.MatrixDAL::quote($date_range['from']);
 		} else {
-			$base_query['where'][] = 'ai.value BETWEEN '.$db->quote($date_range['from']).' AND '.$db->quote($date_range['to']);
+			$base_query['where'][] = 'ai.value BETWEEN '.MatrixDAL::quote($date_range['from']).' AND '.MatrixDAL::quote($date_range['to']);
 		}
 
 		$sql = implode_sql($base_query);
@@ -358,16 +358,15 @@ class Search_Manager_Plugin_PgSQL
 							   JOIN sq_ast_lnk l on t.linkid = l.linkid
 						   WHERE l.minorid IN ('.implode(',', $search_info['roots']).')';
 			// getAssoc only gives us the first treeid for each minorid, which is actually just what we want!
-			$root_tree_ids = $db->getAssoc($treeid_sql);
-			assert_valid_db_result($root_tree_ids);
+			$root_tree_ids = MatrixDAL::executeSqlGroupedAssoc($treeid_sql);
 
 			if ($root_logic == 'AND') {
 				foreach (array_values($search_info['roots']) as $i => $rootid) {
 					$query['join'][] = 'INNER JOIN sq_ast_lnk l'.$i.' ON l'.$i.'.minorid = a.assetid'; // join the link tree and link tables
 					$query['join'][] = 'INNER JOIN sq_ast_lnk_tree t'.$i.' ON l'.$i.'.linkid =  t'.$i.'.linkid'; // join them to the asset table
 
-					$treeid = $root_tree_ids[$rootid];
-					$query['where'][] = 't'.$i.'.treeid LIKE '.$db->quote($treeid.'%');
+					$treeid = $root_tree_ids[$rootid][0]['treeid'];
+					$query['where'][] = 't'.$i.'.treeid LIKE '.MatrixDAL::quote($treeid.'%');
 				}
 			} else {
 				$query['join'][] = 'INNER JOIN sq_ast_lnk l ON l.minorid = a.assetid';
@@ -375,7 +374,7 @@ class Search_Manager_Plugin_PgSQL
 
 				$treeid_wheres = Array();
 				foreach ($root_tree_ids as $treeid) {
-					$treeid_wheres[] = '(t.treeid LIKE '.$db->quote($treeid.'%').')';
+					$treeid_wheres[] = '(t.treeid LIKE '.MatrixDAL::quote($treeid.'%').')';
 				}
 				if (!empty($treeid_wheres)) {
 					$query['where'][] = implode(' OR ', $treeid_wheres);
@@ -387,7 +386,9 @@ class Search_Manager_Plugin_PgSQL
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
-			$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+			}
 
 			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
@@ -400,21 +401,30 @@ class Search_Manager_Plugin_PgSQL
 			}
 
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quote($userids[$i]);
+				$userids[$i] = MatrixDAL::quote($userids[$i]);
 			}
 			$usrids_str = implode(',', $userids);
-			$query['where'][] = 'p.userid  IN ('.$usrids_str.') OR '.'r.userid  IN ('.$usrids_str.')';
-			$query['where'][] = '(
-						(p.permission = '.$db->quote(SQ_PERMISSION_READ).'
+			$where = 'p.userid  IN ('.$usrids_str.')';
+			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				$where .= ' OR '.'r.userid  IN ('.$usrids_str.')';
+			}
+			$query['where'][] = $where;
+			$where = '(
+						(p.permission = '.MatrixDAL::quote(SQ_PERMISSION_READ).'
 							AND (
-									p.userid <> '.$db->quote($public_userid).'
-									OR r.userid <> '.$db->quote($public_userid).'
-									OR (p.userid = '.$db->quote($public_userid).' AND granted = 1)
-									OR (r.userid = '.$db->quote($public_userid).' AND granted = 1)
+									p.userid <> '.MatrixDAL::quote($public_userid).'
+									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)';
+
+			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+				$where .= '				OR r.userid <> '.MatrixDAL::quote($public_userid).'
+									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)';
+			}
+
+			$query['where'][] = $where . '
 								)
 						)
 						OR
-						(p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1)
+						(p.permission > '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND p.granted = 1)
 						)';
 			$query['having'][] = 'MIN(p.granted) <> 0';
 			$query['group_by'][] = 'a.assetid';
@@ -425,13 +435,13 @@ class Search_Manager_Plugin_PgSQL
 			$statuses = $search_info['statuses'];
 			if (array_sum($statuses) != SQ_SC_STATUS_ALL) {
 				foreach ($statuses as $i => $status) {
-					$statuses[$i] = $db->quote($status);
+					$statuses[$i] = MatrixDAL::quote($status);
 				}
 				$query['where'][] = 'a.status IN ('.implode(', ', $statuses).')';
 			}
 		} else {
 			// if there are no status restrictions, default to LIVE assets only
-			$query['where'][] = 'a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+			$query['where'][] = 'a.status  >= '.MatrixDAL::quote(SQ_STATUS_LIVE);
 		}
 
 		// ASSET TYPE RESTRICTIONS
@@ -440,9 +450,9 @@ class Search_Manager_Plugin_PgSQL
 			$normal_types = Array();
 			for (reset($search_info['asset_types']); NULL !== ($i = key($search_info['asset_types'])); next($search_info['asset_types'])) {
 				if ($search_info['asset_types'][$i] == 1) {
-					$inherited_types[] = $db->quote($i);
+					$inherited_types[] = MatrixDAL::quote($i);
 				} else {
-					$normal_types[] = $db->quote($i);
+					$normal_types[] = MatrixDAL::quote($i);
 				}
 			}
 
@@ -496,15 +506,15 @@ class Search_Manager_Plugin_PgSQL
 					sq_sch_idx
 				WHERE
 				assetid = :assetid'.
-				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quote('metadata:%')).'
+				  ($include_metadata ? '' : ' AND component NOT LIKE '.MatrixDAL::quote('metadata:%')).'
 				GROUP BY
 					LOWER(value)
 				ORDER BY
 					SUM(score) DESC';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $asset->id);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
 			$result = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to extract keywords due to database error: '.$e->getMessage());
@@ -634,10 +644,10 @@ class Search_Manager_Plugin_PgSQL
 
 		$sql = implode_sql($sql_components);
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':source_id1', $source_id);
-			$query->bindValue(':source_id2', $source_id);
-			$query->bindValue(':type', $type);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'source_id1', $source_id);
+			MatrixDAL::bindValueToPdo($query, 'source_id2', $source_id);
+			MatrixDAL::bindValueToPdo($query, 'type', $type);
 			$result = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get assetid by word intersection due to database error: '.$e->getMessage());
@@ -718,15 +728,15 @@ class Search_Manager_Plugin_PgSQL
 
 					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
 					$name = $attr_info[$attrid]['name'];
-					$data_source_comps[] = 'ai.component = '.$db->quote('attr:'.$name);
+					$data_source_comps[] = 'ai.component = '.MatrixDAL::quote('attr:'.$name);
 				break;
 				case 'metadata' :
 					$assetid = $data_source['params']['assetid'];
-					$data_source_comps[] = 'ai.component = '.$db->quote('metadata:'.$assetid);
+					$data_source_comps[] = 'ai.component = '.MatrixDAL::quote('metadata:'.$assetid);
 				break;
 				case 'standard' :
 					$param_field = $data_source['params']['field'];
-					$data_source_comps[] = 'ai.component = '.$db->quote('__'.$param_field.'__');
+					$data_source_comps[] = 'ai.component = '.MatrixDAL::quote('__'.$param_field.'__');
 				break;
 
 				default :

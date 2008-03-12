@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_login_ipb.inc,v 1.4.6.1 2008/02/08 05:50:41 bshkara Exp $
+* $Id: trigger_action_login_ipb.inc,v 1.4.6.2 2008/03/12 04:04:54 lwright Exp $
 *
 */
 
@@ -26,12 +26,28 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4.6.1 $
+* @version $Revision: 1.4.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Login_Ipb extends Trigger_Action
 {
+
+
+	/**
+	* Constructor
+	*
+	* This constructor is included for consistency, but will not actually be
+	* called, because trigger actions are only called statically.
+	*
+	* @param string	$assetid	The asset ID to load
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**
@@ -88,7 +104,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 		// We have to supress error reporting level since IPB and IPBSDK
 		// generates many PHP Notice warnings
 		$old_reporting_level = error_reporting(0);
-		$SDK =& new IPBSDK();
+		$SDK = new IPBSDK();
 		if (!$SDK->login($username, $password, 1)) {
 			// Do we want any error reporting?
 		}

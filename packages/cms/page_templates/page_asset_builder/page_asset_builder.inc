@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.1 2008/02/14 23:45:38 hnguyen Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.2 2008/03/12 04:04:22 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.1 $
+* @version $Revision: 1.122.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -311,12 +311,73 @@ class Page_Asset_Builder extends Page
 			} else if (isset($_POST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
 				hidden_field($this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
 			}
+
 			$this->_printContents();
 			?>
 		</form>
 		<?php
-
+		
 	}//end _printBody()
+
+
+	/**
+	* Form Captcha keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaKeywordReplacement()
+	{
+		ob_start();
+			security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaKeywordReplacement()
+
+
+	/**
+	* Form Captcha Image keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaImageKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaImageKeywordReplacement()
+
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaFieldKeywordReplacement()
+	{
+		ob_start();
+			security_key_field($this->attr('captcha_length'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaFieldKeywordReplacement()
+
+
+	/**
+	* Form Captcha Link keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLinkKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_link($this->attr('captcha_link_text'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaLinkKeywordReplacement()
 
 
 	/**
@@ -346,6 +407,15 @@ class Page_Asset_Builder extends Page
 				break;
 
 				case 'create' :
+					
+					// verify captcha
+					if ($this->attr('require_captcha')) {
+						if (!validate_security_key()) {
+							$error_text = translate('security_key_incorrect');
+							trigger_error($error_text, E_USER_NOTICE);
+							break;
+						}		
+					}
 
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
@@ -353,6 +423,7 @@ class Page_Asset_Builder extends Page
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 					$new_asset = new $create_type();
 					$prefix = $new_asset->getPrefix();
+
 
 
 					  ///////////////////////
@@ -426,11 +497,19 @@ class Page_Asset_Builder extends Page
 						break;
 					}
 
+					// If the link value is set, grab it, otherwise return a blank ''
+					$grab_link_value = $this->attr('link_value');
+					if (!empty($grab_link_value)) {
+						$link_value = trim($grab_link_value);
+					} else {
+						$link_value = '';
+					}
+
 					// start the transaction to create the asset
 					$link = Array(
 								'asset'			=> &$parent,
 								'link_type'		=> $create_locations[$create_parentid],
-								'value'			=> '',
+								'value'			=> $link_value,
 								'sort_order'	=> -1,
 							);
 
@@ -478,6 +557,7 @@ class Page_Asset_Builder extends Page
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$metadata_values = Array();
 						$schemaids = $this->_getMetadataSchemasToApply();
+						$cascade_values_asset_ids = Array();
 						if (!empty($schemaids)) {
 							$metadata_run_level_changed = FALSE;
 							if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -490,7 +570,7 @@ class Page_Asset_Builder extends Page
 								$mm->setSchema($new_asset->id, $schema->id, TRUE);
 								if (!is_null($schema)) {
 									$edit_fns = $schema->getEditFns();
-									$edit_fns->processInlineValueInterface($schema, $metadata_values);
+									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids);
 								}
 							}
 							$mm->setMetadata($new_asset->id, $metadata_values);
@@ -932,6 +1012,16 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadCreateReplacements()
 	{
+		
+		  //////////////////////////// 																																	
+		 // CREATE CAPTCHA KEYWORD //  																																	
+		////////////////////////////  	
+																																	
+		$this->_replacements['form_captcha'] = $this->getFormCaptchaKeywordReplacement();																																																																					
+		$this->_replacements['form_captcha_image'] = $this->getFormCaptchaImageKeywordReplacement();																																																																					
+		$this->_replacements['form_captcha_field'] = $this->getFormCaptchaFieldKeywordReplacement();																																																																					
+		$this->_replacements['form_captcha_link'] = $this->getFormCaptchaLinkKeywordReplacement();																																																																					
+		
 
 		  ///////////////////////////
 		 // CREATE INVITE KEYWORD //
@@ -1223,6 +1313,12 @@ class Page_Asset_Builder extends Page
 		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
 		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
 		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
+		if ($this->attr('require_captcha')) {	
+			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
+			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
+			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
+			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+		}
 
 		return $keywords;
 
@@ -1507,7 +1603,7 @@ class Page_Asset_Builder extends Page
 						if (is_null($metadata_edit_fns)) {
 							$metadata_edit_fns = $schema->getEditFns();
 						}
-						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE);
+						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE, FALSE);
 					}
 					$asset->paintBackend($o);
 					$o->addHiddenField('asset_action', 'create');

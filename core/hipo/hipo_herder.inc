@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.97 2008/01/03 04:03:31 bshkara Exp $
+* $Id: hipo_herder.inc,v 1.97.2.1 2008/03/12 04:03:57 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.97.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -680,7 +680,7 @@ class HIPO_Herder extends MySource_Object
 		for ($i = 0; $i < count($queued_jobs); $i++) {
 			$job_data = $queued_jobs[$i];
 			$job = $this->getJob($job_data['code_name']);
-			$job_codes[] = $db->quote($job_data['code_name']);
+			$job_codes[] = $job_data['code_name'];
 
 			if (isset($queued_jobs[($i+1)])) {
 				$next_url = $this->getProcessURL($queued_jobs[($i+1)]['code_name']);
@@ -702,12 +702,13 @@ class HIPO_Herder extends MySource_Object
 			}
 		}
 
-		$sql = 'UPDATE sq_hipo_job
-				SET running = 1
-				WHERE code_name IN ('.implode(', ',$job_codes).')';
-
 		try {
-			$result = MatrixDAL::executeSql($sql);
+			// run query from DAL
+			$bind_vars = Array(
+							'running'		=> 1,
+							'code_names'	=> $job_codes,
+						 );
+			$result = MatrixDAL::executeQuery('core', 'updateHipoRunningStatus', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update HIPO jobs table due to database error: '.$e->getMessage());
 		}
@@ -841,14 +842,14 @@ class HIPO_Herder extends MySource_Object
 
 				$jobs_to_remove = Array();
 				foreach ($_POST['remove_job'] as $code_name) {
-					$jobs_to_remove[] = $db->quoteSmart($code_name);
+					$jobs_to_remove[] = MatrixDAL::quote($code_name);
 				}
 				$sql = 'DELETE FROM sq_hipo_job
 						WHERE code_name IN (:jobs_to_remove)';
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':jobs_to_remove', $jobs_to_remove);
-					$result = MatrixDAL::executeOne($query);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'jobs_to_remove', implode(',', $jobs_to_remove));
+					$result = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to delete HIPO job(s) due to database error: '.$e->getMessage());
 				}
@@ -950,8 +951,10 @@ class HIPO_Herder extends MySource_Object
 				$sql .= ' WHERE userid = :current_user_id';
 			}
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':current_user_id', $current_user_id);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				if (!$hipo_admin) {
+					MatrixDAL::bindValueToPdo($query, 'current_user_id', $current_user_id);
+				}
 				$result = MatrixDAL::executePdoAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get HIPO jobs for user: '.$current_user_id.' due to database error: '.$e->getMessage());
@@ -1006,10 +1009,12 @@ class HIPO_Herder extends MySource_Object
 								<?php
 									// if the current user is the owner of the hipo job or the current user is a sysadmin or a root
 									// then display the resume button
+									// also once the user clicked on the resume button, the hipo job will be resumed in a popup window
+									// and the resume button will be hidden
 									if (($source_job->userid === $current_user_id) || $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-										?>
-										<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>
-										<?php
+									?>
+										<p style="text-align:center"><a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>&nbsp;<a href="#" onclick="var result = window.open('./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>', 'hipo_job<?php echo $source_code_name; ?>', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');return false;" style="text-decoration: none;" ><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume_popup.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a></p>
+										 <?php
 									}
 								?>
 							</td>
@@ -1100,8 +1105,10 @@ class HIPO_Herder extends MySource_Object
 				}
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':current_user_id', $current_user_id);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					if (!$hipo_admin) {
+						MatrixDAL::bindValueToPdo($query, 'current_user_id', $current_user_id);
+					}
 					$orphaned_jobs = MatrixDAL::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get orphaned jobs for user: '.$current_user_id.' due to database error: '.$e->getMessage());

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.16 2007/11/09 01:32:28 rong Exp $
+* $Id: history.inc,v 1.16.2.1 2008/03/12 04:04:01 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix
 */
 
@@ -71,6 +71,7 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 				<tr>
 					<td class="sq-backend-table-header"><?php echo translate('version_duration'); ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('time_since_version'); ?></td>
+					<td class="sq-backend-table-header" align="center"><?php echo translate('updated_user'); ?></td>
 					<td class="sq-backend-table-header" align="center"><?php echo translate('version'); ?></td>
 					<?php
 					if ($write_access) {
@@ -85,6 +86,7 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 				foreach ($result as $data) {
 					$from = $data['efrom'];
 					$to   = $data['eto'];
+					$updated_username = $data['updated_username'];
 
 					$class = 'sq-backend-table-cell';
 					$show_view_btn = TRUE;
@@ -116,7 +118,9 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 					<tr>
 						<td class="<?php echo $class; ?>"><?php echo date('d/m/Y H:i:s', strtotime($from)); ?> - <?php echo $to; ?></td>
 						<td class="<?php echo $class; ?>"><?php echo $ago; ?></td>
+						<td class="<?php echo $class; ?>"><?php echo $updated_username; ?></td>
 						<td class="<?php echo $class; ?>" align="center"><?php echo $data['version']; ?></td>
+
 						<?php
 						if ($write_access) {
 							?>

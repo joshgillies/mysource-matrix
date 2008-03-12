@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.56 2007/12/28 00:56:01 hnguyen Exp $
+* $Id: page_calendar_management.inc,v 1.56.2.1 2008/03/12 04:04:19 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -258,13 +258,13 @@ class Page_Calendar_Management extends Asset_Management
 											'default'	=> 'Show Today',
 										);
 
-        // for the body copy no results use. If true we use the body copy no results.
-        $this->vars['use_no_results_body_copy'] = Array(
-                                        			'added'		=> '0.7',
-                                       				'type'		=> 'boolean',
-                                        			'default'	=> '0',
-			                                        'parameters'=> Array('allow_empty' => FALSE),
-                                      				);
+		// for the body copy no results use. If true we use the body copy no results.
+		$this->vars['use_no_results_body_copy'] = Array(
+													'added'		=> '0.7',
+													'type'		=> 'boolean',
+													'default'	=> '0',
+													'parameters'=> Array('allow_empty' => FALSE),
+													);
 
 
 
@@ -387,143 +387,6 @@ class Page_Calendar_Management extends Asset_Management
 			   );
 
 	}//end getEventList()
-
-
-	/**
-	* Updates an attribute that this asset owns (ie the first time it is defined is by this asset)
-	*
-	* @param string	$name		the name of the attribute to update
-	* @param string	$curr_attr	the info for the attribute as it stands at the moment
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _updateOwnedAttribute($name, $curr_attr)
-	{
-		if (($name == 'columnise_day_view_by_root_node') && ($this->_am->getTypeInfo($this->getAssetType(), 'version') == '0.2')) {
-			$sql = 'SELECT type FROM sq_asset_attribute WHERE owning_type_code='.$this->_db->quote('page_calendar').' AND name='.$this->_db->quote('columnise_day_view_by_root_node');
-			$types = $this->_db->getCol($sql);
-			if (in_array('boolean', $types)) {
-				// when upgrading from v0.1 to v0.2 the columnise_day_view_by_root_node attribute
-				// changed from a boolean, default true, to an array, default empty.
-
-				// find out which assets currently have a customised value for this attribute
-				$sql = 'SELECT v.assetid, v.attrid FROM sq_ast_attr_val v JOIN sq_ast_attr at ON v.attrid=at.attrid WHERE at.name='.$this->_db->quote($name).' AND at.owning_type_code='.$this->_db->quote($this->getAssetType());
-				$customised_assetids = $this->_db->getAssoc($sql);
-				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
-
-				parent::_updateOwnedAttribute($name, $curr_attr);
-				// create customised values for those assets that used to have the default value
-				foreach (array_diff($all_assetids, array_keys($customised_assetids)) as $id) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-					$GLOBALS['SQ_SYSTEM']->am->acquireLock($id, 'attributes');
-					$asset->setAttrValue('columnise_day_view_by_root_node', array_keys($asset->attr('root_nodes')));
-					$asset->saveAttributes();
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'attributes');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($id);
-				}
-
-				// delete the old customised values which should now take the default value
-				$value_keys = Array();
-				foreach ($customised_assetids as $assetid => $attrid) {
-					$value_keys[] = $attrid.'_'.$assetid;
-				}
-				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$sql = 'DELETE FROM
-							sq_ast_attr_val
-						WHERE
-							CONCAT(attrid, '.$this->_db->quote('_').', assetid) in ('.implode(', ', $value_keys).')';
-				$result = $this->_db->query($sql);
-				assert_valid_db_result($result);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-				return TRUE;
-			} else {
-				return parent::_updateOwnedAttribute($name, $curr_attr);
-			}
-		} else if (in_array($name, Array('day_partition_height', 'table_column_width', 'month_column_width', 'month_row_height')) && ($curr_attr['type'] != 'int')) {
-			if (!parent::_updateOwnedAttribute($name, $curr_attr)) {
-				return FALSE;
-			}
-
-			// stop it from being run twice
-			static $already_run = Array();
-			if (isset($already_run[$name])) return TRUE;
-			$already_run[$name] = 1;
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			// in v0.3 these attributes changed from exes to pixels, so we need to adjust their values
-			// we make the assumption that there are 8 pixels in an ex.
-			$sql = 'UPDATE sq_ast_attr_val SET custom_val = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
-			$res = $this->_db->query($sql);
-			if (!assert_valid_db_result($res)) return FALSE;
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return TRUE;
-		} else {
-			return parent::_updateOwnedAttribute($name, $curr_attr);
-		}
-
-	}//end _updateOwnedAttribute()
-
-
-	/**
-	* Upgrade asset
-	*
-	* @param string	$current_version	Current version of the asset
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _upgrade($current_version)
-	{
-		// first do things as normal
-		$res = parent::_upgrade($current_version);
-
-		static $upgrade_already_run = FALSE;
-		if ($upgrade_already_run) return $res;
-		$upgrade_already_run = TRUE;
-
-		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
-
-		if ($current_version < 0.3) {
-			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3');
-			// set values for our new attribute, the day column width, according to the old col width
-			// that was shared between day and week
-			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
-			pre_echo('Upgrading '.count($all_assetids).' assets...');
-			foreach ($all_assetids as $assetid) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$asset->setAttrValue('day_column_width', $asset->attr('table_column_width'));
-				$asset->saveAttributes();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
-			}
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.3');
-		}
-
-		if ($current_version < 0.6) {
-			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.6');
-			// correct the enabled_views attribute
-			$all_assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_calendar', FALSE);
-			pre_echo('Upgrading '.count($all_assetids).' assets...');
-			foreach ($all_assetids as $assetid) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$attr  =  $asset->attr('enabled_views');
-				if (array_get_index($attr, 'event') == 'single_event') {
-					$attr['event'] = 'single_event_view';
-				}
-				$asset->setAttrValue('enabled_views', $attr);
-				$asset->saveAttributes();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($assetid);
-			}
-			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION '.$current_version.' TO 0.6');
-		}
-
-		return $res;
-
-	}//end _upgrade()
 
 
 }//end class

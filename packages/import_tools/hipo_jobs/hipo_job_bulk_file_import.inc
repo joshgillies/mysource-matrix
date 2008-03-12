@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.8.2.1 2008/01/08 23:32:02 hnguyen Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.8.2.2 2008/03/12 04:04:51 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */

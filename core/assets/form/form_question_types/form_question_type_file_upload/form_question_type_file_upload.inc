@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.21 2007/12/13 23:09:24 bshkara Exp $
+* $Id: form_question_type_file_upload.inc,v 1.21.2.1 2008/03/12 04:03:49 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -169,9 +169,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 						AND a.name = :name';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':majorid', $create_loc);
-				$query->bindValue(':name', $name);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'majorid', $create_loc);
+				MatrixDAL::bindValueToPdo($query, 'name', $name);
 				$existing_file = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to check if file upload value is valid due to database error: '.$e->getMessage());
@@ -251,9 +251,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 						AND a.name = :name';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':majorid', $this->attr('create_location'));
-				$query->bindValue(':name', $name);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'majorid', $this->attr('create_location'));
+				MatrixDAL::bindValueToPdo($query, 'name', $name);
 				$existing_file = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get summary of answers for: '.$name.' due to database error: '.$e->getMessage());
@@ -319,9 +319,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 					AND a.name = :name';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':majorid', $create_loc);
-			$query->bindValue(':name', $name);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'majorid', $create_loc);
+			MatrixDAL::bindValueToPdo($query, 'name', $name);
 			$existing_file = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to check for web path conflicts for filename: '.$name.' due to database error: '.$e->getMessage());
@@ -353,11 +353,13 @@ class Form_Question_Type_File_Upload extends Form_Question
 										JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 										ON a.assetid = l.minorid
 								WHERE
-									l.majorid = '.$db->quoteSmart($create_loc).'
-									AND a.name = '.$db->quoteSmart($filename);
+									l.majorid = :create_loc
+									AND a.name = :filename';
 
-						$existing_file = $db->getOne($sql);
-						assert_valid_db_result($existing_file);
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'create_loc', $create_loc);
+						MatrixDAL::bindValueToPdo($query, 'filename',   $filename);
+						$existing_file = MatrixDAL::executePdoOne($query);
 					}
 					$this->setValue($filename);
 				break;
@@ -472,9 +474,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 					AND a.name = :name';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':create_loc', $create_loc);
-			$query->bindValue(':name', $name);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'create_loc', $create_loc);
+			MatrixDAL::bindValueToPdo($query, 'name', $name);
 			$existing_file = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get the uploaded file assetid due to database error: '.$e->getMessage());

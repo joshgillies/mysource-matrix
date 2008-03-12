@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.15 2007/12/11 03:29:58 rong Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.15.2.1 2008/03/12 04:03:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,7 +108,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
+	function paintValueInterface(Metadata_Field_Thesaurus $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
 	{
 		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) return;
 		$thesaurus = $asset->getThesaurusRef();
@@ -206,6 +206,11 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				hidden_field($prefix.'_terms_submitted', 1);
 			}
 
+			if ($print_cascade_values_option) {
+				check_box($prefix.'_cascade_value', '1', FALSE);
+				label(translate('cascade_value'), $prefix.'_cascade_value');
+			}
+
 		} else {
 			if (empty($values)) {
 				echo translate('thesaurus_no_values');
@@ -260,9 +265,11 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(Metadata_Field_Thesaurus $asset, &$new_value_str)
+	function processInlineValueInterface(Metadata_Field_Thesaurus $asset, &$new_value_str, &$field_cascade_value)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
+		$processed = FALSE;
 
 		$prefix = $asset->getPrefix();
 		$thesaurus = $asset->getThesaurusRef();
@@ -271,7 +278,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!empty($_POST[$prefix.'_default'])) {
 			// use default
 			$new_value_str = NULL;
-			return TRUE;
+			$processed = TRUE;
 		} else {
 			if (!empty($_REQUEST[$prefix.'_terms_submitted'])) {
 				$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
@@ -297,11 +304,16 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				$value = implode(',', $value);
 				$new_value_str = Metadata_Field::encodeValueString($value, Array());
 
-				return TRUE;
-			} else {
-				return FALSE;
+				$processed = TRUE;
 			}
 		}
+
+		if (isset($_POST[$prefix.'_cascade_value'])) {
+			$field_cascade_value = TRUE;
+			$processed = TRUE;
+		}
+
+		return $processed;
 
 	}//end processInlineValueInterface()
 

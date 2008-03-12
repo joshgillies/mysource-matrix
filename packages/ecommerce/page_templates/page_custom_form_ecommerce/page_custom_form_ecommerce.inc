@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_ecommerce.inc,v 1.9.2.1 2008/02/05 00:14:09 colivar Exp $
+* $Id: page_custom_form_ecommerce.inc,v 1.9.2.2 2008/03/12 04:04:43 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_custom_form/page_custom_
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -55,10 +55,10 @@ class Page_Custom_Form_Ecommerce extends Page_Custom_Form
 
 		// We provide the parent id to the ecom form
 		// this id can be used while creating the asset and when getUrl is being used
-		// if the following line is removed, the creation of this asset under a folder 
-		// with metadata field and the keyword %asset_url% will fail 
+		// if the following line is removed, the creation of this asset under a folder
+		// with metadata field and the keyword %asset_url% will fail
 		$form->_tmp['parent_form_page_assetid'] =& $this->id;
-		
+
 		return $form->create($copy_link);
 
 	}//end _createAdditional()

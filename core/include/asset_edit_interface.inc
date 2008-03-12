@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.343 2008/01/02 23:46:57 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.343.2.1 2008/03/12 04:03:58 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.343 $
+* @version $Revision: 1.343.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1922,7 +1922,7 @@ class Asset_Edit_Interface extends MySource_Object
 							} else if ($last_child->getName() == 'function_call') {
 
 								// If there is no process function node at all, then skip
-								if (empty($last_child->process_function)) continue;
+								if (!isset($last_child->process_function)) continue;
 
 								$process_node = $last_child->process_function;
 
@@ -2107,7 +2107,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (empty($groups)) return Array(); // all screens allowed
 
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) {
-			$groups[$k] = $db->quote((string) $groups[$k]);
+			$groups[$k] = MatrixDAL::quote((string) $groups[$k]);
 		}
 
 		$sql = 'SELECT screen, section
@@ -2115,17 +2115,18 @@ class Asset_Edit_Interface extends MySource_Object
 		$where = 'userid IN ('.implode(',', $groups).')';
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$where .= ' AND (type_code = '.$db->quote('0').'
+		$where .= ' AND (type_code = :null_type_code
 					OR type_code IN (
 									SELECT inhd_type_code
 									FROM sq_ast_typ_inhd
-									WHERE type_code = '.$db->quote($owner->type()).'
+									WHERE type_code = :type_code
 									))';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql.$where);
-			$query->bindValue(':type_code', $owner->type());
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'null_type_code', '0');
+			MatrixDAL::bindValueToPdo($query, 'type_code',      $owner->type());
 			$allowed_screens = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get allowed screens for type code: '.$owner->type().' due to database error: '.$e->getMessage());

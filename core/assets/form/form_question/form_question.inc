@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.27 2007/12/11 03:29:57 rong Exp $
+* $Id: form_question.inc,v 1.27.2.1 2008/03/12 04:03:49 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,8 +188,6 @@ class Form_Question extends Asset
 		$save_vars = Array();
 		$attr_ids  = Array();
 
-		$db = MatrixDAL::getDb();
-
 		// prepare for the save
 		$saved_vars = $this->vars;
 
@@ -201,11 +199,13 @@ class Form_Question extends Asset
 
 		// find any previous entries
 		$sql   = 'SELECT name, default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr ';
-		$where = 'type_code = '.$db->quote($this->vars['question_type_code']['value']);
+		$where = 'type_code = :type_code';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$existing = MatrixDAL::executeSqlGroupedAssoc($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $this->vars['question_type_code']['value']);
+			$existing = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Can not get default val and name base on type code due to the following database error	'.$e->getMessage());
 		}//end try catch

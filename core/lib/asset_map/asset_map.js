@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.24 2006/12/05 05:26:35 bcaldwell Exp $
+* $Id: asset_map.js,v 1.24.8.1 2008/03/12 04:04:02 lwright Exp $
 *
 */
 
@@ -153,6 +153,26 @@ function set_finder(finder)
 
 
 /**
+* Activated by changing the value of the assetid input box
+*
+* @param string	$name			the name of the hidden field
+* @param string	$safe_name		the name prefix for all the other form elements associated with the
+* @param string	$type_codes		the typecodes separated by a pipe
+* @param string value			the value of the new assetid
+*
+* @access public
+*/
+function asset_finder_assetid_changed(name, safe_name, type_codes, done_fn, value)
+{
+
+	ASSET_FINDER_OBJ.set_hidden_field(name + '[assetid]', value);
+
+
+}//end asset_finder_assetid_changed()
+
+
+
+/**
 * Activated by the pressing of the "Change" button to start the asset finder mode in the flash menu
 *
 * @param string	$name			the name of the hidden field
@@ -183,7 +203,6 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 				resizer_frame.toggleFrame();
 			}
 		}
-
 		asset_finder_start('asset_finder_done', type_codes);
 
 		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('cancel'));
@@ -240,8 +259,8 @@ function asset_finder_done(params, label, url, linkid)
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]', assetid);
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[url]', url);
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[linkid]', linkid);
-		ASSET_FINDER_OBJ.set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
-
+		ASSET_FINDER_OBJ.set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label);
+		ASSET_FINDER_OBJ.set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_assetid', (assetid == 0) ? '' : assetid );
 	}
 
 	ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', js_translate('change'));
@@ -312,6 +331,7 @@ function asset_finder_clear_btn_press(name, safe_name)
 	ASSET_FINDER_OBJ.set_hidden_field(name + '[assetid]', 0);
 	ASSET_FINDER_OBJ.set_hidden_field(name + '[url]', '');
 	ASSET_FINDER_OBJ.set_text_field(safe_name + '_label', '');
+	ASSET_FINDER_OBJ.set_text_field(safe_name + '_assetid', '');
 
 }//end asset_finder_clear_btn_press()
 
@@ -328,6 +348,7 @@ function asset_finder_reset_btn_press(name, safe_name, assetid, label)
 {
 	ASSET_FINDER_OBJ.set_hidden_field(name + '[assetid]', assetid);
 	ASSET_FINDER_OBJ.set_text_field(safe_name + '_label', label);
+	ASSET_FINDER_OBJ.set_text_field(safe_name + '_assetid', assetid);
 
 }//end asset_finder_reset_btn_press()
 

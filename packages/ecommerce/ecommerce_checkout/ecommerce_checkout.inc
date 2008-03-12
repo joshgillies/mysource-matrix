@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.54.2.1 2008/02/10 22:39:57 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.54.2.2 2008/03/12 04:04:43 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.54.2.1 $
+* @version $Revision: 1.54.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

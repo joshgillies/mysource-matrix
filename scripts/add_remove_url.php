@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix
 */
 
@@ -30,7 +30,7 @@ if ((php_sapi_name() != 'cli')) {
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-    trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -42,8 +42,8 @@ $root_password = rtrim(fgets(STDIN, 4094));
 // check that the correct root password was entered
 $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
-    echo "ERROR: The root password entered was incorrect\n";
-    exit();
+	echo "ERROR: The root password entered was incorrect\n";
+	exit();
 }
 $GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
@@ -130,9 +130,12 @@ Make sure you have all you information you need before Proceeding\n");
 				$new_url = NULL;
 			}
 
-			$sql_check_new_url = 'SELECT url FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($new_url).';';
-			$new_url_check = $db->getOne($sql_check_new_url);
-			assert_valid_db_result($new_url_check);
+			$sql_check_new_url = 'SELECT url FROM sq_ast_url WHERE url LIKE :new_url';
+
+			$query = MatrixDAL::preparePdoQuery($sql_check_new_url);
+			MatrixDAL::bindValueToPdo($query, 'new_url', $new_url);
+			$new_url_check = MatrixDAL::executePdoOne($query);
+
 			if (!empty($new_url_check)) {
 				echo "The new URL : ".$new_url." is already exist.\n";
 				$new_url = NULL;
@@ -159,9 +162,12 @@ Make sure you have all you information you need before Proceeding\n");
 			exit(0);
 		}
 
-		$sql_check_existing_url = 'SELECT urlid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($existing_url).';';
-		$existing_urlid = $db->getOne($sql_check_existing_url);
-		assert_valid_db_result($existing_urlid);
+		$sql_check_existing_url = 'SELECT urlid FROM sq_ast_url WHERE url LIKE :existing_url';
+
+		$query = MatrixDAL::preparePdoQuery($sql_check_existing_url);
+		MatrixDAL::bindValueToPdo($query, 'existing_url', $existing_url);
+		$existing_urlid = MatrixDAL::executePdoOne($query);
+
 		if (empty($existing_urlid)) {
 			echo "The existing URL : ".$existing_url." does not exist\n";
 			exit(0);
@@ -189,48 +195,59 @@ Make sure you have all you information you need before Proceeding\n");
 			foreach ($children as $child_id) {
 				$child_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
 				if ($child_asset->usePublicPath()) {
-						$children_to_update[] = $db->quoteSmart((string) $child_id);
+						$children_to_update[] = MatrixDAL::quote((string) $child_id);
 				}//end if
 				// Else just ignore this asset
 			}//end foreach
 		}
 
-		$new_urlid = $db->nextId('sq_ast_url');
-		assert_valid_db_result($new_urlid);
+		$new_urlid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_url_seq'));
 
-		$sql_update_sq_ast_url = 'INSERT INTO sq_ast_url (http, https, assetid, url, urlid) values ('
-		.$db->quoteSmart($http).','
-		.$db->quoteSmart($https).','
-		.$db->quoteSmart($assetid).','
-		.$db->quoteSmart($new_url).','
-		.$db->quoteSmart($new_urlid)
-		.');';
+		$sql_update_sq_ast_url = 'INSERT INTO sq_ast_url (http, https, assetid, url, urlid) values (
+									:http, :https, :assetid, :new_url, :new_urlid)';
 
 		$sql_update_sq_ast_lookup_value = 'INSERT INTO sq_ast_lookup_value (url, name, value, depth)
-										SELECT replace(url, '.$db->quoteSmart($existing_url).', '.$db->quoteSmart($new_url).'), name, value, depth
+										SELECT replace(url, :existing_url, :new_url), name, value, depth
 											FROM sq_ast_lookup_value
-											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($existing_urlid).');';
+											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = :existing_urlid);';
 
 		$sql_update_sq_ast_lookup		= 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
-										SELECT http, https, assetid, replace(url,'.$db->quoteSmart($existing_url).','.$db->quoteSmart($new_url).'),'.$new_urlid.'
-										FROM sq_ast_lookup WHERE url like '.$db->quoteSmart($existing_url.'%').' AND root_urlid ='.$db->quoteSmart($existing_urlid).';';
+										SELECT http, https, assetid, replace(url, :existing_url, :new_url), :new_urlid
+										FROM sq_ast_lookup WHERE url like :existing_url_wildcard AND root_urlid = :existing_urlid;';
 
-		$sql_update_sq_ast_lookup_public	= 'UPDATE sq_ast_lookup set root_urlid = 0 WHERE url like '.$db->quoteSmart($new_url.'%').' AND url like \'%/__data/%\' AND root_urlid = '.$db->quoteSmart($new_urlid);
+	$sql_update_sq_ast_lookup_public	= 'UPDATE sq_ast_lookup set root_urlid = 0 WHERE url like :new_url_wildcard AND url like :data_url AND root_urlid = :new_urlid';
 
 		// Now we run the query
 		// 1. Add entry to sq_ast_url
-		$result_ast_url			= $db->query($sql_update_sq_ast_url);
-		assert_valid_db_result($result_ast_url);
+		$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_url);
+		MatrixDAL::bindValueToPdo($query, 'http',      $http);
+		MatrixDAL::bindValueToPdo($query, 'https',     $https);
+		MatrixDAL::bindValueToPdo($query, 'assetid',   $assetid);
+		MatrixDAL::bindValueToPdo($query, 'new_url',   $new_url);
+		MatrixDAL::bindValueToPdo($query, 'new_urlid', $new_urlid);
+		MatrixDAL::execPdoQuery($query);
 
 		// 2. Add entries to sq_ast_lookup_value
-		$result_lookup_value 	= $db->query($sql_update_sq_ast_lookup_value);
-		assert_valid_db_result($result_lookup_value);
+		$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup_value);
+		MatrixDAL::bindValueToPdo($query, 'existing_url',   $existing_url);
+		MatrixDAL::bindValueToPdo($query, 'new_url',        $new_url);
+		MatrixDAL::bindValueToPdo($query, 'existing_urlid', $existing_urlid);
+		MatrixDAL::execPdoQuery($query);
 
 		// 3, Add entries to sq_ast_lookup
-		$result_lookup 			= $db->query($sql_update_sq_ast_lookup);
-		assert_valid_db_result($result_lookup);
-		$result_lookup_public	= $db->query($sql_update_sq_ast_lookup_public);
-		assert_valid_db_result($result_lookup_public);
+		$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup);
+		MatrixDAL::bindValueToPdo($query, 'existing_url',          $existing_url);
+		MatrixDAL::bindValueToPdo($query, 'existing_url_wildcard', $existing_url.'%');
+		MatrixDAL::bindValueToPdo($query, 'new_url',               $new_url);
+		MatrixDAL::bindValueToPdo($query, 'new_urlid',             $new_urlid);
+		MatrixDAL::bindValueToPdo($query, 'existing_urlid',        $existing_urlid);
+		MatrixDAL::execPdoQuery($query);
+
+		$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup_public);
+		MatrixDAL::bindValueToPdo($query, 'new_url_wildcard', $new_url.'%');
+		MatrixDAL::bindValueToPdo($query, 'data_urlid',       '%/__data/%');
+		MatrixDAL::bindValueToPdo($query, 'new_urlid',        $new_urlid);
+		MatrixDAL::execPdoQuery($query);
 
 		// We have done updating regular asset, now we will update the publically served file assets.
 
@@ -274,15 +291,18 @@ Make sure you have all you information you need before Proceeding\n");
 				$num_children_to_update = count($children_to_update);
 				foreach ($in_clauses as $condition) {
 					$sql_update_sq_ast_lookup_public_file = 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
-																SELECT http, https, assetid, replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'), 0
-																FROM sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like '.$db->quoteSmart($existing_url_public.'%');
+																SELECT http, https, assetid, replace(url, :existing_url, :new_url), 0
+																FROM sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like :existing_url_wildcard';
 
-					bam($sql_update_sq_ast_lookup_public_file);
-					$result_update_sq_ast_lookup_public_file = $db->query($sql_update_sq_ast_lookup_public_file);
+					$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup_public_file);
+					MatrixDAL::bindValueToPdo($query, 'existing_url',          $existing_url_public);
+					MatrixDAL::bindValueToPdo($query, 'existing_url_wildcard', $existing_url_public.'%');
+					MatrixDAL::bindValueToPdo($query, 'new_url',               $new_url_public);
+					MatrixDAL::execPdoQuery($query);
 					echo "\n Finished Updating ".(($count*1000 > $num_children_to_update) ? $num_children_to_update : $count*1000) ." files out of ".$num_children_to_update;
 					$count++;
 				}//end foreach
-	
+
 			}
 		}
 
@@ -300,16 +320,18 @@ Make sure you have all you information you need before Proceeding\n");
 		while (is_null($remove_url)) {
 			$remove_url = get_line('Enter the URL to be removed: ');
 		}
-		$sql_check_remove_url = 'SELECT urlid, assetid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($remove_url).';';
-		$remove_info = $db->getAssoc($sql_check_remove_url);
-		$remove_urlid = key($remove_info);
-		$remove_assetid = $remove_info[$remove_urlid];
+		$sql_check_remove_url = 'SELECT urlid, assetid FROM sq_ast_url WHERE url LIKE :remove_url';
 
-		assert_valid_db_result($remove_urlid);
-		if (empty($remove_urlid)) {
+		$query = MatrixDAL::preparePdoQuery($sql_check_remove_url);
+		MatrixDAL::bindValueToPdo($query, 'remove_url', $remove_url);
+		$remove_info = MatrixDAL::executePdoAll($query);
+		if (empty($remove_info)) {
 			echo 'The provided URL : '.$remove_url.' does not exist';
 			exit(0);
 		}
+
+		$remove_urlid   = $remove_info[0]['urlid'];
+		$remove_assetid = $remove_info[0]['assetid'];
 
 		// Before we do any of the processing, lets grab all the FILE assets that are LIVE, and have PUBLIC READ ACCESS.
 		$asset_types_list = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file'));
@@ -323,7 +345,7 @@ Make sure you have all you information you need before Proceeding\n");
 		foreach ($children as $child_id) {
 			$child_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
 			if ($child_asset->usePublicPath()) {
-					$children_to_update[] = $db->quoteSmart((string) $child_id);
+					$children_to_update[] = MatrixDAL::quote((string) $child_id);
 			}//end if
 			// Else just ignore this asset
 		}//end foreach
@@ -358,12 +380,13 @@ Make sure you have all you information you need before Proceeding\n");
 			$num_children_to_update = count($children_to_update);
 			foreach ($in_clauses as $condition) {
 
-				$sql_update_sq_ast_lookup_public	= 'DELETE FROM sq_ast_lookup WHERE root_urlid = 0 AND url LIKE '.$db->quoteSmart($remove_url_public.'%').' AND url LIKE \'%/__data/%\'';
-				$sql_update_sq_ast_lookup_public	.= ' AND '.$condition;
+				$sql_update_sq_ast_lookup_public  = 'DELETE FROM sq_ast_lookup WHERE root_urlid = 0 AND url LIKE :remove_url_wildcard AND url LIKE :data_url';
+				$sql_update_sq_ast_lookup_public .= ' AND '.$condition;
 
-				bam($sql_update_sq_ast_lookup_public);
-				$result_lookup_public	= $db->query($sql_update_sq_ast_lookup_public);
-				assert_valid_db_result($result_lookup_public);
+				$query = MatrixDAL::preparePdoQuery($sql_update_sq_ast_lookup_public);
+				MatrixDAL::bindValueToPdo($query, 'remove_url_wildcard', $remove_url_public.'%');
+				MatrixDAL::bindValueToPdo($query, 'data_url', '%/__data/%');
+				MatrixDAL::execPdoQuery($query);
 
 				echo "\n Finished deleting ".(($count*1000 > $num_children_to_update) ? $num_children_to_update : $count*1000) ." files out of ".$num_children_to_update;
 				$count++;
@@ -374,52 +397,46 @@ Make sure you have all you information you need before Proceeding\n");
 
 		// Find all other root_urlid that look like $remove_url.'%', we don't want to remove those.
 		$sql_get_sub_url_root_urlid = 'SELECT url FROM sq_ast_url WHERE
-											url NOT LIKE '.$db->quoteSmart($remove_url).' AND
-											url LIKE '.$db->quoteSmart($remove_url.'%').'';
+											url NOT LIKE :remove_url AND
+											url LIKE :remove_url_wildcard';
 
-		$avoid_urls	= $db->getAll($sql_get_sub_url_root_urlid);
-		assert_valid_db_result($avoid_urls);
+		$query = MatrixDAL::preparePdoQuery($sql_get_sub_url_root_urlid);
+		MatrixDAL::bindValueToPdo($query, 'remove_url',          $remove_url);
+		MatrixDAL::bindValueToPdo($query, 'remove_url_wildcard', $remove_url.'%');
+		$avoid_urls = MatrixDAL::executePdoAssoc($query);
 
-		$sql_update_sq_ast_lookup_value		= 'DELETE FROM sq_ast_lookup_value WHERE url like '.$db->quoteSmart($remove_url.'%');
+		$sql_update_sq_ast_lookup_value		= 'DELETE FROM sq_ast_lookup_value WHERE url like '.MatrixDAL::quote($remove_url.'%');
 		foreach ($avoid_urls as $index => $data) {
-			$sql_update_sq_ast_lookup_value .= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
+			$sql_update_sq_ast_lookup_value .= ' AND url NOT LIKE ' . MatrixDAL::quote($data['url'].'%');
 		}
 
-		$sql_update_sq_ast_lookup			= 'DELETE FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url.'%').'';
+		$sql_update_sq_ast_lookup			= 'DELETE FROM sq_ast_lookup WHERE root_urlid = '.MatrixDAL::quote($remove_urlid).' AND url like '.MatrixDAL::quote($remove_url.'%').'';
 
 
-		$sql_update_sq_ast_url				= 'DELETE FROM sq_ast_url WHERE urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url).'';
+		$sql_update_sq_ast_url				= 'DELETE FROM sq_ast_url WHERE urlid = '.MatrixDAL::quote($remove_urlid).' AND url like '.MatrixDAL::quote($remove_url).'';
 
 		foreach ($avoid_urls as $index => $data) {
-			$sql_update_sq_ast_lookup_public	.= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
-			$sql_update_sq_ast_lookup			.= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
+			$sql_update_sq_ast_lookup_public	.= ' AND url NOT LIKE ' . MatrixDAL::quote($data['url'].'%');
+			$sql_update_sq_ast_lookup			.= ' AND url NOT LIKE ' . MatrixDAL::quote($data['url'].'%');
 		}
 
 		// We run the query in different order
 		// 1. Remove entries in sq_ast_lookup_value
-		$result_lookup_value	= $db->query($sql_update_sq_ast_lookup_value);
-		assert_valid_db_result($result_lookup_value);
-
 		// 2. Remove entries in sq_ast_lookup
-		$result_lookup			= $db->query($sql_update_sq_ast_lookup);
-		assert_valid_db_result($result_lookup);
-
 		// 3. Remove the entry in sq_ast_url
-		$result_ast_url			= $db->query($sql_update_sq_ast_url);
-		assert_valid_db_result($result_ast_url);
+		MatrixDAL::executeSql($sql_update_sq_ast_lookup_value);
+		MatrixDAL::executeSql($sql_update_sq_ast_lookup);
+		MatrixDAL::executeSql($sql_update_sq_ast_url);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 }//end else if
 
-		bam($sql_update_sq_ast_url);
-		bam($sql_update_sq_ast_lookup_value);
-		bam($sql_update_sq_ast_lookup);
-
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 	$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
 	exit(0);
+
 
 /**
 * Prints the specified prompt message and returns the line from stdin
@@ -431,9 +448,9 @@ Make sure you have all you information you need before Proceeding\n");
 */
 function get_line($prompt='')
 {
-    echo $prompt;
-    // now get their entry and remove the trailing new line
-    return rtrim(fgets(STDIN, 4096));
+	echo $prompt;
+	// now get their entry and remove the trailing new line
+	return rtrim(fgets(STDIN, 4096));
 
 }//end get_line()
 

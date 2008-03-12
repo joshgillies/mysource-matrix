@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262 2007/12/16 22:28:08 rong Exp $
+* $Id: lang_strings.xml,v 1.262.2.1 2008/03/12 04:04:03 lwright Exp $
 *
 */
 
@@ -52,10 +52,10 @@
 	<string source="http_login_var_show_server_var" js="1">Show Server Variables</string>
 	<string source="http_login_var_hide_server_var" js="1">Hide Server Variables</string>
 	<string source="http_login_var_list_header">Server Variables</string>
-	
+
 	<string source="enable_http_authentication">Enable HTTP Authentication</string>
 	<string source="enable_http_authentication_note">If this option is enabled, MySource Matrix will generate an HTTP Authentication dialog box instead of painting the applied login design. This will allow external tools to login to MySource Matrix by appending USE_HTTP_LOGIN=1 to the URL..</string>
-	
+
 	<string source="applies_to">Applies To</string>
 	<string source="asset_date_search_fields">Asset Date Search Fields</string>
 	<string source="assetid">Assetid</string>
@@ -148,6 +148,7 @@
 	<string source="email_settings">Email Settings</string>
 	<string source="enable_antiword">Enable Antiword</string>
 	<string source="enable_html_tidy">Enable HTML Tidy</string>
+	<string source="html_tidy_accessibility_level">HTML Tidy Accessibility Check Level</string>
 	<string source="tidy_unsupported_char_set_warning">Your current System Default Character Set is not supported by HTML Tidy.</string>
 	<string source="enable_pdftohtml">Enable pdftohtml</string>
 	<string source="error/debug_settings">Error/Debug Settings</string>
@@ -239,6 +240,7 @@
 	<string source="other">Other</string>
 	<string source="override_design_question">Override ?</string>
 	<string source="override_design_explanation">You can override the design this asset would inherit from its parent, with a design that is applied to this asset only. This override design does not affect the inheritance to this asset's children of any parent design.</string>
+	<string source="partial_match">Partial Match</string>
 	<string source="passwd_blacklist">Password Blacklist</string>
 	<string source="patch_details">Patch Details</string>
 	<string source="patches_available_to_install">Patches Available To Install</string>
@@ -304,6 +306,7 @@
 	<string source="system_simple_edit_suffix">System Simple Edit Suffix</string>
 	<string source="system_login_suffix">System Login Suffix</string>
 	<string source="system_nocache_suffix">System Bypass Cache Suffix</string>
+	<string source="system_recache_suffix">System Clear Cache Suffix</string>
 	<string source="system_tools">System Tools</string>
 	<string source="system_web_path_separator">System Web Path Separator</string>
 	<string source="system_wide">System Wide</string>
@@ -345,6 +348,7 @@
 	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to validate this content</string>
 	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
 	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to validate this content</string>
+	<string source="wysiwyg_htmltidy_accessibility_no_warning">No warning for Accessibility check</string>
 	<string source="wysiwyg_pspell_not_installed">Pspell is not installed</string>
 	<string source="wysiwyg_spell_checker_pref_field">Spell Checker Language</string>
 	<string source="wysiwyg_spell_checker_pref_note">Language code consists of the two letter ISO 639 language code and an optional two letter ISO 3166 country code after a dash or underscore</string>
@@ -379,6 +383,8 @@
 	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
+	<string source="workflow_email_link_updated">You have %s the changes successfully</string>
+	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>
 	<string source="set_status_to">Set Status to </string>
 	<string source="cron_manager_refresh_unknown">The Cron Manager refresh time is unknown</string>
@@ -589,6 +595,7 @@
 	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page. For a complete list of available keyword replacements %s</string>
 	<string source="metadata_indexed_keywords">Since search indexing is enabled, you can generate a list of keywords from the index using %s</string>
 	<string source="metadata_explain_use_default">Deselect the <![CDATA[<b>Use Default</b>]]> checkbox to enter a value for a field.  To revert the field to the default value, select the <![CDATA[<b>Use Default</b>]]> checkbox.</string>
+	<string source="metadata_explain_cascade_value">Select the <![CDATA[<b>Cascade value</b>]]> checkbox to cascade the value for a field to this asset's children for which this Metadata Schema is applied.</string>
 	<string source="metadata_date_object_keys">%s to see the formatting keywords that can be used in this field. Note that you cannot use a tilde (~) to separate date fields.</string>
 	<string source="creation_date">Creation date</string>
 	<string source="last_updated_date">Last updated date</string>
@@ -749,6 +756,7 @@
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
 	<string source="hipo_cannot_modify_permission">Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
+	<string source="hipo_editing_metadata_field_values">Editing Metadata Field Values for "%s"</string>
 	<string source="hipo_skipping_metadata_schema">Skipping "%s" as it does not require metadata</string>
 	<string source="hipo_skipping_permission">Could not edit permissions for asset #%s, asset does not exist</string>
 	<string source="hipo_skipping_role">Could not edit roles for asset #%s, asset does not exist</string>
@@ -1030,6 +1038,7 @@
 	<string source="require_comment">Require Comment</string>
 	<string source="require_comment_from_unlisted_users">Unlisted User Commenting</string>
 	<string source="require_comment_from_unlisted_users_explanation">Requires users not specified in the condition steps to comment when approving or rejecting.</string>
+	<string source="email_link_require_comment">Workflow step requires comment before proceeding</string>
 	<string source="must_enter_comment_error" js="1">You must enter a comment for this workflow step.</string>
 	<string source="step_not_completed_in_time_explanation">If this step is not completed within this time a reminder message will be sent to the asset administrators. Leave at "0" to disable this feature.</string>
 	<string source="members_must_approve">%s member(s) must approve</string>
@@ -1109,6 +1118,7 @@
 	<string source="attribute_not_selected">attribute not selected</string>
 	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s %3$s %4$s</string>
 	<string source="trigger_attribute_changed">If the value of the %1$s attribute %2$s changes&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; This condition will cause the trigger to fail if the firing event is not "Attributes Changed"</string>
+	<string source="trigger_metadata_value">If the metadata value of the %1$s field in the asset has a %2$s with %3$s</string>
 	<string source="or_inherited_types">or inherited types</string>
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
@@ -1178,6 +1188,8 @@
 	<string source="trigger_create_design_customisation_usage">This trigger will create a design customisation of the design asset in which the trigger condition is matched.</string>
 	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation</string>
 	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming</string>
+
+	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
 
 	<!-- common single word strings -->
 
@@ -1345,6 +1357,7 @@
 
 	<string source="click_here">Click Here</string>
 	<string source="use_default">Use default</string>
+	<string source="cascade_value">Cascade value</string>
 	<string source="next_run">next run</string>
 	<string source="user_preferences">User Preferences</string>
 	<string source="none_selected">None selected</string>
@@ -1375,6 +1388,7 @@
 	<string source="under_construction">Under Construction</string>
 	<string source="permission_denied">Permission Denied</string>
 	<string source="max_rows">Max Rows</string>
+	<string source="updated_user">Updated User</string>
 
 
 	<!-- keyword descriptions -->
@@ -1443,6 +1457,7 @@
 	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
 	<string source="manually_cascade_roles_note">Manually cascading role assignments will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="no_roles_set">No roles have been assigned</string>
+	<string source="roles_system_disabled">The Roles System is disabled</string>
 	<string source="select_a_role">Select a role:</string>
 	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
 	<string source="roles">Roles</string>
@@ -1729,6 +1744,7 @@ Unable to accept non-digit characters in this field.</string>
 	<string source="form_already_submitted" js="1">The form has already been submitted, please wait ...</string>
 	<string source="form_contains_error" js="1">The form can not be submitted, please check javascript errors.</string>
 	<string source="max_characters_warning" js="1">This field can contain no more than %s characters.</string>
+	<string source="max_characters_exceeded_by" js="1">Limit Exceeded by: %s</string>
 	<string source="object_requires_selection" js="1">You need to select this object as though it was text, rather than just clicking on it.</string>
 	<string source="insert_anchor" js="1">Insert Anchor</string>
 	<string source="insert_link" js="1">Insert Link</string>
@@ -1798,6 +1814,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_name_clone_assets">Clone Assets</string>
 	<string source="hipo_name_create_links">Create Links</string>
 	<string source="hipo_name_edit_metadata_schemas">Edit Metadata Schemas</string>
+	<string source="hipo_name_edit_metadata_field_values">Edit Metadata Field Values</string>
 	<string source="hipo_name_edit_permissions">Edit Permissions</string>
 	<string source="hipo_name_edit_status">Edit Status</string>
 	<string source="hipo_name_edit_workflow_schemas">Edit Workflow Schemas</string>
@@ -1829,6 +1846,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_updating_database">Updating Database</string>
 	<string source="hipo_updating_lookups">Updating Lookups</string>
 	<string source="hipo_updating_metadata_schemas">Updating Metadata Schemas</string>
+	<string source="hipo_updating_metadata_field_values">Updating Metadata Field Values</string>
 	<string source="hipo_updating_permissions">Updating Permissions</string>
 	<string source="hipo_updating_workflow_schemas">Updating Workflow Schemas</string>
 	<string source="hipo_updating_tags">Updating Tags</string>
@@ -2031,6 +2049,11 @@ Are you sure you want to proceed?</string>
 	<string source="http_header_send_404_cacheable_header_field">Send 404 Cacheable Header</string>
 	<string source="http_header_send_404_cacheable_header_field_note">If enabled, server will send cacheable Cache-Control and Pragma headers for 404 response to allow Proxy server to cache.</string>
 
+	<!-- Roles configuration strings -->
+	<string source="roles_configuration_section_name">Roles Configuration</string>
+	<string source="roles_configuration_enable_global_roles">Enable Global Roles</string>
+	<string source="roles_configuration_enable_roles_system">Enable Roles System</string>
+
 	<!-- Status Changes -->
 	<string source="status_change_place_under_construction">Place Under Construction</string>
 	<string source="status_change_apply_for_approval">Apply for Approval</string>
@@ -2152,8 +2175,11 @@ Are you sure you want to proceed?</string>
 	<string source="asset_field_type_code">Type Code</string>
 
 
+	<string source="tool_asset_sorter_usage_notes"><![CDATA[<p>This tool provides sorting functionality for assets in the Asset Map. Assets may be sorted either by 'Asset Field' or 'Asset Attribute'.</p><p><b>To sort by 'Asset Field'</b>, select the 'Asset Field' sort type and a 'Sort Field' above.</p><p><b>To sort by 'Asset Attribute'</b>, select the 'Asset Attribute' sort type then select an Asset Type above and click 'Commit'. A list of attributes for the selected asset type will then appear below the Asset Type. Select an attribute and click 'Commit' to sort by the selected attribute.</p>]]></string>
 	<string source="tool_asset_sorter_sort_options">Sort Options</string>
+	<string source="tool_asset_sorter_sort_type">Sort Type</string>
 	<string source="tool_asset_sorter_sort_field">Sort Field</string>
+	<string source="tool_asset_sorter_sort_attribute">Sort Attribute</string>
 	<string source="tool_asset_sorter_sort_direction">Sort Direction</string>
 	<string source="tool_asset_sorter_must_select_parent">You must select a parent asset whose children you want to sort</string>
 	<string source="tool_asset_sorter_complete_heading">Asset sorting complete</string>
@@ -2246,5 +2272,8 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
 	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
 	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
+
+	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
+	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
 
 </strings>

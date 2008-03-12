@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.31 2007/12/06 00:13:20 hnguyen Exp $
+* $Id: cron_job_future_lineage.inc,v 1.31.2.1 2008/03/12 04:03:51 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -330,7 +330,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				if (isset($children['union_select'])) {
 					$children['union_select'] = 'UNION ALL SELECT sl.minorid';
 				}
-				$db = MatrixDAL::getDb();
+
 				$sql = 'SELECT
 							majorid, minorid, name, linkid, status, link_type
 						FROM
@@ -338,13 +338,17 @@ class Cron_Job_Future_Lineage extends Cron_Job
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ast ON (ast.assetid = lnk.minorid)
 						WHERE
 							(
-								(link_type = '.$db->quote(SQ_LINK_TYPE_3).' OR link_type = '.$db->quote(SQ_LINK_NOTICE).') OR
-								(status >= '.$db->quote(SQ_STATUS_LIVE).')
+								(link_type = :link_type_3 OR link_type = :link_notice) OR
+								(status >= :status_live)
 							) AND
 							assetid IN ('.implode(' ', $children).')';
 
 				try {
-					$result = MatrixDAL::executeSqlAll($sql);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'link_type_3', SQ_LINK_TYPE_3);
+					MatrixDAL::bindValueToPdo($query, 'link_notice', SQ_LINK_NOTICE);
+					MatrixDAL::bindValueToPdo($query, 'status_live', SQ_STATUS_LIVE);
+					$result = MatrixDAL::executePdoAll($query);
 				} catch (DALException $e) {
 					throw new Exception ('Unable to check if asset "'.$minor->name.'" (#'.$minor->id.') can be safe-trashed due to database error: '.$e->getMessage());
 				}

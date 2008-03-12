@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.25 2007/11/28 22:29:00 lwright Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.25.2.1 2008/03/12 04:03:52 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,11 +77,40 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$link_offset = array_get_index($_POST, $prefix.'_link_offset', 0);
 
-		try {
-			$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
-		} catch (Exception $e) {
-			throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+		// check if we need to filter the url or remap url
+		$url_filter = array_get_index($_POST, $prefix.'_URL_FILTER', '');
+		$remap_url_filter = array_get_index($_POST, $prefix.'_REMAP_URL_FILTER', '');
+
+		$remap_urls = Array();
+		if ( (!empty($url_filter)) || (!empty($remap_url_filter))) {
+			$bind_vars = Array(
+					'url' 		=> (string) '%'.$url_filter.'%',
+					'remap_url'	=> (string) '%'.$remap_url_filter.'%',
+					);
+			try {
+				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrlsFilter', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+			}
+
+		} else {
+			try {
+				$remap_urls	= MatrixDAL::executeAll('core', 'getRemapUrls');
+			} catch (Exception $e) {
+				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+			}
 		}
+
+		$o->openField('Original URL Filter');
+		text_box($prefix.'_URL_FILTER', $url_filter, 30);
+		$o->note(translate('remap_manager_url_filter_note'));
+		$o->closeField();
+		$o->openField('Remapped URL Filter');
+		text_box($prefix.'_REMAP_URL_FILTER', $remap_url_filter, 30);
+		$o->note(translate('remap_manager_remap_url_filter_note'));
+		$o->closeField();
+
+		$o->openField('&nbsp;');
 
 		if (empty($remap_urls)) {
 			echo translate('no_url_remappings');
@@ -448,6 +477,64 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $ok;
 
 	}//end processAddPageNotFoundRemap()
+
+
+	/**
+        * Paints the Automatic Remapping checkbox
+        *
+        * @param Remap_Manager		$asset	the asset to which we belong
+        * @param Backend_Outputter	$o	the outputter class
+        * @param string			$prefix	prefix for the form element
+        *
+        * @return boolean
+        * @access public
+        */
+        public function paintAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+        {
+                $write_access = $asset->writeAccess('attributes');
+                $remap_upon_webpath_change = $asset->attr('remap_upon_webpath_change');
+
+		$o->closeField();
+		$o->openField(translate('remap_manager_automatically_add_remaps_question'));
+
+                // paint checkbox
+                if ($write_access) {
+                        check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+                } else {
+                        ?>
+                                <img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $remap_upon_webpath_change ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+                        <?php
+                }
+
+		$o->note(translate('remap_manager_auto_add_remaps_note'));
+
+		$o->closeField();
+
+                return $write_access;
+
+        }//end paintAutomaticRemappingCheckbox()
+
+
+        /**
+        * Process the Automatic Remapping checkbox
+        *
+        * @param Remap_Manager		$asset	the asset to which we belong
+        * @param Backend_Outputter	$o	the outputter class
+        * @param string			$prefix	prefix for the form element
+        *
+        * @return boolean
+        * @access public
+        */
+        public function processAutomaticRemappingCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+        {
+                if (!$asset->writeAccess('attributes')) return FALSE;
+
+                $remap_upon_webpath_change = isset($_POST[$prefix.'_remap_upon_webpath_change']);
+                $asset->setAttrValue('remap_upon_webpath_change', $remap_upon_webpath_change);
+
+                return TRUE;
+
+        }//end processAutomaticRemappingCheckbox()
 
 
 }//end class

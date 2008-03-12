@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.10 2007/05/24 04:07:39 skim Exp $
+* $Id: ipb.inc,v 1.10.4.1 2008/03/12 04:04:53 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.4.1 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -181,7 +181,8 @@ class Ipb
 	{
 		if (!is_null($this->db)) {
 			$result = $this->db->close_db();
-			return assert_valid_db_result($result);
+			$this->_assertValidResult($this->db, 'Could not close database');
+			return TRUE;
 		} else {
 			return FALSE;
 		}
@@ -276,7 +277,8 @@ class Ipb
 						name=\''.$username.'\';
 			';
 			$db_result = $this->db->query($sql);
-			assert_valid_db_result($db_result);
+			$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
+
 			while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
 				$test[] = $row;
 			}
@@ -358,7 +360,8 @@ class Ipb
 
 		// get the result
 		$db_result = $this->db->query($sql);
-		assert_valid_db_result($db_result);
+		$this->_assertValidResult($this->db, 'Could not get IPB info');
+
 		$result = Array();
 		$cols = array_merge($m_cols, $g_cols);
 		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
@@ -484,7 +487,8 @@ class Ipb
 
 		// get the result
 		$db_result = $this->db->query($sql);
-		assert_valid_db_result($db_result);
+		$this->_assertValidResult($this->db, 'Could not get IPB member group info');
+
 		$result = Array();
 		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
 			if (!$custom_columns) {
@@ -563,7 +567,8 @@ class Ipb
 
 		// get the result
 		$db_result = $this->db->query($sql);
-		assert_valid_db_result($db_result);
+		$this->_assertValidResult($this->db, 'Could not get IPB member(s)');
+
 		$result = Array();
 		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
 			if (!$custom_columns) {
@@ -794,7 +799,6 @@ class Ipb
 			$tmp = explode('_', $group_id);
 			$id = $tmp[1];
 			$sql = $this->_buildQuery($fields, 'members', 'u', ' WHERE u.mgroup='.$id);
-			error_log($sql);
 		}
 
 		return $this->_getResult($sql, Array(), FALSE);
@@ -1262,7 +1266,8 @@ class Ipb
 	function _getResult($sql, $key_change=Array(), $one_element=FALSE)
 	{
 		$db_result = $this->db->query($sql);
-		assert_valid_db_result($db_result);
+		$this->_assertValidResult($this->db, 'Could not get result from IPB');
+
 		$result = Array();
 		while ($row = mysql_fetch_array($db_result, MYSQL_ASSOC)) {
 			if (!empty($key_change)) {
@@ -1342,6 +1347,26 @@ class Ipb
 		return $new_result;
 
 	}//end _htmlDecode()
+
+
+	/**
+	* Asserts a valid DB result
+	*
+	* This has to be done in a different way because the DB in question is
+	* an IPB DB object, not a Matrix one.
+	*
+	* @param DB_Driver	$db			The DB object
+	* @param string		$message	Message to display if failed
+	*
+	* @return void
+	*/
+	protected function _assertValidResult($db, $message)
+	{
+		if (!empty($db->error)) {
+			trigger_error($message.': '.$db->error, E_USER_ERROR);
+		}
+
+	}//end _assertValidResult()
 
 
 }//end class

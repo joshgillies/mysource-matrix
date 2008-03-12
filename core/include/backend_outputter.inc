@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.156 2007/11/13 04:30:43 hnguyen Exp $
+* $Id: backend_outputter.inc,v 1.156.2.1 2008/03/12 04:03:59 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.156 $
+* @version $Revision: 1.156.2.1 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1621,10 +1621,12 @@ class Backend_Outputter
 	*/
 	function onCreateLink(&$broadcaster, $event_data=Array())
 	{
-		if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
-			$this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
-			$this->_refreshing_assets[] = $broadcaster->id;
-		}
+		if (!is_null($broadcaster) && isset($broadcaster->id)) {
+			if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
+				$this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
+				$this->_refreshing_assets[] = $broadcaster->id;
+			}
+		}//end if
 
 	}//end onCreateLink()
 

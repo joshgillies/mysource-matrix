@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.30 2007/12/24 02:59:01 colivar Exp $
+* $Id: simple_form.inc,v 1.30.2.1 2008/03/12 04:03:49 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -360,7 +360,7 @@ class Simple_Form extends Asset implements Bridge
 		$queried_parents = NULL;
 		try {
 			$db = MatrixDal::getDb();
-			$_query = $db->prepare(implode(' ', $query));
+			$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
 			$queried_parents = MatrixDAL::executePdoAll($_query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -429,7 +429,7 @@ class Simple_Form extends Asset implements Bridge
 				$db = MatrixDal::getDb();
 				$result = NULL;
 				try {
-					$_query = $db->prepare(implode(' ', $query));
+					$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
 					$result = MatrixDal::executePdoAssoc($_query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
@@ -443,19 +443,19 @@ class Simple_Form extends Asset implements Bridge
 		$entries = $this->attr('questions');
 		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
-				$children[$this->id.':q'.$questionid] = $data['type_code'];
+				$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['type_code']));
 			}
 		} else {
 			foreach ($type_code as $this_type_code) {
 				foreach ($entries as $questionid => $data) {
 					if ($strict_type_code) {
 						if ($data['type_code'] == $this_type_code) {
-							$children[$this->id.':q'.$questionid] = $data['type_code'];
+							$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['type_code']));
 						}
 					} else {
 						$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($this_type_code) + Array($this_type_code);
 						if (in_array($data['type_code'], $type_desc)) {
-							$children[$this->id.':q'.$questionid] = $data['type_code'];
+							$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['type_code']));
 						}
 					}
 				}

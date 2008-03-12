@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.80 2008/01/02 22:19:53 lwright Exp $
+* $Id: asset_management.inc,v 1.80.2.1 2008/03/12 04:03:58 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.80.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -95,7 +95,7 @@ class Asset_Management extends MySource_Object
 
 		$this->_pm = $pm;
 		$this->_am = $GLOBALS['SQ_SYSTEM']->am;
-		$this->_db = $GLOBALS['SQ_SYSTEM']->db;
+		$this->_db = MatrixDAL::getDb();
 
 	}//end constructor
 
@@ -247,7 +247,7 @@ class Asset_Management extends MySource_Object
 		$level = count($this->_pm->getTypeAncestors($type_code));
 		$info = $this->_pm->getTypeInfo($type_code);
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$sql = 'INSERT INTO sq_ast_typ
 				(type_code, version, name, description, instantiable, allowed_access, parent_type, lvl, dir, customisation)
@@ -255,18 +255,18 @@ class Asset_Management extends MySource_Object
 				(:type_code, :version, :name, :description, :instantiable, :allowed_access, :parent_type, :lvl, :dir, :customisation)';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue('type_code',      $type_code,              PDO::PARAM_STR);
-			$query->bindValue('version',        $info['version'],        PDO::PARAM_STR);
-			$query->bindValue('name',           $info['name'],           PDO::PARAM_STR);
-			$query->bindValue('description',    $info['description'],    PDO::PARAM_STR);
-			$query->bindValue('instantiable',   $info['instantiable'],   PDO::PARAM_STR);
-			$query->bindValue('allowed_access', $info['allowed_access'], PDO::PARAM_STR);
-			$query->bindValue('parent_type',    $info['parent_type'],    PDO::PARAM_STR);
-			$query->bindValue('lvl',            $level,                  PDO::PARAM_INT);
-			$query->bindValue('dir',            $info['dir'],            PDO::PARAM_STR);
-			$query->bindValue('customisation',  0,                       PDO::PARAM_INT);
-			$result = DAL::execPdoQuery($query);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type_code',      $type_code,              PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'version',        $info['version'],        PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'name',           $info['name'],           PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'description',    $info['description'],    PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'instantiable',   $info['instantiable'],   PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'allowed_access', $info['allowed_access'], PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'parent_type',    $info['parent_type'],    PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'lvl',            $level,                  PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdo($query, 'dir',            $info['dir'],            PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'customisation',  0,                       PDO::PARAM_INT);
+			$result = MatrixDAL::execPdoQuery($query);
 		} catch (DALException $e) {
 			throw new Exception('Unable to add information for new asset type "'.$type_code.'" due to database error: '.$e->getMessage());
 		}
@@ -302,7 +302,7 @@ class Asset_Management extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		$asset_type = $this->getAssetType();
 
 		// get how deep we are in the heirarchy
@@ -323,16 +323,16 @@ class Asset_Management extends MySource_Object
 					type_code = :type_code';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':version',        $info['version'],        PDO::PARAM_STR);
-			$query->bindValue(':name',           $info['name'],           PDO::PARAM_STR);
-			$query->bindValue(':description',    $info['description'],    PDO::PARAM_STR);
-			$query->bindValue(':instantiable',   $info['instantiable'],   PDO::PARAM_STR);
-			$query->bindValue(':allowed_access', $info['allowed_access'], PDO::PARAM_STR);
-			$query->bindValue(':parent_type',    $info['parent_type'],    PDO::PARAM_STR);
-			$query->bindValue(':lvl',            $level,                  PDO::PARAM_INT);
-			$query->bindValue(':dir',            $info['dir'],            PDO::PARAM_STR);
-			$query->bindValue(':type_code',      $asset_type,             PDO::PARAM_STR);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'version',        $info['version'],        PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'name',           $info['name'],           PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'description',    $info['description'],    PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'instantiable',   $info['instantiable'],   PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'allowed_access', $info['allowed_access'], PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'parent_type',    $info['parent_type'],    PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'lvl',            $level,                  PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdo($query, 'dir',            $info['dir'],            PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'type_code',      $asset_type,             PDO::PARAM_STR);
 			DAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update type details while upgrading asset type "'.$asset_type.'" to version '.$current_version.', due to database error: ', $e->getMessage());
@@ -347,9 +347,9 @@ class Asset_Management extends MySource_Object
 				WHERE type_code = :type_code';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue('type_code', $asset_type);
-			$current_vars = DAL::executePdoAssoc($query, 0);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
+			$current_vars = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get current attributes while upgrading asset type "'.$asset_type.'" to version '.$current_version.', due to database error: ', $e->getMessage());
 		}
@@ -363,7 +363,7 @@ class Asset_Management extends MySource_Object
 					return false;
 				}
 			} else {
-				if (!$this->_addAttribute($name)) return false;
+				if (!$this->_addAttribute($name)) return FALSE;
 			}
 		}//end for
 
@@ -384,7 +384,7 @@ class Asset_Management extends MySource_Object
 	*/
 	function _getAllVars()
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$type_code = $this->getAssetType();
 		$sql = 'SELECT DISTINCT atr.name
@@ -394,11 +394,11 @@ class Asset_Management extends MySource_Object
 				  AND i.inhd_type_code = atr.type_code';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-			$parent_vars = DAL::executePdoAssoc($query, 0);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+			$parent_vars = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
-			throw new Exception('Unable to get attribute list for asset type "'.$asset_type.'" due to database error: ', $e->getMessage());
+			throw new Exception('Unable to get attribute list for asset type "'.$asset_type.'" due to database error: '.$e->getMessage());
 		}
 
 		// array_values() to get proper indexed array
@@ -450,7 +450,7 @@ class Asset_Management extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// See if any other our parents have an attribute with this name
 		$sql = 'SELECT COUNT(*) as count, MIN(at.lvl) as min, MAX(at.lvl) as max
@@ -462,11 +462,11 @@ class Asset_Management extends MySource_Object
 				  AND atr.type_code = at.type_code';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':type_code',      $type_code, PDO::PARAM_STR);
-			$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
-			$query->bindValue(':name',           $name,      PDO::PARAM_STR);
-			$result = DAL::executePdoAll($query);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type_code',      $type_code, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+			MatrixDAL::bindValueToPdo($query, 'name',           $name,      PDO::PARAM_STR);
+			$result = MatrixDAL::executePdoAll($query);
 			$parent_info = $result[0];
 			unset($result);
 		} catch (Exception $e) {
@@ -485,11 +485,11 @@ class Asset_Management extends MySource_Object
 					  AND i.type_code = a.type_code
 					  AND a.name = :name';
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':type_code',      $type_code, PDO::PARAM_STR);
-				$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
-				$query->bindValue(':name',           $name,      PDO::PARAM_STR);
-				$children = DAL::executePdoAll($query);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code',      $type_code, PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+				MatrixDAL::bindValueToPdo($query, 'name',           $name,      PDO::PARAM_STR);
+				$children = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to search for matching child attribute while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 			}
@@ -513,9 +513,9 @@ class Asset_Management extends MySource_Object
 						SET owning_type_code = :type_code
 						WHERE attrid IN (:attrids)';
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-					$query->bindValue(':attrids',   $temp_attr_ids);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'attrids',   $temp_attr_ids);
 					DAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update attribute\'s owning type while adding attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
@@ -567,12 +567,12 @@ class Asset_Management extends MySource_Object
 			$min_sql = $sql.':min';
 
 			try {
-				$query = $db->prepare($min_sql);
-				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-				$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
-				$query->bindValue(':name',      $name,      PDO::PARAM_STR);
-				$query->bindValue(':min',       $parent_info['min'], PDO::PARAM_INT);
-				$result = DAL::executePdoAll($query);
+				$query = MatrixDAL::preparePdoQuery($min_sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+				MatrixDAL::bindValueToPdo($query, 'name',      $name,      PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'min',       $parent_info['min'], PDO::PARAM_INT);
+				$result = MatrixDAL::executePdoAll($query);
 				$attr_owner = $result[0];
 				unset($result);
 			} catch (Exception $e) {
@@ -593,12 +593,12 @@ class Asset_Management extends MySource_Object
 				// else we want to inherit the default value
 				$max_sql = $sql.':max';
 				try {
-					$query = $db->prepare($max_sql);
-					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-					$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
-					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
-					$query->bindValue(':max',       $parent_info['max'], PDO::PARAM_INT);
-					$result = DAL::executePdoAll($query);
+					$query = MatrixDAL::preparePdoQuery($max_sql);
+					MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+					MatrixDAL::bindValueToPdo($query, 'name',      $name,      PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'max',       $parent_info['max'], PDO::PARAM_INT);
+					$result = MatrixDAL::executePdoAll($query);
 					$attr_default = $result[0];
 					unset($result);
 				} catch (Exception $e) {
@@ -617,12 +617,12 @@ class Asset_Management extends MySource_Object
 				// else we want to inherit the default value
 				$max_sql = $sql.':max';
 				try {
-					$query = $db->prepare($max_sql);
-					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-					$query->bindValue(':inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
-					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
-					$query->bindValue(':max',       $parent_info['max'], PDO::PARAM_INT);
-					$result = DAL::executePdoAll($query);
+					$query = MatrixDAL::preparePdoQuery($max_sql);
+					MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $type_code, PDO::PARAM_STR);	// not needed for baked DAL?
+					MatrixDAL::bindValueToPdo($query, 'name',      $name,      PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'max',       $parent_info['max'], PDO::PARAM_INT);
+					$result = MatrixDAL::executePdoAll($query);
 					$attr_default = $result[0];
 					unset($result);
 				} catch (Exception $e) {
@@ -646,42 +646,31 @@ class Asset_Management extends MySource_Object
 			return false;
 		}
 
-		// TODO: this wil be replaced in the queries.xml with a seqNextVal()
-		// call replacing the addition of the explicit sequence value
-		$attributeid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_attr_seq\')');
-		/*if (!assert_valid_db_result($attributeid, '', false, false)) {
-			return false;
-		}*/
-
-		// OK, all seems fine, let's add the bloody thing
-		$sql = 'INSERT INTO sq_ast_attr
-				(attrid, type_code, owning_type_code, name, type, uniq, parameters_type_code, default_type_code, default_val, parameters_val, is_admin, description)
-				VALUES
-				(:attrid, :type_code, :owning_type_code, :name, :type, :uniq, :parameters_type_code, :default_type_code, :default_val, :parameters, :is_admin, :description)';
-
+		// OK, all seems fine, let's add the attribute
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':attrid',               $attributeid,                        PDO::PARAM_INT);
-			$query->bindValue(':type_code',            $type_code,                          PDO::PARAM_STR);
-			$query->bindValue(':owning_type_code',     $attr_info['owning_type_code'],      PDO::PARAM_STR);
-			$query->bindValue(':name',                 $name,                               PDO::PARAM_STR);
-			$query->bindValue(':type',                 $attr_info['type'],                  PDO::PARAM_STR);
-			$query->bindValue(':uniq',                 $attr_info['uniq'],                  PDO::PARAM_STR);
-			$query->bindValue(':parameters_type_code', $attr_info['parameters_type_code'],  PDO::PARAM_STR);
-			$query->bindValue(':default_type_code',    $attr_info['default_type_code'],     PDO::PARAM_STR);
-			$query->bindValue(':default_val',          $attr_info['default_val'],           PDO::PARAM_STR);
-			$query->bindValue(':parameters',           serialize($attr_info['parameters']), PDO::PARAM_STR);
-			$query->bindValue(':is_admin',             $attr_info['is_admin'],              PDO::PARAM_BOOL);
-			$query->bindValue(':description',          $attr_info['description'],           PDO::PARAM_STR);
-			DAL::execPdoQuery($query);
-		} catch (Exception $e) {
+				$bind_vars = Array(
+								'type_code'				=> $type_code,
+								'owning_type_code'		=> $attr_info['owning_type_code'],
+								'name'					=> $name,
+								'type'					=> $attr_info['type'],
+								'uniq' 					=> $attr_info['uniq'],
+								'parameters_type_code'	=> $attr_info['parameters_type_code'],
+								'default_type_code'		=> $attr_info['default_type_code'],
+								'default_val'			=> $attr_info['default_val'],
+								'parameters_val'		=> serialize($attr_info['parameters']),
+								'is_admin'				=> $attr_info['is_admin'] ? 1 : 0,
+								'description'			=> $attr_info['description'],
+							 );
+				MatrixDAL::executeQuery('core', 'insertAssetAttribute', $bind_vars);
+
+		} catch (DALException $e) {
 			throw new Exception('Unable to add attribute "'.$name.'" to asset type "'.$type_code.'", due to database error: '.$e->getMessage());
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		return true;
+		return TRUE;
 
 	}//end _addAttribute()
 
@@ -705,24 +694,28 @@ class Asset_Management extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// find the attributeid
-		$sql = 'SELECT attrid FROM sq_ast_attr WHERE owning_type_code = '.$this->_db->quote($type_code).' AND name='.$this->_db->quote($name);
-		$attributeid = $this->_db->getOne($sql);
+		$sql = 'SELECT attrid FROM sq_ast_attr WHERE owning_type_code = :type_code AND name = :name';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'type_code', $type_code);
+		MatrixDAL::bindValueToPdo($query, 'name',      $name);
+		$attributeid = MatrixDAL::executePdoOne($query);
 
-		assert_valid_db_result($attributeid);
 		if (is_null($attributeid)) {
 			trigger_localised_error('SYS0050', E_USER_WARNING, $typecode, $name);
 			return false;
 		}
 
 		// delete the attribute values
-		$sql = 'DELETE FROM sq_ast_attr_val WHERE attrid='.$this->_db->quote($attributeid);
-		$result = $this->_db->query($sql);
-		assert_valid_db_result($result);
+		$sql = 'DELETE FROM sq_ast_attr_val WHERE attrid = :attrid';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'attrid', $attributeid);
+		MatrixDAL::execPdoQuery($query);
 
 		// delete the attribute
-		$sql = 'DELETE FROM sq_ast_attr WHERE attrid='.$this->_db->quote($attributeid);
-		$result = $this->_db->query($sql);
-		assert_valid_db_result($result);
+		$sql = 'DELETE FROM sq_ast_attr WHERE attrid = :attrid';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'attrid', $attributeid);
+		MatrixDAL::execPdoQuery($query);
 
 		// get rid of it in our array
 		if (isset($this->vars[$name])) {
@@ -752,7 +745,6 @@ class Asset_Management extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
 
 		// if they have defined an update fn for this, then we don't need to do anything
 		if (!empty($this->vars[$name]['update_fn'])) {
@@ -770,10 +762,10 @@ class Asset_Management extends MySource_Object
 						AND name = :name';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-				$query->bindValue(':name',      $name,      PDO::PARAM_STR);
-				$result = DAL::executePdoAll($query);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'name',      $name,      PDO::PARAM_STR);
+				$result = MatrixDAL::executePdoAll($query);
 				$curr_attr = $result[0];
 				unset($result);
 			} catch (Exception $e) {
@@ -794,10 +786,10 @@ class Asset_Management extends MySource_Object
 					AND name = :name';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-				$query->bindValue(':name',      $name,      PDO::PARAM_STR);
-				$result = DAL::executePdoAll($query);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'name',      $name,      PDO::PARAM_STR);
+				$result = MatrixDAL::executePdoAll($query);
 				$parent_check_data = $result[0];
 				unset($result);
 			} catch (Exception $e) {
@@ -822,10 +814,10 @@ class Asset_Management extends MySource_Object
 						WHERE type_code = :type_code AND name = :name';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':owning_type_code', $owning_type_code, PDO::PARAM_STR);
-					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'owning_type_code', $owning_type_code, PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'name',      $name,      PDO::PARAM_STR);
 					DAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update owning type code info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
@@ -852,10 +844,10 @@ class Asset_Management extends MySource_Object
 						  AND name = :name';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':type_code', $type_code, PDO::PARAM_STR);
-					$query->bindValue(':name',      $name,      PDO::PARAM_STR);
-					$result = DAL::executePdoAll($query);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'name',      $name,      PDO::PARAM_STR);
+					$result = MatrixDAL::executePdoAll($query);
 					$parent_attr = $result[0];
 					unset($result);
 				} catch (Exception $e) {
@@ -943,7 +935,7 @@ class Asset_Management extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		$type_code = $this->getAssetType();
 
@@ -966,13 +958,13 @@ class Asset_Management extends MySource_Object
 
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':type',             $this->vars[$name]['type'], PDO::PARAM_STR);
-			$query->bindValue(':uniq',             empty($this->vars[$name]['uniq']) ? 0 : 1, PDO::PARAM_INT);
-			$query->bindValue(':is_admin',         isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1, PDO::PARAM_INT);
-			$query->bindValue(':description',      $description, PDO::PARAM_STR);
-			$query->bindValue(':owning_type_code', $type_code,   PDO::PARAM_STR);
-			$query->bindValue(':name',             $name,        PDO::PARAM_STR);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type',             $this->vars[$name]['type'], PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'uniq',             empty($this->vars[$name]['uniq']) ? 0 : 1, PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdo($query, 'is_admin',         isset($this->vars[$name]['is_admin']) ? (int) $this->vars[$name]['is_admin'] : 1, PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdo($query, 'description',      $description, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'owning_type_code', $type_code,   PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'name',             $name,        PDO::PARAM_STR);
 			DAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update owned attribute info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
@@ -991,10 +983,10 @@ class Asset_Management extends MySource_Object
 
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':val',         $this->vars[$name]['default'], PDO::PARAM_STR);
-			$query->bindValue(':type_code', $type_code,   PDO::PARAM_STR);
-			$query->bindValue(':name',             $name,        PDO::PARAM_STR);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'val',         $this->vars[$name]['default'], PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $type_code,   PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'name',             $name,        PDO::PARAM_STR);
 			DAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update attribute defaults for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
@@ -1008,10 +1000,10 @@ class Asset_Management extends MySource_Object
 					  AND name = :name';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':val',         serialize($this->vars[$name]['parameters']), PDO::PARAM_STR);
-				$query->bindValue(':type_code', $type_code,   PDO::PARAM_STR);
-				$query->bindValue(':name',             $name,        PDO::PARAM_STR);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'val',         serialize($this->vars[$name]['parameters']), PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $type_code,   PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'name',             $name,        PDO::PARAM_STR);
 				DAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update attribute parameter info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());
@@ -1040,7 +1032,7 @@ class Asset_Management extends MySource_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		// OK, the reason that we are setting the default type code for the attributes
 		// is so that if this is the first time that we are setting the default value
@@ -1061,14 +1053,14 @@ class Asset_Management extends MySource_Object
 								  )';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':new_type_code',   $new_type_code, PDO::PARAM_STR);
-			$query->bindValue(':new_type_code_1',   $new_type_code, PDO::PARAM_STR);
-			$query->bindValue(':new_type_code_2',   $new_type_code, PDO::PARAM_STR);
-			$query->bindValue(':old_type_code', $old_type_code,   PDO::PARAM_STR);
-			$query->bindValue(':name',             $name,        PDO::PARAM_STR);
-			$query->bindValue(':value',             $new_value,        PDO::PARAM_STR);
-			$query->bindValue(':attrid',             $attributeid,        PDO::PARAM_STR);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'new_type_code',   $new_type_code, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'new_type_code_1',   $new_type_code, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'new_type_code_2',   $new_type_code, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'old_type_code', $old_type_code,   PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'name',             $name,        PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'value',             $new_value,        PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'attrid',             $attributeid,        PDO::PARAM_STR);
 			DAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update custom attribute value info for attribute "'.$name.'" of asset type "'.$type_code.'", due to database error: '.$e->getMessage());

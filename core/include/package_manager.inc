@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.86 2008/01/02 22:19:26 lwright Exp $
+* $Id: package_manager.inc,v 1.86.2.1 2008/03/12 04:04:00 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.86.2.1 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -236,28 +236,15 @@ class Package_Manager extends MySource_Object
 
 			$this->_installDALQueries();
 
-			$db = DAL::getDb();
+			$db = MatrixDAL::getDb();
 
 			$sql = 'SELECT code_name FROM sq_pkg WHERE code_name = :code_name';
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue('code_name', $package_name);
-				$exists = DAL::executePdoOne($query);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'code_name', $package_name);
+				$exists = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Failed to get package information for package "'.$package_name.'" due to database error: '.$e->getMessage());
-			}
-
-			if ($exists) {
-				$sql = 'UPDATE sq_pkg
-						SET version     = :version,
-							name        = :name,
-							description = :description
-							WHERE code_name = :code_name';
-			} else {
-				$sql = 'INSERT INTO sq_pkg
-						(code_name, version, name, description)
-						VALUES
-						(:code_name, :version, :name, :description)';
 			}
 
 			try {
@@ -424,23 +411,36 @@ class Package_Manager extends MySource_Object
 
 				// check the path of this type in db we may need to update it here incase it was moved
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-				$db = DAL::getDb();
+				$db = MatrixDAL::getDb();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				$sql = 'SELECT dir FROM sq_ast_typ WHERE type_code = :type_code';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':type_code', $info['type_code']);
-					$result = DAL::executePdoOne($query);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'type_code', $info['type_code']);
+					$result = MatrixDAL::executePdoOne($query);
 				} catch (DALException $e) {
 					throw new Exception ('Unable to get directory of type code '.$info['type_code'].' due to database error: '.$e->getMessage());
 				}
 
 				if (!empty($result) && ($result != $info['dir'])) {
 					// update path
-					$sql = 'UPDATE sq_ast_typ SET dir='.$db->quote($info['dir']).' WHERE type_code='.$db->quote($info['type_code']);
-					DAL::executeSql($sql);
+					$sql = 'UPDATE
+								sq_ast_typ
+							SET
+								dir = :dir
+							WHERE
+								type_code = :type_code';
+
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'dir',       $info['dir']);
+						MatrixDAL::bindValueToPdo($query, 'type_code', $info['type_code']);
+						MatrixDAL::execPdoQuery($query);
+					} catch (DALException $e) {
+						throw new Exception ('Unable to update directory of type code '.$info['type_code'].' due to database error: '.$e->getMessage());
+					}
 				}
 
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -599,6 +599,7 @@ class Package_Manager extends MySource_Object
 			$str .= $type_node->asXml();
 
 		}// end for
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		return string_to_file($str, SQ_DATA_PATH.'/private/asset_map/'.$this->getPackageName().'.xml');
 
@@ -626,7 +627,7 @@ class Package_Manager extends MySource_Object
 	*/
 	function checkRequirementsFromFile($file, $deferred_assets=Array(), $need_feedback=false)
 	{
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 
 		try {
 			$info = new SimpleXMLElement($file, NULL, TRUE);
@@ -650,11 +651,11 @@ class Package_Manager extends MySource_Object
 					$sql = 'SELECT version FROM sq_pkg WHERE code_name = :code_name';
 
 					try {
-						$query = $db->prepare($sql);
-						$query->bindValue(':code_name', $required_code);
-						$installed_version = DAL::executePdoOne($query);
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'code_name', $required_code);
+						$installed_version = MatrixDAL::executePdoOne($query);
 					} catch (DALException $e) {
-						throw new Exception(': '.$e->getMessage());
+						throw new Exception('Unable to get version of package "'.$required_code.'" due to database error: '.$e->getMessage());
 					}
 
 					if ($installed_version) {

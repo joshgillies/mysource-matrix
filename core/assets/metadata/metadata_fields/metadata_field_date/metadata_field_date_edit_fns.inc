@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.41 2007/12/11 03:15:41 colivar Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.41.2.1 2008/03/12 04:03:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -241,7 +241,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function paintValueInterface(Metadata_Field_Date $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
+	public function paintValueInterface(Metadata_Field_Date $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
 	{
 
 		$prefix = $asset->getPrefix();
@@ -310,6 +310,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				</script>
 				<?php
 			}
+
+			if ($print_cascade_values_option) {
+				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+				check_box($prefix.'_cascade_value', '1', FALSE);
+				label(translate('cascade_value'), $prefix.'_cascade_value');
+			}
+
 		} else if ($uses_keyword && isset($select_options[trim($value, '%')])) {
 			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[trim($value, '%')];
 			if ($is_default && $enable_default) {
@@ -339,33 +346,38 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Field_Date $asset, &$new_value_str)
+	public function processInlineValueInterface(Metadata_Field_Date $asset, &$new_value_str, &$field_cascade_value)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
+
+		$processed = FALSE;
 
 		$prefix = $asset->getPrefix();
 		if (!empty($_POST[$prefix.'_default'])) {
 			// use default
 			$new_value_str = NULL;
-			return TRUE;
+			$processed = TRUE;
 		} else {
 			$value = array_get_index($_POST, $prefix.'_repkeys', '');
 			if (!empty($value)) {
 				$new_value_str = Metadata_Field::encodeValueString('%'.trim($value).'%', Array());
-				return TRUE;
+				$processed = TRUE;
 			} else {
 				$field = $asset->_getDateTimeField($prefix);
 				if ($field->processField()) {
 					$value = $field->value;
 					$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
-					return TRUE;
-				} else {
-					 // nothing submitted
-					return FALSE;
+					$processed = TRUE;
 				}
 			}
 		}
 
+		if (isset($_POST[$prefix.'_cascade_value'])) {
+			$field_cascade_value = TRUE;
+			$processed = TRUE;
+		}
+
+		return $processed;
 
 	}//end processInlineValueInterface()
 

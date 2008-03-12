@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.80 2007/12/21 00:24:38 gsherwood Exp $
+* $Id: general_occasional.inc,v 1.80.2.1 2008/03/12 04:03:59 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.80.2.1 $
 * @package MySource_Matrix
 */
 
@@ -357,10 +357,10 @@ function make_valid_web_paths($paths)
 		}
 
 		// no ampersands in web paths
-		$path = str_replace('&amp;', '_and_', $path);
+		$path = str_replace('&amp;', '-and-', $path);
 		$path = preg_replace('|&[^;]+;|', '', $path);
 		$path = preg_replace('|&#[0-9]+;|', '', $path);
-		$path = str_replace('&', '_and_', $path);
+		$path = str_replace('&', '-and-', $path);
 
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);

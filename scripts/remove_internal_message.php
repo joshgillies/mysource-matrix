@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.4 2007/02/21 00:40:31 hnguyen Exp $
+* $Id: remove_internal_message.php,v 1.4.6.1 2008/03/12 04:04:04 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -158,11 +158,13 @@ $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 function purge_internal_message($period, $user_from='', $user_to='', $msg_type='', $msg_status='')
 {
 	global $db, $QUIET, $SHOW_QUERY_ONLY;
+	$bind_vars = Array();
 
 	$sql = 'DELETE FROM'."\n";
 	$sql .= '    '.SQ_TABLE_RUNNING_PREFIX.'internal_msg'."\n";
 	$sql .= 'WHERE'."\n";
-	$sql .= '    sent <= '.$db->quoteSmart($period)."\n";
+	$sql .= '    sent <= :sent_before'."\n";
+	$bind_vars['sent_before'] = $period;
 
 	$userids = Array(
 				Array(
@@ -181,7 +183,7 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 			if ($userid['value'] == 'all') {
 
 				// All messages sent from/to users
-				$sql .= '    AND '.$userid['field_name'].' <> '.$db->quoteSmart('0')."\n";
+				$sql .= '    AND '.$userid['field_name'].' <> '.MatrixDAL::quote('0')."\n";
 
 			} else if (strpos($userid['value'], ':') !== FALSE) {
 
@@ -193,9 +195,9 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 						if (strlen(trim($id)) == 0) continue;
 						if (trim($id) == 'all') usage(TRUE);
 						if (strpos($id, '*') !== FALSE && substr($id, -1) == '*') {
-							$sql .= $userid['field_name'].' LIKE '.$db->quoteSmart(substr($id, 0, -1).':%').' OR ';
+							$sql .= $userid['field_name'].' LIKE '.MatrixDAL::quote(substr($id, 0, -1).':%').' OR ';
 						} else {
-							$sql .= $userid['field_name'].' = '.$db->quoteSmart($id).' OR ';
+							$sql .= $userid['field_name'].' = '.MatrixDAL::quote($id).' OR ';
 						}
 					}
 					$sql = substr($sql, 0, -4).')'."\n";
@@ -205,9 +207,9 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 
 				// Single Userid found
 				if (strpos($userid['value'], '*') !== FALSE && substr($userid['value'], -1) == '*') {
-					$sql .= '    AND '.$userid['field_name'].' LIKE '.$db->quoteSmart(substr($userid['value'], 0, -1).':%')."\n";
+					$sql .= '    AND '.$userid['field_name'].' LIKE '.MatrixDAL::quote(substr($userid['value'], 0, -1).':%')."\n";
 				} else {
-					$sql .= '    AND '.$userid['field_name'].' = '.$db->quoteSmart($userid['value'])."\n";
+					$sql .= '    AND '.$userid['field_name'].' = '.MatrixDAL::quote($userid['value'])."\n";
 				}
 
 			}
@@ -218,9 +220,11 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 	// Type of message
 	if (!empty($msg_type)) {
 		if (strpos($msg_type, '*') !== FALSE && substr($msg_type, -1) == '*') {
-			$sql .= '    AND type LIKE '.$db->quoteSmart(substr($msg_type, 0, -1).'%')."\n";
+			$sql .= '    AND type LIKE :msg_type'."\n";
+			$bind_vars['msg_type'] = substr($msg_type, 0, -1).'%';
 		} else {
-			$sql .= '    AND type = '.$db->quoteSmart($msg_type)."\n";
+			$sql .= '    AND type = :msg_type'."\n";
+			$bind_vars['msg_type'] = $msg_type;
 		}
 	}
 
@@ -230,18 +234,21 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 			$tmp = explode(':', $msg_status);
 			$sql .= '    and status IN (';
 			foreach($tmp as $token) {
-				$sql .= $db->quoteSmart($token).', ';
+				$sql .= MatrixDAL::quote($token).', ';
 			}
 			$sql = substr($sql, 0, -2).")\n";
 		} else {
-			$sql .= '    AND status = '.$db->quoteSmart($msg_status)."\n";
+			$sql .= '    AND status = :msg_status'."\n";
+			$bind_vars['msg_status'] = $msg_status;
 		}
 	}
 
-	$result = $db->query($sql);
-	assert_valid_db_result($result);
-	$affected_rows = $db->affectedRows();
-	assert_valid_db_result($affected_rows);
+	$query = MatrixDAL::preparePdoQuery($sql);
+	foreach ($bind_vars as $bind_var => $bind_value) {
+		MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+	}
+	MatrixDAL::execPdoQuery($query);
+	$affected_rows = MatrixDAL::rowCount($query);
 
 	if (!$QUIET) {
 		echo "\n".$affected_rows.' INTERNAL MESSAGES '.($SHOW_QUERY_ONLY ? 'CAN BE ' : '').'DELETED'."\n\n";

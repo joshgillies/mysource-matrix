@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.36 2007/12/04 02:57:50 bshkara Exp $
+* $Id: page_asset_listing_management.inc,v 1.36.2.1 2008/03/12 04:04:23 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -59,6 +59,19 @@ class Page_Asset_Listing_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   );
+
+		$this->vars['parameter_map'] = Array(
+										'added'			=> '0.15',
+										'type'			=> 'parameter_map',
+										'default'		=> Array(),
+										'parameters'	=> Array(
+															'parameters'	=> Array(
+																				'root_node'			=> 'Replacement Root node for the listing (must be a child of the static root node)',
+																				'asset_selection'	=> 'Array of specific asset IDs or selection group (specified assets must be children of the static related node)',
+																			   ),
+														   ),
+									   );
+
 
 	}//end constructor
 

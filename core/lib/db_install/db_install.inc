@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.54 2008/01/02 05:49:43 lwright Exp $
+* $Id: db_install.inc,v 1.54.2.1 2008/03/12 04:04:02 lwright Exp $
 *
 */
 
@@ -22,9 +22,9 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix
-* @subpackage lib
+* @subpackage lib`
 */
 
 
@@ -39,7 +39,7 @@
 */
 function parse_tables_xml($xml_file)
 {
-	$db = DAL::getDb();
+	$db = MatrixDAL::getDb();
 
 	try {
 		$root = new SimpleXMLElement($xml_file, LIBXML_NOCDATA, TRUE);
@@ -89,7 +89,7 @@ function parse_tables_xml($xml_file)
 					case 'type_variations' :
 						// check for varitions of the column type for his database
 						foreach ($column_var->children() as $variation) {
-							if ($variation->getName() == DAL::getDbType()) {
+							if ($variation->getName() == MatrixDAL::getDbType()) {
 								$type = (string)$variation;
 								break;
 							}
@@ -116,7 +116,7 @@ function parse_tables_xml($xml_file)
 			if (isset($table->keys) && (count($table->keys->children()) > 0)) {
 				foreach ($table->keys->children() as $table_key) {
 					$index_db_type = $table_key->attributes()->db;
-					if (!is_null($index_db_type) && ((string)$index_db_type != DAL::getDbType())) {
+					if (!is_null($index_db_type) && ((string)$index_db_type != MatrixDAL::getDbType())) {
 						continue;
 					}
 
@@ -188,7 +188,7 @@ function parse_tables_xml($xml_file)
 */
 function create_index($tablename, $columns, $index_name=NULL, $index_type=NULL)
 {
-	$db = DAL::getDb();
+	$db = MatrixDAL::getDb();
 	if (is_null($index_name)) $index_name = implode('_', $columns);
 
 	// Truncate any index names to 30 characters to satisfy Oracle restrictions
@@ -226,7 +226,7 @@ function create_index($tablename, $columns, $index_name=NULL, $index_type=NULL)
 */
 function create_table($tablename, $table_info)
 {
-	$db  = DAL::getDb();
+	$db  = MatrixDAL::getDb();
 	$sql = 'CREATE TABLE sq_'.$tablename.'(';
 
 	$i = 0;
@@ -276,8 +276,8 @@ function create_table($tablename, $table_info)
 */
 function get_database_indexes($tablename, $include_rollback=TRUE)
 {
-	$db      = DAL::getDb();
-	$db_type = DAL::getDbType();
+	$db      = MatrixDAL::getDb();
+	$db_type = MatrixDAL::getDbType();
 
 	if ($db_type == 'pgsql') {
 		$sql = 'SELECT
@@ -302,11 +302,10 @@ function get_database_indexes($tablename, $include_rollback=TRUE)
 	}
 
 	try {
-		$query = $db->prepare($sql);
-		$query->bindValue(':std_table',      'sq_'.$tablename,    PDO::PARAM_STR);
-		$query->bindValue(':rollback_table', 'sq_rb_'.$tablename, PDO::PARAM_STR);
-
-		$indexes_in_db = DAL::executePdoAssoc($query, 0);
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'std_table',      'sq_'.$tablename);
+		MatrixDAL::bindValueToPdo($query, 'rollback_table', 'sq_rb_'.$tablename);
+		$indexes_in_db = MatrixDAL::executePdoAssoc($query, 0);
 	} catch (DALException $e) {
 		throw $e;
 	}
@@ -328,8 +327,8 @@ function get_database_indexes($tablename, $include_rollback=TRUE)
 */
 function get_database_sequences()
 {
-	$db  = DAL::getDb();
-	$db_type = DAL::getDbType();
+	$db  = MatrixDAL::getDb();
+	$db_type = MatrixDAL::getDbType();
 
 	if ($db_type == 'pgsql') {
 		$sql = 'SELECT c.relname
@@ -340,8 +339,8 @@ function get_database_sequences()
 				  AND c.relname !~ :pattern';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':pattern', '^(pg_|sql_)', PDO::PARAM_STR);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'pattern', '^(pg_|sql_)', PDO::PARAM_STR);
 		} catch (DALException $e) {
 			throw $e;
 		}
@@ -350,14 +349,14 @@ function get_database_sequences()
 		$sql = 'SELECT sequence_name FROM user_sequences';
 
 		try {
-			$query = $db->prepare($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
 		} catch (DALException $e) {
 			throw $e;
 		}
 	}
 
 	try {
-		$sequences_in_db = DAL::executePdoAssoc($query, 0);
+		$sequences_in_db = MatrixDAL::executePdoAssoc($query, 0);
 	} catch (DALException $e) {
 		throw $e;
 	}
@@ -379,8 +378,8 @@ function get_database_sequences()
 */
 function get_database_tables()
 {
-	$db  = DAL::getDb();
-	$db_type = DAL::getDbType();
+	$db  = MatrixDAL::getDb();
+	$db_type = MatrixDAL::getDbType();
 
 	if ($db_type == 'pgsql') {
 		// formerly DB::getSpecialQuery('tables')
@@ -399,8 +398,8 @@ function get_database_tables()
 					AND c.relname !~ \'^pg_\'';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':pattern', '^(pg_|sql_)', PDO::PARAM_STR);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'pattern', '^(pg_|sql_)', PDO::PARAM_STR);
 		} catch (DALException $e) {
 			throw $e;
 		}
@@ -409,14 +408,14 @@ function get_database_tables()
 		$sql = 'SELECT table_name FROM user_tables';
 
 		try {
-			$query = $db->prepare($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
 		} catch (DALException $e) {
 			throw $e;
 		}
 	}
 
 	try {
-		$tables_in_db = DAL::executePdoAssoc($query, 0);
+		$tables_in_db = MatrixDAL::executePdoAssoc($query, 0);
 	} catch (DALException $e) {
 		throw $e;
 	}
@@ -441,7 +440,7 @@ function get_database_tables()
 */
 function db_install($xml_file, $verbose=TRUE)
 {
-	$db           = DAL::getDb();
+	$db           = MatrixDAL::getDb();
 	$info         = parse_tables_xml($xml_file);
 	$tables_in_db = get_database_tables();
 
@@ -551,7 +550,7 @@ function db_install($xml_file, $verbose=TRUE)
 
 		if (!empty($table_info['indexes'])) {
 			foreach ($table_info['indexes'] as $index_name => $index_info) {
-				if (is_null($index_info['db_type']) || $index_info['db_type'] == DAL::getDbType()) {
+				if (is_null($index_info['db_type']) || $index_info['db_type'] == MatrixDAL::getDbType()) {
 					if (!in_array('sq_'.$tablename.'_'.$index_name, $indexes_in_db)) {
 						create_index($tablename, $index_info['columns'], $index_name, $index_info['type']);
 						$created_indexes[] = 'sq_'.$tablename.'_'.$index_name;
@@ -669,7 +668,6 @@ function db_install($xml_file, $verbose=TRUE)
 */
 function grant_secondary_user_perms($verbose=TRUE)
 {
-	$db = DAL::getDb();
 	if (DAL::getDbType() == 'pgsql') {
 		$db_conf = require(SQ_SYSTEM_ROOT.'/data/private/conf/db.inc');
 
@@ -679,18 +677,21 @@ function grant_secondary_user_perms($verbose=TRUE)
 		$cache_dsn     = $db_conf['dbcache'];
 
 		// grant to the primary user
-		$grant_sql = 'SELECT sq_grant_access('.$db->quote($primary_dsn['user']).')';
+		$grant_sql = 'SELECT sq_grant_access(:user)';
 		try {
-			DAL::executeSql($grant_sql);
+			$query = MatrixDAL::preparePdoQuery($grant_sql);
+			MatrixDAL::bindValueToPdo($query, 'user', $primary_dsn['user']);
+			MatrixDAL::execPdoQuery($query);
 		} catch (DALException $e) {
 			throw $e;
 		}
 
 		// grant to the secondary user, if different
 		if ($primary_dsn['user'] != $secondary_dsn['user']) {
-			$grant_sql = 'SELECT sq_grant_access('.$db->quote($secondary_dsn['user']).')';
 			try {
-				DAL::executeSql($grant_sql);
+				$query = MatrixDAL::preparePdoQuery($grant_sql);
+				MatrixDAL::bindValueToPdo($query, 'user', $secondary_dsn['user']);
+				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -698,9 +699,10 @@ function grant_secondary_user_perms($verbose=TRUE)
 
 		// grant to the tertiary user, if different to the first two
 		if (($primary_dsn['user'] != $tertiary_dsn['user']) && ($secondary_dsn['user'] != $tertiary_dsn['user'])) {
-			$grant_sql = 'SELECT sq_grant_access('.$db->quote($tertiary_dsn['user']).')';
 			try {
-				DAL::executeSql($grant_sql);
+				$query = MatrixDAL::preparePdoQuery($grant_sql);
+				MatrixDAL::bindValueToPdo($query, 'user', $tertiary_dsn['user']);
+				MatrixDAL::execPdoQuery($query);
 			} catch (DALException $e) {
 				throw $e;
 			}
@@ -714,12 +716,12 @@ function grant_secondary_user_perms($verbose=TRUE)
 		if (!is_null($cache_dsn)) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db = DAL::getDb();
 
 			if (DAL::getDbType() == 'pgsql') {
-				$grant_sql = 'SELECT sq_grant_access('.$db->quote($cache_dsn['user']).')';
 				try {
-					DAL::executeSql($grant_sql);
+					$query = MatrixDAL::preparePdoQuery($grant_sql);
+					MatrixDAL::bindValueToPdo($query, 'user', $cache_dsn['user']);
+					MatrixDAL::execPdoQuery($query);
 				} catch (DALException $e) {
 					throw $e;
 				}
@@ -750,8 +752,8 @@ function grant_secondary_user_perms($verbose=TRUE)
 */
 function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 {
-	$db = DAL::getDb();
-	$db_type = DAL::getDbType();
+	$db = MatrixDAL::getDb();
+	$db_type = MatrixDAL::getDbType();
 
 	if (is_null($package)) {
 		$subdir = 'install';
@@ -794,7 +796,7 @@ function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 
 			if (!empty($sql)) {
 				try {
-					$result = DAL::executeSql($sql);
+					$result = MatrixDAL::executeSql($sql);
 				} catch (DALException $e) {
 					throw $e;
 				}
@@ -805,7 +807,7 @@ function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 			if (is_null($package)) {
 				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' CREATED'."\n".implode("\n", $display_names));
 			} else {
-				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' FOR PACKAGE '.$package.' CREATED'."\n".implode("\n", $element_names));
+				pre_echo(strtoupper($db_type).' STORED '.strtoupper($relations).' FOR PACKAGE '.$package.' CREATED'."\n".implode("\n", $display_names));
 			}
 		}
 	}//end if
@@ -844,19 +846,19 @@ function xml_entity_decode($string)
 */
 function get_installed_rollback_triggers()
 {
-	$db = DAL::getDb();
-	$trigger_like_sql = $db->quote('sq_%_rb_trg');
+	$db = MatrixDAL::getDb();
 
 	if (DAL::getDbType() == 'oci') {
-		$sql = 'SELECT trigger_name FROM user_triggers WHERE trigger_name';
-		$trigger_like_sql = strtoupper($trigger_like_sql);
+		$sql = 'SELECT trigger_name FROM user_triggers WHERE LOWER(trigger_name)';
 	} else if (DAL::getDbType() == 'pgsql') {
 		$sql = 'SELECT tgname FROM pg_trigger WHERE tgname';
 	}
-	$sql .= ' LIKE '.$trigger_like_sql;
+	$sql .= ' LIKE :trigger_pattern';
 
 	try {
-		$triggers = DAL::executeSqlAssoc($sql, 0);
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'trigger_pattern', 'sq_%_rb_trg', PDO::PARAM_STR);
+		$triggers = MatrixDAL::executePdoAssoc($query, 0);
 	} catch (DALException $e) {
 		throw $e;
 	}
@@ -882,7 +884,7 @@ function get_installed_rollback_triggers()
 */
 function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALSE)
 {
-	$db = DAL::getDb();
+	$db = MatrixDAL::getDb();
 	$curr_triggers      = Array();
 	$installed_triggers = Array();
 
@@ -1123,7 +1125,7 @@ function uninstall_rollback_triggers()
 {
 	$triggers = get_installed_rollback_triggers();
 	if (!empty($triggers)) {
-		$db = DAL::getDb();
+		$db = MatrixDAL::getDb();
 		foreach ($triggers as $trigger_name) {
 			// we need to cascade the dropping of the trigger
 			// so that the postgres trigger functions are also dropped

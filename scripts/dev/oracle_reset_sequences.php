@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oracle_reset_sequences.php,v 1.1 2007/12/27 05:21:15 gsherwood Exp $
+* $Id: oracle_reset_sequences.php,v 1.1.2.1 2008/03/12 04:04:04 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Rebuilds Oracle Sequences from highest primary key value in the database
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -44,10 +44,10 @@ require_once $SYSTEM_ROOT.'/fudge/dev/dev.inc';
 require_once $SYSTEM_ROOT.'/core/include/general.inc';
 
 $info = parse_tables_xml($SYSTEM_ROOT.'/core/assets/tables.xml');
-$oci_db = & DB::connect(SQ_CONF_DB_DSN);
 
-if (PEAR::isError($oci_db)) dbDie($oci_db);
-$oci_db->autoCommit(false);
+$dal_conf = require_once($SYSTEM_ROOT.'/data/private/conf/db.inc');
+$oci_db = MatrixDAL::dbConnect($dal_conf['db2'], 'db2');
+MatrixDAL::changeDb('db2');
 
 // Drop any Oracle sequences that exist
 bam('Dropping Oracle sequences');
@@ -58,21 +58,20 @@ bam('Dropping Oracle sequences');
 	}
 
 	foreach ($info['sequences'] as $sequence) {
-		if ($sequence == 'trig_id') { 
-			$table = 'trig'; 
+		if ($sequence == 'trig_id') {
+			$table = 'trig';
 		} else {
 			$table = $sequence;
 		}
-		
+
 		$key = $info['tables'][$table]['primary_key'][0];
-		$sequence_values[$sequence] = $oci_db->getOne('SELECT '.$key.' FROM sq_'.$table.' WHERE rownum = 1 ORDER BY '.$key.' DESC');
+		$sequence_values[$sequence] = MatrixDAL::executeSqlOne('SELECT '.$key.' FROM sq_'.$table.' WHERE rownum = 1 ORDER BY '.$key.' DESC');
 	}
 
 	if(isset($del_seqs)) {
 		foreach ($del_seqs as $sequence) {
 			printName('Dropping: '.strtolower($sequence).'_seq');
-			$ok = $oci_db->dropSequence($sequence);
-			if (PEAR::isError($ok)) dbDie($ok);
+			MatrixDAL::executeSql('DROP SEQUENCE '.$sequence.'_seq');
 			printUpdateStatus('OK');
 		}
 	}
@@ -86,8 +85,7 @@ foreach ($info['sequences'] as $sequence) {
 	$new_seq_start = $sequence_values[$sequence] + 1;
 
 	printName('Creating sq_'.$sequence.'_seq (New start: '.$new_seq_start.')');
-	$ok = $oci_db->query('CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start);
-	if (PEAR::isError($ok)) dbDie($ok);
+	MatrixDAL::executeSql('CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start);
 	printUpdateStatus('OK');
 }
 
@@ -259,10 +257,10 @@ function printUpdateStatus($status)
 function dbDie(&$db)
 {
 	echo 'Standard Message: ' . $db->getMessage() . "\n";
-    echo 'Standard Code: ' . $db->getMessage() . "\n";
-    echo 'DBMS/User Message: ' . $db->getUserInfo() . "\n";
-    echo 'DBMS/Debug Message: ' . $db->getDebugInfo() . "\n";
-    exit;
+	echo 'Standard Code: ' . $db->getMessage() . "\n";
+	echo 'DBMS/User Message: ' . $db->getUserInfo() . "\n";
+	echo 'DBMS/Debug Message: ' . $db->getDebugInfo() . "\n";
+	exit;
 
 }
 

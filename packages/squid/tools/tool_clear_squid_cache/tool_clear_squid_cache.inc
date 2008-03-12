@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.3.6.1 2008/02/08 05:50:37 bshkara Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.3.6.2 2008/03/12 04:05:13 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3.6.1 $
+* @version $Revision: 1.3.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -40,9 +40,9 @@ class Tool_Clear_Squid_Cache extends Tool
 	* @param int	$assetid  the asset id to be loaded
 	*
 	*/
-	function Tool_Clear_Squid_Cache($assetid=0)
+	function __construct($assetid=0)
 	{
-		$this->Tool($assetid);
+		parent::__construct($assetid);
 
 	}//end constructor
 
@@ -50,13 +50,13 @@ class Tool_Clear_Squid_Cache extends Tool
 	/**
 	* Paints the tool interface.
 	*
-	* @param object	&$o			reference to the backend outputter of the object painting the tool
-	* @param string	$type_code	the type code of the tool being painted
+	* @param Backend_Outputter	$o			reference to the backend outputter of the object painting the tool
+	* @param string				$type_code	the type code of the tool being painted
 	*
 	* @return void
 	* @access public
 	*/
-	public static function paintTool(&$o, $type_code)
+	public static function paintTool(Backend_Outputter $o, $type_code)
 	{
 		$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 		$o->openSection($tool_info['name']);
@@ -96,7 +96,7 @@ class Tool_Clear_Squid_Cache extends Tool
 		// scheduled jobs section
 		$o->openSection(translate('squid_tool_schedule_section'));
 
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_squid_cache_purge');
 		$purge_jobs = Cron_Job_Squid_Cache_Purge::getActiveJobs();
 
@@ -149,7 +149,7 @@ class Tool_Clear_Squid_Cache extends Tool
 			// prints the interface for adding a new one-off job
 			$o->openField(translate('squid_tool_one_off_field'), 'new_line');
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$new_job =& new Cron_Job_Squid_Cache_Purge();
+				$new_job = new Cron_Job_Squid_Cache_Purge();
 				$edit_fns = $new_job->getEditFns();
 				$edit_fns->paintInLineBackend($new_job, $o, $type_code.'_one_off');
 				echo '&nbsp;<br /><br />';
@@ -180,15 +180,15 @@ class Tool_Clear_Squid_Cache extends Tool
 	/**
 	* Processes the user input and performs the function of the tool.
 	*
-	* @param object	&$o			reference to the backend outputter of the object painting the tool
-	* @param string	$type_code	the type code of the tool being painted
+	* @param Backend_Outputter	$o			reference to the backend outputter of the object painting the tool
+	* @param string				$type_code	the type code of the tool being painted
 	*
 	* @return boolean
 	* @access public
 	*/
-	public static function processTool(&$o, $type_code)
+	public static function processTool(Backend_Outputter $o, $type_code)
 	{
-		$cron_mgr =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_squid_cache_purge');
 
 		// remove jobs
@@ -234,7 +234,7 @@ class Tool_Clear_Squid_Cache extends Tool
 				);
 
 		// schedule job
-		$owner =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		$urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($assetid);
 		if (empty($urls)) {
@@ -244,7 +244,7 @@ class Tool_Clear_Squid_Cache extends Tool
 		if ($owner->adminAccess('')) {
 
 			// one off
-			$new_job =& new Cron_Job_Squid_Cache_Purge();
+			$new_job = new Cron_Job_Squid_Cache_Purge();
 			$edit_fns = $new_job->getEditFns();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$new_job->setAttrValue('ownerid', $assetid);
@@ -256,7 +256,7 @@ class Tool_Clear_Squid_Cache extends Tool
 			}
 
 			// repeating
-			$new_job =& new Cron_Job_Squid_Cache_Purge();
+			$new_job = new Cron_Job_Squid_Cache_Purge();
 			$edit_fns = $new_job->getEditFns();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$new_job->setAttrValue('type', 'repeating');
@@ -272,7 +272,7 @@ class Tool_Clear_Squid_Cache extends Tool
 			$run_now = isset($_REQUEST[$type_code.'_clear_now']) && $_REQUEST[$type_code.'_clear_now'];
 			if ($populate_now) $run_now = TRUE;
 			if ($run_now) {
-				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->queueHipo('hipo_job_tool_clear_squid_cache', $vars, '', SQ_PACKAGES_PATH.'/squid/hipo_jobs');
 				$url = $hh->runQueuedJobs();
 				if (!empty($url)) $o->setRedirect($url);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.55 2007/12/10 01:05:32 colivar Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.55.2.1 2008/03/12 04:03:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -247,7 +247,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access)
+	function paintInlineValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $print_cascade_values_option = TRUE)
 	{
 		$complete = $this->requiredFieldsComplete($asset, $value_str);
 		// set field header to friendly_name if it is not empty
@@ -264,7 +264,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		// use description as the note for this field
 		$o->openField($field_name, '', $asset->attr('description'));
 		$writable = $write_access && $asset->attr('editable');
-		$res = $this->paintValueInterface($asset, $o, $value_str, $writable);
+		$res = $this->paintValueInterface($asset, $o, $value_str, $writable, TRUE, $print_cascade_values_option);
 		if (!$write_access && $asset->attr('required') && !$complete) {
 			echo '<b class="sq-backend-warning">['.strtoupper(translate('empty')).']</b>';
 		}
@@ -288,7 +288,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE)
+	function paintValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
 	{
 		return FALSE;
 

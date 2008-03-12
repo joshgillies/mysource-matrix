@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.89.2.1 2008/02/01 04:10:48 lmarchese Exp $
+* $Id: calendar_event_recurring.inc,v 1.89.2.2 2008/03/12 04:04:18 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.89.2.1 $
+* @version $Revision: 1.89.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1263,7 +1263,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				if (is_null($date_values[$key]))
 					$date_values[$key] = 'NULL';
 				else
-					$date_values[$key] = $db->quote($date_values[$key]);
+					$date_values[$key] = MatrixDAL::quote($date_values[$key]);
 			}
 			$val_string = implode(',', $date_values);
 
@@ -1278,8 +1278,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 						)';
 
 			try {
-				$query = $db->prepare($sql);
-				$result = MatrixDAL::execPdoQuery($query);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());
 			}
@@ -1292,15 +1292,16 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			$set_array = Array();
 			foreach ($date_values as $key => $value) {
-				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : $db->quote($value));
+				$set_array[] = $key.' = '.((is_null($value)) ? 'null' : MatrixDAL::quote($value));
 			}
 			$sql .= implode(',', $set_array);
 			$sql .=' WHERE
-						assetid = '.$db->quote($this->id);
+						assetid = :assetid';
 
 			try {
-				$query = $db->prepare($sql);
-				$result = MatrixDAL::execPdoQuery($query);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());
 			}

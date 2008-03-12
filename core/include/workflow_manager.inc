@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.122 2008/01/07 03:37:23 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.122.2.1 2008/03/12 04:04:00 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.122.2.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -91,10 +91,10 @@ class Workflow_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query = $db->prepare($sql.$where);
-				$query->bindValue(':assetid', $assetid, PDO::PARAM_STR);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
 				if (!is_null($granted)) {
-					$query->bindValue(':granted', $granted ? 1 : 0, PDO::PARAM_INT);
+					MatrixDAL::bindValueToPdo($query, 'granted', $granted ? 1 : 0, PDO::PARAM_INT);
 				}
 				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
@@ -111,7 +111,7 @@ class Workflow_Manager extends MySource_Object
 			}
 
 			$this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running] = $schemas;
-		}
+		}//end if
 
 		return $this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running];
 
@@ -198,11 +198,11 @@ class Workflow_Manager extends MySource_Object
 
 		try {
 			$bind_vars = Array(
-								'assetid'	=> (string)$assetid,
-								'schemaid'	=> (string)$schemaid,
-								'wflow'		=> NULL,
-								'granted'	=> $granted ? 1 : 0,
-							  );
+							'assetid'	=> (string)$assetid,
+							'schemaid'	=> (string)$schemaid,
+							'wflow'		=> NULL,
+							'granted'	=> $granted ? 1 : 0,
+						 );
 			MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to set workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -255,9 +255,9 @@ class Workflow_Manager extends MySource_Object
 
 		try {
 			$bind_vars = Array(
-								'assetid'	=> (string)$asset->id,
-								'schemaid'	=> (string)$schemaid,
-							  );
+							'assetid'	=> (string)$asset->id,
+							'schemaid'	=> (string)$schemaid,
+						 );
 			MatrixDAL::executeQuery('core', 'deleteWorkflowSchema', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to delete workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -314,9 +314,9 @@ class Workflow_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query = $db->prepare($sql.$where);
-				$query->bindValue(':assetid', $assetid);
-				$query->bindValue(':schemaid', $schemaid);
+				$query = MatrixDAL::preparePdoQuery($sql.$where);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+				MatrixDAL::bindValueToPdo($query, 'schemaid', $schemaid);
 				$results = MatrixDAL::executePdoGroupedAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get workflow schema(s) for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -331,7 +331,7 @@ class Workflow_Manager extends MySource_Object
 			} else {
 				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflows[$schemaid];
 			}
-		}
+		}//end if
 
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
 			return Array();
@@ -393,10 +393,10 @@ class Workflow_Manager extends MySource_Object
 
 			try {
 				$bind_vars = Array(
-									'wflow'		=> serialize($workflow[$schema->name]),
-									'assetid'	=> $asset->id,
-									'schemaid'	=> $schema->id,
-								  );
+								'wflow'		=> serialize($workflow[$schema->name]),
+								'assetid'	=> $asset->id,
+								'schemaid'	=> $schema->id,
+							 );
 				MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -487,16 +487,19 @@ class Workflow_Manager extends MySource_Object
 				if (is_null($condition)) continue;
 				if ($condition->attr('notify')) {
 					// check if this is a roleid rather than a user_groupid or userid
-					$role = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $condition->attr('userid'), NULL, FALSE, TRUE);
-					if (!empty($role)) {
-						foreach ($role as $roleid => $userids) {
-							for ($i=0; $i<count($userids); $i++) {
-								$notify[] = $userids[$i];
+					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+						$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
+						$role = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $condition->attr('userid'), NULL, FALSE, $fetch_global_roles);
+						if (!empty($role)) {
+							foreach ($role as $roleid => $userids) {
+								for ($i=0; $i<count($userids); $i++) {
+									$notify[] = $userids[$i];
+								}
 							}
+						} else {
+							// the user or group in this condition wants to be notified
+							$notify[] = $condition->attr('userid');
 						}
-					} else {
-						// the user or group in this condition wants to be notified
-						$notify[] = $condition->attr('userid');
 					}
 				}
 			}//end foreach
@@ -505,7 +508,6 @@ class Workflow_Manager extends MySource_Object
 		if (!empty($notify)) {
 			$notify = array_unique($notify);
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-
 			$msg = $ms->newMessage($notify);
 			$msg->type    = 'asset.status.notify';
 			$msg_reps     = Array(
@@ -657,14 +659,17 @@ class Workflow_Manager extends MySource_Object
 						$can_publish_cond[] = $asset->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
 						// expand global users
-						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id, NULL, FALSE, TRUE);
-						foreach ($roles as $roleid => $userids) {
-							foreach ($userids as $userid) {
-								$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
-								if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
-									$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
-								} else {
-									$can_publish_cond[] = $userid;
+						if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+							$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
+							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $asset->id, NULL, FALSE, TRUE);
+							foreach ($roles as $roleid => $userids) {
+								foreach ($userids as $userid) {
+									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
+									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
+										$can_publish_cond = array_merge($can_publish_cond, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE)));
+									} else {
+										$can_publish_cond[] = $userid;
+									}
 								}
 							}
 						}
@@ -901,10 +906,10 @@ class Workflow_Manager extends MySource_Object
 
 				try {
 					$bind_vars = Array(
-										'wflow'		=> $new_workflow,
-										'assetid'	=> $assetid,
-										'schemaid'	=> $schemaid,
-									  );
+									'wflow'		=> $new_workflow,
+									'assetid'	=> $assetid,
+									'schemaid'	=> $schemaid,
+								 );
 					MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -938,11 +943,15 @@ class Workflow_Manager extends MySource_Object
 
 		// send internal messages to everyone who could approve before to let them know that someone did
 		if (!$this->silentWorkflowParty($asset->id)) {
+
 			$msg = $ms->newMessage($publishers_before);
 			$msg->type    = 'asset.workflow.announce.approve';
 			$msg->parameters['assetid'] = $asset->id;
 			$msg->replacements = $msg_reps;
 			$ms->enqueueMessage($msg);
+
+			// fire the 'Workflow Approval' event
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_approval', $asset);
 		}
 
 		// now check if any workflows have progressed to the next step
@@ -964,6 +973,10 @@ class Workflow_Manager extends MySource_Object
 					$current_step =& $this->getCurrentStep($workflow, $step);
 					$current_step_name =& $current_step['step_name'];
 
+					$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+
 					$msg_reps = Array(
 									'user_name'				=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -972,7 +985,9 @@ class Workflow_Manager extends MySource_Object
 									'previous_step_name'	=> $previous_step_name,
 									'current_step_id'		=> implode('.', $step),
 									'current_step_name'		=> $current_step_name,
-									'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
+									'workflow_url'			=> current_url().$workflow_backend_href,
+									'accept_url'			=> current_url().$accept_url,
+									'reject_url'			=> current_url().$reject_url,
 								);
 
 					$asset_edt_fns = $asset->getEditFns();
@@ -988,6 +1003,7 @@ class Workflow_Manager extends MySource_Object
 					$ms->enqueueMessage($msg);
 				}//end if step has advanced
 			}//end foreach $steps_after
+
 		}//end if not silent workflow party
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -1076,10 +1092,13 @@ class Workflow_Manager extends MySource_Object
 					if ($am->isTypeDecendant($asset_class, 'user')) {
 						$can_publish[] = $publisher->id;
 					} else if ($am->isTypeDecendant($asset_class, 'role')) {
-						$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, TRUE, TRUE);
-						foreach ($roles as $roleid => $userids) {
-							foreach ($userids as $userid) {
-								$can_publish[] = $userid;
+						if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
+							$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
+							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, $fetch_global_roles, TRUE);
+							foreach ($roles as $roleid => $userids) {
+								foreach ($userids as $userid) {
+									$can_publish[] = $userid;
+								}
 							}
 						}
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
@@ -1214,10 +1233,10 @@ class Workflow_Manager extends MySource_Object
 
 			try {
 				$bind_vars = Array(
-									'wflow'		=> $workflow,
-									'assetid'	=> $assetid,
-									'schemaid'	=> $schemaid,
-								  );
+								'wflow'		=> $workflow,
+								'assetid'	=> $assetid,
+								'schemaid'	=> $schemaid,
+							 );
 				MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -1252,44 +1271,49 @@ class Workflow_Manager extends MySource_Object
 			if (is_null($msg)) $msg = $ms->newMessage();
 			// added the publishers to the list of people that are to be notified
 			$msg->to = array_merge($msg->to, $publishers);
-
 			// complete any missing internal message fields that have not been supplied
 			if (empty($msg->replacements)) {
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-                // Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
-                $workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
-                if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
-                    $workflow_backend_href  = '/'.$workflow_backend_href;
-                }//end if				
+				// Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
+				$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+				if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
+					$workflow_backend_href  = '/'.$workflow_backend_href;
+				}//end if
+
+				$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+				$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+
 				$msg_reps = Array(
 								'user_name'		=> $user->name,
 								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 								'asset_name'	=> $asset->name,
 								'workflow_url'	=> current_url().$workflow_backend_href,
+								'accept_url'	=> current_url().$accept_url,
+								'reject_url'	=> current_url().$reject_url,
 							);
 				$asset_edt_fns = $asset->getEditFns();
 				if (isset($asset_edt_fns->static_screens['preview'])) {
-                    $preview_backend_href = $asset->getBackendHref('preview', FALSE);
-                    if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
-                        $preview_backend_href   = '/'.$preview_backend_href;
-                    }//end if
-                    $msg_reps['preview_url'] = current_url().$preview_backend_href;
+					$preview_backend_href = $asset->getBackendHref('preview', FALSE);
+					if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
+						$preview_backend_href   = '/'.$preview_backend_href;
+					}//end if
+					$msg_reps['preview_url'] = current_url().$preview_backend_href;
 				} else {
-                    $details_backend_href = $asset->getBackendHref('preview', FALSE);
-                    if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
-                        $details_backend_href   = '/'.$details_backend_href;
-                    }//end if
-                    $msg_reps['preview_url'] = current_url().$details_backend_href;
+					$details_backend_href = $asset->getBackendHref('preview', FALSE);
+					if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
+						$details_backend_href   = '/'.$details_backend_href;
+					}//end if
+					$msg_reps['preview_url'] = current_url().$details_backend_href;
 				}
 				$msg->replacements = $msg_reps;
-			}
+			}//end if
 			if (empty($msg->type)) {
 				$msg->type = 'asset.workflow.invitation';
 			}
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
-		}
+		}//end if
 
 		return TRUE;
 
@@ -1404,6 +1428,10 @@ class Workflow_Manager extends MySource_Object
 
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);
+
+			// fire the 'Workflow Rejection' event
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_rejection', $asset);
+
 		}//end if
 
 		return TRUE;
@@ -1455,8 +1483,8 @@ class Workflow_Manager extends MySource_Object
 					assetid	 = :assetid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $assetid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to clear workflow for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -1489,8 +1517,8 @@ class Workflow_Manager extends MySource_Object
 
 		try {
 			$bind_vars = Array(
-								'assetid'	=> (string)$assetid,
-							  );
+							'assetid'	=> (string)$assetid,
+						 );
 			MatrixDAL::executeQuery('core', 'purgeWorkflow', $bind_vars);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to purge workflow schema for "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -1617,10 +1645,10 @@ class Workflow_Manager extends MySource_Object
 		$new_workflow = serialize($workflow);
 		try {
 			$bind_vars = Array(
-								'wflow'		=> $new_workflow,
-								'assetid'	=> $assetid,
-								'schemaid'	=> $schemaid,
-							  );
+							'wflow'		=> $new_workflow,
+							'assetid'	=> $assetid,
+							'schemaid'	=> $schemaid,
+						 );
 			MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -1635,7 +1663,6 @@ class Workflow_Manager extends MySource_Object
 		// send an internal message to let people know workflow has been escalated
 		$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name');
 		$user       = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-
 
 		$log = $ms->newMessage();
 
@@ -1665,7 +1692,6 @@ class Workflow_Manager extends MySource_Object
 		// send internal messages to everyone who could approve before to let them know they have lost their chance
 
 		if (!$this->silentWorkflowParty($asset->id)) {
-
 			$msg = $ms->newMessage($publishers_before);
 			$msg->type    = 'asset.workflow.announce.escalated';
 			$msg->parameters['assetid'] = $asset->id;
@@ -1678,6 +1704,10 @@ class Workflow_Manager extends MySource_Object
 			// send internal messages to everyone in the next step who can now publish the asset
 			$msg = $ms->newMessage($publishers);
 
+			$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+			$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+			$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+
 			$msg_reps = Array(
 							'user_name'				=> $user->name,
 							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1686,7 +1716,9 @@ class Workflow_Manager extends MySource_Object
 							'previous_step_name'	=> $step_before['step_name'],
 							'current_step_id'		=> implode('.',$workflow['current_step']),
 							'current_step_name'		=> $current_step['step_name'],
-							'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
+							'workflow_url'			=> current_url().$workflow_backend_href,
+							'accept_url'			=> current_url().$accept_url,
+							'reject_url'			=> current_url().$reject_url,
 						);
 
 			$asset_edt_fns = $asset->getEditFns();

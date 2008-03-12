@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_in_user_group.inc,v 1.6.2.1 2008/01/23 22:30:38 colivar Exp $
+* $Id: condition_in_user_group.inc,v 1.6.2.2 2008/03/12 04:03:51 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_assetid_remap.inc,v 1.8.2.1 2008/02/07 22:47:41 bshkara Exp $
+* $Id: trigger_action_add_assetid_remap.inc,v 1.8.2.2 2008/03/12 04:03:52 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

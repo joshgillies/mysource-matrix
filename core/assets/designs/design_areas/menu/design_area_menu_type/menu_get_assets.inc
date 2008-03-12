@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.5 2007/12/11 03:29:57 rong Exp $
+* $Id: menu_get_assets.inc,v 1.5.2.1 2008/03/12 04:03:49 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ function menu_get_assets($id_name, $majorids)
 	$majorids_str = '';
 	foreach ($majorids as $id) {
 		if (empty($storage[$id])) {
-			$majorids_str .= $db->quote((String)$id).',';
+			$majorids_str .= '\''.(string)$id.'\',';
 		} else {
 			foreach ($storage[$id] as $row) {
 				$assetids[] = (int) $row['assetid'];
@@ -48,6 +48,7 @@ function menu_get_assets($id_name, $majorids)
 	if (empty($majorids_str)) return $assetids;
 
 	static $USERIDS_COND = NULL;
+	$bind_vars = Array();
 
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 	if (is_null($USERIDS_COND)) {
@@ -59,21 +60,21 @@ function menu_get_assets($id_name, $majorids)
 			$userids[] = $public_userid;
 			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quote((String)$userids[$i]);
+				$userids[$i] = '\''.(string)$userids[$i].'\'';
 			}
 			$userids_str = implode(',', $userids);
 			$USERIDS_COND = 'AND (p.userid  IN ('.$userids_str.') ';
 			$USERIDS_COND .= 'OR r.userid  IN ('.$userids_str.')) ';
 			$USERIDS_COND .= ' AND (
-				(p.permission = '.$db->quote((Integer)SQ_PERMISSION_READ).' AND (
-						p.userid <> :public_userid
-						OR r.userid <> :public_userid
-						OR (p.userid = :public_userid AND p.granted = \'1\')
-						OR (r.userid = :public_userid AND p.granted = \'1\')
+				(p.permission = :p_permission AND (
+						p.userid <> :p_userid
+						OR r.userid <> :r_userid
+						OR (p.userid = :p_userid_1 AND p.granted = \'1\')
+						OR (r.userid = :r_userid_1 AND p.granted = \'1\')
 					)
 				)
 				OR	(
-						p.permission > '.$db->quote((Integer)SQ_PERMISSION_READ).' AND p.granted = \'1\'
+						p.permission > :p_permission_1 AND p.granted = \'1\'
 					)
 			)';
 		}
@@ -84,6 +85,13 @@ function menu_get_assets($id_name, $majorids)
 							  HAVING MIN(p.granted) <> \'0\'';
 		}
 	}//end if
+
+	$bind_vars['p_permission']   = SQ_PERMISSION_READ;
+	$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
+	$bind_vars['p_userid']       = $public_userid;
+	$bind_vars['p_userid_1']     = $public_userid;
+	$bind_vars['r_userid']       = $public_userid;
+	$bind_vars['r_userid_1']     = $public_userid;
 
 	$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 			   FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
@@ -107,8 +115,10 @@ function menu_get_assets($id_name, $majorids)
 			   ORDER BY l.majorid, l.sort_order';
 
 	try {
-		$query = $db->prepare($sql.$where);
-		$query->bindValue(':public_userid', $public_userid);
+		$query = MatrixDAL::preparePdoQuery($sql.$where);
+		foreach ($bind_vars as $bind_var => $bind_value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+		}
 		$result = MatrixDAL::executePdoAssoc($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to get valid menu entries due to database error: '.$e->getMessage());

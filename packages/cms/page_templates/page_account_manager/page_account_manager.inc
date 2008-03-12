@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.63.2.1 2008/02/06 23:35:02 bshkara Exp $
+* $Id: page_account_manager.inc,v 1.63.2.2 2008/03/12 04:04:22 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.63.2.1 $
+* @version $Revision: 1.63.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

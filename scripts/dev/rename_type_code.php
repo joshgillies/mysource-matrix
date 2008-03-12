@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rename_type_code.php,v 1.3 2006/12/06 05:42:20 bcaldwell Exp $
+* $Id: rename_type_code.php,v 1.3.8.1 2008/03/12 04:04:04 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * assets that have associated files.
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -31,7 +31,7 @@ if (count($_SERVER['argv']) != 4) {
 	echo "This script needs to be run in the following format:\n\n";
 	echo "\tphp rename_type_code.php [SYSTEM_ROOT] [old type code] [new type code]\n\n";
 	echo "\tEg. php scripts/rename_type_code.php . report_broken_links report_broken_links_renamed\n";
-	die();
+	exit(1);
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
@@ -80,39 +80,64 @@ $db_chng = Array(
 		  );
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-$sql = '';
+$queries = Array();
+
 foreach ($db_chng as $col => $tables) {
 	if ($col == 'path') {
 		foreach ($tables as $table) {
-			$result = $db->getAssoc('SELECT fileid, '.$col.' FROM '.$table.';');
-			assert_valid_db_result($result);
-			foreach ($result as $fileid => $file_path) {
+			$result = MatrixDAL::executeSqlAll('SELECT fileid, '.$col.' FROM '.$table);
+			foreach ($result as $result_row) {
+				list($fileid, $file_path) = $result_row;
 				if (preg_match('|/'.$original_type_code.'/|', $file_path)) {
 					$sql .= 'UPDATE '.$table.'
-							 SET '.$col.' = \''.preg_replace('|/'.$original_type_code.'/|', '/'.$new_type_code.'/', $file_path).'\'
-							 WHERE fileid = \''.$fileid.'\';';
+								SET '.$col.' = :new_value
+								WHERE fileid = :fileid';
+					$bind_vars = Array(
+									'new_value'	=> preg_replace('|/'.$original_type_code.'/|', '/'.$new_type_code.'/', $file_path),
+									'fileid'	=> $fileid,
+								 );
+					$queries[] = Array(
+									'sql'		=> $sql,
+									'bind_vars'	=> $bind_vars,
+								 );
 				}
 			}
 		}
 	} else {
 		foreach ($tables as $table) {
-		$sql .= 'UPDATE '.$table.'
-				SET '.$col.' = \''.$new_type_code.'\'
-				WHERE '.$col.' = \''.$original_type_code.'\';';
+			$sql .= 'UPDATE '.$table.'
+						SET '.$col.' = :new_type_code
+						WHERE '.$col.' = :type_code';
+			$bind_vars = Array(
+							'new_type_code'	=> $new_type_code,
+							'type_code'		=> $original_type_code,
+						 );
+			$queries[] = Array(
+				'sql'		=> $sql,
+				'bind_vars'	=> $bind_vars,
+			 );
 		}
 	}
 }
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-$result = $db->query($sql);
+try {
+	foreach ($queries as $query_el) {
+		$query = MatrixDAL::preparePdoQuery($query_el['sql']);
+		foreach ($query_el['bind_vars'] as $bind_var => $bind_value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+		}
+		MatrixDAL::execPdoQuery($query);
+		unset($query);
+	}
 
-if (assert_valid_db_result($result)) {
+	// all good
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	echo "\nDatabase changes successful.\n";
-} else {
+} catch (DALException $e) {
+	// no good
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 }
 

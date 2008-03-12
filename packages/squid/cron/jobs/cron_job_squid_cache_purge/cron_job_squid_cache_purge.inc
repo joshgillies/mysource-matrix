@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_squid_cache_purge.inc,v 1.3.6.1 2008/02/08 05:50:37 bshkara Exp $
+* $Id: cron_job_squid_cache_purge.inc,v 1.3.6.2 2008/03/12 04:05:12 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3.6.1 $
+* @version $Revision: 1.3.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -51,7 +51,7 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
-	* @access protected
+	* @access private
 	* @see Asset::_getName()
 	*/
 	protected function _getName($short_name=FALSE)
@@ -69,7 +69,7 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
 
@@ -92,7 +92,7 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @return boolean
 	* @access public
 	*/
-	function canDelete()
+	public function canDelete()
 	{
 		if (parent::canDelete()) return TRUE;
 
@@ -100,7 +100,7 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 		if ($this->attr('read_only')) return FALSE;
 
 		// if we have admin access to the asset owning this job
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('ownerid'));
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('ownerid'));
 		if (!is_null($asset)) return $asset->adminAccess('');
 		return FALSE;
 
@@ -115,7 +115,7 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @param string	&$msg	accepted by reference, used to return any messages about completion etc from _exec
 	*
 	* @return int
-	* @access protected
+	* @access private
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
 	protected function _exec(&$msg)
@@ -128,11 +128,11 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 					'repopulate'	=> $this->attr('repopulate'),
 				);
 
-		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$status_errors = $hh->freestyleHipo('hipo_job_tool_clear_squid_cache', $vars, SQ_PACKAGES_PATH.'/squid/hipo_jobs');
 
 		if (empty($status_errors)) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$msg = translate('squid_cron_done_msg', $asset->name, $assetid);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
@@ -161,9 +161,9 @@ class Cron_Job_Squid_Cache_Purge extends Cron_Job
 	* @access public
 	* @static
 	*/
-	function getActiveJobs()
+	public static function getActiveJobs()
 	{
-		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		return $cm->getJobs('cron_job_squid_cache_purge');
 
 	}//end getActiveJobs()

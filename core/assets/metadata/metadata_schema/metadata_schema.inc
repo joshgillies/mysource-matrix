@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.26 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_schema.inc,v 1.26.2.1 2008/03/12 04:03:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -134,7 +134,7 @@ class Metadata_Schema extends Folder
 				$sql = 'DELETE FROM sq_ast_mdata WHERE ';
 				$sql .= 'schemaid = :schemaid';
 
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$query->bindValue('schemaid', $this->id);
 
 				MatrixDAL::executePdoOne($query);

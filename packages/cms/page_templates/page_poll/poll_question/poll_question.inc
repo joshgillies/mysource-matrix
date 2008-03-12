@@ -10,12 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: poll_question.inc,v 1.5 2006/12/07 00:04:22 emcdonald Exp $
+* $Id: poll_question.inc,v 1.5.8.1 2008/03/12 04:04:23 lwright Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
-/** FIXME: See printBody(). WTF?
+/**
 * Poll_Question
 *
 * Dependant of Page_Poll
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

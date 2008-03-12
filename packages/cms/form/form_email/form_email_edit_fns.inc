@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.92 2007/12/16 23:24:59 rong Exp $
+* $Id: form_email_edit_fns.inc,v 1.92.2.1 2008/03/12 04:04:21 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.92.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -164,10 +164,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$sub_folder = $asset->getSubmissionsFolder();
 
 		$db = MatrixDAL::getDb();
-		$where = 'l.majorid IN (:assetid, :subfolderid)
-					AND i.inhd_type_code = '.$db->quote('form_submission').'
-					AND a.created BETWEEN '.db_extras_todate(MatrixDAL::getDbType(), $from_value).'
-					AND '.db_extras_todate(MatrixDAL::getDbType(), $to_value);
+		$where = 'l.majorid IN (:assetid, :subfolder_assetid)
+					AND i.inhd_type_code = :inhd_type_code
+					AND a.created BETWEEN '.db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE).'
+					AND '.db_extras_todate(MatrixDAL::getDbType(), ':to_date', FALSE);
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
@@ -176,9 +176,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		// grab the number of assets
 
 		try {
-			$query = $db->prepare($count_sql.$where);
-			$query->bindValue(':assetid', $asset->id);
-			$query->bindValue(':subfolderid', $sub_folder->id);
+			$query = MatrixDAL::preparePdoQuery($count_sql.$where);
+			MatrixDAL::bindValueToPdo(':assetid',           $asset->id);
+			MatrixDAL::bindValueToPdo(':subfolder_assetid', $sub_folder->id);
+			MatrixDAL::bindValueToPdo(':inhd_type_code',   'form_submission');
+			MatrixDAL::bindValueToPdo(':from_date',         $from_value);
+			MatrixDAL::bindValueToPdo(':to_date',           $to_value);
 			$asset_count = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get the number of assets due to database error: '.$e->getMessage());
@@ -350,9 +353,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			<?php
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':assetid', $asset->id);
-				$query->bindValue(':subfolderid', $sub_folder->id);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
+				MatrixDAL::bindValueToPdo($query, 'subfolderid', $sub_folder->id);
 				$result = MatrixDAL::executePdoAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get submission list due to database error: '.$e->getMessage());

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.37 2007/11/29 04:58:02 hnguyen Exp $
+* $Id: remap_manager.inc,v 1.37.2.1 2008/03/12 04:03:52 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -204,8 +204,8 @@ class Remap_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = $db->prepare($sql.$where);
-			$query->bindValue(':url', $old_url);
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'url', $old_url);
 			$remap_urls = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get remap URLs for URL: '.$old_url.' due to database error: '.$e->getMessage());
@@ -260,7 +260,7 @@ class Remap_Manager extends Asset
 
 		if (!empty($urls)) {
 
-			$db = MatrixDAL::getDb();
+			$bind_vars = Array();
 
 			$sql = 'SELECT url, expires
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
@@ -268,10 +268,12 @@ class Remap_Manager extends Asset
 
 			foreach ($urls as $url) {
 				if ($url['http'] == 1) {
-					$where .= $db->quote('http://'.$url['url']).', ';
+					$where .= ':http_url, ';
+					$bind_vars['http_url'] = 'http://'.$url['url'];
 				}
 				if ($url['https'] == 1) {
-					$where .= $db->quote('https://'.$url['url']).', ';
+					$where .= ':https_url, ';
+					$bind_vars['https_url'] = 'https://'.$url['url'];
 				}
 
 			}//end for
@@ -282,7 +284,11 @@ class Remap_Manager extends Asset
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$remaps = MatrixDAL::executeSqlAssoc($sql.$where);
+				$query  = MatrixDAL::preparePdoQuery($sql.$where);
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
+				$remaps = MatrixDAL::executePdoAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get remap URLs for this asset: '.$asset->id.' due to database error: '.$e->getMessage());
 			}
@@ -315,7 +321,6 @@ class Remap_Manager extends Asset
 		} catch (DALException $e) {
 			throw new Exception('Unable to remap all URLs; could not get existing lookups for asset ID #'.$assetid.' due to database error: '.$e->getMessage);
 		}
-		assert_valid_db_result($urls);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -369,8 +374,10 @@ class Remap_Manager extends Asset
 		$url = $protocol.'://'.$url;
 
 		try {
-			$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601(time()));
-			$time = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment);
+			$bind_vars = Array(
+								'date_value' => ts_iso8601(time()),
+							  );
+			$time = MatrixDAL::executeOne('core', 'toDate', $bind_vars);
 			$bind_vars = Array(
 							'url'  => $url,
 							'time' => $time,
@@ -477,7 +484,7 @@ class Remap_Manager extends Asset
 		$null = NULL;
 		if (is_null($asset)) return $null;
 
-		$db = MatrixDAL::getDb();
+		$bind_vars = Array();
 
 		// get original design or inherited design if no override design
 		$sql = 'SELECT lv.value as designid, a.type_code
@@ -485,10 +492,14 @@ class Remap_Manager extends Asset
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((l.url = lv.url) OR (l.url || \'/\' = lv.url))
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 				';
-		$where = 'l.assetid  = '.$db->quote($asset->id).'
-					AND lv.name = '.$db->quote('design::system::frontend');
+		$where = 'l.assetid  = :assetid AND lv.name = :lookup_name';
+
+		$bind_vars['assetid'] = $asset->id;
+		$bind_vars['lookup_name'] = 'design::system::frontend';
+
 		if (!is_null($url)) {
-			$where .= ' AND lv.url  LIKE '.$db->quote($url.'%');
+			$where .= ' AND lv.url  LIKE :url';
+			$bind_vars['url'] = $url.'%';
 		}
 
 		$order_by = ' ORDER BY depth DESC';
@@ -496,10 +507,14 @@ class Remap_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.$order_by;
-		$sql .= ' LIMIT 1'; // TODO
+		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
 
 		try {
-			$result = MatrixDAL::executeSqlAll($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach ($bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+			$result = MatrixDAL::executePdoAll($query);
 		} catch (DALException $e) {
 			throw new Exception('Unable to select design of remapped asset "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
 		}

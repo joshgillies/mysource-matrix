@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.60.2.1 2008/01/10 22:31:29 hnguyen Exp $
+* $Id: inbox_edit_fns.inc,v 1.60.2.2 2008/03/12 04:03:56 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.60.2.1 $
+* @version $Revision: 1.60.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -491,7 +491,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 				$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
-				$body = str_replace('"', '&quot;', $body);
+				$body = str_replace('"', '\"', $body);
 ?>
 				<script type="text/javascript">
 				//<![CDATA[
@@ -714,7 +714,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 
 				$body = preg_replace("/[\n\t\r]/im", '<br />', $data['body']);
-				$body = str_replace('"', '&quot;', $body);
+				$body = str_replace('"', '\"', $body);
 ?>
 				<script type="text/javascript">
 				//<![CDATA[

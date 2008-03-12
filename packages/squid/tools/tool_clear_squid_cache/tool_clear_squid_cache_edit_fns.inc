@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache_edit_fns.inc,v 1.2 2006/12/07 02:54:14 bcaldwell Exp $
+* $Id: tool_clear_squid_cache_edit_fns.inc,v 1.2.8.1 2008/03/12 04:05:13 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool_edit_fns.inc';
 * Tool_Clear_Squis_Cache_Edit_Fns
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -32,9 +32,9 @@ class Tool_Clear_Squid_Cache_Edit_Fns extends Tool_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Tool_Clear_Squid_Cache_Edit_Fns()
+	function __construct()
 	{
-		$this->Tool_Edit_Fns();
+		parent::__construct();
 
 	}//end constructor
 

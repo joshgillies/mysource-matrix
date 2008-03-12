@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.29 2007/12/23 21:55:36 gsherwood Exp $
+* $Id: data_source_db.inc,v 1.29.2.1 2008/03/12 04:04:28 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,21 +94,25 @@ class Data_Source_DB extends Data_Source
 			$fields = Array();
 			$conn = $this->connectToDB();
 			foreach ($tables as $table) {
-				$query = 'select * from '.$table;
-				$result = $conn->getAll($query);
-				$assert_result = assert_valid_db_result($result, 'Query execution failed : '.$sql, FALSE, FALSE);
-				if (!$assert_result) {
+				try {
+					$sql = 'select * from '.$table;
+					$result = MatrixDAL::executeSqlAssoc($sql);
+
+					if (!empty($result)) {
+						$record = $result(0);
+						foreach ($record as $key => $value) {
+							$field[] = $key;
+						}
+					}
+
+				} catch (DALException $e) {
+					trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
 					$empty = Array();
 					return $empty;
 				}
-				if (!empty($result)) {
-					$record = $result(0);
-					foreach ($record as $key => $value) {
-						$field[] = $key;
-					}
-				}
-			}
-		}
+
+			}//end foreach
+		}//end if
 
 	}//end getFieldNamesFromRecordSet()
 
@@ -182,7 +186,7 @@ class Data_Source_DB extends Data_Source
 
 		foreach ($keywords as $keyword) {
 			$value = $this->getDynamicVariableValue($keyword);
-			$replacements[] = $db->quote($value);
+			$replacements[] = MatrixDAL::quote($value);
 			$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
 		}
 
@@ -237,10 +241,10 @@ class Data_Source_DB extends Data_Source
 
 		try {
 			MatrixDAL::changeDb('data_source_db_'.$this->id);
-			$result = MatrixDAL::executeSqlAll($sql);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 			MatrixDAL::restoreDb();
 		} catch (Exception $e) {
-			trigger_error("Query execution failed: $sql", E_USER_WARNING);
+			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
 			return $result;
 		}
 

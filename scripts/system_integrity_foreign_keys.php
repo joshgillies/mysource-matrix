@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_foreign_keys.php,v 1.2 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_integrity_foreign_keys.php,v 1.2.8.1 2008/03/12 04:04:04 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Checks the integrity of the database foreign keys
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -293,7 +293,7 @@ class Foreign_Key_Integrity_Check
 						$fk_field > 0
 					AND
 						$fk_field NOT IN (SELECT ".$fk_field." FROM ".$fk_info['table'].")";
-			$assetids = $db->getCol($sql);
+			$assetids = MatrixDAL::executeSqlAssoc($sql, 0);
 
 			$broken_count = count($assetids);
 			if (!is_array($assetids)) {

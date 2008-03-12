@@ -22,6 +22,21 @@ require_once dirname(__FILE__).'/DAL.inc';
 class Query
 {
 
+
+    /**
+     * OCI8: LOB stack.
+     *
+     * Maintains a list of OCI8 LOB resources that we need to release after a
+     * DAL query is run.
+     * The only reason why this is public is because we need to add to it from
+     * the ovened queries..
+     *
+     * @var   array $lobStack
+     * @since 4.0.0
+     */
+    public $_lobStack  = Array();
+
+
     /**
      * The ID of this query.
      *
@@ -362,11 +377,32 @@ class Query
 
         // Prepare PDO statement.
         $dbh   = DAL::getDb();
-        $query = $dbh->prepare($sql);
-        // Add bindings to PDO.
-        foreach ($this->_bindings as $binding) {
-            // $query->bindValue($binding['name'], $binding['value'], $binding['type']);
-			$query->bindValue($binding['name'], $binding['value']);
+
+        if (DAL::getDbType() === 'oci') {
+
+            $query = oci_parse($dbh, $sql);
+            // Add bindings
+            foreach ($this->_bindings as $binding) {
+                // TODO: Handle insert/update of CLOB fields - this needs to be determined at bake time
+                if ($binding['type'] === PDO::PARAM_LOB) {
+                    oci_bind_by_name($query, $binding['name'], $binding['value'], -1, SQLT_CLOB);
+
+                    // Add to LOB stack so we can release it later
+                    $this->_lobStack[] = $binding['value'];
+                } else {
+                    oci_bind_by_name($query, $binding['name'], $binding['value'], -1);
+                }
+            }
+
+        } else {
+
+            $query = $dbh->prepare($sql);
+            // Add bindings to PDO.
+            foreach ($this->_bindings as $binding) {
+                // $query->bindValue($binding['name'], $binding['value'], $binding['type']);
+                $query->bindValue($binding['name'], $binding['value']);
+            }
+
         }
 
         return $query;
@@ -452,6 +488,8 @@ class Query
     /**
      * Recurses the query array and replaces the place holder with given value.
      *
+     * Unravelled because array_walk_recursive() is buggy on some systems.
+     *
      * @param string $placeHolder Name of the place holder.
      * @param mixed  $value       Value that will replace the placeHolder.
      *
@@ -460,8 +498,24 @@ class Query
      */
     private function _findAndReplacePlaceHolder($placeHolder, $value)
     {
+        $arrays = Array();
+        $arrays[] =& $this->_arrayRepresentation['query'];
+
         try {
-            array_walk_recursive($this->_arrayRepresentation['query'], array($this, '_findAndReplaceCallBack'), array($placeHolder, $value));
+            for ($i = 0; $i < count($arrays); $i++) {
+                $this_array =& $arrays[$i];
+
+                foreach(array_keys($this_array) as $key) {
+                    if ($this_array[$key] === $placeHolder) {
+                        $this_array[$key] = $value;
+                        throw new Exception('Replace done');
+                    }
+
+                    if (is_array($this_array[$key])) {
+                        $arrays[] =& $this_array[$key];
+                    }
+                }
+            }
         } catch (Exception $e) {
             // Place holder was replaced.
             return TRUE;
@@ -532,6 +586,27 @@ class Query
         $this->_keywords = array_merge($this->_keywords, $keywords);
 
     }//end keywords()
+
+
+    /**
+     * Releases any OCI8 CLOB objects that may have been created here
+     *
+     * @since  4.0.0
+     * @return array
+     */
+    public function releaseLobs()
+    {
+        // OCI8:
+        if (DAL::getDBType() === 'oci') {
+            foreach($this->_lobStack as $key => $lob) {
+                $lob->close();
+                oci_free_descriptor($lob);
+                unset($this->_lobStack[$key]);
+            }
+        }
+
+    }//end releaseLobs()
+
 
 
 }//end class

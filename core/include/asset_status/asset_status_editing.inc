@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.40.2.1 2008/02/14 02:36:16 bshkara Exp $
+* $Id: asset_status_editing.inc,v 1.40.2.2 2008/03/12 04:04:01 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status

@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.69 2007/12/10 06:20:50 rong Exp $
+* $Id: site_edit_fns.inc,v 1.69.2.1 2008/03/12 04:03:51 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.69.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -309,7 +309,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						SET
 							url = :url || SUBSTR(url, :substr_arg)
 						WHERE
-							(url LIKE '.$db->quote($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quote($old_urls[$urlid]['url'].'%/').')';
+						(url LIKE :old_url_like OR url LIKE :old_url_like_slash)';
 
 
 						if ($tablename == 'sq_ast_lookup') {
@@ -327,10 +327,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 									)';
 						}
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':url', $urls[$urlid]['url']);
-					$query->bindValue(':substr_arg', strlen($old_urls[$urlid]['url'])+1);
-					$query->bindValue(':urlid', $urlid);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'url',                $urls[$urlid]['url']);
+					MatrixDAL::bindValueToPdo($query, 'old_url_like',       $old_urls[$urlid]['url'].'%');
+					MatrixDAL::bindValueToPdo($query, 'old_url_like_slash', $old_urls[$urlid]['url'].'%/');
+					MatrixDAL::bindValueToPdo($query, 'substr_arg',         strlen($old_urls[$urlid]['url'])+1);
+					MatrixDAL::bindValueToPdo($query, 'urlid',              $urlid);
 					$result = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update this old URL: '.$old_urls[$urlid]['url'].' with this new URL: '.$urls[$urlid]['url'].' due to database error: '.$e->getMessage());
@@ -533,7 +535,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			?>
 			<table class="sq-backend-table">
 			<tr>
-                <th><?php echo translate('old_url') ?></th>
+				<th><?php echo translate('old_url') ?></th>
 				<th><?php echo translate('new_url') ?></th>
 				<?php if ($write_access) {
 					?><th>Delete?</th><?php

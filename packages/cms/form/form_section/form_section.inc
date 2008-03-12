@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.62 2007/12/13 00:22:25 bshkara Exp $
+* $Id: form_section.inc,v 1.62.2.1 2008/03/12 04:04:22 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.62.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -435,8 +435,7 @@ class Form_Section extends Asset implements Bridge
 		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 		if (empty($query)) return Array();
 
-		$queried_parents = $GLOBALS['SQ_SYSTEM']->db->getAll(implode(' ', $query));
-		assert_valid_db_result($queried_parents);
+		$queried_parents = MatrixDAL::executeSqlAssoc(implode(' ', $query));
 		$parents = Array();
 
 		foreach ($queried_parents as $queried_parent) {
@@ -494,7 +493,7 @@ class Form_Section extends Asset implements Bridge
 		$entries = $this->attr('questions');
 		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
-				$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+				$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['question_type_code']));
 			}
 		} else {
 			foreach ($type_code as $this_type_code) {
@@ -506,7 +505,7 @@ class Form_Section extends Asset implements Bridge
 					} else {
 						$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($this_type_code) + Array($this_type_code);
 						if (in_array($data['question_type_code'], $type_desc)) {
-							$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+							$children[$this->id.':q'.$questionid] = Array(Array('type_code' => $data['question_type_code']));
 						}
 					}
 				}

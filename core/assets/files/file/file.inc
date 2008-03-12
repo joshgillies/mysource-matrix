@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.164.2.1 2008/01/16 00:15:20 hnguyen Exp $
+* $Id: file.inc,v 1.164.2.2 2008/03/12 04:03:49 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.1 $
+* @version $Revision: 1.164.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

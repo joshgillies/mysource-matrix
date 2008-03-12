@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.50 2007/12/06 00:03:28 colivar Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.50.2.1 2008/03/12 04:03:58 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.50.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -221,14 +221,14 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$where = 'l.minorid = :assetid';
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-				$limit = ' LIMIT 1'; // TODO
 				$sql = 'SELECT t.treeid
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						'.$where.$limit;
+						'.$where;
+				$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':assetid', $assetid);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 					$treeid = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get treeid for minorid: '.$assetid.' due to database error: '.$e->getMessage());
@@ -245,8 +245,8 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
 				try {
-					$query = $db->prepare($sql.$where);
-					$query->bindValue(':treeid', $treeid.'%');
+					$query = MatrixDAL::preparePdoQuery($sql.$where);
+					MatrixDAL::bindValueToPdo($query, 'treeid', $treeid.'%');
 					$new_assets = MatrixDAL::executePdoAssoc($query, 0);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get minorids for treeid: '.$treeid[0]['treeid'].' due to database error: '.$e->getMessage());
@@ -262,7 +262,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			foreach (array_chunk(array_unique($todo_normal), 999) as $chunk) {
 				$quoted = Array();
 				foreach ($chunk as $id) {
-					$quoted[] = $db->quote((string) $id);
+					$quoted[] = '\''.((string) $id).'\'';
 				}
 				$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
 			}

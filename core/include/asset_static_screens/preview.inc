@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.29 2007/12/03 05:41:30 bshkara Exp $
+* $Id: preview.inc,v 1.29.2.1 2008/03/12 04:04:01 lwright Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix
 */
 
@@ -42,15 +42,18 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url OR (l.url || \'/\' = lv.url)';
 
-	$where = 'assetid = :ownerid
-			  AND name LIKE '.$db->quote('design::%');
+	$where = 'l.assetid = :ownerid
+			AND lv.name LIKE :pattern';
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
+	$full_sql = $sql.' '.$where.' ORDER BY l.url';
+	$query = MatrixDAL::preparePdoQuery($full_sql);
+
 	try {
-		$query		= $db->prepare($sql.' '.$where.' ORDER BY l.url');
-		$query->bindValue('ownerid', $owner->id);
-		$url_data	= MatrixDAL::executePdoAll($query);
+		MatrixDAL::bindValueToPdo($query, 'ownerid', $owner->id);
+		MatrixDAL::bindValueToPdo($query, 'pattern', 'design::%');
+		$url_data = MatrixDAL::executePdoAll($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to get the design name and url for assetid #'.$owner->id.' due to the following database error:'.$e->getMessage());
 	}//end try catch
@@ -63,18 +66,15 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, '', TRUE);
 			if (is_null($parent)) continue;
 
-			$where = 'assetid = '.$db->quote($parent->id).'
-					  AND name LIKE '.$db->quote('design::%');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
+			// Recycle query from before
 			try {
-				$query		= $db->prepare($sql.' '.$where.' ORDER BY l.url');
-				$query->bindValue('ownerid', $parent->id);
-				$parent_urls	= MatrixDAL::executePdoAll($query);
+				MatrixDAL::bindValueToPdo($query, 'ownerid', $parent->id);
+				MatrixDAL::bindValueToPdo($query, 'pattern', 'design::%');
+				$parent_urls = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get the design name and url for assetid #'.$owner->id.' due to the following database error:'.$e->getMessage());
 			}//end try catch
-			
+
 			$url_data = array_merge($url_data, $parent_urls);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 		}

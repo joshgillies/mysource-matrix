@@ -2734,8 +2734,8 @@ class DALBaker
     /**
      * Parses the connection string and returns the database type.
      *
-     * @param string $dsn The string to parse. If NULL, the DSN setting of the
-     *                    system will be used.
+     * @param array $dsn The DSN array to parse. If NULL, the DSN setting of the
+     *                   current connection will be used.
      *
      * @since  4.0.0
      * @return string
@@ -2743,13 +2743,11 @@ class DALBaker
     public static function getDatabaseType($dsn=NULL)
     {
         if ($dsn === NULL) {
-            $dsn        = DAL::getDsn();
-            $connectStr = $dsn['dsn'];
+            $dbType = DAL::getDbType();
         } else {
-            $connectStr = $dsn;
+            $dbType = $dsn['type'];
         }
 
-        $dbType = substr($connectStr, 0, strpos($connectStr, ':'));
         switch ($dbType) {
             case 'pgsql':
                 $fullType = 'postgres';

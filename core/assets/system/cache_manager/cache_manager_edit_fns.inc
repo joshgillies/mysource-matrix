@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.15 2007/11/22 23:12:58 lwright Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.15.2.1 2008/03/12 04:03:51 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.15.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -274,7 +274,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			echo translate('cannot_clear_cache');
 			return FALSE;
 		}
-		asset_finder($prefix.'_clear_cache', '');
+		multiple_asset_finder($prefix.'_clear_cache', Array());
 
 		$o->openField(translate('level'));
 			$options = Array(
@@ -319,7 +319,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processClearCache(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'_clear_cache']) && !empty($_POST[$prefix.'_clear_cache']['assetid']) && $_POST[$prefix.'_delete_all'] != 'yes') {
+		if (isset($_POST[$prefix.'_clear_cache']) && $_POST[$prefix.'_delete_all'] != 'yes') {
 			$level = (isset($_POST[$prefix.'_level'])) ? $_POST[$prefix.'_level'] : 'single';
 
 			if (isset($_POST[$prefix.'_type_codes']) && !empty($_POST[$prefix.'_type_codes'][0])) {
@@ -328,12 +328,19 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$type_codes = Array();
 			}
 
+			$assets_info	= array_get_index($_POST, $prefix.'_clear_cache', Array());
+			$assetids		= Array();
+			foreach ($assets_info as $asset_info) {
+				if (!empty($asset_info['assetid'])) {
+					$assetids[] = $asset_info['assetid'];
+				}//end if
+			}//end foreach
+			
 			$delete_all = $_POST[$prefix.'_delete_all'];
 
-			$assetid = $_POST[$prefix.'_clear_cache']['assetid'];
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
-						'assetid'		=> $assetid,
+						'assetid'		=> $assetids,
 						'level'			=> $level,
 						'type_codes'	=> $type_codes,
 						'delete_all'	=> $delete_all,

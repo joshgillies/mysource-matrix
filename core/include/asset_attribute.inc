@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.56 2007/11/28 22:29:24 lwright Exp $
+* $Id: asset_attribute.inc,v 1.56.2.1 2008/03/12 04:03:58 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -109,8 +109,8 @@ class Asset_Attribute extends MySource_Object
 					WHERE attrid = :attrid';
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':attrid', $attributeid);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'attrid', $attributeid);
 				$result = DAL::executePdoAll($query);
 				if (empty($result)) {
 					return;
@@ -178,8 +178,8 @@ class Asset_Attribute extends MySource_Object
 		$sql = 'SELECT type FROM sq_ast_attr
 					WHERE attrid = :attrid';
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':attrid', $attributeid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'attrid', $attributeid);
 			$type = DAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to load attribute ID #'.$attributeid.' due to database error: '.$e->getMessage());

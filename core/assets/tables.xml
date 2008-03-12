@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.50 2007/10/29 22:30:06 lwright Exp $
+* $Id: tables.xml,v 1.50.2.1 2008/03/12 04:03:48 lwright Exp $
 *
 */
 -->
@@ -1647,6 +1647,14 @@
 					<description>Thesaurus ID</description>
 				</column>
 			</columns>
+			<keys>
+			<primary_key>
+				<column name="termid" />
+				<column name="name" />
+				<column name="thesid" />
+				<column name="value" />
+			</primary_key>
+			</keys>
 			<indexes>
 				<index>
 					<column name="termid" />

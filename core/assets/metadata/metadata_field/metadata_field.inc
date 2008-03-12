@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.33.2.1 2008/01/22 05:45:46 hnguyen Exp $
+* $Id: metadata_field.inc,v 1.33.2.2 2008/03/12 04:03:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33.2.1 $
+* @version $Revision: 1.33.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -283,13 +283,13 @@ class Metadata_Field extends Asset
 	*/
 	public function saveAttributes($dont_run_updated=FALSE)
 	{
-        // We basically dont allow single or double quotation mark in the field name.
-        $field_name_original = $this->attr('name');
-        $field_name = str_replace('\'', '', $field_name_original);
-        $field_name = str_replace('\"', '', $field_name);
-        if ($field_name != $field_name_original) {
-            $this->setAttrValue('name', $field_name);
-        }//end if
+		// We basically dont allow single or double quotation mark in the field name.
+		$field_name_original = $this->attr('name');
+		$field_name = str_replace('\'', '', $field_name_original);
+		$field_name = str_replace('\"', '', $field_name);
+		if ($field_name != $field_name_original) {
+			$this->setAttrValue('name', $field_name);
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -342,7 +342,7 @@ class Metadata_Field extends Asset
 				$sql = 'DELETE FROM sq_ast_mdata_val WHERE ';
 				$sql .= 'fieldid = :fieldid';
 
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$query->bindValue('fieldid', $this->id);
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
@@ -355,7 +355,7 @@ class Metadata_Field extends Asset
 				$sql = 'DELETE FROM sq_ast_mdata_dflt_val WHERE ';
 				$sql .= 'assetid = :assetid';
 
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$query->bindValue('assetid', $this->id);
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {

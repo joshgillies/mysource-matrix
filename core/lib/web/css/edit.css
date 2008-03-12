@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.84 2007/09/25 01:00:20 nbhradwaj Exp $
+* $Id: edit.css,v 1.84.2.1 2008/03/12 04:04:03 lwright Exp $
 *
 */
 
@@ -438,7 +438,27 @@ td.sq-backend-lock-table-cell-alt {
 
 .sq-form-asset-finder {
 	border:				1px dashed #D0D0D0;
+	border-right:none;
 }
+
+.sq-asset-finder-id-label {
+	border-left:none;
+	margin-right:0.3em;
+	border-right:1px dashed #D0D0D0;
+}
+
+.sq-asset-finder-id-label {
+	padding-top:0.2em;
+	position:relative;
+	top:1px;
+}
+
+* html .sq-asset-finder-id-label {
+	top:0;
+}
+
+
+
 
 
 

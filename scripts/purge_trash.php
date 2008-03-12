@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.3 2007/12/10 06:23:45 rong Exp $
+* $Id: purge_trash.php,v 1.3.2.1 2008/03/12 04:04:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix
 */
 
@@ -73,11 +73,15 @@ if (!empty($purge_rootnode)) {
 			from
 				sq_ast_lnk
 			where
-				minorid = '.$db->quoteSmart($purge_rootnode).'
+				minorid = :root_node
 				and
-				majorid = '.$db->quoteSmart($trash_folder->id);
-	$linkid = $db->getOne($sql);
-	assert_valid_db_result($linkid);
+				majorid = :trash_assetid';
+				
+	$query = MatrixDAL::preparePdoQuery($sql);
+	MatrixDAL::bindValueToPdo($query, 'root_node',     $purge_rootnode);
+	MatrixDAL::bindValueToPdo($query, 'trash_assetid', $trash_folder->id);
+	$linkid = MatrixDAL::executePdoOne($query);
+	
 	if (!empty($linkid)) {
 		// purge trash hipo will know what to do
 		$vars['purge_root_linkid'] = $linkid;

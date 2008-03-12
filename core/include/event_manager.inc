@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.27.2.1 2008/01/09 22:02:29 hnguyen Exp $
+* $Id: event_manager.inc,v 1.27.2.2 2008/03/12 04:03:59 lwright Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -223,7 +223,27 @@ class Event_Manager extends MySource_Object
 				if (!($broadcaster instanceof asset)) return true;
 				if (!$broadcaster->id) return;
 
-				if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
+				// let's not query the tree unless we have to
+				if ($options['is_dependant'] && !$options['is_exclusive']) {
+					// do this until one of the returned assets matches a listener type code
+					if (!isset($found_listener)) {
+						if ($side_of_link === 'minor') {
+							$possible_listeners = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($broadcaster->id);
+						} else {
+							$possible_listeners = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($broadcaster->id);
+						}
+
+						// get type codes of our assetids (only need to do it once)
+						if (!isset($types)) {
+							for ($i=0; $i<count($possible_listeners); $i++) {
+								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($possible_listeners[$i]);
+								$types[$possible_listeners[$i]] = $asset->type();
+							}
+						}
+
+					} else continue;
+
+				} else if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
 				} else {
 
@@ -249,10 +269,25 @@ class Event_Manager extends MySource_Object
 
 			}// end if
 
-			foreach ($assetids as $assetid) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (is_null($asset)) continue;
-				$listeners[] = $asset;
+			// are we filtering our listeners?
+			if (isset($types)) {
+				// get our listener
+				if (in_array($listener_type_code, $types)) {
+					foreach ($types as $assetid => $type_code) {
+						if ($type_code === $listener_type_code) {
+							$found_listener = TRUE;
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							if (is_null($asset)) continue;
+							$listeners[] = $asset;
+						}
+					}
+				}
+			} else {
+				foreach ($assetids as $assetid) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if (is_null($asset)) continue;
+					$listeners[] = $asset;
+				}
 			}
 
 		}// end foreach
@@ -294,8 +329,6 @@ class Event_Manager extends MySource_Object
 			return Array();
 		}
 
-		$db = MatrixDal::getDb();
-
 		$sql = 'SELECT (t2.treeid || \'%\')
 				FROM sq_ast_lnk l1
 				  INNER JOIN sq_ast_lnk_tree t1 ON l1.linkid = t1.linkid,
@@ -310,19 +343,19 @@ class Event_Manager extends MySource_Object
 
 		$result = NULL;
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $assetid);
-			$query->bindValue(':type_code', $type_code);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $type_code);
 			$result = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
-			throw new Exception('Unable to get Discret Assets due to database error: '.$e->getMessage());
+			throw new Exception('Unable to get Discrete Assets due to database error: '.$e->getMessage());
 		}
 
 		if (empty($result)) return Array();
 
 		$treeid_string = '';
 		foreach ($result as $treeid) {
-			$treeid_string .= 't2.treeid LIKE '.$db->quote($treeid).' OR ';
+			$treeid_string .= 't2.treeid LIKE \''.$treeid.'\' OR ';
 		}
 		$treeid_string = substr($treeid_string, 0, -4);
 
@@ -339,17 +372,15 @@ class Event_Manager extends MySource_Object
 					AND ('.$treeid_string.')
 				ORDER BY t2.treeid';
 
-
-
 		$result = NULL;
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $assetid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
-			throw new Exception('Unable to get Discret Assets due to database error: '.$e->getMessage());
-		}//end
+			throw new Exception('Unable to get Discrete Assets due to database error: '.$e->getMessage());
+		}//end try
 
 		$assetids = Array();
 		$start_treeid = true;

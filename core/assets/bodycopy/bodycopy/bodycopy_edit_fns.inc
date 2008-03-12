@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.56.2.1 2008/02/13 04:31:09 colivar Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.56.2.2 2008/03/12 04:03:48 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56.2.1 $
+* @version $Revision: 1.56.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,19 +73,27 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$sql = 'SELECT value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
 
-			$where = 'name LIKE '.$db->quote('design::%frontend%').' AND
-						(('.$db->quote($url).' = url)
-						OR (('.$db->quote($url).' LIKE url || \'/%\')
-						AND ('.$db->quote($url).' NOT LIKE url || \'%/$\'))
-						OR (('.$db->quote($url.'/').' = url)))';
+			$where = 'name LIKE :lookup_name AND
+						((:url = url)
+						OR ((:url_1 LIKE url || \'/%\')
+						AND (:url_2 NOT LIKE url || \'%/$\'))
+						OR ((:url_slash = url)))';
 
 			$order_by = ' ORDER BY depth DESC';
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				$query = $db->prepare($sql.$where.$order_by);
+				bam($sql.$where.$order_by);
+				$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
+				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%frontend%');
+				MatrixDAL::bindValueToPdo($query, 'url', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_1', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_2', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
 				$designid = MatrixDAL::executePdoOne($query);
+				bam($url);
+				bam(MatrixDAL::executePdoAssoc($query));
 			} catch (Exception $e) {
 				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
 			}//end try catch
@@ -93,6 +101,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			if ($designid) {
 				$design = $am->getAsset($designid);
 				$stylesheets = $design->getStylesheets();
+				bam($stylesheets);
 
 				// save the ids of all the css files into a global var so the wysiwyg style
 				// drop down plugin can access this information without another querey
@@ -365,9 +374,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		// save css ids into global var
 		// we dont want note to be displayed so we added ob_start/ob_end_clean
-		ob_start();
+		#ob_start();
 		$this->_saveCssIds($o);
-		ob_end_clean();
+		#ob_end_clean();
 
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {

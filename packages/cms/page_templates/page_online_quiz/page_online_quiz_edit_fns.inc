@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.9 2007/12/11 06:09:36 colivar Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.9.2.1 2008/03/12 04:04:23 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -562,11 +562,11 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 		$db = Dal::getDb();
 
-		$ts_from_fragment = db_extras_todate(MatrixDAL::getDbType(), $from_value);
-		$ts_to_fragment = db_extras_todate(MatrixDAL::getDbType(), $to_value);
+		$ts_from_fragment = db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE);
+		$ts_to_fragment   = db_extras_todate(MatrixDAL::getDbType(), ':to_date',   FALSE);
 
-		$where = 'l.majorid IN ('.$db->quote($asset->id).', '.$db->quote($sub_folder->id).')
-					AND i.inhd_type_code = '.$db->quote('online_quiz_submission').'
+		$where = 'l.majorid IN (:assetid, :subfolder_assetid)
+					AND i.inhd_type_code = :inhd_type_code
 					AND a.created BETWEEN '.$ts_from_fragment.'
 					AND '.$ts_to_fragment;
 
@@ -577,7 +577,12 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		// grab the number of assets
 		$asset_count = 0;
 		try {
-			$query = $db->prepare($count_sql.$where);
+			$query = MatrixDAL::preparePdoQuery($count_sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid',           $asset->id);
+			MatrixDAL::bindValueToPdo($query, 'subfolder_assetid', $sub_folder->id);
+			MatrixDAL::bindValueToPdo($query, 'inhd_type_code',    'online_quiz_submission');
+			MatrixDAL::bindValueToPdo($query, 'from_date',         $from_value);
+			MatrixDAL::bindValueToPdo($query, 'to_date',           $to_value);
 			$asset_count = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception($e.getMessage());
@@ -749,7 +754,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			// because we could be displaying a lot on this page
 			$result = NULL;
 			 try {
-				$_query = $db->prepare($sql);
+				$_query = MatrixDAL::preparePdoQuery($sql);
 				$result = MatrixDAL::executeSqlAssoc($sql);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());
@@ -1024,61 +1029,80 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 
 		$sub_folder = $asset->getSubmissionsFolder();
-		$sql = 'SELECT
+
+		$base_sql = 'SELECT
 				a.assetid, a.type_code, a.created, a.created_userid
 				FROM
 				('.SQ_TABLE_RUNNING_PREFIX.'ast a JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_typ_inhd i ON a.type_code = i.type_code)
 				JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 				ON l.minorid = a.assetid';
 
-		$where = 'l.majorid IN ('.$GLOBALS['SQ_SYSTEM']->db->quote($asset->id).', '.$GLOBALS['SQ_SYSTEM']->db->quote($sub_folder->id).') AND i.inhd_type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote('online_quiz_submission').' AND a.created BETWEEN '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($from_ts)).' AND '.$GLOBALS['SQ_SYSTEM']->db->quoteSmart(ts_iso8601($to_ts));
+		$where = 'l.majorid IN ('.MatrixDAL::quote($asset->id).', '.MatrixDAL::quote($sub_folder->id).') AND i.inhd_type_code = '.MatrixDAL::quote('online_quiz_submission').' AND a.created BETWEEN '.MatrixDAL::quoteSmart(ts_iso8601($from_ts)).' AND '.MatrixDAL::quoteSmart(ts_iso8601($to_ts));
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 
-		// Going to fetch this one row at a time for memory reasons, because this
-		// could potentially be a very big download
-		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql.$where);
-		assert_valid_db_result($result);
-		while ($asset_info = $result->fetchRow()) {
-			$assetid = $asset_info['assetid'];
-			$type_code = $asset_info['type_code'];
+		// This could be a large download, however DAL does not easily support
+		// row by row fetching, so we will do it in chunks of 1000, or however
+		// many we get back. If we don't get that many, we will continue to
+		// query until there are no more, to pick up any additional
+		// submissions made since the first query was made.
+		$offset = 0;
+		$chunk_size = 1000;
 
-			$create_time = strtotime($asset_info['created']);
+		while (TRUE) {
+			// Get the current limited query
+			$sql = db_extras_modify_limit_query($base_sql.$where, MatrixDAL::getDbType(), $chunk_size, $offset);
+			$result = MatrixDAL::executeSqlAssoc($sql);
 
-			$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			if (!$sub_asset->attr('complete')) continue;
+			// If no further results, we are done.
+			if (count($result) == 0) break;
 
-			// get the submission ip
-			$ipaddress = $sub_asset->getIP();
+			foreach ($result as $asset_info) {
+				$assetid = $asset_info['assetid'];
+				$type_code = $asset_info['type_code'];
 
-			// get the summary
-			$logs[$assetid] = Array();
+				$create_time = strtotime($asset_info['created']);
 
-			if ($export_time_field) {
-				$logs[$assetid]['__time__'] = date('Y-m-d H:i:s', $create_time);
-			}
-			if ($export_user_field) {
-				$logs[$assetid]['__user__'] = $asset_info['created_userid'];
-			}
-			if ($export_ipaddress_field) {
-				$logs[$assetid]['__ipaddress__'] = $ipaddress;
-			}
+				$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				if (!$sub_asset->attr('complete')) continue;
 
-			$submission_summary = $sub_asset->getSummary();
+				// get the submission ip
+				$ipaddress = $sub_asset->getIP();
 
-			// Export full Question Text and Question Answer Text
-			foreach ($submission_summary as $question_id => $details) {
-				// Now we're only interested in fields that have been specified for export
-				if (in_array($question_id, $export_fields)) {
-					if (!isset($headers[$question_id])) {
-						$headers[$question_id] = $details['name'];
-					}
-					$logs[$assetid][$question_id] = $details['answer'];
+				// get the summary
+				$logs[$assetid] = Array();
+
+				if ($export_time_field) {
+					$logs[$assetid]['__time__'] = date('Y-m-d H:i:s', $create_time);
 				}
-			}
-		}//end while
+				if ($export_user_field) {
+					$logs[$assetid]['__user__'] = $asset_info['created_userid'];
+				}
+				if ($export_ipaddress_field) {
+					$logs[$assetid]['__ipaddress__'] = $ipaddress;
+				}
+
+				$submission_summary = $sub_asset->getSummary();
+
+				// Export full Question Text and Question Answer Text
+				foreach ($submission_summary as $question_id => $details) {
+					// Now we're only interested in fields that have been specified for export
+					if (in_array($question_id, $export_fields)) {
+						if (!isset($headers[$question_id])) {
+							$headers[$question_id] = $details['name'];
+						}
+						$logs[$assetid][$question_id] = $details['answer'];
+					}
+				}
+
+			}//end foreach
+
+			// Advance the chains along, and prepare to get more records
+			$offset =+ count($result);
+
+		}//end while - there are more records
 
 		if ($header_row) $csv->setFieldHeaders($headers);
 

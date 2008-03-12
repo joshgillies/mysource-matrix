@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.54 2007/12/24 04:48:22 hnguyen Exp $
+* $Id: thesaurus.inc,v 1.54.2.1 2008/03/12 04:03:53 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -203,7 +203,7 @@ class Thesaurus extends Asset implements Bridge
 				term
 		';
 
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		$query->bindValue('assetid_1', $this->id);
 		$query->bindValue('assetid_2', $this->id);
 		$query->bindValue('termid', $termid);
@@ -216,7 +216,7 @@ class Thesaurus extends Asset implements Bridge
 		} catch (Exception $e) {
 			throw new Exception('Unable to get thesaurus child terms due to database error: '. $e->getMessage());
 		}//end
-	
+
 		return $result;
 
 	}//end getChildTerms()
@@ -242,11 +242,11 @@ class Thesaurus extends Asset implements Bridge
 						'termid'	=> $termid,
 					);
 
-        try {
+		try {
 			$result = MatrixDAL::executeOne('thesaurus', 'countChildTerms', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to count thesaurus child terms due to database error: '. $e->getMessage());
-        }//end
+		} catch (Exception $e) {
+			throw new Exception('Unable to count thesaurus child terms due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -267,10 +267,10 @@ class Thesaurus extends Asset implements Bridge
 		$bind_vars['assetid'] = $this->id;
 
 		try {
-            $result = MatrixDAL::executeOne('thesaurus', 'countTermLinks', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to count thesaurus term links due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeOne('thesaurus', 'countTermLinks', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to count thesaurus term links due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -288,13 +288,13 @@ class Thesaurus extends Asset implements Bridge
 
 		$db = MatrixDAL::getDb();
 
-        $bind_vars['assetid'] = $this->id;
+		$bind_vars['assetid'] = $this->id;
 
-        try {
-            $result = MatrixDAL::executeOne('thesaurus', 'countTerms', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to count thesaurus terms due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeOne('thesaurus', 'countTerms', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to count thesaurus terms due to database error: '. $e->getMessage());
+		}//end
 
 
 		return $result;
@@ -315,18 +315,18 @@ class Thesaurus extends Asset implements Bridge
 	function countParentTerms($termid)
 	{
 
-        $db = MatrixDAL::getDb();
+		$db = MatrixDAL::getDb();
 
-        $bind_vars = Array (
-                        'assetid'   => $this->id,
-                        'termid'    => $termid,
-                    );
+		$bind_vars = Array (
+						'assetid'   => $this->id,
+						'termid'    => $termid,
+					);
 
-        try {
-            $result = MatrixDAL::executeOne('thesaurus', 'countParentTerms', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to count thesaurus parent terms due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeOne('thesaurus', 'countParentTerms', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to count thesaurus parent terms due to database error: '. $e->getMessage());
+		}//end
 
 
 		return $result;
@@ -349,16 +349,16 @@ class Thesaurus extends Asset implements Bridge
 
 		$db = MatrixDAL::getDb();
 
-        $bind_vars = Array (
-                        'assetid'   => $this->id,
-                        'termid'    => $termid,
-                    );
+		$bind_vars = Array (
+						'assetid'   => $this->id,
+						'termid'    => $termid,
+					);
 
-        try {
-            $results = MatrixDAL::executeAssoc('thesaurus', 'getChildRelationsForTerm', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get child relations for term due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$results = MatrixDAL::executeAssoc('thesaurus', 'getChildRelationsForTerm', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get child relations for term due to database error: '. $e->getMessage());
+		}//end
 		if (!empty($results)) {
 			$new_res = Array();
 			foreach ($results as $result) {
@@ -387,18 +387,18 @@ class Thesaurus extends Asset implements Bridge
 
 		if (!isset($termid)) return NULL;
 
-        $db = MatrixDAL::getDb();
+		$db = MatrixDAL::getDb();
 
-        $bind_vars = Array (
-                        'assetid'   => $this->id,
-                        'termid'    => $termid,
-                    );
+		$bind_vars = Array (
+						'assetid'   => $this->id,
+						'termid'    => $termid,
+					);
 
-        try {
-            $result = MatrixDAL::executeAssoc('thesaurus', 'getParentRelationsForTerm', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get parent relations for term due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeAssoc('thesaurus', 'getParentRelationsForTerm', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get parent relations for term due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -413,14 +413,14 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function getAllTerms()
 	{
-        $bind_vars	= Array();
-        $bind_vars['assetid'] = $this->id;
+		$bind_vars	= Array();
+		$bind_vars['assetid'] = $this->id;
 
-        try {
-            $result = MatrixDAL::executeAll('thesaurus', 'getAllTerms', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get a list of all thesaurus terms due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeAll('thesaurus', 'getAllTerms', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get a list of all thesaurus terms due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -473,19 +473,19 @@ class Thesaurus extends Asset implements Bridge
 		';
 
 
-		$query = $db->prepare($sql);
-        $query->bindValue(':thesid_1', $this->id);
-        $query->bindValue(':thesid_2', $this->id);
-        $query->bindValue(':termid', $termid);
-        if ($limit_relation) {
-            $query->bindValue(':relid', $relid);
-        }//end if
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'thesid_1', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'thesid_2', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'termid', $termid);
+		if ($limit_relation) {
+			MatrixDAL::bindValueToPdo($query, 'relid', $relid);
+		}//end if
 
-        try {
-            $result = MatrixDAL::executePdoAll($query);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus parent terms due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus parent terms due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -517,16 +517,21 @@ class Thesaurus extends Asset implements Bridge
 				INNER JOIN sq_thes_lnk link ON major.termid = link.major
 				INNER JOIN sq_thes_term minor ON minor.termid = link.minor
 			WHERE
-				link.relid = '.$db->quote($relation_id).'
+				link.relid = :relid
 				AND
-				major.thesid = '.$db->quote($this->id).'
+				major.thesid = :major_thesid
 				AND
-				minor.thesid = '.$db->quote($this->id).'
+				minor.thesid = :minor_thesid
 				AND
-				link.thesid = '.$db->quote($this->id).'
+				link.thesid = :link_thesid
 		';
 
-		$result = MatrixDAL::executeSqlAll($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'relid', $relation_id);
+		MatrixDAL::bindValueToPdo($query, 'major_thesid', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'minor_thesid', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'link_thesid',  $this->id);
+		$result = MatrixDAL::executePdoAll($query);
 
 		return $result;
 
@@ -551,20 +556,18 @@ class Thesaurus extends Asset implements Bridge
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
-        $db = MatrixDAL::getDb();
-
-		$termid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_term_seq\');');
-        $bind_vars = Array (
-                        'thesid'	=> $this->id,
+		$termid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_thes_term_seq'));
+		$bind_vars = Array (
+						'thesid'	=> $this->id,
 						'term'		=> $term,
 						'termid'	=> $termid,
-                    );
+					);
 
-        try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'insertTerm', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to insert a thesaurus term due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeQuery('thesaurus', 'insertTerm', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to insert a thesaurus term due to database error: '. $e->getMessage());
+		}//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -606,23 +609,47 @@ class Thesaurus extends Asset implements Bridge
 	*/
 	function addTermNote($termid, $note_name, $note_value)
 	{
+		// before adding the Term Note we need to check if the note hasnt been added
+		// if the term note is already in the table we will throw an error 
+		$db = MatrixDAL::getDb();
+		$sql = 'SELECT a.termid, a.name, a.value, a.thesid, b.term 
+				FROM sq_thes_term_note a, sq_thes_term b
+				WHERE a.termid = '.$db->quote($termid).' AND
+					a.name = '.$db->quote($note_name).' AND
+					a.value = '.$db->quote($note_value).' AND
+					a.thesid = '.$db->quote($this->id).' AND
+					b.thesid = a.thesid AND b.termid = a.termid 
+					';
+		$result = NULL;
+	        try {
+			$query = $db->prepare($sql);log_dump($sql);
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception($e->getMessage());
+		}
+
+		if (!empty($result)) {
+			// throw an error and return TRUE
+			trigger_localised_error('CORE0282', E_USER_WARNING, $note_name.":".$note_value, $result[0]['term']);
+			return TRUE;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
 		$db = MatrixDAL::getDb();
 
-        $bind_vars = Array (
-                        'thesid'	=> $this->id,
-                        'termid'	=> $termid,
+		$bind_vars = Array (
+						'thesid'	=> $this->id,
+						'termid'	=> $termid,
 						'name'		=> $note_name,
 						'value'		=> $note_value,
-                    );
+					);
 
-        try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'insertTermNote', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to insert a thesaurus term note due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeQuery('thesaurus', 'insertTermNote', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to insert a thesaurus term note due to database error: '. $e->getMessage());
+		}//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -645,16 +672,16 @@ class Thesaurus extends Asset implements Bridge
 
 		$db = MatrixDAL::getDb();
 
-        $bind_vars = Array (
-                        'assetid'   => $this->id,
-                        'termid'    => $termid,
-                    );
+		$bind_vars = Array (
+						'assetid'   => $this->id,
+						'termid'    => $termid,
+					);
 
-        try {
-            $result = MatrixDAL::executeAssoc('thesaurus', 'getTermNotes', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus term note due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeAssoc('thesaurus', 'getTermNotes', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus term note due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -678,15 +705,15 @@ class Thesaurus extends Asset implements Bridge
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$bind_vars = Array (
-                        'thesid'    => $this->id,
-                        'termid'    => $termid,
-                    );
+						'thesid'    => $this->id,
+						'termid'    => $termid,
+					);
 
-        try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'deleteTermNotes', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to delete a thesaurus term note due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeQuery('thesaurus', 'deleteTermNotes', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete a thesaurus term note due to database error: '. $e->getMessage());
+		}//end
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -753,17 +780,17 @@ class Thesaurus extends Asset implements Bridge
 		$db = MatrixDAL::getDb();
 
 		$bind_vars = Array (
-                        'thesid'    => $this->id,
-                        'major'     => $majorid,
-                        'minor'     => $minorid,
-                        'relation'  => $relation_id,
+						'thesid'    => $this->id,
+						'major'     => $majorid,
+						'minor'     => $minorid,
+						'relation'  => $relation_id,
 					 );
 
 		try {
-            $result = MatrixDAL::executeOne('thesaurus', 'getLinkId', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus linkid due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeOne('thesaurus', 'getLinkId', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus linkid due to database error: '. $e->getMessage());
+		}//end
 
 
 		// if the terms are already linked using this relation, just return the ID
@@ -772,13 +799,13 @@ class Thesaurus extends Asset implements Bridge
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// inserting a term link is the easiest thing ever
-        try {
+		try {
 			$linkid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_lnk_seq\');');
 			$bind_vars['linkid']	= $linkid;
-            $result = MatrixDAL::executeQuery('thesaurus', 'insertLink', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to link a thesaurus term due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeQuery('thesaurus', 'insertLink', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to link a thesaurus term due to database error: '. $e->getMessage());
+		}//end
 
 
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
@@ -828,17 +855,17 @@ class Thesaurus extends Asset implements Bridge
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		// update the term itself
 
-        $bind_vars = Array (
-                        'assetid'	=> $this->id,
-                        'termid'	=> $termid,
-                        'name'		=> $name,
-                     );
+		$bind_vars = Array (
+						'assetid'	=> $this->id,
+						'termid'	=> $termid,
+						'name'		=> $name,
+					 );
 
 		try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'updateTerm', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to update a thesaurus term due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeQuery('thesaurus', 'updateTerm', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update a thesaurus term due to database error: '. $e->getMessage());
+		}//end
 
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -879,17 +906,17 @@ class Thesaurus extends Asset implements Bridge
 
 		// Update relations
 
-        $bind_vars = Array (
-                        'assetid'	=> $this->id,
-                        'relid'		=> $relation_id,
-                        'relation'	=> $new_name,
-                     );
+		$bind_vars = Array (
+						'assetid'	=> $this->id,
+						'relid'		=> $relation_id,
+						'relation'	=> $new_name,
+					 );
 
-        try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'updateRelationName', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to update a thesaurus relation name due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeQuery('thesaurus', 'updateRelationName', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to update a thesaurus relation name due to database error: '. $e->getMessage());
+		}//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -915,17 +942,18 @@ class Thesaurus extends Asset implements Bridge
 		$db = MatrixDAL::getDb();
 
 		$bind_vars = Array (
-                        'assetid'	=> $this->id,
-                        'termid'	=> $termid,
-                    );
-        try {
-            $result = MatrixDAL::executeAll('thesaurus', 'getTermById', $bind_vars);
+						'assetid'	=> $this->id,
+						'termid'	=> $termid,
+					);
+
+		try {
+			$result = MatrixDAL::executeAll('thesaurus', 'getTermById', $bind_vars);
 			if (!empty($result) && isset($result[0])) {
 				$result = $result[0];
 			}
-        } catch (Exception $e) {
-            throw new Exception('Unable to get a thesaurus term by id due to database error: '. $e->getMessage());
-        }//end
+		} catch (Exception $e) {
+			throw new Exception('Unable to get a thesaurus term by id due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -951,14 +979,14 @@ class Thesaurus extends Asset implements Bridge
 						'linkid'    => $linkid,
 					 );
 
-        try {
-            $result = MatrixDAL::executeAll('thesaurus', 'getLinkById', $bind_vars);
-            if (!empty($result) && isset($result[0])) {
-                $result = $result[0];
-            }
-        } catch (Exception $e) {
-            throw new Exception('Unable to get a thesaurus term link by id due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeAll('thesaurus', 'getLinkById', $bind_vars);
+			if (!empty($result) && isset($result[0])) {
+				$result = $result[0];
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get a thesaurus term link by id due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -987,17 +1015,17 @@ class Thesaurus extends Asset implements Bridge
 				AND
 				thesid = :assetid';
 
-		$query = $db->prepare($sql);
+		$query = MatrixDAL::preparePdoQuery($sql);
 		if (!is_null($name)) {
 			$query->bindValue('name', $name);
 		}
-        $query->bindValue('assetid', $this->id);
+		$query->bindValue('assetid', $this->id);
 
-        try {
-            $result = MatrixDAL::executePdoOne($query);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus relation Id by name due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus relation Id by name due to database error: '. $e->getMessage());
+		}//end
 
 		if (empty($result)) $result = NULL;
 
@@ -1029,16 +1057,16 @@ class Thesaurus extends Asset implements Bridge
 
 		$id = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_rel_seq\');');
 		$bind_vars = Array (
-                        'thesid'	=> $this->id,
-                        'relation'	=> $name,
-                        'relid'		=> $id,
-                     );
+						'thesid'	=> $this->id,
+						'relation'	=> $name,
+						'relid'		=> $id,
+					 );
 
-        try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'insertRelation', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to add a thesaurus relation due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeQuery('thesaurus', 'insertRelation', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to add a thesaurus relation due to database error: '. $e->getMessage());
+		}//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1092,21 +1120,21 @@ class Thesaurus extends Asset implements Bridge
 
 		$db = MatrixDAL::getDb();
 
-        $bind_vars = Array (
-                        'thesid'	=> $this->id,
-                        'relid'		=> $relid,
+		$bind_vars = Array (
+						'thesid'	=> $this->id,
+						'relid'		=> $relid,
 						'parentid'	=> $parentid,
 						'termid'	=> $termid,
-                     );
+					 );
 
-        try {
-            $result = MatrixDAL::executeAll('thesaurus', 'getTermLinkByTermIds', $bind_vars);
-            if (!empty($result) && isset($result[0])) {
-                $result = $result[0];
-            }
-        } catch (Exception $e) {
-            throw new Exception('Unable to get a thesaurus term link by id due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executeAll('thesaurus', 'getTermLinkByTermIds', $bind_vars);
+			if (!empty($result) && isset($result[0])) {
+				$result = $result[0];
+			}
+		} catch (Exception $e) {
+			throw new Exception('Unable to get a thesaurus term link by id due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -1127,25 +1155,25 @@ class Thesaurus extends Asset implements Bridge
 
 		$name = strtolower($name);
 
-        $sql = '
-            SELECT
-                termid
-            FROM
-                sq_thes_term
-            WHERE
-                lower(term) = :term
-                AND
-                thesid = :thesid
-        ';
-        
-        try {
-        	$query = $db->prepare($sql);
-        	$query->bindValue('term', $name);
-        	$query->bindValue('thesid', $this->id);
-        	$result = MatrixDAL::executePdoOne($query);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus term id by name due to database error: '. $e->getMessage());
-        }//end
+		$sql = '
+			SELECT
+				termid
+			FROM
+				sq_thes_term
+			WHERE
+				lower(term) = :term
+				AND
+				thesid = :thesid
+		';
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			$query->bindValue('term', $name);
+			$query->bindValue('thesid', $this->id);
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus term id by name due to database error: '. $e->getMessage());
+		}//end
 
 		if (empty($result)) $result = NULL;
 
@@ -1186,10 +1214,10 @@ class Thesaurus extends Asset implements Bridge
 					 );
 
 		try {
-            $result = MatrixDAL::executeAssoc('thesaurus', 'getTermIdByNames', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus term ids by names due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeAssoc('thesaurus', 'getTermIdByNames', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus term ids by names due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -1226,25 +1254,25 @@ class Thesaurus extends Asset implements Bridge
 		}
 
 		$bind_vars = Array (
-                        'term'	=> strtolower($term),
-                        'thesid' => $this->id,
-                     );
+						'term'	=> strtolower($term),
+						'thesid' => $this->id,
+					 );
 
 		if ($termid != 0) {
 			$bind_vars['termid'] = $termid;
 		}
 
-        try {
-        	$query	= $db->prepare($sql);
-        	$query->bindValue(':term', strtolower($term));
-        	$query->bindValue(':thesid', $this->id);
-        	if ($termid != 0) {
-        		$query->bindValue(':termid', $termid);
-        	}
-            $result = MatrixDAL::executePdoOne($query);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus term id due to database error: '.$e->getMessage());
-        }//end
+		try {
+			$query	= MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'term', strtolower($term));
+			MatrixDAL::bindValueToPdo($query, 'thesid', $this->id);
+			if ($termid != 0) {
+				MatrixDAL::bindValueToPdo($query, 'termid', $termid);
+			}
+			$result = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus term id due to database error: '.$e->getMessage());
+		}//end
 
 		return !empty($result);
 
@@ -1261,15 +1289,15 @@ class Thesaurus extends Asset implements Bridge
 	{
 		$db = MatrixDAL::getDb();
 
-        $bind_vars = Array (
-                        'assetid' => $this->id,
-                     );
+		$bind_vars = Array (
+						'assetid' => $this->id,
+					 );
 
-        try {
-            $results = MatrixDAL::executeAssoc('thesaurus', 'getActiveRelations', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get thesaurus active relations due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$results = MatrixDAL::executeAssoc('thesaurus', 'getActiveRelations', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get thesaurus active relations due to database error: '. $e->getMessage());
+		}//end
 
 		if(!empty($results)) {
 			$new_res = Array();
@@ -1324,30 +1352,30 @@ class Thesaurus extends Asset implements Bridge
 					 );
 
 		try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllTerms', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to delete all thesaurus terms due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeQuery('thesaurus', 'deleteAllTerms', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete all thesaurus terms due to database error: '. $e->getMessage());
+		}//end
 
 		try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllLinks', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to delete all thesaurus links due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeQuery('thesaurus', 'deleteAllLinks', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete all thesaurus links due to database error: '. $e->getMessage());
+		}//end
 
 		try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllRelations', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to delete all thesaurus relations due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeQuery('thesaurus', 'deleteAllRelations', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete all thesaurus relations due to database error: '. $e->getMessage());
+		}//end
 
 		$bind_vars['assetid'] = $this->id.':%';
 
 		try {
-            $result = MatrixDAL::executeQuery('thesaurus', 'deleteAllShadowLinks', $bind_vars);
-        } catch (Exception $e) {
-            throw new Exception('Unable to delete all shadow thesaurus links due to database error: '. $e->getMessage());
-        }//end
+			$result = MatrixDAL::executeQuery('thesaurus', 'deleteAllShadowLinks', $bind_vars);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete all shadow thesaurus links due to database error: '. $e->getMessage());
+		}//end
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1433,18 +1461,18 @@ class Thesaurus extends Asset implements Bridge
 				term
 		';
 
-		$query = $db->prepare($sql);
-        $query->bindValue(':thesid_1', $this->id);
-        $query->bindValue(':thesid_2', $this->id);
-        $query->bindValue(':thesid_3', $this->id);
-		$query->bindValue(':relid_1', $relation_id);
-		$query->bindValue(':relid_2', $relation_id);
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'thesid_1', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'thesid_2', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'thesid_3', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'relid_1', $relation_id);
+		MatrixDAL::bindValueToPdo($query, 'relid_2', $relation_id);
 
-        try {
-            $result = MatrixDAL::executePdoAll($query);
-        } catch (Exception $e) {
-            throw new Exception('Unable to get absolute parent om relation due to database error: '. $e->getMessage());
-        }//end
+		try {
+			$result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get absolute parent om relation due to database error: '. $e->getMessage());
+		}//end
 
 		return $result;
 
@@ -1961,7 +1989,7 @@ class Thesaurus extends Asset implements Bridge
 			}
 
 			foreach ($terms as $term_info) {
-				$result[$this->id.':'.$term_info['termid']] = 'thesaurus_term';
+				$result[$this->id.':'.$term_info['termid']] = Array(Array('type_code' => 'thesaurus_term'));
 			}
 		}
 
@@ -2456,8 +2484,15 @@ class Thesaurus extends Asset implements Bridge
 		if (!$is_array) {
 			if ($is_empty) return FALSE;
 			$id_parts = explode(':', $assetids);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('termid = '.$db->quote($id_parts[1]).' AND thesid = '.$db->quote($id_parts[0]));
-			$db_assetids = MatrixDAL::executeSqlOne($sql.$where);
+
+			$where = 'termid = :termid AND thesid = :thesid';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'thesid', $id_parts[0]);
+			MatrixDAL::bindValueToPdo($query, 'termid', $id_parts[1]);
+			$db_assetids = MatrixDAL::executePdoOne($query);
+
 			return ($db_assetids == $assetids);
 		}
 
@@ -2470,7 +2505,7 @@ class Thesaurus extends Asset implements Bridge
 				$id_parts = explode(':', $assetids[$i]);
 				// build an array of thesids for each termid
 				$thesid_array[$id_parts[1]] = $id_parts[0];
-				$in .= $db->quote($id_parts[1]).(($i == count($assetids) - 1) ? ')' : ',');
+				$in .= MatrixDAL::quote($id_parts[1]).(($i == count($assetids) - 1) ? ')' : ',');
 			}
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);

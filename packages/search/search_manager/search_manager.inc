@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164 2007/12/23 23:29:43 gsherwood Exp $
+* $Id: search_manager.inc,v 1.164.2.1 2008/03/12 04:05:08 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.164.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -685,13 +685,13 @@ class Search_Manager extends Asset
 							);
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':value',     $value,             PDO::PARAM_STR);
-				$query->bindValue(':assetid',   $assetid,           PDO::PARAM_STR);
-				$query->bindValue(':type_code', $data['type_code'], PDO::PARAM_STR);
-				$query->bindValue(':component', $data['component'], PDO::PARAM_STR);
-				$query->bindValue(':type',      $data['type'],      PDO::PARAM_STR);
-				$query->bindValue(':score',     $data['score'],     PDO::PARAM_INT);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'value',     $value,             PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'assetid',   $assetid,           PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $data['type_code'], PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'component', $data['component'], PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'type',      $data['type'],      PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'score',     $data['score'],     PDO::PARAM_INT);
 				$result = MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to add indexable content due to database error: '.$e->getMessage());
@@ -709,6 +709,10 @@ class Search_Manager extends Asset
 	/**
 	* Flush the keydata for an asset
 	*
+	* If the components argument is provided, only those components will be
+	* flushed. Otherwise, all components of that asset will be deleted from
+	* the search index.
+	*
 	* @param int	$assetid	ID of the asset
 	* @param array	$components	the components to which the keydata pertains (e.g. metadata or attribute)
 	*
@@ -720,23 +724,19 @@ class Search_Manager extends Asset
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
 
-		$db = MatrixDAL::getDb();
-		$sql = 'DELETE FROM
-					sq_sch_idx
-				WHERE
-				assetid = :assetid';
-		if (!empty($components)) {
-			for (reset($components); NULL !== ($key = key($components)); next($components)) {
-				$components[$key] = $db->quote($components[$key]);
-			}
-			$sql .= ' AND component IN ('.implode(',', $components).')';
-		}
-
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $assetid);
-			$result = MatrixDAL::execPdoQuery($query);
-		} catch (Exception $e) {
+			$bind_vars = Array(
+							'assetid'	=> $assetid,
+						 );
+
+			if (!empty($components)) {
+				$bind_vars['components'] = $components;
+			} else {
+				$bind_vars['components'] = NULL;
+			}
+
+			MatrixDAL::executeQuery('search_manager', 'flushIndexableContent', $bind_vars);
+		} catch (DALException $e) {
 			throw new Exception('Unable to flush indexable content due to database error: '.$e->getMessage());
 		}
 
@@ -763,8 +763,8 @@ class Search_Manager extends Asset
 					assetid = :assetid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':assetid', $assetid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			$components = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get indexed components due to database error: '.$e->getMessage());
@@ -2358,19 +2358,13 @@ class Search_Manager extends Asset
 		// TREE LOCATIONS
 		if (!empty($search_info['roots'])) {
 			$root_logic = array_get_index($search_info, 'root_logic', 'OR');
+
 			// get the treeids of our search roots
-			$quoted_rootids = Array();
-			foreach ($search_info['roots'] as $rootid) {
-				$quoted_rootids[] = $db->quote($rootid);
-			}
-			$treeid_sql = 'SELECT l.minorid, t.treeid
-						   FROM sq_ast_lnk_tree t
-							   JOIN sq_ast_lnk l on t.linkid = l.linkid
-						   WHERE l.minorid IN ('.implode(',', $quoted_rootids).')';
-			// getAssoc only gives us the first treeid for each minorid, which is actually just what we want!
 			try {
-				$sub_q = $db->prepare($treeid_sql);
-				$root_tree_ids = MatrixDAL::executePdoGroupedAssoc($sub_q);
+				$bind_vars = Array(
+								'minorids'	=> $search_info['roots'],
+							 );
+				$root_tree_ids = MatrixDAL::executeGroupedAssoc('search_manager', 'getSearchRootTreeids', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to root tree id due to database error: '.$e->getMessage());
 			}
@@ -2381,7 +2375,7 @@ class Search_Manager extends Asset
 					$query['join'][] = 'INNER JOIN sq_ast_lnk_tree t'.$i.' ON l'.$i.'.linkid =  t'.$i.'.linkid'; // join them to the asset table
 
 					$treeid = $root_tree_ids[$rootid][0]['treeid'];
-					$query['where'][] = 't'.$i.'.treeid LIKE '.$db->quote($treeid.'%');
+					$query['where'][] = 't'.$i.'.treeid LIKE '.MatrixDAL::quote($treeid.'%');
 				}
 			} else {
 				$query['join'][] = 'INNER JOIN sq_ast_lnk l ON l.minorid = a.assetid';
@@ -2389,7 +2383,7 @@ class Search_Manager extends Asset
 
 				$treeid_wheres = Array();
 				foreach ($root_tree_ids as $treeid) {
-					$treeid_wheres[] = '(t.treeid LIKE '.$db->quote($treeid[0]['treeid'].'%').')';
+					$treeid_wheres[] = '(t.treeid LIKE '.MatrixDAL::quote($treeid[0]['treeid'].'%').')';
 				}
 				if (!empty($treeid_wheres)) {
 					$query['where'][] = implode(' OR ', $treeid_wheres);
@@ -2401,7 +2395,7 @@ class Search_Manager extends Asset
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
-			$no_roles = (isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) ? TRUE : FALSE;
+			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
 			if (!$no_roles) {
 				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
@@ -2424,7 +2418,7 @@ class Search_Manager extends Asset
 			$userids[] = $public_user->id;
 
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = $db->quote($userids[$i]);
+				$userids[$i] = MatrixDAL::quote($userids[$i]);
 			}
 
 			$usrids_str = implode(',', $userids);
@@ -2438,25 +2432,25 @@ class Search_Manager extends Asset
 			// We want to get all denied access as well. But if we are logged in, then we only want public granted access rows.
 			$check_group_role = $public_user_access ? '' :
 							'(
-								(p.permission = '.$db->quote(SQ_PERMISSION_READ).'
+								(p.permission = '.MatrixDAL::quote(SQ_PERMISSION_READ).'
 									AND (
-											(p.userid <> '.$db->quote($public_user->id).
+											(p.userid <> '.MatrixDAL::quote($public_user->id).
 											// If we are not checking for roles, and we are searching as public
 											(!$no_roles ?
 												($public_user_access ? '
 												OR' : '
-												AND').'	(r.userid IS NULL OR r.userid <> '.$db->quote($public_user->id).')'
+												AND').'	(r.userid IS NULL OR r.userid <> '.MatrixDAL::quote($public_user->id).')'
 											: '').')
 
-											OR (p.userid = '.$db->quote($public_user->id).' AND granted = 1)'.
+											OR (p.userid = '.MatrixDAL::quote($public_user->id).' AND granted = 1)'.
 											(!$no_roles ? '
-												OR (r.userid = '.$db->quote($public_user->id).' AND granted = 1)'
+												OR (r.userid = '.MatrixDAL::quote($public_user->id).' AND granted = 1)'
 											: '')
 											.'
 										)
 								)
 								OR
-								(p.permission > '.$db->quote(SQ_PERMISSION_READ).' AND p.granted = 1)
+								(p.permission > '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND p.granted = 1)
 							)';
 
 			if (!empty($check_group_role)) {
@@ -2473,13 +2467,13 @@ class Search_Manager extends Asset
 			$statuses = $search_info['statuses'];
 			if (array_sum($statuses) != SQ_SC_STATUS_ALL) {
 				foreach ($statuses as $i => $status) {
-					$statuses[$i] = $db->quote($status);
+					$statuses[$i] = MatrixDAL::quote($status);
 				}
 				$query['where'][] = 'a.status IN ('.implode(', ', $statuses).')';
 			}
 		} else {
 			// if there are no status restrictions, default to LIVE assets only
-			$query['where'][] = 'a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+			$query['where'][] = 'a.status  >= '.MatrixDAL::quote(SQ_STATUS_LIVE);
 		}
 
 		// ASSET TYPE RESTRICTIONS
@@ -2488,9 +2482,9 @@ class Search_Manager extends Asset
 			$normal_types = Array();
 			for (reset($search_info['asset_types']); NULL !== ($i = key($search_info['asset_types'])); next($search_info['asset_types'])) {
 				if ($search_info['asset_types'][$i] == 1) {
-					$inherited_types[] = $db->quote($i);
+					$inherited_types[] = MatrixDAL::quote($i);
 				} else {
-					$normal_types[] = $db->quote($i);
+					$normal_types[] = MatrixDAL::quote($i);
 				}
 			}
 

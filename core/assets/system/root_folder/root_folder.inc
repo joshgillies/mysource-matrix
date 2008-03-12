@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.52 2007/11/06 22:36:45 rong Exp $
+* $Id: root_folder.inc,v 1.52.2.1 2008/03/12 04:03:52 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.52.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,9 +76,7 @@ class Root_Folder extends Folder
 
 			$db = DAL::getDb();
 
-			// TODO: this wil be replaced in the queries.xml with a seqNextVal()
-			// call replacing the addition of the explicit sequence value
-			$linkid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_lnk_seq\')');
+			$linkid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_lnk_seq'));
 
 			if ($linkid != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -118,27 +116,27 @@ class Root_Folder extends Folder
 							:link_type,
 							:value,
 							:sort_order,
-							:dependant,
-							:exclusive,
+							:is_dependant,
+							:is_exclusive,
 							:updated,
 							:updated_userid
 						)';
 
 
 			try {
-				$query = $db->prepare($sql);
-				$query->bindValue(':linkid',                1,  PDO::PARAM_INT);
-				$query->bindValue(':majorid',               0,  PDO::PARAM_INT);
-				$query->bindValue(':minorid',               1,  PDO::PARAM_INT);
-				$query->bindValue(':link_type',             SQ_LINK_TYPE_1, PDO::PARAM_INT);
-				$query->bindValue(':value',                 '', PDO::PARAM_STR);
-				$query->bindValue(':sort_order',            0,  PDO::PARAM_INT);
-				$query->bindValue(':dependant',             1,  PDO::PARAM_INT);
-				$query->bindValue(':exclusive',             1,  PDO::PARAM_INT);
-				$query->bindValue(':updated',               ts_iso8601(time()), PDO::PARAM_STR);
-				$query->bindValue(':updated_userid',        0,  PDO::PARAM_STR);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'linkid',                1,  PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'majorid',               0,  PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'minorid',               1,  PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'link_type',             SQ_LINK_TYPE_1, PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'value',                 '', PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'sort_order',            0,  PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'is_dependant',          1,  PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'is_exclusive',          1,  PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'updated',               ts_iso8601(time()), PDO::PARAM_STR);
+				MatrixDAL::bindValueToPdo($query, 'updated_userid',        0,  PDO::PARAM_STR);
 				// TODO: turn this into a PDO query
-				DAL::execPdoQuery($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to create root folder\'s link #1 entry due to database error: '.$e->getMessage());
 			}
@@ -160,7 +158,7 @@ class Root_Folder extends Folder
 
 			try {
 				// TODO: turn this into a PDO query
-				DAL::executeSql($sql);
+				MatrixDAL::executeSql($sql);
 			} catch (Exception $e) {
 				throw new Exception('Unable to create root folder\'s link tree entry due to database error: '.$e->getMessage());
 			}

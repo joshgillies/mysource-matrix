@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.58.2.1 2008/02/21 00:32:59 colivar Exp $
+* $Id: selection.inc,v 1.58.2.2 2008/03/12 04:03:57 lwright Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58.2.1 $
+* @version $Revision: 1.58.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */

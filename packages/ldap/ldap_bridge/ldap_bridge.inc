@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.66 2007/12/19 01:17:50 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.66.2.1 2008/03/12 04:04:58 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.66.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -265,8 +265,6 @@ class LDAP_Bridge extends Asset implements Bridge
 		assert_type($type_code, 'array');
 		if (empty($assetids)) return Array();
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
-
 		$results = Array();
 		$type_codes = Array();
 
@@ -275,9 +273,10 @@ class LDAP_Bridge extends Asset implements Bridge
 
 		foreach ($type_infos as $assetid => $type_code) {
 			if (!isset($type_codes[$type_code])) {
-				$sql = 'SELECT inhd_type_code FROM sq_ast_typ_inhd WHERE type_code = '.$db->quote($type_code).' ORDER BY inhd_type_code_lvl DESC';
-				$result = $db->getCol($sql);
-				assert_valid_db_result($result);
+				$sql = 'SELECT inhd_type_code FROM sq_ast_typ_inhd WHERE type_code = :type_code ORDER BY inhd_type_code_lvl DESC';
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $type_code);
+				$result = MatrixDAL::executePdoAssoc($query, 0);
 				$type_codes[$type_code] = $result;
 			}
 
@@ -715,8 +714,6 @@ class LDAP_Bridge extends Asset implements Bridge
 	{
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];
-
-		error_log('getChildren:'.$assetid);
 
 		if ($assetid != $this->id) {
 			// if we are using Active Directory, the tree structure does not quite work the same
@@ -1284,12 +1281,12 @@ class LDAP_Bridge extends Asset implements Bridge
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE :minorid';
 
-		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE '.$db->quoteSmart($this->id.':%');
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-		
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'minorid', $this->id.':%');
+		$result = MatrixDAL::execPdoQuery($query);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.80 2007/12/11 00:48:05 colivar Exp $
+* $Id: install.inc,v 1.80.2.1 2008/03/12 04:04:03 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.80 $
+* @version $Revision: 1.80.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -168,11 +168,10 @@ function uninstall_asset_types()
 		foreach ($asset_types as $asset_type) {
 			// delete the types
 			try {
-				$sql = 'DELETE FROM sq_ast_typ WHERE type_code = '.$db->quote($asset_type);
-				$query	= $db->prepare($sql);
-				$query->bindValue('type_code', $asset_type);
-
-				MatrixDAL::executePdoOne($query);
+				$sql = 'DELETE FROM sq_ast_typ WHERE type_code = :type_code';
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete type code '.$asset_type.' due to the following database error:'.$e->getMessage());
 			}//end try catch
@@ -184,10 +183,9 @@ function uninstall_asset_types()
 						WHERE type_code = :type_code
 						  OR inhd_type_code = :type_code';
 
-				$query = $db->prepare($sql);
-				$query->bindValue('type_code', $asset_type);
-
-				MatrixDAL::executePdoOne($query);
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete inherited type code '.$asset_type.' due to the following database error:'.$e->getMessage());
 			}//end try catch
@@ -196,9 +194,8 @@ function uninstall_asset_types()
 			try {
 				$sql = 'DELETE FROM sq_ast_attr WHERE type_code = :type_code';
 
-				$query = $db->prepare($sql);
-				$query->bindValue('type_code', $asset_type);
-
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete attribute with type code '.$asset_type.' due to the following database error:'.$e->getMessage());
@@ -257,9 +254,10 @@ function uninstall_packages()
 
 			if (!$exists) {
 				// folder or the package manager does not exist, safe to delete
-				$sql = 'DELETE FROM sq_pkg WHERE code_name = '.$db->quote($package);
-				$result = $db->query($sql);
-				assert_valid_db_result($result);
+				$sql = 'DELETE FROM sq_pkg WHERE code_name = :package_name';
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'package_name', $package);
+				MatrixDAL::execPdoQuery($query);
 
 				// remove its asset map file from the data directory
 				if (file_exists(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {

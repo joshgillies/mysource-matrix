@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_purge_squid_cache.inc,v 1.3.6.1 2008/02/08 05:50:37 bshkara Exp $
+* $Id: trigger_action_purge_squid_cache.inc,v 1.3.6.2 2008/03/12 04:05:13 lwright Exp $
 *
 */
 
@@ -25,12 +25,28 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.3.6.1 $
+* @version $Revision: 1.3.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
 class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 {
+
+
+	/**
+	* Constructor
+	*
+	* Added for consistency. However, this is only ever called statically,
+	* so the constructor will never actually be called.
+	*
+	* @param string	$assetid	The ID of this asset
+	*
+	*/
+	function __construct($assetid=0)
+	{
+		parent::__construct($assetid);
+
+	}//end constructor
 
 
 	/**

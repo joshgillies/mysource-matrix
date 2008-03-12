@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.116 2007/12/14 00:16:59 colivar Exp $
+* $Id: page_asset_listing.inc,v 1.116.2.1 2008/03/12 04:04:22 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.116.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,6 +133,55 @@ class Page_Asset_Listing extends Listing_Engine
 		$list_permission = $this->attr('list_permission');
 		$list_effective  = $this->attr('list_effective');
 
+		$parameter_map =& $this->getAttribute('parameter_map');
+		$raw_assets_to_list = $parameter_map->getParameterValue('asset_selection');
+
+		if (!empty($raw_assets_to_list)) {
+			$assets_to_list = Array();
+
+			foreach ($raw_assets_to_list as $raw_asset => $enabled) {
+				$list_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($raw_asset);
+				if (is_null($list_asset)) continue;
+
+				// Ok, we have the asset, let's check permissions
+				$allowed = FALSE;
+				switch ($list_permission) {
+
+					case SQ_PERMISSION_READ :
+						$allowed = $list_asset->readAccess();
+					break;
+
+					case SQ_PERMISSION_WRITE :
+						$allowed = $list_asset->writeAccess();
+					break;
+
+					case SQ_PERMISSION_ADMIN :
+						$allowed = $list_asset->adminAccess();
+					break;
+
+				}
+
+				if (!$allowed) continue;
+
+				// Now, let's check that the asset(s) are under the root nodes
+				$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($list_asset->id);
+
+				$allowed = FALSE;
+				foreach ($parents as $parent_id => $parent_type) {
+					if (in_array($parent_id, $root_asset_ids)) {
+						$allowed = TRUE;
+					}
+				}
+
+				if (!$allowed) continue;
+
+				$assets_to_list[$list_asset->id][0]['type_code'] = $list_asset->type();
+
+			}//end foreach
+
+			return $assets_to_list;
+		}//end if
+
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
 		if ($group_by == 'letter') {
@@ -163,7 +212,7 @@ class Page_Asset_Listing extends Listing_Engine
 						$links = NULL;
 
 						try {
-							$_query = $db->prepare(implode(' ', $query));
+							$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
 							$links = MatrixDAL::executePdoAll($_query);
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());
@@ -279,9 +328,9 @@ class Page_Asset_Listing extends Listing_Engine
 							// inherited, and which are not
 							foreach ($group['restrict_types']['type_code'] as $key => $type) {
 								if ($group['restrict_types']['inherit'][$key]) {
-									$inherited_types[] = $db->quote($type);
+									$inherited_types[] = MatrixDAL::quote($type);
 								} else {
-									$uninherited_types[] = $db->quote($type);
+									$uninherited_types[] = MatrixDAL::quote($type);
 								}
 							}
 
@@ -325,7 +374,7 @@ class Page_Asset_Listing extends Listing_Engine
 						// The fifth param to getAssoc() lets us get this
 						$links = NULL;
 						try {
-							$query = $db->prepare($sql);
+							$query = MatrixDAL::preparePdoQuery($sql);
 							$links = MatrixDAL::executePdoGrouped($query);
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());
@@ -406,7 +455,7 @@ class Page_Asset_Listing extends Listing_Engine
 	* @param string		$logic		either "OR" (union) or "AND" (intersection)
 	* @param array		$new_assets	Set of new assets to add (or keep)
 	* @param array|NULL	$existing	Set of existing assets to use as a base or
-	* 								NULL if first root node (see above)
+	*								NULL if first root node (see above)
 	*
 	* @return array
 	* @access private

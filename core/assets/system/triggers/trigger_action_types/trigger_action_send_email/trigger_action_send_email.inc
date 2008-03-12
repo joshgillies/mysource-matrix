@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.17 2007/12/11 02:57:27 rong Exp $
+* $Id: trigger_action_send_email.inc,v 1.17.2.1 2008/03/12 04:03:53 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,8 +105,9 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		if ($settings['roles']) {
 			// add role members
 			$role_members = Array();
+			$fetch_global_roles = (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
 			foreach ($settings['roles'] as $role) {
-				$role_result = $GLOBALS['SQ_SYSTEM']->am->getRole($state['assetid'], $role, NULL, FALSE, TRUE);
+				$role_result = $GLOBALS['SQ_SYSTEM']->am->getRole($state['assetid'], $role, NULL, FALSE, $fetch_global_roles);
 				if (!empty($role_result)) {
 					foreach ($role_result[$role] as $role_member) {
 						$role_members[] = $role_member;

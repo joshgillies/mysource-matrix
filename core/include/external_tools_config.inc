@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.26 2008/01/04 03:17:45 hnguyen Exp $
+* $Id: external_tools_config.inc,v 1.26.2.1 2008/03/12 04:03:59 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -39,15 +39,16 @@ class External_Tools_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-						'SQ_TOOL_HTML_TIDY_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_TOOL_PDFTOHTML_PATH'			=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
-						'SQ_TOOL_PDFTOHTML_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_TOOL_ANTIWORD_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
-						'SQ_TOOL_ANTIWORD_MAPPING_PATH'		=> Array('editable' => 1, 'default' => '/usr/share/antiword'),
-						'SQ_TOOL_ANTIWORD_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_TOOL_JPEG_TOOLKIT_PATH'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_TOOL_JPEG_TOOLKIT_ENABLED'		=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_TOOL_SPELL_CHECKER_LANG'		=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_TOOL_HTML_TIDY_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL'	=> Array('editable' => 1, 'default' => 0),
+						'SQ_TOOL_PDFTOHTML_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
+						'SQ_TOOL_PDFTOHTML_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_ANTIWORD_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
+						'SQ_TOOL_ANTIWORD_MAPPING_PATH'			=> Array('editable' => 1, 'default' => '/usr/share/antiword'),
+						'SQ_TOOL_ANTIWORD_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_JPEG_TOOLKIT_PATH'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_JPEG_TOOLKIT_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_SPELL_CHECKER_LANG'			=> Array('editable' => 1, 'default' => 'en'),
 					   );
 
 
@@ -158,6 +159,13 @@ class External_Tools_Config extends Config
 				combo_box($class.'[SQ_TOOL_HTML_TIDY_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_HTML_TIDY_ENABLED);
 			} else {
 				echo (SQ_TOOL_HTML_TIDY_ENABLED) ? translate('yes') : translate('no');
+			}
+
+			$o->openField(translate('html_tidy_accessibility_level'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL]', Array('0', '1', '2', '3'), FALSE, SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL);
+			} else {
+				echo (SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL) ? SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL : 0;
 			}
 
 			require_once SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242 2007/12/16 06:01:45 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.242.2.1 2008/03/12 04:04:22 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242 $
+* @version $Revision: 1.242.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -613,6 +613,16 @@ class Listing_Engine extends Page
 
 
 		$children = $this->getAssetList();
+
+		$exclude_assets = $this->attr('exclude_assets');
+		if (!empty($exclude_assets)) {
+			foreach ($exclude_assets as $index => $assetid) {
+				if (isset($children[$assetid])) {
+					unset($children[$assetid]);
+				}//end if
+			}//end foreach
+		}//end if
+
 		$children =& $this->convertProxyAssetTypes($children);
 		$this->filterAssetList($children);
 		$num_kids = count($children);
@@ -1137,7 +1147,7 @@ class Listing_Engine extends Page
 		if (!empty($wanted_statuses) && (array_sum($wanted_statuses) != SQ_SC_STATUS_ALL)) {
 			// find which of the assets have the right statuses
 			foreach (array_unique(array_merge($real_assetids, $bridge_assetids)) as $assetid) {
-				$query_assetids[] = $db->quote((string) $assetid);
+				$query_assetids[] = MatrixDAL::quote((string) $assetid);
 			}
 			$in_clauses = Array();
 			foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1153,7 +1163,7 @@ class Listing_Engine extends Page
 
 			$status_matches = Array();
 			try {
-				$query = $db->prepare($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$status_matches = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Execption $e) {
 				throw new Exception($e->getMessage());
@@ -1180,7 +1190,7 @@ class Listing_Engine extends Page
 			if ($may_have_sublives) {
 				$sub_live_assets = Array();
 				foreach ($status_matches as $assetid) {
-					$query_assetids[] = $db->quote((string) $assetid);
+					$query_assetids[] = MatrixDAL::quote((string) $assetid);
 				}
 				$in_clauses = Array();
 				foreach (array_chunk($query_assetids, 999) as $chunk) {
@@ -1192,10 +1202,11 @@ class Listing_Engine extends Page
 							sq_ast
 						WHERE
 								('.implode(' OR ', $in_clauses).')
-							AND status < '.$db->quote(SQ_STATUS_LIVE);
+							AND status < :status';
 				$sub_live_assets = NULL;
 				try {
-					$query = $db->prepare($sql);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'status', SQ_STATUS_LIVE);
 					$sub_live_assets = MatrixDAL::executePdoGroupedAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
@@ -1255,7 +1266,10 @@ class Listing_Engine extends Page
 			if (!isset($allowed_types[$type_code])) {
 				unset($todo[$assetid]);
 			} else {
-				$todo[$assetid] = $allowed_types[$type_code];
+				$todo[$assetid] = Array('0' => Array(
+												'type_code'	=> $allowed_types[$type_code],
+											   ),
+								  );
 			}
 		}
 
@@ -2065,6 +2079,14 @@ class Listing_Engine extends Page
 	*/
 	function _printAsset($assetid, $list_position)
 	{
+		// allows for asset listings within asset listings, see #2727
+		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {;
+			$prev_list_current_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
+		} else {
+			$prev_list_current_asset_id = null;
+		}
+		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $assetid;
+
 		$mm         = NULL;
 		$contents   = '';
 		$keywords   = Array();
@@ -2437,6 +2459,12 @@ class Listing_Engine extends Page
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
+
+		if ($prev_list_current_asset_id) {
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $prev_list_current_asset_id;
+		} else {
+			unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id']);
+		}
 
 	}//end _printAsset()
 

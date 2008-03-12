@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104 2008/01/02 03:19:49 lwright Exp $
+* $Id: system_config.inc,v 1.104.2.1 2008/03/12 04:04:00 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.104.2.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -42,6 +42,7 @@ class System_Config extends Config
 						'SQ_CONF_LIMBO_SUFFIX'					=> Array('editable' => 1, 'default' => '_edit'),
 						'SQ_CONF_LOGIN_SUFFIX'					=> Array('editable' => 1, 'default' => '_login'),
 						'SQ_CONF_NOCACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_nocache'),
+						'SQ_CONF_RECACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_recache'),
 						'SQ_CONF_ASSET_TREE_BASE'				=> Array('editable' => 0, 'default' => 64),
 						'SQ_CONF_ASSET_TREE_SIZE'				=> Array('editable' => 0, 'default' =>  4),
 						'SQ_CONF_ASSET_CACHE_SIZE_WEB'			=> Array('editable' => 0, 'default' =>  -1),
@@ -53,7 +54,7 @@ class System_Config extends Config
 						'SQ_CONF_SYSTEM_ROOT_URLS'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_SYSTEM_PARENT_DOMAINS'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_STATIC_ROOT_URL'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_WEB_PATH_SEPARATOR'			=> Array('editable'	=> 1, 'default'	=> '_'),
+						'SQ_CONF_WEB_PATH_SEPARATOR'			=> Array('editable'	=> 1, 'default'	=> '-'),
 						'SQ_CONF_STATIC_ROOT_HTTP'				=> Array('editable' => 1, 'default' => TRUE),
 						'SQ_CONF_STATIC_ROOT_HTTPS'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_EMAIL'					=> Array('editable' => 1, 'default' => ''),
@@ -90,6 +91,8 @@ class System_Config extends Config
 						'SQ_CONF_WEB_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 16),
 						'SQ_CONF_CRON_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 16),
 						'SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_ENABLE_ROLES_SYSTEM'		=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_ENABLE_GLOBAL_ROLES'		=> Array('editable' => 1, 'default' => TRUE),
 					   );
 
 	/**
@@ -382,6 +385,13 @@ class System_Config extends Config
 				text_box($class.'[SQ_CONF_NOCACHE_SUFFIX]', SQ_CONF_NOCACHE_SUFFIX, 15);
 			} else {
 				echo nl2br(SQ_CONF_NOCACHE_SUFFIX);
+			}
+
+			$o->openField(translate('system_recache_suffix'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_RECACHE_SUFFIX]', SQ_CONF_RECACHE_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_RECACHE_SUFFIX);
 			}
 
 		$o->closeSection();
@@ -857,6 +867,28 @@ class System_Config extends Config
 
 		$o->closeSection();
 
+		$o->openSection(translate('roles_configuration_section_name'));
+
+			$o->openField(translate('roles_configuration_enable_roles_system'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONF_ENABLE_ROLES_SYSTEM]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENABLE_ROLES_SYSTEM);
+				} else {
+					echo (SQ_CONF_ENABLE_ROLES_SYSTEM) ? translate('yes') : translate('no');
+				}
+			$o->closeField();
+
+			if ((defined('SQ_CONF_ENABLE_ROLES_SYSTEM') && (SQ_CONF_ENABLE_ROLES_SYSTEM == '1')) || (!defined('SQ_CONF_ENABLE_ROLES_SYSTEM'))) {
+				$o->openField(translate('roles_configuration_enable_global_roles'));
+					if ($write_access && $is_root) {
+						combo_box($class.'[SQ_CONF_ENABLE_GLOBAL_ROLES]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENABLE_GLOBAL_ROLES);
+					} else {
+						echo (SQ_CONF_ENABLE_GLOBAL_ROLES) ? translate('yes') : translate('no');
+					}
+				$o->closeField();
+			}
+
+		$o->closeSection();
+
 		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
@@ -891,9 +923,140 @@ class System_Config extends Config
 			$_POST[$class][$list_setting] = $option_list->value;
 		}
 
+		$roles_changed = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM']) || isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']));
+		$enable_roles_system_setting = SQ_CONF_ENABLE_ROLES_SYSTEM;
+		$enable_global_roles_setting = SQ_CONF_ENABLE_GLOBAL_ROLES;
+
+		if ($roles_changed) {
+			$enable_roles_system_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM']))?$_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM']:$enable_roles_system_setting;
+			$enable_global_roles_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']))?$_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']:$enable_global_roles_setting;
+		}
+
+		if (($enable_global_roles_setting != SQ_CONF_ENABLE_GLOBAL_ROLES) || ($enable_roles_system_setting != SQ_CONF_ENABLE_ROLES_SYSTEM))
+		{
+			$this->configureRoleTables($enable_roles_system_setting, $enable_global_roles_setting);
+		}
+
 		return parent::processBackend($o);
 
 	}//end processBackend()
+
+
+	function configureRoleTables($enable_roles_system=TRUE, $enable_global_roles=TRUE)
+	{
+		$roles_changed = FALSE;
+
+		$db = MatrixDAL::getDb();
+		$db_type = MatrixDAL::getDbType();
+
+		// Process change of Roles System availability
+		$drop_perm_view_sql = 'DROP VIEW sq_vw_ast_perm';
+		$drop_role_view_sql = 'DROP VIEW sq_vw_ast_role';
+
+		// Default is to retain the standard Matrix Roles View unless modified below
+		$create_role_view_sql = $this->getCommonViewDefinition('views', $db_type, 'sq_vw_ast_role View');
+
+		// Modify Roles View to remove Global Role associations
+		if (!$enable_global_roles) {
+			$create_role_view_sql = 'CREATE OR REPLACE VIEW sq_vw_ast_role AS
+						SELECT
+							assetid, roleid, userid
+						FROM sq_ast_role
+						WHERE userid::text <> 0::text';
+		}
+
+		// Modify Permissions View
+		$create_perm_view_sql = 'CREATE OR REPLACE VIEW sq_vw_ast_perm AS
+               	        	        SELECT
+                                	        p.assetid, p.userid, p.permission, p.granted
+	                                FROM
+       		                                sq_ast_perm p';
+
+		// Restore Permissions View a la default Matrix installation
+		if ($enable_roles_system) {
+			$create_perm_view_sql = $this->getCommonViewDefinition('views', $db_type, 'sq_vw_ast_perm View');
+		}
+
+		try {
+			$drop_result = MatrixDAL::executeSql($drop_perm_view_sql);
+			$drop_result = MatrixDAL::executeSql($drop_role_view_sql);
+			$create_role_view_result = MatrixDAL::executesql($create_role_view_sql);
+			$create_perm_view_result = MatrixDAL::executesql($create_perm_view_sql);
+
+			$roles_changed = TRUE;
+		} catch (Exception $e) {
+			throw $e;
+		}
+
+		return $roles_changed;
+	}
+
+
+	function getCommonViewDefinition($relations, $db_type, $display_name, $package=NULL)
+	{
+		$sql = NULL;
+
+		if (is_null($package)) {
+			$subdir = 'install';
+		} else {
+			$subdir = 'packages/'.$package;
+		}
+		$fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/'.$db_type.'_'.$relations.'.xml';
+
+	        // if the file does not exist, check to see if there is a common file
+	        // for all database types
+		if (!file_exists($fns_file)) {
+			$fns_file = SQ_SYSTEM_ROOT.'/'.$subdir.'/common_'.$relations.'.xml';
+		}
+		if (file_exists($fns_file)) {
+
+			try {
+				// Load stored relations file as SimpleXML
+				$root = new SimpleXMLElement($fns_file, LIBXML_NOCDATA, TRUE);
+			} catch (Exception $e) {
+				throw new Exception('Could not parse stored relations file: '.$e->getMessage());
+			}
+
+			if ($root->getName() != 'sql') {
+				throw new Exception('Cannot install stored relations file: expected root element "sql", found "'.$root->getName().'".');
+				return FALSE;
+			}
+
+			$display_names = Array();
+
+			foreach ($root->children() as $sql_element) {
+				$element_name = $sql_element->getName();
+				if ($sql_element->getName() != 'sql_element') {
+					throw new Exception('Cannot install stored relations file: expected element "sql_element", found "'.$sql_element->getName().'".');
+				}
+
+				$display_names[] = isset($sql_element->attributes()->{'display_name'}) ? $sql_element->attributes()->{'display_name'} : '<Unknown Element>';
+				if ($sql_element->attributes()->{'display_name'} == $display_name) {
+					$sql = trim($this->xml_entity_decode((string)$sql_element));
+				}
+			}
+		}
+
+		return $sql;
+
+	}//end getCommonViewDefinition()
+
+
+	function xml_entity_decode($string)
+	{
+		$string = html_entity_decode($string);
+		$string = str_replace('&#124;', '|', $string);
+		$string = str_replace('&apos;', "'", $string);
+		$string = str_replace('&#42;', '*', $string);
+		$string = str_replace('&#92;', '\\', $string);
+		$string = str_replace('&#126;', '~', $string);
+		$string = str_replace('&#96;', '`', $string);
+		$string = str_replace('&#94;', '^', $string);
+
+		return $string;
+
+	}//end xml_entity_decode()
+
 
 
 }//end class

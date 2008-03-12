@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.16.2.1 2008/02/12 23:44:42 bshkara Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.16.2.2 2008/03/12 04:03:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

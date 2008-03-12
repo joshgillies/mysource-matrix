@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.33.2.1 2008/02/10 22:39:57 bshkara Exp $
+* $Id: ecommerce_cart.inc,v 1.33.2.2 2008/03/12 04:04:42 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.33.2.1 $
+* @version $Revision: 1.33.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_url.inc,v 1.15 2007/12/13 03:05:28 rong Exp $
+* $Id: trigger_action_add_url.inc,v 1.15.2.1 2008/03/12 04:03:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -152,7 +152,7 @@ class Trigger_Action_Add_Url extends Trigger_Action
 						SET
 							url = :url || SUBSTR(url, :substr_arg)
 						WHERE
-							(url LIKE '.$db->quote($old_urls[$urlid]['url'].'%').' OR url LIKE '.$db->quote($old_urls[$urlid]['url'].'%/').')';
+						(url LIKE :old_url_like OR url LIKE :old_url_like_slash)';
 
 
 						if ($tablename == 'sq_ast_lookup') {
@@ -170,10 +170,13 @@ class Trigger_Action_Add_Url extends Trigger_Action
 									)';
 						}
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':url', $urls[$urlid]['url']);
-					$query->bindValue(':substr_arg', strlen($old_urls[$urlid]['url'])+1);
-					$query->bindValue(':urlid', $urlid);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'url', $urls[$urlid]['url']);
+					MatrixDAL::bindValueToPdo($query, 'old_url_like', $old_urls[$urlid]['url'].'%');
+					MatrixDAL::bindValueToPdo($query, 'old_url_like_slash', $old_urls[$urlid]['url'].'%/');
+					MatrixDAL::bindValueToPdo($query, 'url', $urls[$urlid]['url']);
+					MatrixDAL::bindValueToPdo($query, 'substr_arg', strlen($old_urls[$urlid]['url'])+1);
+					MatrixDAL::bindValueToPdo($query, 'urlid', $urlid);
 					$result = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update this old URL: '.$old_urls[$urlid]['url'].' with this new URL: '.$urls[$urlid]['url'].' due to database error: '.$e->getMessage());

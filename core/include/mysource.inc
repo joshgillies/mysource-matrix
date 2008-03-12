@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.1 2008/02/18 22:41:42 bshkara Exp $
+* $Id: mysource.inc,v 1.258.2.2 2008/03/12 04:04:00 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.1 $
+* @version $Revision: 1.258.2.2 $
 * @package MySource_Matrix
 */
 class MySource
@@ -298,13 +298,15 @@ class MySource
 				$db   = MatrixDAL::getDb();
 
 				if (MatrixDAL::getDbType() == 'pgsql') {
-					$sql  = 'SELECT sq_set_rollback_timestamp('.$db->quote($then).')';
-				} else if (MatrixDAL::getDbType() == 'oci8') {
-					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp('.$db->quote($then).'); END;';
+					$sql  = 'SELECT sq_set_rollback_timestamp(:then)';
+				} else if (MatrixDAL::getDbType() == 'oci') {
+					$sql = 'DECLARE BEGIN sq_common_pkg.sq_set_rollback_timestamp(:then); END;';
 				}
 
 				try {
-					MatrixDAL::executeSql($sql);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'then', $then);
+					MatrixDAL::execPdoQuery($query);
 				} catch (DALException $e) {
 					throw new Exception('Unable to set rollback timestamp due to database error: '.$e->getMessage());
 				}
@@ -437,6 +439,7 @@ class MySource
 								$content = ob_get_clean();
 
 								$this->_replaceKeyword($content);
+
 								echo $content;
 
 								exit(1);
@@ -470,10 +473,31 @@ class MySource
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
 
+
+
 			// buffer the content and do keyword replacement
 			ob_start();
+				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
+					if (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $asset->writeAccess()) {
+						$hh = $this->getHipoHerder();
+						$vars = Array(
+									'assetid'		=> $asset->id,
+									'level'			=> 'single',
+									'type_codes'	=> Array(),
+									'delete_all'	=> 'no',
+								);
+						$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
+						if (SQ_CONF_SEND_CACHEABLE_HEADER) {
+							$this->_sendHTTPHeaders($asset);
+						} else {
+							$asset->printFrontend();
+						}
+					} else {
+						trigger_localised_error('CORE0279', E_USER_NOTICE);
+					}//end else
+				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
-				if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
 					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
 					$this->_sendHTTPHeaders($asset);
 				} else {
@@ -493,8 +517,6 @@ class MySource
 		}
 
 		$this->_setApacheNotes();
-
-		//$this->db->disconnect();
 
 	}//end start()
 
@@ -556,7 +578,6 @@ class MySource
 
 		// not cached or has expired
 		if (empty($cache_info)) {
-
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
@@ -2168,45 +2189,32 @@ class MySource
 				$this->_db_conns[$conn] = MatrixDAL::dbConnect($dsn_array, $conn);
 				$db = MatrixDAL::getDb($conn);
 
-				// Turn off auto-commit, and ensure column names are
-				// returned in lowercase (important for Oracle)
 				if ($dsn_array['type'] === 'oci') {
-					$db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+					// We cannot specify any functions upon connect for OCI8
+					// functions - we must specify them in functions like
+					// oci_execute()...
+					;
+				} else {
+					// Turn off auto-commit, and ensure column names are
+					// returned in lowercase (important for Oracle)
+					if ($dsn_array['type'] === 'oci') {
+						$db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+					}
+
+					// Ensure that no conversion is done to empty strings and NULLs
+					$db->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+
+					// Return field names in lowercase
+					$db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+
+					// String-ify all fetches
+					$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, TRUE);
 				}
-
-				// Ensure that no conversion is done to empty strings and NULLs
-				$db->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
-
-				// Return field names in lowercase
-				$db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
-
-				// String-ify all fetches
-				$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, TRUE);
 
 			} catch (Exception $e) {
 				header('HTTP/1.0 500 Internal Server Error');
 				throw new Exception('Could not create database connection: '.$e->getMessage());
 			}
-
-			/*$this->_db_conns[$conn] = DB::connect($dsn);
-
-			if (DB::isError($this->_db_conns[$conn])) {
-				if (!SQ_PHP_CLI) {
-					header('HTTP/1.0 500 Internal Server Error');
-				}
-				trigger_error($this->_db_conns[$conn]->message, E_USER_ERROR);
-			}
-
-			// make sure all results are assoc arrays
-			$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
-
-			// if we are using oracle we want to set all tables and fields
-			// to have lowercase names
-			if ($this->_db_conns[$conn]->phptype == 'oci8') {
-				$this->_db_conns[$conn]->setOption('portability', DB_PORTABILITY_ALL);
-			}
-			$this->_db_conns[$conn]->autoCommit(FALSE);
-			*/
 		}
 
 		MatrixDAL::changeDb($conn);
@@ -2379,9 +2387,9 @@ class MySource
 		$then = $_SESSION['sq_rollback_view']['rollback_time'];
 
 		if (!empty($where)) $where .= ' AND ';
-		$where .= $table_alias.'sq_eff_from <= '.$db->quote($then).'
+		$where .= $table_alias.'sq_eff_from <= \''.$then.'\'
 				  AND ('.$table_alias.'sq_eff_to IS NULL
-					   OR '.$table_alias.'sq_eff_to > '.$db->quote($then).')';
+					   OR '.$table_alias.'sq_eff_to > \''.$then.'\')';
 
 		return ' '.$prefix.' '.$where;
 
@@ -2429,11 +2437,6 @@ class MySource
 			$expires = ts_iso8601($expires);
 		}
 
-		//$expires = $this->db->quote($expires);
-		if (MatrixDAL::getDbType() == 'oci') {
-			$expires = 'TO_DATE('.$expires.', '.$this->db->quote('YYYY-MM-DD HH24:MI:SS').')';
-		}
-
 		$this->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = MatrixDAL::getDb();
@@ -2444,11 +2447,15 @@ class MySource
 				(:lockid, :source_lockid, :userid, :expires)';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':lockid',        $lockid);
-			$query->bindValue(':source_lockid', $source_lockid);
-			$query->bindValue(':userid',        $this->currentUserId());
-			$query->bindValue(':expires',       $expires);
+			if (MatrixDAL::getDbType() == 'oci') {
+				$sql = str_replace(':expires', db_extras_todate(MatrixDAL::getDbType(), ':expires', FALSE), $sql);
+			}
+
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'lockid',        $lockid);
+			MatrixDAL::bindValueToPdo($query, 'source_lockid', $source_lockid);
+			MatrixDAL::bindValueToPdo($query, 'userid',        $this->currentUserId());
+			MatrixDAL::bindValueToPdo($query, 'expires',       $expires);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
@@ -2486,9 +2493,9 @@ class MySource
 			WHERE source_lockid = :source_lockid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':source_lockid', $current_lock['source_lockid']);
-			$result = MatrixDAL::executePdoAll($query);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'source_lockid', $current_lock['source_lockid']);
+			$result = MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
 			// of returning an error message for now
@@ -2541,10 +2548,12 @@ class MySource
 				   WHERE source_lockid = :source_lockid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':expires',       $expires);
-			$query->bindValue(':source_lockid', $current_lock['source_lockid']);
-			$result = MatrixDAL::executePdoAll($query);
+			$sql = str_replace(':expires', db_extras_todate(MatrixDAL::getDbType(), ':expires', FALSE), $sql);
+
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'expires',       $expires);
+			MatrixDAL::bindValueToPdo($query, 'source_lockid', $current_lock['source_lockid']);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
 			// of returning an error message for now
@@ -2580,8 +2589,8 @@ class MySource
 				WHERE lockid = :lockid';
 
 		try {
-			$query = $db->prepare($sql);
-			$query->bindValue(':lockid', $lockid);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
 			$result = MatrixDAL::executePdoAssoc($query);
 			if (!empty($result)) {
 				$result = $result[0];
@@ -2609,9 +2618,9 @@ class MySource
 							AND lockid <> :lockid';
 
 				try {
-					$query = $db->prepare($sql);
-					$query->bindValue(':source_lockid', $result['source_lockid']);
-					$query->bindValue(':lockid', $lockid);
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'source_lockid', $result['source_lockid']);
+					MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
 					$chain = MatrixDAL::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get lock chain information for source lock ID "'.$result['source_lockid'].'" due to database error: '.$e->getMessage());
@@ -2728,7 +2737,7 @@ class MySource
 	{
 		try {
 			$sql = 'SELECT code_name, version, name, description FROM sq_pkg';
-			$packages = MatrixDAL::executeSqlAll($sql);
+			$packages = MatrixDAL::executeSqlAssoc($sql);
 		} catch (DALException $e) {
 			throw new Exception ('Could not get installed packages list due to database error: '.$e->getMessage());
 		}

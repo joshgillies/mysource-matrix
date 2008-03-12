@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_clear_cache.inc,v 1.12 2007/12/11 02:57:26 rong Exp $
+* $Id: trigger_action_clear_cache.inc,v 1.12.2.1 2008/03/12 04:03:53 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,15 +76,14 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
-		foreach ($todo_assetids as $id) {
-			$vars = Array(
-						'assetid'		=> $id,
-						'level'			=> $settings['level'],
-						'type_codes'	=> $type_code,
-						'delete_all'	=> 'no',
-					);
-			$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
-		}
+		$vars = Array(
+					'assetid'		=> $todo_assetids,
+					'level'			=> $settings['level'],
+					'type_codes'	=> $type_code,
+					'delete_all'	=> 'no',
+				);
+		$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
+
 
 		return Array(
 				'assetid'	=> $assetid,

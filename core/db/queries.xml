@@ -140,7 +140,44 @@
 		</primary>
 	</query>
 
+	<query id="changeLinkUpdatedDateUser">
+		<!-- Updates the last user on record for link updated date. -->
+		<primary>
+			<update>
+				<fields table="sq_ast_lnk">
+					<field>updated_userid</field>
+				</fields>
+				<values>
+					<value column="updated_userid">:new_userid</value>
+				</values>
+				<where>
+					<equal table="sq_ast_lnk" column="updated_userid">:old_userid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+	<query id="changeShadowLinkUpdatedDateUser">
+		<!-- Updates the last user on record for shadow link updated date. -->
+		<primary>
+			<update>
+				<fields table="sq_shdw_ast_lnk">
+					<field>updated_userid</field>
+				</fields>
+				<values>
+					<value column="updated_userid">:new_userid</value>
+				</values>
+				<where>
+					<equal table="sq_shdw_ast_lnk" column="updated_userid">:old_userid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+
 	<!-- //        LOOKUP SYSTEM        // -->
+
+
 	<query id="deleteLookup">
 		<!-- Deletes lookup url with specified assetid -->
 		<primary>
@@ -243,7 +280,7 @@
 					<table>sq_ast_lookup_value</table>
 				</from>
 				<where>
-					<equal table="sq_ast_lookup" column="asset">:assetid</equal>
+					<equal table="sq_ast_lookup" column="assetid">:assetid</equal>
 				</where>
 			</select>
 		</primary>
@@ -263,6 +300,17 @@
 					<equal table="sq_ast_lookup_value" column="url">:whereurl</equal>
 				</where>
 			</update>
+		</primary>
+	</query>
+
+	<query id="deleteLookupValueByUrls">
+		<!-- Delete lookup values that match a certain URL(s) -->
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_ast_lookup_value" column="url">:urls</in>
+				</where>
+			</delete>
 		</primary>
 	</query>
 
@@ -361,8 +409,164 @@
 	</query>
 
 
+	<query id="changeCreatedAssetDateUser">
+		<!-- Updates the last user on record for asset created date. -->
+		<primary>
+			<update>
+				<fields table="sq_ast">
+					<field>created_userid</field>
+				</fields>
+				<values>
+					<value column="created_userid">:new_userid</value>
+				</values>
+				<where>
+					<equal table="sq_ast" column="created_userid">:old_userid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+
+	<query id="changeUpdatedAssetDateUser">
+		<!-- Updates the last user on record for asset updated date. -->
+		<primary>
+			<update>
+				<fields table="sq_ast">
+					<field>updated_userid</field>
+				</fields>
+				<values>
+					<value column="updated_userid">:new_userid</value>
+				</values>
+				<where>
+					<equal table="sq_ast" column="updated_userid">:old_userid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+
+	<query id="changePublishedAssetDateUser">
+		<!-- Updates the last user on record for asset published date. -->
+		<primary>
+			<update>
+				<fields table="sq_ast">
+					<field>published_userid</field>
+				</fields>
+				<values>
+					<value column="published_userid">:new_userid</value>
+				</values>
+				<where>
+					<equal table="sq_ast" column="published_userid">:old_userid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+
+	<query id="changeStatusChangedAssetDateUser">
+		<!-- Updates the last user on record for asset status changed date. -->
+		<primary>
+			<update>
+				<fields table="sq_ast">
+					<field>status_changed_userid</field>
+				</fields>
+				<values>
+					<value column="status_changed_userid">:new_userid</value>
+				</values>
+				<where>
+					<equal table="sq_ast" column="status_changed_userid">:old_userid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+
+	<!-- //        ASSET ATTRIBUTES        // -->
+
+
+	<query id="insertAssetAttribute">
+		<primary>
+			<insert>
+				<fields table="sq_ast_attr">
+					<field>attrid</field>
+					<field>type_code</field>
+					<field>owning_type_code</field>
+					<field>name</field>
+					<field>type</field>
+					<field>uniq</field>
+					<field>parameters_type_code</field>
+					<field>default_type_code</field>
+					<field>default_val</field>
+					<field>parameters_val</field>
+					<field>is_admin</field>
+					<field>description</field>
+				</fields>
+				<values>
+					<value column="attrid">
+						<function function="SeqNextVal">
+							<arg><value>sq_ast_attr_seq</value></arg>
+						</function>
+					</value>
+					<value column="type_code">:type_code</value>
+					<value column="owning_type_code">:owning_type_code</value>
+					<value column="name">:name</value>
+					<value column="type">:type</value>
+					<value column="uniq">:uniq</value>
+					<value column="parameters_type_code">:parameters_type_code</value>
+					<value column="default_type_code">:default_type_code</value>
+					<value column="default_val">:default_val</value>
+					<value column="parameters_val">:parameters_val</value>
+					<value column="is_admin">:is_admin</value>
+					<value column="description">:description</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+
+
 	<!-- //		ASSET MANAGER		// -->
 
+
+	<query id="getTypeDescendants">
+		<!-- Select descendants of a certain asset type. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_typ_inhd" column="type_code" />
+				</fields>
+				<from>
+					<table>sq_ast_typ_inhd</table>
+				</from>
+				<where>
+					<in table="sq_ast_typ_inhd" column="inhd_type_code">:type_codes</in>
+					<not-equal table="sq_ast_typ_inhd" column="inhd_type_code"><field table="sq_ast_typ_inhd" column="type_code"/></not-equal>
+				</where>
+				<order-by>
+					<field table="sq_ast_typ_inhd" column="inhd_type_code" />
+					<field table="sq_ast_typ_inhd" column="type_code_lvl" />
+				</order-by>
+			</select>
+		</primary>
+		<alternate>
+			<assert-true data="include_passed">
+				<select>
+					<fields>
+						<field table="sq_ast_typ_inhd" column="type_code" />
+					</fields>
+					<from>
+						<table>sq_ast_typ_inhd</table>
+					</from>
+					<where>
+						<in table="sq_ast_typ_inhd" column="inhd_type_code">:type_codes</in>
+					</where>
+					<order-by>
+						<field table="sq_ast_typ_inhd" column="inhd_type_code" />
+						<field table="sq_ast_typ_inhd" column="type_code_lvl" />
+					</order-by>
+				</select>
+			</assert-true>
+		</alternate>
+	</query>
 	<query id="getTypeCodeWithAllowedAccess">
 		<!-- Return the type code with the allowed access provided. -->
 		<primary>
@@ -395,6 +599,32 @@
 					<in table="sq_ast_lnk_tree" column="linkid">:linkid</in>
 				</where>
 			</select>
+		</primary>
+	</query>
+
+
+	<query id="getTreeIdsByMinorid">
+		<!-- Returns the treeids for linkids passed in.. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lnk_tree" column="treeid" />
+				</fields>
+				<from>
+					<table>sq_ast_lnk</table>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_ast_lnk"      column="linkid" />
+						<field table="sq_ast_lnk_tree" column="linkid" />
+					</join>
+				</joins>
+				<where>
+					<in table="sq_ast_lnk" column="minorid">:minorid</in>
+				</where>
+			</select>
+			<limit offset="0">1</limit>
 		</primary>
 	</query>
 
@@ -697,6 +927,23 @@
 		</primary>
 	</query>
 
+	<query id="updateHipoRunningStatus">
+	<!-- Updates a HIPO job -->
+		<primary>
+			<update>
+				<fields table="sq_hipo_job">
+					<field>running</field>
+				</fields>
+				<values>
+					<value column="running">:running</value>
+				</values>
+				<where>
+					<in table="sq_hipo_job" column="code_name">:code_names</in>
+				</where>
+			</update>
+		</primary>
+	</query>
+
 	<query id="getPurgeTrashHipoDeleteOrder">
 		<!-- Return delete order for a purge trash hipo -->
 		<primary>
@@ -839,7 +1086,9 @@
 		</primary>
 	</query>
 
+
 	<!-- //		ASSET STATIC SCREENS		// -->
+
 
 	<!-- //		history.inc		// -->
 	<query id="selectHistoryForPainting">
@@ -850,13 +1099,21 @@
 					<field table="sq_rb_ast" column="sq_eff_from">efrom</field>
 					<field table="sq_rb_ast" column="sq_eff_to">eto</field>
 					<field table="sq_rb_ast" column="version" />
+					<field table="sq_ast"	 column="name">updated_username</field>
 				</fields>
 				<from>
 					<table>sq_rb_ast</table>
+					<table>sq_ast</table>
 				</from>
 				<where>
 					<equal table="sq_rb_ast" column="assetid">:assetid</equal>
 				</where>
+				<joins>
+					<join>
+						<field table="sq_rb_ast" column="updated_userid" />
+						<field table="sq_ast" column="assetid" />
+					</join>
+				</joins>
 				<order-by direction="DESC">
 					<field table="sq_rb_ast" column="sq_eff_from" />
 				</order-by>
@@ -911,9 +1168,11 @@
 	</query>
 
 
-	<!-- //     SYSTEM CONFIG EDIT INTERFACE       // -->
+	<!-- //        LOCKING SYSTEM        // -->
+
+
 	<query id="getActiveLocks">
-		<!-- Return the a list of internal messages to appear on log screen.' -->
+		<!-- Return a list of locks that will be active at a certain time. -->
 		<primary>
 			<select>
 				<fields>
@@ -933,7 +1192,28 @@
 	</query>
 
 
-	<!-- //     REMAP MANAGER       // -->
+	<query id="changeAllLocksHeldUser">
+		<!-- Change all locks that are held by one user to another. -->
+		<!-- Use sparingly; eg. shadow asset that has changed asset ID. -->
+		<primary>
+			<update>
+				<fields table="sq_lock">
+					<field>userid</field>
+				</fields>
+				<values>
+					<value column="userid">:new_userid</value>
+				</values>
+				<where>
+					<equal table="sq_lock" column="userid">:old_userid</equal>
+				</where>
+			</update>
+		</primary>
+	</query>
+
+
+	<!-- //        REMAP MANAGER        // -->
+
+
 	<query id="getRemapUrls">
 		<!-- Return the a list of internal messages to appear on log screen.' -->
 		<primary>
@@ -946,6 +1226,26 @@
 				<from>
 					<table>sq_ast_lookup_remap</table>
 				</from>
+			</select>
+		</primary>
+	</query>
+
+	<query id="getRemapUrlsFilter">
+		<!-- return the list of remap filtered by url or remap url -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lookup_remap" column="url" />
+					<field table="sq_ast_lookup_remap" column="remap_url" />
+					<field table="sq_ast_lookup_remap" column="expires" />
+				</fields>
+				<from>
+					<table>sq_ast_lookup_remap</table>
+				</from>
+				<where>
+					<like table="sq_ast_lookup_remap" column="url">:url</like>
+					<like table="sq_ast_lookup_remap" column="remap_url">:remap_url</like>
+				</where>
 			</select>
 		</primary>
 	</query>
@@ -980,7 +1280,9 @@
 	</query>
 
 
-	<!-- //     ASSET MAP       // -->
+	<!-- //        ASSET MAP        // -->
+
+
 	<query id="getSortOrder">
 		<!-- Return current sort order for specified majorid and minorid -->
 		<primary>
@@ -1000,7 +1302,8 @@
 	</query>
 
 
-	<!-- //     METADATA MANAGER       // -->
+	<!-- //        METADATA MANAGER        // -->
+
 
 	<query id="setMetadataSchemaOnAsset">
 	<!-- Set metadata schema on asset -->
@@ -1030,7 +1333,7 @@
 				<values>
 					<value column="granted">:granted</value>
 				</values>
-				<where>	
+				<where>
 					<equal table="sq_ast_mdata" column="assetid">:assetid</equal>
 					<equal table="sq_ast_mdata" column="schemaid">:schemaid</equal>
 				</where>
@@ -1153,7 +1456,10 @@
 		</primary>
 	</query>
 
-	<!-- //     MESSAGING SYSTEM       // -->
+
+	<!-- //        MESSAGING SYSTEM        // -->
+
+
 	<query id="deleteInternalMessage">
 		<!-- Deletes a specific internal message -->
 		<primary>
@@ -1231,7 +1537,10 @@
 		</primary>
 	</query>
 
-	<!-- //     DESIGNS       // -->
+
+	<!-- //        DESIGNS        // -->
+
+
 	<query id="updateAttrId">
 	<!-- Updates attribute ids for specified assetid and attrid -->
 		<primary>
@@ -1267,7 +1576,11 @@
 		</primary>
 	</query>
 
-	<!-- //     FILE VERSIONING       // -->
+
+
+	<!-- //        FILE VERSIONING        // -->
+
+
 	<query id="updateReposFilePath">
 	<!-- Updates pathname when it is morphed -->
 		<primary>
@@ -1306,58 +1619,9 @@
 	</query>
 
 
-	<!-- //     ASSETS       // -->
+	<!-- //        ROLLBACK        // -->
 
-	<!-- //     report/structured_asset_info       // -->
-	<query id="structureAssetReportLinkTreeCount">
-		<primary>
-			<select>
-				<fields>
-					<function function="count">
-						<value>*</value>
-					</function>
-				</fields>
-				<from>
-					<table>sq_ast_lnk_tree</table>
-				</from>
-				<where>
-					<like table="sq_ast_lnk_tree" column="treeid">:treeid</like>
-					<not-equal table="sq_ast_lnk_tree" column="linkid"><value>0</value></not-equal>
-				</where>
-			</select>
-		</primary>
-	</query>
 
-	<query id="structureAssetReportGetTreeid">
-		<primary>
-			<select>
-				<fields>
-					<field table="sq_ast_lnk_tree" column="treeid" />
-				</fields>
-				<from>
-					<table>sq_ast_lnk</table>
-					<table>sq_ast_lnk_tree</table>
-				</from>
-				<where>
-					<equal table="sq_ast_lnk" column="minorid">:assetid</equal>
-					<like table="sq_ast_lnk_tree" column="treeid">:treeid</like>
-				</where>
-				<joins>
-					<join>
-						<field table="sq_ast_lnk_tree" column="linkid" />
-						<field table="sq_ast_lnk" column="linkid" />
-					</join>
-				</joins>
-				<order-by>
-					<function function="length">
-						<arg><field table="sq_ast_lnk_tree" column="treeid" /></arg>
-					</function>
-				</order-by>
-			</select>
-		</primary>
-	</query>
-
-	<!-- ROLLBACK -->
 	<query id="rollbackGetTimeStampFrom">
 		<primary>
 			<select>
@@ -1371,6 +1635,47 @@
 					<equal table="sq_rb_ast" column="assetid">:assetid</equal>
 					<equal table="sq_rb_ast" column="version">:version</equal>
 				</where>
+			</select>
+		</primary>
+	</query>
+
+
+	<!-- //        SEQUENCE GENERATION        // -->
+
+
+	<query id="seqNextVal">
+		<primary>
+			<select>
+				<fields>
+					<function function="SeqNextVal" alias="value">
+						<arg><value>[seqName]</value></arg>
+					</function>
+				</fields>
+			</select>
+		</primary>
+	</query>
+
+
+	<query id="seqCurrVal">
+		<primary>
+			<select>
+				<fields>
+					<function function="SeqCurrVal" alias="value">
+						<arg><value>[seqName]</value></arg>
+					</function>
+				</fields>
+			</select>
+		</primary>
+	</query>
+
+	<query id="toDate">
+		<primary>
+			<select>
+				<fields>
+					<function function="ToDate" alias="value">
+						<arg><value>:date_value</value></arg>
+					</function>
+				</fields>
 			</select>
 		</primary>
 	</query>

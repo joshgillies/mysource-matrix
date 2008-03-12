@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.49 2007/06/07 04:18:42 arailean Exp $
+* $Id: html_form.js,v 1.49.4.1 2008/03/12 04:04:02 lwright Exp $
 *
 */
 
@@ -583,6 +583,24 @@ function createTextBox(name, value, size, maxLength, className, onFocus, onBlur)
 }//end createTextBox()
 
 
+
+/**
+* Create an span element to add to the DOM
+*
+* @param string		value	innerHTML of the span
+*
+* @access public
+* @return object
+*/
+function createSpan(value)
+{
+	var newElt = document.createElement('SPAN');
+	newElt.innerHTML = value;
+	return newElt;
+
+}//end createTextBox()
+
+
 /**
 * Create an input type="button" element to add to the DOM
 *
@@ -630,7 +648,14 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	parentElt.insertBefore(document.createElement('BR'), moreButton);
 	parentElt.insertBefore(createHiddenField(name+'[assetid]', 0), moreButton);
 	parentElt.insertBefore(createHiddenField(name+'[url]', 0), moreButton);
-	parentElt.insertBefore(createTextBox(safeName+'_label', '', 30, 0, 'sq-form-asset-finder', 'this.tmp = this.value;', 'this.value = this.tmp;'), moreButton);
+	parentElt.insertBefore(createTextBox(safeName+'_label', '', 20, 0, 'sq-form-asset-finder', 'this.tmp = this.value;', 'this.value = this.tmp;'), moreButton);
+	var tmp_id_label = createSpan('Id : #');
+	tmp_id_label.className = 'sq-form-asset-finder sq-asset-finder-id-label';
+	parentElt.insertBefore(tmp_id_label, moreButton);
+	var tmp_assetid = createTextBox(safeName+'_assetid', '', 2, 0, '', '');
+	tmp_assetid.style.border = '1px solid #EFEFEF';
+	tmp_assetid.onchange = new Function('', mapFrame+'.asset_finder_assetid_changed(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+",this.value);");
+	parentElt.insertBefore(tmp_assetid, moreButton);
 	var changeButton = createButton(safeName+'_change_btn', 'Change', mapFrame+'.asset_finder_change_btn_press(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+");");
 	parentElt.insertBefore(changeButton, moreButton);
 	if (showClear) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_prefs.inc,v 1.7 2007/12/03 21:47:26 bshkara Exp $
+* $Id: content_type_image_prefs.inc,v 1.7.2.1 2008/03/12 04:04:21 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_ATTRIBUTES_PATH.'/css_dimension/css_dimension.inc';
 *    Looks after the creation the Image Content Type Preferences
 *
 * @author  Darren McKee <dmckee@squiz.net
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 class Content_Type_Image_Prefs extends Prefs
@@ -45,6 +45,7 @@ class Content_Type_Image_Prefs extends Prefs
 																					'fit_dimensions'		=> TRUE,
 																					'constrain_proportions'	=> TRUE,
 																					'on_click'				=> 'none',
+																					'html_layout'			=> 'table',
 																				   ),
 																'protected'		=> FALSE,
 															   ),
@@ -56,6 +57,7 @@ class Content_Type_Image_Prefs extends Prefs
 																					'caption_position'	=> TRUE,
 																					'dimension_options'	=> TRUE,
 																					'on_click'			=> TRUE,
+																					'html_layout'		=> TRUE,
 																				   ),
 																'protected'		=> FALSE,
 															   ),
@@ -67,6 +69,8 @@ class Content_Type_Image_Prefs extends Prefs
 																					'image_table_cell'		=> 'image_table_cell',
 																					'caption_table_cell'	=> 'caption_table_cell',
 																					'image_tag'				=> 'inline_image',
+																					'image_div'				=> 'image_div',
+																					'caption_div'			=> 'caption_div',
 																				   ),
 																'protected'		=> FALSE,
 															   ),
@@ -79,6 +83,8 @@ class Content_Type_Image_Prefs extends Prefs
 																					'image_table_cell'		=> 'image_table_cell',
 																					'image_tag'				=> 'preview_image',
 																					'close_preview_cell'	=> 'close_cell',
+																					'image_div'				=> 'preview_image_div',
+																					'close_preview_div'		=> 'close_preview_div',
 																				   ),
 																'protected'		=> FALSE,
 															   ),
@@ -91,7 +97,8 @@ class Content_Type_Image_Prefs extends Prefs
 	*/
 	function Content_Type_Image_Prefs($pref_file='')
 	{
-		$this->Prefs($pref_file);
+		
+			$this->Prefs($pref_file);
 
 	}//end constructor
 
@@ -216,6 +223,18 @@ class Content_Type_Image_Prefs extends Prefs
 									$onclick->paint('content_type_image_on_click');
 								} else {
 									echo ucwords($value_defaults['on_click']);
+								}
+							?>
+						</td>
+					</tr>
+					<tr>
+						<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('html_layout'); ?>:</td>
+						<td class="sq-backend-table-cell" nowrap="nowrap">
+							<?php
+								if ($have_lock && $is_admin) {
+									combo_box('SQ_CONTENT_TYPE_IMAGE_DEFAULTS[html_layout]', Array('table' => 'Table', 'div' => 'Div'), FALSE, array_get_index($value_defaults, 'html_layout', ''));
+								} else {
+									echo ucwords($value_defaults['html_layout']);
 								}
 							?>
 						</td>

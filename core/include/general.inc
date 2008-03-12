@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.187 2007/12/23 23:27:41 gsherwood Exp $
+* $Id: general.inc,v 1.187.2.1 2008/03/12 04:03:59 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187 $
+* @version $Revision: 1.187.2.1 $
 * @package MySource_Matrix
 */
 
@@ -257,8 +257,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		// if they haven't put tags in the err msg assume it to be plain text
 		$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 		$db_type = 'N/A';
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-		if (!is_null($db)) $db_type = $db->phptype;
+		$db = MatrixDAL::getDb();
+		if (!is_null($db)) $db_type =  MatrixDAL::getDbType();
 
 		$matrix_version = 'N/A';
 		if (defined('SQ_SYSTEM_VERSION')) {
@@ -627,6 +627,7 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 			$url = preg_replace('/'.SQ_CONF_LOGIN_SUFFIX.'\/?$/', '', $url);
 		}
 		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
+		$url = preg_replace('/'.SQ_CONF_RECACHE_SUFFIX.'\/?$/', '', $url);
 	}
 
 	if (empty($url)) {	// url empty, just use the first system root url
@@ -661,6 +662,7 @@ function clean_url($url)
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
 				SQ_CONF_NOCACHE_SUFFIX,
+				SQ_CONF_RECACHE_SUFFIX,
 			);
 
 	foreach ($bits as $bit) {

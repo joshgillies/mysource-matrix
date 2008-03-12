@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_paths.xml,v 1.5 2006/12/05 05:36:15 bcaldwell Exp $
+* $Id: lang_screen_paths.xml,v 1.5.8.1 2008/03/12 04:04:00 lwright Exp $
 *
 */
 -->
@@ -30,6 +30,14 @@
 			<note />
 			<function_call>
 				<paint_function   name="paintURLs"   />
+			</function_call>
+		</field>
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function         name="paintAutomaticRemapSetting" />
+				<process_function       name="processAutomaticRemapSetting" />
 			</function_call>
 		</field>
 	</section>
