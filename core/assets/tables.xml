@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.50.2.1 2008/03/12 04:03:48 lwright Exp $
+* $Id: tables.xml,v 1.50.2.2 2008/03/12 05:51:24 lwright Exp $
 *
 */
 -->
@@ -1633,10 +1633,7 @@
 					<description>Note Name</description>
 				</column>
 				<column name="value" allow_null="0">
-					<type>TEXT</type>
-					<type_variations>
-						<oci>CLOB</oci>
-					</type_variations>
+					<type>VARCHAR(4000)</type>
 					<default />
 					<description>Note Value</description>
 				</column>
