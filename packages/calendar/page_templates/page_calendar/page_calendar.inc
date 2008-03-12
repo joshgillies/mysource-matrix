@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.202.2.2 2008/03/10 02:46:54 bpearson Exp $
+* $Id: page_calendar.inc,v 1.202.2.3 2008/03/12 04:52:29 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.202.2.2 $
+* @version $Revision: 1.202.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -699,8 +699,8 @@ class Page_Calendar extends Page
 	* Get the replacement for the %calendar_contents% keyword
 	*
 	* The contents to be displayed
-    * @param array &$events_array 	will keep a list of all the events
-    *
+	* @param array &$events_array 	will keep a list of all the events
+	*
 	* @return string
 	* @access public
 	*/
@@ -728,7 +728,7 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date			the ISO 8601'd date that we are displaying (YYYY-MM-DD)
 	* @param string	$format			the format of display
-    * @param array &$events_array	will keep a list of all the events
+	* @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
@@ -742,7 +742,7 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEvents($year);
-            $events_array = $events;
+			$events_array = $events;
 			uasort($events, Array('Calendar_Common', 'compareStartDates'));
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events);
@@ -754,10 +754,10 @@ class Page_Calendar extends Page
 
 			$events = $this->getYearEventsByMonth($year);
 
-            // copy all the events to $events_array
-            foreach ($events as $month => $month_events) {
-              $events_array = array_merge($events_array, $month_events);
-            }
+			// copy all the events to $events_array
+			foreach ($events as $month => $month_events) {
+				$events_array = array_merge($events_array, $month_events);
+			}
 
 			foreach ($this->month_names_full as $month_num => $month_name) {
 				$_REQUEST['SQ_CALENDAR_DATE']= $year.'-'.sprintf('%02d', $month_num).'-01';
@@ -780,11 +780,11 @@ class Page_Calendar extends Page
 			$events = $this->getYearEventsByMonthAndDay($year);
 
 			// add all events to the $events_array
-            foreach ($events as $month => $month_array) {
+			foreach ($events as $month => $month_array) {
 				foreach ($month_array as $day => $day_events) {
 					$events_array = array_merge($events_array, $day_events);
-                }
-            }
+				}
+			}
 
 			$week_start_day = $this->attr('week_starts_on');
 			$today_iso = date('Y-m-d');
@@ -874,7 +874,7 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
 	* @param string	$format	the format of display
-    * @param array &$events_array	will keep a list of all the events
+	* @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
@@ -893,7 +893,8 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('month', $raw_events);
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$month_length = days_in_month($month, $year);
 			$done_events = Array();
@@ -921,7 +922,8 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('month', $raw_events);
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$month_length = days_in_month($month, $year);
 			$day_heading_format = 'l jS';
@@ -948,7 +950,7 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$raw_events = $this->getMonthEvents($year, $month);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
 			$this->_initEventLabels('month', $raw_events);
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$column_width = $this->attr('month_column_width');
@@ -1146,7 +1148,7 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
 	* @param string	$format	the format of display
-    * @param array &$events_array	will keep a list of all the events
+	* @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
@@ -1159,7 +1161,8 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getWeekEvents($date);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('week', $raw_events);
 			$events = $this->groupWeekEventsByDay($raw_events, $date);
 			$done_events = Array();
 
@@ -1188,7 +1191,8 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getWeekEvents($date);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('week', $raw_events);
 			$events = $this->groupWeekEventsByDay($raw_events, $date);
 			$day_heading_format = 'l jS';
 			$heading_formats = $this->attr('view_heading_formats');
@@ -1209,7 +1213,7 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$raw_events = $this->getWeekEvents($date);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
 			$this->_initEventLabels('week', $raw_events);
 			$events = $this->groupWeekEventsByDayAndTime($raw_events, $date);
 			$column_names = Array();
@@ -1235,7 +1239,7 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date				the ISO 8601'd day (YYYY-MM-DD)
 	* @param string	$format				'list_with_headings' | 'list_without_headings' | 'calendar_format'
-    * @param array &$events_array		will keep a list of all the events
+	* @param array &$events_array		will keep a list of all the events
 	*
 	* @return void
 	* @access public
@@ -1247,7 +1251,8 @@ class Page_Calendar extends Page
 			$list_entry_types = $this->attr('list_entry_types');
 			$enabled_views = $this->attr('enabled_views');
 			$events = $this->getDayEvents($date);
-            $events_array = $events;
+			$events_array = $events;
+			$this->_initEventLabels('day', $events);
 			if ($list_entry_types['day'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -1270,13 +1275,13 @@ class Page_Calendar extends Page
 					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('other') : $this->attr('other_column_name');
 				}
 				$raw_events = $this->getDayEvents($date);
-                $events_array = $raw_events;
+				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = $this->groupDayEventsByRootNodeAndTime($raw_events);
 			} else {
 				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('events') : $this->attr('other_column_name');
 				$raw_events = $this->getDayEvents($date);
-                $events_array = $raw_events;
+				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = Array('*' => $this->groupDayEventsByTime($raw_events, $date));
 			}
@@ -1398,7 +1403,18 @@ class Page_Calendar extends Page
 			$event_date = sprintf('%04d-%02d-%02d', $data['start_date_year'], $data['start_date_mon'], $data['start_date_mday']);
 			$event_url = $this->_getEventLinkHref($real_id, $event_date);
 			if ($event_url) $res .= '<a href="'.$event_url.'">';
-			$res .= $data['name'];
+
+			$current_view = htmlentities($_REQUEST['SQ_CALENDAR_VIEW']);
+			switch($current_view) {
+				case 'week':
+				case 'month':
+				case 'day':
+					$res .= $this->_getEventLabel($current_view, $data);
+				break;
+				default:
+					$res .= $data['name'];
+				break;
+			}
 			if ($event_url) $res .= '</a>';
 			$res .= '</li>';
 		}
