@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.255.2.4 2008/02/29 00:11:51 bshkara Exp $
+* $Id: lang_strings.xml,v 1.255.2.5 2008/03/12 03:13:36 bpearson Exp $
 *
 */
 
@@ -243,6 +243,7 @@
 	<string source="other">Other</string>
 	<string source="override_design_question">Override ?</string>
 	<string source="override_design_explanation">You can override the design this asset would inherit from its parent, with a design that is applied to this asset only. This override design does not affect the inheritance to this asset's children of any parent design.</string>
+	<string source="partial_match">Partial Match</string>
 	<string source="passwd_blacklist">Password Blacklist</string>
 	<string source="patch_details">Patch Details</string>
 	<string source="patches_available_to_install">Patches Available To Install</string>
@@ -1112,6 +1113,7 @@
 	<string source="attribute_not_selected">attribute not selected</string>
 	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s %3$s %4$s</string>
 	<string source="trigger_attribute_changed">If the value of the %1$s attribute %2$s changes&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; This condition will cause the trigger to fail if the firing event is not "Attributes Changed"</string>
+	<string source="trigger_metadata_value">If the metadata value of the %1$s field in the asset has a %2$s with %3$s</string>
 	<string source="or_inherited_types">or inherited types</string>
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
