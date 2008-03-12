@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.60 2008/03/06 23:40:56 bshkara Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.61 2008/03/12 06:20:41 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,7 +84,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
-				bam($sql.$where.$order_by);
 				$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
 				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%frontend%');
 				MatrixDAL::bindValueToPdo($query, 'url', $url);
@@ -92,8 +91,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				MatrixDAL::bindValueToPdo($query, 'url_2', $url);
 				MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
 				$designid = MatrixDAL::executePdoOne($query);
-				bam($url);
-				bam(MatrixDAL::executePdoAssoc($query));
 			} catch (Exception $e) {
 				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
 			}//end try catch
@@ -101,7 +98,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			if ($designid) {
 				$design = $am->getAsset($designid);
 				$stylesheets = $design->getStylesheets();
-				bam($stylesheets);
 
 				// save the ids of all the css files into a global var so the wysiwyg style
 				// drop down plugin can access this information without another querey
