@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.2 2008/03/12 04:03:58 lwright Exp $
+* $Id: asset_manager.inc,v 1.655.2.3 2008/03/12 06:03:40 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.2 $
+* @version $Revision: 1.655.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -348,11 +348,11 @@ class Asset_Manager extends MySource_Object
 
 			if (is_array($type_code)) {
 				foreach ($type_code as $key => $asset_type) {
-					$type_code[$key] = $db->quote($type_code[$key]);
+					$type_code[$key] = MatrixDAL::quote($type_code[$key]);
 				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
-				$type_code_cond = ' = '.$db->quote($type_code);
+				$type_code_cond = ' = '.MatrixDAL::quote($type_code);
 			}
 
 			// if they have not specified any fields, then we want to select *
