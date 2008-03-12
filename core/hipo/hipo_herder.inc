@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.100 2008/02/18 04:52:18 lwright Exp $
+* $Id: hipo_herder.inc,v 1.101 2008/03/12 03:51:05 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -848,8 +848,8 @@ class HIPO_Herder extends MySource_Object
 						WHERE code_name IN (:jobs_to_remove)';
 				try {
 					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, 'jobs_to_remove', $jobs_to_remove);
-					$result = MatrixDAL::executeOne($query);
+					MatrixDAL::bindValueToPdo($query, 'jobs_to_remove', implode(',', $jobs_to_remove));
+					$result = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to delete HIPO job(s) due to database error: '.$e->getMessage());
 				}
