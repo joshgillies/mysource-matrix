@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.30 2008/03/06 23:53:50 bshkara Exp $
+* $Id: event_manager.inc,v 1.31 2008/03/12 01:38:57 bshkara Exp $
 *
 */
 
@@ -53,7 +53,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object
@@ -225,13 +225,24 @@ class Event_Manager extends MySource_Object
 
 				// let's not query the tree unless we have to
 				if ($options['is_dependant'] && !$options['is_exclusive']) {
-					// no use doing this more than once because we will always get the same result
-					if (!isset($assetids)) {
-						if ($side_of_link === 'minor')
-							$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($broadcaster->id);
-						else
-							$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($broadcaster->id);
+					// do this until one of the returned assets matches a listener type code
+					if (!isset($found_listener)) {
+						if ($side_of_link === 'minor') {
+							$possible_listeners = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($broadcaster->id);
+						} else {
+							$possible_listeners = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($broadcaster->id);
+						}
+
+						// get type codes of our assetids (only need to do it once)
+						if (!isset($types)) {
+							for ($i=0; $i<count($possible_listeners); $i++) {
+								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($possible_listeners[$i]);
+								$types[$possible_listeners[$i]] = $asset->type();
+							}
+						}
+
 					} else continue;
+
 				} else if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
 				} else {
@@ -258,10 +269,25 @@ class Event_Manager extends MySource_Object
 
 			}// end if
 
-			foreach ($assetids as $assetid) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (is_null($asset)) continue;
-				$listeners[] = $asset;
+			// are we filtering our listeners?
+			if (isset($types)) {
+				// get our listener
+				if (in_array($listener_type_code, $types)) {
+					foreach ($types as $assetid => $type_code) {
+						if ($type_code === $listener_type_code) {
+							$found_listener = TRUE;
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							if (is_null($asset)) continue;
+							$listeners[] = $asset;
+						}
+					}
+				}
+			} else {
+				foreach ($assetids as $assetid) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if (is_null($asset)) continue;
+					$listeners[] = $asset;
+				}
 			}
 
 		}// end foreach
