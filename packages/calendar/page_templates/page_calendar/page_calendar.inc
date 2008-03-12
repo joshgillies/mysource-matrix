@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.201.2.2 2008/03/10 02:47:45 bpearson Exp $
+* $Id: page_calendar.inc,v 1.201.2.3 2008/03/12 04:52:22 colivar Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.201.2.2 $
+* @version $Revision: 1.201.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -742,7 +742,7 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$events = $this->getYearEvents($year);
-            $events_array = $events;
+			$events_array = $events;
 			uasort($events, Array('Calendar_Common', 'compareStartDates'));
 			if ($list_entry_types['year'] == 'title') {
 				echo $this->_getTitleList($events);
@@ -893,7 +893,8 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('month', $raw_events);
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$month_length = days_in_month($month, $year);
 			$done_events = Array();
@@ -921,7 +922,8 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getMonthEvents($year, $month);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('month', $raw_events);
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$month_length = days_in_month($month, $year);
 			for ($current_day = 1; $current_day <= $month_length; $current_day++) {
@@ -943,7 +945,7 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$raw_events = $this->getMonthEvents($year, $month);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
 			$this->_initEventLabels('month', $raw_events);
 			$events = $this->groupMonthEventsByDay($raw_events, $year, $month);
 			$column_width = $this->attr('month_column_width');
@@ -1154,7 +1156,8 @@ class Page_Calendar extends Page
 		if ($format == 'list_without_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getWeekEvents($date);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('week', $raw_events);
 			$events = $this->groupWeekEventsByDay($raw_events, $date);
 			$done_events = Array();
 
@@ -1183,7 +1186,8 @@ class Page_Calendar extends Page
 		} else if ($format == 'list_with_headings') {
 			$list_entry_types = $this->attr('list_entry_types');
 			$raw_events = $this->getWeekEvents($date);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
+			$this->_initEventLabels('week', $raw_events);
 			$events = $this->groupWeekEventsByDay($raw_events, $date);
 			foreach ($events as $day_date => $day_events) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
@@ -1199,7 +1203,7 @@ class Page_Calendar extends Page
 			}
 		} else {
 			$raw_events = $this->getWeekEvents($date);
-            $events_array = $raw_events;
+			$events_array = $raw_events;
 			$this->_initEventLabels('week', $raw_events);
 			$events = $this->groupWeekEventsByDayAndTime($raw_events, $date);
 			$column_names = Array();
@@ -1237,7 +1241,8 @@ class Page_Calendar extends Page
 			$list_entry_types = $this->attr('list_entry_types');
 			$enabled_views = $this->attr('enabled_views');
 			$events = $this->getDayEvents($date);
-            $events_array = $events;
+			$events_array = $events;
+			$this->_initEventLabels('day', $events);
 			if ($list_entry_types['day'] == 'title') {
 				echo $this->_getTitleList($events, $enabled_views['event']);
 			} else {
@@ -1260,13 +1265,13 @@ class Page_Calendar extends Page
 					$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('other') : $this->attr('other_column_name');
 				}
 				$raw_events = $this->getDayEvents($date);
-                $events_array = $raw_events;
+				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = $this->groupDayEventsByRootNodeAndTime($raw_events);
 			} else {
 				$column_names['*'] = ($this->attr('other_column_name') == '') ? translate('events') : $this->attr('other_column_name');
 				$raw_events = $this->getDayEvents($date);
-                $events_array = $raw_events;
+				$events_array = $raw_events;
 				$this->_initEventLabels('day', $raw_events);
 				$events = Array('*' => $this->groupDayEventsByTime($raw_events, $date));
 			}
@@ -1388,7 +1393,18 @@ class Page_Calendar extends Page
 			$event_date = sprintf('%04d-%02d-%02d', $data['start_date_year'], $data['start_date_mon'], $data['start_date_mday']);
 			$event_url = $this->_getEventLinkHref($real_id, $event_date);
 			if ($event_url) $res .= '<a href="'.$event_url.'">';
-			$res .= $data['name'];
+
+			$current_view = htmlentities($_REQUEST['SQ_CALENDAR_VIEW']);
+			switch($current_view) {
+				case 'week':
+				case 'month':
+				case 'day':
+					$res .= $this->_getEventLabel($current_view, $data);
+				break;
+				default:
+					$res .= $data['name'];
+				break;
+			}
 			if ($event_url) $res .= '</a>';
 			$res .= '</li>';
 		}
