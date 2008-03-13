@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.667 2008/03/13 00:17:03 lwright Exp $
+* $Id: asset_manager.inc,v 1.668 2008/03/13 03:06:22 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.667 $
+* @version $Revision: 1.668 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8321,15 +8321,6 @@ class Asset_Manager extends MySource_Object
 
 		if (MatrixDAL::getDbType() === 'oci') {
 			$in_sql = 'SELECT * FROM table('.$in_sql.')';
-			$result = MatrixDAL::executeSqlAssoc($in_sql, 0);
-
-			if (empty($result)) return Array();
-
-			for (reset($result); NULL !== ($key = key($result)); next($result)) {
-				$result[$key] = '\''.$result[$key].'\'';
-			}
-
-			$in_sql = implode(',', $result);
 		} else {
 			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
