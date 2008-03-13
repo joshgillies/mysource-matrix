@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.104.2.6 2008/01/07 02:39:51 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.104.2.7 2008/03/13 00:14:50 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104.2.6 $
+* @version $Revision: 1.104.2.7 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1273,8 +1273,21 @@ class Workflow_Manager extends MySource_Object
 		$publishers = $this->whoCanPublish($asset->id);
 
 		if (!$this->silentWorkflowParty($asset->id)) {
-			// create a new internal message if we have not been supplied with one
-			if (is_null($msg)) $msg = $ms->newMessage();
+			// we don't want to be sending asset.workflow.invitation emails to users who have admin
+			// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
+			if (is_null($msg)) {
+				if (empty($publishers)) {
+					return TRUE;
+				} else {
+					// create a new internal message if we have not been supplied with one
+					$msg = $ms->newMessage();
+				}
+			} else {
+				if (empty($msg->to) && empty($msg->type) && empty($publishers)) {
+					return TRUE;
+				}
+			}
+
 			// added the publishers to the list of people that are to be notified
 			$msg->to = array_merge($msg->to, $publishers);
 
@@ -1401,8 +1414,21 @@ class Workflow_Manager extends MySource_Object
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 
-			// create a new internal message if we have not been supplied with one
-			if (is_null($msg)) $msg = $ms->newMessage();
+			// we don't want to be sending asset.workflow.announce.reject emails to users who have admin
+			// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
+			if (is_null($msg)) {
+				if (empty($publishers)) {
+					return TRUE;
+				} else {
+					// create a new internal message if we have not been supplied with one
+					$msg = $ms->newMessage();
+				}
+			} else {
+				if (empty($msg->to) && empty($msg->type) && empty($publishers)) {
+					return TRUE;
+				}
+			}
+
 			// added the publishers to the list of people that are to be notified
 			$msg->to = array_merge($msg->to, $publishers);
 

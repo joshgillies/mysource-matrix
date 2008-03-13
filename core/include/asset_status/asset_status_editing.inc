@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.37.2.2 2008/02/14 02:40:44 bshkara Exp $
+* $Id: asset_status_editing.inc,v 1.37.2.3 2008/03/13 00:14:49 bshkara Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37.2.2 $
+* @version $Revision: 1.37.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -199,9 +199,7 @@ class Asset_Status_Editing extends Asset_Status
 				// we are going to make this asset live by starting the workflow process
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-				// the user starting this workflow probably cannot approve yet otherwise we wouldn't be here
-				// they could also be here by choice if this particular asset does not accept metadata
-				if (!$wfm->startWorkflow($this->owner->id, FALSE)) {
+				if (!$wfm->startWorkflow($this->owner->id)) {
 					trigger_localised_error('SYS0262', E_USER_WARNING, $this->owner->name);
 					return false;
 				}
