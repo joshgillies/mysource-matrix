@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.6 2008/03/13 04:05:09 bpearson Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.7 2008/03/13 04:37:48 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.6 $
+* @version $Revision: 1.1.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,6 +179,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 					echo get_asset_tag_line($fieldid['assetid']);
 				}
 			}
+			echo '<br />';
 
 			// The total comments field store
 			echo translate('trigger_total_comment_rating_metadata_field');
@@ -194,6 +195,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 					echo get_asset_tag_line($totalid['assetid']);
 				}
 			}
+			echo '<br />';
 
 		return ob_get_clean();
 
