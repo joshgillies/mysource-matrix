@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.666 2008/03/12 02:55:01 mbrydon Exp $
+* $Id: asset_manager.inc,v 1.667 2008/03/13 00:17:03 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.666 $
+* @version $Revision: 1.667 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -348,11 +348,11 @@ class Asset_Manager extends MySource_Object
 
 			if (is_array($type_code)) {
 				foreach ($type_code as $key => $asset_type) {
-					$type_code[$key] = $db->quote($type_code[$key]);
+					$type_code[$key] = MatrixDAL::quote($type_code[$key]);
 				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
-				$type_code_cond = ' = '.$db->quote($type_code);
+				$type_code_cond = ' = '.MatrixDAL::quote($type_code);
 			}
 
 			// if they have not specified any fields, then we want to select *
@@ -371,7 +371,6 @@ class Asset_Manager extends MySource_Object
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'type_code', $type_code);
 				$result = MatrixDAL::executePdoGroupedAssoc($query);
 			} catch (Exception $e) {
 				if (is_array($type_code)) {
