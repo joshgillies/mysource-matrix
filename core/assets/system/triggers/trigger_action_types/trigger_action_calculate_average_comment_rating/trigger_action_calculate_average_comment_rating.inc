@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.4 2008/03/10 06:04:15 bshkara Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.5 2008/03/13 04:01:58 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.4 $
+* @version $Revision: 1.1.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,6 +60,11 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 		} else {
 			$fieldid = $settings['fieldid']['assetid'];
 		}
+		if (empty($settings['totalid']['assetid'])) {
+			return FALSE;
+		} else {
+			$totalid = $settings['totalid']['assetid'];
+		}
 
 		// set the metadata value on all immediate parents if they have the schema applied
 		if (!empty($state['immediate_parents'])) {
@@ -85,36 +90,58 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 					if ($rating === '-1') continue;
 					$sumofratings += $rating;
 				}
-				// set the average for this parent (percentage)
-				$avgofratings = (int) ($sumofratings/$numofratings);
-				// returned array data
-				$parentdata[$parentid] = $avgofratings;
-				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$metadata = Array(
-								$fieldid	=> Array(
-												'value'	=> $avgofratings,
-											   ),
-							);
 
-				// get the parent schema of this metadata field
-				$schemaid = $GLOBALS['SQ_SYSTEM']->am->getParents($fieldid, 'metadata_schema');
-				// get the schemas that apply to this asset
-				$schemas = $mm->getSchemas($parentid, TRUE);
+				// check first $numofratings is not zero because you cannot divide by zero (ie. no items found)
+				if ($numofratings > 0) {
+					// set the average for this parent (percentage)
+					$avgofratings = (int) ($sumofratings/$numofratings);
+					// returned array data
+					$parentdata[$parentid] = $avgofratings;
+					$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$metadata = Array(
+									$fieldid	=> Array(
+													'value'	=> $avgofratings,
+												   ),
+									$totalid	=> Array(
+													'value'	=> $numofratings,
+												   ),
+								);
 
-				if (array_intersect($schemas, array_keys($schemaid)) !== Array()) {
-					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					$success = $mm->setMetadata($parentid, $metadata);
-					if ($success) $mm->generateContentFile($parentid);
-					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					// get the parent schema of this metadata field
+					$schemaid = $GLOBALS['SQ_SYSTEM']->am->getParents($fieldid, 'metadata_schema');
+					// get the schemas that apply to this asset
+					$schemas = $mm->getSchemas($parentid, TRUE);
+
+					if (array_intersect($schemas, array_keys($schemaid)) !== Array()) {
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+						$success = $mm->setMetadata($parentid, $metadata);
+						if ($success) $mm->generateContentFile($parentid);
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+
+					$success_results = Array(
+										'fieldid'		=> $fieldid,
+										'totalid'		=> $totalid,
+										'parentdata'	=> $parentdata,
+									   );
+				} else {
+					$avgofratings = 0;
+
+					// set $success to 1, because trigger fired but no items found
+					$success = 1;
+
+					$success_results = Array(
+										'fieldid'		=> $fieldid,
+										'totalid'		=> $totalid,
+										'parentdata'	=> 0,
+									   );
 				}
+
 			}//end foreach
 		}//end if
 
 		if ($success) {
-			return Array(
-					'fieldid'		=> $fieldid,
-					'parentdata'	=> $parentdata,
-				   );
+			return $success_results;
 		} else {
 			return FALSE;
 		}
@@ -134,9 +161,15 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
+<<<<<<< trigger_action_calculate_average_comment_rating.inc
+		$fieldid = array_get_index($settings, 'fieldid', '');
+		$totalid = array_get_index($settings, 'totalid', '');
+=======
 		$fieldid = array_get_index($settings, 'fieldid', '0');
+>>>>>>> 1.1.2.4
 		ob_start();
 
+			// The average rating field store
 			echo translate('trigger_avg_comment_rating_metadata_field');
 			if ($write_access) {
 				$type_code = Array(
@@ -148,6 +181,21 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 					echo '<b>['.translate('no_asset_selected').']</b>';
 				} else {
 					echo get_asset_tag_line($fieldid['assetid']);
+				}
+			}
+
+			// The total comments field store
+			echo translate('trigger_total_comment_rating_metadata_field');
+			if ($write_access) {
+				$type_code = Array(
+								'metadata_field_text'	=> 'I',
+							 );
+				echo asset_finder($prefix.'[totalid]', $totalid['assetid'], $type_code);
+			} else {
+				if (empty($totalid['assetid'])) {
+					echo '<b>['.translate('no_asset_selected').']</b>';
+				} else {
+					echo get_asset_tag_line($totalid['assetid']);
 				}
 			}
 
@@ -169,9 +217,15 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 	*/
 	function processInterface(&$settings, $request_data)
 	{
+		// Store the average field
 		$fieldid = array_get_index($request_data, 'fieldid', '');
 		if (empty($fieldid)) return FALSE;
 		$settings['fieldid'] = $fieldid;
+
+		// Store the total field
+		$totalid = array_get_index($request_data, 'totalid', '');
+		if (empty($totalid)) return FALSE;
+		$settings['totalid'] = $totalid;
 
 		return FALSE;
 

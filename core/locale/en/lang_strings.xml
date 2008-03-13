@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.255.2.5 2008/03/12 03:13:36 bpearson Exp $
+* $Id: lang_strings.xml,v 1.255.2.6 2008/03/13 04:02:23 bpearson Exp $
 *
 */
 
@@ -1185,6 +1185,7 @@
 	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming</string>
 
 	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
+	<string source="trigger_total_comment_rating_metadata_field">Metadata text field to store total comments: </string>
 
 	<!-- common single word strings -->
 
