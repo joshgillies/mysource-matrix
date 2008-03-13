@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.5 2008/03/13 04:01:58 bpearson Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.6 2008/03/13 04:05:09 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.5 $
+* @version $Revision: 1.1.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,12 +161,8 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 	*/
 	function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-<<<<<<< trigger_action_calculate_average_comment_rating.inc
 		$fieldid = array_get_index($settings, 'fieldid', '');
 		$totalid = array_get_index($settings, 'totalid', '');
-=======
-		$fieldid = array_get_index($settings, 'fieldid', '0');
->>>>>>> 1.1.2.4
 		ob_start();
 
 			// The average rating field store
