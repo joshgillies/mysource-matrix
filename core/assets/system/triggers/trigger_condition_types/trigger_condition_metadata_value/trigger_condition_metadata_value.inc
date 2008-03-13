@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.1.2.1 2008/03/12 03:12:50 bpearson Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.1.2.2 2008/03/13 00:57:47 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,18 +51,21 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 	*/
 	function evaluate($settings, &$state)
 	{
+		// Run some checks
 		if (empty($settings['asset_id'])) return FALSE;
 		if (empty($settings['value'])) return FALSE;
 		if (empty($settings['match'])) {
 			$settings['match'] = 'exact';
 		}
 
+		// Grab some variables
 		$metadata_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['asset_id']);
 		$metadata_value = $settings['value'];
 
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$object_value = $mm->getMetadataFieldValues($state['assetid']);
 
+		// Do the match either exact or partial
 		if (array_key_exists($metadata_asset->name, $object_value)) {
 			if ($settings['match'] == 'exact') {
 				if ($metadata_value == $object_value[$metadata_asset->name]) {
@@ -125,7 +128,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 				if (!empty($selected_asset_id)) {
 					echo get_asset_tag_line($selected_asset_id);
 				} else {
-					echo 'None selected';
+					echo '<b>['.translate('no_asset_selected').']</b>';
 				}
 			}
 			$asset_id_component = ob_get_contents();
@@ -172,6 +175,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 	*/
 	function processInterface(&$settings, $request_data)
 	{
+		// Checks
 		if (empty($request_data)) {
 			return translate('trigger_input_data_error');
 		}
@@ -183,6 +187,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id['assetid']);
 
+		// Assign variables to settings
 		$settings['asset_id'] = $asset_id['assetid'];
 		$settings['asset_type'] = $asset->type();
 		$settings['match'] = array_get_index($request_data, 'match', FALSE);
