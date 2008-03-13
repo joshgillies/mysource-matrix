@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.642 2008/03/05 22:35:39 lwright Exp $
+* $Id: asset.inc,v 1.643 2008/03/13 00:59:18 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.642 $
+* @version $Revision: 1.643 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4998,7 +4998,7 @@ class Asset extends MySource_Object
 						$sql = 'SELECT assetid from sq_ast_lookup where url like \''.$new_url.'\'';
 						$existing_asset_with_url_id = NULL;
 						try {
-							$query = $db->prepare($sql);
+							$query = MatrixDAL::preparePdoQuery($sql);
 							$existing_asset_with_url_id = MatrixDAL::executePdoAssoc($query, 0);
 						} catch (Exception $e) {
 							throw new Exception('Unable run a select query: '.$e->getMessage());
