@@ -1,0 +1,47 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +--------------------------------------------------------------------+
+*
+* $Id: trigger_action_calculate_average_comment_rating_edit_fns.inc,v 1.2.2.2 2008/03/13 03:58:01 bpearson Exp $
+*
+*/
+
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action_edit_fns.inc';
+
+/**
+* Trigger_Action_Calculate_Average_Comment_Rating_Edit_Fns
+*
+* Purpose
+*
+*
+* @author  Basil Shkara <bshkara@squiz.net>
+* @version $Revision: 1.2.2.2 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Trigger_Action_Calculate_Average_Comment_Rating_Edit_Fns extends Trigger_Action_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Trigger_Action_Calculate_Average_Comment_Rating_Edit_Fns()
+	{
+		$this->Trigger_Action_Edit_Fns();
+
+	}//end constructor
+
+
+}//end class
+
+?>
