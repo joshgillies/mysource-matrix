@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.2 2006/12/05 22:42:15 emcdonald Exp $
+* $Id: menu_get_assets.inc,v 1.2.6.1 2008/03/16 22:25:20 gsherwood Exp $
 *
 */
 
@@ -54,7 +54,9 @@ function menu_get_assets($id_name, $majorids)
 		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			$USERIDS_COND = '';
 		} else {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$userids = $user->getUserGroups();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			$userids[] = $public_userid;
 			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;

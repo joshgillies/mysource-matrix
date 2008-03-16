@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.323.2.5 2008/01/02 23:47:55 colivar Exp $
+* $Id: asset_edit_interface.inc,v 1.323.2.6 2008/03/16 22:25:43 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.323.2.5 $
+* @version $Revision: 1.323.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2098,7 +2098,9 @@ class Asset_Edit_Interface extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// get all the user groups that we exist in
-		$groups = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$groups = $user->getUserGroups();
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 		if (empty($groups)) return Array(); // all screens allowed
 
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) {
