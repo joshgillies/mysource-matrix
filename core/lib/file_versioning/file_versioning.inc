@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.36 2008/01/29 21:51:59 lwright Exp $
+* $Id: file_versioning.inc,v 1.37 2008/03/17 23:48:29 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -699,7 +699,7 @@ class File_Versioning
 		if (is_null($version)) {
 			// if no date is specified then, we need to get the latest and greatest
 			if (is_null($date)) {
-				// NOTE: this will not return a version is the file has been removed
+				// NOTE: this will not return a version if the file has been removed
 				//       this is DELIBERATE as it forces people to specify a version number or
 				//       date if they want an expired version
 				$sql = 'SELECT version, removal
@@ -827,7 +827,7 @@ class File_Versioning
 
 		// our file is real, so lets do some hash checks
 		if ($exists) {
-			if ($info['md5'] && $info['sha1']) {
+			if ($info['md5'] && $info['sha1'] && trim($info['md5']) !== '' && trim($info['sha1']) !== '') {
 				$current = $rep_file.',ffv'.$existing_version;
 
 				// verify its md5 and sha1 values, throw a warning to the user if something is amiss
@@ -913,25 +913,25 @@ class File_Versioning
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$db = MatrixDAL::getDb();
-			try {
-				$bind_vars	= Array (
-								'md5'	=> $md5,
-								'sha1'	=> $sha1,
-								'file_size'	=> $filesize,
-								'fileid'	=> $fileid,
-								'version'	=> $version,
-							  );
-				$result = MatrixDAL::executeQuery('core', 'updateFileVersHistory', $bind_vars);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return TRUE;
-			} catch (Exception $e) {
-				throw new Exception('Unable to update the filesize and hash information for fileid: '.$fileid.' with version: '.$version.' due to database error: '.$e->getMessage());
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
-			}
+		$db = MatrixDAL::getDb();
+		try {
+			$bind_vars	= Array (
+							'md5'	=> $md5,
+							'sha1'	=> $sha1,
+							'file_size'	=> $filesize,
+							'fileid'	=> $fileid,
+							'version'	=> $version,
+						  );
+			$result = MatrixDAL::executeQuery('core', 'updateFileVersHistory', $bind_vars);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return TRUE;
+		} catch (Exception $e) {
+			throw new Exception('Unable to update the filesize and hash information for fileid: '.$fileid.' with version: '.$version.' due to database error: '.$e->getMessage());
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
 	}//end _updateFileVersion()
 
 
