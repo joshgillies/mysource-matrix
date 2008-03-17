@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.42 2008/03/17 03:11:32 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.43 2008/03/17 03:19:33 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -426,8 +426,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 
 			if (!$socket) {
-				$description = translate('cms_report_links_invalid_url');
-				$valid = '0';
+				$validated_results['description'] = translate('cms_report_links_invalid_url');
+				$validated_results['valid'] = '0';
 			} else {
 				stream_set_timeout($socket, 5);
 				$response = fread($socket, 128);
