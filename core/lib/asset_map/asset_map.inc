@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.247.2.3 2007/10/18 23:19:57 hnguyen Exp $
+* $Id: asset_map.inc,v 1.247.2.4 2008/03/17 00:16:08 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.247.2.3 $
+* @version $Revision: 1.247.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -744,7 +744,9 @@ class Asset_Map
 			$assetid = (String)$assetid;
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$userids = $user->getUserGroups();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 				$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
@@ -906,7 +908,9 @@ class Asset_Map
 		$assetid = (String)$assetid;
 		$userid_cond = '';
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$userids = $user->getUserGroups();
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
