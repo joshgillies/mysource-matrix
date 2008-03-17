@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.8 2008/02/21 05:41:54 lwright Exp $
+* $Id: MatrixDAL.inc,v 1.9 2008/03/17 22:52:27 gsherwood Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once dirname(__FILE__).'/../DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
@@ -325,7 +325,7 @@ class MatrixDAL extends DAL
 				throw new Exception('Unable to bind variable "'.$name.'" to query: '.$oci_error['code'].' '.$oci_error['message']);
 			}
 		} else {
-			if (is_null($dataType)) {
+			if ($dataType === NULL) {
 				$query->bindValue(':'.$name, $value);
 			} else {
 				$query->bindValue(':'.$name, $value, $dataType);
@@ -377,7 +377,7 @@ class MatrixDAL extends DAL
 				}
 			}
 		} else {
-			if (is_null($dataType)) {
+			if ($dataType === NULL) {
 				$query->bindValue(':'.$name, $value);
 			} else {
 				$query->bindValue(':'.$name, $value, $dataType, $maxLength);
