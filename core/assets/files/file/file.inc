@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.165 2008/01/16 00:11:30 hnguyen Exp $
+* $Id: file.inc,v 1.166 2008/03/17 23:49:39 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1230,6 +1230,7 @@ class File extends Asset
 			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
 			$info = $fv->_checkOutCheck($rep_file, NULL, $then);
 			$path = $info['source_file'];
+			$existing['filename'] = $info['filename'];
 		} else if (($this->status & SQ_SC_STATUS_SAFE_EDITING) && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
 			// safe edit, get the previous live version from the file versioning repository for public user (bug #1049)
 			if (is_file($this->data_path.'/sq_system_version_no')) {
@@ -1246,9 +1247,12 @@ class File extends Asset
 
 		if (is_file($path)) {
 			$existing['path'] = $path;
-			$existing['filename'] = basename($existing['path']);
 			$existing['modified'] = filemtime($existing['path']);
 			$existing['size'] = filesize($existing['path']);
+
+			if (isset($existing['filename']) === false) {
+				$existing['filename'] = basename($existing['path']);
+			}
 		}
 
 		return $existing;
