@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.36.2.3 2008/03/17 02:34:19 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.36.2.4 2008/03/17 03:06:46 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.2.3 $
+* @version $Revision: 1.36.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -394,14 +394,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 							 );
 
 		if (empty($url_parts['scheme'])) {
-			$description = translate('cms_report_links_missing_protocol');
-			$valid = '0';
+			$validated_results['description'] = translate('cms_report_links_missing_protocol');
+			$validated_results['valid'] = '0';
 		} else if (empty($url_parts['host'])) {
-			$description = translate('cms_report_links_missing_hostname');
-			$valid = '0';
+			$validated_results['description'] = translate('cms_report_links_missing_hostname');
+			$validated_results['valid'] = '0';
 		} else if ($url_parts['scheme'] != 'http') {
-			$description = translate('cms_report_links_cannot_test_protocol');
-			$valid = '1';
+			$validated_results['description'] = translate('cms_report_links_cannot_test_protocol');
+			$validated_results['valid'] = '1';
 		} else {
 			if (empty($url_parts['path'])) {
 				$url_parts['path'] = '/';
