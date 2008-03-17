@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.39.2.1 2008/03/12 04:04:23 lwright Exp $
+* $Id: report_links_edit_fns.inc,v 1.39.2.2 2008/03/17 03:16:11 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.2.1 $
+* @version $Revision: 1.39.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -386,17 +386,22 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			return Array('valid' => 1, 'description' => '');
 		}
 
+		$validated_results = Array(
+								'valid'			=> '0',
+								'description'	=> '',
+							 );
+
 		$url_parts = @parse_url($url);
 
 		if (empty($url_parts['scheme'])) {
-			$description = translate('cms_report_links_missing_protocol');
-			$valid = '0';
+			$validated_results['description'] = translate('cms_report_links_missing_protocol');
+			$validated_results['valid'] = '0';
 		} else if (empty($url_parts['host'])) {
-			$description = translate('cms_report_links_missing_hostname');
-			$valid = '0';
+			$validated_results['description'] = translate('cms_report_links_missing_hostname');
+			$validated_results['valid'] = '0';
 		} else if ($url_parts['scheme'] != 'http') {
-			$description = translate('cms_report_links_cannot_test_protocol');
-			$valid = '1';
+			$validated_results['description'] = translate('cms_report_links_cannot_test_protocol');
+			$validated_results['valid'] = '1';
 		} else {
 			if (empty($url_parts['path'])) {
 				$url_parts['path'] = '/';
@@ -420,14 +425,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				}
 			}
 
-			$validated_results = Array(
-									'valid'			=> '0',
-									'description'	=> '',
-								 );
-
 			if (!$socket) {
-				$description = translate('cms_report_links_invalid_url');
-				$valid = '0';
+				$validated_results['description'] = translate('cms_report_links_invalid_url');
+				$validated_results['valid'] = '0';
 			} else {
 				stream_set_timeout($socket, 5);
 				$response = fread($socket, 128);
