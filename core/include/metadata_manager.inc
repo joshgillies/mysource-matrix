@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168.2.2 2008/03/17 02:50:22 lwright Exp $
+* $Id: metadata_manager.inc,v 1.168.2.3 2008/03/17 02:57:41 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168.2.2 $
+* @version $Revision: 1.168.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -328,9 +328,9 @@ class Metadata_Manager extends MySource_Object
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
-			MatrixDAL::bindValueToPdo('schemaid', $schemaid);
+			MatrixDAL::bindValueToPdo($query, 'schemaid', $schemaid);
 			if (!is_null($granted)) {
-				MatrixDAL::bindValueToPdo('granted', ($granted ? '1' : '0'));
+				MatrixDAL::bindValueToPdo($query, 'granted', ($granted ? '1' : '0'));
 			}
 			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -450,7 +450,7 @@ class Metadata_Manager extends MySource_Object
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
-			MatrixDAL::bindValueToPdo('assetid', $asset->id);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
 			$metadata = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to metadata values for assetid #'.$asset->id.' due to the following database error'.$e->getMessage());
@@ -739,7 +739,7 @@ class Metadata_Manager extends MySource_Object
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				MatrixDAL::bindValueToPdo('assetid', $asset->id);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
 				$updates = MatrixDAL::executePdoAssoc($query, 0);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get metadata fields ids for assetid #'.$asset->id.' due to the following database error:'.$e->getMessage());
@@ -1434,8 +1434,8 @@ class Metadata_Manager extends MySource_Object
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
-			MatrixDAL::bindValueToPdo('assetid', $assetid);
-			MatrixDAL::bindValueToPdo('field_assetid', $field_assetid);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+			MatrixDAL::bindValueToPdo($query, 'field_assetid', $field_assetid);
 			$value = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get metadata interface value for assetid #'.$assetid.' due to the following database error'.$e->getMessage());
@@ -1574,7 +1574,7 @@ class Metadata_Manager extends MySource_Object
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				MatrixDAL::bindValueToPdo('field_assetid', $field_assetid);
+				MatrixDAL::bindValueToPdo($query, 'field_assetid', $field_assetid);
 				$default_val = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get metadata field default value for fieldid #'.$field_assetid.' due to the following database error:'.$e->getMessage());
@@ -1616,7 +1616,7 @@ class Metadata_Manager extends MySource_Object
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
-			MatrixDAL::bindValueToPdo('field_assetid', $field_assetid);
+			MatrixDAL::bindValueToPdo($query, 'field_assetid', $field_assetid);
 			$row = MatrixDAL::executePdoAll($query);
 			if (isset($row[0]) && !empty($row[0])) {
 				$row = $row[0];
