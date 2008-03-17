@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.115.2.2 2008/03/17 00:28:49 gsherwood Exp $
+* $Id: user.inc,v 1.115.2.3 2008/03/17 22:34:59 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115.2.2 $
+* @version $Revision: 1.115.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -655,7 +655,7 @@ class User extends Asset
 	{
 		// cache the result so that we dont do this more than once in an execution
 		if (!isset($_SESSION['sq_effective_user_groups'][$this->id])) {
-			$this->_tmp['effective_groups'] = Array();
+			$_SESSION['sq_effective_user_groups'][$this->id] = Array();
 			$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', FALSE);
 			foreach ($groupids as $groupid => $type_code) {
 				// if we pass the conditions, let us belong to this group
