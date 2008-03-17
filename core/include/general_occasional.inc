@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.81 2008/03/03 22:56:15 bshkara Exp $
+* $Id: general_occasional.inc,v 1.82 2008/03/17 22:51:16 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 
@@ -84,9 +84,13 @@ function get_link_type_names()
 */
 function permission_type_name($type)
 {
-	$name = get_bit_names('SQ_PERMISSION_', $type, FALSE, TRUE);
-	if (is_array($name)) return 'Unknown';
-	return ucwords(strtolower($name));
+    if (isset($GLOBALS['SQ_PERM_TYPE_NAME'][$type]) === FALSE) {
+        $name = get_bit_names('SQ_PERMISSION_', $type, FALSE, TRUE);
+        if (is_array($name)) return 'Unknown';
+        $GLOBALS['SQ_PERM_TYPE_NAME'][$type] = ucwords(strtolower($name));
+    }
+
+    return $GLOBALS['SQ_PERM_TYPE_NAME'][$type];
 
 }//end permission_type_name()
 
@@ -168,17 +172,22 @@ function get_constant_values($prefix)
 */
 function get_status_description($status)
 {
-	// work out the name of our status file
-	$status_code = get_bit_names('SQ_STATUS_', $status);
-	$status_code = 'asset_status_'.strtolower($status_code);
+    if (isset($GLOBALS['SQ_STATUS_DESC_NAME'][$status]) === FALSE) {
+        // work out the name of our status file
+        $status_code = get_bit_names('SQ_STATUS_', $status);
+        $status_code = 'asset_status_'.strtolower($status_code);
 
-	require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-	if (isset($this)) {
-		$status_object = new $status_code($this);
-	} else {
-		$status_object = new $status_code(NULL);
-	}
-	return $status_object->getDescription();
+        require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+        if (isset($this)) {
+            $status_object = new $status_code($this);
+        } else {
+            $status_object = new $status_code(NULL);
+        }
+
+        $GLOBALS['SQ_STATUS_DESC_NAME'][$status] = $status_object->getDescription();
+    }
+
+	return $GLOBALS['SQ_STATUS_DESC_NAME'][$status];
 
 }//end get_status_description()
 
