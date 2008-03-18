@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_trim.inc,v 1.1 2008/03/17 06:02:44 hnguyen Exp $
+* $Id: data_source_trim.inc,v 1.2 2008/03/18 21:50:30 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,7 +84,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access private
 	*/
-	function _getAllowedLinks()
+	public function _getAllowedLinks()
 	{
 		// any link is allowed
 		$allowed_link['asset']['card'] = 'M';
@@ -106,7 +106,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function &getResultSet()
+	public function &getResultSet()
 	{
 		$search_kw = $this->getDynamicVariableValue('search_keyword');
 		$string_search_type = $this->getDynamicVariableValue('string_search_type');
@@ -170,7 +170,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return string
 	* @access public
 	*/
-	function getDynamicVariableValue($variable_name)
+	public function getDynamicVariableValue($variable_name)
 	{
 		$dynamic_vars = $this->attr('dynamic_vars');
 		if (!isset($dynamic_vars[$variable_name])) return '';
@@ -270,7 +270,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return unknown
 	* @access public
 	*/
-	function constructRecordStringSearchClause()
+	public function constructRecordStringSearchClause()
 	{
 
 		$search_type	= $this->getDynamicVariableValue('string_search_type');
@@ -290,7 +290,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return unknown
 	* @access public
 	*/
-	function constructRecordDateRangeSearchClause()
+	public function constructRecordDateRangeSearchClause()
 	{
 		$start_time		= $this->getDynamicVariableValue('search_start_time');
 		$end_time		= $this->getDynamicVariableValue('search_end_time');
@@ -312,7 +312,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return unknown
 	* @access public
 	*/
-	function constructRecordNumberRangeSearchClause()
+	public function constructRecordNumberRangeSearchClause()
 	{
 		$start_number	= $this->getDynamicVariableValue('search_start_rec_num');
 		$end_number		= $this->getDynamicVariableValue('search_end_rec_num');
@@ -339,7 +339,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function constructRecordSearch()
+	public function constructRecordSearch()
 	{
 
 		$sort1	= $this->getDynamicVariableValue('search_sort_1');
@@ -407,7 +407,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function constructShortcutRecordUri($uri)
+	public function constructShortcutRecordUri($uri)
 	{
 		$sru	= Array (
 					'Uri'				=> $uri,
@@ -429,7 +429,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function constructDownload()
+	public function constructDownload()
 	{
 		$download	= Array (
 						'Checkout'				=> FALSE,
@@ -454,7 +454,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function constructUpload($base64PayLoad)
+	public function constructUpload($base64PayLoad)
 	{
 		$upload		= Array (
 						'TransferType'		=> 'inline',
@@ -476,7 +476,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function constructFetch($record_properties=Array())
+	public function constructFetch($record_properties=Array())
 	{
 		$properties = $this->getDynamicVariableValue('fields');
 		$spec_props = Array();
@@ -512,7 +512,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return string
 	* @access void
 	*/
-	function SwapElement($xml, $ele_1, $ele_2)
+	private function SwapElement($xml, $ele_1, $ele_2)
 	{
 		$ele_1b = '<'.$ele_1.'>';
 		$ele_1e = '</'.$ele_1.'>';
@@ -545,7 +545,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function parseTRIMData($data, $operation='Fetch')
+	private function parseTRIMData($data, $operation='Fetch')
 	{
 		$object_list = Array();
 		$xml = new SimpleXMLElement($data);
@@ -621,7 +621,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function downloadFile($object_list)
+	private function downloadFile($object_list)
 	{
 		if (!isset($object_list['error'])) {
 			$file_content	= base64_decode($object_list['Base64Payload']);
@@ -665,7 +665,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return boolean
 	* @access public
 	*/
-	function getPackagedFiles($object_list, $hash_key, &$final_file_path)
+	private function getPackagedFiles($object_list, $hash_key, &$final_file_path)
 	{
 		if (!isset($object_list['error'])) {
 			$file_content	= base64_decode($object_list['Base64Payload']);
@@ -697,7 +697,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function getRecordSearchTypes()
+	public function getRecordSearchTypes()
 	{
 		$rsTypes	= Array (
 						'StringSearch'			=> 'Record Content',
@@ -715,7 +715,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function getRecordStringSearchClauseType()
+	public function getRecordStringSearchClauseType()
 	{
 		$slTypes	= Array (
 						'AnyWord'				=> 'AnyWord',
@@ -739,7 +739,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function getRecordDateRangeSearchClauseType()
+	public function getRecordDateRangeSearchClauseType()
 	{
 		$drTypes	= Array (
 						'DateClosed'			=> 'DateClosed',
@@ -768,7 +768,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return array
 	* @access public
 	*/
-	function getRecordProperties()
+	public function getRecordProperties()
 	{
 		$properties = Array (
 						'recAccessControl'					=> 'Access Control',
@@ -899,7 +899,7 @@ class Data_Source_TRIM extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function cleanupDynamicVars(&$dynamic_vars)
+	public function cleanupDynamicVars(&$dynamic_vars)
 	{
 		$remove_keys	= Array ('search_keyword', 'string_search_type', 'StartTime', 'EndTime', 'dateRangeSearchType', 'StartNum', 'EndNum', 'UseExpandedNumber');
 
