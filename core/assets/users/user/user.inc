@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.124 2008/03/12 02:55:01 mbrydon Exp $
+* $Id: user.inc,v 1.125 2008/03/18 02:28:51 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -658,20 +658,21 @@ class User extends Asset
 	function getUserGroups()
 	{
 		// cache the result so that we dont do this more than once in an execution
-		if (!isset($this->_tmp['effective_groups'])) {
-			$this->_tmp['effective_groups'] = Array();
+		if (!isset($_SESSION['sq_effective_user_groups'][$this->id])) {
+			$_SESSION['sq_effective_user_groups'][$this->id] = Array();
 			$fetch_roles = ((SQ_CONF_ENABLE_ROLES_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1'));
 			$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', FALSE);
 			foreach ($groupids as $groupid => $type_code) {
 				// if we pass the conditions, let us belong to this group
-				if (($type_code == 'role') && $fetch_roles) {
+				// EXCEPT if this is a role, and roles are disabled
+				if (!(($type_code == 'role') && !$fetch_roles)) {
 					if ($this->_belongsToGroup($groupid)) {
-						$this->_tmp['effective_groups'][] = $groupid;
+						$_SESSION['sq_effective_user_groups'][$this->id][] = $groupid;
 					}
 				}
 			}
 		}
-		return $this->_tmp['effective_groups'];
+		return $_SESSION['sq_effective_user_groups'][$this->id];
 
 	}//end getUserGroups()
 
