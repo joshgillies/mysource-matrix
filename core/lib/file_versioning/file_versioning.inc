@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.37 2008/03/17 23:48:29 gsherwood Exp $
+* $Id: file_versioning.inc,v 1.38 2008/03/18 00:32:53 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -702,7 +702,7 @@ class File_Versioning
 				// NOTE: this will not return a version if the file has been removed
 				//       this is DELIBERATE as it forces people to specify a version number or
 				//       date if they want an expired version
-				$sql = 'SELECT version, removal
+				$sql = 'SELECT version, removal, md5, sha1
 						FROM sq_file_vers_history
 						WHERE fileid = :fileid
 						  AND to_date IS NULL';
@@ -712,7 +712,7 @@ class File_Versioning
 				$date = ts_iso8601($date);
 
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql = 'SELECT version, removal
+				$sql = 'SELECT version, removal, md5, sha1
 						FROM sq_file_vers_history
 						WHERE fileid = :fileid
 						  AND from_date <= :from_date
@@ -751,7 +751,7 @@ class File_Versioning
 
 		// else make sure the set version is valid
 		} else {
-			$sql = 'SELECT version, removal
+			$sql = 'SELECT version, removal, md5, sha1
 					FROM sq_file_vers_history
 					WHERE fileid = :fileid
 						AND version = :version';
@@ -783,6 +783,8 @@ class File_Versioning
 
 		$info['version']     = $ver_info['version'];
 		$info['removal']     = $ver_info['removal'];
+		$info['md5']         = $ver_info['md5'];
+		$info['sha1']        = $ver_info['sha1'];
 		$info['source_file'] = $this->_dir.'/'.$rep_file.',ffv'.$ver_info['version'];
 
 		$this->_releaseFile($info['fileid']);
