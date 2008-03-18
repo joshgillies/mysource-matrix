@@ -114,7 +114,9 @@ class Page_Hit_Count_Listing extends Listing_Engine
 		$links = Array();
 
 		// build the full query that get every children/parents of the root nodes with an hit count value
-		$full_query = '';
+		$full_query      = '';
+		$full_bind_vars  = Array();
+
 		foreach ($root_asset_ids as $key => $root_asset_id) {
 			$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 			$no_hit_query = '';
@@ -123,12 +125,29 @@ class Page_Hit_Count_Listing extends Listing_Engine
 			$table_alias = 'a';
 			if ($this->attr('direction') == 'down') {
 				// if we are listing children
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, NULL, NULL, TRUE, $min_depth, $max_depth, FALSE);
+				$bind_prefix = 'gc_'.$root_asset_id.'_';
+				$ret_val   = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, NULL, NULL, TRUE, $min_depth, $max_depth, FALSE, NULL, $bind_prefix);
+				$query     = $ret_val['sql_array'];
+				$bind_vars = $ret_val['bind_vars'];
 
 				// if we need to show assets with not hitcount value
 				// get the $query and add in the where clause not in (select assetid from sq_hit_count)
 				if ($show_zero_hitcount && ((!$has_min_hitcount) || ($has_min_hitcount && ($min_hitcount == 0))) ) {
+					$zero_bind_prefix = 'gc_z_'.$root_asset_id.'_';
+
 					$no_hit_query = $query;
+
+					$zero_bind_vars = Array();
+					foreach (array_keys($no_hit_query) as $key) {
+						$no_hit_query[$key] = str_replace(':'.$bind_prefix, ':'.$zero_bind_prefix, $no_hit_query[$key]);
+					}
+
+					$bind_keys = array_keys($bind_vars);
+					foreach ($bind_keys as $key) {
+						$zeroed_key = str_replace($bind_prefix, $zero_bind_prefix, $key);
+						$bind_vars[$zeroed_key] = $bind_vars[$key];
+					}
+
 					$no_hit_query['select'] .= ', 0 as hitcount ';
 					$no_hit_query['where'] .= ' and a.assetid not in (select assetid from sq_hit_count) ';
 					$no_hit_query['union_select'] .= ', 0 as hitcount ';
@@ -144,12 +163,30 @@ class Page_Hit_Count_Listing extends Listing_Engine
 
 				// if direction id down we are using the table with the alias ll for the asset
 				$table_alias = 'll';
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, NULL, $min_depth, $max_depth);
+				$bind_prefix = 'gp_'.$root_asset_id.'_';
+				$ret_val   = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, NULL, $min_depth, $max_depth, NULL, $bind_prefix);
+				$query     = $ret_val['sql_array'];
+				$bind_vars = $ret_val['bind_vars'];
 
 				// if we need to show assets with not hitcount value
 				// get the $query and add in the where clause not in (select assetid from sq_hit_count)
 				if ($show_zero_hitcount && ((!$has_min_hitcount) || ($has_min_hitcount && ($min_hitcount == 0))) ) {
+					$zero_bind_prefix = 'gp_z_'.$root_asset_id.'_';
+
+					// we need to replace the bind prefix with another one so we don't duplicate
+					// them in the full query.
 					$no_hit_query = $query;
+					$zero_bind_vars = Array();
+					foreach (array_keys($no_hit_query) as $key) {
+						$no_hit_query[$key] = str_replace(':'.$bind_prefix, ':'.$zero_bind_prefix, $no_hit_query[$key]);
+					}
+
+					$bind_keys = array_keys($bind_vars);
+					foreach ($bind_keys as $key) {
+						$zeroed_key = str_replace($bind_prefix, $zero_bind_prefix, $key);
+						$bind_vars[$zeroed_key] = $bind_vars[$key];
+					}
+
 					$no_hit_query['select'] .= ', 0 as hitcount ';
 					$no_hit_query['where'] .= ' where ll.majorid not in (select assetid from sq_hit_count)  ';
 					$no_hit_query['union_select'] .= ', 0 as hitcount ';
@@ -166,13 +203,19 @@ class Page_Hit_Count_Listing extends Listing_Engine
 			}
 
 			if ($has_min_hitcount) {
-				$query['where'] .= ' and hc.hitcount >='.$min_hitcount.' ';
-				$query['union_where'] .= ' and hc.hitcount >='.$min_hitcount.' ';
+				$query['where'] .= ' and hc.hitcount >= :hc_'.$root_asset_id.'_min ';
+				$query['union_where'] .= ' and hc.hitcount >= :hc_'.$root_asset_id.'_min_union ';
+
+				$bind_vars['hc_'.$root_asset_id.'_min']       = $min_hitcount;
+				$bind_vars['hc_'.$root_asset_id.'_min_union'] = $min_hitcount;
 			}
 
 			if ($has_max_hitcount) {
-				$query['where'] .= ' and hc.hitcount <='.$max_hitcount.' ';
-				$query['union_where'] .= ' and hc.hitcount <='.$max_hitcount.' ';
+				$query['where'] .= ' and hc.hitcount <= :hc_'.$root_asset_id.'_max ';
+				$query['union_where'] .= ' and hc.hitcount <= :hc_'.$root_asset_id.'_max_union ';
+
+				$bind_vars['hc_'.$root_asset_id.'_max']       = $max_hitcount;
+				$bind_vars['hc_'.$root_asset_id.'_max_union'] = $max_hitcount;
 			}
 
 			// if we are sorting A-Z
@@ -198,13 +241,21 @@ class Page_Hit_Count_Listing extends Listing_Engine
 			if ($key < (count($root_asset_ids) - 1)) {
 				$full_query .= ' UNION ALL ';
 			}
+
+			// Add bind variables to the overall tally
+			$full_bind_vars += $bind_vars;
+
 		}//end foreach
 
 		// sort them by hit count
 		$full_query .= ' ORDER BY hitcount '.$sql_sort;
 
 		try {
-			$links = MatrixDAL::executeSqlAll($full_query);
+			$pdo_query = MatrixDAL::preparePdoQuery($full_query);
+			foreach($full_bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($pdo_query, $bind_var, $bind_value);
+			}
+			$links = MatrixDAL::executePdoAll($pdo_query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get hit counts due to database error: '.$e->getMessage());
 		}

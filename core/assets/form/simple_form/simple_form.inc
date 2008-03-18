@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.32 2008/02/29 00:27:36 colivar Exp $
+* $Id: simple_form.inc,v 1.33 2008/03/18 22:23:47 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -354,14 +354,17 @@ class Simple_Form extends Asset implements Bridge
 	function getParents($shadowid, $type_code='', $strict_type_code=TRUE)
 	{
 		// basically get the parents of the section, and add itself in the
-		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
-		if (empty($query)) return Array();
+		$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		if (empty($ret_val)) return Array();
 
 		$queried_parents = NULL;
 		try {
-			$db = MatrixDal::getDb();
-			$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
-			$queried_parents = MatrixDAL::executePdoAll($_query);
+			$query = MatrixDAL::preparePdoQuery(implode(' ', $ret_val['sql_array']));
+			foreach ($ret_val['bind_vars'] as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+
+			$queried_parents = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
 		}//end
@@ -421,16 +424,21 @@ class Simple_Form extends Asset implements Bridge
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
 			$this->forgetAsset($asset);
 		} else {
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by);
+			$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by);
 			unset($asset);
 
 
-			if (!empty($query)) {
-				$db = MatrixDal::getDb();
+			if (!empty($ret_val)) {
+				$sql_array = $ret_val['sql_array'];
+				$bind_vars = $ret_val['bind_vars'];
+
 				$result = NULL;
 				try {
-					$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
-					$result = MatrixDal::executePdoAssoc($_query);
+					$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_array));
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+					$result = MatrixDal::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
 				}
