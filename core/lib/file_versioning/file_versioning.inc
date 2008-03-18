@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.31 2007/03/16 03:06:37 tbarrett Exp $
+* $Id: file_versioning.inc,v 1.31.4.1 2008/03/18 03:15:03 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.4.1 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -617,7 +617,7 @@ class File_Versioning
 				// NOTE: this will not return a version is the file has been removed
 				//       this is DELIBERATE as it forces people to specify a version number or
 				//       date if they want an expired version
-				$sql = 'SELECT version, removal
+				$sql = 'SELECT version, removal, md5, sha1
 						FROM sq_file_vers_history
 						WHERE fileid = '.$db->quote($info['fileid']).'
 						  AND to_date IS NULL';
@@ -630,7 +630,7 @@ class File_Versioning
 				}
 
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql = 'SELECT version, removal
+				$sql = 'SELECT version, removal, md5, sha1
 						FROM sq_file_vers_history
 						WHERE fileid = '.$db->quote($info['fileid']).'
 						  AND from_date <= '.$date.'
@@ -650,7 +650,7 @@ class File_Versioning
 
 		// else make sure the set version is valid
 		} else {
-			$sql = 'SELECT version, removal
+			$sql = 'SELECT version, removal, md5, sha1
 					FROM sq_file_vers_history
 					WHERE fileid = '.$db->quote($info['fileid']).'
 					  AND version = '.$db->quote($version);
@@ -669,6 +669,8 @@ class File_Versioning
 
 		$info['version']     = $ver_info['version'];
 		$info['removal']     = $ver_info['removal'];
+		$info['md5']         = $ver_info['md5'];
+		$info['sha1']        = $ver_info['sha1'];
 		$info['source_file'] = $this->_dir.'/'.$rep_file.',ffv'.$ver_info['version'];
 
 		$this->_releaseFile($info['fileid']);
@@ -713,7 +715,7 @@ class File_Versioning
 
 		// our file is real, so lets do some hash checks
 		if ($exists) {
-			if ($info['md5'] && $info['sha1']) {
+			if ($info['md5'] && $info['sha1'] && trim($info['md5']) !== '' && trim($info['sha1']) !== '') {
 				$current = $rep_file.',ffv'.$existing_version;
 
 				// verify its md5 and sha1 values, throw a warning to the user if something is amiss
