@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.6 2008/03/19 03:40:23 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.655.2.7 2008/03/19 22:18:17 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.6 $
+* @version $Revision: 1.655.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4317,8 +4317,8 @@ class Asset_Manager extends MySource_Object
 
 		// First, we should check that we don't already have a link of this type
 		$current_link = $this->getLinkByAsset($major->id, $minor->id, $link_type, $value);
-		$trash_folder_id = $this->getSystemAssetid('trash_folder');
 		if (empty($current_link) === FALSE) {
+			$trash_folder_id = $this->getSystemAssetid('trash_folder');
 			// The link we are creating already exists, so throw an error
 			// unless the major is the trash, in which case we just pretend we linked ok
 			if ($trash_folder_id != $major->id) {
