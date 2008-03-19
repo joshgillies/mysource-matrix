@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.68 2008/02/21 04:12:33 lwright Exp $
+* $Id: ldap_bridge.inc,v 1.69 2008/03/19 00:46:43 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -957,26 +957,29 @@ class LDAP_Bridge extends Asset implements Bridge
 	{
 		$info = Array();
 		foreach ($assetids as $assetid) {
-			$asset = $this->getAsset($assetid);
-
-			if (is_null($asset)) {
-				if (!empty($field)) {
-					$info[$assetid] = '';
-				} else {
-					$info[$assetid] = Array();
-				}
-			} else {
-				if (!empty($field)) {
-					if ($field == 'assetid') {
-						$info[$assetid] = $assetid;
-					} else if ($field == 'type_code') {
+			if (!empty($field)) {
+				if ($field == 'assetid') {
+					$info[$assetid] = $assetid;
+				} else if ($field == 'type_code') {
+					$asset =& $this->getAsset($assetid);
+					if (is_null($asset) === false) {
 						$info[$assetid] = $asset->type();
-					} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
+					} else {
+						$info[$assetid] = '';
+					}
+				} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
+					$asset =& $this->getAsset($assetid);
+					if (is_null($asset) === false) {
 						$info[$assetid] = $asset->$field;
 					} else {
-						$info[$assetid] = $this->$field;
+						$info[$assetid] = '';
 					}
 				} else {
+					$info[$assetid] = $this->$field;
+				}
+			} else {
+				$asset =& $this->getAsset($assetid);
+				if (is_null($asset) === false) {
 					$info[$assetid] = Array(
 										'assetid'				=> $assetid,
 										'type_code'				=> $asset->type(),
@@ -996,10 +999,12 @@ class LDAP_Bridge extends Asset implements Bridge
 										'status_changed'		=> $this->status_changed,
 										'status_changed_userid'	=> $this->status_changed_userid,
 									  );
+				} else {
+					$info[$assetid] = Array();
 				}
 			}//end else
 		}//end foreach assetids
-
+	
 		return $info;
 
 	}//end getAssetInfo()
