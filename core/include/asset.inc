@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.3 2008/03/13 00:58:43 lwright Exp $
+* $Id: asset.inc,v 1.633.2.4 2008/03/19 05:33:20 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.3 $
+* @version $Revision: 1.633.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -956,7 +956,11 @@ class Asset extends MySource_Object
 				if ($GLOBALS['SQ_SYSTEM']->getGlobalDefine('force_system_version')) {
 					$this->_tmp['use_system_version'] = TRUE;
 				} else {
-					$usv = (!$this->writeAccess(''));
+					if (SQ_ROLLBACK_VIEW) {
+						$usv = (!$this->checkAccess(SQ_PERMISSION_WRITE, ''));
+					} else {
+						$usv = (!$this->writeAccess(''));
+					}//end if
 					if ($usv && !$GLOBALS['SQ_SYSTEM']->userPublic()) {
 						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						$publishers = $wfm->whoCanPublish($this->id);
