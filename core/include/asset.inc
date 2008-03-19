@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593.2.7 2008/02/25 22:40:36 colivar Exp $
+* $Id: asset.inc,v 1.593.2.8 2008/03/19 03:26:34 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593.2.7 $
+* @version $Revision: 1.593.2.8 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -979,7 +979,11 @@ class Asset extends MySource_Object
 				if ($GLOBALS['SQ_SYSTEM']->getGlobalDefine('force_system_version')) {
 					$this->_tmp['use_system_version'] = TRUE;
 				} else {
-					$usv = (!$this->writeAccess(''));
+					if (SQ_ROLLBACK_VIEW) {
+						$usv = (!$this->checkAccess(SQ_PERMISSION_WRITE, ''));
+					} else {
+						$usv = (!$this->writeAccess(''));
+					}//end else if
 					if ($usv && !$GLOBALS['SQ_SYSTEM']->userPublic()) {
 						$wfm =& $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 						$publishers = $wfm->whoCanPublish($this->id);
@@ -991,6 +995,7 @@ class Asset extends MySource_Object
 				}
 			}
 		}
+
 		return $this->_tmp['use_system_version'];
 
 	}//end useSystemVersion()
@@ -3602,6 +3607,7 @@ class Asset extends MySource_Object
 		if ($this->status == SQ_STATUS_LIVE) {
 			return $this->liveEditAccess($lock_type);
 		}
+
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type, $assetids, $only_workflow);
 
 	}//end writeAccess()
@@ -3832,7 +3838,6 @@ class Asset extends MySource_Object
 	function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if (empty($assetids)) {
-
 			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
 				// if we are the root user, we can do anything
 				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
