@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.5 2008/03/19 02:36:12 lwright Exp $
+* $Id: asset_manager.inc,v 1.655.2.6 2008/03/19 03:40:23 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.5 $
+* @version $Revision: 1.655.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4295,7 +4295,7 @@ class Asset_Manager extends MySource_Object
 				$linkid = $this->createShadowAssetLink($major, $minor, $link_type, $value);
 			}
 			return $linkid;
-		}// end if shadow asset
+		}//end if shadow asset
 
 
 		// Use Master DB since we are going to change stuff
@@ -4316,19 +4316,17 @@ class Asset_Manager extends MySource_Object
 		$major->prepareLink($minor, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 
 		// First, we should check that we don't already have a link of this type
-		$current_links = $this->getLinks($major->id, $link_type, $minor->type());
-		$num_curr_links = count($current_links);
-		for ($i = 0; $i < $num_curr_links; $i++) {
-			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
-				// The link we are creating already exists, so throw an error
-				// unless the major is the trash, in which case we just pretend we linked ok
-				if ($this->getSystemAssetid('trash_folder') != $major->id) {
-					trigger_localised_error('SYS0192', E_USER_WARNING, "$major->name (#$major->id)", "$minor->name (#$minor->id)");
-				}
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return $current_links[$i]['linkid'];
+		$current_link = $this->getLinkByAsset($major->id, $minor->id, $link_type, $value);
+		$trash_folder_id = $this->getSystemAssetid('trash_folder');
+		if (empty($current_link) === FALSE) {
+			// The link we are creating already exists, so throw an error
+			// unless the major is the trash, in which case we just pretend we linked ok
+			if ($trash_folder_id != $major->id) {
+				trigger_localised_error('SYS0192', E_USER_WARNING, "$major->name (#$major->id)", "$minor->name (#$minor->id)");
 			}
-		}//end for
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return $current_link['linkid'];
+		}
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 			// Check if we are allowed to link to these type of assets - if we
@@ -4353,7 +4351,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		// Change to DB to deal with the link tables
+		// Change to DB3 to deal with the link tables
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$db = MatrixDAL::getDB();
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -4363,13 +4361,6 @@ class Asset_Manager extends MySource_Object
 			// This is a significant link
 
 			// Check we aren't moving the minor asset under itself
-			$sub_sql = 'SELECT
-							linkid
-						FROM
-							sq_ast_lnk
-						WHERE
-							minorid = :minorid';
-
 			$sql = 'SELECT
 						COUNT(DISTINCT ct.linkid)
 					FROM sq_ast_lnk_tree pt,
@@ -4377,7 +4368,9 @@ class Asset_Manager extends MySource_Object
 					WHERE
 							ct.treeid LIKE (pt.treeid || \'%\')
 						AND	ct.treeid >= pt.treeid
-						AND	pt.linkid IN ('.$sub_sql.')
+						AND	pt.linkid IN (SELECT linkid
+										  FROM sq_ast_lnk
+										  WHERE minorid = :minorid)
 						AND	cl.minorid = :majorid';
 
 			try {
