@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.345 2008/03/11 05:38:20 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.346 2008/03/19 00:56:01 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.345 $
+* @version $Revision: 1.346 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -2103,7 +2103,10 @@ class Asset_Edit_Interface extends MySource_Object
 		$db = MatrixDAL::getDb();
 
 		// get all the user groups that we exist in
-		$groups = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+		$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$groups = $user->getUserGroups();
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+
 		if (empty($groups)) return Array(); // all screens allowed
 
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) {
