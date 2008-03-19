@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
-* | ACN 084 670 600													   |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.														   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.116.2.1 2008/03/12 04:04:22 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.116.2.2 2008/03/19 02:36:14 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116.2.1 $
+* @version $Revision: 1.116.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -258,27 +258,35 @@ class Page_Asset_Listing extends Listing_Engine
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
 							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, TRUE, $link_value_wanted);
+							$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, TRUE, $link_value_wanted);
+							$sql_array = $ret_val['sql_array'];
+							$bind_vars = $ret_val['bind_vars'];
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 							$table_alias = 'a';
 						} else {
 							$table_alias = 'll';
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, $list_permission, $list_effective, $min_depth, $max_depth, $link_value_wanted);
+							$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), FALSE, $letter_sort_by, $list_permission, $list_effective, $min_depth, $max_depth, $link_value_wanted);
+							$sql_array = $ret_val['sql_array'];
+							$bind_vars = $ret_val['bind_vars'];
 						}
-						if (empty($query)) $new_assets_to_list = Array();
+						if (empty($ret_val)) $new_assets_to_list = Array();
 
-						$query['select'] .= ', SUBSTR('.$table_alias.'.'.$letter_sort_by.', 1, 1) AS first_letter';
-						if (strpos($query['group_by'], ($table_alias.'.'.$letter_sort_by)) === FALSE) {
-							$query['group_by'] .= ', '.$table_alias.'.'.$letter_sort_by;
+						$sql_array['select'] .= ', SUBSTR('.$table_alias.'.'.$letter_sort_by.', 1, 1) AS first_letter';
+						if (strpos($sql_array['group_by'], ($table_alias.'.'.$letter_sort_by)) === FALSE) {
+							$sql_array['group_by'] .= ', '.$table_alias.'.'.$letter_sort_by;
 						}
 						// we need to add the first_letter column to the union so that we have the right
 						// number of columns in both sides of the union
-						$query['union_select'] .= ', null AS first_letter';
+						$sql_array['union_select'] .= ', null AS first_letter';
 
 						$db = MatrixDAL::getDb();
 						$new_assets_to_list = Array();
 						try {
-							   $new_assets_to_list = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+								$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_array));
+								foreach ($bind_vars as $bind_var => $bind_value) {
+									MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+								}
+								$new_assets_to_list = MatrixDAL::executePdoGroupedAssoc($query);
 						} catch (Exception $e) {
 								throw new Exception($e->getMessage());
 						}
@@ -356,25 +364,31 @@ class Page_Asset_Listing extends Listing_Engine
 
 						$sqls = Array();
 
+						$bind_vars = Array();
 						foreach ($root_asset_ids as $root_asset_id) {
 							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 
-							$sql = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, FALSE, $link_value_wanted);
+							$bind_prefix = 'gc_'.$root_asset_id.'_';
+							$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, TRUE, $min_depth, $max_depth, FALSE, $link_value_wanted, $bind_prefix);
+							$sql = $ret_val['sql_array'];
+							$bind_vars = array_merge($bind_vars, $ret_val['bind_vars']);
+
 							$sql['select'] = str_replace(', a.type_code', '', $sql['select']);
 							$sql['union_select'] = str_replace(', null', '', $sql['union_select']);
 
 							$sql = implode(' ', $sql);
-							$db = MatrixDal::getDb();
 							$sqls[] = '('.sprintf($links_sql, $sql).')';
 
 						}
 
 						$sql = implode(' UNION ', $sqls);
 
-						// The fifth param to getAssoc() lets us get this
 						$links = NULL;
 						try {
 							$query = MatrixDAL::preparePdoQuery($sql);
+							foreach ($bind_vars as $bind_var => $bind_value) {
+								MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+							}
 							$links = MatrixDAL::executePdoGrouped($query);
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());

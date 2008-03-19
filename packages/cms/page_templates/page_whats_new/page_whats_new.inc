@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.39.2.1 2008/03/12 04:04:23 lwright Exp $
+* $Id: page_whats_new.inc,v 1.39.2.2 2008/03/19 02:36:14 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.2.1 $
+* @version $Revision: 1.39.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,6 +64,7 @@ class Page_Whats_New extends Listing_Engine
 	function getAssetList()
 	{
 		$group_by = $this->attr('group_by');
+		$bind_vars = Array();
 
 		// this is the list of all type codes that we are going to show
 		// we pass this list to the getLinks and getChildren functions (below) to narrow
@@ -181,6 +182,9 @@ class Page_Whats_New extends Listing_Engine
 				$new_links = NULL;
 				try {
 					$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
+					foreach($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($_query, $bind_var, $bind_value);
+					}
 					$new_links = MatrixDAL::executePdoAll($_query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
@@ -214,18 +218,27 @@ class Page_Whats_New extends Listing_Engine
 
 			foreach ($root_asset_ids as $root_asset_id) {
 				$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
-				$query['where'] .= $where;
+				$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+				$sql_array = $ret_val['sql_array'];
+				$bind_vars = array_merge($bind_vars, $ret_val['bind_vars']);
+
+				$sql_array['where'] .= $where;
 
 				// special case for A-Z listings because they require another field selected from the database
 				if ($group_by == 'letter') {
-					$query['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
-					$query['union_select'] .= ', NULL AS first_letter';
+					$sql_array['select'] .= ', SUBSTR(a.'.$letter_sort_by.', 1, 1) AS first_letter';
+					$sql_array['union_select'] .= ', NULL AS first_letter';
 				}
 
 				$new_kids = NULL;
 				try {
-					$new_kids = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+					$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_array));
+
+					foreach($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+
+					$new_kids = MatrixDAL::executePdoGroupedAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
 				}

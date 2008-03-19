@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.31.2.1 2008/03/12 04:03:51 lwright Exp $
+* $Id: cron_job_future_lineage.inc,v 1.31.2.2 2008/03/19 02:36:12 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31.2.1 $
+* @version $Revision: 1.31.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -323,7 +323,10 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			}
 
 			// check the same thing for all children
-			$children = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($minor, '', TRUE, FALSE);
+			$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($minor, '', TRUE, FALSE);
+			$children  = $ret_val['sql_array'];
+			$bind_vars = $ret_val['bind_vars'];
+
 			if (!empty($children)) {
 				// modify the selection so that we only get 1 column
 				$children['select'] = '(SELECT DISTINCT l.minorid';
@@ -345,6 +348,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 				try {
 					$query = MatrixDAL::preparePdoQuery($sql);
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
 					MatrixDAL::bindValueToPdo($query, 'link_type_3', SQ_LINK_TYPE_3);
 					MatrixDAL::bindValueToPdo($query, 'link_notice', SQ_LINK_NOTICE);
 					MatrixDAL::bindValueToPdo($query, 'status_live', SQ_STATUS_LIVE);

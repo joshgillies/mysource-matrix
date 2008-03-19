@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.62.2.1 2008/03/12 04:04:22 lwright Exp $
+* $Id: form_section.inc,v 1.62.2.2 2008/03/19 02:36:13 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62.2.1 $
+* @version $Revision: 1.62.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -432,10 +432,15 @@ class Form_Section extends Asset implements Bridge
 	function getParents($shadowid, $type_code='', $strict_type_code=TRUE)
 	{
 		// basically get the parents of the section, and add itself
-		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
-		if (empty($query)) return Array();
+		$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		if (empty($ret_val)) return Array();
 
-		$queried_parents = MatrixDAL::executeSqlAssoc(implode(' ', $query));
+		$query = MatrixDAL::preparePdoQuery(implode(' ', $ret_val['sql_array']));
+		foreach ($ret_val['bind_vars'] as $bind_var => $bind_value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+		}
+
+		$queried_parents = MatrixDAL::executePdoAssoc($query);
 		$parents = Array();
 
 		foreach ($queried_parents as $queried_parent) {

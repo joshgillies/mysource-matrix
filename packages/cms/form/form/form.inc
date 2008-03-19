@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178.2.2 2008/03/12 04:04:21 lwright Exp $
+* $Id: form.inc,v 1.178.2.3 2008/03/19 02:36:13 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178.2.2 $
+* @version $Revision: 1.178.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -500,12 +500,17 @@ class Form extends Asset implements Bridge
 		if (isset($id_parts[1])) $shadowid = $id_parts[1];
 
 		// basically get the parents of the section, and add itself in the
-		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
+		$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($this->id, $type_code, $strict_type_code);
 
-		if (empty($query)) return Array();
+		if (empty($ret_val)) return Array();
 
 		try {
-			$queried_parents = MatrixDAL::executeSqlAssoc(implode(' ', $query));
+			$query = MatrixDAL::preparePdoQuery(implode(' ', $ret_val['sql_array']));
+			foreach ($ret_val['bind_vars'] as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+
+			$queried_parents = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get the parents of shadow id: '.$shadowid.' due to database error: '.$e->getMessage());
 		}
@@ -566,12 +571,19 @@ class Form extends Asset implements Bridge
 			$children = $asset->getChildren($assetid, $type_code, $dependant, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
 		} else {
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by);
+			$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $dependant, $sort_by);
 			unset($asset);
 
-			if (!empty($query)) {
+			if (!empty($ret_val)) {
 				try  {
-					$result = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+					$sql_array = $ret_val['sql_array'];
+					$bind_vars = $ret_val['bind_vars'];
+
+					$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_array));
+					foreach ($bind_vars as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+					$result = MatrixDAL::executePdoGroupedAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get children for asset: '.$assetid.' due to database error: '.$e->getMessage());
 				}
