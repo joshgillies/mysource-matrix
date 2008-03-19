@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265.2.3 2008/03/13 00:37:48 lwright Exp $
+* $Id: asset_map.inc,v 1.265.2.4 2008/03/19 01:02:50 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.3 $
+* @version $Revision: 1.265.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -765,11 +765,9 @@ class Asset_Map
 				$assetid = (String)$assetid;
 				$userid_cond = '';
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$fetch_roles = (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
-					$group_types = Array('user_group', 'system_user_group');
-					if ($fetch_roles) $group_types[] = 'role';
-
-					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, $group_types, TRUE));
+					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+					$userids = $user->getUserGroups();
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 					$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 					array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
@@ -987,11 +985,9 @@ class Asset_Map
 			$assetid = (String)$assetid;
 			$userid_cond = '';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$fetch_roles = (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1');
-				$group_types = Array('user_group', 'system_user_group');
-				if ($fetch_roles) $group_types[] = 'role';
-
-				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, $group_types, TRUE));
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$userids = $user->getUserGroups();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 				$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 				array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
