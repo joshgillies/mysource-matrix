@@ -19,14 +19,25 @@ class Default_Delivery_Method_Management extends Asset_Management
 
 		$this->vars = Array(
 						'receipt_emails_format'		=> Array(
-														'added'		=> '0.2',
-														'type'		=> 'email_format',
-														'default'	=> Array(),
+														'added'			=> '0.2',
+														'type'			=> 'email_format',
+														'default'		=> Array(),
 													   ),
 						'recipient_emails_format'	=> Array(
-														'added'		=> '0.2',
-														'type'		=> 'email_format',
-														'default'	=> Array(),
+														'added'			=> '0.2',
+														'type'			=> 'email_format',
+														'default'		=> Array(),
+													   ),
+						'payment_gateway'			=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'assetid',
+														'default'		=> 0,
+													   ),
+						'send_emails'				=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'boolean',
+														'default'		=> TRUE,
+														'parameters'	=> Array('allow_empty'	=> FALSE),
 													   ),
 					  );
 
