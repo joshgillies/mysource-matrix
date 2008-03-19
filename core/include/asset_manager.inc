@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.669 2008/03/17 03:33:27 lwright Exp $
+* $Id: asset_manager.inc,v 1.670 2008/03/19 01:04:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.669 $
+* @version $Revision: 1.670 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8436,12 +8436,12 @@ class Asset_Manager extends MySource_Object
 
 					if ($min_height < $max_height) {
 						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
-						$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-						$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
 					} else if ($min_height > $max_height) {
 						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
-						$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-						$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
 					} else {
 						$where_comp .= ' AND LENGTH(t.treeid) = :'.$bind_prefix.'treeid_height_'.$i;
 						$bind_vars[$bind_prefix.'treeid_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
