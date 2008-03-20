@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.52.2.4 2008/03/20 04:54:14 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.52.2.5 2008/03/20 05:43:14 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.52.2.4 $
+* @version $Revision: 1.52.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -375,9 +375,27 @@ class Ecommerce_Checkout extends Page
 				// do we have enough products to create an order?
 				if (!$this->_updateQuantities(FALSE)) {
 					$this->print_context = 'failure';
-					break;
+					return;
 				} else {
 					$this->insufficient_quantities = FALSE;
+				}
+			}
+
+			// if the payment gateway has processed the cart, unset its session information
+			if (isset($_SESSION['SQ_ECOM_RESPONSE'])) {
+				unset($_SESSION['SQ_ECOM_RESPONSE']);
+			} else {
+				// process the payment gateway if one is present and if we haven't done so already
+				$payment_gateway_id = $delivery_method->attr('payment_gateway');
+				$response = array_get_index($_SESSION, 'SQ_ECOM_RESPONSE', FALSE);
+				if (!empty($payment_gateway_id) && !$response) {
+					// get cart total cost
+					$cart =& new Ecommerce_Cart_Processor();
+					$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+					$total_tax = $cart->getTotalTax($this->attr('taxation_rate')/100);
+					$total_cost = $cart->getTotal($total_tax);
+					$delivery_method->processPaymentGateway($total_cost);
+					return;
 				}
 			}
 
@@ -385,31 +403,11 @@ class Ecommerce_Checkout extends Page
 			if (is_null($order_asset)) {
 				$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
 				$this->print_context = 'failure';
-				break;
+				return;
 			}
 		}
 
 		$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
-
-		// if the payment gateway has processed the cart, unset its session information
-		if (isset($_SESSION['SQ_ECOM_RESPONSE'])) {
-			unset($_SESSION['SQ_ECOM_RESPONSE']);
-		} else {
-			// process the payment gateway if one is present and if we haven't done so already
-			$payment_gateway_id = $delivery_method->attr('payment_gateway');
-			$response = array_get_index($_SESSION, 'SQ_ECOM_RESPONSE', FALSE);
-			if (!empty($payment_gateway_id) && !$response) {
-				// get cart total cost
-				$cart =& new Ecommerce_Cart_Processor();
-				$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
-				$total_tax = $cart->getTotalTax($this->attr('taxation_rate')/100);
-				$total_cost = $cart->getTotal($total_tax);
-				// set the order id here so we don't create two order assets when we return here after processing payment
-				$_SESSION['sq_local_cart_contents']['order_id'] = $order_asset->id;
-				$delivery_method->processPaymentGateway($total_cost);
-				return;
-			}
-		}
 
 		// process the delivery and provide the tax name and tax rate
 		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges());
