@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168.2.3 2008/03/17 02:57:41 lwright Exp $
+* $Id: metadata_manager.inc,v 1.168.2.4 2008/03/20 02:50:37 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168.2.3 $
+* @version $Revision: 1.168.2.4 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -431,13 +431,16 @@ class Metadata_Manager extends MySource_Object
 
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$child_query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE);
+			$sql_array	= $child_query['sql_array'];
+			$bind_vars	= $child_query['bind_vars'];
 			if (is_null($schema)) {
 				trigger_localised_error('SYS0044', E_USER_WARNING, $schemaid);
 				return FALSE;
 			}
 			$where .= '
 						mv.fieldid IN (
-						'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE)).'
+						'.implode(' ', $sql_array).'
 						) OR ';
 
 		}// end foreach
@@ -451,6 +454,9 @@ class Metadata_Manager extends MySource_Object
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
+            foreach ($bind_vars as $bind_var => $bind_value) {
+                MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+            }//end foreach			
 			$metadata = MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to metadata values for assetid #'.$asset->id.' due to the following database error'.$e->getMessage());
