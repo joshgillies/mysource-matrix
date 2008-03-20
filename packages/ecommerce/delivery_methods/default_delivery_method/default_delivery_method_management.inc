@@ -28,6 +28,17 @@ class Default_Delivery_Method_Management extends Asset_Management
 														'type'		=> 'email_format',
 														'default'	=> Array(),
 													   ),
+						'payment_gateway'			=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'assetid',
+														'default'		=> 0,
+													   ),  
+						'send_emails'				=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'boolean',
+														'default'		=> TRUE,
+														'parameters'	=> Array('allow_empty'	=> FALSE),
+													   ),  
 					  );
 
 	}//end constructor
