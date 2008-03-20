@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.119 2008/03/18 22:23:49 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.120 2008/03/20 00:31:25 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.119 $
+* @version $Revision: 1.120 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -202,18 +202,22 @@ class Page_Asset_Listing extends Listing_Engine
 
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, $link_value_wanted, NULL, NULL, $letter_sort_by, $list_permission, $list_effective);
-						if (empty($query)) return Array();
+						$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, $side_of_link, $link_value_wanted, NULL, NULL, $letter_sort_by, $list_permission, $list_effective);
+						if (empty($links_query)) return Array();
 						// the table alias is 'l' rather than 'a' as the query queries the view sq_vw_ast_lnk_minor
 						// which returns the results from the asset table, using the table alias 'l'
-						$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
+						$links_query['sql_array']['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
 
-						$db = MatrixDAL::getDb();
 						$links = NULL;
 
 						try {
-							$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
-							$links = MatrixDAL::executePdoAll($_query);
+							$query = MatrixDAL::preparePdoQuery(implode(' ', $links_query['sql_array']));
+
+							foreach ($bind_vars as $bind_var => $bind_value) {
+								MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+							}
+s
+							$links = MatrixDAL::executePdoAll($query);
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());
 						}

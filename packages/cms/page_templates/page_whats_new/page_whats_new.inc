@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.41 2008/03/18 22:23:49 lwright Exp $
+* $Id: page_whats_new.inc,v 1.42 2008/03/20 00:31:25 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,8 +93,7 @@ class Page_Whats_New extends Listing_Engine
 		}
 
 		$children = Array();
-
-		$db = MatrixDal::getDb();
+		$base_bind_vars = Array();
 
 		// this is the field in the database that we are using the specify that something is "new"
 		$field = $this->attr('date_field');
@@ -135,7 +134,8 @@ class Page_Whats_New extends Listing_Engine
 				trigger_localised_error('CMS0054', E_USER_WARNING, $from_time);
 				return Array();
 			}
-			$where .= ' AND a.'.$field.' >= '.db_extras_todate(MatrixDAL::getDbType(), $from_date.' '.$from_time);
+			$where .= ' AND a.'.$field.' >= '.db_extras_todate(MatrixDAL::getDbType(), ':wn_from_date', FALSE);
+			$base_bind_vars['wn_from_date'] = $from_date.' '.$from_time;
 		}
 
 		$to = $to->getISO8601();
@@ -155,7 +155,8 @@ class Page_Whats_New extends Listing_Engine
 				trigger_localised_error('CMS0056', E_USER_WARNING, $to_time);
 				return Array();
 			}
-			$where .= ' AND a.'.$field.' <= '.db_extras_todate(MatrixDAL::getDbType(), $to_date.' '.$to_time);
+			$where .= ' AND a.'.$field.' <= '.db_extras_todate(MatrixDAL::getDbType(), ':wn_to_date', FALSE);
+			$base_bind_vars['wn_to_date'] = $to_date.' '.$to_time;
 		}
 
 		// if there are no date conditions - we dont display anything
@@ -168,7 +169,9 @@ class Page_Whats_New extends Listing_Engine
 			$links = Array();
 
 			foreach ($root_asset_ids as $root_asset_id) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+				$query = $links_query['sql_array'];
+				$bind_vars = array_merge($base_bind_vars, $links_query['bind_vars']);
 
 				// Replace references to asset table with ones to the view
 				$where = str_replace('a.'.$field, 'l.'.$field, $where);
@@ -218,9 +221,9 @@ class Page_Whats_New extends Listing_Engine
 
 			foreach ($root_asset_ids as $root_asset_id) {
 				$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-				$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
-				$sql_array = $ret_val['sql_array'];
-				$bind_vars = array_merge($bind_vars, $ret_val['bind_vars']);
+				$child_query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+				$sql_array = $child_query['sql_array'];
+				$bind_vars = array_merge($base_bind_vars, $child_query['bind_vars']);
 
 				$sql_array['where'] .= $where;
 

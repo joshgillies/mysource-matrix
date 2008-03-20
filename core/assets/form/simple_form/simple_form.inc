@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.33 2008/03/18 22:23:47 lwright Exp $
+* $Id: simple_form.inc,v 1.34 2008/03/20 00:31:14 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -205,10 +205,15 @@ class Simple_Form extends Asset implements Bridge
 
 			// we are getting this type?
 			if ($get_type) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
+				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
 				$type_links = NULL;
 				try {
-					$type_links = MatrixDal::executeSqlAssoc(implode(' ', $query));
+					$query = MatrixDAL::preparePdoQuery(implode(' ', $links_query['sql_array']));
+
+					foreach($links_query['bind_vars'] as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+					$type_links = MatrixDal::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception($e->getMessage());
 				}

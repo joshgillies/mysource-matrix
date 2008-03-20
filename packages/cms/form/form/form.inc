@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.181 2008/03/18 22:23:48 lwright Exp $
+* $Id: form.inc,v 1.182 2008/03/20 00:31:25 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -346,12 +346,18 @@ class Form extends Asset implements Bridge
 
 			// we are getting this type?
 			if ($get_type) {
-				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
-				if (empty($query)) return Array();
+				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
+				if (empty($links_query)) return Array();
 
-				$db = MatrixDAL::getDb();
 				try {
-					$type_links = MatrixDAL::executeSqlGroupedAssoc(implode(' ', $query));
+					$sql = implode(' ', $links_query['sql_array']);
+					$query = MatrixDAL::preparePdoQuery($sql);
+
+					foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					}
+
+					$type_links = MatrixDAL::executePdoGroupedAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get links for asset: '.$assetid.' due to database error: '.$e->getMessage());
 				}
@@ -1043,13 +1049,19 @@ class Form extends Asset implements Bridge
 		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
 		// lest we spin off into an infinite loop involving OUR &getAsset().
 
-		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', '', '1', '0');
-		if (empty($query)) return Array();
-		$query['select'] .= ', l.majorid';		// we need the major id too
-		$db = MatrixDAL::getDb();
+		$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', '', '1', '0');
+		if (empty($links_query)) return Array();
+		$links_query['sql_array']['select'] .= ', l.majorid';		// we need the major id too
 
 		try {
-			$result = MatrixDAL::executeSqlAssoc(implode(' ', $query));
+			$sql = implode(' ', $links_query['sql_array']);
+			$query = MatrixDAL::preparePdoQuery($sql);
+
+			foreach ($links_query['sql_array'] as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+
+			$result = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get section links attached to form: '.$this->id.' due to database error: '.$e->getMessage());
 		}
