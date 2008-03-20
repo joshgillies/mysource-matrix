@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.1 2008/03/12 04:04:22 lwright Exp $
+* $Id: listing_engine.inc,v 1.242.2.2 2008/03/20 06:11:53 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.1 $
+* @version $Revision: 1.242.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -817,8 +817,20 @@ class Listing_Engine extends Page
 
 		// if we don't have a cache key from the listing it's because we shouldn't be caching
 		if ($cache_key) {
-			// because the root nodes can be dynamic we need to cache the results based upon root node
-			$root_nodes = $this->getRootNodes(FALSE);
+			// As per bug #2918, nested asset lists cache too much, so here is the workaround
+			$pmap = unserialize($this->attr('parameter_map'));
+			if (isset($pmap['root_node'][0]['index']) && ($pmap['root_node'][0]['index'] == 'list_current_asset_id')) {
+				$parameter_map =& $this->getAttribute('parameter_map');
+				$nodes = $parameter_map->getParameterValue('root_node');
+				if (is_array($nodes)) {
+					$root_nodes = $nodes;
+				} else {
+					$root_nodes[] = $nodes;
+				}
+			} else {
+				// because the root nodes can be dynamic we need to cache the results based upon root node
+				$root_nodes = $this->getRootNodes(FALSE);
+			}
 			if (!empty($root_nodes)) {
 				$cache_key .= '-'.implode('-', $root_nodes);
 			}
