@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.52.2.3 2008/03/19 23:57:42 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.52.2.4 2008/03/20 04:54:14 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.52.2.3 $
+* @version $Revision: 1.52.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -404,6 +404,8 @@ class Ecommerce_Checkout extends Page
 				$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 				$total_tax = $cart->getTotalTax($this->attr('taxation_rate')/100);
 				$total_cost = $cart->getTotal($total_tax);
+				// set the order id here so we don't create two order assets when we return here after processing payment
+				$_SESSION['sq_local_cart_contents']['order_id'] = $order_asset->id;
 				$delivery_method->processPaymentGateway($total_cost);
 				return;
 			}
