@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.39 2007/11/15 00:55:19 hnguyen Exp $
+* $Id: general.inc,v 1.40 2008/03/20 05:06:47 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package Fudge
 * @subpackage General
 */
@@ -597,22 +597,6 @@ function add_reverse_ordinal_suffix($num)
 	return ($num == 1) ? '' : add_ordinal_suffix($num);
 
 }//end add_reverse_ordinal_suffix()
-
-
-/**
-* function get_class_lower(): in PHP5, get_class return case sensitive classname as declared in the class definition, 
-* many of the previous call to get_call expect lower case classname. This function will return the lowercase classname. 
-*
-* @param object	$object	the object to get the classname from
-*
-* @return string
-* @access public
-*/
-function get_class_lower($object)
-{
-	return strtolower(get_class($object));
-
-}//end get_class_lower()
 
 
 ?>
