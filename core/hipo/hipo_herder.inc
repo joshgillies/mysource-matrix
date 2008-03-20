@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.101 2008/03/12 03:51:05 bpearson Exp $
+* $Id: hipo_herder.inc,v 1.102 2008/03/20 04:17:55 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -845,10 +845,9 @@ class HIPO_Herder extends MySource_Object
 					$jobs_to_remove[] = MatrixDAL::quote($code_name);
 				}
 				$sql = 'DELETE FROM sq_hipo_job
-						WHERE code_name IN (:jobs_to_remove)';
+						WHERE code_name IN ('.implode(',', $jobs_to_remove).')';
 				try {
 					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, 'jobs_to_remove', implode(',', $jobs_to_remove));
 					$result = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to delete HIPO job(s) due to database error: '.$e->getMessage());
@@ -1141,7 +1140,7 @@ class HIPO_Herder extends MySource_Object
 					// we pulled earlier because calling something like getJob() may result in
 					// attempt to abort the job in hipo_job::load(). we don't really want any
 					// error messages to be displayed, just a way to remove this from the db
-					foreach ($orphaned_jobs as $code_name => $job_info) {
+					foreach ($orphaned_jobs as $job_info) {
 						?>
 						<tr>
 							<td><?php echo ucwords(str_replace('_', ' ', $job_info['job_type'])); ?></td>
@@ -1161,7 +1160,7 @@ class HIPO_Herder extends MySource_Object
 							if ($have_lock) {
 								?>
 								<td class="sq-backend-table-cell" style="text-align: center;">
-									<?php check_box('remove_job[]', $code_name); ?>
+									<?php check_box('remove_job[]', $job_info['code_name']); ?>
 								</td>
 								<?php
 							}// end if have_lock
