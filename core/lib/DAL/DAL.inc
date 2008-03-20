@@ -59,7 +59,7 @@ class DAL
      * @var   array $_dbhPool array of connection information
      * @since 4.0.0
      */
-    private static $_dbhPool  = NULL;
+    private static $_dbhPool = NULL;
 
 
     /**
@@ -72,8 +72,23 @@ class DAL
      * @var   array $_dbStack Array of connection IDs
      * @since 4.0.0
      */
-    private static $_dbStack  = Array();
+    private static $_dbStack = Array();
 
+    /**
+     * The ID of the current connection.
+     *
+     * @var   string
+     * @since 4.0.0
+     */
+    private static $_currentDbConnId = '';
+
+    /**
+     * An array of connection IDs to DB type.
+     *
+     * @var   array
+     * @since 4.0.0
+     */
+    private static $_dbTypes = Array();
 
     /**
      * Transaction handler.
@@ -1050,7 +1065,7 @@ class DAL
      */
     public static function beginTransaction()
     {
-        $currentDb = self::getCurrentDbId();
+        $currentDb = self::$_currentDbConnId;
         $dbInfo    = self::$_dbhPool[$currentDb];
 
         if ($dbInfo['transactionSupport'] === TRUE) {
@@ -1076,7 +1091,7 @@ class DAL
      */
     public static function commit()
     {
-        $currentDb = self::getCurrentDbId();
+        $currentDb = self::$_currentDbConnId;
 
         if (self::$_dbhPool[$currentDb]['inTransaction'] === TRUE) {
             $dbh = self::getDb();
@@ -1107,7 +1122,7 @@ class DAL
      */
     public static function rollBack()
     {
-        $currentDb = self::getCurrentDbId();
+        $currentDb = self::$_currentDbConnId;
 
         if (self::$_dbhPool[$currentDb]['inTransaction'] === TRUE) {
             $dbh = self::getDb();
@@ -1254,6 +1269,7 @@ class DAL
         }
 
         array_push(self::$_dbStack, $conn_id);
+        self::$_currentDbConnId = $conn_id;
 
     }//end changeDb()
 
@@ -1272,6 +1288,7 @@ class DAL
         }
 
         array_pop(self::$_dbStack);
+        self::$_currentDbConnId = self::$_dbStack[count(self::$_dbStack) - 1];
 
     }//end restoreDb()
 
@@ -1289,11 +1306,9 @@ class DAL
             throw new DALException('The database connection stack is empty.');
         }
 
-        $conn_id = self::$_dbStack[count(self::$_dbStack) - 1];
+        return self::$_currentDbConnId;
 
-        return $conn_id;
-
-    }//end restoreDb()
+    }//end getCurrentDbId()
 
 
     /**
@@ -1373,7 +1388,7 @@ class DAL
      */
     public static function dbConnected($conn_id=NULL)
     {
-        if (is_null($conn_id) === TRUE) {
+        if ($conn_id === NULL) {
             return !empty(self::$_dbhPool);
         } else {
             return isset(self::$_dbhPool[$conn_id]);
@@ -1393,8 +1408,8 @@ class DAL
      */
     public static function getDsn($conn_id=NULL)
     {
-        if (is_null($conn_id)) {
-            $conn_id = self::getCurrentDbId();
+        if ($conn_id === NULL) {
+            $conn_id = self::$_currentDbConnId;
         }
 
         if (isset(self::$_dbhPool[$conn_id]) === FALSE) {
@@ -1472,11 +1487,11 @@ class DAL
      */
     public static function getDb($conn_id=NULL)
     {
-        if (is_null($conn_id)) {
+        if ($conn_id === NULL) {
             if (empty(self::$_dbStack) === TRUE) {
                 throw new DALException('Cannot get current database because no current database exists.');
             } else {
-                $conn_id = self::getCurrentDbId();
+                $conn_id = self::$_currentDbConnId;
             }
         }
 
@@ -1509,19 +1524,25 @@ class DAL
      */
     public static function getDbType($readable=FALSE, $conn_id=NULL)
     {
-        if (is_null($conn_id)) {
-            $conn_id = self::getCurrentDbId();
+        if ($conn_id === NULL) {
+            $conn_id = self::$_currentDbConnId;
         }
 
-        //$conf = include dirname(__FILE__).'/DALConf.inc';
-        $dbInfo = self::$_dbhPool[$conn_id];
-        $dbh = $dbInfo['dbh'];
+        if (isset(self::$_dbTypes[$conn_id]) === FALSE) {
+            //$conf = include dirname(__FILE__).'/DALConf.inc';
+            $dbInfo = self::$_dbhPool[$conn_id];
+            $dbh = $dbInfo['dbh'];
 
-        if (is_resource($dbh) && (get_resource_type($dbh) === 'oci8 connection')) {
-            // OCI: The connection handle for OCI is a resource and not an object
-            $dbType = 'oci';
+            if (is_resource($dbh) && (get_resource_type($dbh) === 'oci8 connection')) {
+                // OCI: The connection handle for OCI is a resource and not an object
+                $dbType = 'oci';
+            } else {
+                $dbType = $dbh->getAttribute(PDO::ATTR_DRIVER_NAME);
+            }
+
+            self::$_dbTypes[$conn_id] = $dbType;
         } else {
-            $dbType = $dbh->getAttribute(PDO::ATTR_DRIVER_NAME);
+            $dbType = self::$_dbTypes[$conn_id];
         }
 
         if ($readable === TRUE) {
