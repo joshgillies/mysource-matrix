@@ -500,28 +500,27 @@ class Query
     {
         $arrays = Array();
         $arrays[] =& $this->_arrayRepresentation['query'];
+        $found = FALSE;
 
-        try {
-            for ($i = 0; $i < count($arrays); $i++) {
-                $this_array =& $arrays[$i];
+        for ($i = 0; $i < count($arrays); $i++) {
+            $this_array =& $arrays[$i];
 
-                foreach(array_keys($this_array) as $key) {
-                    if ($this_array[$key] === $placeHolder) {
-                        $this_array[$key] = $value;
-                        throw new Exception('Replace done');
-                    }
+            foreach(array_keys($this_array) as $key) {
+                if ($this_array[$key] === $placeHolder) {
+                    $this_array[$key] = $value;
 
-                    if (is_array($this_array[$key])) {
-                        $arrays[] =& $this_array[$key];
-                    }
+                    // Set found, then break out of both loops
+                    $found = TRUE;
+                    break 2;
+                }
+
+                if (is_array($this_array[$key])) {
+                    $arrays[] =& $this_array[$key];
                 }
             }
-        } catch (Exception $e) {
-            // Place holder was replaced.
-            return TRUE;
         }
 
-        return FALSE;
+        return $found;
 
     }//end _findAndReplacePlaceHolder()
 
