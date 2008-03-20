@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2007/10/10 01:57:00 lmarchese Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6.2.1 2008/03/20 06:17:11 hnguyen Exp $
 *
 */
 -->
@@ -20,13 +20,13 @@
 		<field attribute="title">
 			<text width="25" height="1" />
 		</field>
-		<field>
+		<field keyword="filename">
 			<function_call>
 				<paint_function   name="paintFilename"   />
 				<process_function name="processFilename" />
 			</function_call>
 		</field>
-		<field>
+		<field keyword="file_upload">
 			<function_call>
 				<paint_function   name="paintFileUpload"   />
 				<process_function name="processFileUploadPreUpload" />
