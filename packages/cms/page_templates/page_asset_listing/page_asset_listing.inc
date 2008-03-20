@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.120 2008/03/20 00:31:25 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.121 2008/03/20 02:55:35 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.120 $
+* @version $Revision: 1.121 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -216,7 +216,7 @@ class Page_Asset_Listing extends Listing_Engine
 							foreach ($bind_vars as $bind_var => $bind_value) {
 								MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 							}
-s
+
 							$links = MatrixDAL::executePdoAll($query);
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());
