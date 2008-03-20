@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.189 2008/02/18 04:10:09 lwright Exp $
+* $Id: general.inc,v 1.190 2008/03/20 05:06:23 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.189 $
+* @version $Revision: 1.190 $
 * @package MySource_Matrix
 */
 
@@ -1705,6 +1705,22 @@ function do_redirect($url, $message=NULL, $timeout=0)
 	exit(1);
 
 }//end do_redirect()
+
+
+/**
+* function get_class_lower(): in PHP5, get_class return case sensitive classname as declared in the class definition,
+* many of the previous call to get_call expect lower case classname. This function will return the lowercase classname.
+*
+* @param object $object the object to get the classname from
+*
+* @return string
+* @access public
+*/
+function get_class_lower($object)
+{
+    return strtolower(get_class($object));
+
+}//end get_class_lower()
 
 
 /**
