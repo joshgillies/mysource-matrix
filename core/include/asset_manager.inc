@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.676 2008/03/25 00:29:59 bshkara Exp $
+* $Id: asset_manager.inc,v 1.677 2008/03/25 02:50:57 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.676 $
+* @version $Revision: 1.677 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7977,7 +7977,7 @@ class Asset_Manager extends MySource_Object
 			$assetid_cond = 'IN ('.implode(', ', $assetid_binds).')';
 		} else {
 			assert_valid_assetid($assetid);
-			$assetid_cond = ':'.$bind_prefix.'assetid';
+			$assetid_cond = '= :'.$bind_prefix.'assetid';
 			$bind_vars[$bind_prefix.'assetid'] = $assetid;
 		}
 
