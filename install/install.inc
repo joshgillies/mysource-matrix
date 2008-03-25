@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.80.2.1 2008/03/12 04:04:03 lwright Exp $
+* $Id: install.inc,v 1.80.2.2 2008/03/25 05:30:47 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.80.2.1 $
+* @version $Revision: 1.80.2.2 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -917,7 +917,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 							$field_found = FALSE;
 							foreach ($this_section->children() as $this_field) {
-								if ($this_field->attributes()->attribute == $attr_name) {
+								if ((string)$this_field->attributes()->attribute === (string)$attr_name) {
 									$field_found = TRUE;
 									break;
 								}
@@ -1025,7 +1025,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 			$section_found = FALSE;
 			foreach ($to_cache->children() as $this_section) {
 
-				if ($this_section->attributes()->name == $xml_section->attributes()->name) {
+				if ((string)$this_section->attributes()->name === (string)$xml_section->attributes()->name) {
 					$section_found = TRUE;
 					break;
 				}
@@ -1066,7 +1066,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 
 							$field_found = FALSE;
 							foreach ($this_section->children() as $this_field) {
-								if ($this_field->attributes()->code == $code_name) {
+								if ((string)$this_field->attributes()->code === (string)$code_name) {
 									$field_found = TRUE;
 									break;
 								}
