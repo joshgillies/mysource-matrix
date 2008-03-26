@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.5 2007/12/10 06:23:45 rong Exp $
+* $Id: system_update_lookups.php,v 1.5.2.1 2008/03/26 01:04:32 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -56,6 +56,7 @@ $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $sites = $am->getTypeAssetids('site', false, true);
 
 foreach ($sites as $assetid => $type_code) {
+	$type_code = $type_code['type_code'];
 	$site = $am->getAsset($assetid, $type_code);
 
 	$pid = fork();
@@ -156,10 +157,8 @@ function fork()
 */
 function _reconnectDB()
 {
-	$GLOBALS['SQ_SYSTEM']->db->disconnect();
-	unset($GLOBALS['SQ_SYSTEM']->_db_conns);
+	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(TRUE);
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
-	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 }//end _reconnectDB()
 
