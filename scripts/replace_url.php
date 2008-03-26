@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_lookups.php,v 1.6 2008/03/26 01:17:49 lwright Exp $
+* $Id: replace_url.php,v 1.2 2008/03/26 01:18:21 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
