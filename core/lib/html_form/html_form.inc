@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.137 2008/02/06 23:48:53 colivar Exp $
+* $Id: html_form.inc,v 1.138 2008/03/26 23:19:42 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1306,13 +1306,13 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 			continue;
 		}
 
-		if ($structured) {
-			foreach ($invalid as $banned) {
-				if (strlen($banned) > strlen($treeid)) continue;
-				if (substr($treeid, 0, strlen($banned)) == $banned) {
-					unset($child_links[$treeid]);
-					continue 1;
-				}
+		// Bug #2914 - Returning folders that are listed under assets which should not be printed
+		// This had an if statement here to test for structured=TRUE which did not filter all out properly
+		foreach ($invalid as $banned) {
+			if (strlen($banned) > strlen($treeid)) continue;
+			if (substr($treeid, 0, strlen($banned)) == $banned) {
+				unset($child_links[$treeid]);
+				continue 1;
 			}
 		}
 
