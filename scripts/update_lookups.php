@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_lookups.php,v 1.5 2008/02/18 05:28:41 lwright Exp $
+* $Id: update_lookups.php,v 1.6 2008/03/26 01:17:49 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -89,7 +89,7 @@ $sql = 'UPDATE
 		SET
 			url = :url
 		WHERE
-			urlid = :urlid'
+			urlid = :urlid';
 
 $query = MatrixDAL::preparePdoQuery($sql);
 MatrixDAL::bindValueToPdo($query, 'url',   $to_url);
@@ -109,7 +109,7 @@ foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
 			if ($tablename == 'sq_ast_lookup') {
 				$sql .= ' AND root_urlid = :from_urlid';
 			} else if ($tablename == 'sq_ast_lookup_value') {
-				$sql .= 'AND url IN (
+				$sql .= ' AND url IN (
 							SELECT
 								l.url
 							FROM
