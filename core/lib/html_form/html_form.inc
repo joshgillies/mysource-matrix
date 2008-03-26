@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.132.2.1 2007/12/19 05:49:38 gsherwood Exp $
+* $Id: html_form.inc,v 1.132.2.2 2008/03/26 23:22:03 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.132.2.1 $
+* @version $Revision: 1.132.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -81,6 +81,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 	if ($on_click) {
 		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
 	}
+
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
@@ -159,6 +160,7 @@ function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extra
 {
 	$size = (int) $size;
 	$max  = (int) $max;
+
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
@@ -264,6 +266,7 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
+
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
@@ -299,6 +302,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	$cols = (int) $cols;
 	$rows = (int) $rows;
 	$max  = (int) $max;
+
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
@@ -404,6 +408,7 @@ function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $
 {
 	$height    = (int) $height;
 	$maxlength = (int) $maxlength;
+
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
@@ -1302,13 +1307,13 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 			continue;
 		}
 
-		if ($structured) {
-			foreach ($invalid as $banned) {
-				if (strlen($banned) > strlen($treeid)) continue;
-				if (substr($treeid, 0, strlen($banned)) == $banned) {
-					unset($child_links[$treeid]);
-					continue 1;
-				}
+		// Bug #2914 - Returning folders that are listed under assets which should not be printed
+		// This had an if statement here to test for structured=TRUE which did not filter all out properly
+		foreach ($invalid as $banned) {
+			if (strlen($banned) > strlen($treeid)) continue;
+			if (substr($treeid, 0, strlen($banned)) == $banned) {
+				unset($child_links[$treeid]);
+				continue 1;
 			}
 		}
 
