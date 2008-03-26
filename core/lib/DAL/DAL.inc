@@ -1288,7 +1288,12 @@ class DAL
         }
 
         array_pop(self::$_dbStack);
-        self::$_currentDbConnId = self::$_dbStack[count(self::$_dbStack) - 1];
+
+        if (empty(self::$_dbStack) === TRUE) {
+            self::$_currentDbConnId = '';
+        } else {
+            self::$_currentDbConnId = self::$_dbStack[count(self::$_dbStack) - 1];
+        }
 
     }//end restoreDb()
 
