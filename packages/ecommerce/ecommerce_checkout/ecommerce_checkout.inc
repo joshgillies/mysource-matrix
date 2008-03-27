@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.56 2008/02/04 01:13:40 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.57 2008/03/27 05:52:47 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -262,7 +262,13 @@ class Ecommerce_Checkout extends Page
 
 		}//end if
 
-		$action = key($request_action);
+		if (is_array($request_action)) {
+			$action = key($request_action);
+		} else {
+			// cater for GET vars
+			$action = $request_action;
+		}
+
 		$success = TRUE;
 		switch ($action) {
 			case 'go_to_confirmation':
@@ -330,75 +336,10 @@ class Ecommerce_Checkout extends Page
 					$this->print_context = 'failure';
 					break;
 				}
-				// check whether we're editing an order or creating a new one
-				if (isset($_SESSION['sq_local_cart_contents']['order_id'])) {
-					$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
-				}
-				if (empty($order_asset)) {
-					// check quantities before creating a new order
-					if ($this->attr('enforce_quantities')) {
-						// do we have enough products to create an order?
-						if (!$this->_updateQuantities(FALSE)) {
-							$this->print_context = 'failure';
-							break;
-						} else {
-							$this->insufficient_quantities = FALSE;
-						}
-					}
 
-					$order_asset =& $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
-					if (is_null($order_asset)) {
-						$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
-						$this->print_context = 'failure';
-						break;
-					}
-				}
+				// let the delivery method do its thing
+				$this->_processOrder($delivery_method);
 
-				$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
-
-				// process the delivery and provide the tax name and tax rate
-				$delivery_processing_status = $delivery_method->processDelivery($order_asset, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges());
-
-				$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
-
-				// set the order summary
-				$order_summary	  = 'Order ID: '.$order_asset->id;
-				$order_summary    .= $this->_getCartSummary();
-				$order_summary    .= $delivery_method->getReceipt();
-				$internal_summary  = $delivery_method->getInternalReceipt();
-
-				$order_asset->setAttrValue('summary',			$order_summary);
-				$order_asset->setAttrValue('internal_summary',	$internal_summary);
-				$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
-				$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
-
-				// delivery failed
-				if (!$delivery_processing_status) {
-					$order_asset->setAttrValue('status', SQ_ECOM_ORDER_STATUS_FAILED);
-					$order_asset->setAttrValue('status_message', translate('ecom_order_status_failed'));
-
-					$this->_tmp['failure_summary'] = $delivery_method->getFailureSummary();
-					$this->print_context = 'failure';
-				} else {
-					// delivery succeeded and we can update product quantities
-					if ($this->attr('enforce_quantities')) {
-						$this->_updateQuantities();
-					}
-				}
-
-				// Save attributes, LOCKING
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				if (!$order_asset->saveAttributes()) {
-					$this->print_context = 'failure';
-				}
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-				if ($this->print_context !== 'failure') {
-
-					// order processing successful!
-					$this->print_context = 'receipt';
-					$this->_tmp['delete_all_orders_after_printing'] = TRUE;
-					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
-				}
 			break;
 
 		}//end switch
@@ -412,6 +353,137 @@ class Ecommerce_Checkout extends Page
 		return;
 
 	}//end _processInterface()
+
+
+	/**
+	* Calls the delivery method and asks it to process our order
+	*
+	* @param object &$delivery_method	The delivery method asset passed by reference
+	*
+	* @return void
+	* @access private
+	*/
+	function _processOrder(&$delivery_method)
+	{
+		// check whether we're editing an order or creating a new one
+		if (isset($_SESSION['sq_local_cart_contents']['order_id'])) {
+			$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
+		}
+
+		if (empty($order_asset)) {
+			// have we processed this order with a payment gateway yet?
+			$payment_response = array_get_index($_SESSION, 'SQ_ECOM_RESPONSE', FALSE);
+
+			// check quantities before creating a new order
+			// don't check here if we have just paid
+			if (!$payment_response && $this->attr('enforce_quantities')) {
+				// do we have enough products to create an order?
+				if (!$this->_updateQuantities(FALSE)) {
+					$this->print_context = 'failure';
+					return;
+				} else {
+					$this->insufficient_quantities = FALSE;
+				}
+			}
+
+			if (!$payment_response) {
+				// process the payment gateway if one is present and if we haven't done so already
+				$payment_gateway_id = $delivery_method->attr('payment_gateway');
+				if (!empty($payment_gateway_id)) {
+					// get cart total cost
+					$cart = new Ecommerce_Cart_Processor();
+					$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+					$total_tax = $cart->getTotalTax($this->attr('taxation_rate')/100);
+					$total_cost = $cart->getTotal($total_tax);
+					$delivery_method->processPaymentGateway($total_cost);
+					return;
+				}
+			} else if ($payment_response) {
+				// customer has just paid for this order
+				// create the order whatever happens and flag if quantity was incorrect in the end
+				// e.g. customer pays for order, in the meantime quantity changes, by the time payment goes through, the quantity may be incorrect
+				// but we don't want the order to fail because the customer has already paid
+
+				// unset this because the payment experience was just completed for this session
+				unset($_SESSION['SQ_ECOM_RESPONSE']);
+
+				// check quantities
+				if ($this->attr('enforce_quantities')) {
+					if (!$this->_updateQuantities(FALSE)) {
+						// product quantity was negative
+						// set keyword replacement message for email(s) to be sent
+						ob_start();
+						foreach ($this->insufficient_quantity_assets as $quantity => $asset_name) {
+							echo $asset_name.":\t -> \t".abs($quantity)."\n";
+						}
+						$neg_quantity_list = ob_get_clean();
+						// the order has to go through because it has been paid for
+						$this->print_context = 'receipt';
+					}
+				}
+			}
+
+			$order_asset =& $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
+			if (is_null($order_asset)) {
+				$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
+				$this->print_context = 'failure';
+				return;
+			}
+		}//end if
+
+		$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
+
+		// process the delivery and provide the tax name and tax rate
+		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '');
+
+		$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
+
+		// set the order summary
+		$order_summary = 'Order ID: '.$order_asset->id;
+		$order_summary .= $this->_getCartSummary();
+		$order_summary .= $delivery_method->getReceipt();
+		$internal_summary = $delivery_method->getInternalReceipt();
+
+		// if there has been a negative quantity order placed (can only happen if payment gateway is used), append the message
+		if (isset($neg_quantity_list)) {
+			$order_summary .= '<br />'.$delivery_method->attr('negative_quantity_message');
+			$order_summary .= $neg_quantity_list;
+		}
+
+		$order_asset->setAttrValue('summary',			$order_summary);
+		$order_asset->setAttrValue('internal_summary',	$internal_summary);
+		$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
+		$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
+
+		// delivery failed
+		if (!$delivery_processing_status) {
+			$order_asset->setAttrValue('status', SQ_ECOM_ORDER_STATUS_FAILED);
+			$order_asset->setAttrValue('status_message', translate('ecom_order_status_failed'));
+
+			$this->_tmp['failure_summary'] = $delivery_method->getFailureSummary();
+			$this->print_context = 'failure';
+		} else {
+			// delivery succeeded and we can update product quantities
+			if ($this->attr('enforce_quantities')) {
+				$this->_updateQuantities();
+			}
+		}
+
+		// Save attributes, LOCKING
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		if (!$order_asset->saveAttributes()) {
+			$this->print_context = 'failure';
+		}
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		if ($this->print_context !== 'failure') {
+
+			// order processing successful!
+			$this->print_context = 'receipt';
+			$this->_tmp['delete_all_orders_after_printing'] = TRUE;
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
+		}
+
+	}//end _processOrder()
 
 
 	/**
@@ -441,7 +513,7 @@ class Ecommerce_Checkout extends Page
 						$ok = FALSE;
 						// add name of asset to error list for displaying on frontend
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						$this->insufficient_quantity_assets[] = $asset->name;
+						$this->insufficient_quantity_assets[$new_quantity] = $asset->name;
 					}
 					if ($update) {
 						$metadata = Array(
@@ -467,7 +539,7 @@ class Ecommerce_Checkout extends Page
 						$this->insufficient_quantities = TRUE;
 						$ok = FALSE;
 						// add name of asset to error list for displaying on frontend
-						$this->insufficient_quantity_assets[] = $asset->name;
+						$this->insufficient_quantity_assets[$new_quantity] = $asset->name;
 					}
 					if ($update) {
 						$asset->setAttrValue($quantity_attribute, $new_quantity);
@@ -848,7 +920,7 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Return a cart summary for the ecommer cart
 	*
-	* @param	boolean	$html			if it's true, the summary string is wrapped by <pre> tags
+	* @param boolean	$html	if it's true, the summary string is wrapped by <pre> tags
 	*
 	* @return string
 	* @access private
@@ -941,8 +1013,8 @@ class Ecommerce_Checkout extends Page
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
-	* @param	object	&$broadcaster	$asset	the asset that triggered the event
-	* @param	array	$vars			the vars that get submitted by the broadcaster we add keywords to the $vars['keywords'] array
+	* @param object	&$broadcaster	$asset	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster we add keywords to the $vars['keywords'] array
 	*
 	* @return boolean
 	* @access private

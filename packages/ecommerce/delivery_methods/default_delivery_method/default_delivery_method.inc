@@ -154,7 +154,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	* get the keywords on request
 	*
 	* @param object	&$broadcaster	broadcaster
-	* @param array	$var			vars
+	* @param array	$vars			vars
 	*
 	* @return boolean
 	* @access public
@@ -292,7 +292,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	/**
 	* Get the Receipt
 	*
-	* @param	boolean	$html	if true means we are returning a html format
+	* @param boolean	$html	if true means we are returning a html format
 	*
 	* @return string
 	* @access public
@@ -612,91 +612,101 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	/**
 	* This function process the delivery
 	*
-	* @param object	&$order			test
-	* @param string	$taxation_name	Name of the tax
-	* @param float	$taxation_rate	tax value
-	* @param array	$flat_charges	Array('Charge Name' => 'Price')
+	* @param object		&$order					Ecommerce_Order asset
+	* @param string		$taxation_name			Name of the tax
+	* @param float		$taxation_rate			Tax value
+	* @param array		$flat_charges			Array('Charge Name' => 'Price')
+	* @param string		$neg_quantity_list		List specifying which products have negative quantities
+	* @param string		$neg_quantity_message	Message explaining negative quantities list
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array())
+	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array(), $neg_quantity_list='', $neg_quantity_message='')
 	{
 		$this->state['transaction_id']  = $order->id;
 
 		$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_PROCESSING, 'Pending');
 
-		$email_receipt_attr = $this->getAttribute('receipt_emails_format');
-		$email_recipient_attr = $this->getAttribute('recipient_emails_format');
+		if ($this->attr('send_emails')) {
+			$email_receipt_attr = $this->getAttribute('receipt_emails_format');
+			$email_recipient_attr = $this->getAttribute('recipient_emails_format');
 
-		$receipt_value = @unserialize($email_receipt_attr->value);
-		$recipient_value = @unserialize($email_recipient_attr->value);
+			$receipt_value = @unserialize($email_receipt_attr->value);
+			$recipient_value = @unserialize($email_recipient_attr->value);
 
-		// get all the keyword replacements
-		$keywords_replacements = Array();
-		$keywords_to_replace = Array();
+			// get all the keyword replacements
+			$keywords_replacements = Array();
+			$keywords_to_replace = Array();
 
-		// get order id keyword replacements
-		$keywords_to_replace[] = 'order_id';
-		$keywords_replacements[] =  $this->state['transaction_id'];
+			// get order id keyword replacements
+			$keywords_to_replace[] = 'order_id';
+			$keywords_replacements[] =  $this->state['transaction_id'];
 
-		// get keyword replacements for order receipt
-		$keywords_to_replace[] = 'order_receipt';
+			// get keyword replacements for order receipt
+			$keywords_to_replace[] = 'order_receipt';
 
-		// get the order summary from the cart
-		$cart = new Ecommerce_Cart_Processor();
-		$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
-		$tmp_order_receipt_cart = '<pre>';
-		$tmp_order_receipt_cart_text = '';
-		ob_start();
-		echo 'Order ID: '.$this->state['transaction_id']."\n\n";
-		$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges);
-		$tmp_order_receipt_cart_text .= ob_get_contents();
-		ob_end_clean();
-		$tmp_order_receipt_cart .= $tmp_order_receipt_cart_text.'</pre>';
+			// get the order summary from the cart
+			$cart = new Ecommerce_Cart_Processor();
+			$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+			$tmp_order_receipt_cart = '<pre>';
+			$tmp_order_receipt_cart_text = '';
+			ob_start();
+			echo 'Order ID: '.$this->state['transaction_id']."\n\n";
+			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges);
+			$tmp_order_receipt_cart_text .= ob_get_contents();
+			ob_end_clean();
+			$tmp_order_receipt_cart .= $tmp_order_receipt_cart_text.'</pre>';
 
-		// get the form summary
-		$tmp_order_receipt_form = '<pre>'.$this->getReceipt(TRUE).'</pre>';
-		$keywords_replacements[] =  $tmp_order_receipt_cart.$tmp_order_receipt_form;
+			// get the form summary
+			$tmp_order_receipt_form = '<pre>'.$this->getReceipt(TRUE).'</pre>';
+			$keywords_replacements[] =  $tmp_order_receipt_cart.$tmp_order_receipt_form;
 
-		// get keyword replacements for cart summary
-		$keywords_to_replace[] = 'cart_summary';
-		$keywords_replacements[] = $tmp_order_receipt_cart;
+			// get keyword replacements for cart summary
+			$keywords_to_replace[] = 'cart_summary';
+			$keywords_replacements[] = $tmp_order_receipt_cart;
 
-		$keywords_to_replace[] = 'cart_summary_text';
-		$keywords_replacements[] = $tmp_order_receipt_cart_text;
+			$keywords_to_replace[] = 'cart_summary_text';
+			$keywords_replacements[] = $tmp_order_receipt_cart_text;
 
-		// get keyword replacements for form summary
-		$keywords_to_replace[] = 'form_summary';
-		$keywords_replacements[] = $tmp_order_receipt_form;
+			// get keyword replacements for form summary
+			$keywords_to_replace[] = 'form_summary';
+			$keywords_replacements[] = $tmp_order_receipt_form;
 
-		$keywords_to_replace[] = 'form_summary_text';
-		$keywords_replacements[] = $this->getReceipt(FALSE);
+			$keywords_to_replace[] = 'form_summary_text';
+			$keywords_replacements[] = $this->getReceipt(FALSE);
 
+			// get negative quantities replacements
+			// used only if payment gateway is processed and there is not enough product quantity before payment goes through
+			$keywords_to_replace[] = 'negative_quantity_product_list';
+			$keywords_replacements[] = $neg_quantity_list;
+			$keywords_to_replace[] = 'negative_quantity_message';
+			$keywords_replacements[] = $neg_quantity_message;
 
-		// add replacements for form questions
-		$form_values = unserialize($_SESSION['order_extra_information']);
-		$tmp_form =& $this->getForm();
-		$tmp_questions = $tmp_form->getQuestions();
-		foreach ($tmp_questions as $key => $value) {
-			$key_parts = split(':', $key);
-			$keywords_to_replace[] = 'response_'.$key_parts[1].'';
-			if (!empty($form_values[$key_parts[1]])) {
-				$keywords_replacements[] = $form_values[$key_parts[1]];
-			} else {
-				$keywords_replacements[] = '';
+			// add replacements for form questions
+			$form_values = unserialize($_SESSION['order_extra_information']);
+			$tmp_form =& $this->getForm();
+			$tmp_questions = $tmp_form->getQuestions();
+			foreach ($tmp_questions as $key => $value) {
+				$key_parts = split(':', $key);
+				$keywords_to_replace[] = 'response_'.$key_parts[1].'';
+				if (!empty($form_values[$key_parts[1]])) {
+					$keywords_replacements[] = $form_values[$key_parts[1]];
+				} else {
+					$keywords_replacements[] = '';
+				}
 			}
-		}
 
-		// create the keyword replacement array
-		$send_mail_replacements = Array();
-		for ($i = 0; $i < count($keywords_to_replace); $i++) {
+			// create the keyword replacement array
+			$send_mail_replacements = Array();
+			for ($i = 0; $i < count($keywords_to_replace); $i++) {
 				$send_mail_replacements = array_merge($send_mail_replacements, Array($keywords_to_replace[$i] => $keywords_replacements[$i]));
-		}
+			}
 
-		// send emails if we need to
-		$email_recipient_attr->sendMail($send_mail_replacements);
-		$email_receipt_attr->sendMail($send_mail_replacements);
+			// send emails if we need to
+			$email_recipient_attr->sendMail($send_mail_replacements);
+			$email_receipt_attr->sendMail($send_mail_replacements);
+		}//end if
 
 		$success = TRUE;
 
@@ -712,5 +722,35 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	}//end processDelivery()
 
 
+	/**
+	* Sets up SESSION vars for the payment gateway and sends user to it
+	* Called by the checkout asset
+	*
+	* @param float	$total_cost The total cost of all the items in the cart
+	*
+	* @return void
+	* @access public
+	*/
+	function processPaymentGateway($total_cost)
+	{
+		$gateway_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('payment_gateway'));
+		$gateway_asset_url = $gateway_asset->getURL();
+		// set up expected session vars
+		$_SESSION['SQ_ECOM_AMOUNT'] = $total_cost;
+		// get checkout asset URL
+		$checkout_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout', TRUE, 'delivery_method', 'minor');
+		$checkout_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_link['majorid']);
+		$checkout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_link['majorid']);
+		// these GET vars are listened for in the checkout asset
+		$_SESSION['SQ_ECOM_SUCCESS_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=confirm_order';
+		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
+		$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
+
+		header('Location: '.$gateway_asset_url);
+
+	}//end processPaymentGateway()
+
+
 }//end class
+
 ?>
