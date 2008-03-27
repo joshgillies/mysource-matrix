@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.57 2007/05/11 04:44:36 skim Exp $
+* $Id: calendar_common.inc,v 1.57.2.1 2008/03/27 05:23:02 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.57.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1173,8 +1173,8 @@ class Calendar_Common
 																Calendar_Common::getDateComponents($event_start_date.' +'.$difference.' days', 'end_date_'));
 					} else {
 						$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
-																Calendar_Common::getDateComponents($event_start_date.' 00:00:00 +'.$difference.' days', 'start_date_'),
-																Calendar_Common::getDateComponents($event_start_date.' 24:00:00 +'.$difference.' days', 'end_date_'));
+																Calendar_Common::getDateComponents($start_date.' 00:00:00', 'start_date_'),
+																Calendar_Common::getDateComponents($start_date.' 24:00:00', 'end_date_'));
 					}
 
 					$i++;
