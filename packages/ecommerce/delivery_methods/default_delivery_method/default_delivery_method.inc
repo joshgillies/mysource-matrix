@@ -154,7 +154,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	* get the keywords on request
 	*
 	* @param object	&$broadcaster	broadcaster
-	* @param array	$var			vars
+	* @param array	$vars			vars
 	*
 	* @return boolean
 	* @access public
@@ -292,7 +292,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	/**
 	* Get the Receipt
 	*
-	* @param	boolean	$html	if true means we are returning a html format
+	* @param boolean	$html	if true means we are returning a html format
 	*
 	* @return string
 	* @access public
@@ -612,15 +612,17 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	/**
 	* This function process the delivery
 	*
-	* @param object		&$order			test
-	* @param string		$taxation_name	Name of the tax
-	* @param float		$taxation_rate	tax value
-	* @param array		$flat_charges	Array('Charge Name' => 'Price')
+	* @param object		&$order					Ecommerce_Order asset
+	* @param string		$taxation_name			Name of the tax
+	* @param float		$taxation_rate			Tax value
+	* @param array		$flat_charges			Array('Charge Name' => 'Price')
+	* @param string		$neg_quantity_list		List specifying which products have negative quantities
+	* @param string		$neg_quantity_message	Message explaining negative quantities list
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array())
+	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array(), $neg_quantity_list='', $neg_quantity_message='')
 	{
 		$this->state['transaction_id']  = $order->id;
 
@@ -674,6 +676,12 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 			$keywords_to_replace[] = 'form_summary_text';
 			$keywords_replacements[] = $this->getReceipt(FALSE);
 
+			// get negative quantities replacements
+			// used only if payment gateway is processed and there is not enough product quantity before payment goes through
+			$keywords_to_replace[] = 'negative_quantity_product_list';
+			$keywords_replacements[] = $neg_quantity_list;
+			$keywords_to_replace[] = 'negative_quantity_message';
+			$keywords_replacements[] = $neg_quantity_message;
 
 			// add replacements for form questions
 			$form_values = unserialize($_SESSION['order_extra_information']);

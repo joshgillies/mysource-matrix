@@ -49,6 +49,8 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 			echo '<tr><td>%form_summary%</td><td>print the form summary</td></tr>';
 			echo '<tr><td>%form_summary_text%</td><td>print the form summary in a text format</td></tr>';
 			echo '<tr><td>%order_id%</td><td>print the order id</td></tr>';
+			echo '<tr><td>%negative_quantity_product_list%</td><td>print products which have negative quantities after purchasing</td></tr>';
+			echo '<tr><td>%negative_quantity_message%</td><td>print negative quantity products message if there are any negative quantities</td></tr>';
 			echo '</table>';
 
 		}
