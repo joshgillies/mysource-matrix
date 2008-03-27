@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.182 2008/03/20 00:31:25 lwright Exp $
+* $Id: form.inc,v 1.183 2008/03/27 05:28:25 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1057,7 +1057,7 @@ class Form extends Asset implements Bridge
 			$sql = implode(' ', $links_query['sql_array']);
 			$query = MatrixDAL::preparePdoQuery($sql);
 
-			foreach ($links_query['sql_array'] as $bind_var => $bind_value) {
+			foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
 				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 			}
 
