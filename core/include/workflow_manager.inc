@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.128 2008/03/13 00:32:35 bshkara Exp $
+* $Id: workflow_manager.inc,v 1.129 2008/03/27 23:22:19 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1406,6 +1406,9 @@ class Workflow_Manager extends MySource_Object
 		// we have to get the publishers before the workflow is cleared, because
 		// this function depends on having a workflow running
 		$publishers = $this->whoCanPublish($asset->id);
+        $workflow_values = $this->getSchemaWorkflows($assetid);
+        $workflow = array_pop($workflow_values);
+        $publishers = array_unique(array_merge($publishers, Array($workflow['started_by'])));
 
 		if (!$this->_clearWorkflow($assetid)) return FALSE;
 

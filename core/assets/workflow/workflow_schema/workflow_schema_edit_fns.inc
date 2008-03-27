@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.27 2007/12/06 23:06:32 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.28 2008/03/27 23:23:09 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,6 +194,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		$workflow_array['complete']     = FALSE;
 		$workflow_array['schema_name']  = $asset->name;
 		$workflow_array['started']      = time();
+		$workflow_array['started_by']   = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		$i = 1;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
