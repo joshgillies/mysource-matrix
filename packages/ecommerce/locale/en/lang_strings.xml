@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5.8.1 2008/03/28 00:54:40 bshkara Exp $
+* $Id: lang_strings.xml,v 1.1.4.2 2008/03/28 00:54:40 bshkara Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -18,10 +18,8 @@
 -->
 
 <strings>
-	<!-- Keywords -->
-	<string source="ecom_order_keyword_checkout_assetid">Assetid of checkout form which created this order</string>
-	<string source="ecom_order_keyword_order_summary">Summary of this order</string>
-	<string source="ecom_order_keyword_status">Status of ecommerce order</string>
-	<string source="ecom_order_keyword_status_message">Message which is related to the status</string>
-	<string source="ecom_order_keyword_edit_url">URL to the page where to edit this ecommerce order</string>
+	<!-- Status -->
+	<string source="ecom_order_status_processing">Processing</string>
+	<string source="ecom_order_status_failed">Failed</string>
+	<string source="ecom_order_status_success">Completed</string>
 </strings>
