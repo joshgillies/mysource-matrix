@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.6 2007/10/29 05:28:32 lwright Exp $
+* $Id: proxy_authentication_config.inc,v 1.7 2008/03/31 00:40:44 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -75,7 +75,7 @@ class Proxy_Authentication_Config extends Config
 		parent::paintBackend($o);
 
 		$write_access = $this->writeAccess();
-		$class = get_class($this);
+		$class = get_class_lower($this);
 
 		$o->openSection(translate('proxy_authentication_config'));
 			$o->openField(translate('proxy_authentication_status'));
