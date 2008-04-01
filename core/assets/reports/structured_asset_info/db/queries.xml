@@ -1,0 +1,50 @@
+<queries id="structured_asset_info">
+<query id="linkTreeCount">
+		<primary>
+			<select>
+				<fields>
+					<function function="count">
+						<value>*</value>
+					</function>
+				</fields>
+				<from>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<where>
+					<like table="sq_ast_lnk_tree" column="treeid">:treeid</like>
+					<not-equal table="sq_ast_lnk_tree" column="linkid"><value>0</value></not-equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+
+	<query id="getTreeid">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lnk_tree" column="treeid" />
+				</fields>
+				<from>
+					<table>sq_ast_lnk</table>
+					<table>sq_ast_lnk_tree</table>
+				</from>
+				<where>
+					<equal table="sq_ast_lnk" column="minorid">:assetid</equal>
+					<like table="sq_ast_lnk_tree" column="treeid">:treeid</like>
+				</where>
+				<joins>
+					<join>
+						<field table="sq_ast_lnk_tree" column="linkid" />
+						<field table="sq_ast_lnk" column="linkid" />
+					</join>
+				</joins>
+				<order-by>
+					<function function="length">
+						<arg><field table="sq_ast_lnk_tree" column="treeid" /></arg>
+					</function>
+				</order-by>
+			</select>
+		</primary>
+	</query>
+
+</queries>
