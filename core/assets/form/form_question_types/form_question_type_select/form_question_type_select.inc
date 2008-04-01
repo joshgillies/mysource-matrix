@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.10 2007/02/20 01:03:17 arailean Exp $
+* $Id: form_question_type_select.inc,v 1.11 2008/04/01 04:21:24 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,7 +111,8 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function getOptions()
 	{
-		$options = split("\r\n", $this->attr('options'));
+		$options = $this->attr('options');
+
 		// remove empty options
 		foreach (array_keys($options) as $k) {
 			$options[$k] = htmlspecialchars($options[$k]);
@@ -119,7 +120,7 @@ class Form_Question_Type_Select extends Form_Question
 		}
 		// if allow empty is true, add the '-- Leave Empty --' as the first option
 		if ($this->attr('allow_empty')) {
-			$empty = Array(htmlspecialchars($this->attr('empty_text')));
+			$empty = Array(htmlspecialchars($this->attr('empty_key')) => htmlspecialchars($this->attr('empty_text')));
 			$options = array_merge($empty, $options);
 		}
 
