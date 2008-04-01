@@ -1,0 +1,48 @@
+<queries id="search_manager">
+	<query id="flushIndexableContent">
+		<!-- Delete all index entries for a specified asset ID and component(s). -->
+		<primary>
+			<delete>
+				<where>
+					<equal table="sq_sch_idx" column="assetid">:assetid</equal>
+					<in table="sq_sch_idx" column="component">:components</in>
+				</where>
+			</delete>
+		</primary>
+		<alternate>
+			<!-- Delete all components if not specified. -->
+			<assert-null data="components">
+				<delete>
+					<where>
+						<equal table="sq_sch_idx" column="assetid">:assetid</equal>
+					</where>
+				</delete>
+			</assert-null>
+		</alternate>
+	</query>
+
+	<query id="getSearchRootTreeids">
+		<!-- Gets the treeid(s) of the links of which the passed roots are a minor party of. -->
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lnk" column="minorid" />
+					<field table="sq_ast_lnk_tree" column="treeid" />
+				</fields>
+				<from>
+					<table>sq_ast_lnk_tree</table>
+					<table>sq_ast_lnk</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_ast_lnk_tree" column="linkid" />
+						<field table="sq_ast_lnk"      column="linkid" />
+					</join>
+				</joins>
+				<where>
+					<in table="sq_ast_lnk" column="minorid">:minorids</in>
+				</where>
+			</select>
+		</primary>
+	</query>
+</queries>
