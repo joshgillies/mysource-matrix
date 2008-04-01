@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.11 2008/04/01 04:21:24 bpearson Exp $
+* $Id: form_question_type_select.inc,v 1.12 2008/04/01 05:44:30 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,15 +113,17 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		$options = $this->attr('options');
 
-		// remove empty options
-		foreach (array_keys($options) as $k) {
-			$options[$k] = htmlspecialchars($options[$k]);
-			if ($options[$k] == '') unset($options[$k]);
-		}
-		// if allow empty is true, add the '-- Leave Empty --' as the first option
-		if ($this->attr('allow_empty')) {
-			$empty = Array(htmlspecialchars($this->attr('empty_key')) => htmlspecialchars($this->attr('empty_text')));
-			$options = array_merge($empty, $options);
+		if (count($options) > 0) {
+			// remove empty options
+			foreach (array_keys($options) as $k) {
+				$options[$k] = html_entity_decode($options[$k]);
+				if ($options[$k] == '') unset($options[$k]);
+			}
+			// if allow empty is true, add the '-- Leave Empty --' as the first option
+			if ($this->attr('allow_empty')) {
+				$empty = Array(html_entity_decode($this->attr('empty_key')) => html_entity_decode($this->attr('empty_text')));
+				$options = array_merge($empty, $options);
+			}
 		}
 
 		return $options;
@@ -178,11 +180,11 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		ob_start();
 
-		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
+		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlentities($this->attr('name')).'">';
 		if (!is_array($answer)) $answer = Array($answer);
 
 		foreach ($answer as $a) {
-			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';
+			echo '<option value="'.$a.'">'.htmlentities($this->getAnswerByOffset($a)).'</option>';
 		}
 		echo '</select_q>';
 

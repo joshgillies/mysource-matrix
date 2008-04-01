@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.6 2008/04/01 04:21:24 bpearson Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.7 2008/04/01 05:44:30 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,8 +57,10 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		$options = $asset->getOptions();
-		foreach ($options as $key => $value) {
-			hidden_field($prefix.'_old_options['.$key.']', $value, 'id='.$prefix.'_old_options['.$key.']');
+		if (count($options) > 0) {
+			foreach ($options as $key => $value) {
+				hidden_field($prefix.'_old_options['.$key.']', $value, 'id='.$prefix.'_old_options['.$key.']');
+			}
 		}
 		$multiple = ($asset->attr('multiple')) ? TRUE : FALSE;
 		return combo_box($prefix.'_default', $options, $multiple, $asset->attr('default'));
@@ -144,12 +146,14 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				<div id="option-list-<?php echo $prefix; ?>">
 				<?php
 				$order = 0;
-				foreach ($value as $k => $v) {
-					$k = htmlentities($k);
-					$v = htmlentities($v);
-					$printup = ($order < 1) ? FALSE : TRUE;
-					$this->_printOptionField($k, $v, $order, $prefix, 20, $printup);
-					$order++;
+				if (count($value) > 0) {
+					foreach ($value as $k => $v) {
+						$k = html_entity_decode($k);
+						$v = html_entity_decode($v);
+						$printup = ($order < 1) ? FALSE : TRUE;
+						$this->_printOptionField($k, $v, $order, $prefix, 20, $printup);
+						$order++;
+					}
 				}
 				for ($i = 0; $i < 2; $i++) {
 					$k = '';
@@ -253,11 +257,19 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 
 				// abort if we and the second-last input are both empty
 				var lastInput = input.previousSibling;
+				var last2Input = lastInput.previousSibling;
 				if (input.value == '') {
 					while (lastInput !== null) {
 						if (lastInput.tagName == 'INPUT') {
-							if (lastInput.value == '') {
-								return;
+							last2Input = lastInput.previousSibling;
+							while (last2Input !== null) {
+								if (last2Input.tagName == 'INPUT') {
+									if (last2Input.value == '') {
+										return;
+									}
+									break;
+								}
+								last2Input = last2Input.previousSibling;
 							}
 							break;
 						}
@@ -410,7 +422,9 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		</script>
 		<?php
 	} else {
-		echo '<ul><li>'.implode('</li><li>', $value).'</li></ul>';
+		if (count($value) > 0) {
+			echo '<ul><li>'.html_entity_decode(implode('</li><li>', $value)).'</li></ul>';
+		}
 	}
 
 }//end paintOptions()
@@ -434,6 +448,7 @@ function processOptions(&$asset, &$o, $prefix)
 	if (!isset($_REQUEST[$prefix.'_options'])) return;
 	$value = $_REQUEST[$prefix.'_options'];
 	foreach ($value as $i => $v) {
+		$value[$i] = htmlentities($v);
 		if ($v == '') unset($value[$i]);
 	}
 
@@ -441,6 +456,7 @@ function processOptions(&$asset, &$o, $prefix)
 	if (!isset($_REQUEST[$prefix.'_options_keys'])) return;
 	$key_value = $_REQUEST[$prefix.'_options_keys'];
 	foreach ($key_value as $j => $k) {
+		$key_value[$j] = htmlentities($k);
 		if (($k == '') && (isset($value[$j]) && !($value[$j] == ''))) {
 			$key_value[$j] = $value[$j];
 		} else if (($k == '') && (!isset($value[$j]) || ($value[$j] == ''))) {
@@ -448,7 +464,11 @@ function processOptions(&$asset, &$o, $prefix)
 		}
 	}
 
-	$values = array_combine($key_value, $value);
+	if ((count($key_value) > 0) && (count($value) > 0)) {
+		$values = array_combine($key_value, $value);
+	} else {
+		$values = Array();
+	}
 
 	$processed_value = $values;
 	if ($asset->writeAccess('attributes')) {
