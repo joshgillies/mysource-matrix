@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.271 2008/03/19 01:02:18 gsherwood Exp $
+* $Id: asset_map.inc,v 1.272 2008/04/02 05:36:25 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.271 $
+* @version $Revision: 1.272 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1360,7 +1360,7 @@ class Asset_Map
 				}
 				break;
 			}
-			$display_name = preg_replace('/%asset_'.$keyword.'%/', $replacement_value, $display_name);
+			$display_name = str_replace('%asset_'.$keyword.'%', $replacement_value, $display_name);
 		}
 
 		return $display_name;
