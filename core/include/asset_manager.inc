@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.678 2008/03/26 03:31:15 skim Exp $
+* $Id: asset_manager.inc,v 1.679 2008/04/02 00:46:26 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.678 $
+* @version $Revision: 1.679 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8070,7 +8070,7 @@ class Asset_Manager extends MySource_Object
 				$type_code_binds = Array();
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
 					$type_code_binds[] = ':'.$bind_prefix.'type_code_'.$i;
-					$bind_vars[$bind_prefix.'type_code'] = $type_code[$i];
+					$bind_vars[$bind_prefix.'type_code_'.$i] = $type_code[$i];
 				}
 				$type_code_cond = 'IN ('.implode(', ', $type_code_binds).')';
 			} else {
