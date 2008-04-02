@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.86.2.1 2008/03/12 04:04:00 lwright Exp $
+* $Id: package_manager.inc,v 1.86.2.2 2008/04/02 23:30:21 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86.2.1 $
+* @version $Revision: 1.86.2.2 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -233,8 +233,6 @@ class Package_Manager extends MySource_Object
 			pre_echo('Installing '.get_class($this).':');
 
 			$package_name = $this->getPackageName();
-
-			$this->_installDALQueries();
 
 			$db = MatrixDAL::getDb();
 
