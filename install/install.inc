@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.82 2008/03/25 05:29:14 gsherwood Exp $
+* $Id: install.inc,v 1.83 2008/04/02 23:29:09 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1732,6 +1732,27 @@ function install_dal_core_queries()
 	require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
 	MatrixDALBaker::addCoreQueries();
 	MatrixDALBaker::bakeQueriesFile('core');
+	ini_set('include_path', $old_path);
+
+}//end install_dal_core_queries()
+
+/**
+* Generates the baked Database Abstraction Layer (DAL) queries for the package
+*
+* @param string	$name	The name of the package in question
+*
+* @return boolean
+* @access public
+*/
+function install_dal_package_queries($name)
+{
+	$old_path = ini_get('include_path');
+	ini_set('include_path', SQ_LIB_PATH);
+	require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
+	$queries_found = MatrixDALBaker::addPackageQueries($name);
+	if ($queries_found) {
+		MatrixDALBaker::bakeQueriesFile($name.'_package');
+	}
 	ini_set('include_path', $old_path);
 
 }//end install_dal_core_queries()
