@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.36 2008/02/18 04:10:10 lwright Exp $
+* $Id: linking.inc,v 1.37 2008/04/02 00:41:31 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 
@@ -302,7 +302,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 	$o->closeSection();
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
-	$fl_jobs = call_user_func(Array('Cron_Job_Future_Lineage', 'getActiveJobs'), &$owner);
+	$fl_jobs = call_user_func(Array('Cron_Job_Future_Lineage', 'getActiveJobs'), $owner);
 
 	if (!empty($fl_jobs)) {
 		$created = TRUE;
