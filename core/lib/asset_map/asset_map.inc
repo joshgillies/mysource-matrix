@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.247.2.4 2008/03/17 00:16:08 gsherwood Exp $
+* $Id: asset_map.inc,v 1.247.2.5 2008/04/02 05:17:39 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.247.2.4 $
+* @version $Revision: 1.247.2.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1223,7 +1223,7 @@ class Asset_Map
 				}
 				break;
 			}
-			$display_name = preg_replace('/%asset_'.$keyword.'%/', $replacement_value, $display_name);
+			$display_name = str_replace('%asset_'.$keyword.'%', $replacement_value, $display_name);
 		}
 
 		return $display_name;
