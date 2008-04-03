@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.34.2.1 2008/03/12 04:04:28 lwright Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.34.2.2 2008/04/03 03:45:30 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34.2.1 $
+* @version $Revision: 1.34.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -167,7 +167,11 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 					if ($wa) {
 						combo_box('dsn[db_type]', $options, FALSE, $db_type);
 					} else {
-						echo $options[$db_type];
+						if (empty($db_type)) {
+							?><em>Ignored due to Complete DSN entry</em><?php
+						} else {
+							echo $options[$db_type];
+						}
 					}
 					?>
 				</td>
