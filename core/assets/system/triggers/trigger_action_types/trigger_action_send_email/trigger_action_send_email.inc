@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.18 2008/03/12 02:55:01 mbrydon Exp $
+* $Id: trigger_action_send_email.inc,v 1.19 2008/04/03 05:29:00 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,6 +57,11 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		if (is_null($state['asset'])) return FALSE;
 
 		$assetid = $state['asset']->id;
+
+		// Fill in possibly missing settings (from upgrades)
+		$settings['groups']              = array_get_index($settings, 'groups', Array());
+		$settings['roles']               = array_get_index($settings, 'roles', Array());
+		$settings['email_recipient_map'] = array_get_index($settings, 'email_recipient_map', Array());
 
 		$email_format_value = $settings['email_format_value'];
 		if ($settings['to_owner'] && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($state['asset']->type(), 'user')) {
