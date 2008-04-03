@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.132.2.2 2008/03/26 23:22:03 bpearson Exp $
+* $Id: html_form.inc,v 1.132.2.3 2008/04/03 23:10:32 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.132.2.2 $
+* @version $Revision: 1.132.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -914,7 +914,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 		<tr>
 		<?php
 			ob_start();
-				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;"><?php echo translate('security_key_link'); ?></a><?php
+				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1&t=' + new Date().getTime(); return false;"><?php echo translate('security_key_link'); ?></a><?php
 				$replacements_link = ob_get_contents();
 			ob_end_clean()
 		?>
@@ -998,7 +998,7 @@ function security_key_image_link($link_text)
 {
 	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
 	ob_start();
-		?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;"><?php echo $link_text; ?></a><?php
+		?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1&t=' + new Date().getTime(); return false;"><?php echo $link_text; ?></a><?php
 		$replacement_link = ob_get_contents();
 	ob_end_clean();
 
