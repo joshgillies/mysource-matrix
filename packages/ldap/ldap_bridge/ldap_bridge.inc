@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.69 2008/03/19 00:46:43 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.70 2008/04/04 01:25:43 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -825,7 +825,7 @@ class LDAP_Bridge extends Asset implements Bridge
 					if (!empty($type_code) && empty($found)) {
 						continue(2);
 					}
-					$children[$this->id.':'.$data['dn']] = $this->attr('user_type');
+					$children[$this->id.':'.$data['dn']][0]['type_code'] = $this->attr('user_type');
 				}
 			}
 		}
@@ -962,14 +962,14 @@ class LDAP_Bridge extends Asset implements Bridge
 					$info[$assetid] = $assetid;
 				} else if ($field == 'type_code') {
 					$asset =& $this->getAsset($assetid);
-					if (is_null($asset) === false) {
+					if (is_null($asset) === FALSE) {
 						$info[$assetid] = $asset->type();
 					} else {
 						$info[$assetid] = '';
 					}
 				} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
 					$asset =& $this->getAsset($assetid);
-					if (is_null($asset) === false) {
+					if (is_null($asset) === FALSE) {
 						$info[$assetid] = $asset->$field;
 					} else {
 						$info[$assetid] = '';
@@ -979,7 +979,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				}
 			} else {
 				$asset =& $this->getAsset($assetid);
-				if (is_null($asset) === false) {
+				if (is_null($asset) === FALSE) {
 					$info[$assetid] = Array(
 										'assetid'				=> $assetid,
 										'type_code'				=> $asset->type(),
@@ -1004,7 +1004,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				}
 			}//end else
 		}//end foreach assetids
-	
+
 		return $info;
 
 	}//end getAssetInfo()
@@ -1407,7 +1407,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				if (isset($value['count'])) unset($value['count']);
 				if (count($value) > 1) {
 					$user->vars[$key] = Array(
-											'value'	=> $value,
+											'value'		=> $value,
 											'type'		=> 'serialise',
 											'attrid'	=> 0,
 										);
