@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.7 2008/03/19 22:18:17 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.655.2.8 2008/04/04 04:15:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.7 $
+* @version $Revision: 1.655.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3650,7 +3650,6 @@ class Asset_Manager extends MySource_Object
 		try  {
 			$sql_array = $ret_val['sql_array'];
 			$bind_vars = $ret_val['bind_vars'];
-
 			$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_array));
 			foreach ($bind_vars as $bind_var => $bind_value) {
 				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
@@ -8257,14 +8256,18 @@ class Asset_Manager extends MySource_Object
 				$public_userid = (String)$this->getSystemAssetid('public_user');
 				$userids[] = $public_userid;
 
-				$userids_str = Array();
+				$p_userids_str = Array();
+				$r_userids_str = Array();
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids_str[$i] = ':'.$bind_prefix.'userids_'.$i;
-					$bind_vars[$bind_prefix.'userids_'.$i] = (string)$userids[$i];
+					$p_userids_str[$i] = ':'.$bind_prefix.'p_userids_'.$i;
+					$r_userids_str[$i] = ':'.$bind_prefix.'r_userids_'.$i;
+					$bind_vars[$bind_prefix.'p_userids_'.$i] = (string)$userids[$i];
+					$bind_vars[$bind_prefix.'r_userids_'.$i] = (string)$userids[$i];
 				}
 
-				$userids_str = implode(',', $userids_str);
-				$userid_cond = ' (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
+				$p_userids_str = implode(',', $p_userids_str);
+				$r_userids_str = implode(',', $r_userids_str);
+				$userid_cond = ' (p.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
 				$where .= $userid_cond.'
 					AND (
 							(p.permission = :'.$bind_prefix.'_access AND (
