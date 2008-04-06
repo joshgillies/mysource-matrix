@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_management.inc,v 1.13 2008/03/25 22:01:56 hnguyen Exp $
+* $Id: design_area_asset_lineage_management.inc,v 1.14 2008/04/06 22:55:39 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,8 +106,11 @@ class Design_Area_Asset_Lineage_Management extends Asset_Management
 						'start_at_level'			=> Array(
 														'added' => '0.0.1',
 												  		'type'  => 'int',
-														'default' => 0,
+														'default' => NULL,
 														'description' => 'At what level to start printing',
+														'parameters'	=> Array(
+																			'allow_empty'	=> TRUE,
+																		   ),
 													   ),
 						'reverse_lineage'			=> Array(
 														'added'			=> '0.2',
