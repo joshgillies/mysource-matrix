@@ -1,5 +1,50 @@
 MYSOURCE MATRIX CHANGELOG
 
+
+VERSION 3.18.0
+
+Featured Changes
+-----------------------------------
+
+Negative On-Hand Quantity Support in E-Commerce System
+
+	If a customer has paid for their cart, but between that time and delivery there are insufficient quantities of product(s) to fulfil the order, then the order will still go through, causing product quantity fields to turn negative. Fields are available in the Default Delivery Method to alert the form's owner to any back-ordering required.
+
+
+Default Delivery Method Changes
+
+	The Default Delivery Method now allows you to process your cart using the eSec Payment Gateway asset. Emails will only be sent upon successful payment processing if this option is selected. There is also a new option to stop emails being sent.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2897: File attachment problem
+* Fixed bug #2917: generateGetParentsQuery doesn't batch $in_sql for IN clause
+* Fixed bug #2939: Asset map does not display $ sign when it is followed by a number
+* Fixed bug #2942: linking screen - PHP5 deprecated message
+
+CMS
+
+* Fixed bug #2914: Asset Builder: Dynamic Create Locations Folder Problem (Asset Builder Page)
+* Fixed bug #2918: Listing Engine "Current Asset ID" Dynamic Parameter Caching Problem (Listing Engine)
+* Fixed bug #2921: When validated an external link, a malformed url causes an error (Links Report)
+* Fixed bug #2932: incorrectly tunnelling different protocols (Remote Content Page)
+
+Calendar
+
+* Fixed bug #2902: Event Label Format keywords don't work in List views on Calendar details screen (Calendar Page)
+* Fixed bug #2910: Link to 'Event view' in event Limbo edit mode doesn't work (Calendar Page)
+* Fixed bug #2930: Recurring events not recurring (Recurring Calendar Event)
+
+LDAP
+
+* Fixed bug #2945: LDAP Bridge returns getChildren() array in the wrong format (LDAP Bridge)
+
+
+
 VERSION 3.18.0 RC2
 
 Featured Changes
