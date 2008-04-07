@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: misc_accessibility.inc,v 1.4 2006/12/06 05:11:10 bcaldwell Exp $
+* $Id: misc_accessibility.inc,v 1.4.8.1 2008/04/07 00:09:09 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     some extra tags like <cite> and <dfn>
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.8.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -208,7 +208,7 @@ class misc_accessibility extends wysiwyg_plugin
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
 						// we don't want more than one paragraph because these can start or end from half-way through
-						// a para, which would fuck up the formatting when we go to re-insert the text with the href
+						// a para, which would mess up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert(js_translate('select_one_paragraph_at_a_time'));
 							return;
