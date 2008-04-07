@@ -21,11 +21,13 @@ Additional Changes and Bug Fixes
 Core
 
 * Fixed bug #2897: File attachment problem
+* Fixed bug #2905: Workflow internal message link invalid
 * Fixed bug #2939: Asset map does not display $ sign when it is followed by a number
 * Fixed bug #2943: CAPTCHA new key only works once
 
 CMS
 
+* Fixed bug #2907: Online Quiz Question Group keyword replacements are not replaced for the Root User (Online Quiz)
 * Fixed bug #2914: Asset Builder: Dynamic Create Locations Folder Problem (Asset Builder Page)
 * Fixed bug #2918: Listing Engine "Current Asset ID" Dynamic Parameter Caching Problem (Listing Engine)
 * Fixed bug #2921: When validated an external link, a malformed url causes an error (Links Report)
