@@ -1,5 +1,44 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.7
+
+Featured Changes
+-----------------------------------
+
+Negative On-Hand Quantity Support in E-Commerce System
+
+	If a customer has paid for their cart, but between that time and delivery there are insufficient quantities of product(s) to fulfil the order, then the order will still go through, causing product quantity fields to turn negative. Fields are available in the Default Delivery Method to alert the form's owner to any back-ordering required.
+
+
+Default Delivery Method Changes
+
+	The Default Delivery Method now allows you to process your cart using the eSec Payment Gateway asset. Emails will only be sent upon successful payment processing if this option is selected. There is also a new option to stop emails being sent.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2897: File attachment problem
+* Fixed bug #2939: Asset map does not display $ sign when it is followed by a number
+* Fixed bug #2943: CAPTCHA new key only works once
+
+CMS
+
+* Fixed bug #2914: Asset Builder: Dynamic Create Locations Folder Problem (Asset Builder Page)
+* Fixed bug #2918: Listing Engine "Current Asset ID" Dynamic Parameter Caching Problem (Listing Engine)
+* Fixed bug #2921: When validated an external link, a malformed url causes an error (Links Report)
+* Fixed bug #2932: incorrectly tunnelling different protocols (Remote Content Page)
+
+Calendar
+
+* Fixed bug #2902: Event Label Format keywords don't work in List views on Calendar details screen (Calendar Page)
+* Fixed bug #2910: Link to 'Event view' in event Limbo edit mode doesn't work (Calendar Page)
+* Fixed bug #2930: Recurring events not recurring (Recurring Calendar Event)
+
+
+
 VERSION 3.16.6
 
 Featured Changes
@@ -7,42 +46,42 @@ Featured Changes
 
 Listing Engine "Current Asset ID" Dynamic Parameter
 
-    Listing Engine assets now expose a new "Session" dynamic parameter, "list_current_asset_id", that contains the ID of the asset currently being listed. This can be used in a nested listing (for example) to use this asset ID elsewhere.
+	Listing Engine assets now expose a new "Session" dynamic parameter, "list_current_asset_id", that contains the ID of the asset currently being listed. This can be used in a nested listing (for example) to use this asset ID elsewhere.
 
 
 Replacement Asset IDs Option
 
-    Asset Listing Page assets now have a new "Replacement Asset IDs to Include" dynamic parameter. If then these replacement assets are used instead, provided it satisfies all other criteria for listing.
+	Asset Listing Page assets now have a new "Replacement Asset IDs to Include" dynamic parameter. If then these replacement assets are used instead, provided it satisfies all other criteria for listing.
 
 
 Script to Change Metadata Sort Option
 
-    This new script allows you to change all metadata sorting options for Asset Listing Pages from the "raw" (key) values to the "presentation" value, or vice versa. This script provides the SQL to  perform the action, but does not run it: the SQL can then be executed using your client of choice.
+	This new script allows you to change all metadata sorting options for Asset Listing Pages from the "raw" (key) values to the "presentation" value, or vice versa. This script provides the SQL to  perform the action, but does not run it: the SQL can then be executed using your client of choice.
 
 
 E-Commerce Product Quantity Tracking
 
-    You can now specify an asset attribute or metadata field to represent a "quantity on hand" of that product, which is deducted from whenever an order is made. If quantity tracking is enabled, you will not be able to make an order of a product if there is not enough to fill your order.
+	You can now specify an asset attribute or metadata field to represent a "quantity on hand" of that product, which is deducted from whenever an order is made. If quantity tracking is enabled, you will not be able to make an order of a product if there is not enough to fill your order.
 
 
 Script to Re-Index the Search Manager
 
-    This new script allows you to re-index the entire system, or all assets underneath a specified root node, from the command line. This script requires indexing to be turned on in the Search Manager.
+	This new script allows you to re-index the entire system, or all assets underneath a specified root node, from the command line. This script requires indexing to be turned on in the Search Manager.
 
 
 Set Link Value in Asset Builder
 
-    A new "Set Link Value" options is available on the Details screen of the Asset Builder Page asset. This allows allow assignment of a link value between a created asset and its create location(s) upon creation.
+	A new "Set Link Value" options is available on the Details screen of the Asset Builder Page asset. This allows allow assignment of a link value between a created asset and its create location(s) upon creation.
 
 
 Links Report Now Follows Redirect Page Links
 
-    Redirect Page assets are now followed and reachability of destinations reported when generating the Links Report.
+	Redirect Page assets are now followed and reachability of destinations reported when generating the Links Report.
 
 
 Trigger Action: Calculate Average Comment Rating
 
-    This new trigger action calculates the average percentage rating for all Comment assets residing underneath a parent asset. The calculated average value is then set to a specified metadata field if the relevant metadata schema is applied to the parent asset.
+	This new trigger action calculates the average percentage rating for all Comment assets residing underneath a parent asset. The calculated average value is then set to a specified metadata field if the relevant metadata schema is applied to the parent asset.
 
 
 Additional Changes and Bug Fixes
@@ -96,7 +135,7 @@ CMS
 
 Calendar
 
-* Fixed bug #2862: If Calendar Page is nested in Rolling Calendar, Date Incorrect
+* Fixed bug #2862: If Calendar Page is nested in Rolling Calendar, Date Incorrect (Rolling Calendar Page)
 
 E-Commerce
 
@@ -111,7 +150,7 @@ Featured Changes
 
 Insert Image WYSIWYG Plugin: Extra ID/Class Fields
 
-    The Insert Image WYSIWYG plugin now has Class and Name fields, which allow editors to specify HTML/CSS CLASS and ID attributes for an image, respectively.
+	The Insert Image WYSIWYG plugin now has Class and Name fields, which allow editors to specify HTML/CSS CLASS and ID attributes for an image, respectively.
 
 
 Additional Changes and Bug Fixes
@@ -164,17 +203,17 @@ Featured Changes
 
 Proxy Asset Feature Extended from Search Page to All Asset Listings
 
-    The Proxy Asset functionality has been moved to the Listing Engine asset, allowing all listing-type assets to potentially use this feature. This feature allows a listing to match a certain asset type, but list another related asset type instead.
+	The Proxy Asset functionality has been moved to the Listing Engine asset, allowing all listing-type assets to potentially use this feature. This feature allows a listing to match a certain asset type, but list another related asset type instead.
 
 
 Listing Engine: Sort By Keyword
 
-    The Listing Engine can now be sorted by any specified asset keyword. If an asset has this keyword, it will be sorted according to its value, otherwise it will be added to the bottom of the list.
+	The Listing Engine can now be sorted by any specified asset keyword. If an asset has this keyword, it will be sorted according to its value, otherwise it will be added to the bottom of the list.
 
 
 RSS Data Source Timestamp Field
 
-    You can select one field, out of those fields RSS Data Source believes to be a date field (any field with "date" or "publish" in its name), can be selected to be a "timestamp" field. This is converted into a UNIX timestamp (ie. the number of seconds since epoch) and is accessible from the %ds__timestamp% keyword.
+	You can select one field, out of those fields RSS Data Source believes to be a date field (any field with "date" or "publish" in its name), can be selected to be a "timestamp" field. This is converted into a UNIX timestamp (ie. the number of seconds since epoch) and is accessible from the %ds__timestamp% keyword.
 
 
 Additional Changes and Bug Fixes
@@ -207,27 +246,27 @@ Featured Changes
 
 Ability to View and Edit Link Values
 
-    The Linking screen of an asset has been updated to provide new advanced options relating to link values. Those links whose type is editable (essentially, TYPE_1 and TYPE_2 links) also offer the ability to edit the values of those links.
+	The Linking screen of an asset has been updated to provide new advanced options relating to link values. Those links whose type is editable (essentially, TYPE_1 and TYPE_2 links) also offer the ability to edit the values of those links.
 
 
 Asset Listing: Filter By Link Value
 
-    This new feature allows assets to be filtered by the link value relation with their immediate parent (or child, if "up the tree" is chosen). This works best when "Direct Links Only" is turned on.
+	This new feature allows assets to be filtered by the link value relation with their immediate parent (or child, if "up the tree" is chosen). This works best when "Direct Links Only" is turned on.
 
 
 Search as Public User
 
-    When turned ON, this option forces the Search Page to search as the Public User, even when someone is logged in.
+	When turned ON, this option forces the Search Page to search as the Public User, even when someone is logged in.
 
 
 Permission Relaxation Options in Search Page
 
-    New advanced "No Group Check" and "No Role Check" options allow you to skip certain permission checks for performance improvements. Specifically, these will not expand a user's roles and groups to be included in the permission check.
+	New advanced "No Group Check" and "No Role Check" options allow you to skip certain permission checks for performance improvements. Specifically, these will not expand a user's roles and groups to be included in the permission check.
 
 
 WYSIWYG Plugin: Snipppet Keyword Replace
 
-    This new WYSIWYG plugin allows you to insert a snippet directly into a bodycopy DIV or Table that uses a WYSIWYG content type, rather than requiring its own DIV/table. This development also allows you to add a snippet as a global keyword.
+	This new WYSIWYG plugin allows you to insert a snippet directly into a bodycopy DIV or Table that uses a WYSIWYG content type, rather than requiring its own DIV/table. This development also allows you to add a snippet as a global keyword.
 
 
 Additional Changes and Bug Fixes
@@ -278,7 +317,7 @@ Featured Changes
 
 Global Asset-Specific Keywords
 
-    The global keywords system now allows any keyword for a specific asset to be specified, using a keyword of the format: %globals_keyword_name:assetid% (where "keyword_name" is the keyword you wish to use, and "assetid" is the asset you wish to reference).
+	The global keywords system now allows any keyword for a specific asset to be specified, using a keyword of the format: %globals_keyword_name:assetid% (where "keyword_name" is the keyword you wish to use, and "assetid" is the asset you wish to reference).
 
 
 Additional Changes and Bug Fixes
@@ -339,7 +378,7 @@ Featured Changes
 
 Alternate Base DN for LDAP Authentication
 
-    If this advanced setting is filled in, an alternate Base Distinguishing Name (DN) will be used by the LDAP Authentication system for finding a user to authenticate. If left blank, the normal Base DN will be used for this purpose.
+	If this advanced setting is filled in, an alternate Base Distinguishing Name (DN) will be used by the LDAP Authentication system for finding a user to authenticate. If left blank, the normal Base DN will be used for this purpose.
 
 
 Additional Changes and Bug Fixes
@@ -375,137 +414,137 @@ Featured Changes
 
 New Login URL suffix
 
-    This new login suffix (default "_login") will present MySource Matrix's login box, but will return to the front-end after login, rather than proceeding to the Admin or Simple Edit interface. The suffix can be changed from the System Configuration screen.
+	This new login suffix (default "_login") will present MySource Matrix's login box, but will return to the front-end after login, rather than proceeding to the Admin or Simple Edit interface. The suffix can be changed from the System Configuration screen.
 
 
 DB Connector Asset
 
-    This new asset allows you to store details of a database connection once, then re-use it throughout many DB Data Source assets, instead of having to re-enter the details on each asset.
+	This new asset allows you to store details of a database connection once, then re-use it throughout many DB Data Source assets, instead of having to re-enter the details on each asset.
 
 
 Dynamic Parameters for DB Data Source
 
-    DB Data Source assets now allow queries to use dynamic parameters. These parameters are defined on a new screen, which are then sourced from a parameter map (allowing the asset to use GET or POST variables, or the current user, site or asset). These variables can be used anywhere within a manually-configured query, by surrounding the parameter name with double-percentage signs (%%VariableName%%).
+	DB Data Source assets now allow queries to use dynamic parameters. These parameters are defined on a new screen, which are then sourced from a parameter map (allowing the asset to use GET or POST variables, or the current user, site or asset). These variables can be used anywhere within a manually-configured query, by surrounding the parameter name with double-percentage signs (%%VariableName%%).
 
 
 Stalled HIPO Reminder
 
-    This new feature adds a pop-up message (similar to the New Messages pop-up) if MySource Matrix believes a HIPO job has stalled for longer than five minutes. A new screen will also appear upon logging out in this situation, giving users a chance to go back to the HIPO Herder and possibly kill off the stalled job if necessary.
+	This new feature adds a pop-up message (similar to the New Messages pop-up) if MySource Matrix believes a HIPO job has stalled for longer than five minutes. A new screen will also appear upon logging out in this situation, giving users a chance to go back to the HIPO Herder and possibly kill off the stalled job if necessary.
 
 
 Hit Count Triggers and Listing Asset
 
-    Three new triggers allow you to modify a new "hit count" counter for an asset - either incrementing, decrementing, or resetting it. This hit count can then be listed using a new Hit Count Listing Page, which will list all assets underneath a root node with their hit counts. This list can be limited to assets satisfying a certain hit count criteria.
+	Three new triggers allow you to modify a new "hit count" counter for an asset - either incrementing, decrementing, or resetting it. This hit count can then be listed using a new Hit Count Listing Page, which will list all assets underneath a root node with their hit counts. This list can be limited to assets satisfying a certain hit count criteria.
 
 
 Protocol Templates in WYSIWYG Insert Link Pop-Up
 
-    This new preference allows you to create 'pseudo-protocols' for use in the WYSIWYG Insert Link pop-up, by providing a link template to expand to. This 'pseudo-protocol' only has meaning in the Insert Link pop-up, as it is inserted 'expanded' into the WYSIWYG content. However, if recognised as still being of that template, the Insert Link pop-up will recognise it as being that template if the link is later modified.
+	This new preference allows you to create 'pseudo-protocols' for use in the WYSIWYG Insert Link pop-up, by providing a link template to expand to. This 'pseudo-protocol' only has meaning in the Insert Link pop-up, as it is inserted 'expanded' into the WYSIWYG content. However, if recognised as still being of that template, the Insert Link pop-up will recognise it as being that template if the link is later modified.
 
 
 Cacheable Headers for HTTP 404 Responses
 
-    This new System Configuration setting allows pages returning a "HTTP 404 Not Found" response to be cached by a caching proxy server. This option is separate from the general "Send Cacheable Headers" setting, and the expiry time of the cached response is determined by the cache expiry setting in the Cache Manager asset.
+	This new System Configuration setting allows pages returning a "HTTP 404 Not Found" response to be cached by a caching proxy server. This option is separate from the general "Send Cacheable Headers" setting, and the expiry time of the cached response is determined by the cache expiry setting in the Cache Manager asset.
 
 
 Nest Content Paint Layout Options
 
-    The Nest Content Content Type now allows you to style assets with a paint layout based on the current URL, or an arbitrary paint layout, in addition to the previous functionality of painting them "raw".
+	The Nest Content Content Type now allows you to style assets with a paint layout based on the current URL, or an arbitrary paint layout, in addition to the previous functionality of painting them "raw".
 
 
 Snippet Content Type Asset
 
-    This Content Type allows editors to select from a list of Bodycopy Containers that are children of a certain root node, which is then inserted into the current Bodycopy Container.
+	This Content Type allows editors to select from a list of Bodycopy Containers that are children of a certain root node, which is then inserted into the current Bodycopy Container.
 
 
 Log In as Local User with LDAP Authentication
 
-    If this new LDAP Authentication System option is turned on, if an LDAP system successfully authenticates a user name and password, it will attempt to log in as a standard user (ie. one authenticated using Default Authentication) with the same user name. If such a user cannot be found, the log in will fail.
+	If this new LDAP Authentication System option is turned on, if an LDAP system successfully authenticates a user name and password, it will attempt to log in as a standard user (ie. one authenticated using Default Authentication) with the same user name. If such a user cannot be found, the log in will fail.
 
 
 XML User Bridge Asset
 
-    This new Data package asset fetches an XML file from a specified URL, and creates shadowed user groups and users underneath it if valid. An example XML file is provided to show what can be expected. Any valid attribute for a user can be used, including attributes for custom user types if that user type is specified by the bridge. These users will not be able to log in, as no authentication system is provided.
+	This new Data package asset fetches an XML file from a specified URL, and creates shadowed user groups and users underneath it if valid. An example XML file is provided to show what can be expected. Any valid attribute for a user can be used, including attributes for custom user types if that user type is specified by the bridge. These users will not be able to log in, as no authentication system is provided.
 
 
 Session-Level Dynamic Parameters
 
-    Session-Level dynamic parameters can now be created using a Set Session Variable trigger action, and accessed from settings using a parameter map, allowing values to be stored across a session. (Note: this feature is "sandboxed" and no other PHP session variables are available.)
+	Session-Level dynamic parameters can now be created using a Set Session Variable trigger action, and accessed from settings using a parameter map, allowing values to be stored across a session. (Note: this feature is "sandboxed" and no other PHP session variables are available.)
 
 
 Option to Disable Auto Simple Edit in Account Manager
 
-    This new Account Manager setting allows you to disable the automatic redirection to the Simple Edit interface when a logged-in user accesses the Account Manager page. This allows logged in users to create accounts through an Account Manager.
+	This new Account Manager setting allows you to disable the automatic redirection to the Simple Edit interface when a logged-in user accesses the Account Manager page. This allows logged in users to create accounts through an Account Manager.
 
 
 Option to Disable Edit Interface CSS in Simple Edit Mode
 
-    The Layout Manager's Details screen now offers the ability to disable the default interface styling used by the Simple Edit interface, which may allows easier creation of custom Simple Edit interfaces.
+	The Layout Manager's Details screen now offers the ability to disable the default interface styling used by the Simple Edit interface, which may allows easier creation of custom Simple Edit interfaces.
 
 
 LDAP Bridge Alias De-referencing Options
 
-    This advanced option allows LDAP Bridges to de-reference alias objects in an LDAP directory: either when locating the Base DN, when searching the directory for objects, or both.
+	This advanced option allows LDAP Bridges to de-reference alias objects in an LDAP directory: either when locating the Base DN, when searching the directory for objects, or both.
 
 
 Link to Existing Bulkmail Users in Import Tool
 
-    A new "Link user with an existing email address" option has been added to the Import Bulkmail Users tool. With this option turned on, if a Bulkmail user is found in the system with the same email address as one being imported, that user will be linked to the User Group where the users are being created in, rather than an error being thrown.
+	A new "Link user with an existing email address" option has been added to the Import Bulkmail Users tool. With this option turned on, if a Bulkmail user is found in the system with the same email address as one being imported, that user will be linked to the User Group where the users are being created in, rather than an error being thrown.
 
 
 Online Quiz "Response Supplement" fields
 
-    Multiple-Choice Online Quiz Questions now come with the ability to provide supplementary text for each response. This can be used as an explanation of why that answer was correct or incorrect.
+	Multiple-Choice Online Quiz Questions now come with the ability to provide supplementary text for each response. This can be used as an explanation of why that answer was correct or incorrect.
 
 
 Online Quiz Question Group Asset
 
-    Online Quiz Question Group assets are the preferred container for questions used in an Online Quiz asset. They also contain a concept of "Score Categories", allowing you to define labels for certain score ranges (eg. >10 = "Excellent", 7-9 = "Good", etc). A keyword is provided in the Thank You bodycopy to print this label. A "Supplementary Content" field is provided for score categories, which is of a similar concept to the "Response Supplement" fields in Online Quiz Questions.
+	Online Quiz Question Group assets are the preferred container for questions used in an Online Quiz asset. They also contain a concept of "Score Categories", allowing you to define labels for certain score ranges (eg. >10 = "Excellent", 7-9 = "Good", etc). A keyword is provided in the Thank You bodycopy to print this label. A "Supplementary Content" field is provided for score categories, which is of a similar concept to the "Response Supplement" fields in Online Quiz Questions.
 
 
 Import File Script Changes
 
-    The scripts/import/import_file.php script now has an alternative action: if a third parameter (containing an asset ID) is passed to the script. If passed, this asset ID will be used as the parent asset for all assets imported from the directory. A fourth parameter allows users to set whether unrestricted access will be turned on or off for the newly imported File assets.
+	The scripts/import/import_file.php script now has an alternative action: if a third parameter (containing an asset ID) is passed to the script. If passed, this asset ID will be used as the parent asset for all assets imported from the directory. A fourth parameter allows users to set whether unrestricted access will be turned on or off for the newly imported File assets.
 
 
 Configurable Day Headings in Calendar Page
 
-    The day headings on the Week and Month "List with day headings" view in the Calendar Page are now customisable.
+	The day headings on the Week and Month "List with day headings" view in the Calendar Page are now customisable.
 
 
 Multi-Date Calendar Event
 
-    This new generic asset allows single and recurring events to be placed underneath it, so that the resulting event is treated as a whole. This should allow, for example, for an event to be described as "7:30pm - 9pm every Tuesday AND 6:30pm - 8pm every Thursday", for example.)
+	This new generic asset allows single and recurring events to be placed underneath it, so that the resulting event is treated as a whole. This should allow, for example, for an event to be described as "7:30pm - 9pm every Tuesday AND 6:30pm - 8pm every Thursday", for example.)
 
 
 Calendar Event "Short Time" Keywords
 
-    The new %event_short_start_time% and %event_short_end_time% keywords display 12-hour formats, but drop the minutes if the time is on the hour (eg. "2:30pm", but "9am").
+	The new %event_short_start_time% and %event_short_end_time% keywords display 12-hour formats, but drop the minutes if the time is on the hour (eg. "2:30pm", but "9am").
 
 
 Default Delivery Method Asset
 
-    This new delivery method for the E-Commerce system comes with a blank Simple Form that allows you to gather information from the user (for name, address and so on); one bodycopy for each E-Commerce Checkout status (Confirmation, Success and Failure), and two types of email (receipt and other recipient) to be sent upon success.
+	This new delivery method for the E-Commerce system comes with a blank Simple Form that allows you to gather information from the user (for name, address and so on); one bodycopy for each E-Commerce Checkout status (Confirmation, Success and Failure), and two types of email (receipt and other recipient) to be sent upon success.
 
 
 E-Commerce Checkout: Display Extra Options Screen
 
-    This new screen allows you to customise the name and percentage of the tax rate usable by E-Commerce Checkout (defaults to Australian GST, 10%), and also allows you to specify a list of flat fees (per order) using Product assets.
+	This new screen allows you to customise the name and percentage of the tax rate usable by E-Commerce Checkout (defaults to Australian GST, 10%), and also allows you to specify a list of flat fees (per order) using Product assets.
 
 
 Purge Trash Script
 
-    This new script allows the trash to be purged from a command line interface. Requires root user access.
+	This new script allows the trash to be purged from a command line interface. Requires root user access.
 
 
 Set Index Page for Site Trigger Action
 
-    This new trigger action sets the index page of a Site asset to the specified asset. This action only makes sense when fired on a Site asset.
+	This new trigger action sets the index page of a Site asset to the specified asset. This action only makes sense when fired on a Site asset.
 
 
 Improved Config Variable Handling in Import
 
-    It is now possible to use config variables ("[[conf://…]]") with other text and variables around them in a node value, rather than just on their own.
+	It is now possible to use config variables ("[[conf://…]]") with other text and variables around them in a node value, rather than just on their own.
 
 
 
