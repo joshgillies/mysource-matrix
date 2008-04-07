@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.2 2008/03/13 03:51:07 bpearson Exp $
+* $Id: lang_strings.xml,v 1.262.2.3 2008/04/07 23:06:31 bpearson Exp $
 *
 */
 
@@ -1092,6 +1092,7 @@
 	<string source="no_value_entered">no value entered</string>
 	<string source="set_attributes">Set Attribute Values</string>
 	<string source="trigger_variety_name_cannot_be_empty">Variety name cannot be empty</string>
+	<string source="trigger_thumbnail_index_cannot_be_empty">Index cannot be empty</string>
 	<string source="trigger_require_constrain_width_height">must have constrain, height and width set, even if one is zero</string>
 	<string source="trigger_cannot_set_variety_value">Unable to set the variety's "%s" value</string>
 
@@ -1101,6 +1102,7 @@
 	<string source="do_not_create_clone_if_same_name_exists">Do not create if a clone with the same name and asset type already exists</string>
 
 	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: %1$s&lt;br /&gt;and constrain by: %2$s and size it to: (width) %3$s by (height) %4$s</string>
+	<string source="trigger_set_thumbnail">To set a thumbnail, you need to set an index with name: %1$s &lt;br /&gt;This index name will be used by the trigger to gether what image to use as a thumbnail.</string>
 
 	<string source="trigger_create_link_basic">Link as the %1$s of the asset: %2$s using a %3$s link.</string>
 	<string source="trigger_create_link_advanced">Use this value as the link value: %1$s and link the child %2$s and %3$s to the parent</string>
