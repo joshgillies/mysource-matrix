@@ -8,6 +8,7 @@ Complete Changelog
 Core
 
 * Fixed bug #2897: File attachment problem
+* Fixed bug #2905: Workflow internal message link invalid
 * Fixed bug #2939: Asset map does not display $ sign when it is followed by a number
 * Fixed bug #2943: CAPTCHA new key only works once
 
