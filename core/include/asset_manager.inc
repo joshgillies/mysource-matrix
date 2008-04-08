@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.8 2008/04/04 04:15:17 lwright Exp $
+* $Id: asset_manager.inc,v 1.655.2.9 2008/04/08 01:51:45 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.8 $
+* @version $Revision: 1.655.2.9 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7014,7 +7014,7 @@ class Asset_Manager extends MySource_Object
 		$where = 'l.url '.$url_condition;
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol.' = 1';
+			$where .= ' AND l.'.$protocol." = '1'";
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -7258,11 +7258,11 @@ class Asset_Manager extends MySource_Object
 							)';
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol.' = 1';
+			$where .= ' AND l.'.$protocol." = '1'";
 			$protocol_select = '\''.$protocol.'\'';
 		} else {
 			$curr_proto = current_protocol();
-			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = 1 THEN \''.$curr_proto.'\' ELSE \''.(($curr_proto == 'http') ? 'https' : 'http').'\' END';
+			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = \'1\' THEN \''.$curr_proto.'\' ELSE \''.(($curr_proto == 'http') ? 'https' : 'http').'\' END';
 		}
 
 		// if we are using oracle, we cannot specify an alias
@@ -7980,10 +7980,10 @@ class Asset_Manager extends MySource_Object
 			$where .= ')';
 		}
 		if (!is_null($dependant)) {
-			$where .= ' AND l.is_dependant = '.(($dependant) ? '1' : '0');
+			$where .= ' AND l.is_dependant = '.(($dependant) ? "'1'" : "'0'");
 		}
 		if (!is_null($exclusive)) {
-			$where .= ' AND l.is_exclusive = '.(($exclusive) ? '1' : '0');
+			$where .= ' AND l.is_exclusive = '.(($exclusive) ? "'1'" : "'0'");
 		}
 
 		$group_by = '';
@@ -8235,7 +8235,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($dependant)) {
 			$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
-			$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
+			$bind_vars[$bind_prefix.'dependant'] = $dependant ? "'1'" : "'0'";
 			if (!empty($type_code) || !is_null($access)) {
 				$where .= ' AND ';
 			}

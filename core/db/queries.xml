@@ -111,7 +111,7 @@
 				</from>
 				<where>
 					<equal table="sq_ast_lnk" column="minorid">:assetid</equal>
-					<equal table="sq_ast_lnk" column="is_dependant">1</equal>
+					<equal table="sq_ast_lnk" column="is_dependant">'1'</equal>
 				</where>
 			</select>
 		</primary>
@@ -810,7 +810,7 @@
 				</from>
 				<where>
 					<equal table="sq_hipo_job" column="userid">:current_user</equal>
-					<equal table="sq_hipo_job" column="running">0</equal>
+					<equal table="sq_hipo_job" column="running">'0'</equal>
 				</where>
 			</select>
 		</primary>
