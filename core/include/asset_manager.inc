@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.680 2008/04/04 04:16:02 lwright Exp $
+* $Id: asset_manager.inc,v 1.681 2008/04/08 06:32:38 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.680 $
+* @version $Revision: 1.681 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7010,7 +7010,7 @@ class Asset_Manager extends MySource_Object
 			$option  = '';
 			$url_condition = ' IN (';
 			foreach ($sections as $piece) {
-				$url_condition .= (($option) ? ',' : '').'\''.$option.$piece.'\'';
+				$url_condition .= (($option) ? ',' : '').MatrixDAL::quote($option.$piece);
 				$option .= $piece.'/';
 			}
 			$url_condition .= ') ';
@@ -7019,7 +7019,7 @@ class Asset_Manager extends MySource_Object
 		$where = 'l.url '.$url_condition;
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol.' = 1';
+			$where .= ' AND l.'.$protocol.' = '.MatrixDAL::quote('1');
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -7263,11 +7263,11 @@ class Asset_Manager extends MySource_Object
 							)';
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol.' = 1';
-			$protocol_select = '\''.$protocol.'\'';
+			$where .= ' AND l.'.$protocol.' = '.MatrixDAL::quote('1');
+			$protocol_select = MatrixDAL::quote($protocol);
 		} else {
 			$curr_proto = current_protocol();
-			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = 1 THEN \''.$curr_proto.'\' ELSE \''.(($curr_proto == 'http') ? 'https' : 'http').'\' END';
+		$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.MatrixDAL::quote('1').' THEN '.MatrixDAL::quote($curr_proto).' ELSE '.MatrixDAL::quote(($curr_proto == 'http') ? 'https' : 'http').' END';
 		}
 
 		// if we are using oracle, we cannot specify an alias
@@ -7997,11 +7997,11 @@ class Asset_Manager extends MySource_Object
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = :'.$bind_prefix.'is_dependant';
-			$bind_vars[$bind_prefix.'is_dependant'] = ($dependant) ? '1' : '0';
+			$bind_vars[$bind_prefix.'is_dependant'] = MatrixDAL::quote(($dependant) ? '1' : '0');
 		}
 		if (!is_null($exclusive)) {
 			$where .= ' AND l.is_exclusive = :'.$bind_prefix.'is_exclusive';
-			$bind_vars[$bind_prefix.'is_exclusive'] = ($exclusive) ? '1' : '0';
+			$bind_vars[$bind_prefix.'is_exclusive'] = MatrixDAL::quote(($exclusive) ? '1' : '0');
 		}
 
 		$group_by = '';
@@ -8271,7 +8271,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($dependant)) {
 			$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
-			$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
+			$bind_vars[$bind_prefix.'dependant'] = MatrixDAL::quote($dependant ? '1' : '0');
 			if (!empty($type_code) || !is_null($access)) {
 				$where .= ' AND ';
 			}
