@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.157 2008/01/14 00:48:08 hnguyen Exp $
+* $Id: backend_outputter.inc,v 1.158 2008/04/09 05:37:20 bpearson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.157 $
+* @version $Revision: 1.158 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -991,6 +991,7 @@ class Backend_Outputter
 			$this->addJsInclude(sq_web_path('lib').'/js/backend_search.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/debug.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/edit.js');
+			$this->addJsInclude(sq_web_path('lib').'/js/state.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
 			$this->addOnLoad('fixIcons(\''.sq_web_path('lib').'/web/images/blank.gif\');');
 
@@ -1053,6 +1054,10 @@ class Backend_Outputter
 							document.getElementById('sq-commit-button-spacer').style.height = (document.getElementById('sq-commit-button-div').clientHeight + 2) + "px";
 						}
 					}
+
+					// Remember state
+					resetChanges();
+					document.forms[0]['state'].value = saveState();
 
 				}//end page_on_load()
 
@@ -1120,6 +1125,9 @@ class Backend_Outputter
 					// disable all submit buttons
 					disable_buttons();
 
+					// Update the form state
+					makeChanges();
+
 					return true;
 
 				}//end form_on_submit()
@@ -1139,7 +1147,7 @@ class Backend_Outputter
 		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
 			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>
-		<form style="display: inline" action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onsubmit="return form_on_submit();">
+		<form style="display: inline" action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onclick="changesMade();" onkeypress="changesMade();" onsubmit="return form_on_submit();">
 		<?php
 			if (!empty($_REQUEST['print_view'])) {
 				?>
@@ -1151,6 +1159,9 @@ class Backend_Outputter
 		<div id="sq-content">
 		<?php
 		hidden_field('process_form', '1');
+		hidden_field('changes', '0');
+		hidden_field('state', '');
+
 		foreach ($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
 		}
