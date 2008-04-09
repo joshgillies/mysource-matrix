@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.1.2.2 2008/03/13 00:57:47 bpearson Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.1.2.3 2008/04/09 05:52:32 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,17 +185,34 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 			return translate('trigger_asset_not_supplied');
 		}
 
-		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id['assetid']);
+		if (!empty($asset_id['assetid'])) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id['assetid']);
 
-		// Assign variables to settings
-		$settings['asset_id'] = $asset_id['assetid'];
-		$settings['asset_type'] = $asset->type();
-		$settings['match'] = array_get_index($request_data, 'match', FALSE);
-		$settings['value'] = array_get_index($request_data, 'value', FALSE);
+			// Assign variables to settings
+			$settings['asset_id'] = $asset_id['assetid'];
+			$settings['asset_type'] = $asset->type();
+			$settings['match'] = array_get_index($request_data, 'match', FALSE);
+			$settings['value'] = array_get_index($request_data, 'value', FALSE);
+		}
 
 		return FALSE;
 
 	}//end processInterface()
+
+
+	/**
+	* Determines whether a condition is allowed to be used multiple times in a trigger
+	* Default to false, children can override if necessary
+	*
+	* @return boolean
+	* @access public
+	*/
+	function allowMultiple()
+	{
+		// default to to disallow
+		return TRUE;
+
+	}//end allowMultiple()
 
 
 }//end class
