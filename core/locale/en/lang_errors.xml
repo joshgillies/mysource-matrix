@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.91.2.3 2008/02/27 22:53:12 colivar Exp $
+* $Id: lang_errors.xml,v 1.91.2.4 2008/04/09 03:33:58 bpearson Exp $
 *
 */
 
@@ -1744,5 +1744,8 @@ Full Node Contents :
 
 	<error code="TRIG0003">The set-attribute trigger action is trying to set a non-scalar attribute to a scalar value; trigger execution aborted</error>
 	<error code="TRIG0004">No tag is specified in trigger condition: 'Asset is tagged'</error>
+
+	<!-- DIIRD -->
+	<error code="DIIRD0001">The image was too big</error>
 
 </errors>
