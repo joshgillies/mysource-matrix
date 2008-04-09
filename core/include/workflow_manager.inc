@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.129 2008/03/27 23:22:19 hnguyen Exp $
+* $Id: workflow_manager.inc,v 1.130 2008/04/09 04:13:47 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -941,9 +941,8 @@ class Workflow_Manager extends MySource_Object
 		$log->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
 		$ms->enqueueMessage($log);
 
-		// send internal messages to everyone who could approve before to let them know that someone did
 		if (!$this->silentWorkflowParty($asset->id)) {
-
+			// send internal messages to everyone who could approve before to let them know that someone did
 			$msg = $ms->newMessage($publishers_before);
 			$msg->type    = 'asset.workflow.announce.approve';
 			$msg->parameters['assetid'] = $asset->id;
@@ -1001,10 +1000,23 @@ class Workflow_Manager extends MySource_Object
 					$msg->parameters['assetid'] = $asset->id;
 					$msg->replacements = $msg_reps;
 					$ms->enqueueMessage($msg);
+
 				}//end if step has advanced
 			}//end foreach $steps_after
 
 		}//end if not silent workflow party
+
+		// if the user who has completed the step on this workflow is also able to
+		// approve the next part of the workflow, let their action to approve workflow
+		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$list_of_publishers = $this->whoCanPublish($asset->id);
+		// Test they are the next user in workflow
+		if (in_array($current_userid, $list_of_publishers)) {
+			if (!$this->recordPublish($asset->id, $current_userid)) {
+				trigger_localised_error('SYS0078', E_USER_WARNING, $current_userid);
+				// dont die here because they can try to approve again later, we just want to warn them
+			}
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -1115,6 +1127,7 @@ class Workflow_Manager extends MySource_Object
 						$cond_data['published_by'][$publisherid] = time();
 						$workflow_updated = TRUE;
 					}
+
 				}
 			}//end for
 
@@ -1130,6 +1143,7 @@ class Workflow_Manager extends MySource_Object
 					if ($num_steps > 0) {
 						$workflow['steps'][$num_steps]['completed'] = time();
 					}
+				// else start the next workflow step
 				} else {
 					$current_step =& $this->getCurrentStep($workflow);
 					if (!$current_step['started']) {
@@ -1146,7 +1160,7 @@ class Workflow_Manager extends MySource_Object
 							$previous_step['completed'] = time();
 						}
 					}
-				}
+				}//end if
 			}
 		}//end else
 
