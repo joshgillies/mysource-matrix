@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.681 2008/04/08 06:32:38 lwright Exp $
+* $Id: asset_manager.inc,v 1.682 2008/04/10 04:31:01 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.681 $
+* @version $Revision: 1.682 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7997,11 +7997,11 @@ class Asset_Manager extends MySource_Object
 		}
 		if (!is_null($dependant)) {
 			$where .= ' AND l.is_dependant = :'.$bind_prefix.'is_dependant';
-			$bind_vars[$bind_prefix.'is_dependant'] = MatrixDAL::quote(($dependant) ? '1' : '0');
+			$bind_vars[$bind_prefix.'is_dependant'] = ($dependant) ? '1' : '0';
 		}
 		if (!is_null($exclusive)) {
 			$where .= ' AND l.is_exclusive = :'.$bind_prefix.'is_exclusive';
-			$bind_vars[$bind_prefix.'is_exclusive'] = MatrixDAL::quote(($exclusive) ? '1' : '0');
+			$bind_vars[$bind_prefix.'is_exclusive'] = ($exclusive) ? '1' : '0';
 		}
 
 		$group_by = '';
@@ -8271,7 +8271,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($dependant)) {
 			$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
-			$bind_vars[$bind_prefix.'dependant'] = MatrixDAL::quote($dependant ? '1' : '0');
+			$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
 			if (!empty($type_code) || !is_null($access)) {
 				$where .= ' AND ';
 			}
