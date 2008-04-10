@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.41 2008/01/25 03:48:19 mbrydon Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.42 2008/04/10 05:11:52 ncallahan Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,6 +156,8 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param Metadata_Field_Select	$asset			the asset whose interface we are processing
 	* @param string					&$new_value_str	a string by reference that we can store the new values in
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	*                                       to children
 	*
 	* @return boolean
 	* @access public
