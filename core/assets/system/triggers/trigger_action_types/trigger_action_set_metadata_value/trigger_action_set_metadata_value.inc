@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.22 2007/12/20 22:49:16 hnguyen Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.22.2.1 2008/04/10 03:31:26 ncallahan Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -139,7 +139,6 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$output					= '';
 		$metadata_fieldid		= array_get_index($settings, 'fieldid', 0);
 		$metadata_field_value	= array_get_index($settings, 'value', NULL);
-
 		// asset finder for Metadata Field
 		ob_start();
 			if ($write_access) {
@@ -159,7 +158,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 				// set the field name
 				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
 				$edit_fns = $metadata_field->getEditFns();
-				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE);
+				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE, TRUE, FALSE);
 				hidden_field($prefix.'[form_printed]', 1);
 
 				// attribute friendly prefix
@@ -214,10 +213,10 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			}
 
 			$edit_fns = $metadata_field->getEditFns();
-
 			$result = '';
 			if ($form_printed) {
-				$edit_fns->processInlineValueInterface($metadata_field, $result);
+				$field_cascade_value=FALSE;
+				$edit_fns->processInlineValueInterface($metadata_field, $result, $field_cascade_value);
 			}
 
 			$settings['field_name']	= $metadata_field->name;

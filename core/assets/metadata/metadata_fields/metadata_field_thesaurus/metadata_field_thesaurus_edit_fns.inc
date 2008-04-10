@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.15.2.1 2008/03/12 04:03:50 lwright Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.15.2.2 2008/04/10 03:31:26 ncallahan Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -261,6 +261,8 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param Metadata_Field_Thesaurus	$asset			asset being painted
 	* @param string						&$new_value_str	a string by reference that we can store the new values in
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	*                                       to children
 	*
 	* @return boolean
 	* @access public

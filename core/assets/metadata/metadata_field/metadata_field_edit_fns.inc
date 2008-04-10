@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.55.2.1 2008/03/12 04:03:50 lwright Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.55.2.2 2008/04/10 03:31:25 ncallahan Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55.2.1 $
+* @version $Revision: 1.55.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -303,11 +303,13 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @param Metadata_Field	$asset			the asset whose interface we are processing
 	* @param string			&$new_value_str	a string by reference that we can store the new values in
 	*										set to NULL to revert to default
+	* @param bool     &$field_cascade_value Whether value updates to this field should cascade 
+	*                                       to children
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(Metadata_Field $asset, &$new_value_str)
+	function processInlineValueInterface(Metadata_Field $asset, &$new_value_str, &$field_cascade_value)
 	{
 		return FALSE;
 
