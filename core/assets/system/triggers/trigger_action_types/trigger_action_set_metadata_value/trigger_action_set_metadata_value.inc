@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.22.2.4 2008/04/11 03:13:09 ncallahan Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.22.2.5 2008/04/11 03:25:00 ncallahan Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.22.2.4 $
+* @version $Revision: 1.22.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,7 +156,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			} else {
 			    if ($metadata_fieldid  && $metadata_field) {
 				    echo get_asset_tag_line($metadata_fieldid);
-				} else if (!$metadata_field) {
+				} else if ($metadata_fieldid  && !$metadata_field) {
 				    echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_fieldid.')</span>';
 			    } else {
 				    echo '<b>No metadata field specified</b>';
