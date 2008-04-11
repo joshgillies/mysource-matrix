@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.1 2008/04/09 05:36:20 bpearson Exp $
+* $Id: state.js,v 1.2 2008/04/11 01:21:50 bpearson Exp $
 *
 */
 
@@ -90,10 +90,12 @@ function makeChanges()
 }
 
 onbeforeunload = function(e) {
-	if (document.forms[0]['changes'].value == '1')
-	{
-		if (document.forms[0]['state'].value != saveState()) {
-			return "Are you sure want to continue?";
+	if (document.getElementById("sq_commit_button")) {
+		if (document.forms[0]['changes'].value == '1')
+		{
+			if (document.forms[0]['state'].value != saveState()) {
+				return "Are you sure want to continue?";
+			}
 		}
 	}
 }
