@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.13.4.1 2008/04/11 00:16:04 bpearson Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.13.4.2 2008/04/11 02:25:51 ncallahan Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13.4.1 $
+* @version $Revision: 1.13.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -142,13 +142,22 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		$metadata_fieldid		= array_get_index($settings, 'fieldid', 0);
 		$metadata_field_value	= array_get_index($settings, 'value', NULL);
 
+		if ($metadata_fieldid) {
+		    $metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
+		}
 		// asset finder for Metadata Field
 		ob_start();
 			if ($write_access) {
 				echo 'Choose Metadata Field&nbsp;&nbsp;&nbsp;';
 				asset_finder($prefix.'[fieldid]', $metadata_fieldid, Array('metadata_field' => 'D'));
 			} else {
-				echo '<b>No metadata field specified</b>';
+			    if ($metadata_fieldid  && $metadata_field) {
+				    echo get_asset_tag_line($metadata_fieldid);
+				} else if (!$metadata_field) {
+				    echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_fieldid.')</span>';
+			    } else {
+				    echo '<b>No metadata field specified</b>';
+				}
 			}
 			$output_part1 = ob_get_contents();
 		ob_end_clean();
@@ -156,7 +165,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// Input field for the value
 		ob_start();
-			if ($write_access && $metadata_fieldid) {
+			if ($write_access && $metadata_field) {
 				echo '<br>Set the value for this field<br>';
 				// set the field name
 				$metadata_field =& $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_fieldid);
