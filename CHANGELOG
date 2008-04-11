@@ -1,10 +1,14 @@
 MYSOURCE MATRIX CHANGELOG
 
-
 VERSION 3.18.0
 
 Featured Changes
 -----------------------------------
+
+Set Thumbnail Trigger Action
+
+	This new trigger action takes an asset ID of an Image asset from a parameter map variable (GET data, POST data, and Matrix "session" data), which is then linked as the thumbnail of the current asset.
+
 
 Negative On-Hand Quantity Support in E-Commerce System
 
