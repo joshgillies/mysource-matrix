@@ -5,6 +5,11 @@ VERSION 3.16.7
 Featured Changes
 -----------------------------------
 
+Set Thumbnail Trigger Action
+
+	This new trigger action takes an asset ID of an Image asset from a parameter map variable (GET data, POST data, and Matrix "session" data), which is then linked as the thumbnail of the current asset.
+
+
 Negative On-Hand Quantity Support in E-Commerce System
 
 	If a customer has paid for their cart, but between that time and delivery there are insufficient quantities of product(s) to fulfil the order, then the order will still go through, causing product quantity fields to turn negative. Fields are available in the Default Delivery Method to alert the form's owner to any back-ordering required.
