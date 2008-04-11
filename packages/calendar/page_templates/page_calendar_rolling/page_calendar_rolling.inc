@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.31 2008/02/18 05:16:08 lwright Exp $
+* $Id: page_calendar_rolling.inc,v 1.32 2008/04/11 06:06:46 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -67,6 +67,7 @@ class Page_Calendar_Rolling extends Page
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 	}//end constructor
+
 
 	/**
 	* Perform any additional processing required during the creation of this asset
@@ -231,39 +232,99 @@ class Page_Calendar_Rolling extends Page
 	*/
 	function printBody()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$cache_key = $this->_getCacheKey();
+		$cached_contents = '';
 
-		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('folder', 'bodycopy'), TRUE, 'major', NULL, TRUE);
-		$tf_folder_id = NULL;
-		$pb_bodycopy_id = NULL;
+		if (!empty($cache_key)) {
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
+		}
 
-		foreach ($page_links as $link) {
-			switch ($link['minor_type_code']) {
-				case 'folder':
-					$this->_tmp['tf_folder_id'] = $link['minorid'];
-				break;
-				case 'bodycopy':
-					if ($link['value'] == '') {
-						$pb_bodycopy_id = $link['minorid'];
-					}
-				break;
+		if (!empty($cached_contents)) {
+			echo $cached_contents;
+		} else {
+			// No cached version, so carry out the calculations
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+			$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('folder', 'bodycopy'), TRUE, 'major', NULL, TRUE);
+			$tf_folder_id = NULL;
+			$pb_bodycopy_id = NULL;
+
+			foreach ($page_links as $link) {
+				switch ($link['minor_type_code']) {
+					case 'folder':
+						$this->_tmp['tf_folder_id'] = $link['minorid'];
+					break;
+					case 'bodycopy':
+						if ($link['value'] == '') {
+							$pb_bodycopy_id = $link['minorid'];
+						}
+					break;
+				}
 			}
-		}
-		if (is_null($this->_tmp['tf_folder_id'])) {
-			trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
-			return;
-		}
-		if (is_null($pb_bodycopy_id)) {
-			trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
-			return;
-		}
+			if (is_null($this->_tmp['tf_folder_id'])) {
+				trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
+				return;
+			}
+			if (is_null($pb_bodycopy_id)) {
+				trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
+				return;
+			}
 
-		$pb = $am->getAsset($pb_bodycopy_id, 'bodycopy');
-		$replacements = $this->_getPageContentsReplacements();
-		$pb->setKeywordReplacements($replacements);
-		$pb->printBody();
+			ob_start();
+				$pb = $am->getAsset($pb_bodycopy_id, 'bodycopy');
+				$replacements = $this->_getPageContentsReplacements();
+				$pb->setKeywordReplacements($replacements);
+				$pb->printBody();
+
+				if (!empty($cache_key)) {
+					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
+				}
+			ob_end_flush();
+		}//end else
 
 	}//end printBody()
+
+
+	/**
+	* Work out the unique cache key to represent the current page
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		$cache_key = '';
+
+		// Hmmm, page_calendar_restricted call this function too.
+		// So must make sure, we can tell the difference between the 2 entities
+		if ($this->type() == 'page_calendar_rolling') {
+			$from_date = $this->attr('duration_from');
+			$to_date = $this->attr('duration_to');
+			$day_filter = $this->attr('day_filter');
+			$time_unit = $this->attr('time_unit');
+
+			// All attributes will have some contents of no need to check for empty
+			$cache_key .= $from_date; 			// First entry so no colon out front like a little soldier
+			$cache_key .= ':'.$to_date;
+			$cache_key .= ':'.$time_unit;
+			$cache_key .= ':'.$day_filter;
+		} else if ($this->type() == 'page_calendar_restricted') {
+			$from_date = $this->attr('start_date');
+			$to_date = $this->attr('end_date');
+
+			$cache_key .= $from_date; 			// First entry so no colon out front like a little soldier
+
+			// If the end date is set use it in the cache key
+			$end_date = substr($to_date, 0, 10);
+			if (!($end_date == '----------')) {
+				$cache_key .= ':'.$to_date;
+			}
+		}
+
+		return $cache_key;
+
+	}//end _getCacheKey()
 
 
 	/**

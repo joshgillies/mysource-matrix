@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.15 2008/02/18 05:16:08 lwright Exp $
+* $Id: page_upcoming_events_list.inc,v 1.16 2008/04/11 06:06:46 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -45,6 +45,7 @@ class Page_Upcoming_Events_List extends Page
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 	}//end constructor
+
 
 	/**
 	* Perform any additional processing required during the creation of this asset
@@ -158,35 +159,76 @@ class Page_Upcoming_Events_List extends Page
 	*/
 	function printBody()
 	{
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$mm = NULL;
-		$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('folder', 'bodycopy'), TRUE, 'major', NULL, TRUE);
-		$tf_folder_id = NULL;
-		$pb_bodycopy_id = NULL;
-		foreach ($page_links as $link) {
-			switch ($link['minor_type_code']) {
-				case 'folder':
-					$this->_tmp['tf_folder_id'] = $link['minorid'];
-				break;
-				case 'bodycopy':
-					$pb_bodycopy_id = $link['minorid'];
-				break;
-			}
-		}
-		if (is_null($this->_tmp['tf_folder_id'])) {
-			trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
-			return;
-		}
-		if (is_null($pb_bodycopy_id)) {
-			trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
-			return;
+		$cache_key = $this->_getCacheKey();
+		$cached_contents = '';
+
+		if (!empty($cache_key)) {
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
-		$pb = $am->getAsset($pb_bodycopy_id, 'bodycopy');
-		$pb->setKeywordReplacements($this->_getPageContentsReplacements());
-		$pb->printBody();
+		if (!empty($cached_contents)) {
+			echo $cached_contents;
+		} else {
+			// No cached version, so carry out the calculations
+			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$mm = NULL;
+			$page_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, Array('folder', 'bodycopy'), TRUE, 'major', NULL, TRUE);
+			$tf_folder_id = NULL;
+			$pb_bodycopy_id = NULL;
+			foreach ($page_links as $link) {
+				switch ($link['minor_type_code']) {
+					case 'folder':
+						$this->_tmp['tf_folder_id'] = $link['minorid'];
+					break;
+					case 'bodycopy':
+						$pb_bodycopy_id = $link['minorid'];
+					break;
+				}
+			}
+			if (is_null($this->_tmp['tf_folder_id'])) {
+				trigger_localised_error('CAL0059', E_USER_WARNING, $this->id);
+				return;
+			}
+			if (is_null($pb_bodycopy_id)) {
+				trigger_localised_error('CAL0060', E_USER_WARNING, $this->id);
+				return;
+			}
+
+			ob_start();
+				$pb = $am->getAsset($pb_bodycopy_id, 'bodycopy');
+				$pb->setKeywordReplacements($this->_getPageContentsReplacements());
+				$pb->printBody();
+
+				if (!empty($cache_key)) {
+					$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
+				}
+			ob_end_flush();
+		}//end else
 
 	}//end printBody()
+
+
+	/**
+	* Work out the unique cache key to represent the current page
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		$cache_key = '';
+
+		$num_events = $this->attr('num_events');
+		$horizon = $this->attr('horizon');
+
+		// All attributes will have some contents of no need to check for empty
+		$cache_key .= $num_events; 			// First entry so no colon out front like a little soldier
+		$cache_key .= ':'.$horizon;
+
+		return $cache_key;
+
+	}//end _getCacheKey()
 
 
 	/**
