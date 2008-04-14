@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.9.2.1 2008/03/12 04:04:21 lwright Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.9.2.2 2008/04/14 06:23:59 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -335,7 +335,11 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$asset->setAttrValue('display_settings', $current_settings);
 			$asset->setAttrValue('on_click', $onclick->value);
 
-			if ($current_link == NULL) return TRUE;
+			if (empty($current_link) || empty($img_assetid)) {
+				$asset->setAttrValue('html', NULL);
+				return TRUE;
+			}//end if
+
 			$current_image = $am->getAsset($current_link['minorid']);
 			$image_width = ($current_settings['fit_dimensions'] == TRUE) ? 'width: '.$current_settings['width'].'px;' : '';
 			$image_height = ($current_settings['fit_dimensions'] == TRUE) ? 'height: '.$current_settings['height'].'px;' : '';
