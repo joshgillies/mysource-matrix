@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.13 2007/05/09 01:12:15 mbrydon Exp $
+* $Id: matrix_accessibility.inc,v 1.14 2008/04/14 23:38:39 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     Triple-A level accessibility tags (e.g. abbr and acronym)
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -265,7 +265,7 @@ class matrix_accessibility extends wysiwyg_plugin
 						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would break the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
-							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
+							alert("Please select only one paragraph to link at a time.");
 							return;
 						}
 
