@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.6 2007/05/21 01:21:41 rhoward Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.6.2.1 2008/04/14 06:44:20 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,7 +58,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
 			if (empty($current_link)) {
-				$current_link['minorid'] == '';
+				$current_link['minorid'] = '';
 			}
 
 			$display_fields = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CONTENT_TYPE_IMAGE_FIELDS');
@@ -274,11 +274,13 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
 
 			// Process Image Link
+			$img_assetid = NULL;
 			if (isset($_POST[$prefix.'_image_selection']['assetid'])) {
-				if (!empty($current_link) && $_POST[$prefix.'_image_selection']['assetid'] != $current_link['minorid']) {
+				$img_assetid = $_POST[$prefix.'_image_selection']['assetid'];
+				if (!empty($current_link) && $img_assetid != $current_link['minorid']) {
 					$am->deleteAssetLink($current_link['linkid']);
 				}
-				if ($_POST[$prefix.'_image_selection']['assetid'] != $current_link['minorid']) {
+				if ($img_assetid != $current_link['minorid']) {
 					$new_screen_id = $_POST[$prefix.'_image_selection']['assetid'];
 					if (!empty($new_screen_id) || ($new_screen_id != '0')) {
 						$image =& $am->getAsset($new_screen_id);
@@ -314,7 +316,11 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$asset->setAttrValue('display_settings', $current_settings);
 			$asset->setAttrValue('on_click', $onclick->value);
 
-			if ($current_link == NULL) return TRUE;
+            if (empty($current_link) || empty($img_assetid)) {
+                $asset->setAttrValue('html', NULL);
+                return TRUE;
+            }//end if
+
 			$current_image =& $am->getAsset($current_link['minorid']);
 			$image_width = ($current_settings['fit_dimensions'] == TRUE) ? 'width: '.$current_settings['width'].'px;' : '';
 			$image_height = ($current_settings['fit_dimensions'] == TRUE) ? 'height: '.$current_settings['height'].'px;' : '';
