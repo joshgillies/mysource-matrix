@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.9.2.2 2008/04/14 06:23:59 hnguyen Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.9.2.3 2008/04/14 06:44:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9.2.2 $
+* @version $Revision: 1.9.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -285,6 +285,7 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 			$current_link = $am->getLink($asset->id, SQ_LINK_NOTICE, '', FALSE, 'image_link');
 
 			// Process Image Link
+			$img_assetid = NULL;
 			if (isset($_POST[$prefix.'_image_selection']['assetid'])) {
 				$img_assetid = $_POST[$prefix.'_image_selection']['assetid'];
 				// imageid changed, delete existing
