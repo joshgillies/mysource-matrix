@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.174 2008/04/14 00:10:32 bpearson Exp $
+* $Id: metadata_manager.inc,v 1.175 2008/04/14 03:36:06 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.174 $
+* @version $Revision: 1.175 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -290,9 +290,24 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// open a queue for all messages we are going to be logging
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// log a message for the asset - this wont get logged until we close the queue
+		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+		$msg_reps = Array(
+						'asset_name'		=> $asset->name,
+						'metadata_schema'	=> $schema->name,
+					);
+		$msg_type = 'asset.metadata.schema.delete.fulllog';
+		$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+		$message->parameters['assetid'] = $asset->id;
+		$ms->logMessage($message);
 
 		try {
 			$bind_vars	= Array (
@@ -313,6 +328,7 @@ class Metadata_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$ms->closeLog();
 		return TRUE;
 
 	}//end deleteSchema()

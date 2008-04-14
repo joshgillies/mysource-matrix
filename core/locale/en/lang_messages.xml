@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.22 2008/04/14 00:20:51 bpearson Exp $
+* $Id: lang_messages.xml,v 1.23 2008/04/14 03:35:28 bpearson Exp $
 *
 * Core Internal Messages File
 */
@@ -67,6 +67,10 @@
 	<message type="asset.metadata.schema.set.fulllog">
 		<subject>Asset Metadata Schema Applied</subject>
 		<body>The metadata schema "%metadata_schema%" was applied to asset "%asset_name%"</body><!-- asset_name, metadata_schema -->
+	</message>
+	<message type="asset.metadata.schema.delete.fulllog">
+		<subject>Asset Metadata Schema Removed</subject>
+		<body>The metadata schema "%metadata_schema%" was removed from asset "%asset_name%"</body><!-- asset_name, metadata_schema -->
 	</message>
 	<message type="asset.metadata.set.fulllog">
 		<subject>Asset Metadata Field Updated</subject>
