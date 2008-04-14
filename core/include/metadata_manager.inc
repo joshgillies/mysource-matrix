@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.173 2008/03/17 03:34:34 lwright Exp $
+* $Id: metadata_manager.inc,v 1.174 2008/04/14 00:10:32 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -186,6 +186,10 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// open a queue for all messages we are going to be logging
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
 		// get the current schemas that are set
 		$schemas = $this->getSchemas($assetid);
 
@@ -211,6 +215,16 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// log a message for the asset - this wont get logged until we close the queue
+		$msg_reps = Array(
+						'asset_name'		=> $asset->name,
+						'metadata_schema'	=> $schema->name,
+					);
+		$msg_type = 'asset.metadata.schema.set.fulllog';
+		$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+		$message->parameters['assetid'] = $asset->id;
+		$ms->logMessage($message);
 
 		try {
 			switch ($db_action) {
@@ -247,6 +261,8 @@ class Metadata_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$ms->closeLog();
+
 		return TRUE;
 
 	}//end setSchema()
@@ -716,6 +732,10 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// open a queue for all messages we are going to be logging
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -728,6 +748,41 @@ class Metadata_Manager extends MySource_Object
 				continue;
 			}
 
+		}//end foreach
+
+		// log a message for the asset - this wont get logged until we close the queue
+		foreach ($metadata as $fieldid => $value) {
+			// Set default
+			$mdata_name = 'Unknown Metafield';
+
+			// Go and get the field name
+			if ($fieldid > 0) {
+				$mdata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+				$mdata_name = $mdata_field->name;
+			}
+
+			// Get the old value
+			$mdata_values = $this->getMetadataFieldValues($asset->id);
+			$old_value = '';		// Default to nothing set
+			foreach ($mdata_values as $old_key => $old_val) {
+				if ($old_key == $mdata_name) {
+					$old_value = $old_val;
+				}
+			}
+
+			// By pass if the new and old are the same (we don't need the message saying we made no changes!)
+			if (!($old_value == $value[0]['value'])) {
+				$msg_reps = Array(
+								'asset_name'		=> $asset->name,
+								'metadata_field'	=> $mdata_name,
+								'metadata_old'		=> $old_value,
+								'metadata_new'		=> $value[0]['value'],
+							);
+				$msg_type = 'asset.metadata.set.fulllog';
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->parameters['assetid'] = $asset->id;
+				$ms->logMessage($message);
+			}
 		}//end foreach
 
 		// Delete from mdata_val table where necessary
@@ -801,6 +856,7 @@ class Metadata_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$ms->closeLog();
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$asset->_updated();
