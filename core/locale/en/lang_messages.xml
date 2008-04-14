@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.21 2008/01/21 01:35:14 hnguyen Exp $
+* $Id: lang_messages.xml,v 1.22 2008/04/14 00:20:51 bpearson Exp $
 *
 * Core Internal Messages File
 */
@@ -63,6 +63,14 @@
 	<message type="asset.linking.order">
 		<subject>Asset Link Sort Order Updated</subject>
 		<body>The sort order of link #%linkid% (between "%major_name%" and "%minor_name%") was successfully changed from %old_sort_order% to %new_sort_order%</body><!-- linkid, major-name, minor-name, old-sort-order, new-sort-order -->
+	</message>
+	<message type="asset.metadata.schema.set.fulllog">
+		<subject>Asset Metadata Schema Applied</subject>
+		<body>The metadata schema "%metadata_schema%" was applied to asset "%asset_name%"</body><!-- asset_name, metadata_schema -->
+	</message>
+	<message type="asset.metadata.set.fulllog">
+		<subject>Asset Metadata Field Updated</subject>
+		<body>The metadata field "%metadata_field%" of asset "%asset_name%" was updated from "%metadata_old%" to "%metadata_new%"</body><!-- asset_name, metadata_field, metadata_old, metadata_new -->
 	</message>
 	<message type="asset.linking.delete">
 		<subject>Asset Link Deleted</subject>
