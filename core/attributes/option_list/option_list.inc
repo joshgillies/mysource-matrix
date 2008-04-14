@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.36 2007/11/11 23:15:23 hnguyen Exp $
+* $Id: option_list.inc,v 1.37 2008/04/14 02:11:31 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -57,7 +57,11 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	*/
 	function Asset_Attribute_Option_List($attributeid=0, $value=NULL, $delimiter=SQ_OPTION_LIST_DELIMITER_WINDOWS)
 	{
-		$this->delimiter = $delimiter;
+		// As per Bug #2950, asset_attribute.inc passes a third parameter as an array
+		// Check if delimiter is *NOT* an array, and set it as a delimiter
+		if (!is_array($delimiter)) {
+			$this->delimiter = $delimiter;
+		}
 
 		$this->Asset_Attribute($attributeid, $value);
 		$this->_edit_params['width'] = '';
