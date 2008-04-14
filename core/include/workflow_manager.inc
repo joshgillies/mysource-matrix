@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.130 2008/04/09 04:13:47 bpearson Exp $
+* $Id: workflow_manager.inc,v 1.131 2008/04/14 00:23:07 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -84,7 +84,13 @@ class Workflow_Manager extends MySource_Object
 			$sql = '  SELECT DISTINCT schemaid, granted
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 			$where = 'assetid = :assetid';
-			if ($running) $where .= ' AND wflow IS NOT NULL';
+			if ($running) {
+				if (MatrixDAL::getDbType() === 'oci') {
+					$where .= ' AND TO_CHAR(wflow) IS NOT NULL';
+				} else {
+					$where .= ' AND wflow IS NOT NULL';
+				}
+			}
 			if (!is_null($granted) || $running) {
 				$where .= ' AND granted = :granted';
 			}
@@ -298,7 +304,7 @@ class Workflow_Manager extends MySource_Object
 
 		if (!isset($this->_tmp['schema_workflows'][$assetid][$schemaid])) {
 
-			$db = MatrixDAL::getDb();
+			$bind_vars = Array();
 
 			$sql = 'SELECT
 						schemaid, wflow
@@ -307,16 +313,19 @@ class Workflow_Manager extends MySource_Object
 
 			$where = 'assetid = :assetid
 						AND granted = 1';
+			$bind_vars['assetid'] = $assetid;
 
 			if ($schemaid != 'all') {
 				$where .= ' AND schemaid = :schemaid';
+				$bind_vars['schemaid'] = $schemaid;
 			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
-				MatrixDAL::bindValueToPdo($query, 'schemaid', $schemaid);
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
 				$results = MatrixDAL::executePdoGroupedAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get workflow schema(s) for asset: '.$assetid.' due to database error: '.$e->getMessage());
@@ -1528,7 +1537,7 @@ class Workflow_Manager extends MySource_Object
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
-			$result = MatrixDAL::executePdoOne($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (DALException $e) {
 			throw new Exception ('Unable to clear workflow for asset: '.$assetid.' due to database error: '.$e->getMessage());
 		}
