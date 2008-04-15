@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.343.2.2 2008/03/19 00:56:06 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.343.2.3 2008/04/15 02:08:58 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.343.2.2 $
+* @version $Revision: 1.343.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1367,6 +1367,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 			} else {
 				$this->_tmp['layout_keyword_replacements'][$keyword] = $owner->getKeywordReplacement($keyword);
+
+				// Replace Global Keywords when in a Simple Edit Layout
+				if (strpos($this->_tmp['layout_keyword_replacements'][$keyword], '%globals_') === 0) {
+					replace_global_keywords($this->_tmp['layout_keyword_replacements'][$keyword]);
+				}
+				
 			}
 		}//end foreach
 
