@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.190 2008/03/20 05:06:23 hnguyen Exp $
+* $Id: general.inc,v 1.191 2008/04/15 02:09:23 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix
 */
 
@@ -1579,7 +1579,24 @@ function replace_global_keywords(&$text)
 					preg_match('|(.*):([0-9]+)$|',$asset_keyword,$matches);
 
 					if (empty($matches[2])) {
-						$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
+						$asset_replacement = '%'.$asset_keyword.'%';
+
+						if (SQ_IN_LIMBO) {
+							$limbo_asset = NULL;
+
+							if (isset($_REQUEST['limbo_assetid'])) {
+								$limbo_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['limbo_assetid']);
+							} else {
+								$limbo_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+							}
+
+							if ($limbo_asset) {
+								$asset_replacement = $limbo_asset->getKeywordReplacement($asset_keyword);
+							}
+						} else {
+							$asset_replacement = $GLOBALS['SQ_SYSTEM']->frontend_asset->getKeywordReplacement($asset_keyword);
+						}
+
 						if ($asset_replacement != "%$asset_keyword%") {
 							$replacements[$keyword] = $asset_replacement;
 						}
