@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.89 2008/04/02 23:29:09 lwright Exp $
+* $Id: package_manager.inc,v 1.90 2008/04/16 23:31:43 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -386,17 +386,12 @@ class Package_Manager extends MySource_Object
 		$d = new DirectoryIterator($full_path);
 		foreach ($d as $entry) {
 			$entry = (string)$entry;
-			if ($entry == '.' || $entry == '..') {
+			if ($entry === '.' || $entry === '..') {
 				continue;
 			}
 
-			// if this is a directory, recursively search it
-			if (is_dir($full_path.'/'.$entry)) {
-				$this->_recurseLoadPackageAssets($assets, $full_path.'/'.$entry, $base_path.'/'.$entry);
-
-			// if we have an asset process it
-			} else if ($entry == 'asset.xml') {
-
+			if ($entry === 'asset.xml') {
+				// we have an asset process it
 				$mgt = new Asset_Management($this);
 				$info = $mgt->getAssetInfo($full_path.'/asset.xml');
 				if (empty($info)) continue;
@@ -446,6 +441,9 @@ class Package_Manager extends MySource_Object
 
 				$assets[$info['type_code']] = $info;
 
+			} else if (is_dir($full_path.'/'.$entry)) {
+				// if this is a directory, recursively search it
+				$this->_recurseLoadPackageAssets($assets, $full_path.'/'.$entry, $base_path.'/'.$entry);
 			}//end if
 		}//end foreach
 		$d = NULL;
