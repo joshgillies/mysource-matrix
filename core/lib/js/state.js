@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.2 2008/04/11 01:21:50 bpearson Exp $
+* $Id: state.js,v 1.3 2008/04/16 23:01:42 bpearson Exp $
 *
 */
 
@@ -47,6 +47,8 @@ function saveState()
 			// Don't save hidden fields and password fields
 		} else if (el.name == 'state' || el.name == 'changes') {
 			// Don't save our control fields
+		} else if (el.name == 'screen_menu' || el.name = 'screen_menu_go') {
+			// Don't save the screen navigation controls
 		} else if (el.type == 'button' || el.type == 'submit' || el.type == 'reset') {
 			// Don't save buttons
 		} else if (el.type =='checkbox' || el.type == 'radio') {
