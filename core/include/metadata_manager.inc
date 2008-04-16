@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168.2.6 2008/04/16 23:15:10 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.168.2.7 2008/04/16 23:29:33 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168.2.6 $
+* @version $Revision: 1.168.2.7 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -429,19 +429,20 @@ class Metadata_Manager extends MySource_Object
 		$where = '	mv.assetid = :assetid
 				AND (';
 
+		$bind_vars = Array();
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-			$child_query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE);
-			$sql_array	= $child_query['sql_array'];
-			$bind_vars	= $child_query['bind_vars'];
 			if (is_null($schema)) {
 				trigger_localised_error('SYS0044', E_USER_WARNING, $schemaid);
 				return FALSE;
 			}
+
+			$bind_prefix = 'gc_'.$schemaid.'_';
+			$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE, NULL, NULL, TRUE, NULL, $bind_prefix);
+			$sql_array = $ret_val['sql_array'];
+			$bind_vars = array_merge($bind_vars, $ret_val['bind_vars']);
 			$where .= '
-						mv.fieldid IN (
-						'.implode(' ', $sql_array).'
-						) OR ';
+						mv.fieldid IN ('.implode(' ', $sql_array).') OR ';
 
 		}// end foreach
 
@@ -480,13 +481,16 @@ class Metadata_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 		$fieldid_conds = Array('assetid = \''.((string) $assetid).'\'');
 		$bind_vars     = Array();
+
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
-			$child_query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE);
-			$sql_parts = $child_query['sql_array'];
-			$bind_vars = $child_query['bind_vars'];
 
-			$fieldid_conds[] = '(fieldid NOT IN ('.implode(' ', $sql_parts).'))';
+			$bind_prefix = 'gc_'.$schemaid.'_';
+			$ret_val = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE, NULL, NULL, TRUE, NULL, $bind_prefix);
+			$sql_array = $ret_val['sql_array'];
+			$bind_vars = array_merge($bind_vars, $ret_val['bind_vars']);
+
+			$fieldid_conds[] = '(fieldid NOT IN ('.implode(' ', $sql_array).'))';
 		}
 
 		$sql = 'DELETE FROM sq_ast_mdata_val
