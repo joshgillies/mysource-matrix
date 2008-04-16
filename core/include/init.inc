@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.104 2007/12/13 00:22:53 hnguyen Exp $
+* $Id: init.inc,v 1.104.2.1 2008/04/16 23:14:25 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.104.2.1 $
 * @package MySource_Matrix
 */
 
@@ -90,7 +90,7 @@ if (strrpos($_SERVER['PHP_SELF'], 'index.php/')) {
 
 // Load general everyday handy functions for developers
 require_once SQ_FUDGE_PATH.'/dev/dev.inc';
-
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 // nice little boolean to use for testing whether we happen to be in the backend or not
 $in_backend = (trim(SQ_CONF_BACKEND_SUFFIX) != '') && (basename($_SERVER['PHP_SELF']) == SQ_CONF_BACKEND_SUFFIX);
@@ -216,7 +216,6 @@ if (!(SQ_IN_BACKEND | SQ_IN_LIMBO | SQ_IN_CRON) & SQ_CONF_ERRORS_HIDE_FRONTEND) 
 
 // if there is magic quotes, strip them out
 if (get_magic_quotes_gpc()) {
-	require_once SQ_FUDGE_PATH.'/general/general.inc';
 	stripslashes_array($_GET, TRUE);
 	stripslashes_array($_POST, TRUE);
 	stripslashes_array($_COOKIE, TRUE);
