@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.191 2008/04/15 02:09:23 mbrydon Exp $
+* $Id: general.inc,v 1.192 2008/04/16 03:49:51 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix
 */
 
@@ -154,7 +154,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			}
 
 			// Uncomment below for debugging from cmdline
-			#error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
+			//error_log($str."\n".$bt_str."\n".str_repeat("=+", 50)."\n", 3, SQ_DATA_PATH.'/private/logs/back_traces.log');
 
 		break;
 
@@ -795,6 +795,7 @@ function bit_elements($num)
 *							'YYYY-MM-DDThh:mm:ssTZD'	date and time with 'T' separator with TZD(Time Zone Designator)
 *							'YYYY-MM-DD hh:mm:ss'		date and time without 'T' (SQL date/datetime format)
 *							'YYYY-MM-DD'				date only
+*							'---------- --:--:--'		no date and time
 *
 * @return int
 * @access public
@@ -802,7 +803,12 @@ function bit_elements($num)
 function iso8601_ts($iso8601)
 {
 	// we have everything including the time
-	if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/", $iso8601)) {
+	// No date and time
+	// As per Bug #2958, PHP 5 interprets '---------- --:--:--' as 30th Nov 1999
+	// and not returning -1 as an invalid date, so we emulate it here.
+	if ($iso8601 == '---------- --:--:--') {
+		return -1;
+	} else if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/", $iso8601)) {
 		// valid but we only have the date
 		return mktime(
 			0, 0, 0,
