@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.131 2008/04/14 00:23:07 lwright Exp $
+* $Id: workflow_manager.inc,v 1.132 2008/04/16 23:31:26 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -100,7 +100,7 @@ class Workflow_Manager extends MySource_Object
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
 				if (!is_null($granted)) {
-					MatrixDAL::bindValueToPdo($query, 'granted', $granted ? 1 : 0, PDO::PARAM_INT);
+					MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
 				}
 				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
@@ -207,7 +207,7 @@ class Workflow_Manager extends MySource_Object
 							'assetid'	=> (string)$assetid,
 							'schemaid'	=> (string)$schemaid,
 							'wflow'		=> NULL,
-							'granted'	=> $granted ? 1 : 0,
+							'granted'	=> $granted ? '1' : '0',
 						 );
 			MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 		} catch (DALException $e) {
@@ -312,7 +312,7 @@ class Workflow_Manager extends MySource_Object
 						'.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 
 			$where = 'assetid = :assetid
-						AND granted = 1';
+						AND granted = \'1\'';
 			$bind_vars['assetid'] = $assetid;
 
 			if ($schemaid != 'all') {

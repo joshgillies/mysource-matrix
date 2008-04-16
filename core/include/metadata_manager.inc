@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.175 2008/04/14 03:36:06 bpearson Exp $
+* $Id: metadata_manager.inc,v 1.176 2008/04/16 23:28:47 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -129,7 +129,7 @@ class Metadata_Manager extends MySource_Object
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			if (!is_null($granted)) {
-				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? 1 : 0);
+				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
 			}
 			$result = DAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -362,7 +362,7 @@ class Metadata_Manager extends MySource_Object
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'schemaid', $schemaid);
 			if (!is_null($granted)) {
-				MatrixDAL::bindValueToPdo($query, 'granted', ($granted ? '1' : '0'));
+				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
 			}
 			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -509,8 +509,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 		$fieldid_conds = Array('assetid = \''.((string) $assetid).'\'');
-
-		$bind_vars = Array();
+		$bind_vars     = Array();
 
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
@@ -522,6 +521,7 @@ class Metadata_Manager extends MySource_Object
 
 			$fieldid_conds[] = '(fieldid NOT IN ('.implode(' ', $sql_array).'))';
 		}
+
 		$sql = 'DELETE FROM sq_ast_mdata_val
 				';
 

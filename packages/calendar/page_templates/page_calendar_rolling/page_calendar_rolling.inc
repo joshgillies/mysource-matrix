@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.33 2008/04/16 05:48:13 mbrydon Exp $
+* $Id: page_calendar_rolling.inc,v 1.34 2008/04/16 23:35:09 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -681,10 +681,10 @@ class Page_Calendar_Rolling extends Page
 		$single_result = Array();
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdO($query, 'start_date_ds',   $start_date_stamp);
-			MatrixDAL::bindValueToPdO($query, 'start_date_ds_1', $start_date_stamp);
-			MatrixDAL::bindValueToPdO($query, 'start_date_ds_2', $start_date_stamp);
-			MatrixDAL::bindValueToPdO($query, 'end_date_ds',     $end_date_stamp);
+			MatrixDAL::bindValueToPdO($query, 'start_date_ds',   $start_date_stamp, PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdO($query, 'start_date_ds_1', $start_date_stamp, PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdO($query, 'start_date_ds_2', $start_date_stamp, PDO::PARAM_INT);
+			MatrixDAL::bindValueToPdO($query, 'end_date_ds',     $end_date_stamp,   PDO::PARAM_INT);
 			$single_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());

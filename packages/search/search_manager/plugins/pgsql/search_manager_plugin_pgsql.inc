@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.20 2008/03/12 02:55:05 mbrydon Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.21 2008/04/16 23:35:09 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -413,20 +413,20 @@ class Search_Manager_Plugin_PgSQL
 						(p.permission = '.MatrixDAL::quote(SQ_PERMISSION_READ).'
 							AND (
 									p.userid <> '.MatrixDAL::quote($public_userid).'
-									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)';
+									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND granted = \'1\')';
 
 			if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
 				$where .= '				OR r.userid <> '.MatrixDAL::quote($public_userid).'
-									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND granted = 1)';
+									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND granted = \'1\')';
 			}
 
 			$query['where'][] = $where . '
 								)
 						)
 						OR
-						(p.permission > '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND p.granted = 1)
+						(p.permission > '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND p.granted = \'1\')
 						)';
-			$query['having'][] = 'MIN(p.granted) <> 0';
+			$query['having'][] = 'MIN(p.granted) <> \'0\'';
 			$query['group_by'][] = 'a.assetid';
 		}//end if
 

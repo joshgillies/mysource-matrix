@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.16 2008/04/11 06:06:46 bpearson Exp $
+* $Id: page_upcoming_events_list.inc,v 1.17 2008/04/16 23:35:10 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -523,10 +523,10 @@ class Page_Upcoming_Events_List extends Page
 			$single_result = Array();
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'start_date_ts',   $start_ts);
-				MatrixDAL::bindValueToPdo($query, 'start_date_ts_1', $start_ts);
-				MatrixDAL::bindValueToPdo($query, 'start_date_ts_2', $start_ts);
-				MatrixDAL::bindValueToPdo($query, 'end_date_ts',     $end_ts);
+				MatrixDAL::bindValueToPdo($query, 'start_date_ts',   $start_ts, PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'start_date_ts_1', $start_ts, PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'start_date_ts_2', $start_ts, PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'end_date_ts',     $end_ts,   PDO::PARAM_INT);
 				$single_result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());

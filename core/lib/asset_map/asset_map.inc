@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.272 2008/04/02 05:36:25 bshkara Exp $
+* $Id: asset_map.inc,v 1.273 2008/04/16 23:30:19 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.272 $
+* @version $Revision: 1.273 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -837,18 +837,18 @@ class Asset_Map
 						$sql .= '				OR r.userid <> :r_userid';
 					}
 
-					$sql .= '					OR (p.userid = :p_userid_1 AND p.granted = 1)';
+					$sql .= '					OR (p.userid = :p_userid_1 AND p.granted = \'1\')';
 
 					if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
-						$sql .= '				OR (r.userid = :r_userid_1 AND p.granted = 1)';
+						$sql .= '				OR (r.userid = :r_userid_1 AND p.granted = \'1\')';
 					}
 
 					$sql .= '			)
 								)
 								OR	(
-										p.permission > :p_permission_1 AND p.granted = 1
+										p.permission > :p_permission_1 AND p.granted = \'1\'
 									)
-							) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
+							) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> \'0\') p ON (l.assetid = p.assetid) ';
 
 					$bind_vars['p_permission'] = SQ_PERMISSION_READ;
 					$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
@@ -1052,19 +1052,19 @@ class Asset_Map
 					$sql .=				' OR r.userid <> :r_userid';
 				}
 
-				$sql .=					' OR (p.userid = :p_userid_1 AND p.granted = 1)';
+				$sql .=					' OR (p.userid = :p_userid_1 AND p.granted = \'1\')';
 
 				if (SQ_CONF_ENABLE_ROLES_SYSTEM == '1') {
-					$sql .=				' OR (r.userid = :r_userid_1 AND p.granted = 1)';
+					$sql .=				' OR (r.userid = :r_userid_1 AND p.granted = \'1\')';
 				}
 
 				$sql .='
 								)
 							)
 							OR	(
-									p.permission > :p_permission_1 AND p.granted = 1
+									p.permission > :p_permission_1 AND p.granted = \'1\'
 								)
-						) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> 0) p ON (l.assetid = p.assetid) ';
+						) '.$userid_cond.') GROUP BY p.assetid, p.permission HAVING MIN(p.granted) <> \'0\') p ON (l.assetid = p.assetid) ';
 
 				$bind_vars['p_permission'] = SQ_PERMISSION_READ;
 				$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
