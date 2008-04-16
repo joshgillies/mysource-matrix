@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168.2.5 2008/04/02 03:00:41 lwright Exp $
+* $Id: metadata_manager.inc,v 1.168.2.6 2008/04/16 23:15:10 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168.2.5 $
+* @version $Revision: 1.168.2.6 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -129,7 +129,7 @@ class Metadata_Manager extends MySource_Object
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			if (!is_null($granted)) {
-				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? 1 : 0);
+				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
 			}
 			$result = DAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -330,7 +330,7 @@ class Metadata_Manager extends MySource_Object
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'schemaid', $schemaid);
 			if (!is_null($granted)) {
-				MatrixDAL::bindValueToPdo($query, 'granted', ($granted ? '1' : '0'));
+				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
 			}
 			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -479,11 +479,16 @@ class Metadata_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 		$fieldid_conds = Array('assetid = \''.((string) $assetid).'\'');
+		$bind_vars     = Array();
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
-			$fieldid_conds[] = '(fieldid NOT IN (
-								'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE)).'))';
+			$child_query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', FALSE, NULL, NULL, NULL, TRUE, FALSE);
+			$sql_parts = $child_query['sql_array'];
+			$bind_vars = $child_query['bind_vars'];
+
+			$fieldid_conds[] = '(fieldid NOT IN ('.implode(' ', $sql_parts).'))';
 		}
+
 		$sql = 'DELETE FROM sq_ast_mdata_val
 				';
 
@@ -492,7 +497,11 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		try {
-			MatrixDAL::executeSql($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach ($bind_vars as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to clean up metadata values due to the following database error:'.$e->getMessage());
 		}
