@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.19.2.1 2008/03/25 22:12:17 hnguyen Exp $
+* $Id: design_area_asset_lineage.inc,v 1.19.2.2 2008/04/16 23:15:27 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19.2.1 $
+* @version $Revision: 1.19.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,10 +112,10 @@ class Design_Area_Asset_Lineage extends Design_Area
 				// the home link is start the loop at a different position
 				$start_index = ($this->attr('prefix_with_home_link')) ? 0 : 1;
 
-				$start_at_level = (int) $this->attr('start_at_level');
-				if (is_int($start_at_level)) {
-				   $start_index = $start_at_level;
-				}//end if
+				$start_at_level = $this->attr('start_at_level');
+				if (!is_null($start_at_level)) {
+					$start_index = $start_at_level;
+				}
 
 				$total = 'count($ASSET_LINEAGE)';
 				// because the page lineage array contains the current page, all we need to do to have or not have
