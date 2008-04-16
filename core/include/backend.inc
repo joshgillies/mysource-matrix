@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.186.2.1 2008/03/12 04:03:59 lwright Exp $
+* $Id: backend.inc,v 1.186.2.2 2008/04/16 22:40:36 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.186.2.1 $
+* @version $Revision: 1.186.2.2 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -616,7 +616,8 @@ class Backend extends MySource_Object
 			/////////////////////////////////
 
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$alljobs = $hh->getJobsForUser($GLOBALS['SQ_SYSTEM']->user->id);
+			// We need to hide the Matrix errors that occur in the header (hence hiding all the buttons) see Bug #2964
+			$alljobs = @$hh->getJobsForUser($GLOBALS['SQ_SYSTEM']->user->id);
 
 			// determine how many jobs have been running for more than 5 minutes
 			$stalledjobs = 0;
