@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.9 2008/04/08 01:51:45 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.655.2.10 2008/04/16 23:12:59 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.9 $
+* @version $Revision: 1.655.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3888,7 +3888,7 @@ class Asset_Manager extends MySource_Object
 			if (!empty($USERIDS_COND)) {
 				$USERIDS_COND .= '
 					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.granted
-					HAVING MIN(p.granted) = 1';
+					HAVING MIN(p.granted) = \'1\'';
 			}
 		}
 
@@ -3937,7 +3937,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!$include_dependants) {
-			$where .= ' AND l.is_dependant = 0';
+			$where .= ' AND l.is_dependant = \'0\'';
 		}
 
 		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -6571,7 +6571,7 @@ class Asset_Manager extends MySource_Object
 					MatrixDAL::bindValueToPdo($query, 'assetid',    $assetid);
 					MatrixDAL::bindValueToPdo($query, 'userid',     $userid);
 					MatrixDAL::bindValueToPdo($query, 'permission', $permission);
-					MatrixDAL::bindValueToPdo($query, 'granted',    ($granted) ? '1' : '0');
+					MatrixDAL::bindValueToPdo($query, 'granted',    $granted ? '1' : '0', PDO::PARAM_STR);
 					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to '.$db_action.' permissions for asset "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -8019,15 +8019,15 @@ class Asset_Manager extends MySource_Object
 						(p.permission = '.$access.' AND (
 									p.userid <> '.MatrixDAL::quote($public_userid).'
 									OR r.userid <> '.MatrixDAL::quote($public_userid).'
-									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND p.granted = 1)
-									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND p.granted = 1)
+									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND p.granted = \'1\')
+									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND p.granted = \'1\')
 								)
 						)';
 				if ($effective) {
-					$where .= ' OR (p.permission > '.$access.' AND p.granted = 1)';
+					$where .= ' OR (p.permission > '.$access.' AND p.granted = \'1\')';
 				}
 				$where .= ')';
-				$having .= 'HAVING MIN(p.granted) <> 0';
+				$having .= 'HAVING MIN(p.granted) <> \'0\'';
 				$group_by .= ', p.assetid';
 
 			}//end if
@@ -8235,7 +8235,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($dependant)) {
 			$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
-			$bind_vars[$bind_prefix.'dependant'] = $dependant ? "'1'" : "'0'";
+			$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
 			if (!empty($type_code) || !is_null($access)) {
 				$where .= ' AND ';
 			}
@@ -8273,8 +8273,8 @@ class Asset_Manager extends MySource_Object
 							(p.permission = :'.$bind_prefix.'_access AND (
 									p.userid <> :'.$bind_prefix.'_public_userid
 									OR r.userid <> :'.$bind_prefix.'_public_userid_1
-									OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = 1)
-									OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = 1)
+									OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = \'1\')
+									OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = \'1\')
 								)
 							)';
 
@@ -8285,11 +8285,11 @@ class Asset_Manager extends MySource_Object
 				$bind_vars[$bind_prefix.'_public_userid_3'] = $public_userid;
 
 				if ($effective) {
-					$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = 1)';
+					$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = \'1\')';
 					$bind_vars[$bind_prefix.'_access_effective'] = $access;
 				}
 				$where .= ') AND ';
-				$having .= 'HAVING MIN(p.granted) <> 0';
+				$having .= 'HAVING MIN(p.granted) <> \'0\'';
 				$group_by .= ', p.assetid';
 			}
 		}//end if access is not null
@@ -8535,7 +8535,7 @@ class Asset_Manager extends MySource_Object
 					AND (
 							(p.permission = :'.$bind_prefix.'user_perm_access AND (
 								p.userid <> :'.$bind_prefix.'user_perm_public_userid
-								OR (userid = :'.$bind_prefix.'user_perm_public_userid_1 AND granted = 1)
+								OR (userid = :'.$bind_prefix.'user_perm_public_userid_1 AND granted = \'1\')
 								)
 							)';
 
@@ -8544,11 +8544,11 @@ class Asset_Manager extends MySource_Object
 				$bind_vars[$bind_prefix.'user_perm_public_userid_1'] = $public_userid;
 
 				if ($effective) {
-					$where .= ' OR (p.permission > :'.$bind_prefix.'user_perm_access_effective AND p.granted = 1)';
+					$where .= ' OR (p.permission > :'.$bind_prefix.'user_perm_access_effective AND p.granted = \'1\')';
 					$bind_vars[$bind_prefix.'user_perm_access_effective'] = $access;
 				}
 				$where .= ')';
-				$having .= 'HAVING MIN(ll.granted) <> 0';
+				$having .= 'HAVING MIN(ll.granted) <> \'0\'';
 			}
 
 		}
@@ -8582,8 +8582,8 @@ class Asset_Manager extends MySource_Object
 																					(
 																						ll.userid <> :'.$bind_prefix.'public_userid
 																						OR r.userid <> :'.$bind_prefix.'public_userid_1
-																						OR (ll.userid = :'.$bind_prefix.'public_userid_2 AND ll.granted = 1)
-																						OR (r.userid = :'.$bind_prefix.'public_userid_3 AND ll.granted = 1)
+																						OR (ll.userid = :'.$bind_prefix.'public_userid_2 AND ll.granted = \'1\')
+																						OR (r.userid = :'.$bind_prefix.'public_userid_3 AND ll.granted = \'1\')
 																					)
 									)';
 
@@ -8596,7 +8596,7 @@ class Asset_Manager extends MySource_Object
 			if ($effective) {
 				$outer_where .= ' OR
 									(
-										ll.permission > :'.$bind_prefix.'outer_access_effective AND ll.granted = 1
+										ll.permission > :'.$bind_prefix.'outer_access_effective AND ll.granted = \'1\'
 									)';
 				$bind_vars[$bind_prefix.'outer_access_effective'] = $access;
 			}

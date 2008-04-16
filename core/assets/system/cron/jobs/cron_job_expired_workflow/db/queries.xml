@@ -23,7 +23,7 @@
 				</joins>
 				<where>
 					<not-null><field table="sq_ast_wflow" column="wflow" /></not-null>
-					<equal table="sq_ast_wflow" column="granted">1</equal>
+					<equal table="sq_ast_wflow" column="granted">'1'</equal>
 				</where>
 			</select>
 		</primary>
