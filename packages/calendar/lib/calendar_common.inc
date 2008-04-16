@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.64.2.2 2008/03/27 05:54:51 mbrydon Exp $
+* $Id: calendar_common.inc,v 1.64.2.3 2008/04/16 23:16:50 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.64.2.2 $
+* @version $Revision: 1.64.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -72,7 +72,7 @@ class Calendar_Common
 				$quoted_userids[] = MatrixDAL::quote((string)$userid);
 			}
 			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
-			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
+			$sql .= $userid_cond.' AND p.granted = \'1\' AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
 		}
 
 		return $sql;
@@ -128,7 +128,7 @@ class Calendar_Common
 				$quoted_userids[] = MatrixDAL::quote((string)$userid);
 			}
 			$userid_cond = ' AND p.userid  IN ('.implode(',', $quoted_userids).')';
-			$sql .= $userid_cond.' AND p.granted = 1 AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
+			$sql .= $userid_cond.' AND p.granted = \'1\' AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
 		}
 		$sql .= ' AND ';
 

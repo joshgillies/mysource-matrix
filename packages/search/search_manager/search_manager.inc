@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.1 2008/03/12 04:05:08 lwright Exp $
+* $Id: search_manager.inc,v 1.164.2.2 2008/04/16 23:16:49 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.1 $
+* @version $Revision: 1.164.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2442,22 +2442,22 @@ class Search_Manager extends Asset
 												AND').'	(r.userid IS NULL OR r.userid <> '.MatrixDAL::quote($public_user->id).')'
 											: '').')
 
-											OR (p.userid = '.MatrixDAL::quote($public_user->id).' AND granted = 1)'.
+											OR (p.userid = '.MatrixDAL::quote($public_user->id).' AND granted = \'1\')'.
 											(!$no_roles ? '
-												OR (r.userid = '.MatrixDAL::quote($public_user->id).' AND granted = 1)'
+												OR (r.userid = '.MatrixDAL::quote($public_user->id).' AND granted = \'1\')'
 											: '')
 											.'
 										)
 								)
 								OR
-								(p.permission > '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND p.granted = 1)
+								(p.permission > '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND p.granted = \'1\')
 							)';
 
 			if (!empty($check_group_role)) {
 				$query['where'][] = $check_group_role;
 			}//end if
 
-			$query['having'][] = 'MIN(p.granted) <> 0';
+			$query['having'][] = 'MIN(p.granted) <> \'0\'';
 
 			$query['group_by'][] = 'a.assetid';
 		}//end if
