@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.22.2.5 2008/02/01 03:05:58 mbrydon Exp $
+* $Id: page_calendar_rolling.inc,v 1.22.2.6 2008/04/16 05:47:28 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.22.2.5 $
+* @version $Revision: 1.22.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -394,6 +394,7 @@ class Page_Calendar_Rolling extends Page
 		if (is_null($unit_bodycopy)) return FALSE;
 
 		$event_list = '';
+		$single_event_descendants = $am->getTypeDescendants('calendar_event_single', TRUE);
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
 		$mm = NULL;
 
@@ -412,10 +413,20 @@ class Page_Calendar_Rolling extends Page
 
 				// loop through the events for this date
 				foreach ($events as $id => $event) {
+					$format_type = $event['type_code'];
 
-					// We should be able to handle our own event types from here on in (Single Calendar Events, Recurring Calendar Events, and those that inherit from these)
-					$format_type = (in_array($event['type_code'], $recurring_event_descendants)) ? $event['type_code'] : 'calendar_event_single';
+					// Firstly, check whether a specific asset Display Format has been defined.
+					// If not, we should default to its parent type
+					if (!isset($type_formats[$format_type])) {
+						if (in_array($format_type, $single_event_descendants)) {
+							$format_type = 'calendar_event_single';
+						} else if (in_array($format_type, $recurring_event_descendants)) {
+							$format_type = 'calendar_event_recurring';
+						}
+					}
 
+					// Now if a Display Format is not set for either the asset type or its parent type, then
+					// we can't print this event
 					if (!isset($type_formats[$format_type])) continue;
 
 					// get asset keywords
