@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.187.2.3 2008/04/15 02:08:58 mbrydon Exp $
+* $Id: general.inc,v 1.187.2.4 2008/04/16 03:54:54 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187.2.3 $
+* @version $Revision: 1.187.2.4 $
 * @package MySource_Matrix
 */
 
@@ -795,6 +795,7 @@ function bit_elements($num)
 *							'YYYY-MM-DDThh:mm:ssTZD'	date and time with 'T' separator with TZD(Time Zone Designator)
 *							'YYYY-MM-DD hh:mm:ss'		date and time without 'T' (SQL date/datetime format)
 *							'YYYY-MM-DD'				date only
+*							'---------- --:--:--'		no date and time
 *
 * @return int
 * @access public
@@ -802,7 +803,12 @@ function bit_elements($num)
 function iso8601_ts($iso8601)
 {
 	// we have everything including the time
-	if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/", $iso8601)) {
+	// No date and time
+	// As per Bug #2958, PHP 5 interprets '---------- --:--:--' as 30th Nov 1999
+	// and not returning -1 as an invalid date, so we emulate it here.
+	if ($iso8601 == '---------- --:--:--') {
+			 return -1;
+	} else if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/", $iso8601)) {
 		// valid but we only have the date
 		return mktime(
 			0, 0, 0,
