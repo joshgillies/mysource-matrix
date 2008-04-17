@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.65 2007/12/13 23:09:47 bshkara Exp $
+* $Id: form_email.inc,v 1.66 2008/04/17 06:56:00 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -91,6 +91,11 @@ class Form_Email extends Form
 		$this->mailRecipients();
 		$this->mailReceipt();
 		$this->sendToFriends();
+
+		// Perform other submission actions that are active
+		$this->performSubmissionActions();
+
+		// Perform selective actions
 		$this->runSelectiveEmails();
 
 		return TRUE;
@@ -279,7 +284,7 @@ class Form_Email extends Form
 		$current_value['to'][] = $address;
 		$email_format_attr->value = serialize($current_value);
 
-		$this->_sendEmail($email_format_attr, $additional_reps);
+		$this->sendEmail($email_format_attr, $additional_reps);
 
 		return TRUE;
 
@@ -295,7 +300,7 @@ class Form_Email extends Form
 	function mailRecipients()
 	{
 		$email_format_attr = $this->getAttribute('recipient_emails_format');
-		$this->_sendEmail($email_format_attr);
+		$this->sendEmail($email_format_attr);
 		return TRUE;
 
 	}//end mailRecipients()
@@ -352,7 +357,7 @@ class Form_Email extends Form
 		$current_value['to'] = array_merge($current_value['to'], $addresses);
 		$email_format_attr->value = serialize($current_value);
 
-		$this->_sendEmail($email_format_attr);
+		$this->sendEmail($email_format_attr);
 
 		return TRUE;
 
@@ -463,7 +468,7 @@ class Form_Email extends Form
 			if (!empty($current_value)) {
 				$current_value['to'] = $recipients;
 				$email_format->value = serialize($current_value);
-				$this->_sendEmail($email_format);
+				$this->sendEmail($email_format);
 			}
 		}
 
@@ -483,7 +488,7 @@ class Form_Email extends Form
 				$email_format->value = serialize($current_value);
 
 				$additional_reps = Array('receipt_address' => '');
-				$this->_sendEmail($email_format, $additional_reps);
+				$this->sendEmail($email_format, $additional_reps);
 			}
 		}
 
@@ -501,7 +506,7 @@ class Form_Email extends Form
 			if (!empty($current_value)) {
 				$current_value['to'] = $stafs;
 				$email_format->value = serialize($current_value);
-				$this->_sendEmail($email_format);
+				$this->sendEmail($email_format);
 			}
 		}
 
@@ -526,7 +531,7 @@ class Form_Email extends Form
 	* @return void
 	* @access private
 	*/
-	function _sendEmail(&$email_format_attr, $replacements=Array())
+	function sendEmail(&$email_format_attr, $replacements=Array())
 	{
 		$current_value = @unserialize($email_format_attr->value);
 
@@ -565,7 +570,27 @@ class Form_Email extends Form
 		$email_format_attr->value = serialize($current_value);
 		$email_format_attr->sendMail($replacements);
 
-	}//end _sendEmail()
+	}//end sendEmail()
+
+
+	/**
+	* Perform any submission actions that are valid and active
+	*
+	* @return void
+	*/
+	public function performSubmissionActions()
+	{
+		$actions = $this->attr('actions');
+		foreach ($actions as $action) {
+			$action_type = $action['type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
+
+			if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
+				call_user_func(Array($action_type, 'execute'), $this, $action['settings']);
+			}
+		}
+
+	}//end performSubmissionActions()
 
 
 }//end class
