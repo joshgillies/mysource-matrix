@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.3.2.4 2008/03/24 22:08:12 bshkara Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.3.2.5 2008/04/17 02:26:43 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3.2.4 $
+* @version $Revision: 1.3.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,9 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 		} else {
 			$totalid = $settings['totalid']['assetid'];
 		}
+
+		// Define $success here so we know we don't have success yet
+		$success = 0;
 
 		// set the metadata value on all immediate parents if they have the schema applied
 		if (!empty($state['immediate_parents'])) {
@@ -174,7 +177,12 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				$type_code = Array(
 								'metadata_field_text'	=> 'I',
 							 );
-				echo asset_finder($prefix.'[fieldid]', $fieldid['assetid'], $type_code);
+				if (isset($fieldid['assetid'])) {
+					$field_selected_asset = $fieldid['assetid'];
+				} else {
+					$field_selected_asset = 0;
+				}
+				echo asset_finder($prefix.'[fieldid]', $field_selected_asset, $type_code);
 			} else {
 				if (empty($fieldid['assetid'])) {
 					echo '<b>['.translate('no_asset_selected').']</b>';
@@ -190,7 +198,12 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				$type_code = Array(
 								'metadata_field_text'	=> 'I',
 							 );
-				echo asset_finder($prefix.'[totalid]', $totalid['assetid'], $type_code);
+				if (isset($totalid['assetid'])) {
+					$total_selected_asset = $totalid['assetid'];
+				} else {
+					$total_selected_asset = 0;
+				}
+				echo asset_finder($prefix.'[totalid]', $total_selected_asset, $type_code);
 			} else {
 				if (empty($totalid['assetid'])) {
 					echo '<b>['.translate('no_asset_selected').']</b>';
