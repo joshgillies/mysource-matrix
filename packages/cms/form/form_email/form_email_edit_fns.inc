@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.92.2.1 2008/03/12 04:04:21 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.92.2.2 2008/04/17 23:07:14 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.92.2.1 $
+* @version $Revision: 1.92.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,11 +177,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($count_sql.$where);
-			MatrixDAL::bindValueToPdo(':assetid',           $asset->id);
-			MatrixDAL::bindValueToPdo(':subfolder_assetid', $sub_folder->id);
-			MatrixDAL::bindValueToPdo(':inhd_type_code',   'form_submission');
-			MatrixDAL::bindValueToPdo(':from_date',         $from_value);
-			MatrixDAL::bindValueToPdo(':to_date',           $to_value);
+			MatrixDAL::bindValueToPdo($query, 'assetid',           $asset->id);
+			MatrixDAL::bindValueToPdo($query, 'subfolder_assetid', $sub_folder->id);
+			MatrixDAL::bindValueToPdo($query, 'inhd_type_code',   'form_submission');
+			MatrixDAL::bindValueToPdo($query, 'from_date',         $from_value);
+			MatrixDAL::bindValueToPdo($query, 'to_date',           $to_value);
 			$asset_count = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get the number of assets due to database error: '.$e->getMessage());
@@ -202,10 +202,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$sql = $sql.$where.' ORDER BY a.created DESC';
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$limit_array['rows'] = $num_per_page;
-		$limit_array['offset'] = $submission_offset;
-		$limit = db_extras_modify_limit_clause(MatrixDAL::getDbType(), $limit_array);
-		$sql .= $limit;
+		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $num_per_page, $submission_offset);
 
 		if ($asset_count == 0) {
 			?><p><i><?php echo translate('cms_form_no_submissions_during_period') ?></i></p><?php
@@ -355,7 +352,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
-				MatrixDAL::bindValueToPdo($query, 'subfolderid', $sub_folder->id);
+				MatrixDAL::bindValueToPdo($query, 'subfolder_assetid', $sub_folder->id);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code',   'form_submission');
+				MatrixDAL::bindValueToPdo($query, 'from_date',         $from_value);
+				MatrixDAL::bindValueToPdo($query, 'to_date',           $to_value);
 				$result = MatrixDAL::executePdoAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get submission list due to database error: '.$e->getMessage());
