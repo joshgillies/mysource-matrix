@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.57 2008/04/10 05:11:52 ncallahan Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.58 2008/04/18 00:04:43 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -366,6 +366,12 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateMetadata(Metadata_Field $asset, $value_str, &$tag_value, Array &$keywords)
 	{
+		// No name means we can't reference a value from the metadata array,
+		// so we would be writing meta tags with PHP errors in them.
+		if (trim($asset->name) === '') {
+			return TRUE;
+		}
+
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
