@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_trim.inc,v 1.2 2008/03/18 21:50:30 hnguyen Exp $
+* $Id: data_source_trim.inc,v 1.3 2008/04/18 00:02:57 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -253,8 +253,7 @@ class Data_Source_TRIM extends Data_Source
 		if (isset($operations['Fetch'])) {
 			return $object_list;
 		} else if (isset($operations['Download'])) {
-			//$res = $this->getPackagedFiles($object_list);
-			$res = $this->getPackagedFiles($object_list, $hash_key, &$final_file_path);
+			$res = $this->getPackagedFiles($object_list, $hash_key, $final_file_path);
 		} else if (isset($operations['Upload'])) {
 			if ($object_list['UploadId'] != $up_id) {
 				echo 'Upload Successful, new UploadId: '.$object_list['UploadId'];
