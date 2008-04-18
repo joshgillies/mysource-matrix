@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_price.inc,v 1.8 2006/12/07 05:26:31 bcaldwell Exp $
+* $Id: product_price.inc,v 1.8.6.1 2008/04/18 06:54:40 bshkara Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *     Provides an extensible method for representing the price in a Product
 *
 * @author  Blair Robertson
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -40,10 +40,16 @@ class Product_Price extends MySource_Object
 	var $value = -1.0;
 
 	/**
-	* Value includes this tax or not
+	* Whether to calculate tax during checkout
 	* @var boolean
 	*/
-	var $tax_inclusive = false;
+	var $calculate_tax = false;
+
+	/**
+	* Whether this value already includes tax in it
+	* @var boolean
+	*/
+	var $value_has_tax = false;
 
 	/**
 	* Constructor
@@ -72,7 +78,7 @@ class Product_Price extends MySource_Object
 	{
 		$o->openSection();
 
-			foreach(Array('name', 'value', 'tax_inclusive') as $var) {
+			foreach(Array('name', 'value', 'value_has_tax', 'calculate_tax') as $var) {
 				$this->_paintBackendField($o, $prefix, $wa, $var);
 			}
 
@@ -105,14 +111,23 @@ class Product_Price extends MySource_Object
 				$o->openField(translate('value'));
 					if ($wa) text_box($prefix.'_value', ($this->value == -1) ? '' : $this->value, 10);
 					else echo ($this->value == -1) ? '&nbsp;' : $this->value;
-					$o->note('Zero = Free<br>Blank = Value Not Known');
+					$o->note(translate('ecom_product_price_note_value'));
 				$o->closeField();
 				break;
-			case 'tax_inclusive' :
-				$o->openField(translate('ecom_product_price_includes_tax'));
+			case 'value_has_tax' :
+				$o->openField(translate('ecom_product_price_value_has_tax'));
 					$options = Array(0 => 'No', 1 => 'Yes');
-					if ($wa) combo_box($prefix.'_tax_inclusive', $options, false, (int) $this->tax_inclusive);
-					else echo $options[(int) $this->tax_inclusive];
+					if ($wa) combo_box($prefix.'_value_has_tax', $options, false, (int) $this->value_has_tax);
+					else echo $options[(int) $this->value_has_tax];
+					$o->note(translate('ecom_product_price_note_value_has_tax'));
+				$o->closeField();
+				break;
+			case 'calculate_tax' :
+				$o->openField(translate('ecom_product_price_calculate_tax'));
+					$options = Array(0 => 'No', 1 => 'Yes');
+					if ($wa) combo_box($prefix.'_calculate_tax', $options, false, (int) $this->calculate_tax);
+					else echo $options[(int) $this->calculate_tax];
+					$o->note(translate('ecom_product_price_note_calculate_tax'));
 				$o->closeField();
 				break;
 		}
@@ -133,7 +148,7 @@ class Product_Price extends MySource_Object
 	{
 		$changes = false;
 
-		foreach(Array('name', 'value', 'tax_inclusive') as $var) {
+		foreach(Array('name', 'value', 'calculate_tax', 'value_has_tax') as $var) {
 			if ($this->_processBackendField($o, $prefix, $var)) $changes = true;
 		}// end foreach
 
@@ -171,7 +186,8 @@ class Product_Price extends MySource_Object
 				}
 				break;
 
-			case 'tax_inclusive' :
+			case 'value_has_tax' :
+			case 'calculate_tax' :
 				$val = (bool) $val;
 				break;
 

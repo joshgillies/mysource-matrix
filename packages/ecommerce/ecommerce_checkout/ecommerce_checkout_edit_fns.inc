@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6 2007/05/25 04:26:06 colivar Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.1 2008/04/18 06:54:34 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -52,7 +52,6 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		}
 
 		if ($asset->writeAccess('links')) {
-			// TODO: Change the type of asset to 'ecommerce_delivery_method'
 			multiple_asset_finder($prefix.'_delivery_methods', array_keys($delivery_asset_ids), Array('ecommerce_delivery_method'=>'D'));
 		} else {
 			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($delivery_asset_ids));
@@ -222,10 +221,15 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintFlatCharges(&$asset, &$o, $prefix)
 	{
+		$current_value = $asset->attr('flat_charge_assetid');
 
 		if ($asset->writeAccess('links')) {
-			$flat_charges = unserialize($asset->attr('flat_charge_assetid'));
-			multiple_asset_finder($prefix.'_flat_charge',$flat_charges, Array('product' => 'D'));
+			$flat_charges = !empty($current_value) ? $current_value : Array();
+			multiple_asset_finder($prefix.'_flat_charge', $flat_charges, Array('product' => 'D'));
+		} else {
+			for ($i=0; $i<count($current_value); $i++) {
+				echo get_asset_tag_line($current_value[$i]).'<br />';
+			}
 		}
 		return TRUE;
 
@@ -259,6 +263,76 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processFlatCharges()
+
+
+	/**
+	* Paint select box of countries
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTaxableCountries(&$asset, &$o, $prefix)
+	{
+		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+		global $standards_lists_countries;
+
+		if ($asset->writeAccess('attributes')) {
+			echo combo_box($prefix.'_taxable_countries', $standards_lists_countries, TRUE, $asset->attr('taxable_countries'));
+		} else {
+			// get a comma delimited string of all countries currently selected
+			$countries_string = '';
+			$selected_country_values = $asset->attr('taxable_countries');
+			for ($i=0; $i<count($selected_country_values); $i++) {
+				foreach ($standards_lists_countries as $code => $country) {
+					if ($selected_country_values[$i] === $code) {
+						if (empty($countries_string)) {
+							$countries_string = $country;
+						} else {
+							$countries_string .= ', '.$country;
+						}
+						continue(2);
+					}
+				}
+			}
+			echo $countries_string;
+		}
+		return TRUE;
+
+	}//end paintTaxableCountries()
+
+
+	/**
+	* Process select box of countries
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTaxableCountries(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			if (isset($_POST[$prefix.'_taxable_countries'])) {
+				$taxable_countries = $_POST[$prefix.'_taxable_countries'];
+				if ($asset->setAttrValue('taxable_countries', $taxable_countries)) {
+					return TRUE;
+				} else {
+					return FALSE;
+				}
+			} else {
+				return TRUE;
+			}
+		} else {
+			return FALSE;
+		}
+
+	}//end processTaxableCountries()
 
 
 }//end class

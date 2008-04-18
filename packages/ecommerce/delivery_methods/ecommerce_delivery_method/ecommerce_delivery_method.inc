@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method.inc,v 1.9 2007/01/08 03:27:17 emcdonald Exp $
+* $Id: ecommerce_delivery_method.inc,v 1.9.4.1 2008/04/18 06:54:32 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	by allowing the get/set operations on the state information
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -77,7 +77,7 @@ class Ecommerce_Delivery_Method extends Asset
 	* of this delivery method. After successfully processing the input the delivery method
 	* is ready to process itself.
 	*
-	* @return boolean	whether the input is valid or not
+	* @return mixed boolean|array	whether the input is valid or not
 	* @access public
 	*/
 	function processInputInterface()
@@ -85,7 +85,7 @@ class Ecommerce_Delivery_Method extends Asset
 		$status = $this->validateState();
 		return $status;
 
-	}//end processInput()
+	}//end processInputInterface()
 
 
 	/**
