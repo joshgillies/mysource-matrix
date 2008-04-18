@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.250 2008/03/25 02:40:30 bshkara Exp $
+* $Id: listing_engine.inc,v 1.251 2008/04/18 03:39:49 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.250 $
+* @version $Revision: 1.251 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -821,7 +821,7 @@ class Listing_Engine extends Page
 			$pmap = unserialize($this->attr('parameter_map'));
 			if (isset($pmap['root_node'][0]['index']) && ($pmap['root_node'][0]['index'] == 'list_current_asset_id')) {
 				$parameter_map = $this->getAttribute('parameter_map');
-				$node = $parameter_map->getParameterValue('root_node');
+				$nodes = $parameter_map->getParameterValue('root_node');
 				if (is_array($nodes)) {
 					$root_nodes = $nodes;
 				} else {
