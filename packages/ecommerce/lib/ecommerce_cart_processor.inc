@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.11.2.1 2008/04/18 06:54:37 bshkara Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.11.2.2 2008/04/20 23:06:47 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11.2.1 $
+* @version $Revision: 1.11.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -528,11 +528,11 @@ class Ecommerce_Cart_Processor
 			// determine longest item name
 
 			$tmp_taxable = array_get_index($details, 'taxable', FALSE);
-			if (!$tmp_taxable) {
-				if (strlen(array_get_index($details, 'name', '')) > $name_length) {
-					$name_length = strlen(array_get_index($details, 'name', ''));
-				}
-			} else {// TODO CHECK PRODUCT NAME LENGTHS
+			$product_name = array_get_index($details, 'name', '');
+			if (strlen($product_name) > $name_length) {
+				$name_length = strlen(array_get_index($details, 'name', ''));
+			}
+			if ($tmp_taxable) {
 				if (strlen('Excluded Tax ('.$taxation_name.')') > $name_length) {
 					$name_length = strlen('Excluded Tax ('.$taxation_name.')');
 				}
