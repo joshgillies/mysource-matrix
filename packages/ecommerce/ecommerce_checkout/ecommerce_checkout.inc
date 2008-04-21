@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.52.2.7 2008/04/18 06:54:34 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.52.2.8 2008/04/21 03:54:29 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.52.2.7 $
+* @version $Revision: 1.52.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -347,7 +347,7 @@ class Ecommerce_Checkout extends Page
 				if (!empty($country_question)) {
 					$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('country_question'));
 					$default_value = $question->attr('default');
-					if (in_array($default_value[0], $this->attr('taxable_countries'))) {
+					if (isset($default_value[0]) && in_array($default_value[0], $this->attr('taxable_countries'))) {
 						$_SESSION['sq_remove_tax'] = FALSE;
 					} else {
 						$_SESSION['sq_remove_tax'] = TRUE;
