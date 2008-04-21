@@ -8,9 +8,13 @@
 		<field attribute="payment_gateway">
 			<assetid type_codes="payment_gateway:D" />
 		</field>
+	</section>
+	<section name="Quantity Tracking" write_access="write:attributes">
 		<field attribute="negative_quantity_message">
 			<text width="50" height="2" />
 		</field>
+	</section>
+	<section name="Delivery Email Options" write_access="write:attributes">
 		<field attribute="send_emails">
 			<boolean true_text="yes" false_text="no" />
 		</field>
