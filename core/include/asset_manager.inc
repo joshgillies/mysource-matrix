@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.684 2008/04/18 03:41:28 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.685 2008/04/21 00:06:56 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.684 $
+* @version $Revision: 1.685 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5578,7 +5578,7 @@ class Asset_Manager extends MySource_Object
 			$db = MatrixDAL::getDb();
 
 			$set_clauses['updated_userid']	= MatrixDAL::quote($GLOBALS['SQ_SYSTEM']->currentUserId());
-			$set_clauses['updated']			= db_extras_todate($db, ts_iso8601(time()));
+			$set_clauses['updated']			= db_extras_todate(MatrixDAL::getDbType(), ts_iso8601(time()));
 
 			$set_array = Array();
 
