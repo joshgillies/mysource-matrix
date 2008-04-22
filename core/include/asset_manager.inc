@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.11 2008/04/21 00:07:22 lwright Exp $
+* $Id: asset_manager.inc,v 1.655.2.12 2008/04/22 03:18:36 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.11 $
+* @version $Revision: 1.655.2.12 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3318,6 +3318,16 @@ class Asset_Manager extends MySource_Object
 			if ($result_limit != 0 && count($link_lineages) > $result_limit) {
 				$link_lineages = array_slice($link_lineages, 0, $result_limit);
 			}
+
+			 // Clean up link_linkages Array as shadow assets cause a complex array return (as per Bug #2977)
+			 foreach ($link_lineages as $key => $value) {
+				 foreach ($value['lineage'] as $lineage_key => $lineage_value) {
+					 if (is_array($lineage_value)) {
+						 $link_lineages[$key]['lineage'][$lineage_key] = $lineage_value[0][0];
+					 }
+				 }
+			 }
+
 
 			return $link_lineages;
 
