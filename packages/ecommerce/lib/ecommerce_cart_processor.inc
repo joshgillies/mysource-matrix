@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.12 2007/12/24 02:59:02 colivar Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.12.2.1 2008/04/22 00:23:24 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -143,10 +143,11 @@ class Ecommerce_Cart_Processor
 	* <pre>
 	* Array(
 	*	'assetid'	=> Array(
-	*					'quantity'	=> quantity,	// the number of items in the cart
-	*					'price'		=> value,		// the cost of the item at the time of purchase
-	*					'name'		=> name,		// the name of the asset
-	*					'taxable'	=> boolean		// if true we will add taxation
+	*					'quantity'			=> quantity,	// the number of items in the cart
+	*					'price'				=> value,		// the cost of the item at the time of purchase
+	*					'name'				=> name,		// the name of the asset
+	*					'taxable'			=> boolean		// whether to calculate tax for this item
+	*					'value_has_tax'		=> boolean		// whether this item already has tax included in the price
 	*				   ),
 	* )
 	* </pre>
@@ -168,19 +169,32 @@ class Ecommerce_Cart_Processor
 
 	/**
 	* Return the sum-total of all the items currently in this cart
+	* If taxation rate is specified then it will adjust product prices accordingly. You need this
+	* parameter if you are charging tax on your products and you want accurate sub-totals
 	*
 	* @param float	$taxation_cost	taxation cost contains the total cost of tax
+	* @param float	$taxation_rate	taxation rate of each item
 	*
 	* @return float
 	* @access public
 	*/
-	function getTotal($taxation_cost=0.0)
+	function getTotal($taxation_cost=0.0, $taxation_rate=0.0)
 	{
 		$total = 0.00;
 		foreach ($this->cart as $assetid => $details) {
 			// -1 == value not known
 			if ($details['price'] != -1) {
-				$total += $details['quantity'] * $details['price'];
+				// adjust product prices
+				$has_tax = array_get_index($details, 'has_tax', FALSE);
+				$calculate_tax = array_get_index($details, 'taxable', FALSE);
+				if ($calculate_tax) {
+					$item_costs = $this->_calculateItemCosts($details['price'], $taxation_rate, $has_tax);
+					$cost = $item_costs['tax_adjusted_cost'];
+				} else {
+					$cost = $details['price'];
+				}
+
+				$total += $details['quantity'] * $cost;
 			}
 		}
 
@@ -205,13 +219,49 @@ class Ecommerce_Cart_Processor
 		foreach ($this->cart as $assetid => $details) {
 			// -1 == value not known
 			if (($details['price'] != -1) && ($details['taxable'])) {
-				$totalTax += $details['quantity'] * $details['price'] * $taxation_rate;
+				$has_tax = array_get_index($details, 'has_tax', FALSE);
+				$item_costs = $this->_calculateItemCosts($details['price'], $taxation_rate, $has_tax);
+				$tax_cost = $item_costs['tax_cost'];
+
+				$totalTax += $details['quantity'] * $tax_cost;
 			}
 		}
 
 		return $totalTax;
 
 	}//end getTotalTax()
+
+
+	/**
+	*
+	* Gets an individual item's tax cost
+	*
+	* @param float		$cost			cost of the item
+	* @param float		$taxation_rate	tax value
+	* @param boolean	$has_tax		whether this cost already includes tax
+	*
+	* @return array
+	* @access public
+	*/
+	function _calculateItemCosts($cost, $taxation_rate, $has_tax)
+	{
+		// deduct tax or add tax depending on whether item currently has tax included in its price
+		if ($has_tax) {
+			// deduct tax and alter product cost as well to reflect this
+			$tax_cost = $cost * $taxation_rate;
+			$cost = $cost - ($cost * $taxation_rate);
+		} else {
+			// add tax
+			$tax_cost = $cost * $taxation_rate;
+		}
+		$item_costs = Array(
+						'tax_adjusted_cost'	=> $cost,
+						'tax_cost'			=> $tax_cost,
+					  );
+
+		return $item_costs;
+
+	}// end _calculateItemCosts()
 
 
 	/**
@@ -299,13 +349,17 @@ class Ecommerce_Cart_Processor
 				// only include a price if the object is a product
 				// only include taxable boolean if the object is a product
 				$taxable = FALSE;
+				$has_tax = FALSE;
 				if ($asset instanceof Product) {
 					$price = $asset->attr('price');
 
 					// get the taxable boolean
 					$tmp_price_obj = $asset->attr('price_obj');
 					if (!empty($tmp_price_obj) ) {
-						if ((!empty($tmp_price_obj->tax_inclusive)) && ($tmp_price_obj->tax_inclusive == 1)) {
+						if ((!empty($tmp_price_obj->value_has_tax)) && ($tmp_price_obj->value_has_tax == 1)) {
+							$has_tax = TRUE;
+						}
+						if ((!empty($tmp_price_obj->calculate_tax)) && ($tmp_price_obj->calculate_tax == 1)) {
 							$taxable = TRUE;
 						}
 					}
@@ -317,6 +371,7 @@ class Ecommerce_Cart_Processor
 											'price'		=> $price,
 											'quantity'	=> 0,
 											'name'		=> $name,
+											'has_tax'	=> $has_tax,
 											'taxable'	=> $taxable,
 										);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -453,14 +508,15 @@ class Ecommerce_Cart_Processor
 	*
 	* Prints out the contents of the Ecommerce Cart
 	*
-	* @param string	$taxation_name	name of tax
-	* @param int	$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
-	* @param array	$flat_charges	flat charges Array('Name' => 'Price')
+	* @param string		$taxation_name	name of tax
+	* @param int		$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
+	* @param array		$flat_charges	flat charges Array('Name' => 'Price')
+	* @param boolean	$remove_tax		whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	*
 	* @return void
 	* @access public
 	*/
-	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array())
+	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE)
 	{
 		if (empty($this->cart)) return;
 
@@ -472,13 +528,13 @@ class Ecommerce_Cart_Processor
 			// determine longest item name
 
 			$tmp_taxable = array_get_index($details, 'taxable', FALSE);
-			if (!$tmp_taxable) {
-				if (strlen(array_get_index($details, 'name', '')) > $name_length) {
-					$name_length = strlen(array_get_index($details, 'name', ''));
-				}
-			} else {
-				if (strlen(array_get_index($details, 'name', '').' ('.$taxation_name.')') > $name_length) {
-					$name_length = strlen(array_get_index($details, 'name', '').' ('.$taxation_name.')');
+			$product_name = array_get_index($details, 'name', '');
+			if (strlen($product_name) > $name_length) {
+				$name_length = strlen(array_get_index($details, 'name', ''));
+			}
+			if ($tmp_taxable) {
+				if (strlen('Excluded Tax ('.$taxation_name.')') > $name_length) {
+					$name_length = strlen('Excluded Tax ('.$taxation_name.')');
 				}
 			}
 
@@ -519,8 +575,18 @@ class Ecommerce_Cart_Processor
 		// print each row
 		foreach ($this->cart as $assetid => $details) {
 			$cost = array_get_index($details, 'price', 0);
-			$tax_cost = $cost * $taxation_rate;
-			$is_taxable = array_get_index($details, 'taxable', FALSE);
+			// calculate tax for this item only if we are not removing tax
+			$has_tax = array_get_index($details, 'has_tax', FALSE);
+			$calculate_tax = array_get_index($details, 'taxable', FALSE);
+			if ($calculate_tax) {
+				$item_costs = $this->_calculateItemCosts($cost, $taxation_rate, $has_tax);
+				$cost = $remove_tax ? $item_costs['tax_adjusted_cost'] : array_get_index($details, 'price', 0);
+				$cost = $item_costs['tax_adjusted_cost'];
+				$tax_cost = $item_costs['tax_cost'];
+			} else {
+				$tax_cost = 0;
+			}
+
 			if ($cost < 0) {
 				$cost = '';
 			} else {
@@ -542,16 +608,21 @@ class Ecommerce_Cart_Processor
 
 		if ($has_price) {
 			$totalTax = $this->getTotalTax($taxation_rate);
-			echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $this->getTotal()));
+
+			$sub_total = $remove_tax ? $this->getTotal($totalTax, $taxation_rate)-$totalTax : $this->getTotal(0, $taxation_rate);
+			echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $sub_total));
+
 			if (($totalTax > 0) || ($flat_charges_total > 0.0)) {
 				if ($totalTax > 0) {
-					echo sprintf($row_format, 'Total ('.$taxation_name.')', $this->getCount(), sprintf('$%.2f', $totalTax));
+					$row_title = $remove_tax ? 'Excluded Tax ('.$taxation_name.')' : 'Total ('.$taxation_name.')';
+					echo sprintf($row_format, $row_title, $this->getCount(), sprintf('$%.2f', $totalTax));
 				}
 				foreach ($flat_charges as $name => $price) {
 					echo sprintf($row_format, $name, 1, sprintf('$%.2f', $price));
 				}
 				echo $break;
-				echo sprintf($row_format, 'Grand Total', $this->getCount(), sprintf('$%.2f', $this->getTotal($totalTax)+$flat_charges_total));
+				$grand_total = $remove_tax ? $this->getTotal($totalTax, $taxation_rate)+$flat_charges_total-$totalTax : $this->getTotal($totalTax, $taxation_rate)+$flat_charges_total;
+				echo sprintf($row_format, 'Grand Total', $this->getCount(), sprintf('$%.2f', $grand_total));
 			}
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());

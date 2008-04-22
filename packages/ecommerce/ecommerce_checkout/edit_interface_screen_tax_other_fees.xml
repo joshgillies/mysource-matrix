@@ -10,15 +10,26 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.4.4.3 2008/04/22 00:23:23 bshkara Exp $
+* $Id: edit_interface_screen_tax_other_fees.xml,v 1.1.4.2 2008/04/22 00:23:23 bshkara Exp $
 *
 */
 -->
+<contents write_access="write:attributes">
+	<section name="Taxation">
+		<field attribute="taxation_name">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="taxation_rate">
+			<int width="3" />
+		</field>
+	</section>
+	<section name="Flat Fees">
+		<field>
+			<function_call>
+				<paint_function   name="paintFlatCharges"   />
+				<process_function name="processFlatCharges" />
+			</function_call>
+		</field>
+	</section>
 
-<screens>
-	<screen code_name="components" display_name="Processing Components" force_unlock="0" />
-	<screen code_name="formatting_options" display_name="Display Formatting Options" />
-	<screen code_name="region_specific" display_name="Region Specific Options" />
-	<screen code_name="tax_other_fees" display_name="Taxation and Flat Fees" />
-	<screen code_name="quantity_tracking" display_name="Quantity Tracking" />
-</screens>
+</contents>

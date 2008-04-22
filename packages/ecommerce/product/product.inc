@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.14 2007/12/26 22:28:39 mwegermann Exp $
+* $Id: product.inc,v 1.14.2.1 2008/04/22 00:23:24 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../interfaces/buyable/buyable.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -307,11 +307,19 @@ class Product extends Page implements Buyable
 	}//end getAssetKeywords()
 
 
+	/**
+	* Return the product's price
+	*
+	* @return array
+	* @access public
+	*/
 	public function getPrice() {
 		$price_obj = $this->attr('price_obj');
 		if (is_null($price_obj->value)) return 0;
 		return $price_obj->value;
-	}
+
+	}//end getPrice()
+
 
 }//end class
 ?>
