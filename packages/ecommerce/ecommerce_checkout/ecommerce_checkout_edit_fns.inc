@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.1 2008/04/18 06:54:34 bshkara Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.2 2008/04/22 00:10:01 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -277,15 +277,16 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintTaxableCountries(&$asset, &$o, $prefix)
 	{
-		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
 		global $standards_lists_countries;
+		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+
+		$selected_country_values = $asset->attr('taxable_countries');
 
 		if ($asset->writeAccess('attributes')) {
 			echo combo_box($prefix.'_taxable_countries', $standards_lists_countries, TRUE, $asset->attr('taxable_countries'));
 		} else {
 			// get a comma delimited string of all countries currently selected
 			$countries_string = '';
-			$selected_country_values = $asset->attr('taxable_countries');
 			for ($i=0; $i<count($selected_country_values); $i++) {
 				foreach ($standards_lists_countries as $code => $country) {
 					if ($selected_country_values[$i] === $code) {
