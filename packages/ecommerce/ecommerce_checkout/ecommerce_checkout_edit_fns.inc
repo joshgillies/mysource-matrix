@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.7 2007/12/23 23:16:02 colivar Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.8 2008/04/22 01:04:06 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -222,10 +222,15 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintFlatCharges(&$asset, &$o, $prefix)
 	{
+		$current_value = $asset->attr('flat_charge_assetid');
 
 		if ($asset->writeAccess('links')) {
-			$flat_charges = unserialize($asset->attr('flat_charge_assetid'));
-			multiple_asset_finder($prefix.'_flat_charge',$flat_charges, Array('product' => 'D'));
+			$flat_charges = !empty($current_value) ? $current_value : Array();
+			multiple_asset_finder($prefix.'_flat_charge', $flat_charges, Array('product' => 'D'));
+		} else {
+			for ($i=0; $i<count($current_value); $i++) {
+				echo get_asset_tag_line($current_value[$i]).'<br />';
+			}
 		}
 		return TRUE;
 
@@ -259,6 +264,77 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processFlatCharges()
+
+
+	/**
+	* Paint select box of countries
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintTaxableCountries(&$asset, &$o, $prefix)
+	{
+		global $standards_lists_countries;
+		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+
+		$selected_country_values = $asset->attr('taxable_countries');
+
+		if ($asset->writeAccess('attributes')) {
+			echo combo_box($prefix.'_taxable_countries', $standards_lists_countries, TRUE, $selected_country_values);
+		} else {
+			// get a comma delimited string of all countries currently selected
+			$countries_string = '';
+			for ($i=0; $i<count($selected_country_values); $i++) {
+				foreach ($standards_lists_countries as $code => $country) {
+					if ($selected_country_values[$i] === $code) {
+						if (empty($countries_string)) {
+							$countries_string = $country;
+						} else {
+							$countries_string .= ', '.$country;
+						}
+						continue(2);
+					}
+				}
+			}
+			echo $countries_string;
+		}
+		return TRUE;
+
+	}//end paintTaxableCountries()
+
+
+	/**
+	* Process select box of countries
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTaxableCountries(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			if (isset($_POST[$prefix.'_taxable_countries'])) {
+				$taxable_countries = $_POST[$prefix.'_taxable_countries'];
+				if ($asset->setAttrValue('taxable_countries', $taxable_countries)) {
+					return TRUE;
+				} else {
+					return FALSE;
+				}
+			} else {
+				return TRUE;
+			}
+		} else {
+			return FALSE;
+		}
+
+	}//end processTaxableCountries()
 
 
 }//end class

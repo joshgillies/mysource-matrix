@@ -435,7 +435,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	/**
 	* process the input interface
 	*
-	* @return boolean
+	* @return mixed boolean|array	Array containing form questions and answers
 	* @access public
 	*/
 	function processInputInterface()
@@ -461,7 +461,11 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		}
 		$_SESSION['order_extra_information'] =  serialize($order_extra_info);
 
-		return $ok;
+		if (!$ok) {
+			return FALSE;
+		} else {
+			return $answers;
+		}
 
 	}//end processInputInterface()
 
@@ -653,7 +657,10 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 			$tmp_order_receipt_cart_text = '';
 			ob_start();
 			echo 'Order ID: '.$this->state['transaction_id']."\n\n";
-			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges);
+
+			$remove_tax = isset($_SESSION['sq_remove_tax']) ? $_SESSION['sq_remove_tax'] : FALSE;
+			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges, $remove_tax);
+
 			$tmp_order_receipt_cart_text .= ob_get_contents();
 			ob_end_clean();
 			$tmp_order_receipt_cart .= $tmp_order_receipt_cart_text.'</pre>';

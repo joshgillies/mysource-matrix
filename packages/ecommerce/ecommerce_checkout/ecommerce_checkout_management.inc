@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.6 2008/02/04 00:00:31 bshkara Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.7 2008/04/22 01:04:06 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -123,6 +123,20 @@ class Ecommerce_Checkout_Management extends Asset_Management
 													'type'		=> 'text',
 													'default'	=> 'There is an insufficient amount of items in stock to proceed with your order. Your order has not been processed. The items with insufficient quantities are listed below:',
 												   );
+
+		$this->vars['country_question'] = Array(
+											'added'		=> '0.3',
+											'type'		=> 'assetid',
+											'default'	=> '',
+											'is_admin'	=> 'TRUE',
+										  );
+
+		$this->vars['taxable_countries'] = Array(
+												'added'		=> '0.3',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+												'is_admin'	=> 'TRUE',
+											   );
 
 	}//end constructor
 

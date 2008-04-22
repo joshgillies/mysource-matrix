@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.57 2008/03/27 05:52:47 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.58 2008/04/22 01:04:06 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -66,6 +66,9 @@ class Ecommerce_Checkout extends Page
 		if (!isset($_SESSION['sq_local_cart_contents'])) {
 			$_SESSION['sq_local_cart_contents'] = Array();
 		}
+
+		$this->_ser_attrs = TRUE;
+
 		parent::__construct($assetid);
 
 	}//end constructor
@@ -294,11 +297,27 @@ class Ecommerce_Checkout extends Page
 					$_SESSION['sq_local_cart_contents']['delivery_state']['cart_contents'] = $_SESSION['sq_local_cart_contents']['cart_contents'];
 					$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 
-					if (!$delivery_method->processInputInterface()) {
+					// process the form questions in the delivery interface and place into session var
+					// also retrieve a more comprehensive version returned by the same function
+					$form_answers = $delivery_method->processInputInterface();
+					if ($form_answers === FALSE) {
 						$this->_tmp['delivery_method_errors'] = $delivery_method->getErrors();
 						$success = FALSE;
 					}
 
+					// set any region specific options
+					$country_question = $this->attr('country_question');
+					$taxable_countries = $this->attr('taxable_countries');
+					// find the country code they have selected as their address
+					$_SESSION['sq_remove_tax'] = FALSE;
+					if (isset($form_answers[$country_question])) {
+						$country_code = $form_answers[$country_question]['value'];
+						// if customer is not defined as a taxable country then exclude tax
+						if (!in_array($country_code, $taxable_countries)) {
+							// so the cart knows
+							$_SESSION['sq_remove_tax'] = TRUE;
+						}
+					}
 
 					// create a temporary order
 					$_SESSION['sq_local_cart_contents']['delivery_id']		= $delivery_method_id;
@@ -308,7 +327,7 @@ class Ecommerce_Checkout extends Page
 
 				// if cart is empty, there's no point in checking out
 				if ($success && empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
-					$this->_tmp['delivery_method_errors'][] = 'The ecommerce cart is empty, cannot checkout';
+					$this->_tmp['delivery_method_errors'][] = 'The cart is empty.  We cannot perform a checkout.';
 					$success = FALSE;
 				}
 				if ($success) {
@@ -324,6 +343,20 @@ class Ecommerce_Checkout extends Page
 			break;
 
 			case 'return_to_checkout':
+				// determine if taxable by comparing the default value of the question with taxable countries
+				$country_question = $this->attr('country_question');
+				if (!empty($country_question)) {
+					$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('country_question'));
+					$default_value = $question->attr('default');
+					if (isset($default_value[0]) && in_array($default_value[0], $this->attr('taxable_countries'))) {
+						$_SESSION['sq_remove_tax'] = FALSE;
+					} else {
+						$_SESSION['sq_remove_tax'] = TRUE;
+					}
+				} else {
+					$_SESSION['sq_remove_tax'] = FALSE;
+				}
+
 				$this->print_context = 'checkout';
 			break;
 
@@ -394,7 +427,10 @@ class Ecommerce_Checkout extends Page
 					$cart = new Ecommerce_Cart_Processor();
 					$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 					$total_tax = $cart->getTotalTax($this->attr('taxation_rate')/100);
-					$total_cost = $cart->getTotal($total_tax);
+					// whether we are removing tax from this order
+					$remove_tax = $_SESSION['sq_remove_tax'];
+					$total = $cart->getTotal($total_tax, $this->attr('taxation_rate')/100);
+					$total_cost = $remove_tax ? $total-$total_tax : $total;
 					$delivery_method->processPaymentGateway($total_cost);
 					return;
 				}
@@ -899,7 +935,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getFlatCharges()
 	{
-		$flat_charges = unserialize($this->attr('flat_charge_assetid'));
+		$flat_charges = $this->attr('flat_charge_assetid');
 		$flat_charge_array = Array();
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
@@ -933,7 +969,10 @@ class Ecommerce_Checkout extends Page
 		ob_start();
 			if ($html) echo '<pre>';
 
-			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges());
+			$remove_tax = isset($_SESSION['sq_remove_tax']) ? $_SESSION['sq_remove_tax'] : FALSE;
+			// if products are taxed, remove tax from final amount
+			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax);
+
 			if ($html) echo '</pre>';
 		$cart_summary = ob_get_clean();
 		unset($cart);
