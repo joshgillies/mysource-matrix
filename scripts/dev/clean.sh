@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.10 2007/10/30 00:34:14 lwright Exp $
+#* $Id: clean.sh,v 1.11 2008/04/22 05:47:16 mbrydon Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -25,11 +25,8 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/file_repository" \
 		"${SYSTEM_ROOT}/data/public/assets" \
 		"${SYSTEM_ROOT}/data/public/asset_types" \
-		"${SYSTEM_ROOT}/data/private/logs" \
 		"${SYSTEM_ROOT}/data/private/assets" \
-		"${SYSTEM_ROOT}/data/private/db" \
 		"${SYSTEM_ROOT}/data/private/events" \
-		"${SYSTEM_ROOT}/data/private/asset_map" \
 		"${SYSTEM_ROOT}/data/private/maps" \
 		"${SYSTEM_ROOT}/data/private/conf/system_assets.inc"
 
