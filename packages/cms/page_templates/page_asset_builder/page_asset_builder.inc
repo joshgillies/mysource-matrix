@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.2 2008/03/12 04:04:22 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.3 2008/04/22 00:56:42 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.2 $
+* @version $Revision: 1.122.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -316,7 +316,7 @@ class Page_Asset_Builder extends Page
 			?>
 		</form>
 		<?php
-		
+
 	}//end _printBody()
 
 
@@ -407,14 +407,14 @@ class Page_Asset_Builder extends Page
 				break;
 
 				case 'create' :
-					
+
 					// verify captcha
 					if ($this->attr('require_captcha')) {
 						if (!validate_security_key()) {
 							$error_text = translate('security_key_incorrect');
 							trigger_error($error_text, E_USER_NOTICE);
 							break;
-						}		
+						}
 					}
 
 					// create our dummy asset so we can access all its you beaut functions
@@ -771,7 +771,7 @@ class Page_Asset_Builder extends Page
 				$j = 0;
 				while ($j < count($rule['attributes'])) {
 					if (empty($attributes)) {
-						$attr_value = isset($_POST[$prefix.'_'.$attributeids[$rule['attributes'][$j]]]) ? trim(strtolower($_POST[$prefix.'_'.$attributeids[$rule['attributes'][$j]]])) : '';
+						$attr_value = isset($_POST[$prefix.'_'.$attributeids[$rule['attributes'][$j]]['attrid']]) ? trim(strtolower($_POST[$prefix.'_'.$attributeids[$rule['attributes'][$j]]['attrid']])) : '';
 					} else {
 						$attr_value = isset($attributes[$rule['attributes'][$j]]) ? trim(strtolower($attributes[$rule['attributes'][$j]])) : '';
 					}
@@ -1012,16 +1012,16 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadCreateReplacements()
 	{
-		
-		  //////////////////////////// 																																	
-		 // CREATE CAPTCHA KEYWORD //  																																	
-		////////////////////////////  	
-																																	
-		$this->_replacements['form_captcha'] = $this->getFormCaptchaKeywordReplacement();																																																																					
-		$this->_replacements['form_captcha_image'] = $this->getFormCaptchaImageKeywordReplacement();																																																																					
-		$this->_replacements['form_captcha_field'] = $this->getFormCaptchaFieldKeywordReplacement();																																																																					
-		$this->_replacements['form_captcha_link'] = $this->getFormCaptchaLinkKeywordReplacement();																																																																					
-		
+
+		  ////////////////////////////
+		 // CREATE CAPTCHA KEYWORD //
+		////////////////////////////
+
+		$this->_replacements['form_captcha'] = $this->getFormCaptchaKeywordReplacement();
+		$this->_replacements['form_captcha_image'] = $this->getFormCaptchaImageKeywordReplacement();
+		$this->_replacements['form_captcha_field'] = $this->getFormCaptchaFieldKeywordReplacement();
+		$this->_replacements['form_captcha_link'] = $this->getFormCaptchaLinkKeywordReplacement();
+
 
 		  ///////////////////////////
 		 // CREATE INVITE KEYWORD //
@@ -1313,7 +1313,7 @@ class Page_Asset_Builder extends Page
 		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
 		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
 		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
-		if ($this->attr('require_captcha')) {	
+		if ($this->attr('require_captcha')) {
 			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
 			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
 			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
