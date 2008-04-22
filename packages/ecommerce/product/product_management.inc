@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.10 2008/04/22 01:04:07 bshkara Exp $
+* $Id: product_management.inc,v 1.11 2008/04/22 22:49:46 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -126,12 +126,10 @@ class Product_Management extends Asset_Management
 			$db = MatrixDAL::getDb();
 
 			// get attribute id of the price object
-			$sql = 'SELECT DISTINCT sq_ast_attr_val.attrid
-					FROM sq_ast_attr_val
-					JOIN sq_ast_attr
-					ON sq_ast_attr_val.attrid = sq_ast_attr.attrid
-					WHERE sq_ast_attr.type_code = '.MatrixDAL::quote('product').'
-					AND sq_ast_attr.name = '.MatrixDAL::quote('price_obj');
+			$sql = 'SELECT attrid
+					FROM sq_ast_attr
+					WHERE type_code = '.MatrixDAL::quote('product').'
+					AND name = '.MatrixDAL::quote('price_obj');
 
 			try {
 				$attrid = MatrixDAL::executeSqlOne($sql);
