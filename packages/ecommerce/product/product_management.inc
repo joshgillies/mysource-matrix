@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.9.6.1 2008/04/18 06:54:41 bshkara Exp $
+* $Id: product_management.inc,v 1.9.6.2 2008/04/22 22:47:13 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9.6.1 $
+* @version $Revision: 1.9.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -126,12 +126,10 @@ class Product_Management extends Asset_Management
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 			// get attribute id of the price object
-			$sql = 'SELECT DISTINCT sq_ast_attr_val.attrid
-					FROM sq_ast_attr_val
-					JOIN sq_ast_attr
-					ON sq_ast_attr_val.attrid = sq_ast_attr.attrid
-					WHERE sq_ast_attr.type_code = '.$db->quote('product').'
-					AND sq_ast_attr.name = '.$db->quote('price_obj');
+			$sql = 'SELECT attrid
+					FROM sq_ast_attr
+					WHERE type_code = '.$db->quote('product').'
+					AND name = '.$db->quote('price_obj');
 
 			$attrid = $db->getOne($sql);
 			assert_valid_db_result($attrid);
