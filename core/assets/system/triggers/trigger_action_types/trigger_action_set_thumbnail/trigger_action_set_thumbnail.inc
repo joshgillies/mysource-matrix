@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_thumbnail.inc,v 1.1 2008/04/03 06:19:18 bpearson Exp $
+* $Id: trigger_action_set_thumbnail.inc,v 1.2 2008/04/22 06:02:43 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author   Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,21 +90,15 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 		if (!is_a($thumbnail, 'image')) return TRUE;
 
 		// Set the thumbnail to the asset passed
-		if (Trigger_Action_Set_Thumbnail::_checkImage($thumbnail)) {
-			// Delete any thumbnail links
-			$grab_link = $GLOBALS['SQ_SYSTEM']->am->getLink($state['assetid'], SQ_LINK_NOTICE, '', FALSE, 'thumbnail');
+		// Delete any thumbnail links
+		$grab_link = $GLOBALS['SQ_SYSTEM']->am->getLink($state['assetid'], SQ_LINK_NOTICE, '', FALSE, 'thumbnail');
 
-			if (is_array($grab_link) && isset($grab_link['linkid'])) {
-				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($grab_link['linkid']);
-			}
-
-			// Create the new thumbnail link
-			$tmblink = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($state['asset'], $thumbnail, SQ_LINK_NOTICE, 'thumbnail');
-
-		} else {
-			// Fail silently if image is invalid
-			return TRUE;
+		if (is_array($grab_link) && isset($grab_link['linkid'])) {
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($grab_link['linkid']);
 		}
+
+		// Create the new thumbnail link
+		$tmblink = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($state['asset'], $thumbnail, SQ_LINK_NOTICE, 'thumbnail');
 
 		return Array(
 				'linkid'	=> $tmblink,
@@ -189,39 +183,6 @@ class Trigger_Action_Set_Thumbnail extends Trigger_Action
 		return Array($state['assetid'] => Array('all'));
 
 	}//end getLocks()
-
-
-	/**
-	* Check the image for the right stuff
-	*
-	* @param mixed	&$image	the image asset
-	*
-	* @return boolean
-	* @access private
-	*/
-	public static function _checkImage(&$image)
-	{
-		if (empty($image)) return FALSE;
-
-		$max_file_size = 20; 	// Kilobytes
-		$max_file_size *= 1024;	// Convert to bytes
-
-		if ($image->attr('size') > $max_file_size) {
-			return FALSE;
-		}
-
-		$fileInfo = get_file_type($image->attr('name'));
-		$validExt = Array('png','jpeg','jpg','gif','PNG','JPEG','JPG','GIF');
-		if (array_search($fileInfo, $validExt) === FALSE) {
-			return FALSE;
-		}
-		if (($image->attr('width') > 110) || ($image->attr('height') > 150)) {
-			return FALSE;
-		}
-
-		return TRUE;
-
-	}//end _checkImage()
 
 
 }//end class
