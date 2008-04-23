@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.3 2008/04/22 00:56:42 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.4 2008/04/23 01:46:42 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.3 $
+* @version $Revision: 1.122.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -860,6 +860,7 @@ class Page_Asset_Builder extends Page
 	function getAdditionalCreateLocations()
 	{
 		$res = Array();
+		$parameter_map = $this->getAttribute('parameter_map');
 		if (isset($_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
 			// set the assetids and link types from the query
 			foreach (explode(';', $_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
@@ -892,6 +893,16 @@ class Page_Asset_Builder extends Page
 					$matches = array_intersect(array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid)), $valid_parents);
 					if (empty($matches)) unset($res[$assetid]);
 				}
+			}
+		} else if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
+			// As per Bug #2982, the POST var was not registering here, so here we check for the value
+			// and allow asset builder to create the asset.
+			if (is_array($additional_locs)) {
+				foreach ($additional_locs as $key => $value) {
+					$res[$key] = $value;
+				}
+			} else {
+				$res[$additional_locs] = '1';
 			}
 		}//end if
 		return $res;
