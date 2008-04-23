@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
  *
- * $Id: product_edit_fns.inc,v 1.7 2006/12/07 05:26:31 bcaldwell Exp $
+ * $Id: product_edit_fns.inc,v 1.7.6.1 2008/04/23 01:19:31 bshkara Exp $
  *
  */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.9.6.2 2008/04/22 22:47:13 bshkara Exp $
+* $Id: product_management.inc,v 1.9.6.3 2008/04/23 01:19:31 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9.6.2 $
+* @version $Revision: 1.9.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -125,30 +125,39 @@ class Product_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+			// get all type descendants
+			$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('product', TRUE);
+			for ($i=0; $i<count($type_codes); $i++) {
+				$type_codes[$i] = $db->quote($type_codes[$i]);
+			}
+			$in = implode(',', $type_codes);
+
 			// get attribute id of the price object
 			$sql = 'SELECT attrid
 					FROM sq_ast_attr
-					WHERE type_code = '.$db->quote('product').'
+					WHERE type_code IN ('.$in.')
 					AND name = '.$db->quote('price_obj');
 
-			$attrid = $db->getOne($sql);
+			$attrid = $db->getCol($sql);
 			assert_valid_db_result($attrid);
 
+			$in = implode(',', $attrid);
+
 			// get all assetids and their custom_vals
-			$sql = 'SELECT assetid, custom_val
+			$sql = 'SELECT assetid, custom_val, attrid
 					FROM sq_ast_attr_val
-					WHERE attrid = '.$db->quote($attrid);
+					WHERE attrid IN ('.$in.')';
 
 			$custom_vals = $db->getAssoc($sql);
 			assert_valid_db_result($custom_vals);
 
-			pre_echo('UPGRADING THE PRICE_OBJ ATTRIBUTE WITH ATTRID: '.$attrid);
+			pre_echo('UPGRADING THE PRICE_OBJ ATTRIBUTE');
 
 			// include the price class so unserialize() doesn't barf
 			require_once SQ_PACKAGES_PATH.'/ecommerce/price/product_price.inc';
 			// loop through all custom_vals and perform our updates
-			foreach ($custom_vals as $assetid => $custom_val) {
-				$object = unserialize($custom_val);
+			foreach ($custom_vals as $assetid => $data) {
+				$object = unserialize($data['custom_val']);
 				if (isset($object->tax_inclusive)) {
 					$object->value_has_tax = $object->tax_inclusive;
 					unset($object->tax_inclusive);
@@ -162,7 +171,7 @@ class Product_Management extends Asset_Management
 				// now we can update our db with this new value
 				$sql = 'UPDATE sq_ast_attr_val
 						SET custom_val = '.$db->quote($serialized).'
-						WHERE attrid = '.$db->quote($attrid).'
+						WHERE attrid = '.$db->quote($data['attrid']).'
 						AND assetid = '.$db->quote($assetid);
 
 				$result = $db->query($sql);
@@ -171,27 +180,30 @@ class Product_Management extends Asset_Management
 
 			// lastly change the default value
 			// first get the default value
-			$sql = 'SELECT default_val
+			$sql = 'SELECT attrid, default_val
 					FROM sq_ast_attr
-					WHERE attrid = '.$db->quote($attrid);
+					WHERE attrid IN ('.$in.')';
 
-			$default_val = $db->getOne($sql);
+			$default_val = $db->getAssoc($sql);
 			assert_valid_db_result($default_val);
 
-			// alter it
-			$object = unserialize($default_val);
-			if (isset($object->tax_inclusive)) {
-				$object->value_has_tax = $object->tax_inclusive;
-				unset($object->tax_inclusive);
+			foreach ($default_val as $attrid => $default_val) {
+				// alter it
+				$object = unserialize($default_val);
+				if (isset($object->tax_inclusive)) {
+					$object->value_has_tax = $object->tax_inclusive;
+					unset($object->tax_inclusive);
+					$object->calculate_tax = FALSE;
+				}
+				$serialized = serialize($object);
+
+				$sql = 'UPDATE sq_ast_attr
+						SET default_val = '.$db->quote($serialized).'
+						WHERE attrid = '.$db->quote($attrid);
+
+				$result = $db->query($sql);
+				assert_valid_db_result($result);
 			}
-			$serialized = serialize($object);
-
-			$sql = 'UPDATE sq_ast_attr
-					SET default_val = '.$db->quote($serialized).'
-					WHERE attrid = '.$db->quote($attrid);
-
-			$result = $db->query($sql);
-			assert_valid_db_result($result);
 
 			pre_echo('UPGRADE FOR PRODUCT ASSETS COMPLETE');
 
