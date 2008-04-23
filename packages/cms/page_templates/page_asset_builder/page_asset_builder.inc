@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.127 2008/04/22 00:55:42 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.128 2008/04/23 01:43:29 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -860,6 +860,7 @@ class Page_Asset_Builder extends Page
 	function getAdditionalCreateLocations()
 	{
 		$res = Array();
+		$parameter_map = $this->getAttribute('parameter_map');
 		if (isset($_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) && !empty($_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
 			// set the assetids and link types from the query
 			foreach (explode(';', $_REQUEST[$this->id.'_ASSET_BUILDER_ADDITIONAL_LOCATIONS']) as $loc_code) {
@@ -893,6 +894,17 @@ class Page_Asset_Builder extends Page
 					if (empty($matches)) unset($res[$assetid]);
 				}
 			}
+		} else if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != NULL) {
+			// As per Bug #2982, the POST var was not registering here, so here we check for the value
+			// and allow asset builder to create the asset.
+			if (is_array($additional_locs)) {
+				foreach ($additional_locs as $key => $value) {
+					$res[$key] = $value;
+				}
+			} else {
+				$res[$additional_locs] = '1';
+			}
+
 		}//end if
 		return $res;
 
@@ -1021,7 +1033,6 @@ class Page_Asset_Builder extends Page
 		$this->_replacements['form_captcha_image'] = $this->getFormCaptchaImageKeywordReplacement();
 		$this->_replacements['form_captcha_field'] = $this->getFormCaptchaFieldKeywordReplacement();
 		$this->_replacements['form_captcha_link'] = $this->getFormCaptchaLinkKeywordReplacement();
-
 
 		  ///////////////////////////
 		 // CREATE INVITE KEYWORD //
