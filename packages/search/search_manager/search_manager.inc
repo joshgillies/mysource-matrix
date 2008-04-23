@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.152.2.4 2007/11/14 05:41:54 mbrydon Exp $
+* $Id: search_manager.inc,v 1.152.2.5 2008/04/23 05:33:53 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152.2.4 $
+* @version $Revision: 1.152.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2402,7 +2402,12 @@ class Search_Manager extends Asset
 
 			$public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 			$current_user =& $GLOBALS['SQ_SYSTEM']->user;
-			$public_user_access = (empty($current_user) || $search_info['search_as_public_user'] == 1);
+			if (isset($search_info['search_as_public_user'])) {
+				$search_as_public_user = $search_info['search_as_public_user'];
+			} else {
+				$search_as_public_user = 0;
+			}
+			$public_user_access = (empty($current_user) || $search_as_public_user);
 			if ($public_user_access) {
 				if (!$no_group_access_check) {
 					$userids = $public_user->getUserGroups();
