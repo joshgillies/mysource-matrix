@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.11 2008/04/22 22:49:46 bshkara Exp $
+* $Id: product_management.inc,v 1.12 2008/04/23 02:07:44 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -125,22 +125,34 @@ class Product_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = MatrixDAL::getDb();
 
+			// get all type descendants
+			$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('product', TRUE);
+			for ($i=0; $i<count($type_codes); $i++) {
+				$type_codes[$i] = $db->quote($type_codes[$i]);
+			}
+			$in = implode(',', $type_codes);
+
 			// get attribute id of the price object
 			$sql = 'SELECT attrid
 					FROM sq_ast_attr
-					WHERE type_code = '.MatrixDAL::quote('product').'
+					WHERE type_code IN ('.$in.')
 					AND name = '.MatrixDAL::quote('price_obj');
 
 			try {
-				$attrid = MatrixDAL::executeSqlOne($sql);
+				$attrid = MatrixDAL::executeSqlAll($sql);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get attribute id of price object due to database error: '.$e->getMessage());
 			}
+			$ids = Array();
+			foreach ($attrid as $row => $data) {
+				$ids[] = $data['attrid'];
+			}
+			$in = implode(',', $ids);
 
 			// get all assetids and their custom_vals
-			$sql = 'SELECT assetid, custom_val
+			$sql = 'SELECT assetid, custom_val, attrid
 					FROM sq_ast_attr_val
-					WHERE attrid = '.MatrixDAL::quote($attrid);
+					WHERE attrid IN ('.$in.')';
 
 			try {
 				$custom_vals = MatrixDAL::executeSqlAssoc($sql);
@@ -148,7 +160,7 @@ class Product_Management extends Asset_Management
 				throw new Exception('Unable to get values of existing product prices due to database error: '.$e->getMessage());
 			}
 
-			pre_echo('UPGRADING THE PRICE_OBJ ATTRIBUTE WITH ATTRID: '.$attrid);
+			pre_echo('UPGRADING THE PRICE_OBJ ATTRIBUTE');
 
 			// include the price class so unserialize() doesn't barf
 			require_once SQ_PACKAGES_PATH.'/ecommerce/price/product_price.inc';
@@ -168,7 +180,7 @@ class Product_Management extends Asset_Management
 				// now we can update our db with this new value
 				$sql = 'UPDATE sq_ast_attr_val
 						SET custom_val = '.MatrixDAL::quote($serialized).'
-						WHERE attrid = '.MatrixDAL::quote($attrid).'
+						WHERE attrid = '.MatrixDAL::quote($info['attrid']).'
 						AND assetid = '.MatrixDAL::quote($info['assetid']);
 
 				try {
@@ -180,32 +192,34 @@ class Product_Management extends Asset_Management
 
 			// lastly change the default value
 			// first get the default value
-			$sql = 'SELECT default_val
+			$sql = 'SELECT attrid, default_val
 					FROM sq_ast_attr
-					WHERE attrid = '.MatrixDAL::quote($attrid);
+					WHERE attrid IN ('.$in.')';
 
 			try {
-				$default_val = MatrixDAL::executeSqlOne($sql);
+				$default_val = MatrixDAL::executeSqlAssoc($sql);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get default value of product due to database error: '.$e->getMessage());
 			}
 
-			// alter it
-			$object = unserialize($default_val);
-			if (isset($object->tax_inclusive)) {
-				$object->value_has_tax = $object->tax_inclusive;
-				unset($object->tax_inclusive);
-			}
-			$serialized = serialize($object);
+			foreach ($default_val as $row => $info) {
+				// alter it
+				$object = unserialize($info['default_val']);
+				if (isset($object->tax_inclusive)) {
+					$object->value_has_tax = $object->tax_inclusive;
+					unset($object->tax_inclusive);
+				}
+				$serialized = serialize($object);
 
-			$sql = 'UPDATE sq_ast_attr
-					SET default_val = '.MatrixDAL::quote($serialized).'
-					WHERE attrid = '.MatrixDAL::quote($attrid);
+				$sql = 'UPDATE sq_ast_attr
+						SET default_val = '.MatrixDAL::quote($serialized).'
+						WHERE attrid = '.MatrixDAL::quote($info['attrid']);
 
-			try {
-				$result = MatrixDAL::executeSql($sql);
-			} catch (Exception $e) {
-				throw new Exception('Unable to update default value of product due to database error: '.$e->getMessage());
+				try {
+					$result = MatrixDAL::executeSql($sql);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update default value of product due to database error: '.$e->getMessage());
+				}
 			}
 
 			pre_echo('UPGRADE FOR PRODUCT ASSETS COMPLETE');
