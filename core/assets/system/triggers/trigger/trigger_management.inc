@@ -10,16 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_management.inc,v 1.4 2007/06/28 02:19:42 rong Exp $
+* $Id: trigger_management.inc,v 1.5 2008/04/24 03:33:54 gsherwood Exp $
 *
 */
 
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Trigger_Management
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
