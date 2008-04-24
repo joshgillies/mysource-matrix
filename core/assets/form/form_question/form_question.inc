@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.19.2.2 2007/12/05 01:17:44 mwegermann Exp $
+* $Id: form_question.inc,v 1.19.2.3 2008/04/24 02:17:27 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19.2.2 $
+* @version $Revision: 1.19.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -725,6 +725,10 @@ class Form_Question extends Asset
 		if (is_null($this->value)) {
 
 			$default_value = $this->attr('default');
+			// If the default value is NULL on some configuration, make it empty string to prevent infinite loop.
+			if (is_null($default_value)) {
+				$default_value = '';
+			}//end if
 
 			if (!is_array($default_value)) {
 				$keywords = retrieve_keywords_replacements($default_value);
