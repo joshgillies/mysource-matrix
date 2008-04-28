@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593.2.8 2008/03/19 03:26:34 hnguyen Exp $
+* $Id: asset.inc,v 1.593.2.9 2008/04/28 04:52:56 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593.2.8 $
+* @version $Revision: 1.593.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4825,18 +4825,24 @@ class Asset extends MySource_Object
 							continue;
 						}
 
-                        // check if no other asset is using the new URL
-                        $sql = 'SELECT assetid from sq_ast_lookup where url like \''.$new_url.'\'';
-                        $existing_asset_with_url_id = $db->getCol($sql);
-                        if (!empty($existing_asset_with_url_id)) {
-                            // if an existing asset has the same url as new URL. Thrown an error and Rollback
-                            $existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);                            
-                            trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id[0]]['name'], $existing_asset_with_url_id[0]);
-                            $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-                            return FALSE;
-                        }
-                        assert_valid_db_result($existing_asset_with_url_id);
+						// check if no other asset is using the new URL
+						$sql = 'SELECT assetid from sq_ast_lookup where url like ? escape ?';
+
+						$bind_vars = Array(
+										str_replace('_', '\\_', $new_url),
+										'\\',
+									 );
+
+						$existing_asset_with_url_id = $db->getOne($sql, $bind_vars);
+						if (!empty($existing_asset_with_url_id)) {
+							// if an existing asset has the same url as new URL. Thrown an error and Rollback
+							$existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);
+							trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id[0]]['name'], $existing_asset_with_url_id[0]);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
+						assert_valid_db_result($existing_asset_with_url_id);
 
 
 						$sql = 'INSERT INTO
