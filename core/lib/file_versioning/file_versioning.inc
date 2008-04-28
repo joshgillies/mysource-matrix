@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.31.4.1 2008/03/18 03:15:03 hnguyen Exp $
+* $Id: file_versioning.inc,v 1.31.4.2 2008/04/28 06:10:48 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31.4.1 $
+* @version $Revision: 1.31.4.2 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -386,14 +386,24 @@ class File_Versioning
 			// Basically this query finds if there are any parents or children that are currently using this
 			// any parts of this new path as either a directory or file
 
-			// so much for SQL standards...
+			// so much for SQL standards
+			// We need to escape underscores in both LIKE queries, too - we
+			// do the first in PHP, but the second one has to be done in SQL
 			$concat_1 = '(path || '.$db->quote('/').' || filename)';
-			$concat_2 = '(path || '.$db->quote('/').' || filename || '.$db->quote('%').')';
+			$concat_2 = 'REPLACE(\'_\', \'\\_\', path || '.$db->quote('/').' || filename || '.$db->quote('%').')';
 			$sql = 'SELECT COUNT(*)
 					FROM sq_file_vers_file
-					WHERE '.$concat_1.' LIKE '.$db->quote($rep_path.'/'.basename($real_file).'%').'
-					   OR '.$db->quote($rep_path.'/'.basename($real_file)).' LIKE '.$concat_2;
-			$result = $db->getOne($sql);
+					WHERE ('.$concat_1.' LIKE ? ESCAPE ?)
+					   OR (? LIKE '.$concat_2.' ESCAPE ?)';
+
+			$bind_vars = Array(
+							str_replace('_', '\\_', $rep_path.'/'.basename($real_file)).'%',
+							'\\',
+							$rep_path.'/'.basename($real_file),
+							'\\',
+						 );
+
+			$result = $db->getOne($sql, $bind_vars);
 			assert_valid_db_result($result);
 			if (!empty($result)) {
 				trigger_localised_error('FVER0014', E_USER_NOTICE, $real_file, $rep_path);
