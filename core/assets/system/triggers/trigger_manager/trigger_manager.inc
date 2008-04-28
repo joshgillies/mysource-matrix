@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.54 2008/02/29 05:45:38 bshkara Exp $
+* $Id: trigger_manager.inc,v 1.55 2008/04/28 01:12:16 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1369,10 +1369,7 @@ class Trigger_Manager extends Asset implements Bridge
 			// this bit gets all ids to come from the sequence, manual entries will make db inconsistent
 			if (!isset($trigger['id'])) {
 				$new = TRUE;
-				// TODO: this wil be replaced in the queries.xml with a seqNextVal()
-				// call replacing the addition of the explicit sequence value
-				$tr_id = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_trig_id_seq\')');
-
+				$tr_id = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_trig_id_seq'));
 				$trigger['id'] = $tr_id;
 			}
 

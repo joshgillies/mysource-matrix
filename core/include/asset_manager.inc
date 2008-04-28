@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.686 2008/04/22 03:38:11 bpearson Exp $
+* $Id: asset_manager.inc,v 1.687 2008/04/28 01:12:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.686 $
+* @version $Revision: 1.687 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1787,7 +1787,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// TODO: replace with seqNextVal() in queries.xml
-		$assetid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_seq\');');
+		$assetid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_seq'));
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -5086,7 +5086,7 @@ class Asset_Manager extends MySource_Object
 		// use the sq_ast_lnk sequence so that when we query any link view later
 		// on we don't have any conflicting linkids
 
-		$linkid = DAL::executeSqlOne('SELECT NEXTVAL(\'sq_ast_lnk_seq\')');
+		$linkid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_lnk_seq'));
 		$now = time();
 		$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
 		$sql = 'INSERT INTO
@@ -5120,7 +5120,7 @@ class Asset_Manager extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, 'link_type', $link_type);
 			MatrixDAL::bindValueToPdo($query, 'value', $value);
 			MatrixDAL::bindValueToPdo($query, 'currentUserId', $GLOBALS['SQ_SYSTEM']->currentUserid());
-			$result = MatrixDAL::executePdoAll($query);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('cannot create Shadow Asset Links due to database error: '.$e->getMessage());
 		}
