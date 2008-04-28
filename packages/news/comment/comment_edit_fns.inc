@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.13 2007/02/02 05:21:37 arailean Exp $
+* $Id: comment_edit_fns.inc,v 1.14 2008/04/28 04:55:55 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -73,7 +73,7 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		if ($write_access) {
+		if ($write_access && isset($_REQUEST[$prefix.'_name']) === TRUE) {
 			$value = array_get_index($_REQUEST, $prefix.'_name');
 			$asset->setAttrValue('name', $value);
 			$asset->setAttrValue('short_name', $asset->attr('name'));
@@ -135,7 +135,7 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		if ($write_access) {
+		if ($write_access && isset($_REQUEST[$prefix.'_rating']) === TRUE) {
 			$value = array_get_index($_REQUEST, $prefix.'_rating');
 
 			if ($value != -1) {
@@ -191,7 +191,7 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		if ($write_access) {
+		if ($write_access && isset($_REQUEST[$prefix.'_comment']) === TRUE) {
 			$comment = array_get_index($_REQUEST, $prefix.'_comment');
 			$asset->setAttrValue('comment', $comment);
 		}
