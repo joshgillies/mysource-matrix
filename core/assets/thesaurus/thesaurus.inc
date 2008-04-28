@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.54.2.1 2008/03/12 04:03:53 lwright Exp $
+* $Id: thesaurus.inc,v 1.54.2.2 2008/04/28 01:33:59 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.54.2.1 $
+* @version $Revision: 1.54.2.2 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -610,18 +610,18 @@ class Thesaurus extends Asset implements Bridge
 	function addTermNote($termid, $note_name, $note_value)
 	{
 		// before adding the Term Note we need to check if the note hasnt been added
-		// if the term note is already in the table we will throw an error 
+		// if the term note is already in the table we will throw an error
 		$db = MatrixDAL::getDb();
-		$sql = 'SELECT a.termid, a.name, a.value, a.thesid, b.term 
+		$sql = 'SELECT a.termid, a.name, a.value, a.thesid, b.term
 				FROM sq_thes_term_note a, sq_thes_term b
 				WHERE a.termid = '.$db->quote($termid).' AND
 					a.name = '.$db->quote($note_name).' AND
 					a.value = '.$db->quote($note_value).' AND
 					a.thesid = '.$db->quote($this->id).' AND
-					b.thesid = a.thesid AND b.termid = a.termid 
+					b.thesid = a.thesid AND b.termid = a.termid
 					';
 		$result = NULL;
-	        try {
+			try {
 			$query = $db->prepare($sql);log_dump($sql);
 			$result = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
@@ -800,7 +800,7 @@ class Thesaurus extends Asset implements Bridge
 
 		// inserting a term link is the easiest thing ever
 		try {
-			$linkid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_lnk_seq\');');
+			$linkid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_thes_lnk_seq'));
 			$bind_vars['linkid']	= $linkid;
 			$result = MatrixDAL::executeQuery('thesaurus', 'insertLink', $bind_vars);
 		} catch (Exception $e) {
@@ -1055,7 +1055,7 @@ class Thesaurus extends Asset implements Bridge
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$id = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_thes_rel_seq\');');
+		$id = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_thes_rel_seq'));
 		$bind_vars = Array (
 						'thesid'	=> $this->id,
 						'relation'	=> $name,

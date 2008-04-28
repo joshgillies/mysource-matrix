@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.84.2.1 2008/03/12 04:03:59 lwright Exp $
+* $Id: internal_message.inc,v 1.84.2.2 2008/04/28 01:34:00 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.1 $
+* @version $Revision: 1.84.2.2 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -134,8 +134,8 @@ class Internal_Message extends MySource_Object
 		if (!empty($result_all)) {
 			$result	= $result_all[0];
 		} else {
-            return false;
-        }
+			return false;
+		}
 
 		$this->id         = $result['msgid'];
 		$this->to         = Array($result['userto']);
@@ -280,18 +280,12 @@ class Internal_Message extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			// log a message for the system so it is not deleted
-			// TODO: this wil be replaced in the queries.xml with a seqNextVal()
-			// call replacing the addition of the explicit sequence value
-			if (MatrixDAL::getDbType() === 'oci') {
-				$messageid = MatrixDAL::executeSqlOne('SELECT sq_internal_msg_seq.nextval FROM DUAL');
-			} else {
-				$messageid = MatrixDAL::executeSqlOne('SELECT NEXTVAL(\'sq_internal_msg_seq\')');
-			}
+			$messageid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_internal_msg_seq'));
 
 			$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $this->body);
 
 			try {
-                $query = MatrixDAL::preparePdoQuery($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'msgid',      $messageid,      PDO::PARAM_INT);
 				MatrixDAL::bindValueToPdo($query, 'userto',     0,               PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'userfrom',   $this->from,     PDO::PARAM_STR);
@@ -410,7 +404,7 @@ class Internal_Message extends MySource_Object
 					}//end try catch
 
 					try {
-                        $query = MatrixDAL::preparePdoQuery($sql);
+						$query = MatrixDAL::preparePdoQuery($sql);
 						MatrixDAL::bindValueToPdo($query, 'msgid',      $messageid,      PDO::PARAM_INT);
 						MatrixDAL::bindValueToPdo($query, 'userto',     $userid,         PDO::PARAM_STR);
 						MatrixDAL::bindValueToPdo($query, 'userfrom',   $this->from,     PDO::PARAM_STR);
