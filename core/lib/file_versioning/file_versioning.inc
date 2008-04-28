@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.31.4.2 2008/04/28 06:10:48 lwright Exp $
+* $Id: file_versioning.inc,v 1.31.4.3 2008/04/28 23:48:41 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31.4.2 $
+* @version $Revision: 1.31.4.3 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -389,19 +389,25 @@ class File_Versioning
 			// so much for SQL standards
 			// We need to escape underscores in both LIKE queries, too - we
 			// do the first in PHP, but the second one has to be done in SQL
+			// And because PostgreSQL does strange things with backslashes as
+			// escapes, we'll use colons instead - so we need to double existing
+			// colons, then escape underscores with them.
 			$concat_1 = '(path || '.$db->quote('/').' || filename)';
-			$concat_2 = 'REPLACE(\'_\', \'\\_\', path || '.$db->quote('/').' || filename || '.$db->quote('%').')';
+			$concat_2 = 'REPLACE(REPLACE(path || '.$db->quote('/').' || filename || '.$db->quote('%').', \':\', \'::\'), \'_\', \':_\')';
 			$sql = 'SELECT COUNT(*)
 					FROM sq_file_vers_file
 					WHERE ('.$concat_1.' LIKE ? ESCAPE ?)
 					   OR (? LIKE '.$concat_2.' ESCAPE ?)';
 
 			$bind_vars = Array(
-							str_replace('_', '\\_', $rep_path.'/'.basename($real_file)).'%',
-							'\\',
+							str_replace('_', ':_', str_replace(':', '::', $rep_path.'/'.basename($real_file))).'%',
+							':',
 							$rep_path.'/'.basename($real_file),
-							'\\',
+							':',
 						 );
+
+			bam($sql);
+			bam($bind_vars);
 
 			$result = $db->getOne($sql, $bind_vars);
 			assert_valid_db_result($result);
