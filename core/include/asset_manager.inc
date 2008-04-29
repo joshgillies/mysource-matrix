@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.687 2008/04/28 01:12:17 lwright Exp $
+* $Id: asset_manager.inc,v 1.688 2008/04/29 23:33:26 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.687 $
+* @version $Revision: 1.688 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6647,8 +6647,10 @@ class Asset_Manager extends MySource_Object
 
 			if (is_null($asset)) continue;
 
-			$ret_val = $asset->deletePermission($assetid, $userid, $permission);
-			$this->forgetAsset($asset);
+			if (method_exists($asset, 'deletePermission')) {
+				$ret_val = $asset->deletePermission($assetid, $userid, $permission);
+				$this->forgetAsset($asset);
+			}
 
 			return $ret_val;
 		}
