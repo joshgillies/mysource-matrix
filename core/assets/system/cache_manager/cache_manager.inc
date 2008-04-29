@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.56 2007/03/08 00:03:55 tbarrett Exp $
+* $Id: cache_manager.inc,v 1.56.4.1 2008/04/29 04:49:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -327,10 +327,17 @@ class Cache_Manager extends Asset
 		if (!empty($query_vars)) {
 			$new_query_str = '';
 			foreach ($query_vars as $key => $val) {
-				$new_query_str .= $key.'='.$val.'&';
+				if (is_array($val)) {
+					foreach($val as $mkey => $mval) {
+						$new_query_str .= $key.'['.$mkey.']='.$mval.'&';
+					}
+				} else {
+					$new_query_str .= $key.'='.$val.'&';
+				}
 			}
 			$url .= '?'.rtrim($new_query_str, '&');
 		}
+
 		return $url;
 
 	}//end _formUniqueUrl()
