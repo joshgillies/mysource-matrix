@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.31.4.3 2008/04/28 23:48:41 lwright Exp $
+* $Id: file_versioning.inc,v 1.31.4.4 2008/04/29 00:03:40 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31.4.3 $
+* @version $Revision: 1.31.4.4 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -405,9 +405,6 @@ class File_Versioning
 							$rep_path.'/'.basename($real_file),
 							':',
 						 );
-
-			bam($sql);
-			bam($bind_vars);
 
 			$result = $db->getOne($sql, $bind_vars);
 			assert_valid_db_result($result);
