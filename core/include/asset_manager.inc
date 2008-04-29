@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.12 2008/02/05 21:59:17 colivar Exp $
+* $Id: asset_manager.inc,v 1.571.2.13 2008/04/29 23:44:59 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.12 $
+* @version $Revision: 1.571.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6114,8 +6114,10 @@ class Asset_Manager extends MySource_Object
 
 			if (is_null($asset)) continue;
 
-			$ret_val = $asset->deletePermission($assetid, $userid, $permission);
-			$this->forgetAsset($asset);
+			if (method_exists($asset, 'deletePermission')) {
+				$ret_val = $asset->deletePermission($assetid, $userid, $permission);
+				$this->forgetAsset($asset);
+			}
 
 			return $ret_val;
 		}
