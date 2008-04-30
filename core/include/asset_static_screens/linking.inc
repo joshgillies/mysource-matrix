@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.31.4.1 2007/10/26 04:21:18 bshkara Exp $
+* $Id: linking.inc,v 1.31.4.2 2008/04/30 06:47:32 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31.4.1 $
+* @version $Revision: 1.31.4.2 $
 * @package MySource_Matrix
 */
 
@@ -28,22 +28,21 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paints the interface for viewing links to/from this asset
 *
-* @param object		&$owner		the asset whose interface we are painting
-* @param object		&$o			the outputter class
-* @param object		&$ei		the edit interface
-* @param boolean	$allow_edit	allow editing of link types if user has access
+* @param object		&$owner				the asset whose interface we are painting
+* @param object		&$o					the outputter class
+* @param object		&$ei				the edit interface
+* @param array|NULL	$static_keywords	the wanted keywords of this static screen
 *
 * @return boolean
 * @access public
 */
-function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
+function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 {
-	// If we are allowed to edit, we check the write effective access, minus live edit access
 	// We are ignoring live edit access because changes to links are not reliant on
 	// status of the asset (because the are not safe edited)
 	$created = FALSE;
 
-	$write_access = ($allow_edit) ? $owner->writeAccess('links') :  FALSE;
+	$write_access = $owner->writeAccess('links');
 
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
@@ -125,7 +124,6 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=TRUE)
 			$link_value = $link_data['value'];
 
 			// work out if the user can change the link types
-			// the arg $allow_edit must be set to TRUE to try the write access test
 			$can_edit = ($write_access && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids));
 
 			$asset_lineage = '';
