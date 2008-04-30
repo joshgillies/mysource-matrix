@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.9.6.3 2008/04/23 01:19:31 bshkara Exp $
+* $Id: product_management.inc,v 1.9.6.4 2008/04/30 05:23:56 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9.6.3 $
+* @version $Revision: 1.9.6.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -159,12 +159,16 @@ class Product_Management extends Asset_Management
 			foreach ($custom_vals as $assetid => $data) {
 				$object = unserialize($data['custom_val']);
 				if (isset($object->tax_inclusive)) {
-					$object->value_has_tax = $object->tax_inclusive;
-					unset($object->tax_inclusive);
 					// if tax_inclusive was previously set, they would have wanted tax calculated
-					if ($object->value_has_tax) {
+					if ($object->tax_inclusive) {
 						$object->calculate_tax = TRUE;
+						// add tax to the existing amount
+						$object->value_has_tax = FALSE;
+					} else {
+						$object->calculate_tax = FALSE;
+						$object->value_has_tax = FALSE;
 					}
+					unset($object->tax_inclusive);
 				}
 				$serialized = serialize($object);
 
