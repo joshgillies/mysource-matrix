@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.54.2.2 2008/04/28 01:33:59 lwright Exp $
+* $Id: thesaurus.inc,v 1.54.2.3 2008/04/30 23:34:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.54.2.2 $
+* @version $Revision: 1.54.2.3 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -204,11 +204,11 @@ class Thesaurus extends Asset implements Bridge
 		';
 
 		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('assetid_1', $this->id);
-		$query->bindValue('assetid_2', $this->id);
-		$query->bindValue('termid', $termid);
+		MatrixDAL::bindValueToPdo($query, 'assetid_1', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'assetid_2', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'termid', $termid);
 		if ($limit_relation) {
-			$query->bindValue('relid', $relid);
+			MatrixDAL::bindValueToPdo($query, 'relid', $relid);
 		}//end if
 
 		try {
@@ -1017,9 +1017,9 @@ class Thesaurus extends Asset implements Bridge
 
 		$query = MatrixDAL::preparePdoQuery($sql);
 		if (!is_null($name)) {
-			$query->bindValue('name', $name);
+			MatrixDAL::bindValueToPdo($query, 'name', $name);
 		}
-		$query->bindValue('assetid', $this->id);
+		MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 
 		try {
 			$result = MatrixDAL::executePdoOne($query);
@@ -1168,8 +1168,8 @@ class Thesaurus extends Asset implements Bridge
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			$query->bindValue('term', $name);
-			$query->bindValue('thesid', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'term', $name);
+			MatrixDAL::bindValueToPdo($query, 'thesid', $this->id);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get thesaurus term id by name due to database error: '. $e->getMessage());

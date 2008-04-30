@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.26.2.1 2008/03/12 04:03:50 lwright Exp $
+* $Id: metadata_schema.inc,v 1.26.2.2 2008/04/30 23:34:11 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26.2.1 $
+* @version $Revision: 1.26.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,7 +135,7 @@ class Metadata_Schema extends Folder
 				$sql .= 'schemaid = :schemaid';
 
 				$query = MatrixDAL::preparePdoQuery($sql);
-				$query->bindValue('schemaid', $this->id);
+				MatrixDAL::bindValueToPdo($query, 'schemaid', $this->id);
 
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {

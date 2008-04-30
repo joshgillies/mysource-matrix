@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.33.2.2 2008/03/12 04:03:49 lwright Exp $
+* $Id: metadata_field.inc,v 1.33.2.3 2008/04/30 23:34:11 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33.2.2 $
+* @version $Revision: 1.33.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -343,7 +343,7 @@ class Metadata_Field extends Asset
 				$sql .= 'fieldid = :fieldid';
 
 				$query = MatrixDAL::preparePdoQuery($sql);
-				$query->bindValue('fieldid', $this->id);
+				MatrixDAL::bindValueToPdo($query, 'fieldid', $this->id);
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete metadata value for fieldid #'.$this->id.' due to the following database error:'.$e->getMessage());
@@ -356,7 +356,7 @@ class Metadata_Field extends Asset
 				$sql .= 'assetid = :assetid';
 
 				$query = MatrixDAL::preparePdoQuery($sql);
-				$query->bindValue('assetid', $this->id);
+				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 				MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete metadata default value for assetid #'.$this->id.' due to the following database error:'.$e->getMessage());
