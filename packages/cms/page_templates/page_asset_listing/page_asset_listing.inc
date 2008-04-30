@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.116.2.2 2008/03/19 02:36:14 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.116.2.3 2008/04/30 04:39:26 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116.2.2 $
+* @version $Revision: 1.116.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -138,6 +138,16 @@ class Page_Asset_Listing extends Listing_Engine
 
 		if (!empty($raw_assets_to_list)) {
 			$assets_to_list = Array();
+
+			if (!is_array($raw_assets_to_list)) {
+				// If passed as an array, treat it similar to replacement
+				// root nodes. In other words, asset IDs separated by commas.
+				$list_keys = explode(',', $raw_assets_to_list);
+				$raw_assets_to_list = Array();
+				foreach ($list_keys as $raw_assetid) {
+					$raw_assets_to_list[$raw_assetid] = 1;
+				}
+			}
 
 			foreach ($raw_assets_to_list as $raw_asset => $enabled) {
 				$list_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($raw_asset);
