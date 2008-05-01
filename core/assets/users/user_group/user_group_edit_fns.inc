@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.43 2008/03/12 02:55:01 mbrydon Exp $
+* $Id: user_group_edit_fns.inc,v 1.44 2008/05/01 23:58:48 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		try {
 			$query	= MatrixDAL::preparePdoQuery($sql.$where);
-			$query->bindValue('userid', $asset->id);
+			MatrixDAL::bindValueToPdo($query, 'userid', $asset->id);
 
 			$result	= MatrixDAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
