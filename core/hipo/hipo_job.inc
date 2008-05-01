@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.96 2008/02/18 04:52:18 lwright Exp $
+* $Id: hipo_job.inc,v 1.97 2008/05/01 23:53:29 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1356,7 +1356,12 @@ class HIPO_Job extends MySource_Object
 			$fn = $step_data['hipo_job']['init_details_function'];
 
 			// First let's get the info needed to create this
-			$this->$fn($job_type='', $running_vars=Array(), $options=Array(), $hipo_vars=Array());
+			$job_type     = '';
+			$running_vars = Array();
+			$options      = Array();
+			$hipo_vars    = Array();
+			$this->$fn($job_type, $running_vars, $options, $hipo_vars);
+
 			if (empty($job_type)) return FALSE;
 
 			if (empty($hipo_vars)) {
@@ -1658,7 +1663,7 @@ class HIPO_Job extends MySource_Object
 
 			$msg = $text_msg;
 			if (SQ_CONF_DEBUG & 1) {
-				$text_msg .= ' ('.$err_file.':'.$err_line.')';
+				$msg .= ' ('.$err_file.':'.$err_line.')';
 			}
 			$this->_addError($msg, !$terminate);
 
