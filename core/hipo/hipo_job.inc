@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.94.2.3 2008/05/01 23:54:16 lwright Exp $
+* $Id: hipo_job.inc,v 1.94.2.4 2008/05/02 04:01:34 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94.2.3 $
+* @version $Revision: 1.94.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1649,7 +1649,7 @@ class HIPO_Job extends MySource_Object
 
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
-		if (error_reporting() || $terminate) {
+		if ((error_reporting() & $err_no) || $terminate) {
 			// Strip out the file path begining
 			$err_file = hide_system_root($err_file);
 			$err_msg  = hide_system_root($err_msg);
