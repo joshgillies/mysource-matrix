@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.99 2008/05/02 01:57:11 bpearson Exp $
+* $Id: lang_errors.xml,v 1.100 2008/05/02 04:51:19 bpearson Exp $
 *
 */
 
@@ -1381,6 +1381,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0326">Unable to set tags for "%s", permission denied</error>
 	<error code="SYS0327">Unable to set metadata values for "%s", permission denied</error>
 	<error code="SYS0328">Unable to set attribute values for "%s", permission denied</error>
+	<error code="SYS0330">Unable to set a layout, no URL has been assigned to the asset</error>
 
 	<!-- Apache Configuration Errors -->
 	<error code="SYS0314">Cannot set request note name for "%s". A request note with this name already exists.</error>

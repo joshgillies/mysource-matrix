@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layouts.inc,v 1.1 2008/05/02 01:57:11 bpearson Exp $
+* $Id: layouts.inc,v 1.2 2008/05/02 04:51:19 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Layouts Static Screen Functions
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -248,6 +248,11 @@ function processLayouts(&$owner, &$o, &$ei)
 		$url = key($layouts);
 	} else {
 		$url = str_replace('http://', '', $owner->getURL());
+	}
+
+	// If url is not warn user and stop
+	if (empty($url)) {
+		trigger_localised_error('SYS0330', E_USER_WARNING);
 	}
 
 	// Process Adding a new layout of type code xx

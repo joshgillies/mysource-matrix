@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder_edit_fns.inc,v 1.13 2008/05/02 01:57:09 bpearson Exp $
+* $Id: folder_edit_fns.inc,v 1.14 2008/05/02 04:51:18 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,11 +40,6 @@ class Folder_Edit_Fns extends Asset_Edit_Fns
 	function Folder_Edit_Fns()
 	{
 		parent::__construct();
-		$this->static_screens['layouts'] = Array(
-											'name'			=> 'Layouts',
-											'force_unlock'	=> TRUE,
-											'lock_type'		=> 'all',
-										   );
 
 	}//end constructor
 

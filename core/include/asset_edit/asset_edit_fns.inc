@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.76 2008/01/17 02:48:12 mbrydon Exp $
+* $Id: asset_edit_fns.inc,v 1.77 2008/05/02 04:51:19 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -103,6 +103,11 @@ class Asset_Edit_Fns extends MySource_Object
 													'name'			=> 'Tagging',
 													'force_unlock'	=> TRUE,
 													'lock_type'		=> 'menu',
+												   ),
+							'layouts'			=> Array(
+													'name'			=> 'Layouts',
+													'force_unlock'	=> FALSE,
+													'lock_type'		=> 'all',
 												   ),
 						  );
 
@@ -310,7 +315,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function processPaths(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_paths'])) return FALSE;
-		
+
 		// Add remaps only if they are to be automatically added when the web path is changed. The default behaviour
 		// is to add remaps. This functionality is controlled by a global switch in the Remap Manager and can be overridden
 		// on the Web Paths screen (per asset) on a one-shot basis when changing web paths
