@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.132 2008/04/16 23:31:26 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.133 2008/05/02 04:44:10 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1061,10 +1061,19 @@ class Workflow_Manager extends MySource_Object
 		for (reset($schema_workflows); NULL !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
+
+			// already finished the workflow?
 			if ($workflow['complete']) continue;
-			if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
-				return FALSE;
+
+			// Try to push workflow forward until we can't publish no more -
+			// either our effort is not enough, or we've completed it
+			while (!$workflow['complete']) {
+				if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
+					break;
+				}
 			}
+
+			// We haven't finished the workflow?
 			if (!$workflow['complete']) return FALSE;
 		}
 
@@ -1429,9 +1438,9 @@ class Workflow_Manager extends MySource_Object
 		// we have to get the publishers before the workflow is cleared, because
 		// this function depends on having a workflow running
 		$publishers = $this->whoCanPublish($asset->id);
-        $workflow_values = $this->getSchemaWorkflows($assetid);
-        $workflow = array_pop($workflow_values);
-        $publishers = array_unique(array_merge($publishers, Array($workflow['started_by'])));
+		$workflow_values = $this->getSchemaWorkflows($assetid);
+		$workflow = array_pop($workflow_values);
+		$publishers = array_unique(array_merge($publishers, Array($workflow['started_by'])));
 
 		if (!$this->_clearWorkflow($assetid)) return FALSE;
 
