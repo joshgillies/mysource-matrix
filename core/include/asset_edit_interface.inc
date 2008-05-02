@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.347 2008/04/15 02:09:23 mbrydon Exp $
+* $Id: asset_edit_interface.inc,v 1.348 2008/05/02 01:57:10 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.347 $
+* @version $Revision: 1.348 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -546,6 +546,18 @@ class Asset_Edit_Interface extends MySource_Object
 		// we need to check if we are going to paint the layout here, so no static screens get printed
 		$paint_layout = FALSE;
 		if (SQ_IN_LIMBO && !$creating) {
+			// Check for a layout based on root node
+			$layout_pattern = 'layout::'.$owner->type().'::'.$active_screen;
+			$lookup_values = $owner->getLookupValues(TRUE, $layout_pattern);
+			foreach ($lookup_values as $values) {
+				foreach ($values as $look_key => $look_value) {
+					if (isset($look_value['value']) && ($look_value['value'] > 0)) {
+						$paint_layout = TRUE;
+					}
+				}
+			}
+
+			// If none found, try layout manager
 			$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 			if ($lm->hasLayout($owner->type(), $active_screen)) {
 				$paint_layout = TRUE;
@@ -619,6 +631,26 @@ class Asset_Edit_Interface extends MySource_Object
 		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
 		if ($paint_layout) {
+			// Find a layout based on root node
+			$layout_pattern = 'layout::'.$owner->type().'::'.$active_screen;
+			$lookup_values = $owner->getLookupValues(TRUE, $layout_pattern);
+			$layoutid = '';
+			foreach ($lookup_values as $values) {
+				foreach ($values as $look_key => $look_value) {
+					if (isset($look_value['value'])) {
+						$layoutid = $look_value['value'];
+					}
+				}
+			}
+			$layout = NULL;
+			if ((!empty($layoutid)) && ($layoutid > 0)) {
+				$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layoutid);
+			}
+			if (!is_null($layout)) {
+				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
+				return $this->paintLayout($owner, $o, $layout);
+			}
+			// Otherwise refer to layout manager
 			if (NULL !== ($layout = $lm->getLayout($owner->type(), $active_screen))) {
 				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
 				return $this->paintLayout($owner, $o, $layout);
@@ -1261,6 +1293,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if ($screen == 'preview') continue;
 			if ($screen == 'tagging') continue;
 			if ($screen == 'lookupvalues') continue;
+			if ($screen == 'layouts') continue;
 
 			// its not a static screen, so get the xml file and parse it for
 			// the keywords that we want, if the xml file exists

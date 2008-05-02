@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group_edit_fns.inc,v 1.11 2006/12/06 00:15:34 bcaldwell Exp $
+* $Id: system_user_group_edit_fns.inc,v 1.12 2008/05/02 01:57:10 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,6 +50,7 @@ class System_User_Group_Edit_Fns extends User_Group_Edit_Fns
 		unset($this->static_screens['tagging']);
 		unset($this->static_screens['roles']);
 		unset($this->static_screens['permissions']);
+		unset($this->static_screens['layouts']);
 
 	}//end constructor
 

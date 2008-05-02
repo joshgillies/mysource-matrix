@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.98 2008/04/09 06:09:38 bpearson Exp $
+* $Id: lang_errors.xml,v 1.99 2008/05/02 01:57:11 bpearson Exp $
 *
 */
 
@@ -1390,7 +1390,6 @@ Full Node Contents %3$s</error>
 	<error code="SYS0317">Neither the System Default nor Tech email addresses have been set.</error>
 
 	<error code="SYS0329">Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets</error>
-
 
 
 	<!-- CORE ASSETS -->

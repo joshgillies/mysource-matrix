@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_folder_edit_fns.inc,v 1.4 2006/12/06 04:23:56 emcdonald Exp $
+* $Id: authentication_folder_edit_fns.inc,v 1.5 2008/05/02 01:57:10 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,7 @@ class Authentication_Folder_Edit_Fns extends Folder_Edit_Fns
 		unset($this->static_screens['tagging']);
 		unset($this->static_screens['roles']);
 		unset($this->static_screens['permissions']);
+		unset($this->static_screens['layouts']);
 
 	}//end constructor
 

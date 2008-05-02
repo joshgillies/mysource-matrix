@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.70 2008/02/18 04:52:49 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.71 2008/05/02 01:57:10 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,11 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
+		$this->static_screens['layouts'] = Array(
+											'name'			=> 'Layouts',
+											'force_unlock'	=> TRUE,
+											'lock_type'		=> 'all',
+										   );
 		$this->static_screens['details']['lock_type'] = 'attr_links';
 		unset($this->static_screens['dependants']);
 

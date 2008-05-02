@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.30 2008/04/24 02:19:40 hnguyen Exp $
+* $Id: form_question.inc,v 1.31 2008/05/02 01:57:09 bpearson Exp $
 *
 */
 
@@ -27,8 +27,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.30 $
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

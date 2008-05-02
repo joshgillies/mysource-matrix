@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.41 2007/11/30 00:51:25 hnguyen Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.42 2008/05/02 01:57:10 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,6 +54,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		unset($this->static_screens['roles']);
 		unset($this->static_screens['tagging']);
 		unset($this->static_screens['lookupValues']);
+		unset($this->static_screens['layouts']);
 
 	}//end constructor
 

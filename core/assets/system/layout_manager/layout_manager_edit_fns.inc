@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.14 2007/11/28 22:02:05 lwright Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.15 2008/05/02 01:57:10 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 		unset($this->static_screens['permissions']);
 		unset($this->static_screens['dependants']);
 		unset($this->static_screens['linking']);
-
+		unset($this->static_screens['layouts']);
 
 	}//end constructor
 
