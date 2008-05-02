@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.24 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: utility.js,v 1.25 2008/05/02 00:37:12 mbrydon Exp $
 *
 */
 
@@ -31,6 +31,7 @@ HTMLArea.is_mac    = (HTMLArea.agt.indexOf("mac") != -1);
 HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
 HTMLArea.is_win_ie = (HTMLArea.is_ie && !HTMLArea.is_mac);
 HTMLArea.is_gecko  = (navigator.product == "Gecko");
+HTMLArea.is_safari = (HTMLArea.agt.indexOf("safari") != -1);
 
 
 // variable used to pass the object to the popup editor window.
@@ -39,15 +40,6 @@ HTMLArea._object = null;
 
 // FIXME!!! this should return false for IE < 5.5
 HTMLArea.checkSupportedBrowser = function() {
-	if (HTMLArea.is_gecko) {
-		if (navigator.productSub < 20021201) {
-			alert(js_translate('mozilla13_alpha_not_supported'));
-			return false;
-		}
-		if (navigator.productSub < 20030210) {
-			alert(js_translate('mozilla13_beta_not_supported'));
-		}
-	}
 	return HTMLArea.is_gecko || HTMLArea.is_ie;
 };
 
