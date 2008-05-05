@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.14 2007/06/14 22:48:39 colivar Exp $
+* $Id: js_calendar.js,v 1.15 2008/05/05 04:30:13 mbrydon Exp $
 *
 */
 
@@ -100,18 +100,12 @@ function c_show(e)
 
 	var coordX = 0;
 	var coordY = 0;
-	if (navigator.userAgent.indexOf("Safari") != -1) {
-		// safari
-		coordX = e.clientX - 305;// - (top.innerWidth - self.innerWidth);
-		coordY = top.innerHeight - e.clientY;
-	} else {
-		if (e.pageX || e.pageY) {
-			coordX = e.pageX;
-			coordY = e.pageY;
-		} else if (e.clientX || e.clientY) {
-			coordX = e.clientX + document.body.scrollLeft;
-			coordY = e.clientY + document.body.scrollTop;
-		}
+	if (e.pageX || e.pageY) {
+		coordX = e.pageX;
+		coordY = e.pageY;
+	} else if (e.clientX || e.clientY) {
+		coordX = e.clientX + document.body.scrollLeft;
+		coordY = e.clientY + document.body.scrollTop;
 	}
 
 	// move the div to the top level of the document tree so that other absolutely-positioned
