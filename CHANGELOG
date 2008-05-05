@@ -1,5 +1,67 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.8
+
+Featured Changes
+-----------------------------------
+
+Metadata Value Trigger Condition
+
+	This condition, which allows triggers to be excuted or not based on the value of a metadata field applied to the asset the trigger is firing upon, is now allowed to be specified multiple times within the same trigger.
+
+
+E-Commerce Product Tax Handling
+
+	Products now can be configured to include tax upon checkout, by enabling the "Calculate Tax During Checkout" attribute for each applicable product. Product prices can be specified as tax-exclusive or tax-inclusive, by using the "Product Price Already Includes Tax" setting.
+
+
+E-Commerce Checkout Region-Specific Options Screen
+
+	This new screen allows you to set extra charges based upon the country of delivery (based upon a Country-type form question), for products that have the "Calculate Tax During Checkout" setting set.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2950: Search page with option list attribute set as search field displays PHP warning
+* Fixed bug #2951: Sending html through POST gets strange results
+* Fixed bug #2952: Set Metadata value trigger problem when metadata field is deleted
+* Fixed bug #2954: Commit button missing on the Metadata static screen, even when some fields are editable
+* Fixed bug #2964: Stalled HIPO causes "MySource Notice" in top frame of administration interface
+* Fixed bug #2980: Underscore "_" and Dash "-" in webpaths treated as same character
+* Fixed bug #2987: URL for Matrix cache incorrect for multiselect
+* Fixed bug #2989: deletePermission() method missing for Thesaurus
+* Fixed bug #2991: Linking screen keyword %linking-% displays read-only in Simple Edit when used alone
+
+CMS
+
+* Fixed bug #2949: Image remains on page after being cleared from image div (Image Content Type)
+* Fixed bug #2982: Asset Builder: Additional Create Locations POST problem (Asset Builder Page)
+* Fixed bug #2986: Form question cause infinite recursion (Form Question)
+* Fixed bug #2990: Asset replacement doesn't work with a single value (Asset Listing Page)
+
+Calendar
+
+* Fixed bug #2962: Rolling Calendar page does not display event types that inherit from Single Calendar Event (Rolling Calendar Page)
+
+Search
+
+* Fixed bug #2981: Backend Quick Search fails for non-System Admin User (Search Manager)
+
+Squid
+
+* Fixed bug #2969: Clear Squid Cache trigger action, url passed to squidclient (Clear Squid Cache HIPO Job)
+
+E-Commerce
+
+* "Display Extra Options" screen renamed to "Taxation and Flat Fees" (E-Commerce Checkout)
+* "Includes Tax" setting on Product's Details screen clarified to "Product Price Already Includes Tax" (Product)
+* Receipt formatting now allows pre-tax and post-tax price to be specified for each product (E-Commerce Cart)
+
+
+
 VERSION 3.16.7
 
 Featured Changes
