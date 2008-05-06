@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.18 2007/11/29 00:15:45 rong Exp $
+* $Id: authentication_default.inc,v 1.18.2.1 2008/05/06 05:40:44 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -218,7 +218,7 @@ class Authentication_Default extends Authentication
 		}
 
 		$user = NULL;
-		if ($result['assetid']) {
+		if (isset($result['assetid']) && !empty($result['assetid'])) {
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
 		}
 		return $user;
