@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.94 2008/04/17 06:56:00 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.95 2008/05/06 01:22:10 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1678,7 +1678,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
+	* Paints the interface for printing all existing actions
 	*
+	* @param Form_Email			$asset	The form whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
 	*/
 	public function paintAllActions(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1761,7 +1767,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
+	* Performs processing for the actions table
 	*
+	* @param Form_Email			$asset	The form whose interface we are processing
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
 	*/
 	public function processAllActions(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1803,7 +1815,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
+	* Paints the interface for creating a new action
 	*
+	* @param Form_Email			$asset	The form whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
 	*/
 	public function paintNewAction(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1835,7 +1853,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
+	* Processes the creation of a new action
 	*
+	* @param Form_Email			$asset	The form whose interface we are processing
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
 	*/
 	public function processNewAction(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1896,7 +1920,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
+	* Paints the interface for the selected submission action
 	*
+	* @param Form_Email			$asset	The form whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
 	*/
 	public function paintSelectedAction(Form_Email $asset, Backend_Outputter $o, $prefix)
 	{
@@ -1955,8 +1985,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
-	* Process the selected action
+	* Processes the interface for the selected action
 	*
+	* @param Form_Email			$asset	The form whose interface we are painting
+	* @param Backend_Outputter	$o		the outputter class
+	* @param string				$prefix	prefix for form elements
 	*
 	* @return boolean
 	*/
@@ -2014,13 +2047,17 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 	}//end processSelectedAction()
 
-
 	/**
 	* Make an action name valid by adding a numeric index to it if a duplicate
 	*
+	* Returns the base name if no duplicate name is found, or tries "Base Name
+	* 2", "Base Name 3", and so on, until a unique name is found, and returns
+	* the first unique name it finds.
 	*
+	* @param Form_Email			$asset		The form whose interface we are painting
+	* @param string				$base_name	Base name to use
 	*
-	* @return string
+	* @return boolean
 	*/
 	protected function _makeValidActionName(Form_Email $asset, $base_name)
 	{
@@ -2047,7 +2084,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		return $name;
 
-	}//end _makeValidActionName();
+	}//end _makeValidActionName()
 
 
 }//end class
