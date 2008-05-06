@@ -658,7 +658,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 			ob_start();
 			echo 'Order ID: '.$this->state['transaction_id']."\n\n";
 
-			$remove_tax = isset($_SESSION['sq_remove_tax']) ? $_SESSION['sq_remove_tax'] : FALSE;
+			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges, $remove_tax);
 
 			$tmp_order_receipt_cart_text .= ob_get_contents();
@@ -748,7 +748,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$checkout_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout', TRUE, 'delivery_method', 'minor');
 		$checkout_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_link['majorid']);
 		$checkout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_link['majorid']);
-		// these GET vars are listened for in the checkout asset
+
 		$_SESSION['SQ_ECOM_SUCCESS_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=confirm_order';
 		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
 		$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.2 2008/04/22 00:10:01 bshkara Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.3 2008/05/06 06:56:12 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.2 $
+* @version $Revision: 1.6.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -277,30 +277,9 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintTaxableCountries(&$asset, &$o, $prefix)
 	{
-		global $standards_lists_countries;
-		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
-
 		$selected_country_values = $asset->attr('taxable_countries');
-
-		if ($asset->writeAccess('attributes')) {
-			echo combo_box($prefix.'_taxable_countries', $standards_lists_countries, TRUE, $asset->attr('taxable_countries'));
-		} else {
-			// get a comma delimited string of all countries currently selected
-			$countries_string = '';
-			for ($i=0; $i<count($selected_country_values); $i++) {
-				foreach ($standards_lists_countries as $code => $country) {
-					if ($selected_country_values[$i] === $code) {
-						if (empty($countries_string)) {
-							$countries_string = $country;
-						} else {
-							$countries_string .= ', '.$country;
-						}
-						continue(2);
-					}
-				}
-			}
-			echo $countries_string;
-		}
+		$name = $prefix.'_taxable_countries';
+		$this->_paintCountrySelectBox($asset->writeAccess('attributes'), $name, $selected_country_values);
 		return TRUE;
 
 	}//end paintTaxableCountries()
@@ -318,22 +297,630 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processTaxableCountries(&$asset, &$o, $prefix)
 	{
+		$name = 'taxable_countries';
+		return $this->_processCountrySelectBox($asset, $prefix, $name);
+
+	}//end processTaxableCountries()
+
+
+	/**
+	* Paint country select box
+	*
+	* @param boolean	$wa			Whether the asset has write access
+	* @param string		$name		The name of the field
+	* @param array		$selected	Countries selected by default
+	* @param int		$size		Size of box
+	* @param boolean	$multiple	Whether to allow multiple selections or not
+	*
+	* @access public
+	*/
+	function _paintCountrySelectBox($wa, $name, $selected, $size=9, $multiple=TRUE)
+	{
+		global $standards_lists_countries;
+		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+		// prepend blank value
+		$standards_lists_countries = array_merge(Array('blank'=>''), $standards_lists_countries);
+
+		if ($wa) {
+			echo combo_box($name, $standards_lists_countries, $multiple ? TRUE : FALSE, $selected, $size);
+		} else {
+			// get a comma delimited string of all countries currently selected
+			$countries_string = '';
+			for ($i=0; $i<count($selected); $i++) {
+				foreach ($standards_lists_countries as $code => $country) {
+					if ($selected[$i] === $code) {
+						if (empty($countries_string)) {
+							$countries_string = $country;
+						} else {
+							$countries_string .= ', '.$country;
+						}
+						continue(2);
+					}
+				}
+			}
+			echo $countries_string;
+		}
+
+	}//end _paintCountrySelectBox()
+
+
+	/**
+	* Process country select box
+	*
+	* @param object &$asset	The asset in which we are saving these attributes
+	* @param string	$prefix	The asset's prefix
+	* @param string	$name	The name of this attribute
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _processCountrySelectBox(&$asset, $prefix, $name)
+	{
 		if ($asset->writeAccess('attributes')) {
-			if (isset($_POST[$prefix.'_taxable_countries'])) {
-				$taxable_countries = $_POST[$prefix.'_taxable_countries'];
-				if ($asset->setAttrValue('taxable_countries', $taxable_countries)) {
+			$post = $_POST[$prefix.'_'.$name];
+			if ($asset->setAttrValue($name, $post)) {
+				return TRUE;
+			}
+		}
+		return FALSE;
+
+	}//end _processCountrySelectBox()
+
+
+	/**
+	* Paints selectors for a metadata field or an asset attribute
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintQuantitySource(&$asset, &$o, $prefix)
+	{
+		return $this->_paintFieldSelector($asset, 'quantity');
+
+	}//end paintQuantitySource()
+
+
+	/**
+	* Processes selector for a metadata field or an asset attribute
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processQuantitySource(&$asset, &$o, $prefix)
+	{
+		return $this->_processFieldSelector($asset, 'quantity');
+
+	}//end processQuantitySource()
+
+
+	/**
+	* Paints selectors for a metadata field or an asset attribute
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintItemWeightSource(&$asset, &$o, $prefix)
+	{
+		return $this->_paintFieldSelector($asset, 'item_weight');
+
+	}//end paintProductWeightSource()
+	
+
+	/**
+	* Processes selector for a metadata field or an asset attribute
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processItemWeightSource(&$asset, &$o, $prefix)
+	{
+		return $this->_processFieldSelector($asset, 'item_weight');
+
+	}//end processProductWeightSource()
+
+
+	function _processFieldSelector(&$asset, $selector)
+	{
+		switch ($selector) {
+			case 'quantity':
+				$metadata_source_name = 'quantity_field';
+				$attribute_source_name = 'quantity_attribute';
+				break;
+			case 'item_weight':
+				$metadata_source_name = 'item_weight_metadata_source';
+				$attribute_source_name = 'item_weight_attribute_source';
+				break;
+		}
+		$prefix = $asset->getPrefix();
+		if ($asset->writeAccess('attributes')) {
+			if (!empty($_POST[$prefix.'_'.$metadata_source_name]['assetid'])) {
+				if ($asset->setAttrValue($metadata_source_name, $_POST[$prefix.'_'.$metadata_source_name]['assetid'])) {
 					return TRUE;
 				} else {
 					return FALSE;
 				}
-			} else {
-				return TRUE;
+			} else if (!empty($_POST[$prefix.'_'.$attribute_source_name])) {
+				if ($asset->setAttrValue($attribute_source_name, $_POST[$prefix.'_'.$attribute_source_name])) {
+					return TRUE;
+				} else {
+					return FALSE;
+				}
 			}
 		} else {
-			return FALSE;
+			return TRUE;
 		}
 
-	}//end processTaxableCountries()
+	}//end _processFieldSelector()
+
+
+	function _paintFieldSelector(&$asset, $selector)
+	{
+		switch ($selector) {
+			case 'quantity':
+				$selector_type = $asset->attr('quantity_selector');
+				$metadata_source_name = 'quantity_field';
+				$attribute_source_name = 'quantity_attribute';
+				break;
+			case 'item_weight':
+				$selector_type = $asset->attr('item_weight_selector');
+				$metadata_source_name = 'item_weight_metadata_source';
+				$attribute_source_name = 'item_weight_attribute_source';
+				break;
+		}
+		$prefix = $asset->getPrefix();
+		$wa = $asset->writeAccess('attributes');
+		switch ($selector_type) {
+			case 'metadata':
+				if ($wa) {
+					echo asset_finder($prefix.'_'.$metadata_source_name, $asset->attr($metadata_source_name), Array('metadata_field_text' => 'I'));
+				} else {
+					echo get_asset_tag_line($asset->attr($metadata_source_name));
+				}
+				break;
+
+			case 'attribute':
+				if ($wa) {
+					echo text_box($prefix.'_'.$attribute_source_name, $asset->attr($attribute_source_name));
+				} else {
+					echo $asset->attr($attribute_source_name);
+				}
+				break;
+		}
+
+	}//end _paintFieldSelector()
+
+
+	/**
+	* Paints interface for specifying country delivery weight fees
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCountryDeliveryWeightFees(&$asset, &$o, $prefix)
+	{
+		global $standards_lists_countries;
+		require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
+		// prepend blank value
+		$standards_lists_countries = array_merge(Array('blank'=>''), $standards_lists_countries);
+
+		$wa = $asset->writeAccess('attributes');
+		$delivery_weight_fees = $asset->attr('delivery_weight_fee_mapping');
+		if ($wa && empty($delivery_weight_fees)) {
+			$delivery_weight_fees = Array(0);
+		}
+
+		// note: these javascript functions are used by paintConditionalDeliveryFee() as well
+		?>
+		<script type="text/javascript">
+
+			function prependLastTable(moreButton)
+			{
+				var lastTable = moreButton.parentNode;
+				while (lastTable.tagName != 'TABLE') {
+					lastTable = lastTable.parentNode;
+				}
+
+				// to be used when adding the button back
+				var lastSibling = lastTable.previousSibling;
+				var lastTableButtonCell = moreButton.parentNode;
+
+				// look for sq-backend-data to prepend this table
+				var validLocation = moreButton.parentNode;
+				while (validLocation.className != 'sq-backend-data') {
+					validLocation = validLocation.parentNode;
+				}
+
+				var clone = lastTable.cloneNode(true);
+				// inserting clone after original
+				validLocation.insertBefore(clone, lastTable.nextSibling);
+
+				// append the 'More' button to the cloned table
+				lastTableButtonCell.appendChild(moreButton);
+
+				// remove the 'More' button from the original after cloning
+				moreButton.parentNode.removeChild(moreButton);
+
+				// traverse dom and increment each field name
+				incrementTableFieldNames(clone);
+
+				return clone;
+			}
+
+			function incrementTableFieldNames(element)
+			{
+				var i=0;
+				var elementChildren = element.childNodes[i];
+				var tagName = element.tagName;
+
+				if ((tagName == 'INPUT') || (tagName == 'SELECT')) {
+					// increment field name
+					var currentKey = element.name.match(/\[(\d+)\]/);
+					var newKey = parseInt(currentKey[1]) + 1;
+					element.name = element.name.replace(/\[(\d+)\]/, '[' + newKey + ']');
+				}
+
+				while (elementChildren) {
+					incrementTableFieldNames(elementChildren);
+					i++;
+					elementChildren = element.childNodes[i];
+				}
+			}
+
+			function resetLastTableFields(element, findTable)
+			{
+				// clear all elements inside the table
+				if (findTable) {
+					var element = element.parentNode;
+					while (element.tagName != 'TABLE') {
+						element = element.parentNode;
+					}
+				}
+
+				var i=0;
+				var elementChildren = element.childNodes[i];
+				var tagName = element.tagName;
+
+				if (tagName == 'INPUT') {
+					// don't clear buttons
+					if (element.type != 'button') {
+						element.value = '';
+					}
+					return;
+				} else if (tagName == 'SELECT') {
+					element.selectedIndex = 0;
+					return;
+				}
+
+				while (elementChildren) {
+					resetLastTableFields(elementChildren, false);
+					i++;
+					elementChildren = element.childNodes[i];
+				}
+			}
+		</script>
+		<?
+		foreach ($delivery_weight_fees as $key => $data) {
+			?>
+			<table width="200px">
+			<tr>
+				<td colspan="3" width="100%" valign="top">
+				<?php
+					$name = $prefix.'_country_delivery_weight_country['.$key.']';
+					$this->_paintCountrySelectBox($wa, $name, $data['countries'], 9, TRUE);
+				?>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<?php
+						$name = $prefix.'_country_delivery_weight_price['.$key.']';
+						echo translate('price').':';
+					?>
+				</td>
+				<td>
+					<?php
+						if ($wa) {
+							echo text_box($prefix.'_country_delivery_weight_price['.$key.']', $data['price'], 10);
+						} else {
+							echo $data['price'];
+						}
+					?>
+				</td>
+				<td>
+				<?php
+				if ($wa) {
+					$clear_button_name = $prefix.'_country_delivery_weight_clear_button['.$key.']';
+					$more_button_name = $prefix.'_country_delivery_weight_more_button['.$key.']';
+					echo normal_button($clear_button_name, translate('clear'), 'resetLastTableFields(this, true)');
+					// only print this button for last table
+					if ($key === count($delivery_weight_fees)-1) {
+						echo normal_button($more_button_name, translate('more').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
+					}
+				}
+				?>
+				</td>
+			</tr>
+			</table>
+			<?php
+		}//end foreach
+
+		return TRUE;
+
+	}//end paintCountryDeliveryWeightFees()
+	
+
+	/**
+	* Processes interface for specifying country delivery weight fees
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCountryDeliveryWeightFees(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$countries_form_name = $prefix.'_country_delivery_weight_country';
+			$price_form_name = $prefix.'_country_delivery_weight_price';
+			if (isset($_POST[$countries_form_name])) {
+				$delivery_weight_fees = Array();
+				foreach ($_POST[$countries_form_name] as $key => $codes) {
+					if (empty($codes[0]) || empty($_POST[$price_form_name][$key])) {
+						continue;
+					}
+					$delivery_weight_fees[$key] = Array(
+											'countries'	=> $codes,
+											'price'		=> (float) $_POST[$price_form_name][$key],
+										);
+				}
+				$asset->setAttrValue('delivery_weight_fee_mapping', $delivery_weight_fees);
+				return TRUE;
+			}
+		}
+		return FALSE;
+
+	}//end processCountryDeliveryWeightFees()
+
+
+	/**
+	* Paints country select box for international delivery fees
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintInternationalDeliveryFeeExempt(&$asset, &$o, $prefix)
+	{
+		$selected_country_values = $asset->attr('international_delivery_fee_exempt_countries');
+		$name = $prefix.'_international_delivery_fee_exempt_countries';
+		$this->_paintCountrySelectBox($asset->writeAccess('attributes'), $name, $selected_country_values);
+		return TRUE;
+
+	}//end paintInternationalDeliveryFeeExempt()
+	
+
+	/**
+	* Processes country select box for international delivery fees
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processInternationalDeliveryFeeExempt(&$asset, &$o, $prefix)
+	{
+		$name = 'international_delivery_fee_exempt_countries';
+		return $this->_processCountrySelectBox($asset, $prefix, $name);
+
+	}//end processInternationalDeliveryFeeExempt()
+
+
+	/**
+	* Paints interface to add additional, conditional delivery fees
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintConditionalDeliveryFee(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$conditions = $asset->attr('conditional_delivery_fees');
+		if ($wa && empty($conditions)) {
+			// so we still print an empty table if there are no conditions yet
+			$conditions = Array(0);
+		}
+		foreach ($conditions as $key => $data) {
+		?>
+			<table width="500px">
+			<tr>
+				<td width="50%" rowspan="6" valign="top">
+				<?php
+					$name = $prefix.'_conditional_fee_countries['.$key.']';
+					$this->_paintCountrySelectBox($wa, $name, $data['countries'], 9, TRUE);
+				?>
+				</td>
+			</tr>
+			<tr>
+				<?php
+					$name = $prefix.'_conditional_fee_comparison_price['.$key.']';
+				?>
+				<td width="20%">
+					<?php echo translate('ecom_checkout_comparison_price').':'; ?>
+				</td>
+				<td>
+					<?php
+						if ($wa) {
+							echo text_box($name, $data['comparison_price'], 5);
+						} else {
+							echo $data['comparison_price'];
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<?php
+					$name = $prefix.'_conditional_fee_operator['.$key.']';
+					$operators = Array(
+									''		=> '',
+									'>'		=> '>',
+									'<'		=> '<',
+									'=='	=>	'=='
+								 );
+				?>
+				<td>
+					<?php echo translate('ecom_checkout_operator').':'; ?>
+				</td>
+				<td>
+					<?php
+						if ($wa) {
+							echo combo_box($name, $operators, FALSE, $data['operator']);
+						} else {
+							echo $data['operator'];
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<?php
+					$name = $prefix.'_conditional_fee_additional_cost['.$key.']';
+				?>
+				<td>
+					<?php echo translate('ecom_checkout_additional_cost').':'; ?>
+				</td>
+				<td>
+					<?php
+						if ($wa) {
+							echo text_box($name, $data['additional_cost'], 5);
+						} else {
+							echo $data['additional_cost'];
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<?php
+					$name = $prefix.'_conditional_fee_remove_fees['.$key.']';
+				?>
+				<td>
+					<?php echo translate('ecom_checkout_remove_fees').':'; ?>
+				</td>
+				<td>
+					<?php
+						if ($wa) {
+							echo check_box($name, '1', $data['remove_fees']);
+						} else {
+							if ($data['remove_fees']) {
+								echo translate('yes');
+							} else {
+								echo translate('no');
+							}
+						}
+					?>
+				</td>
+			</tr>
+			<?php
+			if ($wa) {
+			?>
+			<tr>
+				<td colspan="2">
+				<?php
+					$clear_button_name = $prefix.'_conditional_fee_clear_button['.$key.']';
+					$more_button_name = $prefix.'_conditional_fee_more_button['.$key.']';
+					echo normal_button($clear_button_name, translate('clear'), 'resetLastTableFields(this, true)');
+					// only print this button for last table
+					if ($key === count($conditions)-1) {
+						echo normal_button($more_button_name, translate('more').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
+					}
+				?>
+				</td>
+			</tr>
+			<?php
+			}//end if
+			?>
+			</table>
+		<?
+		}//end foreach
+
+		return TRUE;
+
+	}//end paintConditionalDeliveryFee()
+	
+
+	/**
+	* Processes interface to add additional, conditional delivery fees
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processConditionalDeliveryFee(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			$countries_form_name = $prefix.'_conditional_fee_countries';
+			$comparison_price_form_name = $prefix.'_conditional_fee_comparison_price';
+			$operator_form_name = $prefix.'_conditional_fee_operator';
+			$additional_cost_form_name = $prefix.'_conditional_fee_additional_cost';
+			$remove_fees_form_name = $prefix.'_conditional_fee_remove_fees';
+			if (isset($_POST[$countries_form_name])) {
+				$conditions = Array();
+				foreach ($_POST[$countries_form_name] as $key => $codes) {
+					if (empty($codes[0]) || empty($_POST[$comparison_price_form_name][$key]) || empty($_POST[$operator_form_name][$key])) {
+						continue;
+					}
+					$conditions[$key] = Array(
+											'countries'			=> $codes,
+											'comparison_price'	=> (float) $_POST[$comparison_price_form_name][$key],
+											'operator'			=> $_POST[$operator_form_name][$key],
+											'additional_cost'	=> (float) $_POST[$additional_cost_form_name][$key],
+										);
+					// check for the remove_fees checkbox
+					if (isset($_POST[$remove_fees_form_name][$key])) {
+						$conditions[$key]['remove_fees'] = TRUE;
+					} else {
+						$conditions[$key]['remove_fees'] = FALSE;
+					}
+				}
+				$asset->setAttrValue('conditional_delivery_fees', $conditions);
+				return TRUE;
+			}
+		}
+		return FALSE;
+
+	}//end processConditionalDeliveryFee()
 
 
 }//end class

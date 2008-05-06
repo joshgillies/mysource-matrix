@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9.6.1 2008/02/01 04:41:09 bshkara Exp $
+* $Id: lang_strings.xml,v 1.9.6.2 2008/05/06 06:56:14 bshkara Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -44,5 +44,9 @@
 	<string source="ecom_checkout_confirmation_context_desc">Confirmation screen</string>
 	<string source="ecom_checkout_failure_context_desc">Displayed if processing cannot completed even though all the data is valid</string>
 	<string source="ecom_checkout_receipt_context_desc">Successfully completed order displays a receipt on this screen</string>
+	<string source="ecom_checkout_comparison_price">Comparison Price</string>
+	<string source="ecom_checkout_operator">Operator</string>
+	<string source="ecom_checkout_additional_cost">Additional Cost</string>
+	<string source="ecom_checkout_remove_fees">Remove All Fees</string>
 </strings>
 
