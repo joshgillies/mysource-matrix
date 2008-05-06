@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.3 2008/05/06 06:56:12 bshkara Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.4 2008/05/06 23:21:36 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.3 $
+* @version $Revision: 1.6.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -435,40 +435,16 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	}//end processProductWeightSource()
 
 
-	function _processFieldSelector(&$asset, $selector)
-	{
-		switch ($selector) {
-			case 'quantity':
-				$metadata_source_name = 'quantity_field';
-				$attribute_source_name = 'quantity_attribute';
-				break;
-			case 'item_weight':
-				$metadata_source_name = 'item_weight_metadata_source';
-				$attribute_source_name = 'item_weight_attribute_source';
-				break;
-		}
-		$prefix = $asset->getPrefix();
-		if ($asset->writeAccess('attributes')) {
-			if (!empty($_POST[$prefix.'_'.$metadata_source_name]['assetid'])) {
-				if ($asset->setAttrValue($metadata_source_name, $_POST[$prefix.'_'.$metadata_source_name]['assetid'])) {
-					return TRUE;
-				} else {
-					return FALSE;
-				}
-			} else if (!empty($_POST[$prefix.'_'.$attribute_source_name])) {
-				if ($asset->setAttrValue($attribute_source_name, $_POST[$prefix.'_'.$attribute_source_name])) {
-					return TRUE;
-				} else {
-					return FALSE;
-				}
-			}
-		} else {
-			return TRUE;
-		}
-
-	}//end _processFieldSelector()
-
-
+	/**
+	* Paints selector for a metadata field or an asset attribute
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function _paintFieldSelector(&$asset, $selector)
 	{
 		switch ($selector) {
@@ -490,7 +466,10 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				if ($wa) {
 					echo asset_finder($prefix.'_'.$metadata_source_name, $asset->attr($metadata_source_name), Array('metadata_field_text' => 'I'));
 				} else {
-					echo get_asset_tag_line($asset->attr($metadata_source_name));
+					$field = $asset->attr($metadata_source_name);
+					if (!empty($field)) {
+						echo get_asset_tag_line($asset->attr($metadata_source_name));
+					}
 				}
 				break;
 
@@ -504,6 +483,50 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		}
 
 	}//end _paintFieldSelector()
+
+
+	/**
+	* Processes selector for a metadata field or an asset attribute
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _processFieldSelector(&$asset, $selector)
+	{
+		switch ($selector) {
+			case 'quantity':
+				$metadata_source_name = 'quantity_field';
+				$attribute_source_name = 'quantity_attribute';
+				break;
+			case 'item_weight':
+				$metadata_source_name = 'item_weight_metadata_source';
+				$attribute_source_name = 'item_weight_attribute_source';
+				break;
+		}
+		$prefix = $asset->getPrefix();
+		if ($asset->writeAccess('attributes')) {
+			if (isset($_POST[$prefix.'_'.$metadata_source_name]['assetid'])) {
+				if ($asset->setAttrValue($metadata_source_name, $_POST[$prefix.'_'.$metadata_source_name]['assetid'])) {
+					return TRUE;
+				} else {
+					return FALSE;
+				}
+			} else if (isset($_POST[$prefix.'_'.$attribute_source_name])) {
+				if ($asset->setAttrValue($attribute_source_name, $_POST[$prefix.'_'.$attribute_source_name])) {
+					return TRUE;
+				} else {
+					return FALSE;
+				}
+			}
+		} else {
+			return TRUE;
+		}
+
+	}//end _processFieldSelector()
 
 
 	/**
