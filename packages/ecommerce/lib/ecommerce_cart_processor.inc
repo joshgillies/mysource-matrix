@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.11.2.3 2008/05/06 06:56:15 bshkara Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.11.2.4 2008/05/07 03:25:31 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11.2.3 $
+* @version $Revision: 1.11.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -295,12 +295,14 @@ class Ecommerce_Cart_Processor
 		}
 
 		// calculate additional conditional delivery fees
+		// based on total of cart contents plus all existing delivery fees
 		if (isset($_SESSION['sq_region_specific']['conditions'])) {
+			$grand_total_plus_delivery = $grand_total + $total_delivery_cost;
 			$conditions = $_SESSION['sq_region_specific']['conditions'];
 			foreach ($conditions as $key => $data) {
 				// evaluate each condition
 				$operator = print_r($data['operator'], TRUE);
-				if (eval('$satisfied = $grand_total'.$operator.'$data[\'comparison_price\']; return $satisfied;')) {
+				if (eval('$satisfied = $grand_total_plus_delivery'.$operator.'$data[\'comparison_price\']; return $satisfied;')) {
 					if ($data['remove_fees']) {
 						$total_delivery_cost = 0;
 					} else {
