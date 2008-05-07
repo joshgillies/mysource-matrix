@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.5.4.3 2008/04/22 00:23:23 bshkara Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.5.4.4 2008/05/07 04:35:22 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5.4.3 $
+* @version $Revision: 1.5.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -91,6 +91,20 @@ class Ecommerce_Checkout_Management extends Asset_Management
 												'default'	=> Array(),
 											);
 
+		$this->vars['quantity_selector'] = Array(
+												'added'			=> '0.3',
+												'type'			=> 'selection',
+												'default'		=> 'metadata',
+												'parameters'	=> Array(
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																	'options'		=> Array(
+																						'metadata'	=> 'Metadata Text Field',
+																						'attribute'	=> 'Asset Attribute',
+																					   ),
+																   ),
+											);
+
 		$this->vars['quantity_attribute'] = Array(
 												'added'		=> '0.3',
 												'type'		=> 'text',
@@ -137,6 +151,69 @@ class Ecommerce_Checkout_Management extends Asset_Management
 												'default'	=> Array(),
 												'is_admin'	=> 'TRUE',
 											   );
+
+		$this->vars['item_weight_selector'] = Array(
+												'added'			=> '0.3',
+												'type'			=> 'selection',
+												'default'		=> 'metadata',
+												'parameters'	=> Array(
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																	'options'		=> Array(
+																						'metadata'	=> 'Metadata Text Field',
+																						'attribute'	=> 'Asset Attribute',
+																					   ),
+																   ),
+											);
+
+		$this->vars['item_weight_metadata_source'] = Array(
+														'added'		=> '0.3',
+														'type'		=> 'assetid',
+														'default'	=> '',
+														'is_admin'	=> TRUE,
+													 );
+
+		$this->vars['item_weight_attribute_source'] = Array(
+														'added'		=> '0.3',
+														'type'		=> 'text',
+														'default'	=> '',
+														'is_admin'	=> TRUE,
+													  );
+
+		$this->vars['delivery_weight_fee_mapping'] = Array(
+														'added'		=> '0.3',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+														'is_admin'	=> FALSE,
+													 );
+
+		$this->vars['default_delivery_weight_fee'] = Array(
+														'added'		=> '0.3',
+														'type'		=> 'float',
+														'default'	=> 0.0,
+														'is_admin'	=> TRUE,
+													 );
+
+		$this->vars['international_delivery_fee_exempt_countries'] = Array(
+																		'added'		=> '0.3',
+																		'type'		=> 'serialise',
+																		'default'	=> Array(),
+																		'is_admin'	=> 'TRUE',
+																	 );
+
+		$this->vars['international_delivery_fee'] = Array(
+														'added'		=> '0.3',
+														'type'		=> 'float',
+														'default'	=> 0.0,
+														'is_admin'	=> TRUE,
+													);
+
+		$this->vars['conditional_delivery_fees'] = Array(
+																'added'		=> '0.3',
+																'type'		=> 'serialise',
+																'default'	=> Array(),
+																'is_admin'	=> 'TRUE',
+															);
 
 	}//end constructor
 

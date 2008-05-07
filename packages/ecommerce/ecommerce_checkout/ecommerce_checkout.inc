@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.54.2.5 2008/04/22 00:23:23 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.54.2.6 2008/05/07 04:35:22 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.54.2.5 $
+* @version $Revision: 1.54.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -308,22 +308,87 @@ class Ecommerce_Checkout extends Page
 					// set any region specific options
 					$country_question = $this->attr('country_question');
 					$taxable_countries = $this->attr('taxable_countries');
+
 					// find the country code they have selected as their address
-					$_SESSION['sq_remove_tax'] = FALSE;
 					if (isset($form_answers[$country_question])) {
 						$country_code = $form_answers[$country_question]['value'];
+					}
+
+					// only set region specific options if we have a country code to compare against
+					if (isset($country_code)) {
+						// place all region specific options here to evaluate later
+						$_SESSION['sq_region_specific'] = Array();
 						// if customer is not defined as a taxable country then exclude tax
 						if (!in_array($country_code, $taxable_countries)) {
-							// so the cart knows
-							$_SESSION['sq_remove_tax'] = TRUE;
+							$_SESSION['sq_region_specific']['remove_tax'] = TRUE;
+						} else {
+							$_SESSION['sq_region_specific']['remove_tax'] = FALSE;
 						}
-					}
+
+						// delivery prices per weight metric
+						$delivery_weight_fees = $this->attr('delivery_weight_fee_mapping');
+						foreach ($delivery_weight_fees as $key => $data) {
+							if (in_array($country_code, $data['countries'])) {
+								// found a valid mapping for this country so record the fee
+								$_SESSION['sq_region_specific']['delivery_weight_fee']['fee'] = $data['price'];
+								// only find the first occurrence of the country
+								break;
+							}
+						}
+						// record the item weight source
+						$selector_type = $this->attr('item_weight_selector');
+						switch ($selector_type) {
+							case 'metadata':
+								$fieldid = $this->attr('item_weight_metadata_source');
+								if (!empty($fieldid)) {
+									$_SESSION['sq_region_specific']['delivery_weight_fee']['metadata_fieldid'] = $fieldid;
+								}
+							break;
+
+							case 'attribute':
+								$attribute_name = $this->attr('item_weight_attribute_source');
+								if (!empty($attribute_name)) {
+									$_SESSION['sq_region_specific']['delivery_weight_fee']['attribute_name'] = $attribute_name;
+								}
+							break;
+						}
+						if (!isset($_SESSION['sq_region_specific']['delivery_weight_fee']['fee'])) {
+							// use default value price per weight metric
+							$default_price_weight = $this->attr('default_delivery_weight_fee');
+							$_SESSION['sq_region_specific']['delivery_weight_fee']['fee'] = $default_price_weight;
+						}
+
+						// additional international delivery fee
+						$exempt_countries = $this->attr('international_delivery_fee_exempt_countries');
+						if (!in_array($country_code, $exempt_countries)) {
+							// you are going to be charged with this fee
+							$international_fee = $this->attr('international_delivery_fee');
+							if (!empty($international_fee)) {
+								$_SESSION['sq_region_specific']['international_delivery_fee'] = $international_fee;
+							}
+						}
+
+						// additional conditional delivery fee
+						$conditional_fees = $this->attr('conditional_delivery_fees');
+						$comparison_data = Array();
+						if (!empty($conditional_fees)) {
+							foreach ($conditional_fees as $key => $data) {
+								if (in_array($country_code, $data['countries'])) {
+									unset($data['countries']);
+									$comparison_data[] = $data;
+								}
+							}
+							if (!empty($comparison_data)) {
+								$_SESSION['sq_region_specific']['conditions'] = $comparison_data;
+							}
+						}
+					}//end if
 
 					// create a temporary order
 					$_SESSION['sq_local_cart_contents']['delivery_id']		= $delivery_method_id;
 					$_SESSION['sq_local_cart_contents']['delivery_state']	= $delivery_method->getState();
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($delivery_method);
-				}
+				}//end if
 
 				// if cart is empty, there's no point in checking out
 				if ($success && empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
@@ -349,12 +414,12 @@ class Ecommerce_Checkout extends Page
 					$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('country_question'));
 					$default_value = $question->attr('default');
 					if (isset($default_value[0]) && in_array($default_value[0], $this->attr('taxable_countries'))) {
-						$_SESSION['sq_remove_tax'] = FALSE;
+						$_SESSION['sq_region_specific']['remove_tax'] = FALSE;
 					} else {
-						$_SESSION['sq_remove_tax'] = TRUE;
+						$_SESSION['sq_region_specific']['remove_tax'] = TRUE;
 					}
 				} else {
-					$_SESSION['sq_remove_tax'] = FALSE;
+					$_SESSION['sq_region_specific']['remove_tax'] = FALSE;
 				}
 
 				$this->print_context = 'checkout';
@@ -426,12 +491,11 @@ class Ecommerce_Checkout extends Page
 					// get cart total cost
 					$cart = new Ecommerce_Cart_Processor();
 					$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
-					$total_tax = $cart->getTotalTax($this->attr('taxation_rate')/100);
 					// whether we are removing tax from this order
-					$remove_tax = $_SESSION['sq_remove_tax'];
-					$total = $cart->getTotal($total_tax, $this->attr('taxation_rate')/100);
-					$total_cost = $remove_tax ? $total-$total_tax : $total;
-					$delivery_method->processPaymentGateway($total_cost);
+					$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
+					$total_cost = $cart->getGrandTotalExDelivery($this->attr('taxation_rate')/100, $remove_tax, $this->getFlatCharges());
+					$delivery_cost = $cart->getTotalDeliveryCosts($total_cost);
+					$delivery_method->processPaymentGateway($total_cost + $delivery_cost);
 					return;
 				}
 			} else if ($payment_response) {
@@ -537,56 +601,65 @@ class Ecommerce_Checkout extends Page
 		foreach ($local_cart_contents as $assetid => $info) {
 			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 				// determine which to use: metadata field or attribute name
-				$quantity_field = $this->attr('quantity_field');
-				$quantity_attribute = $this->attr('quantity_attribute');
-				if (!empty($quantity_field)) {
-					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-					$current_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
-					$new_quantity = $current_quantity - $info['quantity'];
-					if ($new_quantity < 0) {
-						// we cannot put this order through because there are not enough items
-						$this->insufficient_quantities = TRUE;
-						$ok = FALSE;
-						// add name of asset to error list for displaying on frontend
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						$this->insufficient_quantity_assets[$new_quantity] = $asset->name;
-					}
-					if ($update) {
-						$metadata = Array(
-										$quantity_field	=> Array(
-															Array(
-																'value'	=> $new_quantity,
-															),
-														   ),
-									);
-						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-						if (!$mm->setMetadata($assetid, $metadata) || !$mm->generateContentFile($assetid)) {
-							trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
-							$this->print_context = 'failure';
+				$source = $this->attr('quantity_selector');
+				switch ($source) {
+					case 'metadata':
+						$quantity_field = $this->attr('quantity_field');
+						if (!empty($quantity_field)) {
+							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$current_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
+							$new_quantity = $current_quantity - $info['quantity'];
+							if ($new_quantity < 0) {
+								// we cannot put this order through because there are not enough items
+								$this->insufficient_quantities = TRUE;
+								$ok = FALSE;
+								// add name of asset to error list for displaying on frontend
+								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+								$this->insufficient_quantity_assets[$new_quantity] = $asset->name;
+							}
+							if ($update) {
+								$metadata = Array(
+												$quantity_field	=> Array(
+																	Array(
+																		'value'	=> $new_quantity,
+																	),
+																   ),
+											);
+								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+								if (!$mm->setMetadata($assetid, $metadata) || !$mm->generateContentFile($assetid)) {
+									trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
+									$this->print_context = 'failure';
+								}
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							}
 						}
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					}
-				} else if (!empty($quantity_attribute)) {
-					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$current_quantity = $asset->attr($quantity_attribute);
-					$new_quantity = $current_quantity - $info['quantity'];
-					if ($new_quantity < 0) {
-						// we cannot put this order through because there are not enough items
-						$this->insufficient_quantities = TRUE;
-						$ok = FALSE;
-						// add name of asset to error list for displaying on frontend
-						$this->insufficient_quantity_assets[$new_quantity] = $asset->name;
-					}
-					if ($update) {
-						$asset->setAttrValue($quantity_attribute, $new_quantity);
-						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-						if (!$asset->saveAttributes()) {
-							trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
-							$this->print_context = 'failure';
+					break;
+
+					case 'attribute':
+						$quantity_attribute = $this->attr('quantity_attribute');
+						if (!empty($quantity_attribute)) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$current_quantity = $asset->attr($quantity_attribute);
+							$new_quantity = $current_quantity - $info['quantity'];
+							if ($new_quantity < 0) {
+								// we cannot put this order through because there are not enough items
+								$this->insufficient_quantities = TRUE;
+								$ok = FALSE;
+								// add name of asset to error list for displaying on frontend
+								$this->insufficient_quantity_assets[$new_quantity] = $asset->name;
+							}
+							if ($update) {
+								$asset->setAttrValue($quantity_attribute, $new_quantity);
+								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+								if (!$asset->saveAttributes()) {
+									trigger_localised_error('ECOM024', E_USER_WARNING, $assetid);
+									$this->print_context = 'failure';
+								}
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							}
 						}
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					}
-				}
+					break;
+				}//end switch
 			}//end if
 		}//end foreach
 
@@ -969,7 +1042,7 @@ class Ecommerce_Checkout extends Page
 		ob_start();
 			if ($html) echo '<pre>';
 
-			$remove_tax = isset($_SESSION['sq_remove_tax']) ? $_SESSION['sq_remove_tax'] : FALSE;
+			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 			// if products are taxed, remove tax from final amount
 			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax);
 

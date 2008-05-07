@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.6 2007/12/21 05:11:55 colivar Exp $
+* $Id: esec_processor_integration_interface.inc,v 1.6.2.1 2008/05/07 04:35:22 bshkara Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
