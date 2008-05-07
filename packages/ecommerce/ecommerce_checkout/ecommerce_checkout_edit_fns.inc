@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.4 2008/05/06 23:21:36 bshkara Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.5 2008/05/07 01:39:07 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.4 $
+* @version $Revision: 1.6.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -357,7 +357,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	function _processCountrySelectBox(&$asset, $prefix, $name)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$post = $_POST[$prefix.'_'.$name];
+			$post = isset($_POST[$prefix.'_'.$name]) ? $_POST[$prefix.'_'.$name] : Array();
 			if ($asset->setAttrValue($name, $post)) {
 				return TRUE;
 			}
