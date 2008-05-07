@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.188 2008/04/16 22:41:35 bpearson Exp $
+* $Id: backend.inc,v 1.189 2008/05/07 05:54:05 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.188 $
+* @version $Revision: 1.189 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -897,6 +897,15 @@ class Backend extends MySource_Object
 										'icon'		=> 'hipo_herder.png',
 									 );
 
+						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+								$options[] = Array(
+											'url'		=> $this->getBackendUrl('main').'&backend_section=sys_maintenance',
+											'target'	=> 'sq_main',
+											'title'		=> translate('system_maintenance'),
+											'icon'		=> 'system_maintenance.png',
+										 );
+						}
+
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=am',
 										'target'	=> 'sq_main',
@@ -1336,6 +1345,12 @@ class Backend extends MySource_Object
 			case 'hipo_herder' :
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->paintBackend($this);
+			break;
+
+			case 'sys_maintenance' :
+				require_once SQ_INCLUDE_PATH.'/system_maintenance.inc';
+				$sys_maintenance = new System_Maintenance();
+				$sys_maintenance->paintBackend($this);
 			break;
 
 			case 'am' :

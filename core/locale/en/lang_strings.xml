@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.277 2008/05/02 00:56:08 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.278 2008/05/07 05:54:05 mbrydon Exp $
 *
 */
 
@@ -476,12 +476,16 @@
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
 	<string source="system_maintenance">System Maintenance</string>
+	<string source="generate_report">Generate Report</string>
+	<string source="regenerate_report">Regenerate Report</string>
 	<string source="general_reports">General Reports</string>
+	<string source="general_reports_not_installed">There are no General Reports installed</string>
 	<string source="advanced_reports">Advanced Reports</string>
 	<string source="total_assets">Total Assets</string>
 	<string source="most_used_asset_types">Most Used Asset Types</string>
 	<string source="trash_age_report">Trash Age Report</string>
 	<string source="trigger_report">Trigger Report</string>
+	<string source="internal_messages_report">Internal Messages Report</string>
 	<string source="asset_tree">Asset Tree</string>
 	<string source="logout">Logout</string>
 
