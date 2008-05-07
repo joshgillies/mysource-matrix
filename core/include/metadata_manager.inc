@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.178 2008/05/07 05:54:05 mbrydon Exp $
+* $Id: metadata_manager.inc,v 1.179 2008/05/07 05:56:37 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1346,16 +1346,6 @@ class Metadata_Manager extends MySource_Object
 										$date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
 									}
 									echo '$metadata_replacements[\''.$original.'\'] = date(\''.$format.'\', '.$date.');'."\n";
-								break;
-
-								case 'attribute':
-									// Replace with an asset attribute value
-									echo '$metadata_replacements[\''.var_export($original, 1).'\'] = $metadata_asset->attr(\''.$extras.'\');'."\n";
-								break;
-
-								default:
-									// Last chance - check for a matching asset keyword
-									echo '$metadata_replacements[\''.var_export($original, 1).'\'] = $metadata_asset->getKeywordReplacement(\''.$original.'\');'."\n";
 								break;
 							}
 						}//end if
