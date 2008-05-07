@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2008/05/07 05:54:05 mbrydon Exp $
+* $Id: asset.xml,v 1.2 2008/05/07 06:03:46 mbrydon Exp $
 *
 */
 -->
@@ -23,7 +23,7 @@
 	<type_code>report_triggers</type_code>
 	<version>0.1</version>
 	<name>Triggers Report</name>
-	<description>Reports the total number of active and inactive triggers, and shows a list of tr    iggers with the most events, conditions and actions</description>
+	<description>Reports the total number of active and inactive triggers, and shows a list of triggers with the most events, conditions and actions</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>simple_report</parent_type>
