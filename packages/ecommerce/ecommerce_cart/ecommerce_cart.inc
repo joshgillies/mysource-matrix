@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.36 2008/02/04 01:13:55 bshkara Exp $
+* $Id: ecommerce_cart.inc,v 1.37 2008/05/07 04:35:36 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -597,34 +597,44 @@ class Ecommerce_Cart extends Listing_Engine
 				$checkout_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_id);
 				if ($checkout_asset->attr('enforce_quantities')) {
 					// determine which to use: metadata field or attribute name
-					$quantity_field = $checkout_asset->attr('quantity_field');
-					$quantity_attribute = $checkout_asset->attr('quantity_attribute');
-					if (!empty($quantity_field)) {
-						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-						$available_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
-						if ($quantity > $available_quantity) {
-							$this->insufficient_quantities = TRUE;
-							// add name of asset to error list for displaying on frontend
-							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-							$this->insufficient_quantity_assets[] = $asset->name;
-							$final_quantity = $available_quantity;
-						} else {
-							$this->insufficient_quantities = FALSE;
+					$source = $checkout_asset->attr('quantity_selector');
+					switch ($source) {
+						case 'metadata':
+						$quantity_field = $checkout_asset->attr('quantity_field');
+						if (!empty($quantity_field)) {
+							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$available_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
+							if ($quantity > $available_quantity) {
+								$this->insufficient_quantities = TRUE;
+								// add name of asset to error list for displaying on frontend
+								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+								$this->insufficient_quantity_assets[] = $asset->name;
+								$final_quantity = $available_quantity;
+							} else {
+								$this->insufficient_quantities = FALSE;
+							}
 						}
-					} else if (!empty($quantity_attribute)) {
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						$available_quantity = $asset->attr($quantity_attribute);
-						if ($quantity > $available_quantity) {
-							$this->insufficient_quantities = TRUE;
-							// add name of asset to error list for displaying on frontend
-							$this->insufficient_quantity_assets[] = $asset->name;
-							$final_quantity = $available_quantity;
-						} else {
-							$this->insufficient_quantities = FALSE;
+						break;
+
+						case 'attribute':
+						$quantity_attribute = $checkout_asset->attr('quantity_attribute');
+						if (!empty($quantity_attribute)) {
+							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$available_quantity = $asset->attr($quantity_attribute);
+							if ($quantity > $available_quantity) {
+								$this->insufficient_quantities = TRUE;
+								// add name of asset to error list for displaying on frontend
+								$this->insufficient_quantity_assets[] = $asset->name;
+								$final_quantity = $available_quantity;
+							} else {
+								$this->insufficient_quantities = FALSE;
+							}
 						}
+						break;
 					}
-					if (is_array($this->insufficient_quantity_assets))
+					if (is_array($this->insufficient_quantity_assets)) {
 						$this->insufficient_quantity_assets = array_unique($this->insufficient_quantity_assets);
+					}
 				}
 			}//end else
 		}//end if

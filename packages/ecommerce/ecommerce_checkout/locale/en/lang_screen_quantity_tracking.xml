@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_quantity_tracking.xml,v 1.3 2008/04/22 01:04:07 bshkara Exp $
+* $Id: lang_screen_quantity_tracking.xml,v 1.4 2008/05/07 04:35:37 bshkara Exp $
 *
 */
 -->
@@ -21,17 +21,17 @@
 			<display_name>Enforce Quantities</display_name>
 			<note>Whether the cart should update product quantity information upon successful order delivery, and check items for availability as they are added to the cart.</note>
 		</field>
-		<field attribute="quantity_attribute">
-			<display_name>Quantity Attribute Name</display_name>
-			<note>Enter the attribute name of the product asset which hold's the product's quantity.
-			&lt;br/&gt;You must enter either an attribute name or select a metadata field below if you would like to enforce
-			quantities before checkout.</note>
+		<field attribute="quantity_selector">
+			<display_name>Quantity Selector</display_name>
+			<note>Specify whether you would like to use a metadata text field or an asset attribute value to select where an item's quantity information is kept.</note>
 		</field>
-		<field attribute="quantity_field">
-			<display_name>Quantity Metadata Field</display_name>
-			<note>Select a metadata field which hold's the product's quantity.
-			&lt;br/&gt;You must select a metadata field or enter an attribute name above if you would like to enforce
-			quantities before checkout.</note>
+		<field>
+			<display_name>Quantity Source</display_name>
+			<note>Specify the source for an item's quantity.</note>
+			<function_call>
+				<paint_function   name="paintQuantitySource"  />
+				<process_function name="processQuantitySource" />
+			</function_call>
 		</field>
 		<field attribute="quantity_message_cart">
 			<display_name>Cart Insufficient Quantity Message</display_name>

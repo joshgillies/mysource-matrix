@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.13 2008/04/22 01:04:07 bshkara Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.14 2008/05/07 04:35:37 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -168,12 +168,13 @@ class Ecommerce_Cart_Processor
 
 
 	/**
-	* Return the sum-total of all the items currently in this cart
+	* Returns the sum-total of all the items currently in this cart
 	* If taxation rate is specified then it will adjust product prices accordingly. You need this
-	* parameter if you are charging tax on your products and you want accurate sub-totals
+	* parameter if you are charging tax on your products and you want accurate sub-totals.
+	* The returned total does not include any delivery fees or flat charges.
 	*
-	* @param float	$taxation_cost	taxation cost contains the total cost of tax
-	* @param float	$taxation_rate	taxation rate of each item
+	* @param float	$taxation_cost	Taxation cost contains the total cost of tax
+	* @param float	$taxation_rate	Taxation rate of each item
 	*
 	* @return float
 	* @access public
@@ -205,6 +206,120 @@ class Ecommerce_Cart_Processor
 
 
 	/**
+	* Returns the grand total of the cart.
+	* Includes all tax considerations, all flat charges.
+	* Does not include any delivery fees, this must be calculated separately.
+	*
+	* @param float		$taxation_cost	Taxation cost contains the total cost of tax
+	* @param float		$taxation_rate	Taxation rate of each item
+	* @param boolean	$remove_tax		Whether to remove tax from taxed products, i.e. if country is not defined as taxable
+	* @param array		$flat_charges	Flat charges Array('Name' => 'Price')
+	*
+	* @return float
+	* @access public
+	*/
+	function getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges)
+	{
+		$total_tax = $this->getTotalTax($taxation_rate);
+		$flat_charges_total = $this->getFlatChargesTotal($flat_charges);
+
+		if ($remove_tax) {
+			$grand_total = ($this->getTotal($total_tax, $taxation_rate) + $flat_charges_total) - $total_tax;
+		} else {
+			$grand_total = $this->getTotal($total_tax, $taxation_rate) + $flat_charges_total;
+		}
+
+		return $grand_total;
+
+	}//end getGrandTotalExDelivery()
+
+
+	/**
+	* Returns the total cost of all flat charges.
+	*
+	* @param array	$flat_charges	Flat charges Array('Name' => 'Price')
+	*
+	* @return float
+	* @access public
+	*/
+	function getFlatChargesTotal($flat_charges)
+	{
+		$flat_charges_total = 0.0;
+		foreach ($flat_charges as $name => $price) {
+			$flat_charges_total += $price;
+		}
+
+		return $flat_charges_total;
+
+	}//end getFlatChargesTotal()
+
+
+	/**
+	* Returns the total delivery costs for this cart.
+	*
+	* @param float	$grand_total	Grand total of contents of cart
+	*
+	* @return float
+	* @access public
+	*/
+	function getTotalDeliveryCosts($grand_total)
+	{
+		$total_delivery_cost = 0.00;
+		foreach ($this->cart as $assetid => $details) {
+			if (isset($_SESSION['sq_region_specific'])) {
+				// calculate delivery prices per weight metric
+				if (isset($_SESSION['sq_region_specific']['delivery_weight_fee'])) {
+					$delivery_weight_fee = $_SESSION['sq_region_specific']['delivery_weight_fee'];
+					// it will either be a metadata field or an asset attribute that we have to get weight info from
+					if (isset($_SESSION['sq_region_specific']['delivery_weight_fee']['metadata_fieldid'])) {
+						$fieldid = $_SESSION['sq_region_specific']['delivery_weight_fee']['metadata_fieldid'];
+						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$weight = (float) $mm->getMetadataValueByAssetid($assetid, $fieldid);
+					} else if (isset($_SESSION['sq_region_specific']['delivery_weight_fee']['attribute_name'])) {
+						$attribute_name = $_SESSION['sq_region_specific']['delivery_weight_fee']['attribute_name'];
+						$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$weight = (float) $asset->attr($attribute_name);
+					}
+
+					if (isset($weight) && !empty($weight)) {
+						$product_quantity = array_get_index($details, 'quantity', 0);
+						$total_delivery_cost += $weight * $delivery_weight_fee['fee'] * $product_quantity;
+					}
+				}
+			}
+		}
+
+		// calculate international delivery fee
+		if (isset($_SESSION['sq_region_specific']['international_delivery_fee'])) {
+			$total_delivery_cost += $_SESSION['sq_region_specific']['international_delivery_fee'];
+		}
+
+		// calculate additional conditional delivery fees
+		// based on total of cart contents plus all existing delivery fees
+		if (isset($_SESSION['sq_region_specific']['conditions'])) {
+			$grand_total_plus_delivery = $grand_total + $total_delivery_cost;
+			$conditions = $_SESSION['sq_region_specific']['conditions'];
+			foreach ($conditions as $key => $data) {
+				// evaluate each condition
+				$operator = print_r($data['operator'], TRUE);
+				if (eval('$satisfied = $grand_total_plus_delivery'.$operator.'$data[\'comparison_price\']; return $satisfied;')) {
+					if ($data['remove_fees']) {
+						$total_delivery_cost = 0;
+					} else {
+						$total_delivery_cost += $data['additional_cost'];
+					}
+					// evaluate only the first condition satisfied
+					break;
+				}
+			}
+		}
+
+		return $total_delivery_cost;
+
+	}//end getTotalDeliveryCosts()
+
+
+	/**
 	*
 	* Return the sum of the taxation cost of all the items currently in this cart
 	*
@@ -215,7 +330,7 @@ class Ecommerce_Cart_Processor
 	*/
 	function getTotalTax($taxation_rate=0.0)
 	{
-		$totalTax = 0.00;
+		$total_tax = 0.00;
 		foreach ($this->cart as $assetid => $details) {
 			// -1 == value not known
 			if (($details['price'] != -1) && ($details['taxable'])) {
@@ -223,11 +338,11 @@ class Ecommerce_Cart_Processor
 				$item_costs = $this->_calculateItemCosts($details['price'], $taxation_rate, $has_tax);
 				$tax_cost = $item_costs['tax_cost'];
 
-				$totalTax += $details['quantity'] * $tax_cost;
+				$total_tax += $details['quantity'] * $tax_cost;
 			}
 		}
 
-		return $totalTax;
+		return $total_tax;
 
 	}//end getTotalTax()
 
@@ -521,7 +636,7 @@ class Ecommerce_Cart_Processor
 		if (empty($this->cart)) return;
 
 		$name_length = 0;
-		$has_price   = FALSE;
+		$has_price = FALSE;
 
 		// formatting preparation
 		foreach ($this->cart as $assetid => $details) {
@@ -551,7 +666,6 @@ class Ecommerce_Cart_Processor
 				$name_length = strlen($name);
 			}
 			$flat_charges_total += $price;
-
 		}
 
 		// standard format for the receipt header and rows
@@ -587,19 +701,21 @@ class Ecommerce_Cart_Processor
 				$tax_cost = 0;
 			}
 
+			$product_quantity = array_get_index($details, 'quantity', 0);
+
 			if ($cost < 0) {
 				$cost = '';
 			} else {
-				$cost = sprintf('$%.2f', $cost * array_get_index($details, 'quantity', 0));
-				$tax_cost = sprintf('$%.2f', $tax_cost * array_get_index($details, 'quantity', 0));
+				$cost = sprintf('$%.2f', $cost * $product_quantity);
+				$tax_cost = sprintf('$%.2f', $tax_cost * $product_quantity);
 			}
 
 			if ($has_price) {
-				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0), $cost);
+				printf($row_format, array_get_index($details, 'name', ''), $product_quantity, $cost);
 			} else {
-				printf($row_format, array_get_index($details, 'name', ''), array_get_index($details, 'quantity', 0));
+				printf($row_format, array_get_index($details, 'name', ''), $product_quantity);
 			}
-		}
+		}//end foreach
 
 		echo $break;
 
@@ -607,22 +723,34 @@ class Ecommerce_Cart_Processor
 		$row_format = '%'.$name_length.'s %10s'.($has_price ? ' %10s' : '')."\n";
 
 		if ($has_price) {
-			$totalTax = $this->getTotalTax($taxation_rate);
+			$total_tax = $this->getTotalTax($taxation_rate);
 
-			$sub_total = $remove_tax ? $this->getTotal($totalTax, $taxation_rate)-$totalTax : $this->getTotal(0, $taxation_rate);
+			$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
 			echo sprintf($row_format, 'Total', $this->getCount(), sprintf('$%.2f', $sub_total));
 
-			if (($totalTax > 0) || ($flat_charges_total > 0.0)) {
-				if ($totalTax > 0) {
+			if (($total_tax > 0) || ($flat_charges_total > 0.0)) {
+				if ($total_tax > 0) {
 					$row_title = $remove_tax ? 'Excluded Tax ('.$taxation_name.')' : 'Total ('.$taxation_name.')';
-					echo sprintf($row_format, $row_title, $this->getCount(), sprintf('$%.2f', $totalTax));
-				}
-				foreach ($flat_charges as $name => $price) {
-					echo sprintf($row_format, $name, 1, sprintf('$%.2f', $price));
+					echo sprintf($row_format, $row_title, $this->getCount(), sprintf('$%.2f', $total_tax));
 				}
 				echo $break;
-				$grand_total = $remove_tax ? $this->getTotal($totalTax, $taxation_rate)+$flat_charges_total-$totalTax : $this->getTotal($totalTax, $taxation_rate)+$flat_charges_total;
-				echo sprintf($row_format, 'Grand Total', $this->getCount(), sprintf('$%.2f', $grand_total));
+				foreach ($flat_charges as $name => $price) {
+					echo sprintf($row_format, $name, '', sprintf('$%.2f', $price));
+				}
+
+				$grand_total = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
+
+				$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total);
+
+				if ($total_delivery_cost > 0) {
+					echo sprintf($row_format, 'Delivery Fee', '', sprintf('$%.2f', $total_delivery_cost));
+				}
+
+				// figure out whether to print this last line break
+				if (($total_delivery_cost > 0) || ($flat_charges_total > 0)) {
+					echo $break;
+				}
+				echo sprintf($row_format, 'Grand Total', '', sprintf('$%.2f', $grand_total + $total_delivery_cost));
 			}
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());
