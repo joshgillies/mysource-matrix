@@ -1,0 +1,315 @@
+<?php
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: soap_api_core.inc,v 1.1 2008/05/09 04:54:02 hnguyen Exp $
+*
+*/
+
+
+require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
+
+/**
+* SOAP API Core
+*
+* Purpose
+*
+*
+* @author  Huan Nguyen <hnguyen@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage web_services
+*/
+class Soap_Api_Core extends Soap_Api
+{
+
+
+    /**
+    * Constructor
+    *
+    * @param int    $assetid    the asset id to be loaded
+    *
+    */
+    function __construct($assetid=0)
+    {
+        parent::__construct($assetid);
+
+    }//end constructor
+
+
+    /**
+    * Returns a function list of the asset let the children handle this
+    *
+    * @return string
+    * @access private
+    * @see Asset::_getName()
+    */
+    public function getFunctionList()
+    {
+        return Array(
+				'createAsset'		=> '1',
+				'deleteAsset'		=> '1',
+				'findChildren'		=> '1',
+				'findLinks'			=> '1',
+				'newAssetLink'		=> '1',
+				'duplicateAsset'	=> '1',
+				'changeStatus'		=> '1',
+				'findStatus'		=> '1',
+				'changeAttrValue'	=> '1',
+			   );
+
+    }//end getFunctionList()
+
+
+	/**
+	* Description: This function will create an asset of a specific type under a specific location
+	*
+    * @param array  $link_info	information used to create the initial link
+    * <pre>
+    * Array (
+	*		 'type_code'	 => [type code of new asset],
+	*		 'name'			 => [name for new asset],
+	*		 'parentid'		 => [parentid of the new parent],
+    *        'link_type'     => SQ_LINK_?,
+    *        'value'         => [link value],
+    *        'sort_order'    => [link sort order],
+    *        'is_dependant'  => [0|1],
+    *        'is_exclusive'  => [0|1]
+    *        )
+    * </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function createAsset($link_info_request)
+	{
+		$link_info = (Array) $link_info_request->link_info;
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['parentid']);
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($link_info['type_code']);
+		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $link_info['type_code'])));
+		$asset = new $object_name();
+		$asset->setAttrValue('name', $link_info['name']);
+
+		$link_info['asset']	= $parent_asset;
+		$linkid = $asset->create($link_info);
+		if ($linkid) {
+			return Array (
+					'link_res' => Array (
+									'result' => 'Asset was created successfully. Link id #'.$linkid,
+								  ),
+				   );
+		}//end if
+
+		throw new SoapFault('Server', 'Unable to create asset');
+
+	}//end createAsset()
+
+
+	/**
+	* deleteAsset
+	*
+    * @param string  $assetid  the id of the asset being deleted
+	*
+	* @return void
+	* @access public
+	*/
+	function deleteAsset($assetid)
+	{
+		// THIS FUNCTION HAS NOT BEEN FULLY IMPLEMENTED, Therefore it is disabled.
+		//$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+		//$minor_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid->assetid->assetid);
+		//if ($GLOBALS['SQ_SYSTEM']->am->createAssetLink($trash_folder, $minor_asset, SQ_LINK_TYPE_1)) {
+		//	return 'ALL GOOD';
+		//} else {
+		//	return 'FAILED';
+		//}//end else if
+
+	}//end deleteAsset()
+
+
+	/**
+	* Description: This function returns all the children of a specific asset
+	*
+	* @param array $asset_info the info array to find children of a specific asset
+    * <pre>
+    * Array (
+    *		'assetid'			=> [assetid of node],
+	*		'type_code'			=> [type code of new asset],
+	*		'strict_type_code'	=> [strict type code or not],
+	*		'dependant'			=> [dependant or not],
+    *		'link_value'		=> [link value],
+    *        )
+    * </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function findChildren($asset_info_request)
+	{
+		// THIS FUNCTION HAS NOT BEEN FULLY IMPLEMENTED.
+		//$asset_info = (Array) $asset_info_request->asset_info;
+		//$GLOBALS['SQ_SYSTEM']->am->getChildren($asset_info['assetid'], $asset_info['type_code'], $asset_info['strict_type_code'], $asset_info['dependant'], NULL, NULL, TRUE, NULL, NULL, TRUE, $asset_info['link_value']);
+
+	}//end findChildren()
+
+
+	/**
+	* findLinks
+	*
+	* @return void
+	* @access public
+	*/
+	function findLinks($assetid)
+	{
+
+
+	}//end findLinks()
+
+
+	/**
+	* newAssetLink
+	*
+	* @return void
+	* @access public
+	*/
+	function newAssetLink($assetid)
+	{
+
+
+	}//end newAssetLink()
+
+
+	/**
+	* duplicateAsset
+	*
+	* @return void
+	* @access public
+	*/
+	function duplicateAsset($assetid)
+	{
+
+
+	}//end duplicateAsset()
+
+
+	/**
+	* changeStatus
+	*
+	* @return void
+	* @access public
+	*/
+	function changeStatus($assetid)
+	{
+
+
+	}//end changeStatus()
+
+
+	/**
+	* findStatus
+	*
+	* @return void
+	* @access public
+	*/
+	function findStatus()
+	{
+
+
+	}//end findStatus()
+
+
+	/**
+	* changeAttrValue
+	*
+	* @return void
+	* @access public
+	*/
+	function changeAttrValue($assetid)
+	{
+
+
+	}//end changeAttrValue()
+
+
+	/**
+	* getComplexType
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getComplexTypes($func_list=Array())
+	{
+		$string_non_optional = self::getArgType('string', FALSE);
+		$string_optional = self::getArgType('string', TRUE);
+		$int_optional = self::getArgType('int', TRUE);
+
+		$complex_types	= Array (
+							'createAsset'	=> Array (
+												'createAsset'	=> Array (
+																			'arg_name'		=> 'link_info',
+									    									'type_code'     => $string_non_optional,
+																			'name'          => $string_non_optional,
+																			'parentid'      => $string_non_optional,
+																			'link_type'     => $string_non_optional,
+																			'value'         => $string_optional,
+																			'sort_order'    => $int_optional,
+																			'is_dependant'  => $string_optional,
+																			'is_exclusive'  => $string_optional,
+																		  ),
+												'createAssetResponse'	=> Array (
+																			'arg_name'		=> 'link_res',
+																			'result'		=> $string_optional,
+																		   ),
+											   ),
+							'deleteAsset'	=> Array (
+												'deleteAsset'	=> Array (
+																			'arg_name'		=> 'assetid',
+																			'assetid'		=> $string_non_optional,
+																		   ),
+												'deleteAssetResponse'	=> Array (
+																			'arg_name'		=> 'delete_res',
+																			'result'		=> $string_optional,
+																		   ),
+											   ),
+							'findChildren'	=> Array (
+												'findChildren'	=> Array (
+																			'arg_name'			=> 'asset_info_request',
+																			'assetid'			=> $string_non_optional,
+																			'type_code'			=> $string_optional,
+																			'strict_type_code'	=> $string_optional,
+																			'dependant'			=> $string_optional,
+																			'link_value'		=> $string_optional,
+																		   ),
+												'findChildrenResponse'	=> Array (
+																			'arg_name'		=> 'find_children_res',
+																			'result'		=> $string_optional,
+																		   ),
+											   ),
+						  );
+
+		$complex_types_available = Array();
+		if (empty($func_list)) {
+			// So sick, this is dodgy, it wouldnt hurt performance though.
+			$func_list = $complex_types;
+		}//end if
+			foreach ($func_list as $func_name => $switch) {
+				if ($switch) {
+					$complex_types_available = array_merge($complex_types_available, $complex_types[$func_name]);
+				}//end if
+			}//end foreach
+
+
+		return $complex_types_available;
+
+	}//end getComplexTypes();
+
+}//end class
+?>
