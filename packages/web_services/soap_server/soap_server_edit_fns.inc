@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server_edit_fns.inc,v 1.1 2008/05/09 04:54:02 hnguyen Exp $
+* $Id: soap_server_edit_fns.inc,v 1.1.2.1 2008/05/09 07:00:39 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -110,6 +110,15 @@ class Soap_Server_Edit_Fns extends Page_Edit_Fns
 			</table>
 			<?php
 			$o->closeField();
+			if ($write_access) {
+				$o->openField('');
+				$o->closeField();
+				$o->openField('Regenerate WSDL');
+					check_box($prefix.'_regenerate_wsdl', '1', 1);
+					$o->note('Select to regenerate the WSDL file to reflect your new changes');
+				$o->closeField();
+			}//end if
+
 		}//end else
 
 		return TRUE;
@@ -134,6 +143,9 @@ class Soap_Server_Edit_Fns extends Page_Edit_Fns
 
 		$regen_wsdl = FALSE;
 		if ($write_access) {
+			if (isset($_POST[$prefix.'_regenerate_wsdl'])) {
+				$regen_wsdl = TRUE;
+			}//end if
 			if (isset($_POST[$prefix.'_enable']) && !empty($_POST[$prefix.'_enable'])) {
 				$save_api_list = Array();
 				foreach ($_POST[$prefix.'_enable'] as $assetid => $enabled) {
