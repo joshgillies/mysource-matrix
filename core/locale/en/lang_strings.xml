@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.4 2008/04/14 23:39:25 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.262.2.5 2008/05/09 00:58:46 lwright Exp $
 *
 */
 
@@ -2278,5 +2278,20 @@ Are you sure you want to proceed?</string>
 
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
 	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
+
+	<!--
+	Strings for "X [does|does not] equals/begins with/ends with/contains Y"
+	(where X and Y can be anything, but makes most sense in a string comparison).
+	These are separate because other languages may place X and Y in different
+	positions in the string.
+	-->
+	<string source="comparison_equals">%1$s equals %2$s</string>
+	<string source="comparison_begins">%1$s begins with %2$s</string>
+	<string source="comparison_ends">%1$s ends with %2$s</string>
+	<string source="comparison_contains">%1$s contains %2$s</string>
+	<string source="comparison_not_equals">%1$s does not equal %2$s</string>
+	<string source="comparison_not_begins">%1$s does not begin with %2$s</string>
+	<string source="comparison_not_ends">%1$s does not end with %2$s</string>
+	<string source="comparison_not_contains">%1$s does not contain %2$s</string>
 
 </strings>
