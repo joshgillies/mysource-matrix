@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.76.2.1 2007/12/21 00:31:31 gsherwood Exp $
+* $Id: general_occasional.inc,v 1.76.2.2 2008/05/09 04:28:49 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76.2.1 $
+* @version $Revision: 1.76.2.2 $
 * @package MySource_Matrix
 */
 
@@ -490,11 +490,65 @@ function open_socket_connection($url_parts, &$errno, &$errstr)
 	}
 
 	if (SQ_PA_ENABLED) {
-		$proxy_host = SQ_PA_HOSTNAME;
-		$proxy_user = SQ_PA_USERNAME;
-		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+		$alternatives = SQ_PA_ALTERNATIVES;
+		if (trim($alternatives) !== '') {
+			$alternatives = unserialize($alternatives);
+		} else {
+			$alternatives = Array();
+		}
 
-		$con = @fsockopen($proxy_host, SQ_PA_PORT, $errno, $errstr);
+		// Back-up for if we don't have any alternatives
+		$match = FALSE;
+
+		foreach ($alternatives as $alternative) {
+			$pattern_url = $alternative['pattern_url'];
+
+			switch ($alternative['pattern_type']) {
+				case 'equals':
+					$match = ($page_url == $pattern_url);
+				break;
+
+				case 'begins':
+					// See if the pattern starts in exactly character 0
+					$match = (strpos($page_url, $pattern_url) === 0);
+				break;
+
+				case 'ends':
+					// See if the pattern starts at exactly the point where
+					// it would fill up the end of the string
+					$match = (strpos($page_url, $pattern_url) === (strlen($page_url) - strlen($pattern_url)));
+				break;
+
+				case 'contains':
+					// All we need to see is if the pattern is included in the URL
+					$match = (strpos($page_url, $pattern_url) !== FALSE);
+				break;
+
+			}//end switch
+
+			// Invert if necessary
+			if ($alternative['pattern_not']) $match = !$match;
+
+			if ($match) {
+				// We have a match; we'll use this and break out
+				$proxy_host = $alternative['proxy_url'];
+				$proxy_port = $alternative['proxy_port'];
+				$proxy_user = $alternative['username'];
+				$proxy_pass = base64_decode($alternative['password']);
+				break;
+			}
+
+		}//end foreach
+
+		if (!$match) {
+			// Use the primary proxy if we can't find a match
+			$proxy_host = SQ_PA_HOSTNAME;
+			$proxy_port = SQ_PA_PORT;
+			$proxy_user = SQ_PA_USERNAME;
+			$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+		}
+
+		$con = @fsockopen($proxy_host, $proxy_port, $errno, $errstr);
 		if (!$con) return FALSE;
 		fputs($con, "GET $page_url HTTP/1.0\r\n");
 		fputs($con, "Host: $proxy_host\r\n");

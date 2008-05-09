@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.5 2007/03/28 06:12:22 arailean Exp $
+* $Id: proxy_authentication_config.inc,v 1.5.4.1 2008/05/09 04:28:49 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -42,6 +42,7 @@ class Proxy_Authentication_Config extends Config
 						'SQ_PA_PORT'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_PA_USERNAME'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_PA_PASSWORD'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_PA_ALTERNATIVES'		=> Array('editable' => 1, 'default' => ''),
 						'SQ_PROXY_URL_PORT_STRIP'	=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
@@ -77,26 +78,7 @@ class Proxy_Authentication_Config extends Config
 		$write_access = $this->writeAccess();
 		$class = get_class($this);
 
-		$o->openSection(translate('proxy_authentication_config'));
-			$o->openField(translate('proxy_authentication_status'));
-			if (SQ_PA_ENABLED) {
-				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-				$socket = open_socket_connection('http://matrix.squiz.net', $errno, $errstr);
-				if ($socket !== FALSE && !is_null($socket)) {
-					$response = fread($socket, 128);
-					if (preg_match('|407 proxy authentication required|i', $response)) {
-						echo '<font color="red"><strong>'.translate('proxy_authentication_failed').'</strong></font>';
-					} else {
-						echo '<font color="green"><strong>'.translate('proxy_authentication_passed').'</strong></font>';
-					}
-				} else {
-					echo '<strong class="sq-backend-warning">'.translate('proxy_configuration_problem').'</font>';
-				}
-			} else {
-				echo '<strong>'.translate('proxy_authentication_disabled').'</font>';
-			}
-			$o->closeField();
-
+		$o->openSection('Primary Proxy Configuration');
 			$o->openField(translate('proxy_authentication_enable'));
 			if ($write_access) {
 				combo_box($class.'[SQ_PA_ENABLED]', Array(translate('no'), translate('yes')), FALSE, SQ_PA_ENABLED);
@@ -150,9 +132,200 @@ class Proxy_Authentication_Config extends Config
 
 		$o->closeSection();
 
+		$o->openSection('Alternative Proxy Configuration');
+		$o->openField('');
+			$this->paintAlternativeProxies($o);
+		$o->closeField();
+		$o->sectionNote('Alternative proxies will be used if they are set to be Active, and their URL pattern matches the URL being requested through the proxy. Proxies are matched from top to bottom; only the first proxy that matches will be used.');
+		$o->closeSection('');
+
 		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
+
+
+	/**
+	* Paints alternative proxies
+	*
+	* @param object	$o	(Backend_Outputter) The outputter class
+	*
+	* @return void
+	*/
+	function paintAlternativeProxies(&$o)
+	{
+		$all_proxies = SQ_PA_ALTERNATIVES;
+		if (trim($all_proxies) !== '') {
+			$all_proxies = unserialize(SQ_PA_ALTERNATIVES);
+		} else {
+			$all_proxies = Array();
+		}
+
+		/*
+		 * Pattern DOES/DOES NOT options, used for select field.
+		 */
+		$pattern_not_options = Array(
+								'0'	=> 'does',
+								'1'	=> 'does not',
+							   );
+
+		/*
+		 * Pattern type options to be used by the select field.
+		 * This array also used for gramatically-correct pattern type
+		 * descriptions when a DOES NOT is in force.
+		 * eg. "URL DOES NOT begin with ..."
+		 */
+		$pattern_type_options = Array(
+								'equals'	=> 'equal',
+								'begins'	=> 'begin with',
+								'ends'		=> 'end with',
+								'contains'	=> 'contain',
+							   );
+
+		/*
+		 * Gramatically-correct pattern type descriptions for cases where a
+		 * DOES NOT is not involved.
+		 * eg. change "URL DOES equal ..." to "URL equals ...".
+		 */
+		$pattern_type_desc = Array(
+								'equals'	=> 'equals',
+								'begins'	=> 'begins with',
+								'ends'		=> 'ends with',
+								'contains'	=> 'contains',
+							   );
+
+		$write_access = $this->writeAccess();
+		$class = get_class($this);
+
+		$i = 0;
+		foreach ($all_proxies as $proxy_key => $proxy_details) {
+			$i++;
+			$o->openSection('Alternative Proxy '.$i);
+				$o->openField('Hostname');
+					if ($write_access) {
+						echo text_box($class.'_alternative[proxy_url]['.$proxy_key.']', array_get_index($proxy_details, 'proxy_url', ''), 30);
+					} else {
+						echo array_get_index($proxy_details, 'proxy_url', '');
+					}
+				$o->closeField();
+				$o->openField('Port');
+					if ($write_access) {
+						echo int_text_box($class.'_alternative[proxy_port]['.$proxy_key.']', array_get_index($proxy_details, 'proxy_port', ''), FALSE, 7, 0, 65535);
+					} else {
+						echo array_get_index($proxy_details, 'proxy_port', '');
+					}
+				$o->closeField();
+				$o->openField('Username');
+					if ($write_access) {
+						echo text_box($class.'_alternative[username]['.$proxy_key.']', array_get_index($proxy_details, 'username', ''), 10);
+					} else {
+						echo array_get_index($proxy_details, 'username', '');
+					}
+				$o->closeField();
+				$o->openField('Password');
+					if ($write_access) {
+						echo password_box($class.'_alternative[password]['.$proxy_key.']', base64_decode(array_get_index($proxy_details, 'password', '')), 10);
+					} else {
+						if (trim(array_get_index($proxy_details, 'password', '')) !== '') {
+							?><em>Password not shown</em><?php
+						}
+					}
+				$o->closeField();
+				$o->openField('Pattern');
+					if ($write_access) {
+						echo 'URL ';
+						echo combo_box($class.'_alternative[pattern_not]['.$proxy_key.']', $pattern_not_options, FALSE, array_get_index($proxy_details, 'pattern_not', '0'));
+						echo ' ';
+						echo combo_box($class.'_alternative[pattern_type]['.$proxy_key.']', $pattern_type_options, FALSE, array_get_index($proxy_details, 'pattern_type', 'equals'));
+						echo ' ';
+						text_box($class.'_alternative[pattern_url]['.$proxy_key.']', $proxy_details['pattern_url'], 30);
+					} else {
+						echo translate('comparison'.(array_get_index($proxy_details, 'pattern_not', '0') ? '_not_' : '_').array_get_index($proxy_details, 'pattern_type', 'equals'), 'URL', '"'.array_get_index($proxy_details, 'pattern_url', '').'"');
+					}
+				$o->closeField();
+				$o->openField(translate('active_question'));
+					if ($write_access) {
+						echo check_box($class.'_alternative[active]['.$proxy_key.']', 1, array_get_index($proxy_details, 'active', TRUE));
+					} else {
+						echo array_get_index($proxy_details, 'active', TRUE);
+					}
+				$o->closeField();
+				if ($write_access) {
+					$o->openField(translate('delete_question'));
+						echo check_box($class.'_alternative[delete]['.$proxy_key.']', 1, FALSE);
+					$o->closeField();
+				}
+			$o->closeSection();
+		}
+
+		if ($write_access) {
+			$o->openSection('Add New Proxy');
+				$o->openField('Add new proxy');
+					echo check_box($class.'_alternative[add]', 1, FALSE);
+				$o->closeField();
+			$o->closeSection();
+		}
+
+	}//end paintAlternativeProxies()
+
+
+	/**
+	* Process alternative proxies section
+	*
+	* Return value indicates whether the file was written
+	*
+	* @param array	&$vars	the array with any new values (that are allowed to be edited)
+	*						Array('[config_var_name]' => [scalar value])
+	*
+	* @return void
+	* @access public
+	*/
+	function processAlternativeProxies(&$vars)
+	{
+		if (defined('SQ_PA_ALTERNATIVES')) {
+			$all_proxies = SQ_PA_ALTERNATIVES;
+			if (trim($all_proxies) !== '') {
+				$all_proxies = unserialize(SQ_PA_ALTERNATIVES);
+			} else {
+				$all_proxies = Array();
+			}
+		} else {
+			$all_proxies = Array();
+		}
+
+		$class = get_class($this);
+
+		$alt_post = array_get_index($_POST, $class.'_alternative', Array());
+
+		if (!empty($alt_post)) {
+			$deletes = array_get_index($alt_post, 'delete', Array());
+			foreach ($deletes as $key => $value) {
+				unset($all_proxies[$key]);
+			}
+
+			$actives = array_get_index($alt_post, 'active', Array());
+			foreach ($all_proxies as $key => $value) {
+				$all_proxies[$key]['active'] = isset($actives[$key]);
+
+				$all_proxies[$key]['proxy_url']    = $alt_post['proxy_url'][$key];
+				$all_proxies[$key]['proxy_port']   = $alt_post['proxy_port'][$key];
+				$all_proxies[$key]['username']     = $alt_post['username'][$key];
+				$all_proxies[$key]['password']     = base64_encode($alt_post['password'][$key]);
+				$all_proxies[$key]['pattern_not']  = $alt_post['pattern_not'][$key];
+				$all_proxies[$key]['pattern_type'] = $alt_post['pattern_type'][$key];
+				$all_proxies[$key]['pattern_url']    = $alt_post['pattern_url'][$key];
+			}
+
+		}
+
+		$add = array_get_index($alt_post, 'add', 0);
+		if ($add) {
+			$new_key = max(array_keys($all_proxies)) + 1;
+			$all_proxies[$new_key] = Array();
+		}
+
+		$vars['SQ_PA_ALTERNATIVES'] = serialize($all_proxies);
+
+	}//end processAlternativeProxies()
 
 
 	/**
@@ -169,6 +342,7 @@ class Proxy_Authentication_Config extends Config
 	*/
 	function save($vars, $backup_existing=FALSE)
 	{
+		$this->processAlternativeProxies($vars);
 
 		// encode password
 		if (isset($vars['SQ_PA_PASSWORD']) && !empty($vars['SQ_PA_PASSWORD'])) {
