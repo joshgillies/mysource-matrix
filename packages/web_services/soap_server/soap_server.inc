@@ -10,11 +10,10 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.1 2008/05/09 04:54:02 hnguyen Exp $
+* $Id: soap_server.inc,v 1.2 2008/05/09 05:30:06 hnguyen Exp $
 *
 */
 
-ini_set("soap.wsdl_cache_enabled", "0"); 	// disabling WSDL cache ONLY IN TESTING STAGE IF SEE THIS IN PRODUCTION, REMOVE IT.
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
@@ -27,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
