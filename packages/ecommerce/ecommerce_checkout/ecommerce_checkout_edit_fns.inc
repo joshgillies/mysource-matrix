@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.5 2008/05/07 01:39:07 bshkara Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.6 2008/05/09 05:51:52 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.5 $
+* @version $Revision: 1.6.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -641,7 +641,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 		</script>
-		<?
+		<?php
 		foreach ($delivery_weight_fees as $key => $data) {
 			?>
 			<table width="200px">
@@ -892,7 +892,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			}//end if
 			?>
 			</table>
-		<?
+		<?php
 		}//end foreach
 
 		return TRUE;
