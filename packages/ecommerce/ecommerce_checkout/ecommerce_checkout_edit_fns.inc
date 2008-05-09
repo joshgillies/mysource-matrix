@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.9 2008/05/07 04:35:36 bshkara Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.10 2008/05/09 05:47:24 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -416,7 +416,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return $this->_paintFieldSelector($asset, 'item_weight');
 
 	}//end paintProductWeightSource()
-	
+
 
 	/**
 	* Processes selector for a metadata field or an asset attribute
@@ -639,7 +639,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				}
 			}
 		</script>
-		<?
+		<?php
 		foreach ($delivery_weight_fees as $key => $data) {
 			?>
 			<table width="200px">
@@ -688,7 +688,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintCountryDeliveryWeightFees()
-	
+
 
 	/**
 	* Processes interface for specifying country delivery weight fees
@@ -743,7 +743,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end paintInternationalDeliveryFeeExempt()
-	
+
 
 	/**
 	* Processes country select box for international delivery fees
@@ -890,13 +890,13 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 			}//end if
 			?>
 			</table>
-		<?
+		<?php
 		}//end foreach
 
 		return TRUE;
 
 	}//end paintConditionalDeliveryFee()
-	
+
 
 	/**
 	* Processes interface to add additional, conditional delivery fees
