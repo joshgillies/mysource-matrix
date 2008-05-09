@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.80.2.2 2008/03/20 00:49:39 hnguyen Exp $
+* $Id: general_occasional.inc,v 1.80.2.3 2008/05/09 03:46:01 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80.2.2 $
+* @version $Revision: 1.80.2.3 $
 * @package MySource_Matrix
 */
 
@@ -84,13 +84,13 @@ function get_link_type_names()
 */
 function permission_type_name($type)
 {
-    if (isset($GLOBALS['SQ_PERM_TYPE_NAME'][$type]) === FALSE) {
-        $name = get_bit_names('SQ_PERMISSION_', $type, FALSE, TRUE);
-        if (is_array($name)) return 'Unknown';
-        $GLOBALS['SQ_PERM_TYPE_NAME'][$type] = ucwords(strtolower($name));
-    }
+	if (isset($GLOBALS['SQ_PERM_TYPE_NAME'][$type]) === FALSE) {
+		$name = get_bit_names('SQ_PERMISSION_', $type, FALSE, TRUE);
+		if (is_array($name)) return 'Unknown';
+		$GLOBALS['SQ_PERM_TYPE_NAME'][$type] = ucwords(strtolower($name));
+	}
 
-    return $GLOBALS['SQ_PERM_TYPE_NAME'][$type];
+	return $GLOBALS['SQ_PERM_TYPE_NAME'][$type];
 
 }//end permission_type_name()
 
@@ -172,20 +172,20 @@ function get_constant_values($prefix)
 */
 function get_status_description($status)
 {
-    if (isset($GLOBALS['SQ_STATUS_DESC_NAME'][$status]) === FALSE) {
-        // work out the name of our status file
-        $status_code = get_bit_names('SQ_STATUS_', $status);
-        $status_code = 'asset_status_'.strtolower($status_code);
+	if (isset($GLOBALS['SQ_STATUS_DESC_NAME'][$status]) === FALSE) {
+		// work out the name of our status file
+		$status_code = get_bit_names('SQ_STATUS_', $status);
+		$status_code = 'asset_status_'.strtolower($status_code);
 
-        require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-        if (isset($this)) {
-            $status_object = new $status_code($this);
-        } else {
-            $status_object = new $status_code(NULL);
-        }
+		require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+		if (isset($this)) {
+			$status_object = new $status_code($this);
+		} else {
+			$status_object = new $status_code(NULL);
+		}
 
-        $GLOBALS['SQ_STATUS_DESC_NAME'][$status] = $status_object->getDescription();
-    }
+		$GLOBALS['SQ_STATUS_DESC_NAME'][$status] = $status_object->getDescription();
+	}
 
 	return $GLOBALS['SQ_STATUS_DESC_NAME'][$status];
 
@@ -533,11 +533,65 @@ function open_socket_connection($url_parts, &$errno, &$errstr)
 	}
 
 	if (SQ_PA_ENABLED) {
-		$proxy_host = SQ_PA_HOSTNAME;
-		$proxy_user = SQ_PA_USERNAME;
-		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+		$alternatives = SQ_PA_ALTERNATIVES;
+		if (trim($alternatives) !== '') {
+			$alternatives = unserialize($alternatives);
+		} else {
+			$alternatives = Array();
+		}
 
-		$con = @fsockopen($proxy_host, SQ_PA_PORT, $errno, $errstr);
+		// Back-up for if we don't have any alternatives
+		$match = FALSE;
+
+		foreach ($alternatives as $alternative) {
+			$pattern_url = $alternative['pattern_url'];
+
+			switch ($alternative['pattern_type']) {
+				case 'equals':
+					$match = ($page_url == $pattern_url);
+				break;
+
+				case 'begins':
+					// See if the pattern starts in exactly character 0
+					$match = (strpos($page_url, $pattern_url) === 0);
+				break;
+
+				case 'ends':
+					// See if the pattern starts at exactly the point where
+					// it would fill up the end of the string
+					$match = (strpos($page_url, $pattern_url) === (strlen($page_url) - strlen($pattern_url)));
+				break;
+
+				case 'contains':
+					// All we need to see is if the pattern is included in the URL
+					$match = (strpos($page_url, $pattern_url) !== FALSE);
+				break;
+
+			}//end switch
+
+			// Invert if necessary
+			if ($alternative['pattern_not']) $match = !$match;
+
+			if ($match) {
+				// We have a match; we'll use this and break out
+				$proxy_host = $alternative['proxy_url'];
+				$proxy_port = $alternative['proxy_port'];
+				$proxy_user = $alternative['username'];
+				$proxy_pass = base64_decode($alternative['password']);
+				break;
+			}
+
+		}//end foreach
+
+		if (!$match) {
+			// Use the primary proxy if we can't find a match
+			$proxy_host = SQ_PA_HOSTNAME;
+			$proxy_port = SQ_PA_PORT;
+			$proxy_user = SQ_PA_USERNAME;
+			$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+		}
+
+		$con = @fsockopen($proxy_host, $proxy_port, $errno, $errstr);
 		if (!$con) return FALSE;
 		fputs($con, "GET $page_url HTTP/1.0\r\n");
 		fputs($con, "Host: $proxy_host\r\n");
