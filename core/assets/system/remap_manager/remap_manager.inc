@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.37.2.1 2008/03/12 04:03:52 lwright Exp $
+* $Id: remap_manager.inc,v 1.37.2.2 2008/05/11 23:32:26 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37.2.1 $
+* @version $Revision: 1.37.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,14 +266,14 @@ class Remap_Manager extends Asset
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 			$where = 'remap_url IN (';
 
-			foreach ($urls as $url) {
+			foreach ($urls as $url_key => $url) {
 				if ($url['http'] == 1) {
-					$where .= ':http_url, ';
-					$bind_vars['http_url'] = 'http://'.$url['url'];
+					$where .= ':http_url_'.$url_key.', ';
+					$bind_vars['http_url_'.$url_key] = 'http://'.$url['url'];
 				}
 				if ($url['https'] == 1) {
-					$where .= ':https_url, ';
-					$bind_vars['https_url'] = 'https://'.$url['url'];
+					$where .= ':https_url_'.$url_key.', ';
+					$bind_vars['https_url_'.$url_key] = 'https://'.$url['url'];
 				}
 
 			}//end for
