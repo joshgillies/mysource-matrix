@@ -268,7 +268,7 @@
 	</query>
 
 	<query id="getLookupUrlsByAssetId">
-		<!-- Returns lookup value URLs for specified URL -->
+		<!-- Returns lookup URLs for specified URL -->
 		<primary>
 			<select>
 				<fields>
@@ -277,7 +277,7 @@
 					<field table="sq_ast_lookup" column="https" />
 				</fields>
 				<from>
-					<table>sq_ast_lookup_value</table>
+					<table>sq_ast_lookup</table>
 				</from>
 				<where>
 					<equal table="sq_ast_lookup" column="assetid">:assetid</equal>
