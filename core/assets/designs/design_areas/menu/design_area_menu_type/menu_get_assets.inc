@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.8 2008/03/19 00:52:57 gsherwood Exp $
+* $Id: menu_get_assets.inc,v 1.9 2008/05/12 22:59:08 hnguyen Exp $
 *
 */
 
@@ -88,12 +88,15 @@ function menu_get_assets($id_name, $majorids)
 		}
 	}//end if
 
-	$bind_vars['p_permission']   = SQ_PERMISSION_READ;
-	$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
-	$bind_vars['p_userid']       = $public_userid;
-	$bind_vars['p_userid_1']     = $public_userid;
-	$bind_vars['r_userid']       = $public_userid;
-	$bind_vars['r_userid_1']     = $public_userid;
+	// Only bind if we have some place holder in the query to bind to, otherwise Oracle will throw an error.
+	if (!empty($USERIDS_COND)) {
+		$bind_vars['p_permission']   = SQ_PERMISSION_READ;
+		$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
+		$bind_vars['p_userid']       = $public_userid;
+		$bind_vars['p_userid_1']     = $public_userid;
+		$bind_vars['r_userid']       = $public_userid;
+		$bind_vars['r_userid_1']     = $public_userid;
+	}//end if
 
 	$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 			   FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
