@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_core.inc,v 1.1 2008/05/09 04:54:02 hnguyen Exp $
+* $Id: soap_api_core.inc,v 1.2 2008/05/12 00:46:15 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -295,19 +295,9 @@ class Soap_Api_Core extends Soap_Api
 											   ),
 						  );
 
-		$complex_types_available = Array();
-		if (empty($func_list)) {
-			// So sick, this is dodgy, it wouldnt hurt performance though.
-			$func_list = $complex_types;
-		}//end if
-			foreach ($func_list as $func_name => $switch) {
-				if ($switch) {
-					$complex_types_available = array_merge($complex_types_available, $complex_types[$func_name]);
-				}//end if
-			}//end foreach
+        $complex_types_available = parent::getComplexTypes($complex_types);
 
-
-		return $complex_types_available;
+        return $complex_types_available;
 
 	}//end getComplexTypes();
 

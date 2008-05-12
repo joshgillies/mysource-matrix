@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.1 2008/05/09 04:54:02 hnguyen Exp $
+* $Id: soap_api.inc,v 1.2 2008/05/12 00:46:15 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -112,9 +112,24 @@ class SOAP_Api extends Asset
 	}//end getArgType()
 
 
-	public static function getComplexTypes()
-	{
-		return Array();
+	public static function getComplexTypes($complex_types=Array())
+	{	
+        $complex_types_available = Array();
+        if (empty($func_list)) {
+            // So sick, this is dodgy, it wouldnt hurt performance though.
+            $func_list = $complex_types;
+        }//end if
+            foreach ($func_list as $func_name => $switch) {
+                if (isset($complex_types[$func_name])) {
+                    if ($switch) {
+                        $complex_types_available = array_merge($complex_types_available, $complex_types[$func_name]);
+                    }//end if
+                }//end if
+            }//end foreach
+
+
+        return $complex_types_available;
+
 	}//end getComplexTypes()
 
 }//end class
