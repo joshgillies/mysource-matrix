@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.9 2008/05/12 22:59:08 hnguyen Exp $
+* $Id: menu_get_assets.inc,v 1.10 2008/05/12 23:23:41 hnguyen Exp $
 *
 */
 
@@ -56,7 +56,7 @@ function menu_get_assets($id_name, $majorids)
 		if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 			$USERIDS_COND = '';
 		} else {
-			$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 			$userids = $user->getUserGroups();
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			$userids[] = $public_userid;
@@ -79,23 +79,19 @@ function menu_get_assets($id_name, $majorids)
 						p.permission > :p_permission_1 AND p.granted = \'1\'
 					)
 			)';
-		}
-
-		if (!empty($USERIDS_COND)) {
 			$USERIDS_COND .= '
 							  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.assetid
 							  HAVING MIN(p.granted) <> \'0\'';
-		}
-	}//end if
 
-	// Only bind if we have some place holder in the query to bind to, otherwise Oracle will throw an error.
-	if (!empty($USERIDS_COND)) {
-		$bind_vars['p_permission']   = SQ_PERMISSION_READ;
-		$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
-		$bind_vars['p_userid']       = $public_userid;
-		$bind_vars['p_userid_1']     = $public_userid;
-		$bind_vars['r_userid']       = $public_userid;
-		$bind_vars['r_userid_1']     = $public_userid;
+			// Only bind if we have some place holder in the query to bind to, otherwise Oracle will throw an error.
+			$bind_vars['p_permission']   = SQ_PERMISSION_READ;
+			$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
+			$bind_vars['p_userid']       = $public_userid;
+			$bind_vars['p_userid_1']     = $public_userid;
+			$bind_vars['r_userid']       = $public_userid;
+			$bind_vars['r_userid_1']     = $public_userid;
+		}
+
 	}//end if
 
 	$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
