@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.5 2008/04/28 01:33:39 lwright Exp $
+* $Id: asset.inc,v 1.633.2.6 2008/05/12 04:46:16 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.5 $
+* @version $Revision: 1.633.2.6 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1634,6 +1634,11 @@ class Asset extends MySource_Object
 
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL);
 			foreach ($links as $link) {
+				// Shadow asset links (such as tags) are not encumbered by
+				// type checks in createAssetLink(), so no restrictions here.
+				if (strpos($link['minorid'], ':') !== FALSE) {
+					continue;
+				}
 				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== TRUE) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_localised_error('SYS0236', E_USER_WARNING, $this->name, $new_type_code, $link['minor_type_code'], link_type_name($link['link_type']), $new_type_code);
