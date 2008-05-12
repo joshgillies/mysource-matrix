@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.19.2.2 2008/04/16 23:15:27 gsherwood Exp $
+* $Id: design_area_asset_lineage.inc,v 1.19.2.3 2008/05/12 06:47:27 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19.2.2 $
+* @version $Revision: 1.19.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 				$start_index = ($this->attr('prefix_with_home_link')) ? 0 : 1;
 
 				$start_at_level = $this->attr('start_at_level');
-				if (!is_null($start_at_level)) {
+				if (!is_null($start_at_level) && $start_at_level !== '') {
 					$start_index = $start_at_level;
 				}
 
