@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.251 2008/04/18 03:39:49 gsherwood Exp $
+* $Id: listing_engine.inc,v 1.252 2008/05/12 01:20:45 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -257,6 +257,10 @@ class Listing_Engine extends Page
 		}
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'no_results');
+		if (empty($bodycopy_link)) {
+			// No Results bodycopy is obviously hidden, so we should be getting TYPE_3 link instead
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'bodycopy', TRUE, 'no_results');
+		}
 		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		}
