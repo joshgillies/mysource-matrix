@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.14 2008/04/29 23:44:14 lwright Exp $
+* $Id: asset_manager.inc,v 1.655.2.15 2008/05/12 05:16:06 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.14 $
+* @version $Revision: 1.655.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1794,12 +1794,11 @@ class Asset_Manager extends MySource_Object
 		// version number starts at 0.0.0 again because the clone is a brand new asset
 		$initial_version = '0.0.0';
 
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		// get timestamp for db type TODO
-		$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
-		$last_updated = MatrixDAL::executeSqlOne('SELECT '.$ts_fragment.';');
-
 		try {
+			$bind_vars = Array(
+								'date_value' => ts_iso8601(time()),
+							  );
+			$last_updated = MatrixDAL::executeOne('core', 'toDate', $bind_vars);
 			$bind_vars = Array(
 							'assetid'				=> $assetid,
 							'version'				=> $initial_version,
