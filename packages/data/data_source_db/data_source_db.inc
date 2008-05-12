@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.32 2008/02/21 04:11:26 lwright Exp $
+* $Id: data_source_db.inc,v 1.33 2008/05/12 00:57:59 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -186,7 +186,8 @@ class Data_Source_DB extends Data_Source
 
 		foreach ($keywords as $keyword) {
 			$value = $this->getDynamicVariableValue($keyword);
-			$replacements[] = MatrixDAL::quote($value);
+			$value = MatrixDAL::quote($value);
+			$replacements[] = str_replace('$', '\$', $value);
 			$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
 		}
 
