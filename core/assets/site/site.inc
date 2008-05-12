@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.108.2.2 2008/05/12 05:59:15 hnguyen Exp $
+* $Id: site.inc,v 1.108.2.3 2008/05/12 23:13:21 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108.2.2 $
+* @version $Revision: 1.108.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -759,8 +759,9 @@ class Site extends Folder
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$limit = (MatrixDAL::getDbType() === 'oci') ? ' AND rownum<=1' : ' LIMIT 1 ';
-			$sql .= $where.$limit;
+
+			$sql .= $where;
+			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
 
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
