@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.2 2008/05/12 00:46:15 hnguyen Exp $
+* $Id: soap_api.inc,v 1.3 2008/05/12 04:52:51 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -113,7 +113,7 @@ class SOAP_Api extends Asset
 
 
 	public static function getComplexTypes($complex_types=Array())
-	{	
+	{
         $complex_types_available = Array();
         if (empty($func_list)) {
             // So sick, this is dodgy, it wouldnt hurt performance though.
