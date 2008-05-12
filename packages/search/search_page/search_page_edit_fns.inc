@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.76 2007/12/17 22:43:25 rong Exp $
+* $Id: search_page_edit_fns.inc,v 1.76.2.1 2008/05/12 01:21:23 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.76.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -253,7 +253,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 											if ($write_access) {
 												$type_attrs = Array('' => '-- '.translate('select_attribute').' --');
 												foreach ($asset_type_attrs as $attr_id => $attr_name) {
-													$type_attrs[$attr_id] = $attr_name;
+													$type_attrs[$attr_id] = $attr_name['name'];
 												}
 												combo_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][params][attrid]', $type_attrs, FALSE, $selected_attr);
 											} else if ($selected_attr != '') {
