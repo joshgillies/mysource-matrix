@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.10 2007/11/29 23:42:13 hnguyen Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.10.2.1 2008/05/13 01:20:05 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,8 +86,11 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();
 
 		$sort_fn_code = '
-			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $a, $a_matches=Array());
-			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $b, $b_matches=Array());
+			$a_matches = Array();
+			$b_matches = Array();
+
+			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $a, $a_matches);
+			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $b, $b_matches);
 			if ($a_matches[1] == "system" && $a_matches[2] == "frontend") return -1;
 			if ($b_matches[1] == "system" && $b_matches[2] == "frontend") return  1;
 
