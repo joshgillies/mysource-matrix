@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.13 2007/12/17 22:43:24 rong Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.13.2.1 2008/05/13 03:49:55 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -361,11 +361,13 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 							$value = $value['value'];
 						}
 
-						preg_match_all("/$search_string/i", $value, $matches=Array());
+						$matches = Array();
+						preg_match_all("/$search_string/i", $value, $matches);
 						$search_count[$assetid] += count($matches[0]);
 						$cvrd_sch_str = htmlentities($search_string);
 						if ($cvrd_sch_str != $search_string) {
-							preg_match_all('/'.$cvrd_sch_str.'/i', $value, $matches=Array() );
+							$matches = Array();
+							preg_match_all('/'.$cvrd_sch_str.'/i', $value, $matches);
 							$search_count[$assetid] += count($matches[0]);
 						}
 						unset($matches);

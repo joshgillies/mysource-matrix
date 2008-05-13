@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.29 2007/12/17 05:37:21 rong Exp $
+* $Id: wysiwyg.inc,v 1.29.2.1 2008/05/13 03:49:13 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -239,9 +239,11 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$output = $this->value;
 
 		if (!in_array($format, Array('disableurls', 'disableall'))) {
-			preg_match_all('|\\./\\?a=([0-9]+)([^0-9:])|', $output, $matches=Array());
+			$matches = Array();
+			preg_match_all('|\\./\\?a=([0-9]+)([^0-9:])|', $output, $matches);
 			$normal_assetids = empty($matches[1]) ? Array() : $matches[1];
-			preg_match_all('|\\./\\?a=([0-9]+:[^$]*)\\$|', $output, $matches=Array(), PREG_PATTERN_ORDER);
+			$matches = Array();
+			preg_match_all('|\\./\\?a=([0-9]+:[^$]*)\\$|', $output, $matches, PREG_PATTERN_ORDER);
 			$shadow_assetids = empty($matches[1]) ? Array() : $matches[1];
 			$assetids = array_unique(array_merge($normal_assetids, $shadow_assetids));
 			$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetUrl($assetids);
