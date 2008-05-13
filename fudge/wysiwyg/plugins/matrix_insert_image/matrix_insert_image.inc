@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.34 2007/12/27 00:39:10 gsherwood Exp $
+* $Id: matrix_insert_image.inc,v 1.35 2008/05/13 04:01:40 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -271,12 +271,14 @@ class matrix_insert_image extends wysiwyg_plugin
 		$disable_resize = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE');
 		if ($disable_resize == 'yes') {
 			$new_html = rawurldecode($html);
-			preg_match_all('/<img[^>]*>/i', $new_html, $images=Array());
+			$images = Array();
+			preg_match_all('/<img[^>]*>/i', $new_html, $images);
 			if (!empty($images)) {
 				$html_updated = FALSE;
 				foreach ($images[0] as $img_tag) {
 					// matrix internal link?
-					preg_match('/src=["\']?\.\/\?a=([^ "\'>]*)["\']?/i', $img_tag, $src=Array());
+					$src = Array();
+					preg_match('/src=["\']?\.\/\?a=([^ "\'>]*)["\']?/i', $img_tag, $src);
 					$style_width_changed = FALSE;
 					$style_height_changed = FALSE;
 					$attr_width_changed = FALSE;
@@ -292,9 +294,11 @@ class matrix_insert_image extends wysiwyg_plugin
 						$height = $img_asset->attr('height');
 
 						// inlined style?
-						preg_match('/style=["\']?([^>"\']*)["\']?/i', $img_tag, $style=Array());
+						$style = Array();
+						preg_match('/style=["\']?([^>"\']*)["\']?/i', $img_tag, $style);
 						if (!empty($style)) {
-							preg_match('/width: *(\d+) *(px)?/i', $img_tag, $style_width=Array());
+							$style_width = Array();
+							preg_match('/width: *(\d+) *(px)?/i', $img_tag, $style_width);
 							if (!empty($style_width)) {
 								$style_w = (int) $style_width[1];
 								if ($style_w != $width) {
@@ -304,7 +308,8 @@ class matrix_insert_image extends wysiwyg_plugin
 								}
 							}
 
-							preg_match('/height: *(\d+) *(px)?/i', $img_tag, $style_height=Array());
+							$style_height = Array();
+							preg_match('/height: *(\d+) *(px)?/i', $img_tag, $style_height);
 							if (!empty($style_height)) {
 								$style_h = (int) $style_height[1];
 								if ($style_h != $height) {
@@ -317,7 +322,8 @@ class matrix_insert_image extends wysiwyg_plugin
 						}
 
 						// width attribute?
-						preg_match('/width=["\']?([^> "\']*)["\']?/i', $img_tag, $width_attr=Array());
+						$width_attr = Array();
+						preg_match('/width=["\']?([^> "\']*)["\']?/i', $img_tag, $width_attr);
 						if (!empty($width_attr)) {
 							$w_attr = (int) $width_attr[1];
 							if ($w_attr != $width) {
@@ -328,7 +334,8 @@ class matrix_insert_image extends wysiwyg_plugin
 						}
 
 						// height attribute?
-						preg_match('/height=["\']?([^> "\']*)["\']?/i', $img_tag, $height_attr=Array());
+						$height_attr = Array();
+						preg_match('/height=["\']?([^> "\']*)["\']?/i', $img_tag, $height_attr);
 						if (!empty($height_attr)) {
 							$h_attr = (int) $height_attr[1];
 							if ($h_attr != $height) {

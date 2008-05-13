@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.61 2008/02/18 23:19:52 lwright Exp $
+* $Id: db_install.inc,v 1.62 2008/05/13 04:01:36 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -1131,7 +1131,8 @@ function uninstall_rollback_triggers()
 			// so that the postgres trigger functions are also dropped
 			$sql = 'DROP TRIGGER '.$trigger_name;
 			if (DAL::getDbType() == 'pgsql') {
-				preg_match('/^sq_(.*)_rb_trg$/i', $trigger_name, $matches=Array());
+				$matches = Array();
+				preg_match('/^sq_(.*)_rb_trg$/i', $trigger_name, $matches);
 				$sql .= ' on sq_'.$matches[1].' CASCADE';
 			}
 

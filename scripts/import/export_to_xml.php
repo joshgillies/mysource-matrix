@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.3 2007/11/15 04:18:22 hnguyen Exp $
+* $Id: export_to_xml.php,v 1.4 2008/05/13 04:01:37 mbrydon Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -383,8 +383,13 @@ echo "</actions>\n\n";
 
 		$shadow_reg = '|.\/?a=(\d+:\w*)|';
 		$normal_reg = '|.\/?a=(\d+)|';
-        preg_match_all($shadow_reg, $value, $shadow_matches=Array());
-        preg_match_all($normal_reg, $value, $normal_matches=Array());
+
+		$shadow_matches = Array();
+		$normal_matches = Array();
+
+		preg_match_all($shadow_reg, $value, $shadow_matches);
+		preg_match_all($normal_reg, $value, $normal_matches);
+
 		$shadow_matches = $shadow_matches[1];
 		$normal_matches = $normal_matches[1];
 		$replace_assetids = Array();
