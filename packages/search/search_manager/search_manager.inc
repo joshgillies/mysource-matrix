@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.3 2008/04/23 05:31:33 bpearson Exp $
+* $Id: search_manager.inc,v 1.164.2.4 2008/05/13 23:16:17 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.3 $
+* @version $Revision: 1.164.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1086,10 +1086,9 @@ class Search_Manager extends Asset
 
 			// new condition for 3.18 because of the result format changes
 			if (is_array($field_type)) {
-				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type[0]['type_code']);
-			} else {
-				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
-			}
+				$field_type = $field_type[0]['type_code'];
+			}//end if
+			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
 
 			if (isset($metadata[$field->id][0]['value'])) {
 				$value = $metadata[$field->id][0]['value'];
@@ -1132,6 +1131,8 @@ class Search_Manager extends Asset
 
 					case 'metadata_field_thesaurus':
 						$key_type = 'thesaurus';
+						// Replace comma with spaces so the values can be indexed correctly. This should be done here and not in get_word_counts/remove_silent_chars.
+						$value = str_replace(',',' ', $value);
 					break;
 
 					default:
