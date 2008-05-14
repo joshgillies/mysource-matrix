@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.4 2008/05/13 23:16:17 hnguyen Exp $
+* $Id: search_manager.inc,v 1.164.2.5 2008/05/14 06:51:58 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.4 $
+* @version $Revision: 1.164.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -669,6 +669,7 @@ class Search_Manager extends Asset
 				// NOTE: break is omitted on purpose
 				case 'thesaurus':
 				case 'select':
+				case 'selection':
 					$value = strtolower($value);
 				break;
 
@@ -1114,6 +1115,10 @@ class Search_Manager extends Asset
 			} else {
 
 				switch ($field_type) {
+					case 'metadata_field_hierarchy':
+						$key_type = 'selection';
+					break;
+
 					case 'metadata_field_select':
 						if ($field->attr('multiple')) {
 							$plugin =& $this->_getDBPlugin();
@@ -1992,13 +1997,11 @@ class Search_Manager extends Asset
 			$upper = array_get_index($field_details['words'], 'upper', NULL);
 			$field_details['words'] = Array('lower' => $lower, 'upper' => $upper);
 		} else {
-			// remove unindexable words
+			// DONT remove unindexable words (then you cannot search for part of it)
 			$words = Array();
 
 			foreach ($this->generateWordList($field_details['words']) as $word) {
-				if ($this->isWordIndexable($word)) {
-					$words[] = strtolower($word);
-				}
+				$words[] = strtolower($word);
 			}
 			$field_details['words'] = $words;
 		}

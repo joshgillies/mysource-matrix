@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_management.inc,v 1.20 2007/12/23 23:30:45 gsherwood Exp $
+* $Id: search_manager_management.inc,v 1.20.2.1 2008/05/14 06:51:58 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.20 $ - 0.1
+* @version $Revision: 1.20.2.1 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -38,38 +38,38 @@ class Search_Manager_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-						'indexing'			=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'boolean',
-												'default'		=> FALSE,
-												'description'	=> 'Turns indexing on or off',
-												'parameters'	=> Array(
-																	'allow_empty'	=> FALSE,
+						'indexing'				=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'Turns indexing on or off',
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'min_word_length'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> '4',
+													'parameters'	=> Array(
+																		'allow_negative'	=> FALSE,
+																	   ),
+												   ),
+						'noise_word_list'		=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(
+																	'a',
+																	'the',
+																	'it',
+																	'this',
 																   ),
-											   ),
-						'min_word_length'	=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'int',
-												'default'		=> '4',
-												'parameters'	=> Array(
-																	'allow_negative'	=> FALSE,
-																   ),
-											   ),
-						'noise_word_list'	=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'serialise',
-												'default'	=> Array(
-																'a',
-																'the',
-																'it',
-																'this',
-															   ),
-											   ),
-						'white_word_list'	=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'serialise',
-												'default'	=> Array(),
-											   ),
+												   ),
+						'white_word_list'		=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												   ),
 						'enable_begins_with'	=> Array(
 													'added'			=> '0.5',
 													'type'			=> 'boolean',

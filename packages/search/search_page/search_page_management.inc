@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.59.2.1 2008/03/12 04:05:08 lwright Exp $
+* $Id: search_page_management.inc,v 1.59.2.2 2008/05/14 06:51:59 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.59.2.1 $
+* @version $Revision: 1.59.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -174,6 +174,26 @@ class Search_Page_Management extends Asset_Management
 												'default'		=> '(and related terms)',
 												'description'	=> 'String to display for the "auto synonym search triggered" keyword',
 											  );
+
+		$this->vars['stored_query_session']	= Array(
+												'added'			=> '0.21',
+												'type'			=> 'parameter_map',
+												'default'		=> Array(),
+												'description'	=> 'Use saved variables to conduct the search query',
+												'parameters'	=> Array(
+																	'parameters'	=> Array(
+																						'stored_query'	=> 'Search all fields',
+																					   ),
+																   ),
+											  );
+
+		$this->vars['stored_query_show_results'] = Array(
+													'added'			=> '0.21',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'Go directly to the resutls if the query is stored',
+													'parameters'	=> Array('allow_empty' => FALSE),
+												   );
 
 		// Default sort-by options are different for search page
 		$this->vars['sort_by'] = Array(

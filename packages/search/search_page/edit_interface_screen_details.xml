@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.43 2007/11/25 22:16:46 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.43.2.1 2008/05/14 06:51:58 bpearson Exp $
 *
 */
 -->
@@ -128,6 +128,19 @@
 				<paint_function   name="paintStructuredDropdownOptions"   />
 				<process_function name="processStructuredDropdownOptions" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Stored Search" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function		name="paintSavedSearch"   />
+				<process_function	name="processSavedSearch" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Stored Search Options" write_access="write:attributes">
+		<field attribute="stored_query_show_results">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 </contents>
