@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.1 2008/03/12 04:04:00 lwright Exp $
+* $Id: system_config.inc,v 1.104.2.2 2008/05/14 01:28:06 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.1 $
+* @version $Revision: 1.104.2.2 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -93,6 +93,7 @@ class System_Config extends Config
 						'SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ENABLE_ROLES_SYSTEM'		=> Array('editable' => 1, 'default' => TRUE),
 						'SQ_CONF_ENABLE_GLOBAL_ROLES'		=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_TIMEZONE'					=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
 					   );
 
 	/**
@@ -394,6 +395,12 @@ class System_Config extends Config
 				echo nl2br(SQ_CONF_RECACHE_SUFFIX);
 			}
 
+			$o->openField(translate('system_timezone'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_TIMEZONE]', SQ_CONF_TIMEZONE, 15);
+			} else {
+				echo nl2br(SQ_CONF_TIMEZONE);
+			}
 		$o->closeSection();
 
 		$o->openSection(translate('system_urls'));
