@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.4 2008/05/13 04:01:37 mbrydon Exp $
+* $Id: export_to_xml.php,v 1.5 2008/05/14 06:56:24 bpearson Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -201,7 +201,7 @@ echo "</actions>\n\n";
 				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
 				if ($attr_name == 'html') { $value = _parseValue($value); }
-				echo "   <value><![CDATA[\n".$value."\n          ]]>\n   </value>\n";
+				echo "   <value><![CDATA[".$value."]]></value>\n";
 				echo "</action>\n\n";
 			}
 		}
