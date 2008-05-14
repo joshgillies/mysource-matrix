@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.279 2008/05/09 00:17:44 lwright Exp $
+* $Id: lang_strings.xml,v 1.280 2008/05/14 01:23:16 hnguyen Exp $
 *
 */
 
@@ -307,6 +307,7 @@
 	<string source="system_login_suffix">System Login Suffix</string>
 	<string source="system_nocache_suffix">System Bypass Cache Suffix</string>
 	<string source="system_recache_suffix">System Clear Cache Suffix</string>
+	<string source="system_timezone">System Timezone</string>
 	<string source="system_tools">System Tools</string>
 	<string source="system_web_path_separator">System Web Path Separator</string>
 	<string source="system_wide">System Wide</string>
