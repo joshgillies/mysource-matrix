@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.31.4.4 2008/04/29 00:03:40 lwright Exp $
+* $Id: file_versioning.inc,v 1.31.4.5 2008/05/14 00:18:06 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31.4.4 $
+* @version $Revision: 1.31.4.5 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -1241,7 +1241,7 @@ class File_Versioning
 				WHERE path = '.$db->quote($old_path);
 		$result = $db->query($sql);
 
-		$new_dir = $this->_dir.'/assets/'.$new_type_code;
+		$new_dir = $this->_dir.'/'.$new_path;
 
 		if (!is_dir($new_dir)) create_directory($new_dir);
 
