@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.105 2008/04/16 23:31:04 gsherwood Exp $
+* $Id: init.inc,v 1.106 2008/05/14 01:26:53 hnguyen Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 
@@ -28,10 +28,6 @@
 // PHP thingies we want done OUR way
 error_reporting(E_ALL);
 set_magic_quotes_runtime(0);
-
-// TODO: This sets the default timezone so date functions don't throw E_STRICT.
-// TODO: This needs to be replaced with something else
-date_default_timezone_set('Australia/Sydney');
 
 // we need this so that our error handler won't kill itself attempting to try and remove
 // all existing buffers - especially important when Zend Performance Suite is installed because
@@ -68,6 +64,9 @@ require_once SQ_DATA_PATH.'/private/conf/main.inc';
 if (!SQ_PHP_CLI) {
 	ini_set('memory_limit', SQ_CONF_WEB_MEMORY_LIMIT.'M');
 }
+
+// This sets the default timezone so date functions don't throw E_STRICT.
+date_default_timezone_set(SQ_CONF_TIMEZONE);
 
 // include installation key if it exists
 if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
