@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.35.2.2 2008/03/19 05:54:06 hnguyen Exp $
+* $Id: file_versioning.inc,v 1.35.2.3 2008/05/14 00:20:19 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35.2.2 $
+* @version $Revision: 1.35.2.3 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -1342,7 +1342,7 @@ class File_Versioning
 			throw new Exception('Unable to update pathname to: "'.$new_path.'" for previous path: "'.$old_path.'" due to database error: '.$e->getMessage());
 		}
 
-		$new_dir = $this->_dir.'/assets/'.$new_type_code;
+		$new_dir = $this->_dir.'/'.$new_path;
 
 		if (!is_dir($new_dir)) create_directory($new_dir);
 
