@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime_management.inc,v 1.12 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_datetime_management.inc,v 1.13 2008/05/14 01:47:47 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,6 +55,8 @@ class Design_Area_DateTime_Management extends Asset_Management
 															'options'		=> Array(
 																				'now'		=> 'When the page is loaded',
 																				'updated'	=> 'When the page was last modified',
+																				'created'   => 'When the page was first created',
+																				'published' => 'When the page was published',
 																			   ),
 															'multiple'		=> FALSE,
 															'allow_empty'	=> FALSE,
