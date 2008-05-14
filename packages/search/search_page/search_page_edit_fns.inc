@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.77 2008/05/12 01:17:39 hnguyen Exp $
+* $Id: search_page_edit_fns.inc,v 1.78 2008/05/14 06:39:24 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1621,6 +1621,66 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return $res;
 
 	}//end _processExtraSortOptions()
+
+
+//--        SAVED SEARCH        --//
+
+
+	/**
+	* Paint the inteface for configuring saved search
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function paintSavedSearch(&$asset, &$o, $prefix)
+	{
+		// Not much extra functionality here, just need to add the search fields to the _params
+		// of parameter map, then show the results
+		$wa = $asset->writeAccess('attributes');
+		$pmap = $asset->getAttribute('stored_query_session');
+		$current_params = $pmap->_params;
+		// Add in the search fields
+		$fields = $asset->attr('fields');
+		foreach ($fields as $fieldname => $fieldvalue) {
+			$current_params['parameters'][$fieldname] = 'Search Field: '.$fieldname;
+		}
+		$pmap->_params = $current_params;
+		if ($wa) {
+			$pmap->paint($prefix);
+		} else {
+			$pmap->paint($prefix, TRUE);
+		}
+
+	}//end paintSavedSearch()
+
+
+	/**
+	* Process the interface for configuring saved search
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function processSavedSearch(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$pmap = $asset->getAttribute('stored_query_session');
+		if ($wa) {
+			$pmap->process($prefix);
+			$asset->setAttrValue('stored_query_session', $pmap->value);
+			$asset->saveAttributes();
+		}
+
+		return TRUE;
+
+	}//end processSavedSearch()
 
 
 }//end class

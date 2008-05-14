@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213 2007/12/20 03:14:21 rong Exp $
+* $Id: search_page.inc,v 1.214 2008/05/14 06:39:24 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -317,10 +317,52 @@ class Search_Page extends Listing_Engine
 			$_REQUEST['search_category'] = $submitted_category;
 		}
 
+		// Set this variable to pass to the processSearch() function
+		$search_vars=Array();
+
+		// If the search is stored, then process the search and show the results
+		// The initial check is here, so it will still allow sis searches
+		$pmap = $this->getAttribute('stored_query_session');
+		$pmap_params = $pmap->getParameters();
+		$fields = $this->attr('fields');
+		$jump_to_result = FALSE;
+		if (is_array($pmap_params) && !empty($pmap_params)) {
+			foreach ($pmap_params as $params) {
+				$sq_index = $pmap->getParameterValue($params);
+
+				if (!is_null($sq_index)) {
+					// Now set these variables into $_REQUEST so search_page can read them directly
+					if ($params == 'stored_query') {
+						// Direct match to all fields
+						foreach ($fields as $fieldname => $fieldvalue) {
+							$search_vars[$fieldname] = $sq_index;
+						}
+					} else {
+						// Else match the request to the field
+						$search_vars[$params] = $sq_index;
+					}//end if
+
+					// This stops the search if set and empty
+					if (isset($this->_tmp['searched_queries']) && empty($this->_tmp['searched_queries'])) {
+						unset($this->_tmp['searched_queries']);
+					}
+
+					// Parameter Value loaded, so go to the Results page if the attribute is set
+					$jump_to_result = TRUE;
+
+				}//end if
+			}//end foreach
+		}//end if
+
+		// If Stored Query is to be used, then jump to the results page directly
+		if ($this->attr('stored_query_show_results') && $mode == 'initial' && $jump_to_result) {
+			$mode = 'results';
+		}//end if
+
 		switch ($mode) {
 			case 'results':
 			case 'sis'    :
-				$this->printResultsBody();
+				$this->printResultsBody($search_vars);
 			break;
 
 			case 'initial':
@@ -353,12 +395,14 @@ class Search_Page extends Listing_Engine
 	/**
 	* Prints the results bodycopy
 	*
+	* @param array	$search	The passed search variable used for stored searches
+	*
 	* @return void
 	* @access private
 	*/
-	function printResultsBody()
+	function printResultsBody($search=Array())
 	{
-		$results = $this->processSearch();
+		$results = $this->processSearch($search);
 		$this->_tmp['initial_results'] = $results;
 		$results =& $this->convertProxyAssetTypes($results);
 		$this->_tmp['search_results'] =& $results;
@@ -552,7 +596,7 @@ class Search_Page extends Listing_Engine
 					$mixed_ds_types = TRUE;
 					break;
 				}
-				if (in_array(strtolower($this_field_type), Array('selection', 'metadata_field_select'))) {
+				if (in_array(strtolower($this_field_type), Array('selection', 'metadata_field_select', 'metadata_field_hierarchy'))) {
 					$mixed_ds_types = TRUE;
 					break;
 				}
@@ -979,6 +1023,21 @@ class Search_Page extends Listing_Engine
 								case 'metadata_field_multiple_text' :
 									text_box('queries_'.$query_var, $query, $this->defaults['query_width']);
 								break;
+								case 'metadata_field_hierarchy' :
+									$hierarchy = $asset->getHierarchyAttribute();
+									if (!empty($query)) $hierarchy->value = $query;
+									if ($asset->attr('hier_sort')) {
+										$sort = $asset->attr('hier_sort');
+										$fmt = $asset->attr('hier_structure');
+										$lvl = $asset->attr('hier_level');
+										$dpth = $asset->attr('hier_depth');
+										$edit_fns = $asset->getEditFns();
+										$options = $hierarchy->_params['options'];
+										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt, $lvl, $dpth);
+										$hierarchy->_params['options'] = $options;
+									}
+									$hierarchy->paint('queries_'.$query_var);
+								break;
 								case 'metadata_field_select' :
 									$selection = $asset->getSelectionAttribute();
 									if (!empty($query)) $selection->setValue($query);
@@ -1090,6 +1149,21 @@ class Search_Page extends Listing_Engine
 								case 'metadata_field_thesaurus':
 								case 'metadata_field_multiple_text':
 									text_box('queries_'.$query_var, '', $this->defaults['query_width']);
+								break;
+								case 'metadata_field_hierarchy' :
+									$hierarchy = $asset->getHierarchyAttribute();
+									if (!empty($query)) $hierarchy->value = $query;
+									if ($asset->attr('hier_sort')) {
+										$sort = $asset->attr('hier_sort');
+										$fmt = $asset->attr('hier_structure');
+										$lvl = $asset->attr('hier_level');
+										$dpth = $asset->attr('hier_depth');
+										$edit_fns = $asset->getEditFns();
+										$options = $hierarchy->_params['options'];
+										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt, $lvl, $dpth);
+										$hierarchy->_params['options'] = $options;
+									}
+									$hierarchy->paint('queries_'.$query_var);
 								break;
 								case 'metadata_field_select' :
 									$selection = $asset->getSelectionAttribute();
@@ -1254,6 +1328,21 @@ class Search_Page extends Listing_Engine
 								case 'metadata_field_thesaurus':
 								case 'metadata_field_multiple_text':
 									echo ($escape ? htmlspecialchars($query) : $query);
+								break;
+								case 'metadata_field_hierarchy' :
+									$hierarchy = $asset->getHierarchyAttribute();
+									if (!empty($query)) $hierarchy->value = $query;
+									if ($asset->attr('hier_sort')) {
+										$sort = $asset->attr('hier_sort');
+										$fmt = $asset->attr('hier_structure');
+										$lvl = $asset->attr('hier_level');
+										$dpth = $asset->attr('hier_depth');
+										$edit_fns = $asset->getEditFns();
+										$options = $hierarchy->_params['options'];
+										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt, $lvl, $dpth);
+										$hierarchy->_params['options'] = $options;
+									}
+									$hierarchy->paint('queries_'.$query_var);
 								break;
 								case 'metadata_field_select' :
 									// NOTE: if the selection field allows multiple selections, then the selection cannot be paint()ed unescaped
@@ -2061,19 +2150,28 @@ class Search_Page extends Listing_Engine
 	* Note that all search queries are constructed and run in the Search Manager
 	* From the posted variables, it formulates search info and returns results
 	*
+	* @param array	$search	The search variables used for stored searches
+	*
 	* @return array
 	* @access public
 	* @see Search_Manager:processSearch()
 	*/
-	function processSearch()
+	function processSearch($search=Array())
 	{
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
 
+		// If the search params were passed, get them and use them
+		// Otherwise go and look up some search params
+		if (!empty($search) || count($search)>0) {
+			$queries = $search;
+		} else {
+			$queries = $this->_getSearchedQueries();
+		}
+
 		// save the search terms into the session so that we can use them for
 		// search within search results
-		$queries = $this->_getSearchedQueries();
 		$_SESSION['SQ_LAST_SEARCH'][$this->id] = $queries;
 
 		// get the basic search settings based on the current category (if any)
@@ -2200,6 +2298,33 @@ class Search_Page extends Listing_Engine
 			}//end foreach
 		}//end if
 
+		// Metadata Hierarchy
+		// requires us to go back up and down the tree we have to add the extra looking here
+		if (isset($search_info['fields'])) {
+			foreach ($search_info['fields'] as $fieldname => $field) {
+				foreach ($field['data_sources'] as $data_src) {
+					if (isset($data_src['type']) && $data_src['type'] == 'metadata') {
+						if (isset($data_src['params']['assetid'])) {
+							$m_field_id = $data_src['params']['assetid'];
+						}
+						if ($m_field_id > 0) {
+							$m_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($m_field_id);
+							if (!is_null($m_field)) {
+								if ($m_field->type() == 'metadata_field_hierarchy') {
+									$options = $m_field->attr('hierarchy_options');
+									$level = $m_field->attr('hier_level');
+									$depth = $m_field->attr('hier_depth');
+									$edit_fns = $m_field->getEditFns();
+									$search_info['fields'][$fieldname]['words'] = $edit_fns->getHierarchyTree($search_info['fields'][$fieldname]['words'], $options, $level, $depth, ' ');
+									$search_info['fields'][$fieldname]['word_logic'] = 'OR';
+								}//end if
+							}//end if
+						}//end if
+					}//end if
+				}//end foreach()
+			}//end foreach()
+		}//end if
+
 		if ($query_fields_exist) {
 			$search_results = $sm->processSearch($search_info);
 
@@ -2275,6 +2400,11 @@ class Search_Page extends Listing_Engine
 
 			$queries[$field_name] = '';
 			$query_var = 'queries_'.$field_name.$suffix;
+			// Bug #3002
+			// If there is a period (.) in the field name, REQUEST var changes it to a underscore (_), so when
+			// setting the query_var string, we need to look for underscores and not periods in the REQUEST var
+			// It should be noted that query_var is used elsewhere too.
+			//$clean_query_var = str_replace('.', '_', $query_var);
 
 			if (!empty($field_details['data_sources']) && !$this->_hasMixedFieldTypes($field_details)) {
 				$data_source = $field_details['data_sources'][0];
@@ -2367,7 +2497,6 @@ class Search_Page extends Listing_Engine
 			}
 
 		}//end foreach fields
-
 
 		if ($mode == 'sis') {
 			$last_search = $_SESSION['SQ_LAST_SEARCH'][$this->id];

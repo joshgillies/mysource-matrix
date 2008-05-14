@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.21 2008/04/16 23:35:09 gsherwood Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.22 2008/05/14 06:39:24 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -80,14 +80,20 @@ class Search_Manager_Plugin_PgSQL
 			case 'metadata':
 				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
+								'metadata_field_hierarchy'		=> 'selection',
 								'metadata_field_select'			=> 'selection',
 								'metadata_field_multiple_text'	=> 'selection',
 								'metadata_field_thesaurus'		=> 'thesaurus',
 							 );
+				$exact_type = Array('metadata_field_hierarchy', 'metadata_field_select', 'metadata_field_multiple_text');
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
 				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
 				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
-				$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
+				if (in_array(get_class_lower($metadata_field), $exact_type)) {
+					$base_query['where'][] = 'ai.value = '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term);
+				} else {
+					$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
+				}
 			break;
 
 			case 'standard':

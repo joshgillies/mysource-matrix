@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.2 2008/02/19 05:09:20 lwright Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.3 2008/05/14 06:39:23 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -70,6 +70,7 @@ class Search_Manager_Plugin_OCI
 			case 'metadata':
 				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
+								'metadata_field_hierarchy'		=> 'selection',
 								'metadata_field_select'			=> 'selection',
 								'metadata_field_multiple_text'	=> 'selection',
 								'metadata_field_thesaurus'		=> 'thesaurus',
