@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_datetime.inc,v 1.12 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_datetime.inc,v 1.12.2.1 2008/05/14 01:43:35 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,6 +61,12 @@ class Design_Area_DateTime extends Design_Area
 			case 'updated' :
 				$datetime = '$ASSET->updated';
 			break;
+			case 'created' :
+				$datetime = '$ASSET->created';
+				break;
+			case 'published' :
+				$datetime = '$ASSET->published';
+				break;
 			case 'now' :
 			default :
 				$datetime = 'time()';
