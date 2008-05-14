@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.206.2.4 2007/11/23 06:28:19 mbrydon Exp $
+* $Id: search_page.inc,v 1.206.2.5 2008/05/14 07:07:08 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.206.2.4 $
+* @version $Revision: 1.206.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2275,20 +2275,25 @@ class Search_Page extends Listing_Engine
 
 			$queries[$field_name] = '';
 			$query_var = 'queries_'.$field_name.$suffix;
+			// Bug #3002
+			// If there is a period (.) in the field name, REQUEST var changes it to a underscore (_), so when
+			// setting the query_var string, we need to look for underscores and not periods in the REQUEST var
+			// It should be noted that query_var is used elsewhere too.
+			$clean_query_var = str_replace('.', '_', $query_var);
 
 			if (!empty($field_details['data_sources']) && !$this->_hasMixedFieldTypes($field_details)) {
 				$data_source = $field_details['data_sources'][0];
 				switch ($data_source['type']) {
 					case 'include_all' :
 					case 'exclude' :
-						$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+						$queries[$field_name] = array_get_index($_REQUEST, $clean_query_var, '');
 					break;
 
 					case 'standard' :
 						if (isset($sm->standard_date_fields[$data_source['params']['field']])) {
 							$queries[$field_name] = $this->_processDateRange($query_var);
 						} else if (isset($sm->standard_text_fields[$data_source['params']['field']])) {
-							$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+							$queries[$field_name] = array_get_index($_REQUEST, $clean_query_var, '');
 						}
 					break;
 
@@ -2302,7 +2307,7 @@ class Search_Page extends Listing_Engine
 
 								switch (array_get_index($data_source['params'], 'numeric_search', 'exact')) {
 									case 'exact':
-										$query = array_get_index($_REQUEST, $query_var, NULL);
+										$query = array_get_index($_REQUEST, $clean_query_var, NULL);
 										if (!is_null($query)) {
 											$queries[$field_name]['lower'] = $query;
 											$queries[$field_name]['upper'] = $queries[$field_name]['lower'];
@@ -2310,8 +2315,8 @@ class Search_Page extends Listing_Engine
 									break;
 
 									case 'range':
-										$query_lower = array_get_index($_REQUEST, $query_var.'_lower', NULL);
-										$query_upper = array_get_index($_REQUEST, $query_var.'_upper', NULL);
+										$query_lower = array_get_index($_REQUEST, $clean_query_var.'_lower', NULL);
+										$query_upper = array_get_index($_REQUEST, $clean_query_var.'_upper', NULL);
 										if (!is_null($query_lower) || !is_null($query_upper)) {
 											$queries[$field_name]['lower'] = ($query_lower == '') ? NULL : $query_lower;
 											$queries[$field_name]['upper'] = ($query_upper == '') ? NULL : $query_upper;
@@ -2319,7 +2324,7 @@ class Search_Page extends Listing_Engine
 									break;
 
 									case 'custom':
-										$key = array_get_index($_REQUEST, $query_var, NULL);
+										$key = array_get_index($_REQUEST, $clean_query_var, NULL);
 
 										if (!is_null($key)) {
 											$custom_range = array_get_index($data_source['params']['custom_num_search'], $key, Array());
@@ -2356,14 +2361,14 @@ class Search_Page extends Listing_Engine
 								break;
 
 								default :
-									$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+									$queries[$field_name] = array_get_index($_REQUEST, $clean_query_var, '');
 								break;
 							}
 						}
 					break;
 				}//end switch query type
 			} else {
-				$queries[$field_name] = array_get_index($_REQUEST, $query_var, '');
+				$queries[$field_name] = array_get_index($_REQUEST, $clean_query_var, '');
 			}
 
 		}//end foreach fields
