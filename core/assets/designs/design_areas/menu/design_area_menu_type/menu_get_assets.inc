@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.11 2008/05/15 05:16:01 hnguyen Exp $
+* $Id: menu_get_assets.inc,v 1.12 2008/05/15 05:20:51 hnguyen Exp $
 *
 */
 
@@ -64,7 +64,7 @@ function menu_get_assets($id_name, $majorids)
 			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = '\''.(string)$userids[$i].'\'';
-			}
+			}//end for
 			$userids_str = implode(',', $userids);
 			$USERIDS_COND = 'AND (p.userid  IN ('.$userids_str.') ';
 			$USERIDS_COND .= 'OR r.userid  IN ('.$userids_str.')) ';
@@ -84,8 +84,7 @@ function menu_get_assets($id_name, $majorids)
 							  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.assetid
 							  HAVING MIN(p.granted) <> \'0\'';
 
-			// Only bind if we have some place holder in the query to bind to, otherwise Oracle will throw an error.
-		}
+		}//end else
 
 	}//end if
 
