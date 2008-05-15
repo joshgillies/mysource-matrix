@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.12 2008/05/15 05:20:51 hnguyen Exp $
+* $Id: menu_get_assets.inc,v 1.13 2008/05/15 05:23:01 hnguyen Exp $
 *
 */
 
@@ -89,7 +89,7 @@ function menu_get_assets($id_name, $majorids)
 	}//end if
 
 	// This check to avoid the case when the viewing entity is root user or sys admins, trying to bind vars to an empty query will result in Fatal error from Oracle. Need to be explicitly not empty string.
-	if ($USERIDI_COND !== '') {
+	if ($USERIDS_COND !== '') {
 		$bind_vars['p_permission']   = SQ_PERMISSION_READ;
 		$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
 		$bind_vars['p_userid']       = $public_userid;
