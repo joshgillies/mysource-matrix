@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.11 2006/12/06 05:39:51 bcaldwell Exp $
+#* $Id: backup.sh,v 1.11.8.1 2008/05/15 05:26:19 bshkara Exp $
 #*
 #*/
 #
@@ -80,16 +80,21 @@ else
 fi
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
-# see the output of DB::parseDSN
 php_code="<?php
-define('SQ_SYSTEM_ROOT', '${SYSTEM_ROOT}');
-define('SQ_LOG_PATH',    SQ_SYSTEM_ROOT.'/data/private/logs');
-require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
-require_once 'DB.php';
-\$dsn = DB::parseDSN(SQ_CONF_DB_DSN);
-foreach(\$dsn as \$k => \$v) {
-	echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
+require_once '${SYSTEM_ROOT}/data/private/conf/db.inc';
+if (\$db_conf['db']['type'] === 'pgsql') {
+	\$start_pos = strpos(\$db_conf['db']['DSN'], ':') + 1;
+	\$dsn = preg_split('/[\s;]/', substr(\$db_conf['db']['DSN'], \$start_pos));
+	foreach(\$dsn as \$v) {
+		list(\$k, \$v) = explode('=', \$v);
+		echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
+	}
+} else {
+	echo 'DB_HOST=\"'.\$db_conf['db']['DSN'].'\";';
 }
+echo 'DB_TYPE=\"'.\$db_conf['db']['type'].'\";';
+echo 'DB_USERNAME=\"'.\$db_conf['db']['user'].'\";';
+echo 'DB_PASSWORD=\"'.\$db_conf['db']['password'].'\";';
 ?>"
 
 eval `echo "${php_code}" | $PHP`
@@ -99,7 +104,7 @@ set | grep "^DB_"
 dumpfile=${SYSTEM_ROOT}/matrix-`date +%Y-%m-%d_%H-%M`.dump
 [[ -n $remote ]] && remotefile="/tmp/matrix-`date +%Y-%m-%d_%H-%M`.dump"
 
-case "${DB_PHPTYPE}" in
+case "${DB_TYPE}" in
 	"pgsql")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
@@ -109,14 +114,14 @@ case "${DB_PHPTYPE}" in
 			echo "I can't pass the password automatically because the psql command only supports prompting.";
 			args="${args} -W";
 		fi
-		if [ "${DB_HOSTSPEC}" != "" ]; then
-			args="${args} -h ${DB_HOSTSPEC}";
+		if [ "${DB_HOST}" != "" ]; then
+			args="${args} -h ${DB_HOST}";
 		fi
 		if [ "${DB_PORT}" != "" ]; then
 			args="${args} -p ${DB_PORT}";
 		fi
 		if [[ -z $remote ]];then
-			pg_dump ${args} "${DB_DATABASE}"  > ${dumpfile}
+			pg_dump ${args} "${DB_DBNAME}"  > ${dumpfile}
 		else
 			ssh ${remote} "pg_dump ${args} > ${remotefile}"
 			scp ${remote}:${remotefile} ${dumpfile}
@@ -128,7 +133,7 @@ case "${DB_PHPTYPE}" in
 			exit 5
 		fi
 	;;
-	"oci8")
+	"oci")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
 			args="${args} ${DB_USERNAME}";
@@ -136,8 +141,8 @@ case "${DB_PHPTYPE}" in
 		if [ "${DB_PASSWORD}" != "" ]; then
 			args="${args}/${DB_PASSWORD}";
 		fi
-		if [ "${DB_HOSTSPEC}" != "" ]; then
-			sid=${DB_HOSTSPEC#*SID=}
+		if [ "${DB_HOST}" != "" ]; then
+			sid=${DB_HOST#*SID=}
 			sid=${sid%%)*}
 			args="${args}@${sid}";
 		fi
