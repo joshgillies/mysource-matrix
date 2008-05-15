@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_total_assets.inc,v 1.1 2008/05/07 05:54:04 mbrydon Exp $
+* $Id: report_total_assets.inc,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a total asset count for seven points in time, from today to one year ago
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,14 +48,14 @@ class Report_Total_Assets extends Simple_Report
 	/**
 	* Paint the interface for this report
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this tool asset
 	*
 	* @return void
 	* @access public
 	* @static
 	*/
-	public static function paintReport(&$o, $type_code)
+	public static function paintReport(Backend_Outputter &$o, $type_code)
 	{
 		$report = Report_Total_Assets::loadReport($type_code);
 
@@ -91,8 +91,8 @@ class Report_Total_Assets extends Simple_Report
 
 		$table_format = '<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header">Date</th>
-						<th class="sq-backend-table-header" width="35%%" align="right">New assets since last timeframe</th>
+						<th class="sq-backend-table-header">Period</th>
+						<th class="sq-backend-table-header" width="35%%" align="right">Assets in the system</th>
 					</tr>
 					%s
 				</table>';
@@ -109,14 +109,14 @@ class Report_Total_Assets extends Simple_Report
 	/**
 	* Process this report.  Return false if any errors.
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this asset
 	*
 	* @return boolean
 	* @access public
 	* @static
 	*/
-	public static function processReport(&$o, $type_code)
+	public static function processReport(Backend_Outputter &$o, $type_code)
 	{
 		$today = time();
 
@@ -134,54 +134,59 @@ class Report_Total_Assets extends Simple_Report
 		$last_year_date = date('Y-m-d', $today - (365*24*3600*7));
 
 		$date_report = Array(
-                                                'One day ago'                           => Array(
-                                                                                                'date'          => $date_yesterday,
-                                                                                                'num_assets'    => 0,
-                                                                                           ),
-                                                'One week ago'  => Array(
-                                                                                                'date'          => $last_week_date,
-                                                                                                'num_assets'    => 0,
-                                                                                           ),
-                                                'One month ago' => Array(
-                                                                                                'date'          => $last_month_date,
-                                                                                                'num_assets'    => 0,
-                                                                                           ),
-                                                'Three months ago'      => Array(
-                                                                                                'date'          => $last_quarter_date,
-                                                                                                'num_assets'    => 0,
-                                                                                           ),
-                                                'Six months ago'        => Array(
-                                                                                                'date'          => $last_semester_date,
-                                                                                                'num_assets'    => 0,
-                                                                                           ),
-                                                'One year ago'          => Array(
-                                                                                                'date'          => $last_year_date,
-                                                                                                'num_assets'    => 0,
-                                                                                           ),
-                                        );
-
-		$assets_since_last_period = Array();
+				'Yesterday'		=> Array(
+								'date'		=> $date_yesterday,
+								'num_assets'	=> 0,
+							   ),
+				'Last week'		=> Array(
+								'date'		=> $last_week_date,
+								'num_assets'	=> 0,
+							   ),
+				'Last month'		=> Array(
+								'date'		=> $last_month_date,
+								'num_assets'	=> 0,
+							   ),
+				'Last three months'	=> Array(
+								'date'		=> $last_quarter_date,
+								'num_assets'	=> 0,
+							   ),
+				'Last six months'	=> Array(
+								'date'		=> $last_semester_date,
+								'num_assets'	=> 0,
+							   ),
+				'Last year'		=> Array(
+									'date'		=> $last_year_date,
+									'num_assets'	=> 0,
+							   ),
+			       );
 
 		$num_assets_today = Report_Total_Assets::_getTotalAssets();
+		$last_period = FALSE;
+		$remove_date_items = Array();
 
 		foreach ($date_report as $date_description => $date_data) {
+			if ($last_period) {
+				$remove_date_items[] = $date_description;
+				continue;
+			}
+
 			$num_assets = Report_Total_Assets::_getTotalAssets($date_data['date']);
-			$date_report[$date_description]['num_assets'] = $num_assets;
-			$assets_since_last_period[$date_description] = $num_assets;
+			$date_report[$date_description]['num_assets'] = $num_assets_today - $num_assets;
+
+			if ($date_report[$date_description]['num_assets'] === 0) {
+				$last_period = TRUE;
+			}
 		}
 
-		$num_assets_last_period = $num_assets_today;
-		foreach ($assets_since_last_period as $date_description => $num_assets) {
-			$num_assets_in_period = $num_assets_last_period - $num_assets;
-			$num_assets_last_period = $num_assets;
-			$date_report[$date_description]['num_assets'] = $num_assets_in_period;
+		foreach ($remove_date_items as $date_description) {
+			unset($date_report[$date_description]);
 		}
 
 		$report = Array(
 				'generated'		=> $today,
 				'report_data'		=> Array(
-								'num_assets_today'      => $num_assets_today,
-								'date_report'           => $date_report,
+								'num_assets_today'	=> $num_assets_today,
+								'date_report'		=> $date_report,
 							   ),
 			  );
 
@@ -192,16 +197,25 @@ class Report_Total_Assets extends Simple_Report
 	}//end processReport()
 
 
-	private static function _getTotalAssets($before_date='')
+	/**
+	* Returns the number of assets created on or after a specified date
+	*
+	* @param string	$after_date	the date from which to return assets in Y-m-d format
+	*
+	* @return int
+	* @access private
+	* @static
+	*/
+	private static function _getTotalAssets($after_date='')
 	{
-		$before_date_query = '';
-		if ($before_date != '') {
-			$before_date_query = " WHERE created <= '".$before_date."'";
+		$after_date_query = '';
+		if ($after_date != '') {
+			$after_date_query = " WHERE created >= '".$after_date."'";
 		}
 
 		$db = MatrixDAL::getDb();
 		$sql = 'SELECT count(*) AS total '.
-			'FROM sq_ast'.$before_date_query;
+			'FROM sq_ast'.$after_date_query;
 
 		$num_assets = MatrixDAL::executeSqlOne($sql);
 
@@ -210,6 +224,13 @@ class Report_Total_Assets extends Simple_Report
 	}//end _getTotalAssets()
 
 
+	/**
+	* Paints the system installation date
+	*
+	* @return void
+	* @access private
+	* @static
+	*/
 	private static function _paintSystemInstallDate()
 	{
 		$table_format = '<table class="sq-backend-table">
@@ -228,6 +249,13 @@ class Report_Total_Assets extends Simple_Report
 	}//end _paintSystemInstallDate()
 
 
+	/**
+	* Returns the system installation date (ie; creation date of the first asset)
+	*
+	* @return string
+	* @access private
+	* @static
+	*/
 	private static function _getSystemInstallDate()
 	{
 		$db = MatrixDAL::getDb();

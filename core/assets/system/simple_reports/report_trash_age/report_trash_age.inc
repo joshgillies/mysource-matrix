@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_trash_age.inc,v 1.1 2008/05/07 05:54:05 mbrydon Exp $
+* $Id: report_trash_age.inc,v 1.2 2008/05/15 05:07:44 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of the top twenty assets in the trash which have not been updated recently
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,14 +48,14 @@ class Report_Trash_Age extends Simple_Report
 	/**
 	* Paint the interface for this report
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this tool asset
 	*
 	* @return void
 	* @access public
 	* @static
 	*/
-	public static function paintReport(&$o, $type_code)
+	public static function paintReport(Backend_Outputter &$o, $type_code)
 	{
 		$report = Report_Trash_Age::loadReport($type_code);
 
@@ -108,16 +108,16 @@ class Report_Trash_Age extends Simple_Report
 
 
 	/**
-	* Process this report.  Return false if any errors.
+	* Process this report
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this asset
 	*
 	* @return boolean
 	* @access public
 	* @static
 	*/
-	public static function processReport(&$o, $type_code)
+	public static function processReport(Backend_Outputter &$o, $type_code)
 	{
 		$today = time();
 
@@ -135,6 +135,13 @@ class Report_Trash_Age extends Simple_Report
 	}//end processReport()
 
 
+	/**
+	* Returns a structure of the top twenty assets that reside in the trash which have not been updated recently
+	*
+	* @return array
+	* @access private
+	* @static
+	*/
 	private static function _getOldestAssetsInTrash()
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -147,7 +154,8 @@ class Report_Trash_Age extends Simple_Report
 			'(SELECT t.treeid FROM sq_ast_lnk_tree t, sq_ast_lnk l, sq_ast a '.
 			'WHERE l.minorid = a.assetid AND t.linkid = l.minorid AND a.type_code = \'trash_folder\')||\'%\' '.
 			'AND l.linkid = t.linkid AND a.assetid = l.minorid AND a.type_code != \'trash_folder\' '.
-			'ORDER BY updated LIMIT 20';
+			'ORDER BY updated';
+		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 20);
 
 		$rows = MatrixDAL::executeSqlAssoc($sql);
 

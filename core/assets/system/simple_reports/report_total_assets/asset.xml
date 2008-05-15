@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2008/05/07 05:54:04 mbrydon Exp $
+* $Id: asset.xml,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
 *
 */
 -->
@@ -23,7 +23,7 @@
 	<type_code>report_total_assets</type_code>
 	<version>0.1</version>
 	<name>Total Assets Report</name>
-	<description>Total asset counts for seven points in time, from today to one year ago</description>
+	<description>Total asset counts for up to seven points in time, from today to one year ago</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>simple_report</parent_type>

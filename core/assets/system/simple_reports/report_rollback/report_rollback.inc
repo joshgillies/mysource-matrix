@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_rollback.inc,v 1.1 2008/05/07 05:54:04 mbrydon Exp $
+* $Id: report_rollback.inc,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of assets with rollback data
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,14 +48,14 @@ class Report_Rollback extends Simple_Report
 	/**
 	* Paint the interface for this report
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this tool asset
 	*
 	* @return void
 	* @access public
 	* @static
 	*/
-	public static function paintReport(&$o, $type_code)
+	public static function paintReport(Backend_Outputter &$o, $type_code)
 	{
 		$report = Report_Rollback::loadReport($type_code);
 
@@ -98,8 +98,8 @@ class Report_Rollback extends Simple_Report
 
 		$table_format = '<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header">Date</th>
-					<th class="sq-backend-table-header" width="35%%" align="right">Rollback %s entries since last timeframe</th>
+					<th class="sq-backend-table-header">Period</th>
+					<th class="sq-backend-table-header" width="35%%" align="right">Rollback %s entries in the system</th>
 				</tr>
 				%s
 				</table>';
@@ -149,7 +149,7 @@ class Report_Rollback extends Simple_Report
 				</td>
 				</tr>';
 
-		
+
 		$row_string = '';
 		$most_asset_rollback_entries_report = $report['most_asset_rb_entries_report'];
 		foreach ($most_asset_rollback_entries_report as $asset_data) {
@@ -157,7 +157,7 @@ class Report_Rollback extends Simple_Report
 						$asset_data['name'], $asset_data['first_rb_entry'], $asset_data['last_rb_entry'],
 						$asset_data['total']);
 		}
-		
+
 		$most_asset_rollback_entries_table = sprintf($table_format, $row_string);
 
 		Report_Rollback::paintLastGeneratedDate($type_code, date('d M Y, H:i:s', $generated));
@@ -173,16 +173,16 @@ class Report_Rollback extends Simple_Report
 
 
 	/**
-	* Process this report.  Return false if any errors.
+	* Process this report
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this asset
 	*
 	* @return boolean
 	* @access public
 	* @static
 	*/
-	public static function processReport(&$o, $type_code)
+	public static function processReport(Backend_Outputter &$o, $type_code)
 	{
 		$today = time();
 
@@ -200,27 +200,27 @@ class Report_Rollback extends Simple_Report
 		$last_year_date = date('Y-m-d', $today - (365*24*3600*7));
 
 		$asset_date_report = Array(
-                                                'One day ago'                           => Array(
+                                                'Yesterday'                           => Array(
                                                                                                 'date'          => $date_yesterday,
                                                                                                 'num_assets'    => 0,
                                                                                            ),
-                                                'One week ago'  => Array(
+                                                'Last week'  => Array(
                                                                                                 'date'          => $last_week_date,
                                                                                                 'num_assets'    => 0,
                                                                                            ),
-                                                'One month ago' => Array(
+                                                'Last month' => Array(
                                                                                                 'date'          => $last_month_date,
                                                                                                 'num_assets'    => 0,
                                                                                            ),
-                                                'Three months ago'      => Array(
+                                                'Last three months'      => Array(
                                                                                                 'date'          => $last_quarter_date,
                                                                                                 'num_assets'    => 0,
                                                                                            ),
-                                                'Six months ago'        => Array(
+                                                'Last six months'        => Array(
                                                                                                 'date'          => $last_semester_date,
                                                                                                 'num_assets'    => 0,
                                                                                            ),
-                                                'One year ago'          => Array(
+                                                'Last year'          => Array(
                                                                                                 'date'          => $last_year_date,
                                                                                                 'num_assets'    => 0,
                                                                                            ),
@@ -234,51 +234,67 @@ class Report_Rollback extends Simple_Report
 		$num_link_rb_entries_today = Report_Rollback::_getTotalLinkRollbackEntries();
 
 		// Asset Rollback report
+		$total = 0;
+		$last_period = 0;
+		$remove_date_entries = Array();
 		foreach ($asset_date_report as $date_description => $date_data) {
+			if ($last_period == 1) {
+				$last_period++;
+			} else if ($last_period > 1) {
+				$remove_date_entries[] = $date_description;
+				continue;
+			}
+
 			$num_assets = Report_Rollback::_getTotalAssetRollbackEntries($date_data['date']);
-			$asset_date_report[$date_description]['num_assets'] = $num_assets;
-			$assets_since_last_period[$date_description] = $num_assets;
+			$asset_date_report[$date_description]['num_assets'] = $num_asset_rb_entries_today - $num_assets;
+			$total += $asset_date_report[$date_description]['num_assets'];
+			if ($total == $num_asset_rb_entries_today) {
+				$last_period++;
+			}
 		}
 
-		$num_assets_last_period = $num_asset_rb_entries_today;
-
-		foreach ($assets_since_last_period as $date_description => $num_assets) {
-			$num_assets_in_period = $num_assets_last_period - $num_assets;
-			$num_assets_last_period = $num_assets;
-			$asset_date_report[$date_description]['num_assets'] = $num_assets_in_period;
+		foreach ($remove_date_entries as $date_description) {
+			unset($asset_date_report[$date_description]);
 		}
 
 
 		// Links Rollback report
+		$total = 0;
+		$last_period = 0;
+		$remove_date_entries = Array();
 		foreach ($link_date_report as $date_description => $date_data) {
+			if ($last_period == 1) {
+				$last_period++;
+			} else if ($last_period > 1) {
+				$remove_date_entries[] = $date_description;
+				continue;
+			}
+
 			$num_assets = Report_Rollback::_getTotalLinkRollbackEntries($date_data['date']);
-			$link_date_report[$date_description]['num_assets'] = $num_assets;
-			$assets_since_last_period[$date_description] = $num_assets;
+			$link_date_report[$date_description]['num_assets'] = $num_link_rb_entries_today - $num_assets;
+			$total += $link_date_report[$date_description]['num_assets'];
+			if ($total == $num_link_rb_entries_today) {
+				$last_period++;
+			}
 		}
 
-		$num_assets_last_period = $num_asset_rb_entries_today;
-		$assets_since_last_period = Array();
-
-		foreach ($assets_since_last_period as $date_description => $num_assets) {
-			$num_assets_in_period = $num_assets_last_period - $num_assets;
-			$num_assets_last_period = $num_assets;
-			$link_date_report[$date_description]['num_assets'] = $num_assets_in_period;
+		foreach ($remove_date_entries as $date_description) {
+			unset($link_date_report[$date_description]);
 		}
-
 
 		// Most Asset Rollback entries
 
 		$most_asset_rb_entries_report = Report_Rollback::_getMostAssetRollbackEntries();
 			
 		$report = Array(
-                                        'generated'     => $today,
-                                        'report_data'   => Array(
-								'num_asset_rb_entries_today'	=> $num_asset_rb_entries_today,
-								'num_link_rb_entries_today'	=> $num_link_rb_entries_today,
-                                                                'asset_date_report'		=> $asset_date_report,
-                                                                'link_date_report'		=> $link_date_report,
-                                                                'most_asset_rb_entries_report'	=> $most_asset_rb_entries_report,
-                                                           ),
+				'generated'     => $today,
+				'report_data'   => Array(
+							'num_asset_rb_entries_today'	=> $num_asset_rb_entries_today,
+							'num_link_rb_entries_today'	=> $num_link_rb_entries_today,
+							'asset_date_report'		=> $asset_date_report,
+							'link_date_report'		=> $link_date_report,
+							'most_asset_rb_entries_report'	=> $most_asset_rb_entries_report,
+						   ),
 			  );
 
 		Report_Rollback::saveReport($type_code, $report);
@@ -288,6 +304,13 @@ class Report_Rollback extends Simple_Report
 	}//end processReport()
 
 
+	/**
+	* Returns the top ten assets with the most asset rollback entries
+	*
+	* @return array
+	* @access private
+	* @static
+	*/
 	private static function _getMostAssetRollbackEntries()
 	{
 		$db = MatrixDAL::getDb();
@@ -296,26 +319,33 @@ class Report_Rollback extends Simple_Report
 			'FROM sq_rb_ast r, sq_ast a '.
 			'WHERE a.assetid = r.assetid '.
 			'GROUP BY r.assetid, a.name, a.type_code '.
-			'ORDER BY total DESC, first_rb_entry DESC, last_rb_entry DESC '.
-			'LIMIT 10';
+			'ORDER BY total DESC, first_rb_entry DESC, last_rb_entry DESC';
+		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 10);
 
 		$rows = MatrixDAL::executeSqlAssoc($sql);
 
 		return $rows;
 
-	}//end _getRollbackInfo()
+	}//end _getMostAssetRollbackEntries()
 
 
-	private static function _getTotalAssetRollbackEntries($before_date='')
+	/**
+	* Returns the number of asset rollback entries on or after the specified date
+	*
+	* @return array
+	* @access private
+	* @static
+	*/
+	private static function _getTotalAssetRollbackEntries($after_date='')
 	{
-		$before_date_query = '';
-		if ($before_date != '') {
-			$before_date_query = " WHERE sq_eff_from <= '".$before_date."'";
+		$after_date_query = '';
+		if ($after_date != '') {
+			$after_date_query = " WHERE sq_eff_from >= '".$after_date."'";
 		}
 
 		$db = MatrixDAL::getDb();
 		$sql = 'SELECT COUNT(*) AS total '.
-			'FROM sq_rb_ast'.$before_date_query;
+			'FROM sq_rb_ast'.$after_date_query;
 
 		$num_entries = MatrixDAL::executeSqlOne($sql);
 
@@ -324,22 +354,29 @@ class Report_Rollback extends Simple_Report
 	}//end _getNumAssetRollbackEntries()
 
 
-	private static function _getTotalLinkRollbackEntries($before_date='')
+	/**
+	* Returns the number of link rollback entries on or after the specified date
+	*
+	* @return array
+	* @access private
+	* @static
+	*/
+	private static function _getTotalLinkRollbackEntries($after_date='')
 	{
-		$before_date_query = '';
-		if ($before_date != '') {
-			$before_date_query = " WHERE sq_eff_from <= '".$before_date."'";
+		$after_date_query = '';
+		if ($after_date != '') {
+			$after_date_query = " WHERE sq_eff_from >= '".$after_date."'";
 		}
 
 		$db = MatrixDAL::getDb();
 		$sql = 'SELECT COUNT(*) AS total '.
-			'FROM sq_rb_ast_lnk'.$before_date_query;
+			'FROM sq_rb_ast_lnk'.$after_date_query;
 
 		$num_entries = MatrixDAL::executeSqlOne($sql);
 
 		return $num_entries;
 
-	}//end _getNumLinkRollbackEntries()
+	}//end _getTotalLinkRollbackEntries()
 
 
 }//end class

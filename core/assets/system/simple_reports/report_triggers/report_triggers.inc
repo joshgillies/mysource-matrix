@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_triggers.inc,v 1.1 2008/05/07 05:54:05 mbrydon Exp $
+* $Id: report_triggers.inc,v 1.2 2008/05/15 05:07:44 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 *	with the most events, conditions and actions
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,14 +49,14 @@ class Report_Triggers extends Simple_Report
 	/**
 	* Paint the interface for this report
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this tool asset
 	*
 	* @return void
 	* @access public
 	* @static
 	*/
-	public static function paintReport(&$o, $type_code)
+	public static function paintReport(Backend_Outputter &$o, $type_code)
 	{
 		$report = Report_Triggers::loadReport($type_code);
 
@@ -121,7 +121,7 @@ class Report_Triggers extends Simple_Report
 	* @access public
 	* @static
 	*/
-	public static function processReport(&$o, $type_code)
+	public static function processReport(Backend_Outputter &$o, $type_code)
 	{
 		$today = time();
 		$trigger_report = Report_Triggers::_getTriggerInfo();
@@ -137,38 +137,44 @@ class Report_Triggers extends Simple_Report
 
 	}//end processReport()
 
-
+	/**
+	* Returns a list of the number of events, conditions, and actions for each Trigger in the system
+	*
+	* @return array
+	* @access private
+	* @static
+	*/
 	private static function _getTriggerInfo()
 	{
-                $trigger_info = MatrixDAL::executeAll('core', 'getTriggerList');
-                $trigger_info_sorted = Array();
+		$trigger_info = MatrixDAL::executeAll('core', 'getTriggerList');
+		$trigger_info_sorted = Array();
 
-                $num_triggers = count($trigger_info);
-                $num_active_triggers = 0;
+		$num_triggers = count($trigger_info);
+		$num_active_triggers = 0;
 
-                foreach ($trigger_info as $trigger) {
-                        $trigger_data = unserialize($trigger['data']);
+		foreach ($trigger_info as $trigger) {
+			$trigger_data = unserialize($trigger['data']);
 
-                        $num_events = count($trigger_data['events']);
-                        $num_conditions = count($trigger_data['conditions']);
-                        $num_actions = count($trigger_data['actions']);
+			$num_events = count($trigger_data['events']);
+			$num_conditions = count($trigger_data['conditions']);
+			$num_actions = count($trigger_data['actions']);
 
-                        $weighting = ($num_events * 20) + ($num_conditions * 10) + $num_actions;
+			$weighting = ($num_events * 20) + ($num_conditions * 10) + $num_actions;
 
-                        $trigger_info_sorted[$weighting][] = Array(
-                                                                'id'            => $trigger['id'],
-                                                                'name'          => $trigger['name'],
-                                                                'events'        => $num_events,
-                                                                'conditions'    => $num_conditions,
-                                                                'actions'       => $num_actions,
-                                                             );
-                }
+			$trigger_info_sorted[$weighting][] = Array(
+								'id'		=> $trigger['id'],
+								'name'		=> $trigger['name'],
+								'events'	=> $num_events,
+								'conditions'	=> $num_conditions,
+								'actions'	=> $num_actions,
+							     );
+		}
 
-                ksort($trigger_info_sorted);
+		ksort($trigger_info_sorted);
 
-                return $trigger_info_sorted;
+		return $trigger_info_sorted;
 
-        }//end _getTriggerInfo()
+	}//end _getTriggerInfo()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_total_internal_messages.inc,v 1.1 2008/05/07 05:54:05 mbrydon Exp $
+* $Id: report_total_internal_messages.inc,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of Internal Message types and totals for each type
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Report_Total_Internal_Messages extends Simple_Report
 	* @access public
 	* @static
 	*/
-	public static function paintReport(&$o, $type_code)
+	public static function paintReport(Backend_Outputter &$o, $type_code)
 	{
                 $report = Report_Total_Internal_Messages::loadReport($type_code);
 
@@ -144,16 +144,16 @@ class Report_Total_Internal_Messages extends Simple_Report
 
 
 	/**
-	* Process this report.  Return false if any errors.
+	* Process this report
 	*
-	* @param object	&$o			reference to the outputter object
+	* @param object	&$o		reference to the outputter object
 	* @param string	$type_code	type code of this asset
 	*
 	* @return boolean
 	* @access public
 	* @static
 	*/
-	public static function processReport(&$o, $type_code)
+	public static function processReport(Backend_Outputter &$o, $type_code)
 	{
 		$today = time();
 
@@ -175,6 +175,15 @@ class Report_Total_Internal_Messages extends Simple_Report
 	}//end processReport()
 
 
+	/**
+	* Returns the number of Internal Messages of the specified type in the system
+	*
+	* @param string	$message_type	the message type on which to report
+	*
+	* @return array
+	* @access private
+	* @static
+	*/
 	private static function _getTotalInternalMessagesByType($message_type='all')
 	{
                 $db = MatrixDAL::getDb();
@@ -197,6 +206,13 @@ class Report_Total_Internal_Messages extends Simple_Report
         }//end _getTotalInternalMessagesByType()
 
 
+	/**
+	* Returns the number of Internal Messages for each message state
+	*
+	* @return array
+	* @access private
+	* @static
+	*/
 	private function _getTotalInternalMessagesByStatus()
 	{
                 $db = MatrixDAL::getDb();
