@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.12 2008/03/17 05:14:23 lwright Exp $
+#* $Id: backup.sh,v 1.13 2008/05/15 05:23:14 bshkara Exp $
 #*
 #*/
 #
@@ -80,18 +80,20 @@ else
 fi
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
-# see the output of DB::parseDSN
 php_code="<?php
 require_once '${SYSTEM_ROOT}/data/private/conf/db.inc';
-
-\$start_pos = strpos(\$db_conf['db']['DSN'], ':') + 1;
-\$dsn = preg_split('/[\s;]/', substr(\$db_conf['db']['DSN'], \$start_pos));
-foreach(\$dsn as \$v) {
-	list(\$k, \$v) = explode('=', \$v);
-	echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
+if (\$db_conf['db']['type'] === 'pgsql') {
+	\$start_pos = strpos(\$db_conf['db']['DSN'], ':') + 1;
+	\$dsn = preg_split('/[\s;]/', substr(\$db_conf['db']['DSN'], \$start_pos));
+	foreach(\$dsn as \$v) {
+		list(\$k, \$v) = explode('=', \$v);
+		echo 'DB_'.strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
+	}
+} else {
+	echo 'DB_HOST=\"'.\$db_conf['db']['DSN'].'\";';
 }
 echo 'DB_TYPE=\"'.\$db_conf['db']['type'].'\";';
-echo 'DB_USERNAME=\"'.\$db_conf['db']['username'].'\";';
+echo 'DB_USERNAME=\"'.\$db_conf['db']['user'].'\";';
 echo 'DB_PASSWORD=\"'.\$db_conf['db']['password'].'\";';
 ?>"
 
@@ -131,7 +133,7 @@ case "${DB_TYPE}" in
 			exit 5
 		fi
 	;;
-	"oci8")
+	"oci")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
 			args="${args} ${DB_USERNAME}";
