@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.6.6 $
+* @version $Revision: 1.1.6.7 $
 * @package MySource_Matrix
 */
 
@@ -88,16 +88,17 @@ Make sure you have all you information you need before Proceeding\n");
 			exit(0);
 		}
 
+		$allow_asset_types	= Array ('site', 'web_folder_designs', 'web_folder_media', 'web_folder_users');
 		$assetid = NULL;
 		while (is_null($assetid)) {
 			$assetid = get_line('Enter the Site Assetid to apply the URL to: ');
 			assert_valid_assetid($assetid);
 			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if ($asset->type() != 'site') {
+			if (!in_array($asset->type(), $allow_asset_types)) {
 				echo "Asset must be a Site\n";
 				$assetid = NULL;
-			}
-		}
+			}//end if
+		}//end while
 
 		// Now we have to check whether we should add this URL to this site or not.
 		require_once $SYSTEM_ROOT.'/data/private/conf/main.inc';
@@ -212,7 +213,7 @@ Make sure you have all you information you need before Proceeding\n");
 											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($existing_urlid).');';
 
 		$sql_update_sq_ast_lookup		= 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
-										SELECT http, https, assetid, replace(url,'.$db->quoteSmart($existing_url).','.$db->quoteSmart($new_url).'),'.$new_urlid.'
+										SELECT '.$db->quoteSmart($http).', '.$db->quoteSmart($https).', assetid, replace(url,'.$db->quoteSmart($existing_url).','.$db->quoteSmart($new_url).'),'.$new_urlid.'
 										FROM sq_ast_lookup WHERE url like '.$db->quoteSmart($existing_url.'%').' AND root_urlid ='.$db->quoteSmart($existing_urlid).';';
 
 		$sql_update_sq_ast_lookup_public	= 'UPDATE sq_ast_lookup set root_urlid = 0 WHERE url like '.$db->quoteSmart($new_url.'%').' AND url like \'%/__data/%\' AND root_urlid = '.$db->quoteSmart($new_urlid);
@@ -274,11 +275,19 @@ Make sure you have all you information you need before Proceeding\n");
 				$num_children_to_update = count($children_to_update);
 				foreach ($in_clauses as $condition) {
 					$sql_update_sq_ast_lookup_public_file = 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
-																SELECT http, https, assetid, replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'), 0
+																SELECT '.$db->quoteSmart($http).', '.$db->quoteSmart($https).', assetid, replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'), 0
 																FROM sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like '.$db->quoteSmart($existing_url_public.'%');
+
+					//add more checking condition to make sure the script run if there are urls which are the same as those we are going to insert
+					//this case happens when we add URL for one site which have an asset is a linked asset of other's site => use the same webpath
+					$added_condition = ' AND replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).') NOT IN (
+											SELECT url from sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'));';
+					$sql_update_sq_ast_lookup_public_file .= $added_condition;
 
 					bam($sql_update_sq_ast_lookup_public_file);
 					$result_update_sq_ast_lookup_public_file = $db->query($sql_update_sq_ast_lookup_public_file);
+					assert_valid_db_result($result_update_sq_ast_lookup_public_file);
+					
 					echo "\n Finished Updating ".(($count*1000 > $num_children_to_update) ? $num_children_to_update : $count*1000) ." files out of ".$num_children_to_update;
 					$count++;
 				}//end foreach
@@ -311,6 +320,14 @@ Make sure you have all you information you need before Proceeding\n");
 			exit(0);
 		}
 
+		// Find all other root_urlid that look like $remove_url.'%', we don't want to remove those.
+		$sql_get_sub_url_root_urlid = 'SELECT url FROM sq_ast_url WHERE
+											url NOT LIKE '.$db->quoteSmart($remove_url).' AND
+											url LIKE '.$db->quoteSmart($remove_url.'%').'';
+
+		$avoid_urls	= $db->getAll($sql_get_sub_url_root_urlid);
+		assert_valid_db_result($avoid_urls);
+
 		// Before we do any of the processing, lets grab all the FILE assets that are LIVE, and have PUBLIC READ ACCESS.
 		$asset_types_list = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file'));
 		$asset_types_list[] = 'file';
@@ -323,7 +340,19 @@ Make sure you have all you information you need before Proceeding\n");
 		foreach ($children as $child_id) {
 			$child_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
 			if ($child_asset->usePublicPath()) {
-					$children_to_update[] = $db->quoteSmart((string) $child_id);
+					$get_count_links_query = 'SELECT COUNT(*) FROM sq_ast_lnk WHERE minorid = '.$child_id;
+					$count = $db->getOne($get_count_links_query);
+					// We are only calling getParents if this asset is linked in multiple places
+					if ($count > 1) {
+						$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($child_id, 'site', FALSE);
+						// If we have more than 1 site as parent, potential multiple URLs, so we are not going to delete the __data URL.
+						if (!(count($site_parents) > 1)) {
+							// We just have 1 site parent
+							$children_to_update[] = $db->quoteSmart((string) $child_id);
+						}//end if
+					} else {
+							$children_to_update[] = $db->quoteSmart((string) $child_id);
+					}//end else
 			}//end if
 			// Else just ignore this asset
 		}//end foreach
@@ -361,6 +390,10 @@ Make sure you have all you information you need before Proceeding\n");
 				$sql_update_sq_ast_lookup_public	= 'DELETE FROM sq_ast_lookup WHERE root_urlid = 0 AND url LIKE '.$db->quoteSmart($remove_url_public.'%').' AND url LIKE \'%/__data/%\'';
 				$sql_update_sq_ast_lookup_public	.= ' AND '.$condition;
 
+				foreach ($avoid_urls as $index => $data) {
+					$sql_update_sq_ast_lookup_public	.= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
+				}//end foreach
+
 				bam($sql_update_sq_ast_lookup_public);
 				$result_lookup_public	= $db->query($sql_update_sq_ast_lookup_public);
 				assert_valid_db_result($result_lookup_public);
@@ -371,15 +404,6 @@ Make sure you have all you information you need before Proceeding\n");
 
 		}//end if
 
-
-		// Find all other root_urlid that look like $remove_url.'%', we don't want to remove those.
-		$sql_get_sub_url_root_urlid = 'SELECT url FROM sq_ast_url WHERE
-											url NOT LIKE '.$db->quoteSmart($remove_url).' AND
-											url LIKE '.$db->quoteSmart($remove_url.'%').'';
-
-		$avoid_urls	= $db->getAll($sql_get_sub_url_root_urlid);
-		assert_valid_db_result($avoid_urls);
-
 		$sql_update_sq_ast_lookup_value		= 'DELETE FROM sq_ast_lookup_value WHERE url like '.$db->quoteSmart($remove_url.'%');
 		foreach ($avoid_urls as $index => $data) {
 			$sql_update_sq_ast_lookup_value .= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
@@ -387,13 +411,12 @@ Make sure you have all you information you need before Proceeding\n");
 
 		$sql_update_sq_ast_lookup			= 'DELETE FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url.'%').'';
 
+		foreach ($avoid_urls as $index => $data) {
+			$sql_update_sq_ast_lookup			.= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
+		}//end foreach
 
 		$sql_update_sq_ast_url				= 'DELETE FROM sq_ast_url WHERE urlid = '.$db->quoteSmart($remove_urlid).' AND url like '.$db->quoteSmart($remove_url).'';
 
-		foreach ($avoid_urls as $index => $data) {
-			$sql_update_sq_ast_lookup_public	.= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
-			$sql_update_sq_ast_lookup			.= ' AND url NOT LIKE ' . $db->quoteSmart($data['url'].'%');
-		}
 
 		// We run the query in different order
 		// 1. Remove entries in sq_ast_lookup_value
