@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.5.2.3 2008/05/12 23:27:36 hnguyen Exp $
+* $Id: menu_get_assets.inc,v 1.5.2.4 2008/05/15 05:20:36 hnguyen Exp $
 *
 */
 
@@ -47,6 +47,7 @@ function menu_get_assets($id_name, $majorids)
 
 	if (empty($majorids_str)) return $assetids;
 
+	// Watch out for this static var, once it has been set, it won't go into the if is_null. However the bind vars will need to be there because this static var contain the query that uses bind vars.
 	static $USERIDS_COND = NULL;
 	$bind_vars = Array();
 
@@ -63,7 +64,7 @@ function menu_get_assets($id_name, $majorids)
 			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = '\''.(string)$userids[$i].'\'';
-			}
+			}//end for
 			$userids_str = implode(',', $userids);
 			$USERIDS_COND = 'AND (p.userid  IN ('.$userids_str.') ';
 			$USERIDS_COND .= 'OR r.userid  IN ('.$userids_str.')) ';
@@ -83,15 +84,18 @@ function menu_get_assets($id_name, $majorids)
 							  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order, p.assetid
 							  HAVING MIN(p.granted) <> \'0\'';
 
-			// Only bind if we have some place holder in the query to bind to, otherwise Oracle will throw an error.
-			$bind_vars['p_permission']   = SQ_PERMISSION_READ;
-			$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
-			$bind_vars['p_userid']       = $public_userid;
-			$bind_vars['p_userid_1']     = $public_userid;
-			$bind_vars['r_userid']       = $public_userid;
-			$bind_vars['r_userid_1']     = $public_userid;
-		}
+		}//end else
 
+	}//end if
+
+	// This check to avoid the case when the viewing entity is root user or sys admins, trying to bind vars to an empty query will result in Fatal error from Oracle. Need to be explicitly not empty string.
+	if ($USERIDI_COND !== '') {
+		$bind_vars['p_permission']   = SQ_PERMISSION_READ;
+		$bind_vars['p_permission_1'] = SQ_PERMISSION_READ;
+		$bind_vars['p_userid']       = $public_userid;
+		$bind_vars['p_userid_1']     = $public_userid;
+		$bind_vars['r_userid']       = $public_userid;
+		$bind_vars['r_userid_1']     = $public_userid;
 	}//end if
 
 	$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
