@@ -10,9 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.20 2008/05/16 03:35:09 mbrydon Exp $
+* $Id: rollback_management.php,v 1.21 2008/05/16 07:00:56 mbrydon Exp $
 *
 */
+
 
 /**
 * Adds entries into rollback tables where there are no entries. This will occur
@@ -20,7 +21,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -172,6 +173,7 @@ if (!empty($ROLLBACK_DATE) && !empty($PURGE_FV_DATE)) {
 if (empty($SYSTEM_ROOT)) usage();
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+require_once SQ_INCLUDE_PATH.'/rollback_management.inc';
 require SQ_DATA_PATH.'/private/db/table_columns.inc';
 
 // get the tables from table_columns into a var
@@ -189,13 +191,19 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $db = MatrixDAL::getDb();
 
 if ($PURGE_FV_DATE) {
-	purge_file_versioning($PURGE_FV_DATE);
+	$affected_rows = purge_file_versioning($PURGE_FV_DATE);
+	if (!$QUIET) {
+		echo $affected_rows.' FILE VERSIONING FILES AND ENTRIES DELETED'."\n";
+	}
 } else {
 
 	if ($RESET_ROLLBACK) {
 		// truncate toll back tables here then enable rollback
 		foreach ($tables as $table) {
 			truncate_rollback_entries($table);
+			if (!$QUIET) {
+				echo 'Rollback table sq_rb_'.$table." truncated.\n";
+			}
 		}
 		$ENABLE_ROLLBACK = TRUE;
 		echo "\nEnabling rollback...\n\n";
@@ -204,294 +212,39 @@ if ($PURGE_FV_DATE) {
 	foreach ($tables as $table) {
 
 		if ($ENABLE_ROLLBACK) {
-			open_rollback_entries($table, $ROLLBACK_DATE);
+			$affected_rows = open_rollback_entries($table, $SQ_TABLE_COLUMNS, $ROLLBACK_DATE);
+			if (!$QUIET) {
+				echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table."\n";
+			}
+
 			continue;
 		}
 		if ($DISABLE_ROLLBACK) {
-			close_rollback_entries($table, $ROLLBACK_DATE);
+			$affected_rows = close_rollback_entries($table, $ROLLBACK_DATE);
+			if (!$QUIET) {
+				echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table."\n";
+			}
+
 			continue;
 		}
 		if ($ROLLBACK_DATE) {
-			delete_rollback_entries($table, $ROLLBACK_DATE);
-			align_rollback_entries($table, $ROLLBACK_DATE);
+			$affected_rows = delete_rollback_entries($table, $ROLLBACK_DATE);
+			if (!$QUIET) {
+				echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table."\n";
+			}
+
+			$affected_rows = align_rollback_entries($table, $ROLLBACK_DATE);
+			if (!$QUIET) {
+				echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table."\n";
+			}
+
 			continue;
-		}
-	}
-}
+		}//end if
+	}//end foreach
+}//end else
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-
-/**
-* Truncates rollback tables
-*
-* @param string	$table_name	the tablename to update
-*
-* @return void
-* @access public
-*/
-function truncate_rollback_entries($table_name)
-{
-	global $db, $QUIET;
-
-	$sql = 'TRUNCATE TABLE sq_rb_'.$table_name;
-	try {
-		$result = MatrixDAL::executeSql($sql);
-	} catch (Exception $e) {
-		throw new Exception('Unable to truncate table '.$table_name.' due to the following error: '.$e->getMessage());
-	}//end try catch
-
-	if (!$QUIET) {
-		echo 'Rollback table sq_rb_'.$table_name." truncated.\n";
-	}
-
-}//end truncate_rollback_entries()
-
-
-/**
-* Closes of rollback entries to the specified date
-*
-* @param string	$table_name	the tablename to update
-* @param string	$date		the date to close to
-*
-* @return void
-* @access public
-*/
-function close_rollback_entries($table_name, $date)
-{
-	global $db, $QUIET;
-
-	$sql = 'UPDATE sq_rb_'.$table_name.' SET sq_eff_to = :date WHERE sq_eff_to IS NULL';
-
-	try {
-		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
-	} catch (Exception $e) {
-		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$error->getMessage());
-	}//end try catch
-
-	$affected_rows =  $query->rowCount();
-
-	if (!$QUIET) {
-		echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table_name."\n";
-	}
-
-}//end close_rollback_entries()
-
-
-/**
-* Opens any rollback entries that have not allready been opened
-*
-* @param string	$table_name	the tablename to update
-* @param string	$date		the date to close to
-*
-* @return void
-* @access public
-*/
-function open_rollback_entries($table_name, $date)
-{
-	global $SQ_TABLE_COLUMNS, $db, $QUIET;
-
-	$columns = $SQ_TABLE_COLUMNS[$table_name]['columns'];
-	$sql = 'INSERT INTO sq_rb_'.$table_name.' ('.implode(', ', $columns).
-		', sq_eff_from, sq_eff_to)
-		SELECT '.implode(',', $columns).',:date , NULL FROM sq_'.$table_name;
-
-	try {
-		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
-	} catch (Exception $e) {
-		throw new Exception('Unable to insert into rollback table '.$table_name.' due to the following error:'.$e->getMessage());
-	}//end try catch
-
-	$affected_rows =  $query->rowCount();
-
-	if (!$QUIET) {
-		echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table_name."\n";
-	}
-
-}//end open_rollback_entries()
-
-
-/**
-* Aligns all the minimum eff_from entries in the specified rollback table so
-* they all start at a specified date
-*
-* @param string	$table_name	the tablename to update
-* @param string	$date		the date to close to
-*
-* @return void
-* @access public
-*/
-function align_rollback_entries($table_name, $date)
-{
-	global $db, $QUIET;
-
-	$sql = 'UPDATE sq_rb_'.$table_name.'
-			SET sq_eff_from = :date1
-			WHERE sq_eff_from < :date2';
-
-	try {
-		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date1', $date);
-		$query->bindValue('date2', $date);
-		$result = MatrixDAL::executePdoOne($query);
-	} catch (Exception $e) {
-		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$error->getMessage());
-	}//end try catch
-
-	$affected_rows =  $query->rowCount();
-
-	if (!$QUIET) {
-		echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table_name."\n";
-	}
-
-}//end align_rollback_entries()
-
-
-/**
-* Deletes the rollback entries that started before the specified date
-*
-* @param string	$table_name	the tablename to update
-* @param string	$date		the date to close to
-*
-* @return void
-* @access public
-*/
-function delete_rollback_entries($table_name, $date)
-{
-	global $db, $QUIET;
-
-	$sql = 'DELETE FROM sq_rb_'.$table_name.'
-		WHERE sq_eff_to <= :date';
-
-	try {
-		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
-	} catch (Exception $e) {
-		throw new Exception('Unable to delete rollback table '.$table_name.' due to the following error:'.$error->getMessage());
-	}//end try catch
-
-	$affected_rows =  $query->rowCount();
-
-	if (!$QUIET) {
-		echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table_name."\n";
-	}
-
-}//end delete_rollback_entries()
-
-
-/**
-* Returns the table names of the database tables that require rollback
-*
-* @return array
-* @access public
-*/
-function get_rollback_table_names()
-{
-	global $SYSTEM_ROOT;
-	$table_names = Array();
-
-	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-
-	if (empty($packages_installed)) return Array();
-
-	foreach ($packages_installed as $package_array) {
-		if ($package_array['code_name'] == '__core__') {
-			$table_file = SQ_CORE_PACKAGE_PATH.'/tables.xml';
-		} else {
-			$table_file = SQ_PACKAGES_PATH.'/'.$package_array['code_name'].'/tables.xml';
-		}
-
-		if (!file_exists($table_file)) continue;
-
-		try {
-			$root = new SimpleXMLElement($table_file, LIBXML_NOCDATA, TRUE);
-		} catch (Exception $e) {
-			throw new Exception('Unable to parse table file : '.$table_file .' due to the following error: '.$e->getMessage());
-		}//end try catch
-
-		foreach ($root->children() as $child) {
-			$first_child_name = $child->getName();
-			break;
-		}//end foreach
-		if ($root->getName() != 'schema' || $first_child_name != 'tables') {
-			trigger_error('Invalid table schema for file "'.$table_file.'"', E_USER_ERROR);
-		}
-
-		$table_root = $child;
-
-		foreach ($table_root->children() as $table_child) {
-			if ((string) $table_child->attributes()->require_rollback) {
-				$table_name = (string) $table_child->attributes()->name;
-				array_push($table_names, $table_name);
-			}//end if
-		}//end foreach
-	}
-
-	return $table_names;
-
-}//end get_rollback_table_names()
-
-
-/**
-* Purge file versioning database entries and files before a certain date
-*
-* @param string	$date	the date to purge to
-*
-* @return void
-* @access public
-*/
-function purge_file_versioning($date)
-{
-	global $db, $QUIET;
-
-	$history_table = 'sq_file_vers_history';
-	$file_table = 'sq_file_vers_file';
-
-	// Get all the file versioning entries
-	$SQL = 'SELECT * FROM '.$history_table.' h JOIN '.$file_table.' f ON h.fileid = f.fileid WHERE to_date <= :date';
-
-	try {
-		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoAssoc($query);
-	} catch (Exception $e) {
-		throw new Exception('Unable to select from rollback table '.$table_name.' due to the following error:'.$error->getMessage());
-	}//end try catch
-
-	$count = 0;
-
-	// Delete the files - if it isn't there then don't worry because it means the
-	// DB entry shouldn't have been there in the first place
-	foreach ($result as $row) {
-		$ffv_file = SQ_SYSTEM_ROOT.'/data/file_repository/'.$row['path'].'/'.$row['filename'].',ffv'.$row['version'];
-		unlink($ffv_file);
-		$count++;
-	}
-
-	// Now delete the entries from the table
-	$SQL = 'DELETE FROM '.$history_table.' WHERE to_date <= :date';
-
-	try {
-		$query = MatrixDAL::preparePdoQuery($SQL);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
-	} catch (Exception $e) {
-		throw new Exception('Unable to delete from rollback table '.$table_name.' due to the following error:'.$error->getMessage());
-	}//end try catch
-
-	$affected_rows = $query->rowCount();
-
-	if (!$QUIET) {
-		echo $affected_rows.' FILE VERSIONING FILES AND ENTRIES DELETED'."\n";
-	}
-
-}//end purge_file_versioning()
 
 
 /**
