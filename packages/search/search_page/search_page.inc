@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.2 2008/05/14 07:05:35 bpearson Exp $
+* $Id: search_page.inc,v 1.213.2.3 2008/05/16 03:49:42 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.2 $
+* @version $Revision: 1.213.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -395,7 +395,7 @@ class Search_Page extends Listing_Engine
 	/**
 	* Prints the results bodycopy
 	*
-	* @param array	$search The passed search variable used for stored searches
+	* @param array	$search	The passed search variable used for stored searches
 	*
 	* @return void
 	* @access private
@@ -1029,11 +1029,9 @@ class Search_Page extends Listing_Engine
 									if ($asset->attr('hier_sort')) {
 										$sort = $asset->attr('hier_sort');
 										$fmt = $asset->attr('hier_structure');
-										$lvl = $asset->attr('hier_level');
-										$dpth = $asset->attr('hier_depth');
 										$edit_fns = $asset->getEditFns();
 										$options = $hierarchy->_params['options'];
-										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt, $lvl, $dpth);
+										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt);
 										$hierarchy->_params['options'] = $options;
 									}
 									$hierarchy->paint('queries_'.$query_var);
@@ -1156,11 +1154,9 @@ class Search_Page extends Listing_Engine
 									if ($asset->attr('hier_sort')) {
 										$sort = $asset->attr('hier_sort');
 										$fmt = $asset->attr('hier_structure');
-										$lvl = $asset->attr('hier_level');
-										$dpth = $asset->attr('hier_depth');
 										$edit_fns = $asset->getEditFns();
 										$options = $hierarchy->_params['options'];
-										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt, $lvl, $dpth);
+										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt);
 										$hierarchy->_params['options'] = $options;
 									}
 									$hierarchy->paint('queries_'.$query_var);
@@ -1335,11 +1331,9 @@ class Search_Page extends Listing_Engine
 									if ($asset->attr('hier_sort')) {
 										$sort = $asset->attr('hier_sort');
 										$fmt = $asset->attr('hier_structure');
-										$lvl = $asset->attr('hier_level');
-										$dpth = $asset->attr('hier_depth');
 										$edit_fns = $asset->getEditFns();
 										$options = $hierarchy->_params['options'];
-										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt, $lvl, $dpth);
+										$options = $edit_fns->_sortHierarchyOptions($options, $sort, $fmt);
 										$hierarchy->_params['options'] = $options;
 									}
 									$hierarchy->paint('queries_'.$query_var);
@@ -2312,10 +2306,14 @@ class Search_Page extends Listing_Engine
 							if (!is_null($m_field)) {
 								if ($m_field->type() == 'metadata_field_hierarchy') {
 									$options = $m_field->attr('hierarchy_options');
-									$level = $m_field->attr('hier_level');
 									$depth = $m_field->attr('hier_depth');
 									$edit_fns = $m_field->getEditFns();
-									$search_info['fields'][$fieldname]['words'] = $edit_fns->getHierarchyTree($search_info['fields'][$fieldname]['words'], $options, $level, $depth, ' ');
+									if (is_array($search_info['fields'][$fieldname]['words'])) {
+										// If multiple entries submitted, they arrive as an array, so convert to string
+										$word_list = implode(' ', $search_info['fields'][$fieldname]['words']);
+										$search_info['fields'][$fieldname]['words'] = $word_list;
+									}
+									$search_info['fields'][$fieldname]['words'] = $edit_fns->getHierarchyTree($search_info['fields'][$fieldname]['words'], $options, ' ');
 									$search_info['fields'][$fieldname]['word_logic'] = 'OR';
 								}//end if
 							}//end if
@@ -2497,7 +2495,6 @@ class Search_Page extends Listing_Engine
 			}
 
 		}//end foreach fields
-
 
 		if ($mode == 'sis') {
 			$last_search = $_SESSION['SQ_LAST_SEARCH'][$this->id];

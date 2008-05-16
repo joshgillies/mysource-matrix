@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.5 2008/05/14 06:51:58 bpearson Exp $
+* $Id: search_manager.inc,v 1.164.2.6 2008/05/16 03:49:42 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.5 $
+* @version $Revision: 1.164.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -668,8 +668,8 @@ class Search_Manager extends Asset
 
 				// NOTE: break is omitted on purpose
 				case 'thesaurus':
-				case 'select':
 				case 'selection':
+				case 'select':
 					$value = strtolower($value);
 				break;
 
@@ -1137,7 +1137,7 @@ class Search_Manager extends Asset
 					case 'metadata_field_thesaurus':
 						$key_type = 'thesaurus';
 						// Replace comma with spaces so the values can be indexed correctly. This should be done here and not in get_word_counts/remove_silent_chars.
-						$value = str_replace(',',' ', $value);
+						//$value = str_replace(',',' ', $value);
 					break;
 
 					default:
