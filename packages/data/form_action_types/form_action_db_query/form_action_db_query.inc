@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_db_query.inc,v 1.1 2008/04/17 07:00:01 lwright Exp $
+* $Id: form_action_db_query.inc,v 1.2 2008/05/16 04:26:14 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -329,7 +329,7 @@ class Form_Action_DB_Query extends Form_Action
 
 		$found = 0;
 
-		$found = preg_match_all('/%(response_\\d+_q\\d+)%/U', $sql, $matches, PREG_SET_ORDER);
+		$found = preg_match_all('/%(response_\\d+_q\\d+(_raw)?)%/U', $sql, $matches, PREG_SET_ORDER);
 		$i = 1;
 		$bind_vars = Array();
 		foreach ($matches as $match) {
@@ -457,8 +457,6 @@ class Form_Action_DB_Query extends Form_Action
 				'password'	=> $password,
 				'type'		=> $db_type,
 			   );
-
-		bam($dsn);
 
 		try {
 			$db = MatrixDAL::dbConnect($dsn, 'form_action_db_query_'.$form->id);
