@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.16.8.1 2008/03/12 04:04:04 lwright Exp $
+* $Id: rollback_management.php,v 1.16.8.2 2008/05/16 03:34:32 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16.8.1 $
+* @version $Revision: 1.16.8.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -332,7 +332,7 @@ function align_rollback_entries($table_name, $date)
 
 	$sql = 'UPDATE sq_rb_'.$table_name.'
 			SET sq_eff_from = :date1
-			WHERE sq_eff_from < :date1';
+			WHERE sq_eff_from < :date2';
 
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
