@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.22 2008/05/14 06:39:24 bpearson Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.23 2008/05/16 03:45:13 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -90,7 +90,7 @@ class Search_Manager_Plugin_PgSQL
 				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
 				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
 				if (in_array(get_class_lower($metadata_field), $exact_type)) {
-					$base_query['where'][] = 'ai.value = '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term);
+					$base_query['where'][] = 'ai.value = '.MatrixDAL::quote($search_term);
 				} else {
 					$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 				}
