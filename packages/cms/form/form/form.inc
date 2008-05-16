@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.183 2008/03/27 05:28:25 bshkara Exp $
+* $Id: form.inc,v 1.184 2008/05/16 04:17:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.183 $
+* @version $Revision: 1.184 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2819,7 +2819,7 @@ class Form extends Asset implements Bridge
 					}
 				}
 
-			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?|', $keyword, $matches)) {
+			} else if (preg_match('|^response_([0-9]*_)?q([0-9]*)?(_raw)?|', $keyword, $matches)) {
 				// Question response keywords, eg.
 				// %response_123_q4% ... question 4 from form/section ID 123
 				// %response_q4% ....... question 4 from the form
@@ -2833,9 +2833,15 @@ class Form extends Asset implements Bridge
 					$question_assetid = $matches[2];
 				}
 
+				$raw = (array_get_index($matches, 3, '') == '_raw');
+
 				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
 				if (!empty($question_asset)) {
-					$replacement = $question_asset->getSummary();
+					if ($raw) {
+						$replacement = $question_asset->getValue();
+					} else {
+						$replacement = $question_asset->getSummary();
+					}
 				}
 
 			}
