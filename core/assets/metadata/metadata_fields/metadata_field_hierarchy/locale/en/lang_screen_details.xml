@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2008/05/14 06:15:49 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.2 2008/05/16 03:37:29 bpearson Exp $
 *
 */
 -->
@@ -88,14 +88,6 @@
 		<field attribute="hier_sort">
 			<display_name>Sort Hierarchy</display_name>
 			<note />
-		</field>
-		<field attribute="hier_level">
-			<display_name>Hierarchy Level</display_name>
-			<note>How many levels does the hierarchy have?</note>
-		</field>
-		<field attribute="hier_depth">
-			<display_name>Hierarchy Depth</display_name>
-			<note>How deep is each hierarchy level?</note>
 		</field>
 		<field attribute="hier_structure">
 			<display_name>Show structure on the frontend</display_name>

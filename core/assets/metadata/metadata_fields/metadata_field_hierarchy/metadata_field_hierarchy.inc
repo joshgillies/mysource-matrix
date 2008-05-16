@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.1 2008/05/14 06:15:49 bpearson Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.2 2008/05/16 03:37:28 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,8 +65,6 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		$selection->_params['allow_empty'] = $this->attr('allow_empty');
 		$selection->_params['sort'] = $this->attr('hier_sort');
 		$selection->_params['structure'] = $this->attr('hier_structure');
-		$selection->_params['level'] = $this->attr('hier_level');
-		$selection->_params['depth'] = $this->attr('hier_depth');
 
 		$default = $this->attr('default');
 		if ($selection->validateValue($default)) {
@@ -90,12 +88,10 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		$default_key = parent::getDefaultValue();
 
 		$options = $this->attr('hierarchy_options');
-		$level = $this->attr('hier_level');
-		$depth = $this->attr('hier_depth');
 
 		if (is_array($options)) {
 			$edit_fns = $this->getEditFns();
-			$default_key = $edit_fns->getHierarchyTree($default_key, $options, $level, $depth);
+			$default_key = $edit_fns->getHierarchyTree($default_key, $options);
 		}
 
 		return $default_key;

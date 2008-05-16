@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2008/05/14 06:15:49 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2008/05/16 03:37:28 bpearson Exp $
 *
 */
 -->
@@ -40,13 +40,13 @@
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
-<!--		<field attribute="multiple">
+		<field attribute="multiple">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_empty">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field>
+<!--		<field>
 			<function_call>
 				<paint_function   name="paintEditParams"   />
 				<process_function name="processEditParams" />
@@ -71,12 +71,6 @@
 		</field>-->
 		<field attribute="hier_sort">
 			<selection style="list" columns="1" extras="" />
-		</field>
-		<field attribute="hier_level">
-			<int width="10" height="1" />
-		</field>
-		<field attribute="hier_depth">
-			<int width="10" height="1" />
 		</field>
 		<field attribute="hier_structure">
 			<selection style="list" columns="1" extras="" />
