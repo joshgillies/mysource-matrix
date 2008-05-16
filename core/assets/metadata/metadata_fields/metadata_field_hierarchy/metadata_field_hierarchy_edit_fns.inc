@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.2 2008/05/14 06:18:47 bpearson Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.3 2008/05/16 03:41:12 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,13 +90,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			$hierarchy_options = $hierarchy->_params['options'];
 			$hierarchy_sort = $hierarchy->_params['sort'];
 			$hierarchy_structure = $hierarchy->_params['structure'];
-			$hierarchy_level = $hierarchy->_params['level'];
-			$hierarchy_depth = $hierarchy->_params['depth'];
 
 			$hier_sort = (isset($hierarchy_sort) && $hierarchy_sort>=0) ? $hierarchy_sort : '0';
 			$hier_structure = (isset($hierarchy_structure) && $hierarchy_structure) ? $hierarchy_structure : FALSE;
-			$level = (isset($hierarchy_level) && $hierarchy_level>=0) ? $hierarchy_level : '1';
-			$depth = (isset($hierarchy_depth) && $hierarchy_depth>=0) ? $hierarchy_depth : '1';
 
 			if ($enable_default) {
 				$hierarchy->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
@@ -109,7 +105,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			// Sort the hierarchy if selected
 			if ($hier_sort) {
 				$options = $hierarchy->_params['options'];
-				$options = $this->_sortHierarchyOptions($options, $hier_sort, $hier_structure, $level, $depth);
+				$options = $this->_sortHierarchyOptions($options, $hier_sort, $hier_structure);
 
 				$hierarchy->_params['options'] = $options;
 			}
@@ -195,13 +191,10 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			// Default is not checked, so process our hierarchy attribute
 			$hierarchy = $asset->getHierarchyAttribute();
 
-			// Process the hierarchy and add the parents into the metadata field
 			$value = (isset($_REQUEST[$prefix])) ? $_REQUEST[$prefix] : '';
-			if (is_array($value)) implode('; ', $value);
+			if (is_array($value)) $value = implode('; ', $value);
 
 			$hoptions = $hierarchy->_params['options'];
-			$hlevel = $hierarchy->_params['level'];
-			$hdepth = $hierarchy->_params['depth'];
 
 			$hierarchy->value = $value;
 
@@ -305,8 +298,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		// Some values we need
 		$sort = $asset->attr('hier_sort');
 		$format = $asset->attr('hier_structure');
-		$lvl = $asset->attr('hier_level');
-		$dpth = $asset->attr('hier_depth');
 
 		if (!empty($hierarchy_options)) {
 			// displaying default value if any values were actually saved in the array
@@ -314,7 +305,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$default_hier = $asset->getHierarchyAttribute();
 				if ($write_access) {
 					if ($sort > 0) {
-						$default_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format, $lvl, $dpth);
+						$default_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
 						if (isset($default_options) && !is_null($default_options)) {
 							$default_hier->_params['options'] = $default_options;
 						}
@@ -322,7 +313,11 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					}
 					$default_hier->paint($prefix.'_default', FALSE);
 				} else {
-					echo $default_hier->_params['options'][$default_hier->value];
+					if (isset($default_hier->_params['options'][$default_hier->value])) {
+						echo $default_hier->_params['options'][$default_hier->value];
+					} else {
+						echo translate('hierarchy_no_default');
+					}
 				}
 			$o->closeField();
 		}
@@ -334,7 +329,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$preview_hierarchy = $asset->getHierarchyAttribute();
 				$preview_hierarchy->value = '';
 				if ($sort > 0) {
-					$preview_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format, $lvl, $dpth);
+					$preview_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
 					if (isset($preview_options) && !is_null($preview_options)) {
 						$preview_hierarchy->_params['options'] = $preview_options;
 					}
@@ -463,8 +458,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		$options = $asset->attr('hierarchy_options');
-		$level = $asset->attr('hier_level');
-		$depth = $asset->attr('hier_depth');
 
 		return parent::generateMetadata($asset, $value_str, $tag_value, $keywords);
 
@@ -477,24 +470,21 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @param array		$hierarchy		An array containing the values to sort
 	* @param int		$sort_by		The option to sort by (0=No Sort, 1=Sort by Key, 2=Sort by Value)
 	* @param boolean	$show_parents	The option to show the parents
-	* @param string		$level			The number of levels in the hierarchy
-	* @param string		$depth			The depth of each level in the hierarchy
 	* @param string		$pad			The character to show the hierarchy levels
 	*
 	* @return array|NULL
 	* @access public
 	*/
-	public function _sortHierarchyOptions($hierarchy, $sort_by=0, $show_parents=FALSE, $level='1', $depth='1', $pad='-')
+	public function _sortHierarchyOptions($hierarchy, $sort_by=0, $show_parents=FALSE, $pad='-')
 	{
 		if (!is_array($hierarchy)) return NULL;
 		if (empty($hierarchy)) return $hierarchy;
 
 		switch ($sort_by) {
 			case 1:
-				// Sort by key ... Could use ksort() but if the keys are a series of numbers
-				// ksort() sorts them numerically, whereas natsort() sorts them to a human like list
+				// Using usort to get a more structured list
 				$sort_by_key = array_keys($hierarchy);
-				$aok = natsort($sort_by_key);
+				$aok = usort($sort_by_key, 'strcmp');
 				$sort_hier = Array();
 				foreach ($sort_by_key as $key) {
 					$sort_hier[$key] = $hierarchy[$key];
@@ -512,22 +502,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if ($show_parents) {
 			foreach ($hierarchy as $key => $value) {
-				if (strlen($key) == $depth) {
-					// The highest level
-					$hierarchy[$key] = $value;
-					continue;
-				} else if (strlen($key) > ($level * $depth)) {
-					// Whoa! This key exceeds the maximum it can go
-					// Set it for the max anyhow
-					$show_lvl = str_pad('', ($level*$depth), $pad);
-					$hierarchy[$key] = $show_lvl.$value;
-					continue;
-				} else {
-					// Other Levels
-					$show_lvl = str_pad('', ((strlen($key))/$depth), $pad);
-					$hierarchy[$key] = $show_lvl.$value;
-					continue;
-				}
+				$show_lvl = str_pad('', (strlen($key)-1), $pad);
+				$hierarchy[$key] = $show_lvl.$value;
 			}
 		}//end if
 
@@ -541,14 +517,12 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param string		$start_value	A string of the start value
 	* @param array		$options		The all of the hierarchy options
-	* @param int		$level			The number of levels in the hierarchy
-	* @param int		$depth			The depth of each level in the hierarchy
 	* @param string		$pad			The character to show the hierarchy levels
 	*
 	* @return array|NULL
 	* @access public
 	*/
-	public function getHierarchyTree($start_value, $options, $level='1', $depth='1', $pad='; ')
+	public function getHierarchyTree($start_value, $options, $pad='; ')
 	{
 		$return_value = $start_value;
 		$start_value = strtolower($start_value);
@@ -557,7 +531,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			$new_values = Array();
 			foreach ($get_values as $value) {
 				// Get the parents and add them
-				$get_parents = $this->getParentHierarchy($value, $options, $level, $depth);
+				$get_parents = $this->getParentHierarchy($value, $options);
 				if (is_array($get_parents) && !is_null($get_parents)) {
 					foreach ($get_parents as $parent) {
 						if (!in_array($parent, $get_values)) {
@@ -583,6 +557,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			// Sort them out
 			natsort($new_values);
 
+			// Remove duplicate entries
+			$new_values = array_unique($new_values);
+
 			// Prep the value to return
 			$return_value = implode($pad, $new_values);
 		}//end if
@@ -597,13 +574,11 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param string		$value			A string of the start value
 	* @param array		$options		The all of the hierarchy options
-	* @param int		$level			The number of levels in the hierarchy
-	* @param int		$depth			The depth of each level in the hierarchy
 	*
 	* @return array|NULL
 	* @access public
 	*/
-	public function getParentHierarchy($value, $options=NULL, $level='1', $depth='1')
+	public function getParentHierarchy($value, $options=NULL)
 	{
 		$return_val = NULL;
 
@@ -613,11 +588,11 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 
 			// This is the parent or no depth was specified
-			if (strlen($value) == $depth) return $return_val;
+			if (strlen($value) == 1) return $return_val;
 
-			for ($i=1; $i<=$level; $i++) {
+			for ($i=0; $i<strlen($value); $i++) {
 				$parent = '';
-				$parent = substr($value, 0, ($i*$depth));
+				$parent = substr($value, 0, $i);
 				if (array_key_exists(strtolower($parent), array_change_key_case($options, CASE_LOWER))) {
 					$return_val[] = $parent;
 				}
