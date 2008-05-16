@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.14 2007/03/14 23:37:13 skim Exp $
+* $Id: lang_strings.xml,v 1.15 2008/05/16 05:12:22 bshkara Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -100,4 +100,5 @@
 <string source="cms_ct_nest_content_recursion_body">You are nesting the content of this page inside itself</string>
 <string source="cms_ct_nest_content_nested_content">Nested Content - %1$s (Id: #%2$s)</string>
 <string source="cms_ct_nest_content_link_desc">The asset being nested in a nest content cell</string>
+<string source="cms_listing_no_field_selected">No field has been selected</string>
 </strings>
