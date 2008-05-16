@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.2 2008/05/16 03:37:28 bpearson Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.3 2008/05/16 03:38:55 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -484,7 +484,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			case 1:
 				// Using usort to get a more structured list
 				$sort_by_key = array_keys($hierarchy);
-				$aok = usort($sort_by_key, "strcmp");
+				$aok = usort($sort_by_key, 'strcmp');
 				$sort_hier = Array();
 				foreach ($sort_by_key as $key) {
 					$sort_hier[$key] = $hierarchy[$key];
