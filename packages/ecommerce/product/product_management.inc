@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.13 2008/04/30 05:26:12 bshkara Exp $
+* $Id: product_management.inc,v 1.14 2008/05/18 23:43:31 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -128,7 +128,7 @@ class Product_Management extends Asset_Management
 			// get all type descendants
 			$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('product', TRUE);
 			for ($i=0; $i<count($type_codes); $i++) {
-				$type_codes[$i] = $db->quote($type_codes[$i]);
+				$type_codes[$i] = MatrixDAL::quote($type_codes[$i]);
 			}
 			$in = implode(',', $type_codes);
 
