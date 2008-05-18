@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.54.2.3 2008/04/30 23:34:29 lwright Exp $
+* $Id: thesaurus.inc,v 1.54.2.4 2008/05/18 23:57:17 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.54.2.3 $
+* @version $Revision: 1.54.2.4 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -614,15 +614,15 @@ class Thesaurus extends Asset implements Bridge
 		$db = MatrixDAL::getDb();
 		$sql = 'SELECT a.termid, a.name, a.value, a.thesid, b.term
 				FROM sq_thes_term_note a, sq_thes_term b
-				WHERE a.termid = '.$db->quote($termid).' AND
-					a.name = '.$db->quote($note_name).' AND
-					a.value = '.$db->quote($note_value).' AND
-					a.thesid = '.$db->quote($this->id).' AND
+				WHERE a.termid = '.MatrixDAL::quote($termid).' AND
+					a.name = '.MatrixDAL::quote($note_name).' AND
+					a.value = '.MatrixDAL::quote($note_value).' AND
+					a.thesid = '.MatrixDAL::quote($this->id).' AND
 					b.thesid = a.thesid AND b.termid = a.termid
 					';
 		$result = NULL;
 			try {
-			$query = $db->prepare($sql);log_dump($sql);
+			$query = MatrixDAL::preparePdoQuery($sql);
 			$result = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
@@ -635,8 +635,6 @@ class Thesaurus extends Asset implements Bridge
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-
-		$db = MatrixDAL::getDb();
 
 		$bind_vars = Array (
 						'thesid'	=> $this->id,
