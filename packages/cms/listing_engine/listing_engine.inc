@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.252 2008/05/12 01:20:45 lwright Exp $
+* $Id: listing_engine.inc,v 1.253 2008/05/19 05:18:57 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1798,7 +1798,7 @@ class Listing_Engine extends Page
 		$this->_tmp['is_default']     = Array();
 		if (empty($this->_tmp['assets_info'])) {
 			include_once SQ_FUDGE_PATH.'/general/general.inc';
-			$flattened = array_keys(array_flatten($todo, FALSE, TRUE));
+			$flattened = array_keys(dal_array_flatten($todo, 'type_code'));
 			$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($flattened);
 			$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($flattened);
 		}
@@ -1945,7 +1945,7 @@ class Listing_Engine extends Page
 					}
 
 					$replacements['group_immed_child_group_count'] = count($todo[$group_level]);
-					$replacements['group_total_child_asset_count'] = count(array_flatten($todo[$group_level], TRUE, FALSE));
+					$replacements['group_total_child_asset_count'] = count(dal_array_flatten($todo[$group_level], 'type_code'));
 
 					// only print the 'check all' checkbox if we're only dealing with checkboxes
 					$selections = $this->attr('asset_selections');

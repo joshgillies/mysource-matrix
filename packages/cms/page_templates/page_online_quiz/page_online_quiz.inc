@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.26 2008/05/19 01:56:14 bshkara Exp $
+* $Id: page_online_quiz.inc,v 1.27 2008/05/19 05:18:57 bshkara Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1504,7 +1504,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			// check $replacements['total_pages'] to see how many more chunks we have to get
 
 			// Note: custom grouping and standard grouping have different formats for the
-			// return value of getPageAssets - calling _getFlatCurrentPageAssets() will convert the custom grouping format
+			// return value of getPageAssets - calling dal_array_flatten() will convert the custom grouping format
 			// to match the standard one
 
 			// assumption: any assets that are of interest to us (online_quiz_questions) will never be parents
@@ -1514,7 +1514,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			//    |--- [quiz:2]
 			//    '--- [quiz:3]
 			$current_result_page = $this->getCurrentPage();
-			$current_page_assets = $this->_getFlatCurrentPageAssets($children, $replacements, $current_result_page);
+			require_once SQ_FUDGE_PATH.'/general/general.inc';
+			$current_page_assets = dal_array_flatten($this->getPageAssets($children, $replacements, $current_result_page), 'type_code');
 			$total_pages = $replacements['total_pages'];
 
 			if (!empty($current_page_assets)) {
@@ -1525,7 +1526,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					if (isset($question_pagination['pages_to_questions'][$ii])) {
 						$page_assets = $question_pagination['pages_to_questions'][$ii];
 					} else {
-						$page_assets = $this->_getFlatCurrentPageAssets($children, $replacements, $ii);
+						$page_assets = dal_array_flatten($this->getPageAssets($children, $replacements, $ii), 'type_code');
 						$question_pagination['pages_to_questions'][$ii] = $page_assets;
 					}
 
@@ -1548,42 +1549,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return $question_pagination;
 
 	}//end loadQuestionPagination()
-
-
-	/**
-	* Returns a flat array of the question assets used in the requested page
-	*
-	* @param array	&$children		the list of assets to paginate
-	* @param array	&$replacements	an array to catch the keyword replacements spat out by getChunk() during the chunking process
-	* @param int	$result_page	the page of assets to return
-	*
-	* @return array
-	* @access public
-	*/
-	function _getFlatCurrentPageAssets(&$children, &$replacements, $result_page)
-	{
-		$page_assets = $this->getPageAssets($children, $replacements, $result_page);
-		$current_page_assets = Array();
-		// drill down until we find a 0 index which means we may have have found a question asset
-		while (is_array($page_assets) && !empty($page_assets)) {
-			foreach ($page_assets as $id => $data) {
-				if (is_array($data) && $id !== 0) {
-					// 1 level lookahead to see if we are about to find a question
-					// if we do then start iterating to capture all questions
-					if (isset($page_assets[$id][0]) && isset($page_assets[$id][0]['type_code'])) {
-						foreach ($page_assets as $question_id => $type_data) {
-							$current_page_assets[$question_id] = $type_data[0]['type_code'];
-						}
-						break(2);
-					}
-				}
-				$page_assets = $data;
-			}
-		}
-
-		return $current_page_assets;
-
-	}//end _getFlatCurrentPageAssets()
 
 
 	/**
