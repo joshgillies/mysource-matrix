@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.40 2008/03/20 05:06:47 hnguyen Exp $
+* $Id: general.inc,v 1.41 2008/05/19 05:18:20 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package Fudge
 * @subpackage General
 */
@@ -283,6 +283,74 @@ function array_flatten($array, $prune_parents=FALSE, $return_unique_keys=TRUE)
 	return $flattened_array;
 
 }//end array_flatten()
+
+
+/**
+* A less generic function to return a flattened array of the form:
+* <pre>
+* Array(
+*	'10'	=> Array(
+*				'0'		=> Array(
+*							'type_code'	=> 'Value',
+*			   ),
+*	'12'	=> Array(
+*				'0'		=> Array(
+*							'type_code'	=> 'Value',
+*			   ),
+* )
+* </pre>
+*
+* This function drills down until it finds a 0 index which indicates a result row if DAL has been used
+* to retrieve the results.
+* The flattest array possible is always returned.
+* You can provide the function with a column name which holds the value you would like returned.  E.g.
+* in the array above, a valid column name would be 'type_code'.
+*
+* If $array isn't an array, an empty array is returned.
+*
+* @param array	$array	the array to flatten
+* @param int	$column	the key to search for in the array and return
+*
+* @return array
+* @access public
+*/
+function dal_array_flatten($array, $column='')
+{
+	if (!is_array($array) || empty($array)) {
+		return Array();
+	}
+
+	$flattened_array = Array();
+	// drill down until we find a 0 index which means we may have have found a valid row
+	while (is_array($array) && !empty($array)) {
+		foreach ($array as $id => $data) {
+			if (is_array($data) && $id !== 0) {
+				// 1 level lookahead to see if we are about to find a valid row
+				// if we do then start iterating to capture all other rows
+				if (empty($column)) {
+					// if the column name is not specified return the array found there instead
+					if (isset($array[$id][0])) {
+						foreach ($array as $question_id => $type_data) {
+							$flattened_array[$question_id] = $type_data[0];
+						}
+						break(2);
+					}
+				} else {
+					if (isset($array[$id][0]) && isset($array[$id][0][$column])) {
+						foreach ($array as $question_id => $type_data) {
+							$flattened_array[$question_id] = $type_data[0][$column];
+						}
+						break(2);
+					}
+				}
+			}
+			$array = $data;
+		}
+	}
+
+	return $flattened_array;
+
+}//end dal_array_flatten()
 
 
 /**
