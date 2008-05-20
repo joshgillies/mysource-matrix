@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.36 2007/04/13 00:29:34 hnguyen Exp $
+* $Id: bodycopy_container.inc,v 1.36.2.1 2008/05/20 04:02:23 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -351,8 +351,13 @@ class Bodycopy_Container extends Asset
 				$sq_asset_url_list = Array();
 
 				$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
+				$get_href_ids = $this->attr('shadow_links');
 
-				$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($notice_links));
+				foreach ($notice_links as $link) {
+					$get_href_ids[] = $link['minorid'];
+				}
+
+				$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($get_href_ids));
 				for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
 					if ($sq_asset_url_list[$minorid] == '') {
 						$sq_asset_url_list[$minorid] = './?a='.$minorid;
