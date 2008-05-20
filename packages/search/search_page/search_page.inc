@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.216 2008/05/16 03:45:13 bpearson Exp $
+* $Id: search_page.inc,v 1.217 2008/05/20 06:17:16 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -331,7 +331,6 @@ class Search_Page extends Listing_Engine
 				$sq_index = $pmap->getParameterValue($params);
 
 				if (!is_null($sq_index)) {
-					// Now set these variables into $_REQUEST so search_page can read them directly
 					if ($params == 'stored_query') {
 						// Direct match to all fields
 						foreach ($fields as $fieldname => $fieldvalue) {
@@ -991,10 +990,29 @@ class Search_Page extends Listing_Engine
 		if (!isset($fields[$field_name])) return;
 		$this->registerFormField('queries_'.$query_var.'%');
 		$query = '';
+
 		if (isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
 			$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
 		}
 		$read_only = FALSE;
+
+		// Check if a stored stored session variable is set and set query to match
+		// But don't touch it if there was some SESSION var already set
+		$pmap = $this->getAttribute('stored_query_session');
+		$pmap_params = $pmap->getParameters();
+		if (is_array($pmap_params) && !empty($pmap_params)) {
+			// Check for all fields
+			if (in_array('stored_query', $pmap_params)) {
+				$key_field = array_search('stored_query', $pmap_params);
+				$query = $pmap->getParameterValue($pmap_params[$key_field]);
+			}
+
+			// Check for current field
+			if (in_array($field_name, $pmap_params)) {
+				$key_field = array_search($field_name, $pmap_params);
+				$query = $pmap->getParameterValue($pmap_params[$key_field]);
+			}
+		}
 
 		ob_start();
 
@@ -1025,6 +1043,7 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_hierarchy' :
 									$hierarchy = $asset->getHierarchyAttribute();
+
 									if (!empty($query)) $hierarchy->value = $query;
 									if ($asset->attr('hier_sort')) {
 										$sort = $asset->attr('hier_sort');
