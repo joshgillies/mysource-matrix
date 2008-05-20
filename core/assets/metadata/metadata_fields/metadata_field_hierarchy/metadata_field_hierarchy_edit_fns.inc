@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.3 2008/05/16 03:38:55 bpearson Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.4 2008/05/20 06:09:43 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -307,10 +307,13 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					if ($sort > 0) {
 						$default_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
 						if (isset($default_options) && !is_null($default_options)) {
+							foreach ($default_options as $key => $value) {
+								$default_options[$key] = substr($value, 0, 100);
+							}
 							$default_hier->_params['options'] = $default_options;
 						}
 
-					}
+					}//end if
 					$default_hier->paint($prefix.'_default', FALSE);
 				} else {
 					if (isset($default_hier->_params['options'][$default_hier->value])) {
@@ -318,9 +321,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					} else {
 						echo translate('hierarchy_no_default');
 					}
-				}
+				}//end if
 			$o->closeField();
-		}
+		}//end if
 
 		// Being user friendly show a quick preview of what it looks like
 		$o->openField(translate('preview'));
@@ -331,10 +334,13 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($sort > 0) {
 					$preview_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
 					if (isset($preview_options) && !is_null($preview_options)) {
+						foreach ($preview_options as $key => $value) {
+							$preview_options[$key] = substr($value, 0, 100);
+						}
 						$preview_hierarchy->_params['options'] = $preview_options;
 					}
 
-				}
+				}//end if
 				$preview_hierarchy->paint('some_name_not_used', FALSE);
 			} else {
 				echo translate('no_hierarchy_box_options');
