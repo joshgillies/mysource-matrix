@@ -219,7 +219,7 @@ class DAL
      */
     public static function getAssoc(Query $dalQuery, $col=NULL)
     {
-        self::_startQueryTimer($dalQuery->getQueryid());
+        self::_startQueryTimer($dalQuery);
 
         $query  = $dalQuery->prepare();
         $result = self::executePdoAssoc($query, $col);
@@ -244,7 +244,7 @@ class DAL
      */
     public static function getAll(Query $dalQuery)
     {
-        self::_startQueryTimer($dalQuery->getQueryid());
+        self::_startQueryTimer($dalQuery);
 
         $query  = $dalQuery->prepare();
         $result = self::executePdoAll($query);
@@ -269,7 +269,7 @@ class DAL
      */
     public static function getOne(Query $dalQuery)
     {
-        self::_startQueryTimer($dalQuery->getQueryid());
+        self::_startQueryTimer($dalQuery);
 
         $query = $dalQuery->prepare();
         $result = self::executePdoOne($query);
@@ -320,7 +320,7 @@ class DAL
      */
     public static function getGrouped(Query $dalQuery)
     {
-        self::_startQueryTimer($dalQuery->getQueryid());
+        self::_startQueryTimer($dalQuery);
 
         $query  = $dalQuery->prepare();
         $result = self::executePdoGrouped($query);
@@ -344,7 +344,7 @@ class DAL
      */
     public static function getGroupedAssoc(Query $dalQuery)
     {
-        self::_startQueryTimer($dalQuery->getQueryid());
+        self::_startQueryTimer($dalQuery);
 
         $query  = $dalQuery->prepare();
         $result = self::executePdoGroupedAssoc($query);
@@ -482,14 +482,14 @@ class DAL
     {
         $query = NULL;
         if (($systemid instanceof Query) === TRUE) {
-            self::_startQueryTimer($systemid->getQueryid());
+            self::_startQueryTimer($systemid);
             $dalQuery = $systemid;
             $query = $dalQuery->prepare();
         } else if ($queryid === NULL) {
             throw new DALException('No queryid provided for executeQuery.');
         } else {
-            self::_startQueryTimer($queryid);
             $dalQuery = self::getQuery($systemid, $queryid);
+            self::_startQueryTimer($dalQuery);
             $query = $dalQuery->prepare();
         }
 
@@ -583,6 +583,8 @@ class DAL
      */
     public static function execPdoQuery($query)
     {
+        self::_startQueryTimer('unknown query');
+
         $dbh = self::getDb();
 
         if (!((gettype($query) !== 'PDOStatement') || (is_resource($query) && (get_resource_type($query) === 'oci8 statement')))) {
@@ -601,6 +603,8 @@ class DAL
             $query->execute();
             $rows = (int)$query->rowCount();
         }
+
+        self::_endQueryTimer();
 
         return $rows;
 
@@ -858,6 +862,8 @@ class DAL
      */
     public static function executeSql($sql)
     {
+        self::_startQueryTimer($sql);
+
         $dbh  = self::getDb();
 
         if (self::getDbType() === 'oci') {
@@ -877,6 +883,9 @@ class DAL
         } else {
             $rows = $dbh->exec($sql);
         }
+
+        self::_endQueryTimer();
+
         return $rows;
 
     }//end executeSql()
@@ -1687,11 +1696,17 @@ class DAL
      * @since  4.0.0
      * @return void
      */
-    protected static function _startQueryTimer($queryid)
+    protected static function _startQueryTimer($query)
     {
         if (self::$_logQueries === TRUE) {
             self::$_currentQueryLog = array();
-            self::$_currentQueryLog['id']    = $queryid;
+            if (is_string($query) === true) {
+                self::$_currentQueryLog['id']  = 'sql';
+                self::$_currentQueryLog['sql'] = $query;
+            } else {
+                self::$_currentQueryLog['id']  = $query->getQueryid();
+                self::$_currentQueryLog['sql'] = $query->getSql();
+            }
             self::$_currentQueryLog['start'] = microtime(TRUE);
         }
 
@@ -1712,6 +1727,9 @@ class DAL
             }
 
             self::$_queryLog[self::$_currentQueryLog['id']][] = (microtime(TRUE) - self::$_currentQueryLog['start']);
+            if (isset($GLOBALS['THE_CONSTRUCT']) === TRUE) {
+                $GLOBALS['THE_CONSTRUCT']->recordDatabaseQuery(self::$_currentQueryLog['sql'], self::$_currentQueryLog['start'], microtime(TRUE));
+            }
         }
 
         self::$_currentQueryLog = NULL;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.9 2008/03/17 22:52:27 gsherwood Exp $
+* $Id: MatrixDAL.inc,v 1.10 2008/05/21 06:25:04 gsherwood Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once dirname(__FILE__).'/../DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
@@ -217,14 +217,14 @@ class MatrixDAL extends DAL
 	{
 		$query = NULL;
 		if (($systemid instanceof Query) === TRUE) {
-			self::_startQueryTimer($systemid->getQueryid());
+			self::_startQueryTimer($systemid);
 			$dalQuery = $systemid;
 			$query    = $dalQuery->prepare();
 		} else if ($queryid === NULL) {
 			throw new DALException('No queryid provided for executeQuery.');
 		} else {
-			self::_startQueryTimer($queryid);
 			$dalQuery = self::getQuery($systemid, $queryid, $params);
+			self::_startQueryTimer($dalQuery);
 			$query    = $dalQuery->prepare();
 		}
 
