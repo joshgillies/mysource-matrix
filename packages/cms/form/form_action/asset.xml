@@ -1,3 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -10,15 +13,20 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.14.8.1 2008/05/21 01:10:21 lwright Exp $
+* $Id: asset.xml,v 1.1.2.2 2008/05/21 01:10:20 lwright Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="contents"			display_name="Form Contents"		icon="web"	force_unlock="0" />
-	<screen code_name="actions" 			display_name="Submission Actions"	icon="web"	force_unlock="0" />
-	<screen code_name="recipient"			display_name="Email Options"		icon="web" />
-	<screen code_name="selective_emails" 	display_name="Selective Emails"		icon="web"	force_unlock="0" />
-	<screen code_name="log" 				display_name="Submission Logs"		icon="web"	force_unlock="0" />
-</screens>
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>cms</package>
+	<type_code>form_action</type_code>
+	<version>0.1</version>
+	<name>Form Action</name>
+	<description>Form Action. Performs a single action upon the result of a submitted Custom Form.</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>asset</parent_type>
+	<requirements />
+	<flash_menu_path/>
+</asset_info>

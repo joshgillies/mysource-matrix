@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.24 2006/12/07 00:04:18 emcdonald Exp $
+* $Id: form_email_management.inc,v 1.24.8.1 2008/05/21 01:10:21 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,6 +67,11 @@ class Form_Email_Management extends Asset_Management
 													   ),
 						'selective_emails'			=> Array(
 														'added'		=> '0.0.1',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													   ),
+						'actions'					=> Array(
+														'added'		=> '0.4',
 														'type'		=> 'serialise',
 														'default'	=> Array(),
 													   ),

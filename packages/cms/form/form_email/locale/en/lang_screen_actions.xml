@@ -10,15 +10,9 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.14.8.1 2008/05/21 01:10:21 lwright Exp $
+* $Id: lang_screen_actions.xml,v 1.1.2.2 2008/05/21 01:10:21 lwright Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="contents"			display_name="Form Contents"		icon="web"	force_unlock="0" />
-	<screen code_name="actions" 			display_name="Submission Actions"	icon="web"	force_unlock="0" />
-	<screen code_name="recipient"			display_name="Email Options"		icon="web" />
-	<screen code_name="selective_emails" 	display_name="Selective Emails"		icon="web"	force_unlock="0" />
-	<screen code_name="log" 				display_name="Submission Logs"		icon="web"	force_unlock="0" />
-</screens>
+<contents />
