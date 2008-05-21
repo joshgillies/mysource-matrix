@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_db_query.inc,v 1.2 2008/05/16 04:26:14 lwright Exp $
+* $Id: form_action_db_query.inc,v 1.3 2008/05/21 01:15:16 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -329,10 +329,19 @@ class Form_Action_DB_Query extends Form_Action
 
 		$found = 0;
 
-		$found = preg_match_all('/%(response_\\d+_q\\d+(_raw)?)%/U', $sql, $matches, PREG_SET_ORDER);
+		// We will replace all responses, including raw values.
+		// We will also replace keywords relating to the form submission asset
+		// (eg. submission assetid, time, IP address)
+		$matches = Array();
+		$found = preg_match_all('/%(response_(\\d+_)?q\\d+(_raw)?)%/U', $sql, $set_matches, PREG_SET_ORDER);
+		$matches += $set_matches;
+		$found = preg_match_all('/%(form_submission_.*)%/U', $sql, $set_matches, PREG_SET_ORDER);
+		$matches += $set_matches;
+
 		$i = 1;
 		$bind_vars = Array();
 		foreach ($matches as $match) {
+			if (empty($match)) continue;
 			$count = 0;
 			do {
 				$sql = preg_replace('/%'.$match[1].'%/U', ':response_'.$i, $sql, 1, $count);
@@ -458,13 +467,8 @@ class Form_Action_DB_Query extends Form_Action
 				'type'		=> $db_type,
 			   );
 
-		try {
-			$db = MatrixDAL::dbConnect($dsn, 'form_action_db_query_'.$form->id);
-			return $db;
-		} catch (Exception $e) {
-			return FALSE;
-		}
-
+		$db = MatrixDAL::dbConnect($dsn, 'form_action_db_query_'.$form->id);
+		return $db;
 
 	}//end connectToDB()
 
