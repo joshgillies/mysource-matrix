@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_file_asset.inc,v 1.11 2007/12/13 01:16:28 rong Exp $
+* $Id: trigger_action_create_file_asset.inc,v 1.12 2008/05/21 05:22:45 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 	*       'value'        => string  // the value associated with a link (optional)
 	*       'is_dependant' => boolean // whether the link is dependant (optional)
 	*       'is_exclusive' => boolean // whether the link is exclusive (optional)
-	*		'file_path'	   => string  // path to the file to use
+	*       'file_path'	   => string  // path to the file to use
+	*       'file_name'	   => string  // a name to use for the file (optional)
 	*       );
 	* </PRE>
 	*
@@ -93,8 +94,12 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 					'is_exclusive'	=> (bool) $is_exclusive,
 				);
 
+		if (isset($settings['file_name']) === false) {
+			$settings['file_name'] = basename($settings['file_path']);
+		}
+
 		$info = Array(
-					'name'				=> basename($settings['file_path']),
+					'name'				=> $settings['file_name'],
 					'tmp_name'			=> $settings['file_path'],
 					'non_uploaded_file'	=> TRUE,
 				);
