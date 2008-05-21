@@ -1,19 +1,20 @@
 <?php
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600													   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | IMPORTANT: Your use of this Software is subject to the terms of    |
-* | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | IMPORTANT: This Module is not available under an open source	   |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this	   |
+* | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.2 2008/05/09 05:30:06 hnguyen Exp $
+* $Id: soap_server.inc,v 1.2.2.1 2008/05/21 01:56:04 bshkara Exp $
 *
 */
 
+check_ssv_licence();
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
@@ -26,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
