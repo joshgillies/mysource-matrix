@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.19 2007/11/29 04:26:25 hnguyen Exp $
+* $Id: matrix_apply_style.inc,v 1.20 2008/05/21 23:47:33 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -69,9 +69,9 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 				if (file_exists($stylesheet_src)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$stylesheet = preg_replace('%[\r\n]+%',' ',file_to_string($stylesheet_src));
-					$stylesheet = preg_replace('/\/\*.*\*\//s', '',$stylesheet);
+					$stylesheet = preg_replace('/\/\*.*\*\//sU', '',$stylesheet);
 					$matches = Array();
-					preg_match_all("%\s*([\.#][^\{]+)\{[^\}]+\}%", $stylesheet, $matches);
+					preg_match_all('%\s*([^\{]+)\{[^\}]+\}%', $stylesheet, $matches);
 					$class_strings = $matches[1];
 
 					// $class_strings is now a list of all the class and their variations
@@ -113,7 +113,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		if (!empty($this->_css_classes)) {
 			?>"-- select css style --": "",<?php
 			$string = '';
-			foreach ($this->_css_classes as $class_name => $cn) echo '"     '.$cn.'": "'.$class_name.'",';
+			foreach ($this->_css_classes as $class_name => $cn) echo '"     '.str_replace('"', '\"', $cn).'": "'.str_replace('"', '\"', $class_name).'",';
 			?>"-- remove css style --": "no_style"<?php
 		}
 
