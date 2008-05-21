@@ -1,18 +1,19 @@
 <?php
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600													   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* | IMPORTANT: Your use of this Software is subject to the terms of    |
-* | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | IMPORTANT: This Module is not available under an open source	   |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this	   |
+* | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server_edit_fns.inc,v 1.2 2008/05/09 06:56:21 hnguyen Exp $
+* $Id: soap_server_edit_fns.inc,v 1.3 2008/05/21 00:23:09 bshkara Exp $
 *
 */
+
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
@@ -23,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
