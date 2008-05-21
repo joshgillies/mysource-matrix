@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.56 2006/12/05 22:42:10 emcdonald Exp $
+* $Id: design_area_edit_fns.inc,v 1.56.6.1 2008/05/21 04:27:09 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$file_contents = preg_replace($e, '\\1', $file_contents);
 
 		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
-		$file_contents = preg_replace('|\<\?(?!xml)(.+?)(?=\?\>)\?\>|', '&lt;?\\1?&gt;', $file_contents);
+		$file_contents = preg_replace('/\<\?(?!xml)(.*)(?=\?\>)\?\>/ims', '&lt;?$1?&gt;', $file_contents);
 		$file_contents = preg_replace('|\<\?(?=xml)(.+?)(?=\?\>)\?\>|', '<?php echo "<"."?"; ?>\\1<?php echo "?".">"; ?>', $file_contents);
 
 		// Lets make all occurances of the open cnd close tags the
