@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.10.2.1 2007/12/13 00:01:48 mbrydon Exp $
+* $Id: page_upcoming_events_list.inc,v 1.10.2.2 2008/05/22 01:56:36 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -185,10 +185,44 @@ class Page_Upcoming_Events_List extends Page
 		}
 
 		$pb =& $am->getAsset($pb_bodycopy_id, 'bodycopy');
-		$pb->setKeywordReplacements($this->_getPageContentsReplacements());
+		$replacements = $this->_getPageContentsReplacements();
+		$calendar_replacements = $replacements;
+		$keywords = $pb->getKeywords();
+		foreach ($keywords as $word) {
+			if (isset($calendar_replacements[$word]) && !empty($calendar_replacements[$word])) {
+				$replacements[$word] = $calendar_replacements[$word];
+			} else {
+				$replacements[$word] = $this->getKeywordReplacement($word);
+			}
+		}
+		$pb->setKeywordReplacements($replacements);
 		$pb->printBody();
 
 	}//end printBody()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		$prefix = $this->getPrefix();
+
+		// No keywords here, just go and get the global keywords
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
 
 
 	/**

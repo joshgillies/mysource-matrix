@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.202.2.3 2008/03/12 04:52:29 colivar Exp $
+* $Id: page_calendar.inc,v 1.202.2.4 2008/05/22 01:56:20 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.202.2.3 $
+* @version $Revision: 1.202.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -390,6 +390,16 @@ class Page_Calendar extends Page
 				ob_start();
 					echo '<script type="text/javascript">if (typeof cal != "undefined") cal.setDate(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\')</script>';
 					// print the contents of page - replacing the global keywords
+					$calendar_replacements = $replacements;
+					$keywords = $contents_bodycopy->getKeywords();
+					foreach ($keywords as $word) {
+						if (isset($calendar_replacements[$word]) && !empty($calendar_replacements[$word])) {
+							$replacements[$word] = $calendar_replacements[$word];
+						} else {
+							$replacements[$word] = $this->getKeywordReplacement($word);
+						}
+					}
+
 					$contents_bodycopy->setKeywordReplacements($replacements);
 					$contents_bodycopy->printBody();
 					if (!empty($cache_key)) {
@@ -404,6 +414,30 @@ class Page_Calendar extends Page
 		}//end if
 
 	}//end printBody()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		$prefix = $this->getPrefix();
+
+		// No keywords here, just go and get the global keywords
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKeywordReplacement()
 
 
 	/**
@@ -697,9 +731,9 @@ class Page_Calendar extends Page
 
 	/**
 	* Get the replacement for the %calendar_contents% keyword
-	*
 	* The contents to be displayed
-	* @param array &$events_array 	will keep a list of all the events
+	*
+	* @param array	&$events_array	will keep a list of all the events
 	*
 	* @return string
 	* @access public
@@ -728,7 +762,7 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date			the ISO 8601'd date that we are displaying (YYYY-MM-DD)
 	* @param string	$format			the format of display
-	* @param array &$events_array	will keep a list of all the events
+	* @param array	&$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
@@ -872,9 +906,9 @@ class Page_Calendar extends Page
 	/**
 	* Get the contents of the monthly view with for the month containing the specified day
 	*
-	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
-	* @param string	$format	the format of display
-	* @param array &$events_array	will keep a list of all the events
+	* @param string	$date			the ISO 8601'd date that we are displaying (YYYY-MM-DD)
+	* @param string	$format			the format of display
+	* @param array	&$events_array	will keep a list of all the events
 	*
 	* @return void
 	* @access public
@@ -1146,8 +1180,8 @@ class Page_Calendar extends Page
 	/**
 	* Get the contents of the week view for the week containing the specified day
 	*
-	* @param string	$date	the ISO 8601'd date that we are displaying (YYYY-MM-DD)
-	* @param string	$format	the format of display
+	* @param string	$date			the ISO 8601'd date that we are displaying (YYYY-MM-DD)
+	* @param string	$format			the format of display
 	* @param array &$events_array	will keep a list of all the events
 	*
 	* @return void
@@ -1239,7 +1273,7 @@ class Page_Calendar extends Page
 	*
 	* @param string	$date				the ISO 8601'd day (YYYY-MM-DD)
 	* @param string	$format				'list_with_headings' | 'list_without_headings' | 'calendar_format'
-	* @param array &$events_array		will keep a list of all the events
+	* @param array	&$events_array		will keep a list of all the events
 	*
 	* @return void
 	* @access public
@@ -1405,7 +1439,7 @@ class Page_Calendar extends Page
 			if ($event_url) $res .= '<a href="'.$event_url.'">';
 
 			$current_view = htmlentities($_REQUEST['SQ_CALENDAR_VIEW']);
-			switch($current_view) {
+			switch ($current_view) {
 				case 'week':
 				case 'month':
 				case 'day':
@@ -3164,7 +3198,7 @@ class Page_Calendar extends Page
     /**
     * Save attributes set with setAttrValue to the database
     *
-    * @param boolean    $dont_run_updated   if TRUE this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+    * @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
     *
     * @return boolean
     * @access public
