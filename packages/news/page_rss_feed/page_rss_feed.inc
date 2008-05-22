@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.21 2007/12/12 00:15:33 colivar Exp $
+* $Id: page_rss_feed.inc,v 1.21.2.1 2008/05/22 00:51:01 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -279,6 +279,7 @@ class Page_RSS_Feed extends Page
 				$mm = null;
 				foreach ($items as $type => $keywords) {
 					foreach ($assets_to_list as $assetid => $asset_type) {
+						$asset_type = $asset_type['type_code'];
 						if (!empty($num_assets_as_items)) {
 							if ($index >= $num_assets_as_items) break;
 						}
