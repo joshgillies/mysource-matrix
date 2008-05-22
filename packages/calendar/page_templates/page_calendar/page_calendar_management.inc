@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.57 2008/02/18 05:16:08 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.58 2008/05/22 02:08:14 bpearson Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -204,7 +204,7 @@ class Page_Calendar_Management extends Asset_Management
 																'month_day'	=> 'l jS',
 																'week_day'	=> 'l jS',
 															   ),
-											);
+											  );
 
 		// width of	table columns in month view
 		$this->vars['month_column_width'] =	Array(
@@ -256,15 +256,15 @@ class Page_Calendar_Management extends Asset_Management
 											'added'		=> '0.1',
 											'type'		=> 'text',
 											'default'	=> 'Show Today',
-										);
+										 );
 
 		// for the body copy no results use. If true we use the body copy no results.
 		$this->vars['use_no_results_body_copy'] = Array(
-													'added'		=> '0.7',
-													'type'		=> 'boolean',
-													'default'	=> '0',
-													'parameters'=> Array('allow_empty' => FALSE),
-													);
+													'added'			=> '0.7',
+													'type'			=> 'boolean',
+													'default'		=> '0',
+													'parameters'	=> Array('allow_empty' => FALSE),
+												  );
 
 
 
@@ -283,7 +283,7 @@ class Page_Calendar_Management extends Asset_Management
 
 		// If this is set the clicking on empty	space in a table cell
 		// will	redirect you to	this asset builder page	to add an event
-		$this->vars['asset_builder_page'] =	Array(
+		$this->vars['asset_builder_page'] = Array(
 												'added'		=> '0.1',
 												'type'		=> 'assetid',
 												'default'	=> '0',
@@ -321,7 +321,6 @@ class Page_Calendar_Management extends Asset_Management
 										'parameters'	=> Array(
 															'parameters'	=> Array(
 																				'replacement_root_node'	=> 'Replacement Event Source (must be a child of the static root node)',
-
 																			   ),
 														   ),
 									   );
@@ -335,12 +334,12 @@ class Page_Calendar_Management extends Asset_Management
 														'added'		=> '0.1',
 														'type'		=> 'text',
 														'default'	=> '%asset_name%',
-													   );
+													  );
 		$this->vars['day_view_event_label_format'] = Array(
 														'added'		=> '0.1',
 														'type'		=> 'text',
 														'default'	=> '%asset_name%',
-													   );
+													 );
 
 	}//end constructor
 
