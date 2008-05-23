@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.128 2008/04/23 01:43:29 bpearson Exp $
+* $Id: page_asset_builder.inc,v 1.129 2008/05/23 04:51:52 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1184,9 +1184,14 @@ class Page_Asset_Builder extends Page
 	{
 		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
 
+		// Treat PHP 5.2 catchable fatals as PHP 5.1 fatals
+		if (defined('E_RECOVERABLE_ERROR') && ($err_no == E_RECOVERABLE_ERROR)) {
+			$terminate = TRUE;
+		}
+
 		// if the function didn't have an '@' prepended OR if we are about to terminate
 		// catch the error
-		if (error_reporting() || $terminate) {
+		if ((error_reporting() & $err_no) || $terminate) {
 
 			$bt = debug_backtrace();
 			if (count($bt) > 1) {
