@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.17.2.3 2008/05/08 06:11:29 bshkara Exp $
+* $Id: page_online_quiz.inc,v 1.17.2.4 2008/05/23 05:48:40 mbrydon Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.17.2.3 $
+* @version $Revision: 1.17.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -232,6 +232,20 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return TRUE;
 
 	}//end _createSubmissionsFolder()
+
+
+	/**
+	* Work out the unique cache key to represent the current page
+	* Overridden to ensure that the Online Quiz asset is not cached
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		return '';
+
+	}//end _getCacheKey()
 
 
 	/**
