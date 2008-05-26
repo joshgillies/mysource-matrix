@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.14.4.1 2008/05/16 05:14:53 bshkara Exp $
+* $Id: lang_strings.xml,v 1.14.4.2 2008/05/26 07:02:45 bpearson Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -100,5 +100,15 @@
 <string source="cms_ct_nest_content_recursion_body">You are nesting the content of this page inside itself</string>
 <string source="cms_ct_nest_content_nested_content">Nested Content - %1$s (Id: #%2$s)</string>
 <string source="cms_ct_nest_content_link_desc">The asset being nested in a nest content cell</string>
+<string source="cms_hipo_name_export_files">Export Files</string>
+<string source="cms_hipo_exporting_files">Exporting Files</string>
+<string source="cms_tool_export_files_root_node">Root Node</string>
+<string source="cms_tool_export_files_root_node_note">Export all the files under this root node</string>
+<string source="cms_tool_export_files_save_name">Save As</string>
+<string source="cms_tool_export_files_save_name_note">Name to save the exported files as</string>
+<string source="cms_tool_export_files_save_location">Save Location</string>
+<string source="cms_tool_export_files_save_location_note">Location to save the exported files</string>
+<string source="cms_tool_export_files_keep_structure">Keep Structure</string>
+<string source="cms_tool_export_files_keep_structure_note">When exporting, keep the structure underneath the root node</string>
 <string source="cms_listing_no_field_selected">No field has been selected</string>
 </strings>
