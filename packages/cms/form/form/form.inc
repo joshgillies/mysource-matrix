@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.170.2.5 2008/01/30 22:31:36 hnguyen Exp $
+* $Id: form.inc,v 1.170.2.6 2008/05/26 06:47:35 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.170.2.5 $
+* @version $Revision: 1.170.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -146,13 +146,13 @@ class Form extends Asset
 		}
 
 		// Deny public read access to the submissions folder by default
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($folder->id, 'permissions')) {
-			return FALSE;
-		}
+		// force run level so users without admin permissions can still create a form
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE)) {
 			return FALSE;
 		}
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($folder->id, 'permissions');
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
 		return TRUE;
 
 	}//end _createSubmissionsFolder()
