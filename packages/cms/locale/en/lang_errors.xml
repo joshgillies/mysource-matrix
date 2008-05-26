@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.18 2007/04/02 01:05:42 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.18.6.1 2008/05/26 22:31:10 bpearson Exp $
 *
 */
 -->
@@ -205,5 +205,13 @@
 
 	<error code="CMS0071">This user asset cannot be validated because no create locations to move it to have been found</error>
 
+	<!-- tools errors -->
+	<error code="CMS0100">Cannot complete the export. No root node specified.</error>
+	<error code="CMS0101">Cannot complete the export. No save name specified.</error>
+	<error code="CMS0102">Cannot complete the export. No save location specified.</error>
+	<error code="CMS0103">Cannot complete the export. Save location is NOT writable.</error>
+
+	<error code="CMS0105">Cannot complete the export. An error occured making the archive.</error>
+	<error code="CMS0106">Cannot cleanup. An error occured cleaning up.</error>
 
 </errors>

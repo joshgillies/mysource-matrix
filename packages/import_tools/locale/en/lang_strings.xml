@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.12 2006/12/19 04:09:01 skim Exp $
+* $Id: lang_strings.xml,v 1.12.6.1 2008/05/26 22:31:49 bpearson Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -85,5 +85,11 @@
 <!-- File Import Tool Hipo -->
 <string source="file_import_tools_bulk_file_import_hipo_name">Hipo Job Bulk File Import</string>
 <string source="file_import_tools_hipo_can_not_create_file">File Import failed to create "%s" asset under Assetid : %d</string>
+
+<!-- CMS Tool Export Files -->
+<string source="import_tools_manager_server_export_dir">Server Export Directory</string>
+<string source="import_tools_manager_server_export_dir_msg">Directory on the Server to export files to.</string>
+<string source="import_tools_manager_server_export_name">Server Export Name</string>
+<string source="import_tools_manager_server_export_name_msg">The basename of the exported files</string>
 
 </strings>
