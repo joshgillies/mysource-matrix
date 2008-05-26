@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2007/01/11 22:04:17 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7.4.1 2008/05/26 22:20:41 bpearson Exp $
 *
 */
 -->
@@ -43,6 +43,14 @@
 			<function_call>
 				<paint_function   name="paintBulkFileImport"   />
 				<process_function name="processBulkFileImport" />
+			</function_call>
+		</field>
+	</section>
+	<section name="CMS File Export Settings" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintCMSFileExport"   />
+				<process_function name="processCMSFileExport" />
 			</function_call>
 		</field>
 	</section>

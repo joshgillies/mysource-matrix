@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_management.inc,v 1.6 2007/01/11 22:04:17 lwright Exp $
+* $Id: import_tools_manager_management.inc,v 1.6.4.1 2008/05/26 22:20:41 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $ - 0.1
+* @version $Revision: 1.6.4.1 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -99,6 +99,16 @@ class Import_Tools_Manager_Management extends Asset_Management
 												   ),
 						'bulk_file_import_dir'	=> Array(
 													'added'		=> '0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+												   ),
+						'cms_file_export_dir'	=> Array(
+													'added'		=> '0.2',
+													'type'		=> 'text',
+													'default'	=> '',
+												   ),
+						'cms_file_export_name'	=> Array(
+													'added'		=> '0.2',
 													'type'		=> 'text',
 													'default'	=> '',
 												   ),
