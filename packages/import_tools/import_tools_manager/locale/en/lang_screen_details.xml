@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2007/01/11 22:04:18 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.8 2008/05/26 22:34:39 bpearson Exp $
 *
 */
 -->
@@ -48,6 +48,14 @@
 			<function_call>
 				<paint_function   name="paintBulkFileImport"   />
 				<process_function name="processBulkFileImport" />
+			</function_call>
+		</field>
+	</section>
+	<section name="CMS File Export Settings">
+		<field>
+			<function_call>
+				<paint_function   name="paintCMSFileExport"   />
+				<process_function name="processCMSFileExport" />
 			</function_call>
 		</field>
 	</section>

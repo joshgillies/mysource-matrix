@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tools_manager_edit_fns.inc,v 1.9 2007/12/27 05:09:26 hnguyen Exp $
+* $Id: import_tools_manager_edit_fns.inc,v 1.10 2008/05/26 22:34:39 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -236,6 +236,75 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $write_access;
 
 	}//end processBulkFileImport()
+
+
+	/**
+	* Paint the interface for CMS File Export Tool Settings
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCMSFileExport(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$server_export_dir = $asset->attr('cms_file_export_dir');
+		$server_export_name = $asset->attr('cms_file_export_name');
+
+		if ($write_access) {
+			$o->openField(translate('import_tools_manager_server_export_name'));
+				text_box($prefix.'_server_export_filename', $server_export_name, '50', '', FALSE);
+				$o->note(translate('import_tools_manager_server_export_name_msg'));
+			$o->closeField();
+
+			$o->openField(translate('import_tools_manager_server_export_dir'));
+				text_box($prefix.'_server_export_directory', $server_export_dir, '50', '', FALSE);
+				$o->note(translate('import_tools_manager_server_export_dir_msg'));
+			$o->closeField();
+		} else {
+			$o->openField(translate('import_tools_manager_server_export_name'));
+				echo $server_export_name;
+				$o->note(translate('import_tools_manager_server_export_name_msg'));
+			$o->closeField();
+
+			$o->openField(translate('import_tools_manager_server_export_dir'));
+				echo $server_export_dir;
+				$o->note(translate('import_tools_manager_server_export_dir_msg'));
+			$o->closeField();
+		}//end if
+
+		return $write_access;
+
+	}//end paintCMSFileExport()
+
+
+	/**
+	* Process the interface for CMS File Export Tool Settings
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCMSFileExport(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) {
+			$server_export_dir = array_get_index($_POST, $prefix.'_server_export_directory', '');
+			$server_export_name = array_get_index($_POST, $prefix.'_server_export_filename', '');
+
+			$asset->setAttrValue('cms_file_export_dir', $server_export_dir);
+			$asset->setAttrValue('cms_file_export_name', $server_export_name);
+		}
+
+		return $write_access;
+
+	}//end processCMSFileExport()
 
 
 }//end class
