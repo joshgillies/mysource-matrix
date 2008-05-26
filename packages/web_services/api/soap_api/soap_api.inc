@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.4 2008/05/21 00:23:09 bshkara Exp $
+* $Id: soap_api.inc,v 1.5 2008/05/26 00:48:11 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -101,36 +101,49 @@ class SOAP_Api extends Asset
     }//end getFunctionList()
 
 
-	public static function getArgType($type, $optional=FALSE)
+	public static function getArgType($type, $min=0, $max=1)
 	{
         $arg_type	= Array (
 						'type'      => $type,
-						'optional'  => $optional,
+        				'min'		=> $min,
+        				'max'		=> $max,
 					  );
 		return $arg_type;
 
 	}//end getArgType()
 
 
-	public static function getComplexTypes($complex_types=Array())
+	public static function getComplexElements($complex_elements=Array())
 	{
-        $complex_types_available = Array();
+        $complex_elements_available = Array();
         if (empty($func_list)) {
             // So sick, this is dodgy, it wouldnt hurt performance though.
-            $func_list = $complex_types;
+            $func_list = $complex_elements;
         }//end if
             foreach ($func_list as $func_name => $switch) {
-                if (isset($complex_types[$func_name])) {
+                if (isset($complex_elements[$func_name])) {
                     if ($switch) {
-                        $complex_types_available = array_merge($complex_types_available, $complex_types[$func_name]);
+                        $complex_elements_available = array_merge($complex_elements_available, $complex_elements[$func_name]);
                     }//end if
                 }//end if
             }//end foreach
 
+        return $complex_elements_available;
 
-        return $complex_types_available;
+	}//end getComplexElements()
 
+
+	/**
+	* getComplexTypes
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getComplexTypes($func_list=Array())
+	{
+		return Array();
 	}//end getComplexTypes()
+
 
 }//end class
 ?>
