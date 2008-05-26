@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_core.inc,v 1.4 2008/05/21 00:23:09 bshkara Exp $
+* $Id: soap_api_core.inc,v 1.5 2008/05/26 00:48:58 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -89,9 +89,9 @@ class Soap_Api_Core extends Soap_Api
 	* @return void
 	* @access public
 	*/
-	function createAsset($link_info_request)
+	function createAsset($request)
 	{
-		$link_info = (Array) $link_info_request->link_info;
+		$link_info = (Array) $request;
 		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link_info['parentid']);
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($link_info['type_code']);
 		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $link_info['type_code'])));
@@ -102,9 +102,7 @@ class Soap_Api_Core extends Soap_Api
 		$linkid = $asset->create($link_info);
 		if ($linkid) {
 			return Array (
-					'link_res' => Array (
-									'result' => 'Asset was created successfully. Link id #'.$linkid,
-								  ),
+					'result' => 'Asset was created successfully. Link id #'.$linkid,
 				   );
 		}//end if
 
@@ -245,16 +243,15 @@ class Soap_Api_Core extends Soap_Api
 	* @return array
 	* @access public
 	*/
-	public static function getComplexTypes($func_list=Array())
+	public static function getComplexElements($func_list=Array())
 	{
-		$string_non_optional = self::getArgType('string', FALSE);
-		$string_optional = self::getArgType('string', TRUE);
-		$int_optional = self::getArgType('int', TRUE);
+		$string_non_optional = self::getArgType('string', 1, 1);
+		$string_optional = self::getArgType('string', 0, 1);
+		$int_optional = self::getArgType('int', 0, 1);
 
 		$complex_types	= Array (
 							'createAsset'	=> Array (
 												'createAsset'	=> Array (
-																			'arg_name'		=> 'link_info',
 									    									'type_code'     => $string_non_optional,
 																			'name'          => $string_non_optional,
 																			'parentid'      => $string_non_optional,
@@ -265,23 +262,19 @@ class Soap_Api_Core extends Soap_Api
 																			'is_exclusive'  => $string_optional,
 																		  ),
 												'createAssetResponse'	=> Array (
-																			'arg_name'		=> 'link_res',
 																			'result'		=> $string_optional,
 																		   ),
 											   ),
 							'deleteAsset'	=> Array (
 												'deleteAsset'	=> Array (
-																			'arg_name'		=> 'assetid',
 																			'assetid'		=> $string_non_optional,
 																		   ),
 												'deleteAssetResponse'	=> Array (
-																			'arg_name'		=> 'delete_res',
 																			'result'		=> $string_optional,
 																		   ),
 											   ),
 							'findChildren'	=> Array (
 												'findChildren'	=> Array (
-																			'arg_name'			=> 'asset_info_request',
 																			'assetid'			=> $string_non_optional,
 																			'type_code'			=> $string_optional,
 																			'strict_type_code'	=> $string_optional,
@@ -289,13 +282,12 @@ class Soap_Api_Core extends Soap_Api
 																			'link_value'		=> $string_optional,
 																		   ),
 												'findChildrenResponse'	=> Array (
-																			'arg_name'		=> 'find_children_res',
 																			'result'		=> $string_optional,
 																		   ),
 											   ),
 						  );
 
-		$complex_types_available = parent::getComplexTypes($complex_types);
+		$complex_types_available = parent::getComplexElements($complex_types);
 
 		return $complex_types_available;
 
