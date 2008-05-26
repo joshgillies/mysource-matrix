@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.53 2007/12/11 22:28:12 mwegermann Exp $
+* $Id: image_edit_fns.inc,v 1.54 2008/05/26 23:50:21 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -347,6 +347,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 				$variety = $asset->getAsset($asset->id.':'.$varid);
 				if (is_null($variety)) continue;
 				$edit_fns = $variety->getEditFns();
+				// If the interface has not been painted, and no file is uploaded for this variety, that means it is new,
+				// processNewVariety should already taken care of it
+				if (!isset($_FILES[$prefix.'_'.$variety->id]) && !isset($_POST[$prefix.'_'.$variety->id.'_variety_type_posted'])) continue;
 				if ($edit_fns->processInlineInterface($variety, $o, $prefix.'_'.$variety->id)) {
 					// update the public version with the new file
 					if ($variety->checkFileState($asset->effectiveUnrestricted())) {
