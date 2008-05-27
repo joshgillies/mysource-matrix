@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_admin_access_edit_fns.inc,v 1.9 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_admin_access_edit_fns.inc,v 1.10 2008/05/27 00:36:30 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,6 +72,7 @@ class Condition_Admin_Access_Edit_Fns extends Condition_Edit_Fns
 	*/
 	public static function processEditInterface(Backend_Outputter $o, $prefix)
 	{
+		return Array();
 
 	}//end processEditInterface()
 
