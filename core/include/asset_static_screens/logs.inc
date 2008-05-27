@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.22.4.2 2007/12/19 05:12:41 mwegermann Exp $
+* $Id: logs.inc,v 1.22.4.3 2008/05/27 01:20:12 bpearson Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.22.4.2 $
+* @version $Revision: 1.22.4.3 $
 * @package MySource_Matrix
 */
 
@@ -56,6 +56,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	assert_valid_db_result($log_types);
 	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
 	$selected_key = NULL;
+	$selected_base_url = '';
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 	$o->openSection(translate('logged_messages'));
 
