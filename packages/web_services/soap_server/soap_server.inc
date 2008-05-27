@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.2.2.1 2008/05/21 01:56:04 bshkara Exp $
+* $Id: soap_server.inc,v 1.2.2.2 2008/05/27 00:00:31 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -45,9 +45,10 @@ class Soap_Server extends Page
 	const SCHEMA_WSDL = 'http://schemas.xmlsoap.org/wsdl/';
 	const XML_CONTENT_TYPE = 'Content-Type: text/xml; charset=utf-8';
 
-	private $function_list = Array();
-	private $complex_types = Array();
-	private $simple_types = Array ('float', 'int', 'string');
+	private $function_list		= Array();
+	private $complex_types		= Array();
+	private $complex_elements	= Array();
+	private $simple_types		= Array ('float', 'int', 'string', 'boolean');
 
 	private $message_node;
 	private $portType_node;
@@ -240,7 +241,7 @@ class Soap_Server extends Page
 	*/
 	function printBody()
 	{
-		$available_operations = $this->getAvailableOperations();
+		$available_operations = $this->getAvailableOperations(TRUE);
 		$list_api = $this->attr('list_api');
 		if (!isset($_GET['desc'])) {
 				echo '<ul>';
@@ -299,7 +300,7 @@ class Soap_Server extends Page
 					// There is already a check on the PAINT DETAILS IF. But just in case.
 					$matches = Array();
 					preg_match('|(\w*)|', $group, $matches);
-					eval('$complexType = Soap_Api_'.ucwords($matches[1]).'::getComplexTypes();');
+					eval('$complexType = Soap_Api_'.ucwords($matches[1]).'::getComplexElements();');
 
 				?>
 					<span style="color:#000000;font-size:12px;font-family:tahoma;font-weight:normal;">
@@ -314,7 +315,7 @@ class Soap_Server extends Page
 						if ($key == 'arg_name') {
 							echo $this->_printFuncInfo('Argument Name: ', NULL, 'margin-left:15px;').$this->_printFuncInfo(NULL, $args_info).'<br />';
 						} else {
-							echo $this->_printFuncInfo(NULL, $args_info['type'], 'margin-left:30px;').' '.$this->_printFuncInfo($key.': ').'<br />';
+							echo $this->_printFuncInfo(NULL, $args_info['type'], 'margin-left:15px;').' '.$this->_printFuncInfo($key.': ').'<br />';
 						}//end else
 					}//end foreach
 				}//end if
@@ -393,8 +394,9 @@ class Soap_Server extends Page
 
 			$available_operations = array_merge($available_operations, $functions);
 			if ($saveToObject) {
-				$this->complex_types = array_merge($this->complex_types, $child->getComplexTypes($functions));
-				$this->function_list = $available_operations;
+				$this->complex_elements = array_merge($this->complex_elements, $child->getComplexElements($functions));
+				$this->complex_types	= array_merge($this->complex_types, $child->getComplexTypes($functions));
+				$this->function_list	= $available_operations;
 			}//end if
 
 		}//end foreach
@@ -459,19 +461,9 @@ class Soap_Server extends Page
 			&lt;soap:Body&gt;<br />
 				<div style="padding-left:10px">
 					&lt;ns1:<?php echo $func_name ?>&gt;<br />
-						<div style="padding-left:10px">
-						&lt;<?php echo $args_info['arg_name'] ?> xmlns="<?php echo $this->_placeholder($this->getUrl()) ?>"&gt;<br />
-							<?php
-							foreach ($args_info as $key => $arg_info) {
-								if ($key == 'arg_name') continue;
-								?> <div style="padding-left:10px">
-								&lt;<?php echo $key ?>&gt;<?php echo $this->_placeholder($arg_info['type']) ?>&lt;/<?php echo $key ?>&gt;
-								</div>
-								<?php
-							}//end foreach
-							?>
-						&lt;/<?php echo $args_info['arg_name'] ?>&gt;<br />
-						</div>
+						<?php
+							$this->printRequestResponseRecursive($args_info);
+						?>
 					&lt;/ns1:<?php echo $func_name ?>&gt;<br />
 				</div>
 			&lt;/soap:Body&gt;<br />
@@ -485,6 +477,35 @@ class Soap_Server extends Page
 		return $content;
 
 	}//end _printRequestEnvelope()
+
+
+	/**
+	* This function print the complex types for the request or response
+	*
+	* @return void
+	* @access private
+	*/
+	private function printRequestResponseRecursive($args_info)
+	{
+		foreach ($args_info as $key => $arg_info) {
+			$io_type	= (is_array($arg_info)) ? $arg_info['type'] : '';
+			// We have a recursive complex type here
+			if ($io_type !== '' && isset($this->complex_types[$io_type])) $io_type = '';
+			?><div style="padding-left:10px">
+			&lt;<?php echo $key ?>&gt;<?php echo $this->_placeholder($io_type);
+
+				// If we have a complex type inside
+				if (!is_array($arg_info) && isset($this->complex_types[$arg_info])) {
+					$this->printRequestResponseRecursive($this->complex_types[$arg_info]);
+				} else if (is_array($arg_info) && (!in_array($arg_info['type'], $this->simple_types))) {
+					$this->printRequestResponseRecursive($this->complex_types[$arg_info['type']]);
+				}//end else
+			?>&lt;/<?php echo $key ?>&gt;
+			</div>
+			<?php
+		}//end foreach
+
+	}//end printRequestResponseRecursive()
 
 
 	/**
@@ -519,23 +540,11 @@ class Soap_Server extends Page
 		<div style="padding-left:10px">
 			&lt;soap:Body&gt;<br />
 				<div style="padding-left:10px">
-					&lt;ns1:<?php echo $func_name ?>&gt;<br />
-						<div style="padding-left:10px">
-							&lt;<?php echo $args_info['arg_name'] ?> xmlns="<?php echo $this->_placeholder($this->getUrl()) ?>"&gt;<br />
-								<div style="padding-left:10px">
-									<?php
-									foreach ($args_info as $key => $arg_info) {
-										if ($key == 'arg_name') continue;
-										?><div style="padding-left:10px">
-											&lt;<?php echo $key ?>&gt;<?php echo $this->_placeholder($arg_info['type']) ?>&lt;/<?php echo $key ?>&gt;
-										</div>
-										<?php
-									}//end foreach
-									?>
-								</div>
-							&lt;/<?php echo $args_info['arg_name'] ?>&gt;<br />
-						</div>
-					&lt;/ns1:<?php echo $func_name ?>&gt;<br />
+					&lt;ns1:<?php echo $func_name.'Response'; ?>&gt;<br />
+
+						<?php $this->printRequestResponseRecursive($args_info); ?>
+
+					&lt;/ns1:<?php echo $func_name.'Response'; ?>&gt;<br />
 				</div>
 			&lt;/soap:Body&gt;<br />
 		</div>
@@ -602,7 +611,7 @@ class Soap_Server extends Page
 		header(self::XML_CONTENT_TYPE);
 		if (!file_exists($this->data_path.'/content_file.wsdl')) {
 			$this->generateWSDL();
-		}
+		}//end if
 		$wsdl_content = file_get_contents($this->data_path.'/content_file.wsdl');
 		if (!is_null($wsdl_content)) {
 			echo $wsdl_content;
@@ -703,6 +712,7 @@ class Soap_Server extends Page
 
 		// Append the type to SCHEMA node
 		$this->appendComplexTypes();
+		$this->appendComplexElements();
 
 		// Append SCHEMA node to TYPES node and then append TYPES node to ROOT node
 		$types_node->appendChild($this->schema_node);
@@ -720,7 +730,7 @@ class Soap_Server extends Page
 					$part_node->setAttribute('name', 'parameters');
 
 					// May be we should never have a method that accept anytype of string, should all be complex type. IMPORTANT to rethink.
-					$simpleType = FALSE;	//in_array($func_info['arg_type'], $this->simple_types);
+					$simpleType = FALSE;
 					$message_io = $simpleType ? 's:'.$func_info['arg_type'] : 'tns:'.$func_name.(($element == 'output')?'Response':'');
 					$part_node->setAttribute('element', $message_io);
 
@@ -846,6 +856,53 @@ class Soap_Server extends Page
 
 
 	/**
+	* This function append the Complex Elements defined in each API to the TYPES nodes. The complex elements are required
+	* to pass multiple argument to a function.
+	*
+	* @return void
+	* @access public
+	*/
+	private function appendComplexElements()
+	{
+		// Loop through the complex types came from all the APIs.
+		foreach ($this->complex_elements as $func_io => $sub_args_info) {
+
+				// Specify the REQUEST - RESPONSE for each function, point them to the definition of the complex type.
+				$element_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
+				$element_node->setAttribute('name', $func_io);
+
+					$complex_main_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'complexType');
+					// If we are declaring complex types which are needed for the input, we need to set the complex type name as we are not inside <element>
+
+						$sequence_main_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'sequence');
+
+							// It is raw type, DAMN
+							foreach ($sub_args_info as $sub_arg_name => $info) {
+
+									$subelement_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
+									$subelement_node->setAttribute('name', $sub_arg_name);
+
+									$subelement_node->setAttribute('type', (!is_array($info)) ? 'tns:'.$info : 's:'.$info['type']);
+									$subelement_node->setAttribute('minOccurs', (!is_array($info)) ? '1': $info['min']);
+									$subelement_node->setAttribute('maxOccurs', (!is_array($info)) ? '1': $info['max']);
+
+									$sequence_main_node->appendChild($subelement_node);
+							}//end foreach
+
+					$complex_main_node->appendChild($sequence_main_node);
+				$element_node->appendChild($complex_main_node);
+				// end REQUEST - RESPONSE specification
+
+				// This is the REQUEST - RESPONSE specification
+				// If we are declaring a complex type, we dont want to be inside the element node.
+				$this->schema_node->appendChild($element_node);
+
+		}//end foreach
+
+	}//end appendComplexElements()
+
+
+	/**
 	* This function append the Complex Types defined in each API to the TYPES nodes. The complex types are required
 	* to pass multiple argument to a function.
 	*
@@ -856,47 +913,32 @@ class Soap_Server extends Page
 	{
 		// Loop through the complex types came from all the APIs.
 		foreach ($this->complex_types as $func_io => $sub_args_info) {
-				// Specify the REQUEST - RESPONSE for each function, point them to the definition of the complex type.
-				$element_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
-				$element_node->setAttribute('name', $func_io);
-					$complex_main_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'complexType');
-						$sequence_main_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'sequence');
-							$subelement_main_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
-							$subelement_main_node->setAttribute('minOccurs', '1');
-							$subelement_main_node->setAttribute('maxOccurs', '1');
-							$subelement_main_node->setAttribute('type', 'tns:'.$sub_args_info['arg_name']);
-							$subelement_main_node->setAttribute('name', $sub_args_info['arg_name']);//(strpos($func_io, 'Request') === FALSE) ? 'res' : 'req');
-						$sequence_main_node->appendChild($subelement_main_node);
-					$complex_main_node->appendChild($sequence_main_node);
-				$element_node->appendChild($complex_main_node);
-				// end REQUEST - RESPONSE specification
-
-				// Definition of the complex type (whether it is a string, int or float)
-				$complex_type_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'complexType');
-				$complex_type_node->setAttribute('name', $sub_args_info['arg_name']);
-					$sequence_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'sequence');
-						foreach ($sub_args_info as $sub_arg_name => $info) {
-							if ($sub_arg_name == 'arg_name') continue;
-								$subelement_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
-								$subelement_node->setAttribute('name', $sub_arg_name);
-								$subelement_node->setAttribute('type', 's:'.$info['type']);
-								$subelement_node->setAttribute('minOccurs', (int) !$info['optional']);
-								$subelement_node->setAttribute('maxOccurs', '1');
-
-					$sequence_node->appendChild($subelement_node);
-
-						}//end foreach
+			// Definition of the complex type (whether it is a string, int or float)
+			$complex_type_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'complexType');
+			$complex_type_node->setAttribute('name', $func_io);
+			if (is_array($sub_args_info)) {
+				$sequence_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'sequence');
+					foreach ($sub_args_info as $sub_arg_name => $info) {
+						if ($sub_arg_name == 'arg_name') continue;
+							$subelement_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
+							$subelement_node->setAttribute('name', $sub_arg_name);
+							$subelement_node->setAttribute('type', (!in_array($info['type'], $this->simple_types) ? 'tns:' : 's:' ).$info['type']);
+							$subelement_node->setAttribute('minOccurs', $info['min']);
+							$subelement_node->setAttribute('maxOccurs', $info['max']);
+							$sequence_node->appendChild($subelement_node);
+					}//end foreach
 				$complex_type_node->appendChild($sequence_node);
 				// End complex type definition
+			} else {
+				$complex_type_node->setAttribute('type', 'tns:'.$sub_args_info);
+			}//end else
 
-				// This is the complex type definition
-				$this->schema_node->appendChild($complex_type_node);
+			// This is the complex type definition
+			$this->schema_node->appendChild($complex_type_node);
 
-				// This is the REQUEST - RESPONSE specification
-				$this->schema_node->appendChild($element_node);
 		}//end foreach
 
-	}//end appendTypes()
+	}//end appendComplexTypes()
 
 
 	/**

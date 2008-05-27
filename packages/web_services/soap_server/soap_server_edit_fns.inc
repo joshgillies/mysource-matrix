@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server_edit_fns.inc,v 1.1.2.2 2008/05/21 01:56:04 bshkara Exp $
+* $Id: soap_server_edit_fns.inc,v 1.1.2.3 2008/05/27 00:00:31 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -92,7 +92,7 @@ class Soap_Server_Edit_Fns extends Page_Edit_Fns
 							<td class="sq-backend-table-cell">
 								<?php
 									if ($write_access) {
-										check_box($prefix.'_enable['.$api_id.']', '1', $current_value);
+										check_box($prefix.'_enable['.$api_id.']', $api_value[0]['type_code'], $current_value);
 									} else {
 										?>&nbsp;
 										<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($current_value) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
@@ -110,10 +110,11 @@ class Soap_Server_Edit_Fns extends Page_Edit_Fns
 			?>
 			</table>
 			<?php
-			$o->openField('');
-			$o->closeField();
+
 			$o->closeField();
 			if ($write_access) {
+				$o->openField('');
+				$o->closeField();
 				$o->openField('Regenerate WSDL');
 					check_box($prefix.'_regenerate_wsdl', '1', 1);
 					$o->note('Select to regenerate the WSDL file to reflect your new changes');
