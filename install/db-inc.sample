@@ -19,6 +19,7 @@ $db_conf = array (
                 'type'     => '',
                ),
         'dbcache' => NULL,
+        'dbsearch' => NULL,
         );
 
 return $db_conf;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.265 2008/03/05 22:36:25 lwright Exp $
+* $Id: mysource.inc,v 1.266 2008/05/27 05:15:19 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265 $
+* @version $Revision: 1.266 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2165,6 +2165,16 @@ class MySource
 				$dsn_array = $db_conf['db2'];
 			} else {
 				// dbcache exists
+				$dsn_array = $db_conf[$conn];
+			}
+		} else if ($conn === 'dbsearch') {
+			if (empty($db_conf[$conn]) && empty($db_conf['db'])) {
+				throw new Exception ('Unable to connect to connection "'.$conn.'". No connection with that name is defined in the database config, and unable to fall back to "db" connection.');
+			} else if (empty($db_conf[$conn])) {
+				// no dbsearch, but db exists, use that instead
+				$dsn_array = $db_conf['db'];
+			} else {
+				// dbsearch exists
 				$dsn_array = $db_conf[$conn];
 			}
 		} else {

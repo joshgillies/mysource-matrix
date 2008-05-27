@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.23 2008/05/16 03:45:13 bpearson Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.24 2008/05/27 05:16:03 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,7 +50,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
 	{
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		switch ($data_source['type']) {
 
@@ -119,8 +119,13 @@ class Search_Manager_Plugin_PgSQL
 			foreach ($result as $assetid => $info) {
 				$result_old_format[$assetid] = $info[0]['search_score'];
 			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			return $result_old_format;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -147,7 +152,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processNumericSearch(&$sm, $numeric_range, $data_source, $base_query)
 	{
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		switch ($data_source['type']) {
 
@@ -202,8 +207,13 @@ class Search_Manager_Plugin_PgSQL
 			foreach ($result as $assetid => $info) {
 				$result_old_format[$assetid] = $info[0]['search_score'];
 			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			return $result_old_format;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -230,7 +240,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processDateSearch(&$sm, $date_range, $data_source, $base_query)
 	{
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		switch ($data_source['type']) {
 
@@ -284,8 +294,13 @@ class Search_Manager_Plugin_PgSQL
 			foreach ($result as $assetid => $info) {
 				$result_old_format[$assetid] = $info[0]['search_score'];
 			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			return $result_old_format;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -307,6 +322,8 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function processExcludeQuery(&$sm, $search_term, $base_query)
 	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
+
 		$words = Array();
 		foreach ($search_term as $exclude_value) {
 			$words = array_merge($words, $this->generateWordList($exclude_value));
@@ -324,6 +341,8 @@ class Search_Manager_Plugin_PgSQL
 			throw new Exception('Unable to process exclude query due to database error: '.$e->getMessage());
 			return Array();
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -345,7 +364,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		$query = Array(
 					'select'		=> Array(),
@@ -482,6 +501,8 @@ class Search_Manager_Plugin_PgSQL
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 		return $query;
 
 	}//end constructBaseSearchQuery()
@@ -504,7 +525,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		$sql = 'SELECT
 					LOWER(value), SUM(score)
@@ -525,6 +546,8 @@ class Search_Manager_Plugin_PgSQL
 		} catch (Exception $e) {
 			throw new Exception('Unable to extract keywords due to database error: '.$e->getMessage());
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// force lowercase keys (= keywords) - CASE_LOWER is default for this function
 		$result = array_change_key_case($result);
@@ -636,7 +659,7 @@ class Search_Manager_Plugin_PgSQL
 	*/
 	function getAssetidsByWordIntersection($source_id, $type=NULL)
 	{
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		$sql_components['select'][]	= 'DISTINCT target.assetid';
@@ -658,6 +681,8 @@ class Search_Manager_Plugin_PgSQL
 		} catch (Exception $e) {
 			throw new Exception('Unable to get assetid by word intersection due to database error: '.$e->getMessage());
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -713,7 +738,7 @@ class Search_Manager_Plugin_PgSQL
 		}
 		$search_field = $search_page_fields[$search_field_name];
 
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
@@ -765,6 +790,8 @@ class Search_Manager_Plugin_PgSQL
 			throw new Exception('Unable to get search list assets due to database error: '.$e->getMessage());
 			return Array();
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		$children = Array();
 		foreach ($results as $word => $word_data) {
