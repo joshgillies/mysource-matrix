@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.6 2008/05/12 04:46:16 lwright Exp $
+* $Id: asset.inc,v 1.633.2.7 2008/05/28 04:31:08 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.6 $
+* @version $Revision: 1.633.2.7 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1190,17 +1190,19 @@ class Asset extends MySource_Object
 		if ($this->id) {
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$db = MatrixDAL::getDb();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$bind_vars = Array();
 
 			$sql = 'UPDATE
 						sq_ast
 					SET ';
 
 			if (($name === '0') || (!empty($name))) {
+				$bind_vars['name'] = $name;
 				$sql .= 'name = :name,';
 			}
 			if (($short_name === '0') || (!empty($short_name))) {
+				$bind_vars['short_name'] = $short_name;
 				$sql .= 'short_name = :short_name,';
 			}
 
@@ -1212,16 +1214,19 @@ class Asset extends MySource_Object
 						updated_userid	= :updated_userid
 					WHERE
 						assetid	= :assetid';
+
+			$bind_vars['languages']      = $this->languages;
+			$bind_vars['charset']        = $this->charset;
+			$bind_vars['force_secure']   = $this->force_secure;
+			$bind_vars['updated']        = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601($updated)));
+			$bind_vars['updated_userid'] = $updated_userid;
+			$bind_vars['assetid']        = $this->id;
+
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'name',           $name,               PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'short_name',     $short_name,         PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'languages',      $this->languages,    PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'charset',        $this->charset,      PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'force_secure',   $this->force_secure, PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'updated',        ts_iso8601($updated), PDO::PARAM_STR);	// TODO: fix with MatrixDAL queries.xml?
-				MatrixDAL::bindValueToPdo($query, 'updated_userid', $updated_userid,     PDO::PARAM_STR);
-				MatrixDAL::bindValueToPdo($query, 'assetid',        $this->id,           PDO::PARAM_STR);
+				foreach ($bind_vars as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update asset "'.$this->_getName().'" (#'.$this->id.') due to database error: '.$e->getMessage());
