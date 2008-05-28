@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.145.2.2 2007/09/26 23:46:06 bshkara Exp $
+* $Id: metadata_manager.inc,v 1.145.2.3 2008/05/28 01:07:10 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.145.2.2 $
+* @version $Revision: 1.145.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1647,6 +1647,10 @@ class Metadata_Manager extends MySource_Object
 		if ($escape_single) {
 			$value = str_replace("'", "\'", $value);
 		}
+
+		// For the thesaurus metadata, using commas to separate values
+		// We need to replace the commas in the thesaurus back.
+		$value = str_replace('&#44;', ',', $value);
 
 		// escape only html-specific chars for the moment
 		$value = htmlspecialchars($value);
