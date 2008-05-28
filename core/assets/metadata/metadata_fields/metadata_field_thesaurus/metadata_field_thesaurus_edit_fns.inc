@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.15.2.2 2008/04/10 03:31:26 ncallahan Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.15.2.3 2008/05/28 01:11:29 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15.2.2 $
+* @version $Revision: 1.15.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,6 +145,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$term_assetids = Array();
 
 		foreach ($values as $term) {
+			$term = preg_replace('/&#44;/', ',', $term);
 			$termid = $thesaurus->getTermIdByName($term);
 			$term_assetids[$termid] = $thesaurus->id.':'.$termid;
 			$term_info[$termid] = $term;
@@ -293,6 +294,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
 						continue;
 					}
+					$term_name = preg_replace('/,/', '&#44;', $term_name);
 					$value[] = $term_name;
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($term_asset);
 				}
