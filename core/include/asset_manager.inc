@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.689 2008/05/12 05:25:06 bshkara Exp $
+* $Id: asset_manager.inc,v 1.690 2008/05/28 05:14:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.689 $
+* @version $Revision: 1.690 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5087,7 +5087,7 @@ class Asset_Manager extends MySource_Object
 
 		$linkid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_lnk_seq'));
 		$now = time();
-		$ts_fragment = db_extras_todate(MatrixDAL::getDbType(), ts_iso8601($now));
+		$ts_fragment = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601($now)));
 		$sql = 'INSERT INTO
 					sq_shdw_ast_lnk
 					(
@@ -5586,7 +5586,7 @@ class Asset_Manager extends MySource_Object
 			$db = MatrixDAL::getDb();
 
 			$set_clauses['updated_userid']	= MatrixDAL::quote($GLOBALS['SQ_SYSTEM']->currentUserId());
-			$set_clauses['updated']			= db_extras_todate(MatrixDAL::getDbType(), ts_iso8601(time()));
+			$set_clauses['updated']			= MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601(time())));
 
 			$set_array = Array();
 
@@ -5666,7 +5666,7 @@ class Asset_Manager extends MySource_Object
 			$db = MatrixDAL::getDb();
 
 			$set_clauses['updated_userid']	= MatrixDAL::quote($GLOBALS['SQ_SYSTEM']->currentUserId());
-			$set_clauses['updated']			= db_extras_todate(MatrixDAL::getDbType(), ts_iso8601(time()));
+			$set_clauses['updated']			= MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601(time())));
 
 			$set_array = Array();
 
