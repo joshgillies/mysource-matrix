@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.4.2.2 2008/05/28 23:16:51 lwright Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.4.2.3 2008/05/28 23:19:42 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.2 $
+* @version $Revision: 1.4.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -48,7 +48,7 @@ class Search_Manager_Plugin_OCI
 	*/
 	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		switch ($data_source['type']) {
 
@@ -70,6 +70,7 @@ class Search_Manager_Plugin_OCI
 			case 'metadata':
 				$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($data_source['params']['assetid']);
 				$key_types = Array(
+								'metadata_field_hierarchy'		=> 'selection',
 								'metadata_field_select'			=> 'selection',
 								'metadata_field_multiple_text'	=> 'selection',
 								'metadata_field_thesaurus'		=> 'thesaurus',
@@ -128,8 +129,13 @@ class Search_Manager_Plugin_OCI
 			foreach ($result as $assetid => $info) {
 				$result_old_format[$assetid] = $info[0]['search_score'];
 			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			return $result_old_format;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -156,7 +162,7 @@ class Search_Manager_Plugin_OCI
 	*/
 	function processNumericSearch(&$sm, $numeric_range, $data_source, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		switch ($data_source['type']) {
 
@@ -210,8 +216,13 @@ class Search_Manager_Plugin_OCI
 			foreach ($result as $assetid => $info) {
 				$result_old_format[$assetid] = $info[0]['search_score'];
 			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			return $result_old_format;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -238,7 +249,7 @@ class Search_Manager_Plugin_OCI
 	*/
 	function processDateSearch(&$sm, $date_range, $data_source, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		switch ($data_source['type']) {
 
@@ -287,8 +298,13 @@ class Search_Manager_Plugin_OCI
 			foreach ($result as $assetid => $info) {
 				$result_old_format[$assetid] = $info[0]['search_score'];
 			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			return $result_old_format;
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -310,7 +326,7 @@ class Search_Manager_Plugin_OCI
 	*/
 	function processExcludeQuery(&$sm, $search_term, $base_query)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		$words = Array();
 
@@ -330,6 +346,8 @@ class Search_Manager_Plugin_OCI
 		} else {
 			$result = Array();
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $result;
 
@@ -351,7 +369,7 @@ class Search_Manager_Plugin_OCI
 	*/
 	function constructBaseSearchQuery($search_info)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		$query = Array(
 					'select'		=> Array(),
@@ -460,6 +478,8 @@ class Search_Manager_Plugin_OCI
 			}
 		}
 
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 		return $query;
 
 	}//end constructBaseSearchQuery()
@@ -482,7 +502,7 @@ class Search_Manager_Plugin_OCI
 	*/
 	function extractKeywords(&$asset, $include_metadata=FALSE, $include_scores=FALSE)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		// The SUBSTR stuff is to turn the CLOB field of value into a VARCHAR
@@ -496,6 +516,8 @@ class Search_Manager_Plugin_OCI
 				  ($include_metadata ? '' : ' AND component NOT LIKE '.MatrixDAL::quote('metadata:%'));
 
 		$result = MatrixDAL::executeSqlAssoc($sql);
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// TODO: change it so the words are split up
 		$word_scores = Array();
@@ -987,8 +1009,6 @@ class Search_Manager_Plugin_OCI
 		$multiple = FALSE;
 		if (strpos($terms, '|') !== FALSE) 	$multiple = TRUE;
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
-
 		if ($use_contains) {
 			$sql = 'contains('.$column.', '.MatrixDAL::quote(trim($terms)).', '.$score.') > 0';
 		} else {
@@ -1035,7 +1055,7 @@ class Search_Manager_Plugin_OCI
 		// load the asset from source_id
 		// get all the keywords from this asset
 		// get all assets (of the supplied type) that contain any of the keywords in the source asset
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($source_id);
 		$keywords = $this->extractKeywords($asset);
@@ -1087,6 +1107,8 @@ class Search_Manager_Plugin_OCI
 			$result = MatrixDAL::executeSqlAssoc($sql, 0);
 			$found_ids = array_merge($found_ids, array_unique($result));
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $found_ids;
 
@@ -1212,7 +1234,7 @@ class Search_Manager_Plugin_OCI
 		}
 		$search_field = $search_page_fields[$search_field_name];
 
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
@@ -1281,6 +1303,9 @@ class Search_Manager_Plugin_OCI
 										  );
 			}
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 		return $children;
 
 	}//end getSearchListAssets()
