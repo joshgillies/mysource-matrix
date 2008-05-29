@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.4 2008/04/17 02:33:57 bpearson Exp $
+* $Id: state.js,v 1.5 2008/05/29 06:04:04 bpearson Exp $
 *
 */
 
@@ -95,8 +95,12 @@ onbeforeunload = function(e) {
 	if (document.getElementById("sq_commit_button")) {
 		if (document.forms[0]['changes'].value == '1')
 		{
-			if (document.forms[0]['state'].value != saveState()) {
-				return "Are you sure want to continue?";
+			if (document.forms[0]['confirm'].value == '1')
+			{
+				if (document.forms[0]['state'].value != saveState())
+				{
+					return "Are you sure want to continue?";
+				}
 			}
 		}
 	}

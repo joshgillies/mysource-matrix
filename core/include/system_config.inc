@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.108 2008/05/14 01:22:56 hnguyen Exp $
+* $Id: system_config.inc,v 1.109 2008/05/29 06:04:24 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -80,6 +80,7 @@ class System_Config extends Config
 						'SQ_CONF_HTTP_LOGIN_VAR'				=> Array('editable' => 1, 'default' => 'REMOTE_USER'),
 						'SQ_CONF_ACCEPT_HTTP_CREDS'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_COMMIT_BUTTON_TEXT'			=> Array('editable' => 1, 'default' => 'Commit'),
+						'SQ_CONF_CONFIRM_SAVE_CHANGES'			=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_LOG_EXTENSION'					=> Array('editable' => 0, 'default' => '.log'),
 						'SQ_CONF_LOG_FILE_SYSTEM'				=> Array('editable' => 0, 'default' => 'system'),
 						'SQ_CONF_LOG_FILE_ERROR'				=> Array('editable' => 0, 'default' => 'error'),
@@ -177,6 +178,9 @@ class System_Config extends Config
 					if (isset($vars[$var_name])) {
 						$vars[$var_name] = max(60, (int) $vars[$var_name]);
 					}
+				}
+				if (!isset($vars['SQ_CONF_CONFIRM_SAVE_CHANGES'])) {
+					$vars['SQ_CONF_CONFIRM_SAVE_CHANGES'] = '0';
 				}
 
 			}//end if validating values
@@ -798,6 +802,17 @@ class System_Config extends Config
 				echo !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 			}
 			$o->note(translate('rename_commit_button'));
+			$o->closeField();
+
+			$o->openField(translate('confirm_save_changes'));
+			if ($write_access) {
+				check_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', '1', (SQ_CONF_CONFIRM_SAVE_CHANGES) ? TRUE : FALSE);
+			} else {
+				?> &nbsp;
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_CONFIRM_SAVE_CHANGES) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+				<?php
+			}//end if
+			$o->note(translate('confirm_save_changes_msg'));
 			$o->closeField();
 
 		$o->closeSection();

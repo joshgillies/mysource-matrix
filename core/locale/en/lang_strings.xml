@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.280 2008/05/14 01:23:16 hnguyen Exp $
+* $Id: lang_strings.xml,v 1.281 2008/05/29 06:03:34 bpearson Exp $
 *
 */
 
@@ -317,6 +317,8 @@
 	<string source="no_active_locks">There are no active locks in the system</string>
 	<string source="thesaurus">Thesaurus</string>
 	<string source="rename_commit_button">This setting renames the button used to commit edited information into the MySource Matrix system - default is 'Commit'</string>
+	<string source="confirm_save_changes">Confirm Save Changes</string>
+	<string source="confirm_save_changes_msg">This setting, if set, warns a user when changes are made but not committed.</string>
 	<string source="time_running">Time Running</string>
 	<string source="trigger_execution_threshold">Trigger Execution Threshold</string>
 	<string source="trigger_info">Trigger Info</string>

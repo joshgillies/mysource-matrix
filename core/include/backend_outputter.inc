@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.158 2008/04/09 05:37:20 bpearson Exp $
+* $Id: backend_outputter.inc,v 1.159 2008/05/29 06:04:24 bpearson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.158 $
+* @version $Revision: 1.159 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1161,6 +1161,7 @@ class Backend_Outputter
 		hidden_field('process_form', '1');
 		hidden_field('changes', '0');
 		hidden_field('state', '');
+		hidden_field('confirm', SQ_CONF_CONFIRM_SAVE_CHANGES);
 
 		foreach ($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
@@ -1170,7 +1171,7 @@ class Backend_Outputter
 			?>
 			<table class="sq-backend-main-headings">
 				<tr>
-					<?php
+					<?php 
 					if ($this->_heading_icon) {
 						?>
 						<td class="sq-backend-heading-icon"><?php echo $this->_heading_icon; ?></td>
