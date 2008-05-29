@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.3 2006/12/06 04:23:58 emcdonald Exp $
+* $Id: condition_keyword_regexp.inc,v 1.3.6.1 2008/05/29 05:57:13 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Condition_Keyword_Regexp extends Condition
 		}
 		$keyword_replacement = $condition_data['keyword_value'];
 		$keyword_match = $condition_data['keyword_match'];
-		$matches = preg_match('|'.$keyword_match.'|i', $keyword_replacement);
+		$matches = preg_match('/'.str_replace('/', '\\'.'/', $keyword_match).'/i', $keyword_replacement);
 		return ($matches > 0);
 
 	}//end evaluate()
