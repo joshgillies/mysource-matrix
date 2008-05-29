@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.690 2008/05/28 05:14:18 lwright Exp $
+* $Id: asset_manager.inc,v 1.691 2008/05/29 04:56:54 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.690 $
+* @version $Revision: 1.691 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5106,7 +5106,7 @@ class Asset_Manager extends MySource_Object
 						:minorid,
 						:link_type,
 						:value,
-						'.$ts_fragment.',
+						:updated,
 						:currentUserId
 					)';
 
@@ -5117,6 +5117,7 @@ class Asset_Manager extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, 'majorid', $major->id);
 			MatrixDAL::bindValueToPdo($query, 'minorid', $minor->id);
 			MatrixDAL::bindValueToPdo($query, 'link_type', $link_type);
+			MatrixDAL::bindValueToPdo($query, 'updated', $ts_fragment);
 			MatrixDAL::bindValueToPdo($query, 'value', $value);
 			MatrixDAL::bindValueToPdo($query, 'currentUserId', $GLOBALS['SQ_SYSTEM']->currentUserid());
 			MatrixDAL::execPdoQuery($query);
