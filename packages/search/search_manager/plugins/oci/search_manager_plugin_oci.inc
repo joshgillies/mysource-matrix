@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.4 2008/05/27 05:16:03 bpearson Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.5 2008/05/29 02:14:36 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -986,6 +986,9 @@ class Search_Manager_Plugin_OCI
 					$word = '%'.$word.'%';
 				}
 			}
+			$word = $this->_escapeContainReservedChars($word);
+			$word = $this->_escapeContainReservedWords($word);
+
 			$terms = preg_replace('/#/', " $word ", $terms, 1);
 		}
 
