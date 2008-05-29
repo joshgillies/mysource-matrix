@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.1.2.4 2008/04/16 23:01:06 bpearson Exp $
+* $Id: state.js,v 1.1.2.5 2008/05/29 06:45:19 bpearson Exp $
 *
 */
 
@@ -40,7 +40,7 @@ function saveState()
 {
 	var currentForm = document.forms[0];
 	var currentState = '';
-	
+
 	for (i=0; i < currentForm.elements.length; i++) {
 		var el = currentForm.elements[i];
 		if (el.type == 'hidden' || el.type == 'password') {
@@ -95,8 +95,12 @@ onbeforeunload = function(e) {
 	if (document.getElementById("sq_commit_button")) {
 		if (document.forms[0]['changes'].value == '1')
 		{
-			if (document.forms[0]['state'].value != saveState()) {
-				return "Are you sure want to continue?";
+			if (document.forms[0]['confirm'].value == '1')
+			{
+				if (document.forms[0]['state'].value != saveState())
+				{
+					return "Are you sure want to continue?";
+				}
 			}
 		}
 	}
