@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci8.inc,v 1.23 2007/07/04 23:22:53 mbrydon Exp $
+* $Id: search_manager_plugin_oci8.inc,v 1.23.2.1 2008/05/29 02:13:39 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -939,8 +939,16 @@ class Search_Manager_Plugin_OCI8
 				// (we think)
 				$word = str_replace('_', '{_}', $word);
 				$word = str_replace('%', '{%}', $word);
-				$word = '%'.$word.'%';
+
+				// Naming of this attribute is not good. If TRUE, full searching
+				// is actually enabled!
+				if ($sm->attr('enable_begins_with')) {
+					$word = '%'.$word.'%';
+				}
 			}
+
+			$word = $this->_escapeContainReservedChars($word);
+			$word = $this->_escapeContainReservedWords($word);
 			$terms = preg_replace('/#/', " $word ", $terms, 1);
 		}
 
