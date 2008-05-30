@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.13 2008/04/29 23:44:59 lwright Exp $
+* $Id: asset_manager.inc,v 1.571.2.14 2008/05/30 06:32:41 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.13 $
+* @version $Revision: 1.571.2.14 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3853,7 +3853,7 @@ class Asset_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// we need to work out the treeid of the trash
-		$sub_sql = 'SELECT (t.treeid || '.$db->quote('%').')
+		$sub_sql = 'SELECT (t.treeid || '.$db->quote('%').') as treeid_wildcard
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
 		$sub_where = 'l.minorid = '.$db->quote($trash->id);
