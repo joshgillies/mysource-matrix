@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_export_files.inc,v 1.1.2.1 2008/05/26 07:02:40 bpearson Exp $
+* $Id: hipo_job_tool_export_files.inc,v 1.1.2.2 2008/05/30 00:09:11 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *	 keep_structure	-	keep the structure of the assets in the asset tree
 *
 * @author Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -286,7 +286,7 @@ class HIPO_Job_Tool_Export_Files extends HIPO_Job
 		$cwd = getcwd();
 
 		// Change to the TEMP dir
-		chdir($save_location.'/export-'.$export_date);
+		chdir(SQ_TEMP_PATH.'/export-'.$export_date);
 
 		require_once 'Archive/Tar.php';
 
