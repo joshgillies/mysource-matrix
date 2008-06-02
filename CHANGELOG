@@ -1,5 +1,117 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.2
+
+Featured Changes
+-----------------------------------
+
+Hierarchy Metadata Field
+
+	This new metadata field is similar to a Select Metadata Field, but creates a hierarchy based on the keys of the options provided (based on a character-by-character basis, eg. "1A" would be a child of "1"). When searching on this type of field, it will also search for the selected option's parents and children.
+
+
+Support for Multiple Proxies
+
+	This new feature will allow additional proxy servers for MySource Matrix to use when making requests for external URLs for its own purposes (such as for Remote Content, Links Report, etc), based on matching a URL pattern. If no alternative proxies are matched, the primary proxy (previously the single proxy that could be configured) will be used.
+
+
+Export Files Tool
+
+	This new tool allows you to export all File assets (and other assets inheriting from File) underneath a certain root node to a compressed tarball (.tar.gz) file. Folder structure can be maintained or removed at user's option.
+
+
+Date/Time Design Area: Created/Published Date
+
+	The Date/Time Design Area now allows you to print the created and published dates for the asset, in addition to the current date and last updated date.
+
+
+Raw Form Response Keyword
+
+	New raw keywords return the raw value stored by the form for a response. For some question types such as Text, these will be the same as the normal keyword, but for others it will be different (eg. for Select, this would be the key of the selected option rather than the presentation value). These keywords are named the same as the normal keywords, but with "_raw" added to the end.
+
+
+Form Submission Actions Infrastructure
+
+	This new infrastructure allows you to create custom actions that interact with a Custom Form, that are run whenever a form is submitted.
+
+
+Send Email Form Submission Action Asset
+
+	This Form Submission Action allows you to send emails additional to the original three on the Email Options screen.
+
+
+Database Query Form Submission Action Asset
+
+	This Form Submission Action allows you to run a query on an external database based on the values of a submitted form.
+
+
+SOAP Server Asset
+
+	This feature provides the framework for external systems to communicate with MySource Matrix. A set of actions for interacting with the system is in development.
+
+
+Separate Database Connection for Searches
+
+	Searches can now be optionally redirected to another database connection using the new "dbsearch" DSN. This may prove useful where availability is critical and the database is replicated. If omitted, it defaults to the "db" connection.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+
+* Fixed bug #2994: Bug in Asset class' morph method
+* Fixed bug #3000: Site preview error
+* Fixed bug #3003: Design Customisation Creation Failure
+* Fixed bug #3009: Cannot remap upon trashing
+* Fixed bug #3010: Remaps missing from web path screen
+* Fixed bug #3011: Paint Layout: User Defined Layout Error
+* Fixed bug #3014: Morph File (Image, PDF, ect.) assets error
+* Fixed bug #3021: Rollback Management script does not set "effective from date" when purging other entries
+* Fixed bug #3026: Image variety inserted into bodycopy with WYSIWYG fails in safe edit
+* Fixed bug #3029: Code that generates the WYSIWYG CSS selector breaks if double quotes exist in CSS rules
+* Fixed bug #3033: Fatal error attaching image variant
+* Fixed bug #3037: Paint Layout: Admin condition throws PHP Error
+* Fixed bug #3039: View all workflow logs' link causes PHP Notice error
+* Fixed bug #3041: Thesaurus terms that include a comma do not display in metadata fields in the admin interface
+* Fixed bug #3045: Keyword Regexp Condition can't handle OR ("|") condition
++ System Time Zone now customisable from System Configuration screen
++ Unsaved Changes warning can now be toggled from System Configuration screen
+
+CMS
+
+* Fixed bug #3004: Online quiz throws fatal error if it is tagged by a thesaurus term (Online Quiz)
+* Fixed bug #3008: Moving asset in Asset Listing page (Listing Engine)
+* Fixed bug #3022: Source string missing for 'Standard Asset Field' in Listing Engine-based assets (Listing Engine)
+* Fixed bug #3032: Online Quiz asset is cached by default (Online Quiz)
+
+Calendar
+
+* Fixed bug #2995: Global keywords not being replaced in Calendar Asset (Calendar Page, Rolling Calendar Page, Upcoming Events List)
+
+Data
+
+* Fixed bug #2992: RegEx inclusions error in db data source (DB Data Source)
+
+News
+
+* Fixed bug #3031: RSS Feed asset not working after upgrade (RSS Feed Page)
+
+Search
+
+* Fixed bug #3002: Search Field Name that contains a full stop will not work (Search Page)
+* Fixed bug #3012: Search Page not being able to set attribute value as search fields (Search Page)
+* Fixed bug #3042: Oracle Search: reserved words not escaped when in "begins with" mode (Oracle Search Plugin for Search Manager)
+* Fixed bug #3013: Metadata thesaurus field is wrongly indexed by Search manager (Search Manager)
+
+E-Commerce
+
++ Ability to specify delivery fees by country per weight metric
++ Ability to specify an additional international delivery fee for all countries except those selected
++ Ability to specity additional charges, or delivery fee exemption, based on price of cart and country
+
+
+
 VERSION 3.18.1
 
 Featured Changes
