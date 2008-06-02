@@ -10,13 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.23 2007/12/03 03:33:17 hnguyen Exp $
+* $Id: trigger_action_create_link.inc,v 1.24 2008/06/02 23:00:05 bshkara Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 
 /**
 * Trigger Action Create Link
@@ -25,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,11 +59,23 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		// check for required settings
-		if (empty($settings['assetid']) || !isset($settings['is_major']) || empty($settings['link_type'])) {
+		if (!isset($settings['is_major']) || empty($settings['link_type'])) {
+			return FALSE;
+		}
+
+		$parameter_map_value = array_get_index($settings, 'parameter_map_target_asset', serialize(Array()));
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$map_assetid = $atr_parameter_map->getParameterValue('asset');
+
+		if (empty($settings['assetid']) && empty($map_assetid)) {
 			return FALSE;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
+			return FALSE;
+		}
+
+		if (!is_null($map_assetid) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($map_assetid)) {
 			return FALSE;
 		}
 
@@ -88,21 +101,23 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			$old_links = $am->getLinks($state['assetid'], SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		}
 
+		// whether we use the parameter map value or the settings value for the target asset
+		$assetid = is_null($map_assetid) ? $settings['assetid'] : $map_assetid;
+
 		// determine major/minor from settings
 		if ($settings['is_major']) {
 			$major = $state['asset'];
-			$minor = $am->getAsset($settings['assetid']);
+			$minor = $am->getAsset($assetid);
 		} else {
-			$major = $am->getAsset($settings['assetid']);
+			$major = $am->getAsset($assetid);
 			$minor = $state['asset'];
 		}
 
-
 		$side_of_link = ($settings['is_major']) ? 'major' : 'minor';
 		if (!empty($settings['value'])) {
-			$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], $settings['value'], $side_of_link, TRUE);
+			$link_info = $am->getLinkByAsset($state['assetid'], $assetid, $settings['link_type'], $settings['value'], $side_of_link, TRUE);
 		} else {
-			$link_info = $am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], NULL, $side_of_link, TRUE);
+			$link_info = $am->getLinkByAsset($state['assetid'], $assetid, $settings['link_type'], NULL, $side_of_link, TRUE);
 		}
 
 		$create_link = FALSE;
@@ -212,6 +227,20 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 
 		// begin buffering advanced options
+
+		// attribute friendly prefix
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', $prefix));
+		hidden_field($prefix.'[new_prefix]', $new_prefix);
+
+		// parameter map options
+		ob_start();
+			$parameter_map_value = array_get_index($settings, 'parameter_map_target_asset', serialize(Array()));
+			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+			$atr_parameter_map->setParameter('asset', 'Target Asset');
+			echo $atr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
+			$basic_part_4 = ob_get_contents();
+		ob_end_clean();
+
 		ob_start();
 			text_box($prefix.'[value]', $value, '', '', FALSE, $form_element_extras);
 			$advanced_part_1 = ob_get_contents();
@@ -247,7 +276,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		ob_end_clean();
 
 		$contents = translate('trigger_create_link_basic', $basic_part_1, $basic_part_2, $basic_part_3).
-					'<br /><br />'.
+					'<br />'.$basic_part_4.'<br />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
 					translate('trigger_create_link_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
 					'<br />'.$advanced_part_4;
@@ -286,6 +315,11 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		if (empty($request_data['link_type']) || !isset($link_type_list[$request_data['link_type']])) {
 			return 'Link Type not specified';
 		}
+
+		$new_prefix = ereg_replace('\[', '_', ereg_replace('\]', '_', array_get_index($request_data, 'new_prefix', '')));
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map();
+		$atr_parameter_map->process($new_prefix.'_parameter_map');
+		$settings['parameter_map_target_asset'] = $atr_parameter_map->value;
 
 		$settings['assetid']   = $request_data['assetid']['assetid'];
 		$settings['is_major']  = $request_data['is_major'];
