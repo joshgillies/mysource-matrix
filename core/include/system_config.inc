@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.3 2008/05/29 06:46:02 bpearson Exp $
+* $Id: system_config.inc,v 1.104.2.4 2008/06/03 23:25:17 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.3 $
+* @version $Revision: 1.104.2.4 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -178,9 +178,6 @@ class System_Config extends Config
 					if (isset($vars[$var_name])) {
 						$vars[$var_name] = max(60, (int) $vars[$var_name]);
 					}
-				}
-				if (!isset($vars['SQ_CONF_CONFIRM_SAVE_CHANGES'])) {
-					$vars['SQ_CONF_CONFIRM_SAVE_CHANGES'] = '0';
 				}
 
 			}//end if validating values
@@ -806,7 +803,11 @@ class System_Config extends Config
 
 			$o->openField(translate('confirm_save_changes'));
 			if ($write_access) {
-				check_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', '1', (SQ_CONF_CONFIRM_SAVE_CHANGES) ? TRUE : FALSE);
+				$options = Array(
+							'0'	=> translate('no'),
+							'1'	=> translate('yes'),
+						   );
+				combo_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', $options, FALSE, (SQ_CONF_CONFIRM_SAVE_CHANGES) ? '1' : '0');
 			} else {
 				?> &nbsp;
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_CONFIRM_SAVE_CHANGES) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
