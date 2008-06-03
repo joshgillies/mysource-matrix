@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.57.2.1 2008/03/27 05:23:02 mbrydon Exp $
+* $Id: calendar_common.inc,v 1.57.2.2 2008/06/03 06:38:01 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.57.2.1 $
+* @version $Revision: 1.57.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -89,11 +89,11 @@ class Calendar_Common
 	* - the YYYY-MM (only, no day) of the month involved in month view
 	* - the YYYY (only) of the year involved in the year view
 	*
-	* @param array	$root_ids			Array of root nodes
-	* @param string	$view				the type of view we are requesting (day|week|month|year|period)
-	* @param string	$iso				ISO 8601 date as passed to the calling function
-	* @param int	$length				Length of period to look in (period view only)
-	* @param string	$event_type			Desired event type
+	* @param array	$root_ids	Array of root nodes
+	* @param string	$view		the type of view we are requesting (day|week|month|year|period)
+	* @param string	$iso		ISO 8601 date as passed to the calling function
+	* @param int	$length		Length of period to look in (period view only)
+	* @param string	$event_type	Desired event type
 	*
 	* @return string
 	* @access public
@@ -843,27 +843,19 @@ class Calendar_Common
 		$day_start_dts = ($day_start_hours * 60) + $day_start_minutes;
 		$day_end_dts = ($day_end_hours * 60) + $day_end_minutes;
 
-		$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
-		$event_start_dts = ($event['start_date_hours'] * 60) + $event['start_date_minutes'];
-
 		$event_start_date = sprintf('%04d-%02d-%02d %02d:%02d:00', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday'], $event['start_date_hours'], $event['start_date_minutes']);
+		$event_start_dts = ($event['start_date_hours'] * 60) + $event['start_date_minutes'];
 
 		$i = 0;
 
 		if (!is_null($event['end_date_ds'])) {
 			// end date is specified
-			$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
-			$event_end_dts = (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
-
 			$event_end_date = sprintf('%04d-%02d-%02d %02d:%02d:00', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday'], $event['end_date_hours'], $event['end_date_minutes']);
+			$event_end_dts = (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
 
 			if ($event['start_date_ds'] != $event['end_date_ds']) {
 				// covers multiple days
 				$event['expanded'] = 1;
-
-				//$start_time = gmmktime(0, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
-
-				//$end_time = gmmktime(0, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
 
 				if (($first_day <= substr($event_start_date, 0, 10)) && ($event_start_dts < $day_end_dts)) {
 					// insert first day
@@ -883,7 +875,6 @@ class Calendar_Common
 				$inter_date = date('Y-m-d', strtotime(max(add_days_to_iso($event_start_date, 1), $first_day),' +1 day'));
 				$last_inter_date = min($last_day, add_days_to_iso($event_end_date, -1));
 				while ($inter_date <= $last_inter_date) {
-					//$inter_time = iso8601_ts($inter_date.' 12:00:00');
 					$result_list[$assetid.':'.$i] = Array();
 					for (reset($event); NULL !== ($k = key($event)); next($event)) {
 						$result_list[$assetid.':'.$i][$k] = $event[$k];
@@ -949,9 +940,10 @@ class Calendar_Common
 													Calendar_Common::getDateComponents($event_start_date, 'start_date_'),
 													Calendar_Common::getDateComponents($event_start_date, 'end_date_'));
 			} else {
+				$start_date = date('Y-m-d', $start_time);
 				$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
-													Calendar_Common::getDateComponents($event_start_date.' 00:00:00', 'start_date_'),
-													Calendar_Common::getDateComponents($event_start_date.' 24:00:00', 'end_date_'));
+													Calendar_Common::getDateComponents($start_date.' 00:00:00', 'start_date_'),
+													Calendar_Common::getDateComponents($start_date.' 24:00:00', 'end_date_'));
 			}
 
 			$i++;
@@ -993,13 +985,11 @@ class Calendar_Common
 		$no_evt_end_date_hours		= is_null($event['end_date_hours']) || empty($event['end_date_hours']);
 		$no_evt_start_date_hours	= is_null($event['start_date_hours']) || empty($event['start_date_hours']);
 
-		$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
-		$event_end_date = $no_evt_end_date_ds ? NULL : sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
-		$event_start_dts = $no_evt_start_date_hours ? NULL : (($event['start_date_hours'] * 60) + $event['start_date_minutes']);
-		$event_end_dts = $no_evt_end_date_hours ? NULL : (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
-
 		$event_start_date = sprintf('%04d-%02d-%02d %02d:%02d:00', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday'], $event['start_date_hours'], $event['start_date_minutes']);
 		$event_end_date = $no_evt_end_date_ds ? NULL : sprintf('%04d-%02d-%02d %02d:%02d:00', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday'], $event['end_date_hours'], $event['end_date_minutes']);
+
+		$event_start_dts = $no_evt_start_date_hours ? NULL : (($event['start_date_hours'] * 60) + $event['start_date_minutes']);
+		$event_end_dts = $no_evt_end_date_hours ? NULL : (($event['end_date_hours'] * 60) + $event['end_date_minutes']);
 
 		// dispose of one case immediately
 		if ($no_evt_end_date_ds && !$no_evt_start_date_hours) {
