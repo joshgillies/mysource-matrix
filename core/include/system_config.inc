@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.110 2008/06/03 23:28:10 bpearson Exp $
+* $Id: system_config.inc,v 1.111 2008/06/03 23:57:46 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -807,11 +807,15 @@ class System_Config extends Config
 							'0'	=> translate('no'),
 							'1'	=> translate('yes'),
 						   );
-				combo_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', $options, FALSE, (SQ_CONF_CONFIRM_SAVE_CHANGES) ? '1' : '0');
+				combo_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', $options, FALSE, !defined('SQ_CONF_CONFIRM_SAVE_CHANGES') ? '1' : SQ_CONF_CONFIRM_SAVE_CHANGES);
 			} else {
-				?> &nbsp;
-				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_CONFIRM_SAVE_CHANGES) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-				<?php
+				if (defined('SQ_CONF_CONFIRM_SAVE_CHANGES')) {
+					?> &nbsp;
+					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_CONFIRM_SAVE_CHANGES) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<?php
+				} else {
+					echo translate('not_set');
+				}//end if
 			}//end if
 			$o->note(translate('confirm_save_changes_msg'));
 			$o->closeField();
