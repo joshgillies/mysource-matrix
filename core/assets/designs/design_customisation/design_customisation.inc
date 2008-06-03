@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.54 2007/12/13 21:45:12 bshkara Exp $
+* $Id: design_customisation.inc,v 1.54.2.1 2008/06/03 01:19:41 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -356,7 +356,7 @@ class Design_Customisation extends Design
 	* @return boolean
 	* @access protected
 	*/
-	protected function updateFromParent(Design $parent)
+	public function updateFromParent(Design $parent)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
