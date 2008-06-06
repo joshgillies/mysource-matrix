@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.73.2.1 2007/09/12 03:45:25 rong Exp $
+* $Id: wysiwyg.inc,v 1.73.2.2 2008/06/06 01:14:06 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73.2.1 $
+* @version $Revision: 1.73.2.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1786,7 +1786,7 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 		global $ROOT_PATH;
 		if (!isset($this->_loaded_plugins[$name])) {
 			require_once($ROOT_PATH.'/plugins/'.$name.'/'.$name.'.inc');
-			$this->_loaded_plugins[$name] = new $name($this);
+			$this->_loaded_plugins[$name] =& new $name($this);
 		}
 
 		$own_group = FALSE;
