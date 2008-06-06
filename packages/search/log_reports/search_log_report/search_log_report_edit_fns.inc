@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.8.6.1 2008/06/06 00:55:10 bshkara Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.8.6.2 2008/06/06 01:24:01 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8.6.1 $
+* @version $Revision: 1.8.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -587,7 +587,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 				$output_heading = '<b>'.translate('sch_log_report_all_search_pages').'</b>';
 			} else {
 				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
-					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($id), Array(), FALSE, 'name');
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($id), Array(), FALSE, 'name');
 					$asset = $asset[$id];
 				}
 
