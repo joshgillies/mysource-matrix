@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.57.2.1 2008/03/12 04:04:06 lwright Exp $
+* $Id: html_tidy.inc,v 1.57.2.2 2008/06/06 02:19:02 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.57.2.1 $
+* @version $Revision: 1.57.2.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -147,8 +147,8 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 			// If HTML Tidy is enabled, let's rock'n'roll
 			if ($this->check_usable() === TRUE) {
-                require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
-                $tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
+				require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+				$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 				// tidy the HTML produced using the PHP5 Tidy
 				$tidy = new tidy;
@@ -183,12 +183,20 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				$tidy->cleanRepair();
 
 				$error = $tidy->errorBuffer;
+
+				// First ignore anything we don't want to show for whatever reason
 				$ignore_errors_list = $this->getIgnoredErrors();
 				foreach ($ignore_errors_list as $err) {
 					$error = str_replace($err, '', $error);
 				}
+
+				// Filter out errors caused by inline tags used by WYSIWYG
+				foreach ($this->_new_inline_tags as $tag) {
+					$error = preg_replace('/line \d+ column \d+\ - Warning\: \<'.$tag.'\> is not approved by W3C/', '', $error);
+				}
+
 				$this->htmltidy_errors = trim($error);
-				
+
 				if (empty($tidy) || empty($tidy_char_set)) {
 					$this->htmltidy_status = 'fail';
 				} else {
