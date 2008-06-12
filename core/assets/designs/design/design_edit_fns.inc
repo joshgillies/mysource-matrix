@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.115.2.1 2007/11/01 06:11:36 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.115.2.2 2008/06/12 06:24:49 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115.2.1 $
+* @version $Revision: 1.115.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -709,11 +709,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// Let's place an print operation after the head tag
 		// to allow us to print the default header stuff like
 		// style sheets, JS files and meta tag stuff
-		$temp = explode('<head>', $file_contents, 2);
+		$temp = explode('</head>', $file_contents, 2);
 		if (sizeof($temp) > 1) {
-			$file_contents= $temp[0]
-							."<head>\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
-							.$temp[1];
+            $file_contents= $temp[0]
+                            ."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
+                            ."</head>"
+                            .$temp[1];
 		}
 
 		// Let's place an print operation after the termination body tag
