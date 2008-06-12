@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.1.2.5 2008/05/29 06:45:19 bpearson Exp $
+* $Id: state.js,v 1.1.2.6 2008/06/12 04:57:26 bpearson Exp $
 *
 */
 
@@ -95,7 +95,7 @@ onbeforeunload = function(e) {
 	if (document.getElementById("sq_commit_button")) {
 		if (document.forms[0]['changes'].value == '1')
 		{
-			if (document.forms[0]['confirm'].value == '1')
+			if (document.forms[0]['allowconfirm'].value == '1')
 			{
 				if (document.forms[0]['state'].value != saveState())
 				{
