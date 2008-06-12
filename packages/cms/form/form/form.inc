@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.170.2.6 2008/05/26 06:47:35 bshkara Exp $
+* $Id: form.inc,v 1.170.2.7 2008/06/12 02:08:20 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.170.2.6 $
+* @version $Revision: 1.170.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2734,7 +2734,7 @@ class Form extends Asset
 				$section_assetid = $matches[1];
 				$section_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid, 'form_section');
 				if (!empty($section_asset)) {
-					$replacement = $section_asset->attr('title');
+					$replacement = $section_asset->attr('name');
 				}
 
 			} else if (preg_match('|^question_([^_]*)_([^_]*_)?q(.*)|', $keyword, $matches)) {
