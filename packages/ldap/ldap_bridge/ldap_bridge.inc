@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.63.2.3 2008/03/16 22:26:33 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.63.2.4 2008/06/12 04:02:30 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63.2.3 $
+* @version $Revision: 1.63.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -130,9 +130,8 @@ class LDAP_Bridge extends Asset
 			$password = $this->attr('password');
 		}
 
-		if (!$ldap->bind($bind_dn, $password)) {
-			return NULL;
-		}
+		if (!$ldap->bind($bind_dn, $password)) return NULL;
+
 		return $ldap;
 
 	}//end connectToLdap()
@@ -200,6 +199,7 @@ class LDAP_Bridge extends Asset
 		$ldap = @$this->connectToLdap();
 			if (is_null($ldap->ptr)) return $asset;
 
+			$shadowid = $this->decodeString($shadowid);
 			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
 			if (!$result) {
 				// return 'unknown ldap user' when we cannot find a match
@@ -446,6 +446,7 @@ class LDAP_Bridge extends Asset
 					$user_attrs = $this->attr('user_attributes');
 					$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
 
+					$base_dn = $this->decodeString($base_dn);
 					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE);
 
 					if (!$result) {
@@ -553,7 +554,7 @@ class LDAP_Bridge extends Asset
 					$links[] = Array(
 								'linkid'			=> 0,
 								'majorid'			=> $this->id,
-								'minorid'			=> $this->id.':'.$dn,
+								'minorid'			=> $this->id.':'.$this->encodeString($dn),
 								'minor_type_code'	=> $type,
 								'value'				=> '',
 								'link_type'			=> $this->ldap_shdw_link_type,
@@ -608,6 +609,7 @@ class LDAP_Bridge extends Asset
 			$ldap = @$this->connectToLdap();
 			if (is_null($ldap->ptr)) return Array();
 
+			$assetid = $this->decodeString($assetid);
 			$result = $ldap->search($assetid,'(objectClass=*)');
 			if (!$result) return Array();
 
@@ -631,12 +633,13 @@ class LDAP_Bridge extends Asset
 			} else if (isset($attrs['gm'])) {
 				// Group defines its members
 				$base_dn = $this->attr('root_dn');
+				$base_dn = $this->decodeString($base_dn);
 				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$assetid.')');
 				if ($result) {
 					$groups = $ldap->getEntries($result);
 					if (!$groups['count']) $mo_groups = Array();
 					unset($groups['count']);
-					foreach	($groups as $group_data) {
+					foreach ($groups as $group_data) {
 						$mo_groups[] = $group_data['dn'];
 					}
 				}
@@ -655,6 +658,7 @@ class LDAP_Bridge extends Asset
 			}
 
 			foreach ($mo_groups as $group_name) {
+				$group_name = $this->decodeString($group_name);
 				$result = $ldap->search($group_name, '(objectClass=*)');
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
@@ -664,6 +668,7 @@ class LDAP_Bridge extends Asset
 			}
 
 			foreach ($ou_groups as $group_name => $group_dn) {
+				$group_name = $this->decodeString($group_name);
 				$result = $ldap->search($attrs['ou'].'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$attrs['ou'].'='.$group_name.'))');
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
@@ -752,6 +757,7 @@ class LDAP_Bridge extends Asset
 		// the attribute mappings to the LDAP schemas
 		$attrs = $this->attr('attributes');
 
+		$base_dn = $this->decodeString($base_dn);
 		$result = $ldap->search($base_dn,'(objectClass=*)');
 		if (!$result) {
 			$ldap->disconnect();
@@ -965,14 +971,14 @@ class LDAP_Bridge extends Asset
 					$info[$assetid] = $assetid;
 				} else if ($field == 'type_code') {
 					$asset =& $this->getAsset($assetid);
-					if (is_null($asset) === false) {
+					if (is_null($asset) === FALSE) {
 						$info[$assetid] = $asset->type();
 					} else {
 						$info[$assetid] = '';
 					}
 				} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
 					$asset =& $this->getAsset($assetid);
-					if (is_null($asset) === false) {
+					if (is_null($asset) === FALSE) {
 						$info[$assetid] = $asset->$field;
 					} else {
 						$info[$assetid] = '';
@@ -982,7 +988,7 @@ class LDAP_Bridge extends Asset
 				}
 			} else {
 				$asset =& $this->getAsset($assetid);
-				if (is_null($asset) === false) {
+				if (is_null($asset) === FALSE) {
 					$info[$assetid] = Array(
 										'assetid'				=> $assetid,
 										'type_code'				=> $asset->type(),
@@ -1270,12 +1276,12 @@ class LDAP_Bridge extends Asset
 			$this->_deleteStoredContents();
 			return TRUE;
 		}
-	
+
 		return FALSE;
-	
+
 	}//end delete()
-	
-	
+
+
 	/**
 	* Deletes the contents of the database for this LDAP
 	*
@@ -1284,21 +1290,21 @@ class LDAP_Bridge extends Asset
 	*/
 	function _deleteStoredContents()
 	{
-	
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-	
+
 		$sql = 'DELETE FROM sq_shdw_ast_lnk WHERE minorid LIKE '.$db->quoteSmart($this->id.':%');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-	
+
 		return TRUE;
-	
+
 	}//end _deleteStoredContents()
 
 
@@ -1379,13 +1385,12 @@ class LDAP_Bridge extends Asset
 	*/
 	function initUser(&$user, $data)
 	{
-
 		// the attribute mappings to the LDAP schemas
 		$attrs = $this->attr('attributes');
 		$user->_ldapid = $this->id;
 
 		// set general object properties
-		$user->id = $this->id.':'.$data['dn'];
+		$user->id = $this->id.':'.$this->encodeString($data['dn']);
 		foreach ($data['objectclass'] as $class) {
 			$class = strtolower($class);
 			foreach ($this->_user_types as $key => $value) {
@@ -1398,6 +1403,8 @@ class LDAP_Bridge extends Asset
 			$user->name = translate('ldap_unknown_user');
 		}
 
+		$user->name = $this->decodeString($user->name);
+
 		$user->short_name = $user->name;
 		$user->status = $this->status;
 		$user->version = '0.1';
@@ -1409,7 +1416,7 @@ class LDAP_Bridge extends Asset
 				if (isset($value['count'])) unset($value['count']);
 				if (count($value) > 1) {
 					$user->vars[$key] = Array(
-											'value'	=> $value,
+											'value'		=> $value,
 											'type'		=> 'serialise',
 											'attrid'	=> 0,
 										);
@@ -1463,6 +1470,58 @@ class LDAP_Bridge extends Asset
 		$user->vars['last_name']['type'] = 'text';
 
 	}//end initUser()
+
+
+	/**
+	* Encode a string
+	* Purpose 	- For Bug Fix (#3072) LDAP and Matrix cannot handle ampersand(&) in the name
+	*			- To fix we encode the ampersand to a hex variable, then change it back for LDAP
+	*
+	* @param string	$string	The string to encode
+	*
+	* @return string
+	* @access public
+	*/
+	function encodeString($string)
+	{
+
+		if (is_array($string)) {
+			foreach ($string as $key => $value) {
+				$string[$key] = $this->encodeString($value);
+			}
+		} else {
+			$string = str_replace('&', '%26', $string);
+		}
+
+		return $string;
+
+	}//end encodeString()
+
+
+	/**
+	* Decode a string
+	* Purpose 	- For Bug Fix (#3072) LDAP and Matrix cannot handle ampersand(&) in the name
+	*			- To fix we encode the ampersand to a hex variable, then change it back for LDAP
+	*
+	* @param string	$string	The string to encode
+	*
+	* @return string
+	* @access public
+	*/
+	function decodeString($string)
+	{
+
+		if (is_array($string)) {
+			foreach ($string as $key => $value) {
+				$string[$key] = $this->decodeString($value);
+			}
+		} else {
+			$string = str_replace('%26', '&', $string);
+		}
+
+		return $string;
+
+	}//end decodeString()
 
 
 }//end class
