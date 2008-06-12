@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178.2.4 2008/05/26 06:49:33 bshkara Exp $
+* $Id: form.inc,v 1.178.2.5 2008/06/12 02:09:08 gsherwood Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178.2.4 $
+* @version $Revision: 1.178.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2775,7 +2775,7 @@ class Form extends Asset implements Bridge
 				$section_assetid = $matches[1];
 				$section_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid, 'form_section');
 				if (!empty($section_asset)) {
-					$replacement = $section_asset->attr('title');
+					$replacement = $section_asset->attr('name');
 				}
 
 			} else if (preg_match('|^question_([^_]*)_([^_]*_)?q(.*)|', $keyword, $matches)) {
