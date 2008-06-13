@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.692 2008/06/02 22:44:51 lwright Exp $
+* $Id: asset_manager.inc,v 1.693 2008/06/13 07:03:19 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.692 $
+* @version $Revision: 1.693 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1952,7 +1952,6 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-
 		// if we got this far all is well,
 		// so add to the map and return the clone
 		$clone_map[$source->id] = $clone->id;
@@ -3123,6 +3122,7 @@ class Asset_Manager extends MySource_Object
 		if (!empty($query_assetids)) {
 			// we couldnt palm the request off, so we better do it ourselves
 			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
+
 			if (!empty($links_query)) {
 				$sql = implode(' ', $links_query['sql_array']);
 				$query = MatrixDAL::preparePdoQuery($sql);

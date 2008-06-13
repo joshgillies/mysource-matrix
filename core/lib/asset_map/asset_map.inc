@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.273 2008/04/16 23:30:19 gsherwood Exp $
+* $Id: asset_map.inc,v 1.274 2008/06/13 07:03:19 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.273 $
+* @version $Revision: 1.274 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1695,7 +1695,6 @@ class Asset_Map
 		// check for any HIPOs that have been queued
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
-
 		if (!empty($url)) {
 			$urlTree = new XML_Tree();
 			$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));

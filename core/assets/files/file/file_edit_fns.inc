@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.90 2007/12/14 23:56:24 gsherwood Exp $
+* $Id: file_edit_fns.inc,v 1.91 2008/06/13 07:03:19 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -255,7 +255,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
+	public function processFileUpload(File $asset, &$o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
