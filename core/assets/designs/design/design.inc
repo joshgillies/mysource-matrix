@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.131 2007/07/10 01:58:38 hnguyen Exp $
+* $Id: design.inc,v 1.131.2.1 2008/06/13 07:08:43 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.131.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,13 +76,116 @@ class Design extends Design_Area
 		}
 
 		// set an initial web path
-		$initial_path = strtolower($this->name);
+		$initial_path = strtolower($this->_getName());
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
 		return $this->saveWebPaths($good_paths);
 
 	}//end _createAdditional()
+
+
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param Asset	$clone			the clone asset shell
+	* @param array	$components		the wanted components to clone eg.
+	*														Array(
+	*														'attributes',
+	*														'metadata_schemas',
+	*														'metadata',
+	*														'workflow',
+	*														'permissions',
+	*														'data',
+	*														);
+	*														or alternately
+	*														Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneComponentsAdditional($clone, $components)
+	{
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+			// Clone the parse file
+			// ONLY do this for the design
+			if ($this->type() == 'design') {
+					$orig_parse = $this->data_path.'/parse.txt';
+					$clone_parse = $clone->data_path.'/parse.txt';
+
+					// Check the path exists and is accessible (and attempt to create if possible)
+					if (!is_dir($clone->data_path) || !is_writable($clone->data_path)) {
+							if (!create_directory($clone->data_path)) {
+									return FALSE;
+							}
+					}
+
+					// Copy the parse file across first, then process it, to make sure
+					if (copy($orig_parse, $clone_parse)) {
+							$edit_fns = $clone->getEditFns();
+
+							$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+							// tell the asset to update the customisation at the end of the interface processing
+							$clone->_tmp['update_customisations'] = TRUE;
+							$clone->_tmp['generate_design'] = TRUE;
+							$changes = $edit_fns->parseAndProcessFile($clone);
+
+							// attempt to add the parse file to the repository
+							if (!$fv->add($clone->data_path_suffix, $clone_parse, '')) {
+									trigger_localised_error('CORE1057', E_USER_WARNING);
+							}
+
+							// make sure we have the latest version of our file
+							if (!$fv->checkOut($clone->data_path_suffix.'/parse.txt', $clone->data_path)) {
+									trigger_localised_error('CORE0158', E_USER_WARNING);
+									return FALSE;
+							}
+
+					}//end if
+			}//end if
+
+			return parent::cloneComponentsAdditional($clone, $components);
+
+	}//end cloneComponentsAdditional()
+
+
+	/**
+	* Perform any additional processing required during the cloning of components of this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneDependantAdditional(&$clone)
+	{
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$return_value = TRUE;
+			$value = TRUE;
+
+			// Load the web paths for the design's components
+			$components = $GLOBALS['SQ_SYSTEM']->am->getChildren($clone->id);
+			foreach ($components as $componentid => $component) {
+					// set web path for components
+					$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($componentid);
+					$initial_path = strtolower($asset->name);
+					$valid_paths = make_valid_web_paths(Array($initial_path));
+					$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($clone, $valid_paths, $asset->id, TRUE);
+					$GLOBALS['SQ_SYSTEM']->acquireLock($asset->id, 'all');
+					$return_value = $asset->saveWebPaths($good_paths);
+					$value = (!$return_value) ? FALSE : TRUE;
+					$return_value = $asset->updateLookups(FALSE);
+					$value = (!$return_value) ? FALSE : TRUE;
+					$GLOBALS['SQ_SYSTEM']->releaseLock($asset->id, 'all');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}//end foreach
+
+			return $value;
+
+	}//end cloneDependantAdditional()
 
 
 	/**

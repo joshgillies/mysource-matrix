@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.323.2.6 2008/03/16 22:25:43 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.323.2.7 2008/06/13 07:08:51 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.323.2.6 $
+* @version $Revision: 1.323.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1165,6 +1165,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// if redirect locations is already set, pass it onto hipo job
 			$on_complete_url = (empty($o->_redirect) ? '' : $o->_redirect);
+
 			$hh->queueHipo('hipo_job_acquire_locks', $vars, $on_complete_url);
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) {
