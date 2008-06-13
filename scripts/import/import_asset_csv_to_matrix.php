@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.4 2007/11/30 04:18:27 mbrydon Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.5 2008/06/13 04:32:08 mbrydon Exp $
 *
 */
 
@@ -46,8 +46,8 @@
 *	input provided to this script is correctly formatted
 *
 *	The Metadata Mapping CSV file must be in the following format:
-*		supplied field name, metadata field asset ID
-*		(eg; Title, 1234)
+*		metadata field asset ID, supplied field name
+*		(eg; 1234, Title)
 *
 *	The Asset Attribute Mapping CSV file must be in the following format:
 *		supplied field name, asset attribute name
