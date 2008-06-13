@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.33 2007/04/04 05:14:58 rong Exp $
+* $Id: lang_strings.xml,v 1.33.4.1 2008/06/13 01:56:56 mbrydon Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -127,6 +127,16 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_hipo_name_import_bmail_user">Import Bulkmail User</string>
 	<string source="bm_hipo_importing_bmail_users">Importing Bulkmail Users</string>
 	<string source="bm_importing_bmail_user">Importing %s</string>
+	
+	<string source="bm_tool_delete_bmail_users_file_upload">Text File of Email Addresses to remove</string>
+	<string source="bm_tool_delete_bmail_users_file_upload_note">Each line must contain one email address only</string>
+
+	<string source="bm_tool_delete_bmail_users_confirm">Remove all matching Bulkmail Users system-wide</string>
+	<string source="bm_tool_delete_bmail_users_confirm_note">All matching Bulkmail Users will be deleted from the system</string>
+
+	<string source="bm_hipo_name_delete_bmail_user">Delete Bulkmail User</string>
+	<string source="bm_hipo_deleting_bmail_users">Deleting Bulkmail Users</string>	
+	<string source="bm_deleting_bmail_user">Deleting %s</string>
 
 	<string source="bm_email_empty">Email address was not provided</string>
 	<string source="bm_email_invalid">Email address provided is invalid</string>
