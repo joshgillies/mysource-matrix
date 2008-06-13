@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.31 2008/01/03 00:25:19 hnguyen Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.31.2.1 2008/06/13 07:05:21 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -532,6 +532,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$this->_running_vars['cloned_asset'][$clone->id]['parentid'] = $this->_running_vars['to_parent_assetid'];
 
 		if (!$clone->saveWebPaths($good_paths)) return FALSE;
+
+		// Check for Additional processing
+		if (method_exists($orig, 'cloneDependantAdditional')) {
+			$orig->cloneDependantAdditional($clone);
+		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($orig);
