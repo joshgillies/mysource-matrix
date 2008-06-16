@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.52 2007/12/21 02:49:09 hnguyen Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.53 2008/06/16 06:54:41 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -303,7 +303,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							case 0  :
 							case 1  :
 								// apply a schema
-								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted']);
+								$mm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted'], $set_data['cascades']);
 							break;
 						}
 					}//end foreach
