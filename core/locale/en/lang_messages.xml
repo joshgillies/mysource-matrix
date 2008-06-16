@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.23 2008/04/14 03:35:28 bpearson Exp $
+* $Id: lang_messages.xml,v 1.24 2008/06/16 05:44:05 bpearson Exp $
 *
 * Core Internal Messages File
 */
@@ -79,6 +79,10 @@
 	<message type="asset.linking.delete">
 		<subject>Asset Link Deleted</subject>
 		<body>"%minor_name%" was successfully unlinked from "%major_name%"</body><!-- minor-name, major-name -->
+	</message>
+	<message type="asset.lookups.updated">
+		<subject>Asset Lookups Updated</subject>
+		<body>Asset "%asset_name%" has successfully updated its lookups</body><!-- asset-name -->
 	</message>
 	<message type="asset.permissions.grant">
 		<subject>Asset Permission Set</subject>
