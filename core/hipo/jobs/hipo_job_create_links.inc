@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.59 2008/06/16 07:07:55 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.60 2008/06/16 07:13:25 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1363,16 +1363,16 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		// Permissions
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 		foreach ($perms as $title => $perm) {
-			$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
-			$ppermissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($parentid, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+			$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($assetid, $perm, NULL, NULL);
+			$ppermissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($parentid, $perm, NULL, TRUE);
 			$diff = array_diff_assoc($ppermissions, $permissions);
 			if (!empty($diff)) return FALSE;
 		}
 
 		// Workflow Schemas
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$schemas = $wfm->getSchemas($assetid);
-		$pschemas = $wfm->getSchemas($parentid);
+		$schemas = $wfm->getSchemas($assetid, NULL, NULL);
+		$pschemas = $wfm->getSchemas($parentid, NULL, TRUE);
 		$diff = array_diff_assoc($pschemas, $schemas);
 		if (!empty($diff)) return FALSE;
 
