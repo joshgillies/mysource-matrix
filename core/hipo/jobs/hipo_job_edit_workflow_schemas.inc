@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.44 2007/12/21 02:59:38 hnguyen Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.45 2008/06/16 06:52:58 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -96,7 +96,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.md5(implode('-',array_keys($this->_running_vars['assets'])));
+		return parent::getCodeName().'-'.md5(serialize($this->_running_vars['schema_changes']));
 
 	}//end getCodeName()
 
@@ -156,7 +156,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids'])) {
 			return 0;
 		}
-		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD / count($this->_running_vars['schema_changes']))) * 100);
+		return ($this->_running_vars['total_changes'] / SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD) * 100;
 
 	}//end getThresholdPercentageRequired()
 
@@ -188,50 +188,68 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	function prepare()
 	{
 		// to start editing schemas, we need to have an asset id to start editing schemas at
-		if (empty($this->_running_vars['assets'])) {
+		if (empty($this->_running_vars['schema_changes'])) {
 			trigger_localised_error('HIPO0010', E_USER_WARNING);
 			return false;
 		}
 
-		$this->_running_vars['done_assetids'] = Array();
+		$this->_running_vars['done_changes']  = 0;
+		$this->_running_vars['total_changes'] = 0;
+
 		if (empty($this->_running_vars['schema_changes'])) {
 			// no schema changes, so do nothing
 			$this->_running_vars['todo_assetids'] = Array();
 		} else {
-			$assets = $this->_running_vars['assets'];
-			$child_assets = Array();
-			for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (is_null($asset)) {
-					trigger_localised_error('HIPO0009', E_USER_WARNING, $assetid);
-					return '';
-				}
-				if (array_get_index($this->_running_vars, 'dependants_only')) {
-					$child_assets += $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
-				} else {
-					$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-				}
-				$child_assets[$assetid]	= Array (
-											0	=> Array (
-													'type_code'	=> $asset->type(),
-												   ),
-										  );
+			$this->_running_vars['todo_assetids'] = Array();
+			foreach ($this->_running_vars['schema_changes'] as $schema_change) {
+				$assetids = $schema_change['assetids'];
+				foreach ($assetids as $assetid) {
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-				unset($asset);
+					if (is_null($asset)) {
+						trigger_localised_error('HIPO0009', E_USER_WARNING, $assetid);
+						return '';
+					}
+
+					if (array_get_index($schema_change, 'dependants_only')) {
+						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+					} else {
+						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+					}
+
+					// add the parent asset to the list too
+					$child_assets[$assetid]    = Array (
+												0    => Array (
+														'type_code'    => $asset->type(),
+													   ),
+											  );
+
+					// Now assign schema changes to each asset
+					foreach ($child_assets as $child_assetid => $child_asset) {
+						$type_code = $child_asset[0]['type_code'];
+
+						$this_todo =& $this->_running_vars['todo_assetids'][$child_assetid];
+						$this_todo['type_code'] = $type_code;
+						$this_todo['schema_changes'][] = $schema_change;
+						$this->_running_vars['total_changes']++;
+					}
+
+					unset($asset);
+				}
+
 			}
-
-			$this->_running_vars['todo_assetids'] = $child_assets;
 		}
+
 		return parent::prepare();
 
 	}//end prepare()
 
 
-	/**
+   /**
 	* Edit schemas for a single asset in the to-do list
 	*
-	* @param array		&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
+	* @param array        &$step_data    a reference to the array of information about the current step
+	* @param string        $prefix        prefix for form vars
 	*
 	* @return boolean
 	* @access public
@@ -241,14 +259,17 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			reset($this->_running_vars['todo_assetids']);
 			$assetid = key($this->_running_vars['todo_assetids']);
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid]['type_code'];
+			$schema_changes = $this->_running_vars['todo_assetids'][$assetid]['schema_changes'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 			if (!is_null($asset)) {
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'workflow')) {
-					foreach ($this->_running_vars['schema_changes'] as $set_data) {
+					foreach ($schema_changes as $set_data) {
+						$this->_running_vars['done_changes']++;
+
 						if ($set_data['schemaid']) {
 							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
 							if (is_null($schema)) {
@@ -288,6 +309,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 						switch ($set_data['granted']) {
 							case -1 :
 								// delete a schema
+								$step_data['message'] = htmlentities('Deleting "'.$schema->name.'" (#'.$schema->id.') from "'.$asset->name.'" (#'.$asset->id.')');
 								$wfm->deleteSchema($asset->id, $set_data['schemaid']);
 							break;
 
@@ -295,12 +317,19 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 							case 1  :
 								// deny a schema
 								// apply a permission
-								$wfm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted']);
+								$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing "'.$schema->name.'" (#'.$schema->id.') to "'.$asset->name.'" (#'.$asset->id.')');
+								$wfm->setSchema($asset->id, $set_data['schemaid'], $set_data['granted'], $set_data['cascades']);
 							break;
 						}
 					}
 
-					$step_data['message'] = translate('hipo_edit_workflow_schema', htmlentities($asset->name));
+					// If there are multiple schema changes to make, say we are
+					// (otherwise use more specific message set above)
+					if (count($schema_changes) > 1) {
+						$step_data['message'] = htmlentities('Making '.count($schema_changes).' schema changes to '.$asset->name.' (Id: #'.$asset->id.')');
+					} else if (count($schema_changes) == 0) {
+						$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+					}
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'workflow');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -309,100 +338,24 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					// we do not acquire lock
 					trigger_localised_error('SYS0100', E_USER_WARNING, $asset->name);
 				}
+
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);
 				$this->_addError(translate('hipo_cannot_edit_schema', $assetid));
 			}
-
-			// add this assetid to the done array so we dont do it again
-			$this->_running_vars['done_assetids'][] = $assetid;
 		}
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
-			unset($this->_running_vars['done_assetids']);
+			$step_data['complete']     = TRUE;
 		} else {
-			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['percent_done'] = ($this->_running_vars['done_changes'] / $this->_running_vars['total_changes']) * 100;
+			$step_data['complete']     = FALSE;
 		}
 
 		return true;
 
 	}//end processSchemas()
-
-
-	/**
-	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
-	*
-	* @param string		&$job_type
-	* @param Array()	&$running_vars
-	* @param Array()	&$options
-	*
-	* @return void
-	* @access public
-	*/
-	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_acquire_locks';
-
-		$options['auto_complete'] = true;
-
-		$running_vars = Array(
-							'assetids'			=> array_keys($this->_running_vars['assets']),
-							'lock_type'			=> Array('workflow'),
-							'forceably_acquire'	=> false,
-							'dependants_only'	=> false,
-						);
-
-	}//end getLockAssetDetails()
-
-
-	/**
-	* Release the locks we acquired while setting the schemas
-	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
-	*
-	* @return boolean
-	* @access public
-	*/
-	function releaseLocks(&$step_data, $prefix)
-	{
-		if (!isset($this->_running_vars['re_lock_assets'])) {
-			$this->_running_vars['re_lock_assets'] = $this->_running_vars['assets'];
-		}
-
-		$assetid = key($this->_running_vars['re_lock_assets']);
-		unset($this->_running_vars['re_lock_assets'][$assetid]);
-
-		$children = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
-
-		foreach ($children as $dep_child_id => $dep_child_data) {
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_child_id, 'workflow');
-		}
-
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-
-		$step_data['message'] = translate('hipo_release_locks', $asset_info[$assetid]['name']).translate('hipo_release_locks_dependents');
-
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
-
-		$this->_running_vars['done_assetids'][] = $assetid;
-
-		if (empty($this->_running_vars['re_lock_assets'])) {
-			unset($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
-		} else {
-			$step_data['percent_done'] = (count($this->_running_vars['done_assetids']) / count($this->_running_vars['assets'])) * 100;
-			$step_data['complete']     = false;
-		}
-
-		return true;
-
-	}//end releaseLocks()
 
 
 }//end class

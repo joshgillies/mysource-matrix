@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_workflow_schema.inc,v 1.8 2007/12/02 23:18:57 bshkara Exp $
+* $Id: trigger_action_set_workflow_schema.inc,v 1.9 2008/06/16 06:52:58 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a workflow schema
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +41,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 	*       'granted'  				=> boolean // true or false
 	* 		'cascade_to_dependents'	=> boolean // defaults to FALSE; TRUE will cascade the workflow down to any dependant assets.
 	* 		'cascade'				=> boolean // defaults to FALSE; TRUE will cascade the workflow down to any children underneath.
+	* 		'cascade_to_new'		=> boolean // defaults to TRUE; TRUE will cascade the workflow down to newly-linked children.
 	*       );
 	* </PRE>
 	*
@@ -72,6 +73,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 		$granted               = array_get_index($settings, 'granted', TRUE);
 		$cascade_to_dependents = array_get_index($settings, 'cascade_to_dependents', FALSE);
 		$cascade               = array_get_index($settings, 'cascade', FALSE);
+		$cascade_to_new        = array_get_index($settings, 'cascade_to_new', TRUE);
 
 		$schema = $am->getAsset($settings['schemaid']);
 		if (is_null($schema)) return FALSE;
@@ -81,24 +83,17 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 			$result = $wfm->setSchema($state['asset']->id, $schema->id, $granted);
 		} else {
 			$schema_vars[]	= Array(
+								'assetids'			=> Array($state['asset']->id),
 								'granted'			=> $granted,
 								'schemaid'			=> $settings['schemaid'],
+								'cascades'			=> $cascade_to_new,
 								'previous_access'	=> NULL,
+								'dependants_only'	=> $cascade_to_dependents,
 							  );
 			$vars = Array(
-						'assets'			=> Array(
-												$state['asset']->id	=> Array(
-																		'type_code'	=> $state['asset']->type(),
-																	   ),
-											   ),
 						'schema_changes'	=> $schema_vars,
 					);
 
-			if ($cascade_to_dependents) {
-				$vars['dependants_only'] = 1;
-			} else if ($cascade) {
-				$vars['dependants_only'] = 0;
-			}
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$errors = $hh->freestyleHIPO('hipo_job_edit_workflow_schemas', $vars);
 			$result = empty($errors);
@@ -114,6 +109,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 					'granted'				=> $granted,
 					'cascade'				=> $cascade,
 					'cascade_to_dependents'	=> $cascade_to_dependents,
+					'cascade_to_new'		=> $cascade_to_new,
 				   );
 		}
 
@@ -136,6 +132,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 		$granted               = array_get_index($settings, 'granted', 1);
 		$cascade               = array_get_index($settings, 'cascade', FALSE);
 		$cascade_to_dependents = array_get_index($settings, 'cascade_to_dependents', FALSE);
+		$cascade_to_new        = array_get_index($settings, 'cascade_to_new', TRUE);
 
 		$options = Array(
 					TRUE	=> translate('apply'),
@@ -156,6 +153,10 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 				echo '<br />';
 				check_box($prefix.'[cascade_to_dependents]', '1', $cascade_to_dependents);
 				label(translate('cascade_schema_changes_to_dependents'), $prefix.'[cascade_to_dependents]');
+
+				echo '<br />';
+				check_box($prefix.'[cascade_to_new]', '1', $cascade_to_new);
+				label(translate('cascade_schema_changes_to_new_children');, $prefix.'[cascade_to_new]');
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
@@ -165,6 +166,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
 					echo '<b>'.translate('trigger_schema_no_schema_specified').'</b>';
 				}
+
 				echo '<br />';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
 				echo translate('cascade_schema_changes');
@@ -172,6 +174,10 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 				echo '<br />';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_dependents ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_dependents ? translate('yes') : translate('no')).'" /> ';
 				echo translate('cascade_schema_changes_to_dependents');
+
+				echo '<br />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
+				echo translate('cascade_schema_changes_to_new_children');
 			}
 
 			$output = ob_get_contents();

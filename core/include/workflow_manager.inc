@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.133 2008/05/02 04:44:10 lwright Exp $
+* $Id: workflow_manager.inc,v 1.134 2008/06/16 06:52:58 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.133 $
+* @version $Revision: 1.134 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -75,13 +75,13 @@ class Workflow_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getSchemas($assetid, $granted=NULL, $running=FALSE)
+	function getSchemas($assetid, $granted=NULL, $running=FALSE, $cascades=NULL)
 	{
 		$storage_access = ((is_null($granted)) ? 2 : (int) $granted);
 		if (!isset($this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running])) {
 			$db = MatrixDAL::getDb();
 
-			$sql = '  SELECT DISTINCT schemaid, granted
+			$sql = '  SELECT DISTINCT schemaid, granted, cascades
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 			$where = 'assetid = :assetid';
 			if ($running) {
@@ -99,8 +99,13 @@ class Workflow_Manager extends MySource_Object
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
-				if (!is_null($granted)) {
-					MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
+				if (!is_null($granted) || $running) {
+					if ($running) {
+						$granted_bind = '1';
+					} else {
+						$granted_bind = $granted ? '1' : '0';
+					}
+					MatrixDAL::bindValueToPdo($query, 'granted', $granted_bind, PDO::PARAM_STR);
 				}
 				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
@@ -125,6 +130,65 @@ class Workflow_Manager extends MySource_Object
 
 
 	/**
+	* Get list of schemas for a certain asset, optionally filtered by cascading setting
+	*
+	* This is primarily used for showing settings on the Metadata Schemas
+	* screen.
+	*/
+	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE)
+	{
+		$sql = '  SELECT DISTINCT schemaid, granted, cascades
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
+		$where = 'assetid = :assetid';
+		if (!is_null($schemaid)) {
+			$where .= ' AND schemaid = :schemaid';
+		}
+		if (!is_null($cascades)) {
+			$where .= ' AND cascades = :cascades';
+		}
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
+			if (!is_null($schemaid)) {
+				MatrixDAL::bindValueToPdo($query, 'schemaid', (int)$schemaid, PDO::PARAM_INT);
+			}
+			if (!is_null($cascades)) {
+				MatrixDAL::bindValueToPdo($query, 'cascades', $cascades ? '1' : '0', PDO::PARAM_STR);
+			}
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get asset workflow schemas of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+		}
+
+		$schemas = Array();
+		foreach ($result as $data) {
+			if ($include_cascades) {
+				$schemas[$data['schemaid']] = Array(
+												'granted'	=> $data['granted'],
+												'cascades'	=> $data['cascades'],
+											  );
+			} else {
+				$schemas[$data['schemaid']] = $data['granted'];
+			}
+		}
+
+		// If a schemaid is specified, flatten out array
+		if (!is_null($schemaid)) {
+			if (array_key_exists($schemaid, $schemas)) {
+				$schemas = $schemas[$schemaid];
+			} else {
+				$schemas = Array();
+			}
+		}
+
+		return $schemas;
+
+	}//end getAssetSchemaInfo()
+
+
+	/**
 	* Apply a schema to or Deny from, an asset
 	*
 	* @param int		$assetid	the ID of the asset to set the schema on
@@ -135,7 +199,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setSchema($assetid, $schemaid, $granted, $force_set=FALSE)
+	function setSchema($assetid, $schemaid, $granted, $cascades=TRUE, $force_set=FALSE)
 	{
 		$assetid  = (int)  $assetid;
 		$schemaid = (int)  $schemaid;
@@ -172,12 +236,20 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		// get the current schemas that are set
-		$schemas = $this->getSchemas($assetid);
+		$schema_info = $this->getAssetSchemaInfo($assetid, $schemaid);
+
 		// check if this schema is already set
-		if (isset($schemas[$schemaid])) {
-			if ((bool)$schemas[$schemaid] == $granted) {
+		if (!empty($schema_info)) {
+
+			if ((bool)$schema_info['granted'] == $granted) {
 				// schema is set with same access level
-				return TRUE;
+				if ((bool)$schema_info['cascades'] == $cascades) {
+					// same cascade level too, so no update needed
+					return TRUE;
+				} else {
+					// same access level, but different cascade, so update it
+					$db_action = 'update';
+				}
 			} else {
 				if ($force_set) {
 					$db_action = 'update';
@@ -208,6 +280,7 @@ class Workflow_Manager extends MySource_Object
 							'schemaid'	=> (string)$schemaid,
 							'wflow'		=> NULL,
 							'granted'	=> $granted ? '1' : '0',
+							'cascades'	=> $cascades ? '1' : '0',
 						 );
 			MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 		} catch (DALException $e) {
