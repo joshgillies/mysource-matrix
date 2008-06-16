@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.58 2007/11/23 00:01:58 bshkara Exp $
+* $Id: hipo_job_create_links.inc,v 1.59 2008/06/16 07:07:55 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1377,9 +1377,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		if (!empty($diff)) return FALSE;
 
 		// Metadata Schemas
+		// Compare all schemas applied with the cascadable schemas of the parent
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemas = $mm->getSchemas($assetid);
-		$pschemas = $mm->getSchemas($parentid);
+		$schemas = $mm->getSchemas($assetid, NULL, NULL);
+		$pschemas = $mm->getSchemas($parentid, NULL, TRUE);
 		$diff = array_diff_assoc($pschemas, $schemas);
 		if (!empty($diff)) return FALSE;
 
@@ -1474,12 +1475,13 @@ class HIPO_Job_Create_Links extends HIPO_Job
 												'granted'			=> $granted,
 												'userid'			=> $userid,
 												'previous_access'	=> NULL,
+												'assets'			=> array_keys($this->_running_vars['assets']),
+												'cascades'			=> TRUE,
 											);
 			}
 		}
 
 		$running_vars['permission_changes'] = $permission_vars;
-		$running_vars['assets'] = $this->_running_vars['assets'];
 
 	}//end cascadePermissions()
 
@@ -1533,13 +1535,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		foreach ($schemas as $schemaid => $granted) {
 			$schema_vars[] = Array(
+								'assetids'			=> array_keys($this->_running_vars['assets']),
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
+								'cascades'			=> TRUE,
 								'previous_access'	=> NULL,
 							 );
 		}
 		$running_vars['schema_changes'] = $schema_vars;
-		$running_vars['assets'] = $this->_running_vars['assets'];
 
 	}//end cascadeWorkflow()
 
