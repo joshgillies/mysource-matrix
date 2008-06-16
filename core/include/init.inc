@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.106 2008/05/14 01:26:53 hnguyen Exp $
+* $Id: init.inc,v 1.107 2008/06/16 06:42:44 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix
 */
 
@@ -66,7 +66,9 @@ if (!SQ_PHP_CLI) {
 }
 
 // This sets the default timezone so date functions don't throw E_STRICT.
-date_default_timezone_set(SQ_CONF_TIMEZONE);
+if (defined('SQ_CONF_TIMEZONE')) {
+	date_default_timezone_set(SQ_CONF_TIMEZONE);
+}
 
 // include installation key if it exists
 if (file_exists(SQ_DATA_PATH.'/private/conf/licence.inc')) {
