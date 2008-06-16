@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593.2.10 2008/05/12 04:47:01 lwright Exp $
+* $Id: asset.inc,v 1.593.2.11 2008/06/16 05:40:28 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593.2.10 $
+* @version $Revision: 1.593.2.11 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4677,6 +4677,10 @@ class Asset extends MySource_Object
 	{
 		$paths = $this->getWebPaths();
 
+		// Get ready to log what happens
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['design_lookups']);
 		$GLOBALS['SQ_SYSTEM']->am->clearLookupsCache($this->id);
@@ -4997,6 +5001,17 @@ class Asset extends MySource_Object
 
 						}//end foreach
 
+						// Send a message to tell everyone the good news
+						$msg = $ms->newMessage();
+						$msg->subject = 'Asset Lookups Updated';
+						$msg->type = 'asset.lookups.updated';
+						$msg_reps = Array(
+										'asset_name'	=> $this->name,
+									);
+						$msg->replacements = $msg_reps;
+						$msg->parameters['assetid'] = $this->id;
+						$msg->send();
+
 					}//end for paths
 				}//end for parent_urls
 			}//end for parents
@@ -5037,6 +5052,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
+		$ms->closeLog();
 
 		return TRUE;
 
