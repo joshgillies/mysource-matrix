@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.14 2008/05/30 06:32:41 bshkara Exp $
+* $Id: asset_manager.inc,v 1.571.2.15 2008/06/17 00:58:26 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.14 $
+* @version $Revision: 1.571.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5950,6 +5950,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function setPermission($assetid, $userid, $permission, $granted, $force_set=FALSE)
 	{
+		$userid		= (string) $userid;
 		$permission = (int)  $permission;
 		$granted    = (bool) $granted;
 		$db_action  = 'insert';
