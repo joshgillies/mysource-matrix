@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_workflow_schema.inc,v 1.9 2008/06/16 06:52:58 lwright Exp $
+* $Id: trigger_action_set_workflow_schema.inc,v 1.10 2008/06/17 01:13:31 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a workflow schema
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,7 +156,7 @@ class Trigger_Action_Set_Workflow_Schema extends Trigger_Action
 
 				echo '<br />';
 				check_box($prefix.'[cascade_to_new]', '1', $cascade_to_new);
-				label(translate('cascade_schema_changes_to_new_children');, $prefix.'[cascade_to_new]');
+				label(translate('cascade_schema_changes_to_new_children'), $prefix.'[cascade_to_new]');
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
