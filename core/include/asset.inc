@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.650 2008/06/16 07:07:55 lwright Exp $
+* $Id: asset.inc,v 1.651 2008/06/18 23:12:40 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.650 $
+* @version $Revision: 1.651 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2018,7 +2018,7 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('workflow')) {
 				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				// Get all schemas that are set to cascade down to new assets
-				$schemas = $wfm->getSchemas($this->id, NULL, TRUE);
+				$schemas = $wfm->getSchemas($this->id, NULL, FALSE, TRUE);
 				foreach ($schemas as $schemaid => $granted) {
 					if (!$wfm->setSchema($clone->id, $schemaid, $granted, TRUE, $override)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
