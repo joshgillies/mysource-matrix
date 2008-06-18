@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.19 2008/06/16 06:56:43 lwright Exp $
+* $Id: trigger_action_set_permission.inc,v 1.20 2008/06/18 05:23:50 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,9 +100,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$hipo_assets = Array();
 		foreach ($target_assets as $assetid => $asset) {
-			$hipo_assets[$assetid] = Array(
-										'type_code'	=> $asset->type(),
-									 );
+			$hipo_assets[] = $assetid;
 		}
 		$vars['permission_changes'] = Array(
 										$settings['permission']	=> Array(
@@ -112,7 +110,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 																		'previous_access'	=> NULL,
 																		'dependants_only'	=> $dependant_only,
 																		'cascades'			=> $cascade_to_new,
-																		'assets'			=> $hipo_assets,
+																		'assetids'			=> $hipo_assets,
 																	),
 																   ),
 									  );
@@ -127,7 +125,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 				'userid'		=> $userid,
 				'permission'	=> $settings['permission'],
 				'granted'		=> $granted,
-				'cascades'		=> $cascades,
+				'cascades'		=> $cascade_to_new,
 			   );
 
 	}//end execute()
