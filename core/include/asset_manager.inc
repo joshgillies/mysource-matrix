@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.694 2008/06/16 06:56:42 lwright Exp $
+* $Id: asset_manager.inc,v 1.695 2008/06/18 23:13:06 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.694 $
+* @version $Revision: 1.695 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6515,7 +6515,7 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setPermission($assetid, $userid, $permission, $granted, $cascades, $force_set=FALSE)
+	function setPermission($assetid, $userid, $permission, $granted, $cascades=TRUE, $force_set=FALSE)
 	{
 		$permission = (int)  $permission;
 		$granted    = (bool) $granted;
