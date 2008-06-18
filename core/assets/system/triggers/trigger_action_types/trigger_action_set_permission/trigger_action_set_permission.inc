@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.20 2008/06/18 05:23:50 lwright Exp $
+* $Id: trigger_action_set_permission.inc,v 1.21 2008/06/18 23:34:52 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -103,16 +103,15 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			$hipo_assets[] = $assetid;
 		}
 		$vars['permission_changes'] = Array(
-										$settings['permission']	=> Array(
-																	Array(
-																		'granted'			=> $granted,
-																		'userid'			=> $userid,
-																		'previous_access'	=> NULL,
-																		'dependants_only'	=> $dependant_only,
-																		'cascades'			=> $cascade_to_new,
-																		'assetids'			=> $hipo_assets,
-																	),
-																   ),
+											Array(
+												'permission'		=> $settings['permission'],
+												'granted'			=> $granted,
+												'userid'			=> $userid,
+												'previous_access'	=> NULL,
+												'dependants_only'	=> $dependant_only,
+												'cascades'			=> $cascade_to_new,
+												'assetids'			=> $hipo_assets,
+											),
 									  );
 		$vars['dependants_only'] = $dependant_only;
 
