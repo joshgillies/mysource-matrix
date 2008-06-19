@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.21 2007/12/04 05:35:35 lwright Exp $
+* $Id: bodycopy_table.inc,v 1.22 2008/06/19 22:48:59 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,6 +93,34 @@ class Bodycopy_Table extends Bodycopy_Container
 
 
 	/**
+	* Get the content type asset attached to this table
+	*
+	* @return Content_Type
+	* @access public
+	*/
+	public function getContentType()
+	{
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO || !isset($this->_tmp['content_type'])) {
+			unset($this->_tmp['content_type']);
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'content_type', FALSE, 'major', '', TRUE, TRUE);
+			if (is_array($link) && !empty($link)) {
+				foreach ($link as $id => $type_link) {
+					$this->_tmp['content_type'][$id] = $GLOBALS['SQ_SYSTEM']->am->getAsset($type_link['minorid'], $type_link['minor_type_code']);
+					if (is_null($this->_tmp['content_type'][$id])) {
+						echo translate('content_type_not_found', $type_link['minorid']);
+					}
+				}//end foreach
+			} else {
+				$null = NULL;
+				$this->_tmp['content_type'] = $null;
+			}
+		}
+		return $this->_tmp['content_type'];
+
+	}//end getContentType()
+
+
+	/**
 	* Queue the setting of the value of an attribute
 	*
 	* This needs to be overridden in this case because our 'rows' attribute contains
@@ -142,6 +170,7 @@ class Bodycopy_Table extends Bodycopy_Container
 		if (isset($map[$this->id])) {
 			$child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->id, SQ_LINK_TYPE_2);
 			$new_clone = $GLOBALS['SQ_SYSTEM']->am->getAsset($map[$this->id]);
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_clone->id, 'attributes');
 
 			if (!$new_clone->remapTableLinks($map, $child_links)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -149,6 +178,7 @@ class Bodycopy_Table extends Bodycopy_Container
 				return FALSE;
 			}
 
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_clone->id, 'attributes');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_clone);
 		}
 
