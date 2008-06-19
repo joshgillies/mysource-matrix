@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_schema.inc,v 1.10 2007/12/02 23:18:56 bshkara Exp $
+* $Id: trigger_action_set_metadata_schema.inc,v 1.11 2008/06/19 06:24:02 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata schema
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,6 +70,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 
 		$granted = array_get_index($settings, 'granted', TRUE);
 		$cascade = array_get_index($settings, 'cascade', FALSE);
+		$cascade_to_new = array_get_index($settings, 'cascade_to_new', TRUE);
 
 		$schema = $am->getAsset($settings['schemaid']);
 		if (is_null($schema)) return FALSE;
@@ -77,19 +78,16 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 
 
 		if (!$cascade) {
-			$result = $mm->setSchema($state['asset']->id, $schema->id, $granted);
+			$result = $mm->setSchema($state['asset']->id, $schema->id, $granted, $cascade_to_new);
 		} else {
 			$schema_vars[]	= Array(
+								'assetids'			=> Array($state['asset']->id),
 								'granted'			=> $granted,
 								'schemaid'			=> $settings['schemaid'],
+								'cascades'			=> $cascade_to_new,
 								'previous_access'	=> NULL,
 							  );
 			$vars	= Array(
-						'assets'			=> Array(
-												$state['asset']->id	=> Array(
-																		'type_code'	=> $state['asset']->type(),
-																	   ),
-											   ),
 						'schema_changes'	=> $schema_vars,
 					  );
 
@@ -128,6 +126,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 		$current_schemaid = array_get_index($settings, 'schemaid', 0);
 		$granted = array_get_index($settings, 'granted', 1);
 		$cascade = array_get_index($settings, 'cascade', FALSE);
+		$cascade_to_new = array_get_index($settings, 'cascade_to_new', TRUE);
 
 		$options = Array(
 					TRUE	=> translate('apply'),
@@ -144,6 +143,9 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 				echo '<br />';
 				check_box($prefix.'[cascade]', '1', $cascade);
 				label(translate('cascade_schema_changes'), $prefix.'[cascade]');
+				echo '<br />';
+				check_box($prefix.'[cascade_to_new]', '1', $cascade_to_new);
+				label(translate('cascade_schema_changes_to_new_children'), $prefix.'[cascade_to_new]');
 
 			} else {
 				if (!empty($current_schemaid)) {
@@ -157,6 +159,9 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 				echo '<br />';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
 				echo translate('cascade_schema_changes');
+				echo '<br />';
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
+				echo translate('cascade_schema_changes_to_new_children');
 			}
 
 			$output = ob_get_contents();
@@ -184,6 +189,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 		$settings['schemaid'] = array_get_index($schema_info, 'assetid', 0);
 		$settings['granted'] = array_get_index($request_data, 'granted', TRUE);
 		$settings['cascade'] = array_get_index($request_data, 'cascade', FALSE);
+		$settings['cascade_to_new'] = array_get_index($request_data, 'cascade_to_new', TRUE);
 		return FALSE;
 
 	}//end processInterface()
