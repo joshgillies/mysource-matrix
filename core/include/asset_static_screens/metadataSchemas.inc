@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.26 2008/06/16 06:54:41 lwright Exp $
+* $Id: metadataSchemas.inc,v 1.27 2008/06/19 06:22:07 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -279,6 +279,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 			if ($cascade_changes && isset($post_data['new']['cascades'])) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array(
+									'assetids'			=> Array($owner->id),
 									'granted'			=> (int)$post_data['new']['granted'],
 									'schemaid'			=> (int)$post_data['new']['schemaid']['assetid'],
 									'cascades'			=> (int)(isset($post_data['new']['cascades']) ? 1 : 0),
@@ -301,6 +302,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 			if ($cascade_changes && $schema_info['cascades']) {
 				$current_access = $schema_info['granted'];
 				$schema_vars[] = Array(
+									'assetids'			=> Array($owner->id),
 									'granted'			=> -1,
 									'schemaid'			=> $schemaid,
 									'previous_access'	=> $current_access,
@@ -328,6 +330,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 		$schemas = $mm->getAssetSchemaInfo($owner->id, NULL, TRUE);
 		foreach ($schemas as $schemaid => $schema_info) {
 			$schema_vars[] = Array(
+								'assetids'			=> Array($owner->id),
 								'granted'			=> $schema_info['granted'],
 								'cascades'			=> TRUE,
 								'schemaid'			=> $schemaid,
@@ -339,7 +342,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 
 	if (!empty($schema_vars)) {
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
+		$vars = Array('schema_changes' => $schema_vars);
 		$hh->queueHipo('hipo_job_edit_metadata_schemas', $vars);
 	}
 

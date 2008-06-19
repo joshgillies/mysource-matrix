@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.60 2008/06/16 07:13:25 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.61 2008/06/19 06:23:27 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1505,8 +1505,10 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 		foreach ($schemas as $schemaid => $granted) {
 			$schema_vars[] = Array(
+								'assetids'			=> array_keys($this->_running_vars['assets']),
 								'granted'			=> $granted,
 								'schemaid'			=> $schemaid,
+								'cascades'			=> TRUE,
 								'previous_access'	=> NULL,
 							 );
 		}
