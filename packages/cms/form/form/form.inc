@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178.2.5 2008/06/12 02:09:08 gsherwood Exp $
+* $Id: form.inc,v 1.178.2.6 2008/06/19 22:47:42 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178.2.5 $
+* @version $Revision: 1.178.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1183,33 +1183,30 @@ class Form extends Asset implements Bridge
 				if (!empty($bodycopy)) {
 					$containers = $bodycopy->getContainers();
 					foreach ($containers as $container) {
-						$content_type = $container->getContentType();
-						$old_html = $content_type->attr('html');
-						if (!empty($old_html)) {
-							$new_html = $content_type->attr('html');
-							foreach ($originals_clones as $original_clone) {
-								// Replace the old question id with the new question id
-								foreach ($replace_keywords as $keyword) {
-									if ($keyword == 'section_title') {
-										$new_html = str_replace($keyword.'_'.$original_clone['original'], $keyword.'_'.$original_clone['clone'], $new_html);
-									} else {
-										$new_html = str_replace($keyword.'_'.$original_clone['original'].'_q', $keyword.'_'.$original_clone['clone'].'_q', $new_html);
-									}
+						if ($container->type() == 'bodycopy_table') {
+							$content_type = $container->getContentType();
+							if (is_array($content_type)) {
+								foreach ($content_type as $cell_type) {
+									if (!$this->_cloneDIVContents($cell_type)) {
+										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+										$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+										return FALSE;
+									}//end if
 								}//end foreach
-							}//end foreach
-
-							if (!$content_type->setAttrValue('html', $new_html)) {
+							} else {
+								if (!$this->_cloneDIVContents($content_type)) {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+									$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+									return FALSE;
+								}//end if
+							}//end if
+						} else {
+							$content_type = $container->getContentType();
+							if (!$this->_cloneDIVContents($content_type)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 								return FALSE;
 							}//end if
-
-							if (!$content_type->saveAttributes()) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-								return FALSE;
-							}//end if
-
 						}//end if
 					}//end foreach
 				}//end if
@@ -1224,6 +1221,44 @@ class Form extends Asset implements Bridge
 		return TRUE;
 
 	}//end cloneComponentsAdditional()
+
+
+	/**
+	* Clone the contents div assets
+	*
+	* @param object	$content_type	The content type asset to be cloned
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _cloneDIVContents($content_type)
+	{
+		$old_html = $content_type->attr('html');
+		if (!empty($old_html)) {
+			$new_html = $content_type->attr('html');
+			foreach ($originals_clones as $original_clone) {
+				// Replace the old question id with the new question id
+				foreach ($replace_keywords as $keyword) {
+					if ($keyword == 'section_title') {
+						$new_html = str_replace($keyword.'_'.$original_clone['original'], $keyword.'_'.$original_clone['clone'], $new_html);
+					} else {
+						$new_html = str_replace($keyword.'_'.$original_clone['original'].'_q', $keyword.'_'.$original_clone['clone'].'_q', $new_html);
+					}
+				}//end foreach
+			}//end foreach
+
+			// Save and check for errors, the rollback occurs above
+			if (!$content_type->setAttrValue('html', $new_html)) {
+				return FALSE;
+			}//end if
+
+			if (!$content_type->saveAttributes()) return FALSE;
+
+		}//end if
+
+		return TRUE;
+
+	}//end _cloneDIVContents()
 
 
 //--       BODYCOPIES       --//
