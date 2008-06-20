@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_management.inc,v 1.15 2008/06/20 06:09:07 bpearson Exp $
+* $Id: metadata_field_select_management.inc,v 1.16 2008/06/20 06:21:12 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,12 +75,6 @@ class Metadata_Field_Select_Management extends Asset_Management
 												'added'			=> '0.3',
 												'type'			=> 'boolean',
 												'default'		=> TRUE,
-												'parameters'	=> Array('allow_empty' => FALSE,),
-											   ),
-						'empty_text'		=> Array(
-												'added'			=> '0.3',
-												'type'			=> 'text',
-												'default'		=> '-- LEAVE EMPTY --',
 												'parameters'	=> Array('allow_empty' => FALSE,),
 											   ),
 					  );

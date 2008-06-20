@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.22 2008/06/20 06:09:07 bpearson Exp $
+* $Id: metadata_field_select.inc,v 1.23 2008/06/20 06:21:12 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,6 @@ class Metadata_Field_Select extends Metadata_Field
 		$selection->_params['options'] = $this->attr('select_options');
 		$selection->_params['multiple'] = $this->attr('multiple');
 		$selection->_params['allow_empty'] = $this->attr('allow_empty');
-		$selection->_edit_params['empty_text'] = $this->attr('empty_text');
 
 		$default = $this->attr('default');
 		if ($this->attr('multiple')) {

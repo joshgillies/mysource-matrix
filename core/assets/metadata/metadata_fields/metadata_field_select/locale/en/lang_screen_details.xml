@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2008/06/20 06:09:07 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.7 2008/06/20 06:21:12 bpearson Exp $
 *
 */
 -->
@@ -88,10 +88,6 @@
 		<field attribute="visible_part">
 			<display_name>Frontend Part</display_name>
 			<note>%description%</note>
-		</field>
-		<field attribute="empty_text">
-			<display_name>Empty Text</display_name>
-			<note>If 'Allow Empty Option' is enabled, this text will be added as the empty option</note>
 		</field>
 	</section>
 </contents>
