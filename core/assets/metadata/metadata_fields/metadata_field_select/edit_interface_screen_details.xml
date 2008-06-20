@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2006/12/06 01:07:35 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.13 2008/06/20 06:09:07 bpearson Exp $
 *
 */
 -->
@@ -71,6 +71,9 @@
 		</field>
 		<field attribute="visible_part">
 			<selection style="boxes" columns="1" extras="" />
+		</field>
+		<field attribute="empty_text">
+			<text width="30" />
 		</field>
 	</section>
 </contents>
