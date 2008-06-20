@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.37.2.2 2008/05/11 23:32:26 lwright Exp $
+* $Id: remap_manager.inc,v 1.37.2.3 2008/06/20 04:52:42 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37.2.2 $
+* @version $Revision: 1.37.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -262,25 +262,26 @@ class Remap_Manager extends Asset
 
 			$bind_vars = Array();
 
+			// This sub-query gets all URLs for this asset that have HTTP enabled
+			// and adds http protocol to them to create a usable URL - then same
+			// or similar for HTTPS enabled.
 			$sql = 'SELECT url, expires
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
-			$where = 'remap_url IN (';
+			$union_select = '(SELECT
+								(\'http://\' || url)
+							FROM sq_ast_lookup
+							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('http = 1
+								AND assetid = :assetid').')
+							UNION
+							(SELECT
+								(\'https://\' || url)
+							FROM sq_ast_lookup
+							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('https = 1
+								AND assetid = :assetid_1').')';
 
-			foreach ($urls as $url_key => $url) {
-				if ($url['http'] == 1) {
-					$where .= ':http_url_'.$url_key.', ';
-					$bind_vars['http_url_'.$url_key] = 'http://'.$url['url'];
-				}
-				if ($url['https'] == 1) {
-					$where .= ':https_url_'.$url_key.', ';
-					$bind_vars['https_url_'.$url_key] = 'https://'.$url['url'];
-				}
-
-			}//end for
-
-			$where = substr($where, 0, strlen($where) - 2);
-			$where .= ')';
-
+			$bind_vars['assetid'] = $asset->id;
+			$bind_vars['assetid_1'] = $asset->id;
+			$where = 'remap_url IN ('.$union_select.')';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
