@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.30 2007/02/07 23:22:45 tbarrett Exp $
+* $Id: remap_manager.inc,v 1.30.4.1 2008/06/20 05:19:14 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,7 +183,7 @@ class Remap_Manager extends Asset
 			trigger_localised_error('CORE0093', E_USER_WARNING);
 			return 0;
 		}
-		
+
 		$old_url = strip_url($old_url);
 		$new_url = strip_url($new_url);
 
@@ -273,20 +273,18 @@ class Remap_Manager extends Asset
 
 			$sql = 'SELECT url, expires
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
-			$where = 'remap_url IN (';
-
-			foreach ($urls as $url) {
-				if ($url['http'] == 1) {
-					$where .= $db->quote('http://'.$url['url']).', ';
-				}
-				if ($url['https'] == 1) {
-					$where .= $db->quote('https://'.$url['url']).', ';
-				}
-
-			}//end for
-
-			$where = substr($where, 0, strlen($where) - 2);
-			$where .= ')';
+			$union_select = '(SELECT
+								(\'http://\' || url)
+							FROM sq_ast_lookup
+							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('http = 1
+								AND assetid = '.$db->quoteSmart($asset->id)).')
+							UNION
+							(SELECT
+								(\'https://\' || url)
+							FROM sq_ast_lookup
+							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('https = 1
+								AND assetid = '.$db->quoteSmart($asset->id)).')';
+			$where = 'remap_url IN ('.$union_select.')';
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
