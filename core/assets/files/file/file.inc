@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.164.2.3 2008/03/19 05:56:18 hnguyen Exp $
+* $Id: file.inc,v 1.164.2.4 2008/06/23 22:51:16 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.3 $
+* @version $Revision: 1.164.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1311,7 +1311,8 @@ class File extends Asset
 	public function getAssetFileSizeInBytesKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
-		return $existing['size'];
+		$size = (isset($existing['size'])) ? $existing['size'] : 0;
+		return $size;
 
 	}//end getAssetFileSizeInBytesKeywordReplacement()
 
@@ -1325,7 +1326,8 @@ class File extends Asset
 	public function getAssetFileSizeReadableKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
-		return easy_filesize($existing['size']);
+		$size = (isset($existing['size'])) ? $existing['size'] : 0;
+		return easy_filesize($size);
 
 	}//end getAssetFileSizeReadableKeywordReplacement()
 
