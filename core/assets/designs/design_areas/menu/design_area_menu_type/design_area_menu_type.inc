@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.95 2007/12/17 03:44:39 colivar Exp $
+* $Id: design_area_menu_type.inc,v 1.95.2.1 2008/06/23 00:22:32 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.95.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,7 +121,22 @@ class Design_Area_Menu_Type extends Design_Area
 				default :
 					$value = (int) $value;
 			}// end switch
+		} else if (($name == 'unwanted_asset_types') && is_scalar($value)) {
+			$sub_menu_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', FALSE, 'sub_menu');
+			// Update sub menu attributes too
+			if (!empty($sub_menu_link)) {
+				$smenu = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_menu_link['minorid'], $sub_menu_link['minor_type_code'], TRUE);
+				$smenu->setAttrValue('unwanted_asset_types', $value);
+				$smenu->saveAttributes();
+			}//end foreach
 
+			$value = preg_split('/[ ,]+/', (string)$value);
+			foreach ($value as $type_code) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
+					return FALSE;
+				}//end if
+			}//end foreach
 		}// end if
 
 		return parent::setAttrValue($name, $value);
@@ -771,6 +786,28 @@ class Design_Area_Menu_Type extends Design_Area
 				foreach ($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).']['.$this->_tmp['parent_assetid_name'].'] as $'.$this->attr('id_name').'_row) {
 					$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
 				?', '>';
+
+				$unwanted_types = $this->attr('unwanted_asset_types');
+				$all_type_codes = Array();
+				foreach ($unwanted_types as $type) {
+					if (!empty($type)) {
+						$all_type_codes = array_merge($all_type_codes, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE));
+					}
+				}
+				$unwanted_types = $all_type_codes;
+
+				if (!empty($unwanted_types)) {
+					$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
+					// We are sub menu
+					if (!is_null($parent_menu)) {
+						echo '<? if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
+					} else {
+						$sub_level_menu	= ($this->attr('level') == -2) ? 'TRUE' : 'FALSE';
+						// We are parents menu / or a single menu, but only restrict when level is children
+						echo '<? if ('.$sub_level_menu.' && in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
+					}//end else
+				}//end if
+
 				if ($this_contents = $this->attr('asset_contents')) {
 					$this->_tmp['outputting_asset_section'] = TRUE;
 					foreach ($this_contents as $item) {
@@ -778,6 +815,7 @@ class Design_Area_Menu_Type extends Design_Area
 					}
 					unset($this->_tmp['outputting_asset_section']);
 				}
+
 
 
 				// if there is a divider to deal with
