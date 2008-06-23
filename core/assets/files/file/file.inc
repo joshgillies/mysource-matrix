@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.149.2.4 2008/03/18 03:19:45 hnguyen Exp $
+* $Id: file.inc,v 1.149.2.5 2008/06/23 22:50:45 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149.2.4 $
+* @version $Revision: 1.149.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1258,8 +1258,8 @@ class File extends Asset
 			$existing['path'] = $path;
 			$existing['modified'] = filemtime($existing['path']);
 			$existing['size'] = filesize($existing['path']);
-			
-			if (isset($existing['filename']) === false) {
+
+			if (isset($existing['filename']) === FALSE) {
 				$existing['filename'] = basename($existing['path']);
 			}//end if
 		}//end if
@@ -1320,7 +1320,8 @@ class File extends Asset
 	function getAssetFileSizeInBytesKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
-		return $existing['size'];
+		$size = (isset($existing['size'])) ? $existing['size'] : 0;
+		return $size;
 
 	}//end getAssetFileSizeInBytesKeywordReplacement()
 
@@ -1334,7 +1335,8 @@ class File extends Asset
 	function getAssetFileSizeReadableKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
-		return easy_filesize($existing['size']);
+		$size = (isset($existing['size'])) ? $existing['size'] : 0;
+		return easy_filesize($size);
 
 	}//end getAssetFileSizeReadableKeywordReplacement()
 
