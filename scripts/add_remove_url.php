@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.6.7 $
+* @version $Revision: 1.1.6.8 $
 * @package MySource_Matrix
 */
 
@@ -309,7 +309,7 @@ Make sure you have all you information you need before Proceeding\n");
 		while (is_null($remove_url)) {
 			$remove_url = get_line('Enter the URL to be removed: ');
 		}
-		$sql_check_remove_url = 'SELECT urlid, assetid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($remove_url).';';
+		$sql_check_remove_url = 'SELECT urlid, assetid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($remove_url);
 		$remove_info = $db->getAssoc($sql_check_remove_url);
 		$remove_urlid = key($remove_info);
 		$remove_assetid = $remove_info[$remove_urlid];
