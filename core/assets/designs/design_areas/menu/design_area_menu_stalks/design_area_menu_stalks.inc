@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.28 2007/12/11 03:29:57 rong Exp $
+* $Id: design_area_menu_stalks.inc,v 1.29 2008/06/23 00:12:27 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,6 +127,15 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			echo 'require_once SQ_FUDGE_PATH.\'/general/general.inc\';';
 		}
 
+		$unwanted_types = $this->attr('unwanted_asset_types');
+		$all_type_codes = Array();
+		foreach ($unwanted_types as $type) {
+			if (!empty($type)) {
+				$all_type_codes = array_merge($all_type_codes, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE));
+			}
+		}
+		$unwanted_types = $all_type_codes;
+
 		echo '
 
 		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $'.$this->attr('id_name').'_base_url, $depth=Array())
@@ -151,7 +160,19 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			$i = 0;
 			foreach ($GLOBALS[\'MENU_DATA\']['.$this->_safeStringLiteral($this->attr('id_name')).'][$parentid] as $'.$this->attr('id_name').'_row) {
 				$i++;
-				$end = ($i == $num_kids);
+				$end = ($i == $num_kids);';
+
+		if (!empty($unwanted_types)) {
+			$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
+			$level_check = '';
+			if ($this->attr('level') == 1) {
+				$level_check	= '$level != '.$this->attr('level').' && ';
+			}//
+			echo '
+				if ('.$level_check.'in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;';
+		}//end if
+
+		echo '
 				// if not live, we have to get the proper object, sorry
 				if (((int) $'.$this->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
 					$'.$this->attr('id_name').'_obj = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_row[\'type_code\']);

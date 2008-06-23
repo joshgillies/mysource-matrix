@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.54 2007/12/17 03:51:26 colivar Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.55 2008/06/23 00:12:27 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -277,9 +277,21 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				return FALSE;
 			}
 		}
+
 		$edit_fns = $sub->getEditFns();
 
-		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) {
+		if (!$edit_fns->_processContents($sub, $contents)) {
+			return FALSE;
+		}
+
+		// We have to set this attribute here between the _processContents function above to make sure this attribute
+		// is not reverted to the default empty array.
+		$unwanted_asset_types_parents = $asset->attr('unwanted_asset_types');
+		if (!empty($unwanted_asset_types_parents)) {
+			$sub->setAttrValue('unwanted_asset_types', $unwanted_asset_types_parents);
+		}//end if
+
+		if (!$sub->saveAttributes()) {
 			return FALSE;
 		}
 
