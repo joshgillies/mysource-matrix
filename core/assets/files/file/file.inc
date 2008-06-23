@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.166 2008/03/17 23:49:39 gsherwood Exp $
+* $Id: file.inc,v 1.167 2008/06/23 22:53:01 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.166 $
+* @version $Revision: 1.167 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1252,7 +1252,7 @@ class File extends Asset
 
 			if (isset($existing['filename']) === false) {
 				$existing['filename'] = basename($existing['path']);
-			}
+			}//end if
 		}
 
 		return $existing;
@@ -1311,7 +1311,8 @@ class File extends Asset
 	public function getAssetFileSizeInBytesKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
-		return $existing['size'];
+		$size = (isset($existing['size'])) ? $existing['size'] : 0;
+		return $size;
 
 	}//end getAssetFileSizeInBytesKeywordReplacement()
 
@@ -1325,7 +1326,8 @@ class File extends Asset
 	public function getAssetFileSizeReadableKeywordReplacement()
 	{
 		$existing = $this->getExistingFile();
-		return easy_filesize($existing['size']);
+		$size = (isset($existing['size'])) ? $existing['size'] : 0;
+		return easy_filesize($size);
 
 	}//end getAssetFileSizeReadableKeywordReplacement()
 
