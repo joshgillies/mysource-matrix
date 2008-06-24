@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.52 2007/12/14 00:33:32 rong Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.53 2008/06/24 01:51:43 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,9 +81,19 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell">
-						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="raw"<?php if ($paint_with == 'raw') { ?> checked="checked"<?php } ?>> Raw (no Paint Layout)<br/>
-						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="default"<?php if ($paint_with == 'default') { ?> checked="checked"<?php } ?>> Using default Paint Layout (based on lookup rules)<br/>
-						<input name="<?php echo $prefix; ?>_paint_with" type="radio" value="arbitrary"<?php if ($paint_with == 'arbitrary') { ?> checked="checked"<?php } ?>> Using an arbitrary Paint Layout: <?php asset_finder($prefix.'_paint_with_layout', $paint_layout_id, Array('paint_layout_page' => 'D')); ?><br/>
+							<?php
+							radio_button($prefix.'_paint_with', 'raw', ($paint_with == 'raw' ? 1 : 0));
+							label('Raw (no Paint Layout)', $prefix.'_paint_with_raw');
+							?><br/>
+							<?php
+							radio_button($prefix.'_paint_with', 'default', ($paint_with == 'default' ? 1 : 0));
+							label('Using default Paint Layout (based on lookup rules)', $prefix.'_paint_with_default');
+							?><br/>
+							<?php
+							radio_button($prefix.'_paint_with', 'arbitrary', ($paint_with == 'arbitrary' ? 1 : 0));
+							label('Using an arbitrary Paint Layout: ', $prefix.'_paint_with_arbitrary');
+							asset_finder($prefix.'_paint_with_layout', $paint_layout_id, Array('paint_layout_page' => 'D'));
+							?>
 						</td>
 					</tr>
 				</table>
