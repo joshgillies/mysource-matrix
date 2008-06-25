@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.202.2.5 2008/06/25 03:39:16 bpearson Exp $
+* $Id: page_calendar.inc,v 1.202.2.6 2008/06/25 22:55:40 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.202.2.5 $
+* @version $Revision: 1.202.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -865,7 +865,7 @@ class Page_Calendar extends Page
 						$tag_attrs = Array();
 						$classes = Array('date');
 						if (sprintf('%04d-%02d-%02d', $year, $current_month, $current_day) == $today_iso) {
-							$classes[] = 'today"';
+							$classes[] = 'today';
 						}
 						if (in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun'))) {
 							$classes[] = 'weekend';
@@ -884,7 +884,7 @@ class Page_Calendar extends Page
 					// print blank days after the end of our month
 					while ($i < 37) {
 						?>
-						<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp</td>
+						<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
 						<?php
 						$i++;
 					}
@@ -1236,7 +1236,7 @@ class Page_Calendar extends Page
 			foreach ($events as $day_date => $day_events) {
 				$_REQUEST['SQ_CALENDAR_DATE'] = $day_date;
 				uasort($events[$day_date], Array('Calendar_Common', 'compareStartDates'));
-				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date.'"">' : '');
+				echo '<h3>'.(($enabled_views['day']) ? '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=day&amp;SQ_CALENDAR_DATE='.$day_date.'">' : '');
 				echo date($day_heading_format, strtotime($day_date));
 				echo (($enabled_views['day']) ? '</a>' : '').'</h3>';
 				if ($list_entry_types['week'] == 'title') {
@@ -1430,29 +1430,33 @@ class Page_Calendar extends Page
 	*/
 	function _getTitleList($events)
 	{
-		$res = '<ul>';
-		foreach ($events as $id => $data) {
-			$real_id = strtok($id, ':');
-			$res .= '<li>';
-			$event_date = sprintf('%04d-%02d-%02d', $data['start_date_year'], $data['start_date_mon'], $data['start_date_mday']);
-			$event_url = $this->_getEventLinkHref($real_id, $event_date);
-			if ($event_url) $res .= '<a href="'.$event_url.'">';
+		$res = '';
+		if (!empty($events)) {
+			$res = '<ul>';
+			foreach ($events as $id => $data) {
+				$real_id = strtok($id, ':');
+				$res .= '<li>';
+				$event_date = sprintf('%04d-%02d-%02d', $data['start_date_year'], $data['start_date_mon'], $data['start_date_mday']);
+				$event_url = $this->_getEventLinkHref($real_id, $event_date);
+				if ($event_url) $res .= '<a href="'.$event_url.'">';
 
-			$current_view = htmlentities($_REQUEST['SQ_CALENDAR_VIEW']);
-			switch ($current_view) {
-				case 'week':
-				case 'month':
-				case 'day':
-					$res .= $this->_getEventLabel($current_view, $data);
-				break;
-				default:
-					$res .= $data['name'];
-				break;
+				$current_view = htmlentities($_REQUEST['SQ_CALENDAR_VIEW']);
+				switch ($current_view) {
+					case 'week':
+					case 'month':
+					case 'day':
+						$res .= $this->_getEventLabel($current_view, $data);
+					break;
+					default:
+						$res .= $data['name'];
+					break;
+				}
+				if ($event_url) $res .= '</a>';
+				$res .= '</li>';
 			}
-			if ($event_url) $res .= '</a>';
-			$res .= '</li>';
-		}
-		$res .= '</ul>';
+			$res .= '</ul>';
+		}//end if
+
 		return $res;
 
 	}//end _getTitleList()
