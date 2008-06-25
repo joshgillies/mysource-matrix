@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.202.2.4 2008/05/22 01:56:20 bpearson Exp $
+* $Id: page_calendar.inc,v 1.202.2.5 2008/06/25 03:39:16 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.202.2.4 $
+* @version $Revision: 1.202.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2306,9 +2306,9 @@ class Page_Calendar extends Page
 				return '';
 			break;
 			case 'single_event_view':
-				$res = $this->getURL().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$eventid;
+				$res = $this->getURL().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$eventid;
 				if (!empty($res) && !is_null($date)) {
-					$res .= '&SQ_CALENDAR_DATE='.$date;
+					$res .= '&amp;SQ_CALENDAR_DATE='.$date;
 				}
 			break;
 			case 'event_itself':
