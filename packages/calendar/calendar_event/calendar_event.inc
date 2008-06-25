@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.83.2.2 2008/03/12 04:04:18 lwright Exp $
+* $Id: calendar_event.inc,v 1.83.2.3 2008/06/25 22:57:58 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.83.2.2 $
+* @version $Revision: 1.83.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -878,7 +878,7 @@ class Calendar_Event extends Asset
 				if (empty($total_time)) $total_time = 'N/A';
 				return $total_time;
 			case 'edit_link':
-				return $this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">'.translate('cal_event_edit_link_text').'</a>' : '';
+				return $this->writeAccess('') ? '<a href="'.htmlentities(replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id))).'">'.translate('cal_event_edit_link_text').'</a>' : '';
 			case 'delete_link':
 				return $this->_getDeleteLink();
 			default:
