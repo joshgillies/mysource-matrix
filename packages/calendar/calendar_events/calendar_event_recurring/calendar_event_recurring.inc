@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.85.2.1 2008/02/01 03:56:42 lmarchese Exp $
+* $Id: calendar_event_recurring.inc,v 1.85.2.2 2008/06/26 00:00:54 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.85.2.1 $
+* @version $Revision: 1.85.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -926,6 +926,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 					if (!empty($_REQUEST['SQ_CALENDAR_DATE'])) {
 						$res = replace_query_string_vars(Array('SQ_CALENDAR_DATE' => $_REQUEST['SQ_CALENDAR_DATE']), $res);
 					}
+
+					// Produce some valid XHTML
+					$res = htmlentities($res);
+
 					return $res;
 				}
 
