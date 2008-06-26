@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.152 2007/06/08 01:48:50 hnguyen Exp $
+* $Id: backend_outputter.inc,v 1.152.2.1 2008/06/26 05:10:52 bpearson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.152.2.1 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -973,11 +973,17 @@ class Backend_Outputter
 
 			// Add IE6-specific styles if main frame AND "lock commit button to frame" preference turned on
 			if ((array_get_index($_GET, 'SQ_BACKEND_PAGE') == 'main') && SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
-			?>
-			<!--[if lte IE 7]>
-				<link href="<?php echo $this->filesPath('css/edit_ie6.css') ?>" type="text/css" rel="stylesheet" />
-			<![endif]-->
-			<?php
+
+				// Bug #3096 - Printing incorrectly in IE
+				// Associated with the CSS involved with hanging the Commit Button to the bottom of the page
+				// If print_view is not enabled show the commit button code
+				if (!isset($_REQUEST['print_view'])) {
+				?>
+				<!--[if lte IE 7]>
+					<link href="<?php echo $this->filesPath('css/edit_ie6.css') ?>" type="text/css" rel="stylesheet" />
+				<![endif]-->
+				<?php
+				}//end if
 			}
 
 			// first add the js translation files
