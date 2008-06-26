@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_trim.inc,v 1.3 2008/04/18 00:02:57 gsherwood Exp $
+* $Id: data_source_trim.inc,v 1.4 2008/06/26 04:17:17 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -226,11 +226,14 @@ class Data_Source_TRIM extends Data_Source
 		$authen_info	= Array (
 							'login'		=> $this->attr('username'),
 							'password'	=> $this->attr('password'),
+							'trace'		=> '1',
+							'exception'	=> '1',
 						  );
 
 			  $client = new SoapClient($this->attr('wsdl'), $authen_info);
 
 			// We need to convert the TRIM Execute object to XML, so we can swap the elements.
+
 			$xml = $client->ConvertToXml($Execute);
 
 			// Now we have to swap Fetch and RecordSearch element, because RecordSearch element has to
@@ -297,7 +300,7 @@ class Data_Source_TRIM extends Data_Source
 		$search_clause	= Array (
 							'StartTime'	=> $start_time,
 							'EndTime'	=> $end_time,
-							'Type'		=> $type,
+							'Type'		=> array_pop($type),
 						  );
 
 		return $search_clause;
@@ -468,6 +471,224 @@ class Data_Source_TRIM extends Data_Source
 
 
 	/**
+	* This function find the Location URI of the a particular user based on username in TRIM.
+	*
+	* @param string	$assignee_name	The name of the current user who is creating the record
+	*
+	* @return int
+	* @access public
+	*/
+	public function executeGetAssigneeRequest($assignee_name)
+	{
+        $Execute    = Array (
+                        'req'   => $this->constructTrimRequest(),
+                      );
+
+		// BEGIN GET ASSIGNEE URI
+        $LocationStringSelect			 = Array (
+											'Arg'					=> $assignee_name,
+											'HideActiveLocations'	=> FALSE,
+											'HideInactiveLocations'	=> FALSE,
+											'HideInternalLocations'	=> FALSE,
+											'HideExternalLocations'	=> FALSE,
+											'HideAdhocLocations'	=> FALSE,
+											'TargetForUpdate'		=> FALSE,
+											'IsForUpdate'			=> FALSE,
+											'Limit'					=> 20,
+										   );
+		// END GET ASSIGNEE URI
+		$FetchInjectionUriLocationId	= Array (
+											'Id'					=> 'LocationId',
+											'TargetForUpdate'		=> FALSE,
+										  );
+
+		$Execute['req']['FetchInjectionUri']		= $FetchInjectionUriLocationId;
+		$Execute['req']['LocationStringSelect']		= $LocationStringSelect;
+
+        $authen_info    = Array (
+                            'login'     => $this->attr('username'),
+                            'password'  => $this->attr('password'),
+                            'trace'     => '1',
+                            'exception' => '1',
+                          );
+
+        $client = new SoapClient($this->attr('wsdl'), $authen_info);
+
+        $xml = $client->ConvertToXml($Execute);
+        $xml = $this->SwapElement($xml->ConvertToXmlResult, 'FetchInjectionUri', 'LocationStringSelect');
+        $data = $client->ExecuteXml(Array('xml' => $xml));
+
+        $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
+        $trim_userid = 0;
+        if ((string) $return_xml->SearchResult->FoundCount > 0) {
+        	$trim_userid = (string) $return_xml->FetchInjectionUriResult->Uri;
+        }//end if
+
+        return $trim_userid;
+
+	}//end executeGetAssigneeRequest()
+
+
+	/**
+	* This function create a record in TRIM.
+	*
+	* @param string	$username	The username of the user who is creating the TRIM document
+    * @param array  &$link  	information used to create the initial link<br/>
+    * <pre>
+    * Array (
+    *        'record_title'		=> [The title of the new record]
+    *        'record_type'   	=> [some kind of record type (document)],
+    * 		 'record_notes'   	=> [Notes attached with the record],
+    *        'parent_container'	=> [15331],
+    * 		 'securiry_level'	=> [The security level of the new document],
+    *        )
+    * </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	public function executeCreateRequest($username, $new_record_info)
+	{
+		// Check Whether the username exists in TRIM
+		$trim_userid = $this->executeGetAssigneeRequest($username);
+		if (!$trim_userid) {
+			trigger_error('There is no record for username :'.$username.' in TRIM', E_USER_WARNING);
+			return FALSE;
+		}//end if
+
+
+		// BEGIN GET RECORD TYPE "document" URI
+		$RecordTypeStringSelect			= Array (
+											'Arg'   			=> $new_record_info['record_type'],
+											'Id'    			=> 'recordtype',
+											'TargetForUpdate'	=> FALSE,
+											'IsForUpdate'		=> FALSE,
+											'Limit'				=> 10,
+											'BehaviorFilter'	=> ucwords($new_record_info['record_type']),
+											'TypeFilter'		=> 'All',
+										  );
+
+		$FetchInjectionUriRecordType	= Array (
+											'Id'				=> 'recordtype',
+											'TargetForUpdate'	=> FALSE,
+										  );
+		// END GET RECORD TYPE "document" URI
+
+
+		$operations		= Array (
+							'Create'	=> $this->constructCreate($new_record_info['parent_container'], $new_record_info['record_title'], $trim_userid, $new_record_info['securiry_level'], $new_record_info['record_notes'], $new_record_info['additional_fields']),
+						  );
+
+		$data	= NULL;
+		try {
+			$Execute	= Array (
+							'req'		=> $this->constructTrimRequest(),
+						  );
+
+			$Execute['req']								= array_merge($Execute['req'], $operations);
+			$Execute['req']['RecordTypeStringSelect']	= $RecordTypeStringSelect;
+			$Execute['req']['FetchInjectionUri']		= $FetchInjectionUriRecordType;
+
+	        $authen_info    = Array (
+	                            'login'     => $this->attr('username'),
+	                            'password'  => $this->attr('password'),
+	                            'trace'     => '1',
+	                            'exception' => '1',
+	                          );
+
+			$client = new SoapClient($this->attr('wsdl'), $authen_info);
+
+			$xml = $client->ConvertToXml($Execute);
+			$xml = $this->SwapElement($xml->ConvertToXmlResult, 'Create', 'RecordTypeStringSelect');
+
+			$data = $client->ExecuteXml(Array('xml'	=> $xml));
+
+		} catch (SoapFault $e) {
+			print 'The request failed due to the following error: '. $e->faultstring;
+		}//end try catch
+
+		$new_record_uri	= 0;
+		if (!empty($data)) {
+			$return_xml	= new SimpleXMLElement((string) $data->ExecuteXmlResult);
+			$new_record_uri = (string) $return_xml->FetchResult->Objects->TrimObject->attributes()->Uri;
+		}//end if
+
+		return $new_record_uri;
+
+	}//end executeCreateRequest
+
+
+	/**
+	* This function is used to create new TRIM record
+	*
+	* @return array
+	* @access public
+	*/
+	public function constructCreate($container, $title, $author, $securiry_level, $note='', $additional_fields)
+	{
+		$record_type				= Array (
+										'Name'	=> 'recRecordType',
+										'Val'	=> 'inject:recordtype',
+									  );
+		$container					= Array (
+										'Name'	=> 'recContainer',
+										'Val'	=> $container,
+									  );
+		$record_title				= Array (
+										'Name'	=> 'recTitle',
+										'Val'	=> $title,
+									  );
+		$record_security_profile	= Array (
+										'Name'	=> 'recSecurity',
+										'Val'	=> $securiry_level,	// Unrestricted = 10
+									  );
+		$record_assignee			= Array (
+										'Name'	=> 'recCurrentLoc',
+										'Val'	=> $author,
+									  );
+		$record_author				= Array (
+										'Name'	=> 'recAuthorLoc',
+										'Val'	=> $author,
+									  );
+		$record_note				= Array (
+										'Name'	=> 'recNotes',
+										'Val'	=> $note,
+									  );
+
+		$create						= Array (
+										'Saving'					=> TRUE,
+										'VerifyAndCreateWarning'	=> FALSE,
+
+										'TargetForUpdate'			=> TRUE,
+										'Items'						=> Array (
+																		'InputProperty'	=> Array (
+																								$record_type,
+																								$record_title,
+																								$record_assignee,
+																								$container,
+																								$record_security_profile,
+																								$record_author,
+																								$record_note,
+																						   ),
+																	  ),
+										'TrimObjectType'			=> "record",
+									  );
+
+		foreach ($additional_fields as $field_name	=> $value) {
+			$new_input_property		= Array (
+										'Name'	=> $field_name,
+										'Val'	=> $value,
+									  );
+			$create['Items']['InputProperty'][]	= $new_input_property;
+		}//end if
+
+
+		return $create;
+
+	}//end constructCreate()
+
+
+	/**
 	* construct an array to represent the Upload object in the WSDL
 	*
 	* @param string	$record_properties	The base64 encoded content of the file.
@@ -518,19 +739,21 @@ class Data_Source_TRIM extends Data_Source
 		$ele_2b = '<'.$ele_2.'>';
 		$ele_2e = '</'.$ele_2.'>';
 
-		$ele_1b_pos = strpos($xml, $ele_1b);
-		$first_part = substr($xml, 0, $ele_1b_pos);
-		$ele_1_part = substr($xml, $ele_1b_pos, strpos($xml, $ele_1e) + strlen($ele_1e) - $ele_1b_pos);
+		$match_1	= Array();
+		preg_match('/\<'.$ele_1.'\>([^"]*)\<\/'.$ele_1.'\>/', $xml, $match_1);
+		$part_1 = $match_1[0];
 
-		$ele_2e_pos = strpos($xml, $ele_2e);
-		$ele_2b_pos = strpos($xml, $ele_2b);
+		$match_2	= Array();
+		preg_match('/\<'.$ele_2.'\>([^"]*)\<\/'.$ele_2.'\>/', $xml, $match_2);
+		$part_2 = $match_2[0];
 
-		$ele_2_part = substr($xml, $ele_2b_pos, $ele_2e_pos + strlen($ele_2e) - $ele_2b_pos);
-		$second_part= substr($xml, $ele_2e_pos + strlen($ele_2e));
+		$xml	= preg_replace('/\<'.$ele_1.'\>([^"]*)\<\/'.$ele_1.'\>/', 'PART_2', $xml);
+		$xml	= preg_replace('/\<'.$ele_2.'\>([^"]*)\<\/'.$ele_2.'\>/', 'PART_1', $xml);
 
-		$xml_result = $first_part . $ele_2_part . $ele_1_part . $second_part;
+		$xml	= str_replace('PART_2', $part_2, $xml);
+		$xml	= str_replace('PART_1', $part_1, $xml);
 
-		return $xml_result;
+		return $xml;
 
 	}//end SwapElement
 
