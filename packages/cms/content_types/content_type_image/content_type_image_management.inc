@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_management.inc,v 1.6 2008/06/18 01:00:49 lwright Exp $
+* $Id: content_type_image_management.inc,v 1.7 2008/06/26 04:23:21 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -84,12 +84,13 @@ class Content_Type_Image_Management extends Asset_Management
 			if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
 				include SQ_DATA_PATH.'/private/conf/preferences.inc';
 
-				$preferences['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default']['html_layout'] = 'table';
-				$preferences['SQ_CONTENT_TYPE_IMAGE_FIELDS']['default']['html_layout'] = TRUE;
-				$preferences['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['image_div'] = 'image_div';
-				$preferences['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['caption_div'] = 'caption_div';
-				$preferences['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['image_div'] = 'preview_image_div';
-				$preferences['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['close_preview_div'] = 'close_preview_div';
+				$type_code = $this->getAssetType();
+				$preferences[$type_code]['SQ_CONTENT_TYPE_IMAGE_DEFAULTS']['default']['html_layout'] = 'table';
+				$preferences[$type_code]['SQ_CONTENT_TYPE_IMAGE_FIELDS']['default']['html_layout'] = TRUE;
+				$preferences[$type_code]['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['image_div'] = 'image_div';
+				$preferences[$type_code]['SQ_CONTENT_TYPE_IMAGE_CLASSES']['default']['caption_div'] = 'caption_div';
+				$preferences[$type_code]['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['image_div'] = 'preview_image_div';
+				$preferences[$type_code]['SQ_CONTENT_TYPE_IMAGE_PREVIEW']['default']['close_preview_div'] = 'close_preview_div';
 
 				// save the updated preferences file
 				$str = '<'.'?php $preferences = '.var_export($preferences, TRUE).'; ?'.'>';
