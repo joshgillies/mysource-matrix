@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71 2007/12/05 22:39:03 rong Exp $
+* $Id: bulk_mailer.inc,v 1.72 2008/06/27 01:48:46 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -286,12 +286,19 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
-							$content = $this->generateContent($details, $job_path, $user_id);
-							$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
-							$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
+							$content = $this->generateContent($details, $job_path, $user_id, $email);
+							if (is_array($email)) {
+								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $email);
+							} else {
+								$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
+								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
+							}//end if
+
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? TRUE : FALSE;
 							if (!$problematic) {
+								// Check that the email is not the email address array
+								if (is_array($email)) $email = $email['email'];
 								$mime->setHTMLBody($content);
 								$body = @$mime->get();
 								// pass in custom_id as extra header details, for queue file naming
@@ -303,10 +310,10 @@ class Bulk_Mailer
 							$this->updateProgress($progress_path, $user_id, $problematic);
 							$this->enforceSendRate($details['threshold'], $progress_path);
 							exit;
-						}
-					}
+						}//end if
+					}//end if
 
-				}
+				}//end foreach
 
 				$status = $mail_queue->sendMailsInQueue();
 				if ($status instanceof PEAR_Error) {
@@ -482,37 +489,59 @@ class Bulk_Mailer
 		$recipients_expanded = Array();
 		$problematic_list = Array();
 
-		foreach ($recipients as $recipient_id) {
-			$recipient = $am->getAsset($recipient_id);
-			if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
-				// expand user group
-				$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
-				$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
+		foreach ($recipients as $recipient_key => $recipient_id) {
+			// Test for email address
+			if (isset($recipient_id['email']) && preg_match('/(.*)\@(.*)/is', $recipient_id['email'])) {
+				$recipients_expanded[$recipient_key] = $recipients[$recipient_key];
 			} else {
-				// add single recipient
-				$recipients_expanded[$recipient->id] = $recipient->type();
-			}
-			$am->forgetAsset($recipient);
-		}
+				// Otherwise it should be an asset id
+				$recipient = $am->getAsset($recipient_id);
+				if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
+					// expand user group
+					$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
+					$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
+				} else {
+					// add single recipient
+					$recipients_expanded[$recipient->id] = $recipient->type();
+				}
+				$am->forgetAsset($recipient);
+			}//end if
+		}//end foreach
 
 		$recipients = Array();
 		$recipients_query = Array();
 		$permission_denied = $am->getPermission($asset_to_send_id, SQ_PERMISSION_READ, FALSE, FALSE);
+		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		$public_user_id = $public_user->id;
 		for ($recipients_expanded; NULL != ($recipient_id = key($recipients_expanded)); next($recipients_expanded)) {
-			if (!in_array($recipient_id, $permission_denied)) {
+			if (!in_array($recipient_id, $permission_denied) && !is_array($recipients_expanded[$recipient_id])) {
 				$recipient_id_parts = explode(':', $recipient_id);
 				if (isset($recipient_id_parts[1])) {
 					$recipient = $am->getAsset($recipient_id);
 					$recipients[$recipient->id] = $recipient->attr('email');
 					$am->forgetAsset($recipient);
 				} else {
+					// Only do assets here
 					$recipients_query[] = $recipient_id;
+				}//end if
+			} else if (!in_array($public_user_id, $permission_denied)) {
+				// Make sure the public user has access, then process the email addresses
+				if (isset($recipients_expanded[$recipient_id]['email']) && preg_match('/(.*)\@(.*)/is', $recipients_expanded[$recipient_id]['email'])) {
+					// Do the email addresses here
+					$recipients[] = Array(
+										'assetid'		=> $recipient_id,
+										'custom_val'	=> Array(
+															'first_name'	=> $recipients_expanded[$recipient_id]['first_name'],
+															'last_name'		=> $recipients_expanded[$recipient_id]['last_name'],
+															'email'			=> $recipients_expanded[$recipient_id]['email'],
+														   ),
+									);
 				}
 			} else {
 				// read access denied for this recipient
 				$problematic_list[] = $recipient_id;
-			}
-		}
+			}//end if
+		}//end for
 
 		$query_result = Array();
 		if (!empty($recipients_query)) {
@@ -522,7 +551,7 @@ class Bulk_Mailer
 				$bind_vars['recipient_list'] = $recipients_query;
 				$query_result = MatrixDAL::executeAssoc('bulkmail_package', 'getAllRecipients', $bind_vars);
 			} catch (Exception $e) {
-				throw new Exception("Unable to get recipient list due to database error: ".$e->getMessage());
+				throw new Exception('Unable to get recipient list due to database error: '.$e->getMessage());
 			}
 		}
 
@@ -544,24 +573,34 @@ class Bulk_Mailer
 	* Used in previewing mail and sending actual bmail (use each user or one user)
 	* Pre-selected user is used when we cannot login bulkmail_users
 	*
-	* Can be called statically (eg from bulkmail_job)
-	*
 	* @param array	$job_details	Details of the job
 	* @param string	$job_path		path to the effective job data dir
 	* @param int	$recipient_id	the recipient of this email, empty is for preview mail
+	* @param array	$email			the email of the recipient (or the email details), empty is for preview mail
 	*
 	* @return string
 	* @access public
 	*/
-	public static function generateContent($job_details, $job_path, $recipient_id=NULL)
+	public function generateContent($job_details, $job_path, $recipient_id=NULL, $email=NULL)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (!empty($recipient_id)) {
-			$recipient = $am->getAsset($recipient_id);
+			if (!is_null($email) && is_array($email)) {
+				$recipient = Array($recipient_id => $email);
+			} else {
+				$recipient = $am->getAsset($recipient_id);
+			}
 		} else {
 			$recipient = $GLOBALS['SQ_SYSTEM']->user;
-		}
+		}//end if
+
+		// Create an instance of the job to load the content
+		if (isset($job_details['job_id']) && !empty($job_details['job_id'])) {
+			$job = $am->getAsset($job_details['job_id']);
+		} else {
+			$job = NULL;
+		}//end if
 
 		if (($job_details['content_gen'] == 'one_user') || ($recipient instanceof Bulkmail_User)) {
 
@@ -582,13 +621,17 @@ class Bulk_Mailer
 				}
 
 				// Do the actual generation
-				$content = Bulk_Mailer::generateRawContent($job_details);
+				if (is_null($job)) {
+					$content = Bulk_Mailer::generateRawContent($job_details);
+				} else {
+					$content = $job->generateRawContent($job_details, $recipient);
+				}//end if
 
 				// Log out generator
 				$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
-				// Save to cache, unless previewing
-				if (!empty($recipient_id)) {
+				// Save to cache, unless previewing or not sending to actual users
+				if (!empty($recipient_id) || !($recipient instanceof Bulkmail_User)) {
 					string_to_file($content, $job_path.'/cache/content_file.html');
 				}
 
@@ -598,6 +641,17 @@ class Bulk_Mailer
 		} else {
 
 			// We are generating content on a per-recipient basis
+			// If the recipient is a non-user, we ask for the Raw Content based on the recipient passed
+			if (is_array($recipient)) {
+				// Do the actual generation
+				if (is_null($job)) {
+					$content = Bulk_Mailer::generateRawContent($job_details);
+				} else {
+					$content = $job->generateRawContent($job_details, $recipient);
+				}//end if
+
+				return Bulk_Mailer::replaceContentKeywords($content, $recipient);
+			}//end if
 
 			// Make the recipient the current user, unless we are previewing (empty recipient id)
 			// in which case the current user is already the recipient
@@ -609,14 +663,18 @@ class Bulk_Mailer
 			}
 
 			// Do the actual generation
-			$content = Bulk_Mailer::generateRawContent($job_details);
+			if (is_null($job)) {
+				$content = Bulk_Mailer::generateRawContent($job_details);
+			} else {
+				$content = $job->generateRawContent($job_details, $recipient);
+			}//end if
 
 			// If we logged in the recipient, log them out again
 			if (!empty($recipient_id)) {
 				$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 			}
 
-		}
+		}//end else
 
 		return Bulk_Mailer::replaceContentKeywords($content, $recipient);
 
@@ -638,9 +696,7 @@ class Bulk_Mailer
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$page = $am->getAsset($details['content_id']);
-		if (empty($page)) {
-			return '';
-		}
+		if (empty($page)) return '';
 
 		$design_id = array_get_index($details, 'content_design');
 		$layout_id = array_get_index($details, 'content_layout');
@@ -687,13 +743,26 @@ class Bulk_Mailer
 		foreach ($keywords as $word) {
 			if (0 === strpos($word, 'recipient_')) {
 				$user_keyword = substr($word, 10);
-				$user_replacement = $user->getKeywordReplacement($user_keyword);
-				if ($user_replacement == "%$user_keyword%") {
-					// Unknown user keyword, do not replace
-					$keyword_replacements[$word] = "%$word%";
+				if (is_array($user)) {
+					// Process based on the first name, last name and email address supplied
+					foreach ($user as $user_login => $user_details) {
+						if ($user_keyword == 'login') {
+							$keyword_replacements[$word] = $user_login;
+						} else if (isset($user_details[$user_keyword])) {
+							$keyword_replacements[$word] = $user_details[$user_keyword];
+						} else {
+							$keyword_replacements[$word] = "%$word%";
+						}//end if
+					}//end foreach
 				} else {
-					$keyword_replacements[$word] = $user_replacement;
-				}
+					$user_replacement = $user->getKeywordReplacement($user_keyword);
+					if ($user_replacement == "%$user_keyword%") {
+						// Unknown user keyword, do not replace
+						$keyword_replacements[$word] = "%$word%";
+					} else {
+						$keyword_replacements[$word] = $user_replacement;
+					}
+				}//end if
 			} else {
 				$keyword_replacements[$word] = '';
 			}

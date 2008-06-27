@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.49 2007/12/05 03:31:41 rong Exp $
+* $Id: bulkmail_manager.inc,v 1.50 2008/06/27 01:48:47 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -388,9 +388,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		try {
 				$bind_vars = Array(
-							'status'	=> $state,
-							'job_id'	=> $job_id,
-						 );
+								'status'	=> $state,
+								'job_id'	=> $job_id,
+						 	 );
 			$result = MatrixDAL::executeOne('bulkmail_package', 'updateJob', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception("Unable to update bulkmail job (#$job_id) due to database error: ".$e->getMessage());
@@ -471,7 +471,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			$path = $post_office->data_path.'/.data/'.$job_id_parts[1];
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
 		} else {
-			$job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id, 'bulkmail_job');
+			$job = $GLOBALS['SQ_SYSTEM']->am->getAsset($job_id);
 			$post_office = $job->getPostOffice();
 			$path = $post_office->data_path.'/.data/'.$job_id;
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
@@ -586,6 +586,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	function generateJobDetails($job, $post_office)
 	{
 		$details_info = Array();
+
+		// Pass the ID of the Job, so we can load the job back up to generate the content
+		$details_info['job_id'] = $job->id;
 
 		foreach ($job->vars as $var_name  => $var_info) {
 			switch ($var_name) {
@@ -731,17 +734,26 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 			// check recipient read access (not expanding groups)
 			$problematic_list = Array();
 			$permission_denied = $GLOBALS['SQ_SYSTEM']->am->getPermission($details_info['content_id'], SQ_PERMISSION_READ, FALSE, FALSE);
-			foreach ($recipients as $recipient_id) {
-				// get parent user group and get the effective permission on the asset to send
-				$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($recipient_id, 'user_group', FALSE);
-				$ids[$recipient_id] = 'recipient_id';
-				if (!$content_page->readAccess(array_keys($ids))) {
-					$problematic_list[] = $recipient_id;
-				}
-				if (in_array($recipient_id, $permission_denied)) {
-					$problematic_list[] = $recipient_id;
-				}
-			}
+			$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+			$public_user_id = $public_user->id;
+			foreach ($recipients as $recipient_key => $recipient_id) {
+				if (isset($recipient_id['email']) && preg_match('/(.*)\@(.*)/is', $recipient_id['email'])) {
+					// If the recipient is an email address, check for public permission
+					if (!$content_page->readAccess(Array($public_user_id))) {
+						$problematic_list[] = $recipients[$recipient_key];
+					}//end if
+				} else {
+					// get parent user group and get the effective permission on the asset to send
+					$ids = $GLOBALS['SQ_SYSTEM']->am->getParents($recipient_id, 'user_group', FALSE);
+					$ids[$recipient_id] = 'recipient_id';
+					if (!$content_page->readAccess(array_keys($ids))) {
+						$problematic_list[] = $recipient_id;
+					}
+					if (in_array($recipient_id, $permission_denied)) {
+						$problematic_list[] = $recipient_id;
+					}
+				}//end if
+			}//end foreach
 			if (!empty($problematic_list)) {
 				asort($problematic_list);
 				$errors[] = translate('bm_warning_recipient_no_read_access', $content_page->name, $content_page->id, implode(', ', $problematic_list));

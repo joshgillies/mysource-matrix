@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.36 2007/12/05 03:31:41 rong Exp $
+* $Id: bulkmail_job.inc,v 1.37 2008/06/27 01:48:46 bpearson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -108,7 +108,8 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		// generate content as pre-selected user
 		$data_dir = $post_office->data_path.'/.data/'.$this->id;
 		require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
-		$content = Bulk_Mailer::generateContent($details_info, $data_dir);
+		$bm = new Bulk_Mailer();
+		$content = $bm->generateContent($details_info, $data_dir);
 
 		// get header details, required and normal headers
 		$use_post_office_header = $this->attr('use_post_office_header');
@@ -136,7 +137,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		$subject = Bulk_Mailer::replaceContentKeywords($subject, $GLOBALS['SQ_SYSTEM']->user);
 
 		$header_details['subject'] = $subject;
-		$header_details['To'] = $recipient; //FR: 2515
+		$header_details['To'] = $recipient; // FR: 2515
 
 		// add 'Preview' to the subject header for preview mails
 		if (!empty($header_details['subject'])) {
@@ -192,6 +193,45 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 		return parent::processStatusChange($new_status, $update_parents);
 
 	}//end processStatusChange()
+
+
+	/**
+	* Generate the raw content to be sent, ignoring user switching and recpient keyword replacement
+	*
+	* @param array	$details	The details of the job
+	*
+	* @return string
+	* @access public
+	*/
+	public function generateRawContent($details)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$page = $am->getAsset($details['content_id']);
+		if (empty($page)) return '';
+
+		$design_id = array_get_index($details, 'content_design');
+		$layout_id = array_get_index($details, 'content_layout');
+
+		ob_start();
+			// generate content based on design and paint layout supplied
+			if ($design_id && $layout_id) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
+				$design = $am->getAsset($design_id);
+				$design->paint($page);
+			} else if ($design_id) {
+				$design = $am->getAsset($design_id);
+				$design->paint($page);
+			} else if ($layout_id) {
+				$layout = $am->getAsset($layout_id);
+				$layout->paint($page);
+			} else {
+				@$page->printFrontend();
+			}
+			$content = ob_get_contents();
+		ob_end_clean();
+		return $content;
+
+	}//end generateRawContent()
 
 
 }//end class

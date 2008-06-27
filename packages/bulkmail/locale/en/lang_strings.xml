@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.34 2008/06/13 01:41:23 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.35 2008/06/27 01:48:47 bpearson Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -143,4 +143,8 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_no_subscription_no_unsubscription">No subscription/unsubscription selected</string>
 	<string source="bm_username_invalid">Username provided is invalid</string>
 
+	<string source="bjm_first_name">First Name</string>
+	<string source="bjm_last_name">Last Name</string>
+	<string source="bjm_email">Email</string>
+	<string source="bjm_delete">Delete</string>
 </strings>
