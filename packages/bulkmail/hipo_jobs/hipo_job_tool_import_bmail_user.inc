@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_import_bmail_user.inc,v 1.6 2007/12/05 03:31:41 rong Exp $
+* $Id: hipo_job_tool_import_bmail_user.inc,v 1.6.2.1 2008/06/27 01:48:56 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -243,7 +243,7 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 			$bind_vars['email'] = $email;
 			$assetid = MatrixDAL::executeOne('bulkmail_package', 'getExistingBmailUser', $bind_vars);
 		} catch (Exception $e) {
-			throw new Exception("Unable to get existing bulkmail user due to database error: ".$e->getMessage());
+			throw new Exception('Unable to get existing bulkmail user due to database error: '.$e->getMessage());
 		}
 
 		$user = NULL;
