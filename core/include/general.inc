@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.192 2008/04/16 03:49:51 bpearson Exp $
+* $Id: general.inc,v 1.193 2008/06/29 22:33:24 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.192 $
+* @version $Revision: 1.193 $
 * @package MySource_Matrix
 */
 
@@ -1558,6 +1558,17 @@ function replace_global_keywords(&$text)
 						$replacements[$keyword] =  $user_replacement;
 					}
 				}
+				if (0 === strpos($keyword, 'globals_get_')) {
+					$sub_keyword = substr($keyword, 12);
+					$keyword_value = array_get_index($_GET, $sub_keyword, '');
+
+					// Only scalars are accepted
+					if (!is_scalar($keyword_value)) {
+						$replacements[$keyword] = '';
+					} else {
+						$replacements[$keyword] = $keyword_value;
+					}
+				}
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
 					$asset_url = current_url(FALSE, TRUE);
@@ -1741,7 +1752,7 @@ function do_redirect($url, $message=NULL, $timeout=0)
 */
 function get_class_lower($object)
 {
-    return strtolower(get_class($object));
+	return strtolower(get_class($object));
 
 }//end get_class_lower()
 
