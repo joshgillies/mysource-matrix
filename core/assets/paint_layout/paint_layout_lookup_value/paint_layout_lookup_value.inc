@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.10.2.2 2008/06/30 01:25:22 bshkara Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.10.2.3 2008/06/30 03:36:27 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10.2.2 $
+* @version $Revision: 1.10.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,9 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();
 
 		$o->openSection(translate('asset_definitions'));
-		$o->openField(translate('summary'));
+
+		if (!empty($lookup_values)) {
+			$o->openField(translate('summary'));
 			?>
 			<table class="sq-backend-table">
 				<tr>
@@ -109,7 +111,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 					$lookup_values[$url][$layout_name]['type'] = $matches[1];
 					$lookup_values[$url][$layout_name]['code'] = $matches[2];
 
-					// don't print user defined paint layouts in the global definitions table
+					// don't print user defined paint layouts in the asset definitions table
 					if ($matches[1] === 'user') continue;
 
 					$effective_layout = $data['value'];
@@ -139,6 +141,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			</table>
 			<?php
 		$o->closeField();
+		}//end if
 
 		$asset_layout = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE, 'paint_layout::system::frontend');
 		$o->openField(translate('layout'));
@@ -180,6 +183,10 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 				</tr>
 			<?php
 
+			if (!isset($lookup_values[$url])) {
+				$lookup_values[$url] = Array(0);
+			}
+
 			foreach ($lookup_values[$url] as $layout_name => $data) {
 				if ($data['type'] === 'user') {
 					// so we know which lookups have user defined layouts for painting the next section
@@ -187,8 +194,10 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 					continue;
 				}
 
-				$display_name = translate('defined_layout_display', ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
-				$display_override_name = translate('defined_override_layout_display', ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
+				$layout_name = empty($layout_name) ? 'paint_layout::system::frontend' : $layout_name;
+
+				$display_name = translate('defined_layout_display', empty($data['type']) ? translate('system') : $data['type'], ucwords(str_replace('_', ' ', $data['code'])));
+				$display_override_name = translate('defined_override_layout_display', empty($data['type']) ? translate('system') : $data['type'], ucwords(str_replace('_', ' ', $data['code'])));
 
 				// to prevent overwriting inherited values unless a valid change was made
 				hidden_field($prefix.'['.$url.']['.$layout_name.'][value][original]', $data['value']);
