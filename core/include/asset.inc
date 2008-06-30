@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.8 2008/06/16 05:46:36 bpearson Exp $
+* $Id: asset.inc,v 1.633.2.9 2008/06/30 01:25:23 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.8 $
+* @version $Revision: 1.633.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2559,8 +2559,9 @@ class Asset extends MySource_Object
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(
-									'image'		=> Array('card' => 1, 'exclusive' => FALSE),
-									'design'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'image'				=> Array('card' => 1, 'exclusive' => FALSE),
+									'design'			=> Array('card' => 'M', 'exclusive' => FALSE),
+									'paint_layout_page'	=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
 			   );
 
@@ -4697,7 +4698,6 @@ class Asset extends MySource_Object
 
 			$db = MatrixDAL::getDb();
 
-			// Sort ascending so the override designs overwrite the array index for the normal design in the while loop below
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((l.url LIKE lv.url || \'/%\')
@@ -4707,6 +4707,7 @@ class Asset extends MySource_Object
 			$where = 'l.assetid = :assetid
 						AND lv.name LIKE '.MatrixDAL::quote('design::%');
 
+			// sort ascending so the override designs overwrite the array index for the normal design in the loop below
 			$order_by = ' ORDER BY lv.depth ASC';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
@@ -4746,40 +4747,41 @@ class Asset extends MySource_Object
 	* </PRE>
 	*
 	* @param mixed		$inherited					it takes a mixed argument, boolean or NULL
-	* 												NULL = FALSE = return only values which exist in the lookup value table
-	* 												TRUE = return parents and children
+	* 												NULL = FALSE = return only parent values
+	* 												TRUE = return parents and children values
 	* @param string		$prefix						a prefix to search for in the name field of ast_lookup_value
 	* @param boolean	$like_search				TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
-	* @param boolean	$ignore_override_designs	TRUE = ignore URLs with '/' appended to the end, i.e. URLs with override designs
+	* @param boolean	$ignore_override			TRUE = ignore URLs with '/' appended to the end, i.e. URLs with override designs/layouts
 	* 												applied
-	* 												FALSE = return the URL with all its current design information, i.e. the fact
-	* 												that a URL has an override design applied will be transparent
+	* 												FALSE = return the URL with all its current design/layout information, i.e. the fact
+	* 												that a URL has an override design/layout applied will be transparent
 	*
 	* @return array
 	* @access public
 	*/
-	public function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE, $ignore_override_designs=FALSE)
+	public function getLookupValues($inherited=NULL, $prefix='', $like_search=TRUE, $ignore_override=FALSE)
 	{
 		$db = MatrixDAL::getDb();
 
-		// Return all values in sq_lookup_value, i.e. the parents
-		// Called by updateLookups()
-		// 'inhd' column no longer exists.  Legacy value kept because other classes depend on seeing 'inhd'.
-		$sql_default = 'SELECT l.url, lv.name, lv.value, \'0\' as inhd, lv.depth
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url = lv.url)
-				';
+		// return normal and regular values in sq_lookup_value corresponding exactly to this asset's URL(s), i.e. the parents
+		// called by updateLookups() and by the lookup settings screen
+		// 'inhd' column no longer exists, legacy value kept because other classes depend on seeing 'inhd'.
+		// select the lookup_value's URL column because it will indicate whether the value is an override
+		$sql_default = 'SELECT lv.url, lv.name, lv.value, \'0\' as inhd, lv.depth
+								FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url = lv.url)
+						';
 
 		$include_override = ' OR (l.url || \'/\' = lv.url)';
 
-		$where = 'l.assetid = :assetid';
+		$where = ' l.assetid = :assetid';
 
-		// Return all rows which are children, i.e. they inherit
-		// Called by lookupValues.inc to draw the lookup settings screen
+		// return all rows which are children, i.e. they inherit, override values by definition are not inherited
+		// called by lookupValues.inc to paint the lookup settings screen
 		$sql_inherited = 'SELECT l.url, lv.name, lv.value, \'1\' as inhd, lv.depth
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')
-				';
+								FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')
+						';
 
 		if ($prefix !== '') {
 			$where .= ' AND lv.name '.((!$like_search) ? 'NOT' : '').' LIKE :lookup_value';
@@ -4792,9 +4794,9 @@ class Asset extends MySource_Object
 
 		try {
 			if (!is_null($inherited) && $inherited) {
-				$full_sql =$sql_inherited.$include_override.$where.' UNION '.$sql_default.$where.$sql_order_by;
+				$full_sql = $sql_inherited.$where.' UNION '.$sql_default.$include_override.$where.$sql_order_by;
 			}
-			elseif ($ignore_override_designs) {
+			else if ($ignore_override) {
 				$full_sql = $sql_default.$where;
 			}
 			else {
@@ -4837,7 +4839,7 @@ class Asset extends MySource_Object
 	{
 		$paths = $this->getWebPaths();
 
-		// Get ready to log what happens
+		// get ready to log what happens
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
@@ -4850,7 +4852,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = MatrixDAL::getDb();
 
-		// Remove all the old URLs
+		// retrieve all existing URLs for this asset
 		// include sort order so that we can figure out which one is which
 		$sql = 'SELECT l.url, l.http, l.https, u.urlid
 				FROM sq_ast_lookup l
@@ -4871,7 +4873,7 @@ class Asset extends MySource_Object
 		$this->_tmp['old_urls'] = $old_urls;
 		$parameter['old_urls'] = $old_urls;
 
-		// get all the lookup information that we have set, ignoring designs as they are set on every url
+		// get all the lookup information that we have set (i.e. no inherited values), ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
 
 		$tmp_old_urls = Array();
@@ -4904,7 +4906,7 @@ class Asset extends MySource_Object
 		$old_web_paths = array_unique($old_web_paths);
 
 		// find the differences between the two - from both directions -
-		// and reindex them to they both start from zero
+		// and reindex them so they both start from zero
 		$old_to_new = array_values(array_diff($old_web_paths, $paths));
 		$new_to_old = array_values(array_diff($paths, $old_web_paths));
 
@@ -4913,25 +4915,25 @@ class Asset extends MySource_Object
 		if ((count($old_to_new) == 1) && (count($new_to_old) == 1)) {
 			$web_path_changes[$old_to_new[0]] = $new_to_old[0];
 		} else if ((count($old_to_new) > 1) && (count($new_to_old) > 1)) {
-			// If more than one web path has changed...
-			// If the number of web paths changing are the same, we should
+			// if more than one web path has changed...
+			// if the number of web paths changing are the same, we should
 			for ($i = 0; $i < min(count($old_to_new), count($new_to_old)); $i++) {
 				$web_path_changes[$old_to_new[$i]] = $new_to_old[$i];
 			}
 		}
 
 		if (!empty($current_urls)) {
-			// delete rows which have normal designs applied
+			// delete rows which have normal values applied
 			try {
 				$bind_vars = Array(
 								'urls'	=> $current_urls,
 							 );
 				MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
 			} catch (Exception $e) {
-				throw new Exception('Unable to delete URL from lookup value table due to database error: '.$e->getMessage());
+				throw new Exception('Unable to delete URLs from lookup value table due to database error: '.$e->getMessage());
 			}
 
-			// delete rows which have override designs applied
+			// delete rows which have override values applied
 			for ($i=0; $i<count($current_urls); $i++) {
 				$current_urls[$i] = str_replace('\'', '', $current_urls[$i]);
 				$current_urls[$i] .= '/';
@@ -4942,7 +4944,7 @@ class Asset extends MySource_Object
 							 );
 				MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
 			} catch (Exception $e) {
-				throw new Exception('Unable to delete URLs with overridden designs from lookup value table due to database error: '.$e->getMessage());
+				throw new Exception('Unable to delete URLs with override values from lookup value table due to database error: '.$e->getMessage());
 			}
 
 			try {
@@ -4953,7 +4955,7 @@ class Asset extends MySource_Object
 			}
 		}//end if
 
-		// if we have paths then do some url inserting
+		// if we have paths then do some URL inserting
 		if (!empty($paths)) {
 
 			$num_paths = count($paths);
@@ -4978,8 +4980,30 @@ class Asset extends MySource_Object
 											   );
 				}
 			}
-			unset($link);
 			unset($our_design_links);
+
+			$our_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE);
+			$layouts = Array();
+			foreach ($our_layout_links as $link) {
+				if (preg_match('/^paint_layout::(system|user)::.*$/', $link['value'])) {
+					$layouts[$link['value']] = Array(
+													'value'	=> $link['minorid'],
+												   );
+				}
+			}
+
+			// override layouts take priority over normal, inheritable layouts
+			$override_layouts = Array();
+			foreach ($our_layout_links as $link) {
+				if (preg_match('/^override::paint_layout::system::.*$/', $link['value'])) {
+					$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
+					$override_layouts[$name] = Array(
+												'value'	=> $link['minorid'],
+											   );
+				}
+			}
+			unset($link);
+			unset($our_layout_links);
 
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
 
@@ -4996,9 +5020,7 @@ class Asset extends MySource_Object
 				}
 				$done_parents[] = $parent->id;
 
-				$parent_lookup_values = $parent->getLookupValues();
-
-				$parent_urls    = $parent->getLookups();
+				$parent_urls = $parent->getLookups();
 
 				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
 					for ($k = 0; $k < $num_paths; $k++) {
@@ -5012,8 +5034,8 @@ class Asset extends MySource_Object
 							continue;
 						}
 
-						// check if no other asset is using the new URL
-						$sql = 'SELECT assetid from sq_ast_lookup where url like :new_url escape :escape';
+						// check if another asset is using the new URL
+						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url LIKE :new_url ESCAPE :escape';
 						$existing_asset_with_url_id = NULL;
 						try {
 							$query = MatrixDAL::preparePdoQuery($sql);
@@ -5024,7 +5046,7 @@ class Asset extends MySource_Object
 							throw new Exception('Cannot check if another asset is already using URL "'.$new_url.'": '.$e->getMessage());
 						}
 						if (!empty($existing_asset_with_url_id)) {
-							// if an existing asset has the same url as new URL. Thrown an error and Rollback
+							// if an existing asset has the same url as the new URL throw an error and rollback
 							$existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);
 							trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id[0]]['name'], $existing_asset_with_url_id[0]);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -5055,25 +5077,36 @@ class Asset extends MySource_Object
 						}
 						$new_url_assetids[] = $this->id;
 
+						// holds paint layout values and design values
 						$lookup_values = Array();
+						// holds override paint layout values and override design values
 						$override_lookup_values = Array();
 
+						// look for valid paint layouts to insert or update
 						foreach ($tmp_old_urls as $tmp_old_url) {
 							if ($tmp_old_url['url'] == $new_url) {
 								// exact same URL as before
 								$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+								// look for an override paint layout value
+								$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
 								break;
 							} else if (($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) && ($tmp_old_url['web_path'] == $paths[$k])) {
-								// the same parent URL and the same path
+								// the same parent URL and the same web path
 								$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+								// look for an override paint layout value
+								$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
 								break;
 							} else if ($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) {
-								// If the same parent URL, not the same path, but it's in our change list
+								// same parent URL but different web path so change the affected paint layout entries
 
+								// ensure web path changes are valid
 								if (isset($web_path_changes[$tmp_old_url['web_path']]) && $web_path_changes[$tmp_old_url['web_path']] == $paths[$k]) {
+									// retrieve normal paint layout lookup value
 									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+									// look for an override paint layout value
+									$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
 
-									// update each affected paint layout's url
+									// update each affected paint layout's URL
 									try {
 										$bind_vars	= Array (
 														'url'	=> $tmp_old_url['url'].'%',
@@ -5101,12 +5134,24 @@ class Asset extends MySource_Object
 							}//end if
 						}//end foreach
 
-						// all designs go to all urls (at the moment anyway), so merge them all in
+						// merge in design lookup values with our paint layout lookup values
 						foreach ($our_designs as $name => $data) {
 							$lookup_values[$name] = $data;
 						}
 						foreach ($override_designs as $name => $data) {
 							$override_lookup_values[$name] = $data;
+						}
+
+						// merge in asset based paint layout values if they don't exist currently for this URL
+						foreach ($layouts as $name => $data) {
+							if (!in_array($name, array_keys($lookup_values))) {
+								$lookup_values[$name] = $data;
+							}
+						}
+						foreach ($override_layouts as $name => $data) {
+							if (!in_array($name, array_keys($override_lookup_values))) {
+								$override_lookup_values[$name] = $data;
+							}
 						}
 
 						// calculate the depth of the url
@@ -5156,19 +5201,7 @@ class Asset extends MySource_Object
 
 						}//end foreach
 
-						// Send a message to tell everyone the good news
-						$msg = $ms->newMessage();
-						$msg->subject = 'Asset Lookups Updated';
-						$msg->type = 'asset.lookups.updated';
-
-						$msg_reps = Array(
-										'asset_name'	=> $this->name,
-									);
-						$msg->replacements = $msg_reps;
-						$msg->parameters['assetid'] = $this->id;
-						$msg->send();
-
-						// For override designs
+						// for override values
 						foreach ($override_lookup_values as $name => $data) {
 							try {
 								$bind_vars	= Array (
@@ -5215,6 +5248,18 @@ class Asset extends MySource_Object
 					}//end for paths
 				}//end for parent_urls
 			}//end for parents
+
+			// send a message to tell everyone the good news
+			$msg = $ms->newMessage();
+			$msg->subject = 'Asset Lookups Updated';
+			$msg->type = 'asset.lookups.updated';
+
+			$msg_reps = Array(
+							'asset_name'	=> $this->name,
+						);
+			$msg->replacements = $msg_reps;
+			$msg->parameters['assetid'] = $this->id;
+			$msg->send();
 
 			if (!empty($old_urls)) {
 				if ($auto_add_remaps) {
@@ -5289,21 +5334,30 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// delete all lookup value URLs for this asset, including override values
 		$sql = 'DELETE FROM
 					sq_ast_lookup_value
 				WHERE
 						url IN
 					(
-						SELECT
+						(SELECT
 							url
 						FROM
-							sq_ast_lookup
+							sq_ast_lookup l
 						WHERE
-							assetid = :assetid
+							assetid = :assetid_1)
+						UNION
+						(SELECT
+							url || \'/\'
+						FROM
+							sq_ast_lookup l
+						WHERE
+							assetid = :assetid_2)
 					)';
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'assetid_1', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'assetid_2', $this->id);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete lookup values for asset: '.$this->id.' due to database error: '.$e->getMessage());
@@ -5312,7 +5366,18 @@ class Asset extends MySource_Object
 		$lookups = $this->getLookups('url');
 
 		foreach ($values as $url => $values_data) {
-			if (!in_array($url, $lookups)) continue;
+			// check if this is a valid URL reflected in our lookups table
+			$valid_url = FALSE;
+			foreach ($lookups as $lookup_url) {
+				if ($url === $lookup_url) {
+					// normal value
+					$valid_url = TRUE;
+				} else if ($url === $lookup_url.'/') {
+					// override value
+					$valid_url = TRUE;
+				}
+			}
+			if (!$valid_url) continue;
 			if (empty($values_data)) continue;
 
 			// calculate the depth of the url

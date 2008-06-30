@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.7 2008/05/29 06:45:34 bpearson Exp $
+* $Id: lang_strings.xml,v 1.262.2.8 2008/06/30 01:25:23 bshkara Exp $
 *
 */
 
@@ -1411,12 +1411,20 @@
 	<string source="kewords_for_asset">These keywords have been extracted from the Search Manager's index for %s  and are listed in descending order of importance according to the weightings set. They do not include index entries for metadata fields.</string>
 	<string source="use_keywords_in_metadata_fields">You may copy and paste the contents of the box below into a metadata field if you so wish.</string>
 	<string source="extracted_KLeywords">Extracted Keywords</string>
-	<string source="create_user_defined_layout">Create New User Defined Layout</string>
-	<string source="defined_layout_display">%1$s defined - %2$s layout</string>
-	<string source="inherited">Inherited</string>
 	<string source="click_icon_to_delete">Click on the icon to delete</string>
 	<string source="link_type">Link Type</string>
 	<string source="link_id">Link Id</string>
+
+	<string source="create_user_defined_layout">Create New User Defined Layout</string>
+	<string source="defined_layout_display">%1$s defined - %2$s layout</string>
+	<string source="layout_display">%s Layout</string>
+	<string source="defined_override_layout_display">%1$s defined - %2$s override layout</string>
+	<string source="inherited">Inherited</string>
+	<string source="override">Override</string>
+	<string source="override_layout">Override Layout</string>
+	<string source="asset_definitions">Asset Definitions</string>
+	<string source="url_specific_definitions">URL Specific Definitions</string>
+	<string source="user_defined_layouts">User Defined Layouts</string>
 
 	<string source="rollback_mode_warning_message">The system is as it appeared on %s.&lt;br /&gt;While viewing in rollback mode you cannot make any changes to the system.</string>
 	<string source="exit_rollback_view">Exit Rollback View</string>

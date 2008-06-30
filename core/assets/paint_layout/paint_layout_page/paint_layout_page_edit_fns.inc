@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_page_edit_fns.inc,v 1.11 2007/12/03 05:01:25 lwright Exp $
+* $Id: paint_layout_page_edit_fns.inc,v 1.11.2.1 2008/06/30 01:25:23 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/paint_layout/paint_layout_page/paint_layout_
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -301,6 +301,9 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 		$all_treeids = Array();
 		foreach ($treeids as $assetid => $asset_treeids) {
 			foreach ($asset_treeids[0] as $asset_treeid) {
+				if (($asset_treeid === 'override') || ($asset_treeid === 'not_override')) {
+					continue;
+				}
 				$all_treeids[$asset_treeid] = $assetid;
 			}
 		}
@@ -317,7 +320,6 @@ class Paint_Layout_Page_Edit_Fns extends Page_Standard_Edit_Fns
 			}
 			$res[$treeid]['assetid'] = $assetid;
 			$res[$treeid]['child_count'] = 0;
-
 		}
 		ksort($res); // put in treeid order
 		return $res;

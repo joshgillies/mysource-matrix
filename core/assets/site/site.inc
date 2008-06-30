@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.108.2.4 2008/06/26 00:41:51 bshkara Exp $
+* $Id: site.inc,v 1.108.2.5 2008/06/30 01:25:23 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108.2.4 $
+* @version $Revision: 1.108.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -429,69 +429,40 @@ class Site extends Folder
 			$this->_tmp['deleting_site'] = FALSE;
 		}
 
-		// Remove all the old Design
+		// get all the lookup information that we have set (i.e. no inherited values), ignoring designs as they are set on every url
+		$lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
+
+		// remove all normal and override lookup values for this site
 		$sql = 'DELETE FROM
 					sq_ast_lookup_value
 				WHERE
 					url IN
 						(
-							SELECT
+							(SELECT
 								url
 							FROM
 								sq_ast_lookup l
 							WHERE
-								assetid = :assetid
+								assetid = :assetid_1)
+							UNION
+							(SELECT
+								url || \'/\'
+							FROM
+								sq_ast_lookup l
+							WHERE
+								assetid = :assetid_2)
 						) ';
-					if ($this->_tmp['deleting_site'] == TRUE) {
-						$sql .= 'AND (name LIKE :name OR name LIKE :name_pl)';
-					} else {
-						$sql .= 'AND name LIKE :name';
-					}
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'name', 'design::%');
-			if ($this->_tmp['deleting_site'] == TRUE) {
-				MatrixDAL::bindValueToPdo($query, 'name_pl', 'paint_layout::%');
-			}
-			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'assetid_1', $this->id);
+			MatrixDAL::bindValueToPdo($query, 'assetid_2', $this->id);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
 
-
-		// Remove all the overriden old designs
-		$sql = 'DELETE FROM
-					sq_ast_lookup_value
-				WHERE
-					url IN
-						(
-							SELECT
-								url || \'/\'
-							FROM
-								sq_ast_lookup l
-							WHERE
-								assetid = :assetid
-						) ';
-					if ($this->_tmp['deleting_site'] == TRUE) {
-						$sql .= 'AND (name LIKE :name OR name LIKE :name_pl)';
-					} else {
-						$sql .= 'AND name LIKE :name';
-					}
-
-		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'name', 'design::%');
-			if ($this->_tmp['deleting_site'] == TRUE) {
-				MatrixDAL::bindValueToPdo($query, 'name_pl', 'paint_layout::%');
-			}
-			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
-			MatrixDAL::execPdoQuery($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to remove existing lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
-		}
-
+		// remove lookup information for this asset
 		$sql = 'DELETE FROM
 					sq_ast_lookup
 				WHERE
@@ -504,31 +475,68 @@ class Site extends Folder
 		} catch (Exception $e) {
 			throw new Exception('Unable to remove existing lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 		}
+
 		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', FALSE);
-		$our_designs = Array();
+		$design_lookups = Array();
 		foreach ($our_design_links as $link) {
 			if (preg_match('/^design::(system|user)::(.*)$/', $link['value'])) {
-				$our_designs[$link['value']] = $link['minorid'];
+				$design_lookups[$link['value']] = $link['minorid'];
 			}
 		}
-
-		$our_designs_override = Array();
+		$override_design_lookups = Array();
 		// look for overrides and overwrite the array in these places
 		foreach ($our_design_links as $link) {
 			if (preg_match('/^override::design::(system|user)::(.*)$/', $link['value'])) {
 				$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
-				$our_designs_override[$name] = $link['minorid'];
+				$override_design_lookups[$name] = $link['minorid'];
 			}
 		}
+		unset($our_design_links);
+
+		$our_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE);
+		$paint_layouts = Array();
+		foreach ($our_layout_links as $link) {
+			if (preg_match('/^paint_layout::(system|user)::.*$/', $link['value'])) {
+				$paint_layouts[$link['value']] = Array(
+												'value'	=> $link['minorid'],
+											   );
+			}
+		}
+		// override layouts take priority over normal, inheritable layouts
+		$override_paint_layouts = Array();
+		foreach ($our_layout_links as $link) {
+			if (preg_match('/^override::paint_layout::system::.*$/', $link['value'])) {
+				$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
+				$override_paint_layouts[$name] = Array(
+											'value'	=> $link['minorid'],
+										   );
+			}
+		}
+		unset($link);
+		unset($our_layout_links);
 
 		$urls = $this->getSiteURLs();
 
 		// if we have urls then do some url inserting
 		for (reset($urls); NULL !== ($urlid = key($urls)); next($urls)) {
 
-			// calculate the depth of the url
-			$exploded_url = explode('/', $urls[$urlid]['url']);
-			$site_depth = count($exploded_url)-1;
+			// merge old paint layout lookup values with design values for inserting into the lookup_value table later
+			// i.e. designs are set on an asset basis, not on a URL basis like paint layouts
+			foreach ($design_lookups as $design_name => $value) {
+				$lookup_values[$urls[$urlid]['url']][$design_name]['value'] = $value;
+			}
+			foreach ($override_design_lookups as $override_design_name => $value) {
+				$lookup_values[$urls[$urlid]['url'].'/'][$override_design_name]['value'] = $value;
+			}
+
+			if (!isset($lookup_values[$urls[$urlid]['url']])) {
+				// insert an entry so paint layout values are also checked even if we don't have a design set
+				$lookup_values[$urls[$urlid]['url']] = '';
+			}
+			if (!isset($lookup_values[$urls[$urlid]['url'].'/'])) {
+				// insert an entry so override paint layout values are also checked even if we don't have an override design set
+				$lookup_values[$urls[$urlid]['url'].'/'] = '';
+			}
 
 			$sql = 'INSERT INTO
 						sq_ast_lookup
@@ -559,68 +567,68 @@ class Site extends Folder
 			} catch (Exception $e) {
 				throw new Exception('Unable to insert lookups for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
 			}
+		}
 
-			foreach ($our_designs as $name => $designid) {
-				$sql = 'INSERT INTO
-							sq_ast_lookup_value
-							(
-								url,
-								name,
-								value,
-								depth
-							)
-							VALUES
-							(
-								:url,
-								:name,
-								:value,
-								:depth
-							)';
-
-				try {
-					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, 'url',   $urls[$urlid]['url']);
-					MatrixDAL::bindValueToPdo($query, 'name',  $name);
-					MatrixDAL::bindValueToPdo($query, 'value', $designid);
-					MatrixDAL::bindValueToPdo($query, 'depth', $site_depth);
-					MatrixDAL::execPdoQuery($query);
-				} catch (Exception $e) {
-					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		// merge in asset based paint layout values if they do not already exist
+		foreach ($lookup_values as $url => $data) {
+			if (preg_match('/.+\/$/', $url)) {
+				// override layout
+				foreach ($override_paint_layouts as $name => $value) {
+					if (empty($data)) {
+						$lookup_values[$url][$name] = $value;
+					} else if (!in_array($name, array_keys($data))) {
+						$lookup_values[$url][$name] = $value;
+					}
+				}
+			} else {
+				// normal layout
+				foreach ($paint_layouts as $name => $value) {
+					if (empty($data)) {
+						$lookup_values[$url][$name] = $value;
+					} else if (!in_array($name, array_keys($data))) {
+						$lookup_values[$url][$name] = $value;
+					}
 				}
 			}
+		}
 
-			// add in the ast lookup value table the overriden design
-			foreach ($our_designs_override as $name => $designid) {
-				$sql = 'INSERT INTO
-							sq_ast_lookup_value
-							(
-								url,
-								name,
-								value,
-								depth
-							)
-							VALUES
-							(
-								:url,
-								:name,
-								:value,
-								:depth
-							)';
+		// insert lookup values
+		foreach ($lookup_values as $url => $data) {
+			// calculate the depth of the url
+			$exploded_url = explode('/', $url);
+			$depth = count($exploded_url)-1;
 
-				try {
-					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, 'url',   $urls[$urlid]['url'].'/');
-					MatrixDAL::bindValueToPdo($query, 'name',  $name);
-					MatrixDAL::bindValueToPdo($query, 'value', $designid);
-					MatrixDAL::bindValueToPdo($query, 'depth', $site_depth+1);
-					MatrixDAL::execPdoQuery($query);
-				} catch (Exception $e) {
-					throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+			if (!empty($data)) {
+				foreach ($data as $layout_name => $value) {
+					$sql = 'INSERT INTO
+								sq_ast_lookup_value
+								(
+									url,
+									name,
+									value,
+									depth
+								)
+								VALUES
+								(
+									:url,
+									:name,
+									:value,
+									:depth
+								)';
+
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'url',   $url);
+						MatrixDAL::bindValueToPdo($query, 'name',  $layout_name);
+						MatrixDAL::bindValueToPdo($query, 'value', $value['value']);
+						MatrixDAL::bindValueToPdo($query, 'depth', $depth);
+						MatrixDAL::execPdoQuery($query);
+					} catch (Exception $e) {
+						throw new Exception('Unable to insert lookup values for Site asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+					}
 				}
 			}
-
-
-		}//end for urls
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -785,7 +793,7 @@ class Site extends Folder
 			if (SQ_IN_LIMBO) {
 				$this->printFrontendAsset($this, $design);
 			} else {
-				// If there is an appopriate paint layout for the index page, tell the system to use it
+				// if there is an appopriate paint layout for the index page, tell the system to use it
 				$layout_name = $this->getCurrentPaintLayoutName();
 				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($asset_url, $layout_name);
 				if ($layout_id) {

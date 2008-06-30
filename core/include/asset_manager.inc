@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.18 2008/06/02 22:37:47 lwright Exp $
+* $Id: asset_manager.inc,v 1.655.2.19 2008/06/30 01:25:23 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.18 $
+* @version $Revision: 1.655.2.19 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -717,8 +717,6 @@ class Asset_Manager extends MySource_Object
 		}
 
 		try {
-			// TODO: using plain SQL execution here - this would be changed to
-			// passing an array to DAL for type codes when queries.xml baking works
 			$bind_vars = Array(
 							'type_codes'		=> $type_code,
 							'include_passed'	=> $include_passed,
@@ -1786,7 +1784,6 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// TODO: replace with seqNextVal() in queries.xml
 		$assetid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_seq'));
 
 		$now    = time();
@@ -6101,7 +6098,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function deleteShadowAssetLink($linkid)
-	{// TODO TOF TEST
+	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -7458,7 +7455,7 @@ class Asset_Manager extends MySource_Object
 	* Return the lookup value for the passed URL
 	*
 	* @param string	$url		the url to get the design for
-	* @param string	$value_name	the code for the design (eg. design::system::frontend)
+	* @param string	$value_name	the code for the design/layout (eg. design/paint_layout::system::frontend)
 	*
 	* @return string
 	* @access public
@@ -7467,25 +7464,51 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 
-		$sql = 'SELECT lv.value
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+		// find any exact matches, indicating a value set on this URL itself
+		// order by depth to produce the override value first
+		$sql_1 = 'SELECT lv.value, \'0\' as inhd
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
+						ON ((l.url = lv.url)
+						OR (l.url || \'/\' = lv.url))
 				';
 
-		$where = 'lv.name = :value_name
-					AND ((:url LIKE l.url || \'/%\')
-					OR l.url = :url)';
+		$where_1 = 'lv.name = :value_name_1
+						AND l.url = :url_1
+				';
 
-		$order_by = ' ORDER BY depth DESC';
+		$where_1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_1, 'lv');
+		$where_1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_1, 'l');
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$sql .= $where;
+		// find any inherited values
+		// order by depth to produce the closest matching value first
+		$sql_2 = 'SELECT lv.value, \'1\' as inhd
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
+						ON l.url = lv.url
+				';
+
+		$where_2 = 'lv.name = :value_name_2
+						AND :url_2 LIKE l.url || \'/%\'
+				';
+
+		$where_2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_2, 'lv');
+		$where_2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_2, 'l');
+
+		$sub_order_by = ' ORDER BY depth DESC';
+
+		$sql_1 = '('.$sql_1.$where_1.$sub_order_by.')';
+		$sql_2 = '('.$sql_2.$where_2.$sub_order_by.')';
+
+		// retrieve values set on this URL first
+		$order_by = ' ORDER BY inhd ASC';
 
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql.$order_by);
-			MatrixDAL::bindValueToPdo($query, 'value_name', $value_name);
-			MatrixDAL::bindValueToPdo($query, 'url', $url);
+			$query = MatrixDAL::preparePdoQuery($sql_1.' UNION ALL '.$sql_2.$order_by);
+			MatrixDAL::bindValueToPdo($query, 'value_name_1', $value_name);
+			MatrixDAL::bindValueToPdo($query, 'value_name_2', $value_name);
+			MatrixDAL::bindValueToPdo($query, 'url_1', $url);
+			MatrixDAL::bindValueToPdo($query, 'url_2', $url);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get lookup value: '.$value_name.' for URL: '.$url.' due to database error: '.$e->getMessage());
@@ -7507,39 +7530,61 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	*/
 	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp, $include_treeids)
-	{// TODO TOF TEST
+	{
 		$use_like_for_name = ((FALSE !== strpos($lookup_name_exp, '?')) || (FALSE !== strpos($lookup_name_exp, '%')));
 		$name_operator = $use_like_for_name ? 'LIKE' : '=';
 		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
 		$value_operator = $use_like_for_value ? 'LIKE' : '=';
 		$db = MatrixDAL::getDb();
-		$sql = 'SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').'
-				FROM sq_ast_lookup l
-					JOIN sq_ast_lookup_value lv ON l.url = lv.url';
-		if ($include_treeids) {
+
+		$sql = '';
+		for ($i=0; $i<2; $i++) {
+			// first sub query collects all override values
+			if ($i === 0) {
+				$sql .= '
+						SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'override\' as override';
+			} else {
+				$sql .= '
+						SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'not_override\' as override';
+			}
+
+			if ($i === 0) {
+				// first loop concerned with override values, so inherited values are ignored
+				$sql .= '
+						FROM sq_ast_lookup l
+							JOIN sq_ast_lookup_value lv ON l.url = lv.url';
+			} else {
+				// for inherited values
+				$sql .= '
+						FROM sq_ast_lookup l
+							JOIN sq_ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')';
+			}
+
+			if ($i === 0) {
+				$sql .= ' OR (l.url || \'/\' = lv.url)';
+			}
+
+			if ($include_treeids) {
+				$sql .= '
+						JOIN sq_ast_lnk al ON l.assetid = al.minorid
+						JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid';
+			}
+
 			$sql .= '
-					JOIN sq_ast_lnk al ON l.assetid = al.minorid
-					JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid';
+					WHERE lv.name '.$name_operator.' '.MatrixDAL::quote($lookup_name_exp).'
+						AND lv.value '.$value_operator.' '.MatrixDAL::quote($lookup_value_exp);
+
+			if ($i === 0) {
+				$sql .= ' UNION ALL';
+			}
 		}
-		$sql .= '
-				WHERE lv.name '.$name_operator.' '.MatrixDAL::quote($lookup_name_exp).'
-					AND lv.value '.$value_operator.' '.MatrixDAL::quote($lookup_value_exp);
 
 		$res = NULL;
-		if ($include_treeids) {
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				$res = MatrixDAL::executePdoGrouped($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get asset ids: '.$e->getMessage());
-			}
-		} else {
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				$res = MatrixDAL::executePdoAssoc($query, 0);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get asset ids: '.$e->getMessage());
-			}
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			$res = MatrixDAL::executePdoGrouped($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get asset ids: '.$e->getMessage());
 		}
 
 		return $res;
