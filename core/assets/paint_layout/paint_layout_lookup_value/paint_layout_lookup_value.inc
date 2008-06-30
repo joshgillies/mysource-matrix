@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.10.2.3 2008/06/30 03:36:27 bshkara Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.10.2.4 2008/06/30 23:09:13 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10.2.3 $
+* @version $Revision: 1.10.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -196,8 +196,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 
 				$layout_name = empty($layout_name) ? 'paint_layout::system::frontend' : $layout_name;
 
-				$display_name = translate('defined_layout_display', empty($data['type']) ? translate('system') : $data['type'], ucwords(str_replace('_', ' ', $data['code'])));
-				$display_override_name = translate('defined_override_layout_display', empty($data['type']) ? translate('system') : $data['type'], ucwords(str_replace('_', ' ', $data['code'])));
+				$display_name = translate('defined_layout_display', empty($data['type']) ? translate('system') : ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
+				$display_override_name = translate('defined_override_layout_display', empty($data['type']) ? translate('system') : ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
 
 				// to prevent overwriting inherited values unless a valid change was made
 				hidden_field($prefix.'['.$url.']['.$layout_name.'][value][original]', $data['value']);
