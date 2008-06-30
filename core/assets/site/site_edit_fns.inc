@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.72 2008/05/02 04:51:19 bpearson Exp $
+* $Id: site_edit_fns.inc,v 1.73 2008/06/30 04:21:01 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -317,7 +317,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						} else if ($tablename == 'sq_ast_lookup_value') {
 							$sql .= ' AND url IN (
 										SELECT
-											l.url
+											v.url
 										FROM
 											sq_ast_lookup l
 										INNER JOIN
