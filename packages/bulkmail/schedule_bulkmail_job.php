@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: add.php,v 1.1 2008/06/29 23:39:03 bpearson Exp $
+* $Id: schedule_bulkmail_job.php,v 1.1 2008/06/30 03:25:08 bpearson Exp $
 *
 */
 
