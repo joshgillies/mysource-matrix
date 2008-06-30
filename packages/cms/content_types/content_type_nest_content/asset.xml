@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.14 2007/08/23 07:10:24 hnguyen Exp $
+* $Id: asset.xml,v 1.15 2008/06/30 01:31:27 lwright Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>content_type_nest_content</type_code>
-	<version>0.3</version>
+	<version>0.4</version>
 	<name>Nest Content Content Type</name>
 	<description>Nest Content Content Type, nest the contents of another asset in a table cell</description>
 	<instantiable>yes</instantiable>

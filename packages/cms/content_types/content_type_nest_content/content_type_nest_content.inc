@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.25 2007/12/04 02:40:07 colivar Exp $
+* $Id: content_type_nest_content.inc,v 1.26 2008/06/30 01:31:27 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -40,6 +40,7 @@ class Content_Type_Nest_Content extends Content_Type
 	*/
 	function __construct($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
 	}//end constructor

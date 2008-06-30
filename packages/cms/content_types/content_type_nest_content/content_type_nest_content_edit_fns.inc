@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.53 2008/06/24 01:51:43 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.54 2008/06/30 01:31:27 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -96,6 +96,129 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							?>
 						</td>
 					</tr>
+					<tr>
+						<td class="sq-backend-table-cell-alt"><b>Send the following additional GET variables to the asset:</b></td>
+					</tr>
+					<tr>
+						<td class="sq-backend-table-cell">
+						<?php
+							// get delete icon, with new lines replaced
+							ob_start();
+							sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('delete'), translate('delete'), ' style="border:none"');
+							$delete_icon = ob_get_clean();
+							$delete_icon = str_replace("\n", ' ', $delete_icon);
+
+							$additional_get_vars = $asset->attr('additional_get');
+							if (empty($additional_get_vars)) {
+								// max() won't work on an empty array
+								$last_key = -1;
+							} else {
+								$last_key = max(array_keys($additional_get_vars));
+							}
+						?>
+						<script type="text/javascript">
+							if (typeof <?php echo $asset->type() ?> == 'undefined') {
+								<?php echo $asset->type() ?> = {
+									nextIndex: [],
+
+									/**
+									 * Adds a new row.
+									 */
+									addGetRow: function(prefix) {
+										node = document.getElementById(prefix + '_additional_get_body');
+										index = this.nextIndex[prefix];
+
+										// create a new row
+										tr = document.createElement('tr');
+										tr.id = prefix + '_additional_get_row_' + index;
+
+										// build the cells
+										td1 = document.createElement('td');
+										td1.innerHTML = '<?php text_box("' + prefix + '_additional_get[' + index + '][name]", '', 20) ?>';
+										td2 = document.createElement('td');
+										td2.innerHTML = '<?php text_box("' + prefix + '_additional_get[' + index + '][value]", '', 30) ?>'
+										td3 = document.createElement('td');
+										td3.innerHTML = '<a href="" onclick="<?php echo $asset->type() ?>.removeGetRow(\'' + prefix +'\', \'' + index + '\'); return false;"><?php echo $delete_icon; ?></a>';
+
+										// Now put them all together
+										tr.appendChild(td1);
+										tr.appendChild(td2);
+										tr.appendChild(td3);
+										node.appendChild(tr);
+
+										// Go to next index
+										this.nextIndex[prefix]++;
+
+										// Update display of "no variable" status
+										this.updateNoVarStatus(prefix);
+									},
+
+									/*
+									 * Removes a row.
+									 */
+									removeGetRow: function(prefix, index) {
+										node = document.getElementById(prefix + '_additional_get_row_' + index);
+										parent = node.parentNode;
+										parent.removeChild(node);
+										this.updateNoVarStatus(prefix);
+									},
+
+									/*
+									 * Updates display of the "no variable" body.
+									 */
+									updateNoVarStatus: function(prefix) {
+										node = document.getElementById(prefix + '_additional_get_body');
+										noVarBody = document.getElementById(prefix + '_additional_get_none');
+										noVarBody.style.display = (node.getElementsByTagName('tr').length > 0) ? 'none' : 'table-row-group';
+									},
+								};
+							}
+
+							// Set the first new index for newly created rows
+							<?php echo $asset->type(); ?>.nextIndex['<?php echo $prefix; ?>'] = <?php echo ($last_key + 1); ?>;
+						</script>
+						<table>
+							<colgroup>
+								<col width="40%" />
+								<col width="60%" />
+								<col />
+							</colgroup>
+							<thead>
+								<tr>
+									<th>Variable Name</th>
+									<th>Variable Value</th>
+									<th><span style="white-space: nowrap"><?php echo translate('delete_question') ?></span></th>
+								</tr>
+							</thead>
+							<tfoot>
+								<tr>
+									<td colspan="3"><a href="" onclick="<?php echo $asset->type() ?>.addGetRow('<?php echo $prefix ?>'); return false;" id="<?php echo $prefix ?>_additional_get_new_row"><?php echo translate('cms_ct_nest_content_additional_get_add'); ?></a></td>
+								</tr>
+								<tr>
+									<td colspan="3">You can use keywords of the form <strong>%nested_asset_*%</strong> to refer to any of the keywords of the asset<br/>being nested. You can also use global keywords (<strong>%globals_*%</strong>). These will be evaluated upon asset load.</td>
+								</tr>
+							</tfoot>
+							<tbody id="<?php echo $prefix ?>_additional_get_none" style="display: <?php echo empty($additional_get_vars) ? 'table-row-group' : 'none' ?>">
+								<tr>
+									<td colspan="3"><em><?php echo translate('cms_ct_nest_content_additional_get_no_variables'); ?></em></td>
+								</tr>
+							</tbody>
+							<tbody id="<?php echo $prefix ?>_additional_get_body">
+							<?php
+							foreach ($additional_get_vars as $key => $var_info) {
+								?>
+								<tr id="<?php echo $prefix; ?>_additional_get_row_<?php echo $key; ?>">
+									<td><?php text_box($prefix.'_additional_get['.$key.'][name]', $var_info['name'], 20) ?></td>
+									<td><?php text_box($prefix.'_additional_get['.$key.'][value]', $var_info['value'], 30) ?></td>
+									<td><a href="" onclick="<?php echo $asset->type() ?>.removeGetRow('<?php echo $prefix; ?>_additional_get_row_<?php echo $key; ?>'); return false;"><?php echo $delete_icon; ?></a></td>
+								</tr>
+								<?php
+							}
+							?>
+							</tbody>
+							</table>
+						</td>
+					</tr>
 				</table>
 				<?php
 			} else {
@@ -111,6 +234,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				<?php
 			}
 		}//end if
+
 		return TRUE;
 
 	}//end paintBackend()
@@ -152,17 +276,24 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			// Check for recursion
 			// We use the cache key where available to distinguish differently-behaving
 			// copies of the same asset (Bug Fix #1601)
-
 			$asset_cache_key = $nested_asset->id;
 			if (method_exists($nested_asset, '_getCacheKey')) {
 				$asset_cache_key .= $nested_asset->_getCacheKey();
 			}
+
+			// Add GET vars to the cache key, as these will
+			$additional_get_vars = $this->_processAdditionalGetVars($asset, $nested_asset);
+			$asset_cache_key .= '-'.md5(serialize($additional_get_vars));
 
 			if (isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
 				unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 				echo '<span class="sq-backend-warning"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br/>'.translate('cms_ct_nest_content_recursion_body').'</b></span>';
 				return TRUE;
 			}
+
+			// Now do the additional GET vars stuff
+			$old_get = $_GET;
+			$_GET = array_merge($_GET, $additional_get_vars);
 
 			// Record that we have printed this asset
 			// OKAY! so we havn't actually printed it yet, but we need to record that
@@ -212,6 +343,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$asset_contents = ob_get_contents();
 			ob_end_clean();
 
+			$_GET = $old_get;
+
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 		}
 
@@ -233,18 +366,69 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintGenerated(&$asset, &$nested_asset)
 	{
+		$additional_get_vars = $asset->attr('additional_get');
+		$get_var_cache_key = md5(serialize($additional_get_vars));
 		echo '<'.'?php'."\n";
 		?>
 
 		$nested_assetid = '<?php echo $nested_asset->id; ?>';
 		$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid);
-		$asset_cache_key = $nested_assetid;
+		$asset_cache_key = $nested_assetid.'-<?php echo $get_var_cache_key; ?>';
 		if (method_exists($nested_asset, '_getCacheKey')) {
 			$asset_cache_key .= $nested_asset->_getCacheKey();
 		}
 
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
+
+			$additional_get_vars = <?php
+			// keyword delimiters need to be replaced temporarily
+			echo str_replace('%', '&#37;', var_export($additional_get_vars, TRUE)); ?>;
+			$processed_get_vars = Array();
+			foreach ($additional_get_vars as $get_var) {
+				$get_name = $get_var['name'];
+				$get_value = str_replace('&#37;', '%', $get_var['value']);
+				$found = preg_match_all('/%(asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
+				$asset_matches = $set_matches[1];
+
+				$found = preg_match_all('/%(nested\_asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
+				$nested_asset_matches = $set_matches[1];
+
+				foreach ($nested_asset_matches as $nested_asset_keyword) {
+					$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
+					if (!is_null($replacement)) {
+						$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
+					}
+				}
+
+				replace_global_keywords($get_value);
+
+				preg_match('/([^\[]*)(.*)/', $get_name, $base_name);
+				$array_bits = $base_name[2];
+				if (empty($array_bits)) {
+					$processed_get_vars[$base_name[1]] = $get_value;
+				} else {
+					$array_els = Array();
+
+					if (!isset($processed_get_vars[$base_name[1]])) {
+						$processed_get_vars[$base_name[1]] = Array();
+					}
+
+					$done = FALSE;
+					while (!empty($array_bits)) {
+						$found = preg_match('/\[([^\]]*)\](.*)/', $array_bits, $base_name);
+						if (!$found) break;
+						$array_bits = $base_name[2];
+						$array_els[] = addslashes($base_name[1]);
+					}
+
+					$eval_str = '$processed_get_vars[\''.addslashes($base_name[1]).'\'][\''.implode('\'][\'', $array_els).'\'] = '.addslashes($get_value);
+					eval($eval_str);
+				}
+			}
+			$old_get[$asset_cache_key] = $_GET;
+			$_GET = array_merge($_GET, $processed_get_vars);
+
 			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key] = 1;
 			$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', TRUE);
 			if ($nested_asset->id && $nested_asset->readAccess()) {
@@ -283,6 +467,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				?>
 			}
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
+
+			$_GET = $old_get[$asset_cache_key];
 		} else {
 			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br />'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
 		}
@@ -312,6 +498,14 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$arbitrary_paint_layout = $this->_getArbitraryPaintLayout($asset);
 		$current_apl_assetid = (!is_null($arbitrary_paint_layout)) ? $arbitrary_paint_layout->id : 0;
 
+		$additional_get = array_get_index($_POST, $prefix.'_additional_get', Array());
+		foreach ($additional_get as $var_index => $var_value) {
+			$var_value['name'] = trim($var_value['name']);
+			if (empty($var_value['name'])) {
+				unset($additional_get[$var_index]);
+			}
+		}
+
 		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? $_POST[$prefix.'_nested_assetid']['assetid'] : 0;
 		$paint_with = array_get_index($_POST, $prefix.'_paint_with', 'raw');
 		$paint_with_assetid = (isset($_POST[$prefix.'_paint_with_layout']['assetid'])) ? $_POST[$prefix.'_paint_with_layout']['assetid'] : 0;
@@ -336,8 +530,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		}
 
-		if ($paint_with != $asset->attr('paint_with')) {
+		if (($paint_with != $asset->attr('paint_with')) || ($additional_get != $asset->attr('additional_get'))) {
 			$asset->setAttrValue('paint_with', $paint_with);
+			$asset->setAttrValue('additional_get', $additional_get);
 
 			if (!$asset->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
