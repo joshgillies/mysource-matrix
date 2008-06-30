@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_management.inc,v 1.16 2007/12/13 23:57:06 rong Exp $
+* $Id: content_type_nest_content_management.inc,v 1.16.2.1 2008/06/30 05:39:37 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -44,6 +44,12 @@ class Content_Type_Nest_Content_Management extends Asset_Management
 										'default'	=> 'raw',
 										'added'		=> '0.2',
 									);
+
+		$this->vars['additional_get'] = Array(
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+											'added'		=> '0.4',
+										);
 
 	}//end constructor
 
