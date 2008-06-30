@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.14 2007/11/22 23:25:16 bshkara Exp $
+* $Id: lookupValues.inc,v 1.15 2008/06/30 01:46:33 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -115,9 +115,11 @@ function processLookupValues(&$owner, &$o, &$ei)
 
 	$lookup_value_types = $am->getTypeDescendants('lookup_value');
 
+	$layouts_changed = FALSE;
+	$layouts_ok = TRUE;
+
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 	foreach ($lookup_value_types as $type_code) {
 		$am->includeAsset($type_code);
 		eval('$name_prefix = '.$type_code.'::namePrefix();');
@@ -130,18 +132,93 @@ function processLookupValues(&$owner, &$o, &$ei)
 			return FALSE;
 		}
 
-		foreach ($values as $url => $values_data) {
+		foreach ($values as $resource => $values_data) {
 			foreach ($values_data as $value_name => $data) {
-				// no value ? delete...
-				if ($data['value'] == '') {
-					if (isset($lookup_values[$url][$value_name])) {
-						unset($lookup_values[$url][$value_name]);
+				if ($resource === 'asset') {
+					// asset layout definition
+					$layout_name = $value_name.'::system::frontend';
+					$existing_layout_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $layout_name);
+					$create_new = $delete_existing = FALSE;
+					if (empty($data['value'])) {
+						$delete_existing = TRUE;
+					} else if (empty($existing_layout_link)) {
+						// a layout notice link does not currently exist so create it
+						$create_new = TRUE;
+					} else {
+						// notice link currently exists, only create a new notice link if necessary
+						if ($existing_layout_link['minorid'] !== $data['value']) {
+							$delete_existing = TRUE;
+							$create_new = TRUE;
+						}
 					}
+
+					if ($delete_existing) {
+						if ($existing_layout_link) {
+							if (!$owner->deleteLink($existing_layout_link['linkid'])) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$layouts_ok = FALSE;
+								break;
+							} else {
+								$layouts_changed = TRUE;
+							}
+
+							// also need to delete any other URLs which use the same value
+							// deleting an asset based value means all other URLs which use the same value are also deleted
+							foreach ($lookup_values as $delete_url => $delete_data) {
+								foreach ($delete_data as $delete_name => $delete_value) {
+									if (strstr($layout_name, 'override::')) {
+										if (preg_match('/.+\/$/', $delete_url)) {
+											// override layout
+											if ((str_replace('override::', '', $layout_name) === $delete_name) && ($existing_layout_link['minorid'] === $delete_value['value'])) {
+												unset($lookup_values[$delete_url][$delete_name]);
+											}
+										}
+									} else {
+										if (preg_match('/.+\/{0}$/', $delete_url)) {
+											// normal layout
+											if (($layout_name === $delete_name) && ($existing_layout_link['minorid'] === $delete_value['value'])) {
+												unset($lookup_values[$delete_url][$delete_name]);
+											}
+										}
+									}
+								}
+							}
+
+						}
+					}
+
+					if ($create_new) {
+						// create new notice link
+						$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['value']);
+						if (is_null($layout)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$layouts_ok = FALSE;
+							break;
+						}
+						if (!$owner->createLink($layout, SQ_LINK_NOTICE, $layout_name)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$layouts_ok = FALSE;
+							break;
+						} else {
+							$layouts_changed = TRUE;
+						}
+					}
+
+					continue;
+				}//end if
+
+				// delete if no value
+				if (empty($data['value'])) {
+					if (isset($lookup_values[$resource][$value_name])) {
+						unset($lookup_values[$resource][$value_name]);
+					}
+					// if value is deleted, run updateLookups() so the asset based definition can take effect if there is one defined
+					$layouts_changed = TRUE;
 				} else {
-					if (!isset($lookup_values[$url])) {
-						$lookup_values[$url] = Array();
+					if (!isset($lookup_values[$resource])) {
+						$lookup_values[$resource] = Array();
 					}
-					$lookup_values[$url][$value_name] = Array('value' => $data['value']);
+					$lookup_values[$resource][$value_name] = Array('value' => $data['value']);
 				}
 			}
 		}
@@ -153,6 +230,16 @@ function processLookupValues(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		return FALSE;
 	}
+	if ($layouts_ok) {
+		if ($layouts_changed) {
+			if (!$owner->updateLookups()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
+		}
+	}
+
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 

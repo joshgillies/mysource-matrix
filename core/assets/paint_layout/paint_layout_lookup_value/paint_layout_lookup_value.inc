@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.11 2008/05/13 01:20:59 mbrydon Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.12 2008/06/30 01:46:33 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,118 +85,271 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		$wa = ($owner->writeAccess('lookups') && $owner->writeAccess('links'));
 		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();
 
-		$sort_fn_code = '
-			$a_matches = Array();
-			$b_matches = Array();
+		$o->openSection(translate('asset_definitions'));
+		$o->openField(translate('summary'));
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
+					<td class="sq-backend-table-header"><?php echo 'Effective Paint Layout'; ?></td>
+				</tr>
+			<?php
+			foreach ($lookups as $url) {
+				// need to make sure the URL is printed even if it does not have a layout applied
+				if (empty($lookup_values[$url][$name_prefix.'::system::frontend'])) {
+					$lookup_values[$url][$name_prefix.'::system::frontend'] =  Array('value' => '', 'inhd' => '0');
+				}
 
-			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $a, $a_matches);
-			preg_match('.var_export('/^'.$name_prefix.'::(system|user)::(.*)$/', 1).', $b, $b_matches);
-			if ($a_matches[1] == "system" && $a_matches[2] == "frontend") return -1;
-			if ($b_matches[1] == "system" && $b_matches[2] == "frontend") return  1;
+				foreach ($lookup_values[$url] as $layout_name => $data) {
+					// determine the type of layout applied and sort
+					$matches = Array();
+					preg_match('/^'.$name_prefix.'::(system|user)::(.*)$/', $layout_name, $matches);
 
-			if ($a_matches[1] == "system" && $b_matches[1] == "user")   return -1;
-			if ($a_matches[1] == "user"   && $b_matches[1] == "system") return  1;
+					// store so we can use these values for individual URL settings later
+					$lookup_values[$url][$layout_name]['type'] = $matches[1];
+					$lookup_values[$url][$layout_name]['code'] = $matches[2];
 
-			return strcmp($a_matches[2], $b_matches[2]);
-		';
+					// don't print user defined paint layouts in the global definitions table
+					if ($matches[1] === 'user') continue;
 
-		$sort_fn = create_function('$a,$b', $sort_fn_code);
+					$effective_layout = $data['value'];
 
+					$override_suffix = '';
+					// get override layout if one exists
+					if (isset($lookup_values[$url.'/'])) {
+						foreach ($lookup_values[$url.'/'] as $override_layout_name => $override_data) {
+							$effective_layout = $override_data['value'];
+							$effective_layout_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($effective_layout));
+						}
+						$suffix = ' - <strong style="font-size:11px"><i>'.translate('override').'</i></strong>';
+					} else {
+						$effective_layout_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($effective_layout));
+						$suffix = self::_getSuffix($data['inhd'], FALSE);
+					}
+
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $url; ?></td>
+						<td class="sq-backend-table-cell"><?php echo !empty($effective_layout_info) ? get_asset_tag_line($effective_layout).$suffix : '<i>'.translate('none').'</i>'; ?></td>
+					</tr>
+					<?php
+				}
+			}
+			?>
+			</table>
+			<?php
+		$o->closeField();
+
+		$asset_layout = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE, 'paint_layout::system::frontend');
+		$o->openField(translate('layout'));
+		if ($wa) {
+			asset_finder($prefix.'[asset][paint_layout][value]', empty($asset_layout['minorid']) ? '' : $asset_layout['minorid'], Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', empty($asset_layout) ? Array('clear') : Array('clear', 'reset'));
+		} else {
+			echo empty($asset_layout) ? '<i>'.translate('none').'</i>' : get_asset_tag_line($asset_layout['minorid']);
+		}
+		$o->closeField();
+
+		$asset_override = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE, 'override::paint_layout::system::frontend');
+		$o->openField(translate('override_layout'));
+		if ($wa) {
+			asset_finder($prefix.'[asset][override::paint_layout][value]', empty($asset_override) ? '' : $asset_override['minorid'], Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', empty($asset_override) ? Array('clear') : Array('clear', 'reset'));
+		} else {
+			echo empty($asset_override) ? '<i>'.translate('none').'</i>' : get_asset_tag_line($asset_override['minorid']);
+		}
+		$o->closeField();
+
+		// close asset definitions section
+		$o->closeSection();
+
+		// close the paint layout section
+		$o->closeSection();
+
+		// which lookups have user defined layouts
+		$lookups_user = Array();
+
+		$o->openSection(translate('url_specific_definitions'));
 		foreach ($lookups as $url) {
 
 			$o->openSection($url);
-			$o->openField(translate('lineage'));
-			$lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
-			foreach ($lineage as $i => $asset) {
-				if ($i > 0) echo '<br />&nbsp;&gt;&nbsp;<br />';
-				echo get_asset_tag_line($asset['assetid']);
-			}
-			unset($lineage);
-			$o->closeField();
-
-			if (empty($lookup_values[$url])) {
-				$lookup_values[$url] = Array();
-			}
-
-			// need to make sure the default is printed.
-			if (empty($lookup_values[$url][$name_prefix.'::system::frontend'])) {
-				$lookup_values[$url][$name_prefix.'::system::frontend'] =  Array('value' => '', 'inhd' => '0');
-			}
-
-			uksort($lookup_values[$url], $sort_fn);
-
-			// add blank entry if we have write access
-			if ($wa) {
-				$lookup_values[$url][$name_prefix.'::user::'] =  Array('value' => '', 'inhd' => '0');
-			}
+			$o->openField(translate('current'));
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header"><?php echo 'Layout'; ?></td>
+					<td class="sq-backend-table-header"><?php echo 'Paint Layout'; ?></td>
+				</tr>
+			<?php
 
 			foreach ($lookup_values[$url] as $layout_name => $data) {
-
-				$matches = Array();
-				preg_match('/^'.$name_prefix.'::(system|user)::(.*)$/', $layout_name, $matches);
-
-				$layout_type     = $matches[1];
-				$layout_code     = $matches[2];
-				$new_user_layout = ($layout_type == 'user' && $layout_code == '' && empty($data['value']));
-
-				if ($new_user_layout) {
-					$display_name = translate('create_user_defined_layout');
-				} else {
-					$display_name = translate('defined_layout_display', ucwords($layout_type), ucwords(str_replace('_', ' ', $layout_code)));
+				if ($data['type'] === 'user') {
+					// so we know which lookups have user defined layouts for painting the next section
+					$lookups_user[] = $url;
+					continue;
 				}
 
+				$display_name = translate('defined_layout_display', ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
+				$display_override_name = translate('defined_override_layout_display', ucwords($data['type']), ucwords(str_replace('_', ' ', $data['code'])));
 
-				$o->openSection($display_name);
+				// to prevent overwriting inherited values unless a valid change was made
+				hidden_field($prefix.'['.$url.']['.$layout_name.'][value][original]', $data['value']);
 
-					if ($new_user_layout) {
-						$o->openField(translate('layout_code'));
-							text_box($prefix.'['.$url.']['.$layout_name.'][name]', '', 20, 30);
-						$o->closeField();
-					} else {
-						if ($layout_type == 'user') {
-							$o->openField(translate('layout_code'));
-								echo $layout_code;
-							$o->closeField();
-						}
+				$url_override_layout = 0;
+				$url_override_info = Array();
+				// get override layout if one exists
+				if (isset($lookup_values[$url.'/'])) {
+					foreach ($lookup_values[$url.'/'] as $override_layout_name => $override_data) {
+						$url_override_layout = $override_data['value'];
+						$url_override_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($url_override_layout));
 					}
+				}
 
-					$o->openField(translate('current'));
-						echo '<i>';
-						if ($data['value'] == '') {
-							echo translate('none');
-						} else {
-							$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['value'], '', TRUE);
-							if (!is_null($layout)) {
-								echo get_asset_tag_line($layout->id);
-								if ($data['inhd']) {
-									echo '<br><b>('.translate('inherited').')</b>';
-								}
-							}
-						}
-						echo '</i>';
-					$o->closeField();
+				// do not pre-populate asset finder if the values are the same as the corresponding notice link values
+				if (!empty($asset_layout) && isset($asset_layout['minorid']) && ($asset_layout['minorid'] === $data['value'])) {
+					$layout_value = '0';
+					$url_layout_info = '0';
+				} else {
+					$layout_value = $data['value'];
+					$url_layout_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($data['value']));
+				}
+				if (!empty($asset_override) && isset($asset_override['minorid']) && ($asset_override['minorid'] === $url_override_layout)) {
+					$url_override_layout = '0';
+					$url_override_info = '0';
+				}
+				hidden_field($prefix.'['.$url.'/]['.$layout_name.'][value][original]', $url_override_layout);
 
-					if ($wa) {
-						// if we have inherited this value, then we haven't set it ourselves have we ? :)
-						$layoutid = (empty($data['inhd'])) ? $data['value'] : 0;
-						$o->openField(($layoutid) ? translate('change_question') : translate('new_question'));
-							$buttons = Array('clear');
-							if (!$new_user_layout) $buttons[] = 'reset';
-							asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layoutid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $buttons);
-						$o->closeField();
-					}
+				if ($data['inhd']) {
+					$normal_buttons = empty($layout_value) ? Array('clear') : Array('reset');
+				} else {
+					$normal_buttons = empty($layout_value) ? Array('clear') : Array('clear', 'reset');
+				}
+				$override_buttons = empty($url_override_layout) ? Array('clear') : Array('clear', 'reset');
 
-				$o->closeSection();
+				?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo '<i>'.$display_name.'</i>'; echo $wa ? self::_getSuffix($data['inhd'], TRUE) : ''; ?></td>
+						<?php if ($wa) { ?>
+							<td class="sq-backend-table-cell"><?php asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layout_value, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $normal_buttons);?></td>
+						<?php } else { ?>
+							<td class="sq-backend-table-cell"><?php echo empty($url_layout_info) ? '<i>'.translate('none').'</i>' : get_asset_tag_line($layout_value).self::_getSuffix($data['inhd'], FALSE); ?></td>
+						<?php } ?>
+					</tr>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo '<i>'.$display_override_name.'</i>'; ?></td>
+						<?php if ($wa) { ?>
+							<td class="sq-backend-table-cell"><?php asset_finder($prefix.'['.$url.'/]['.$layout_name.'][value]', $url_override_layout, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $override_buttons);?></td>
+						<?php } else { ?>
+							<td class="sq-backend-table-cell"><?php echo empty($url_override_info) ? '<i>'.translate('none').'</i>': get_asset_tag_line($url_override_layout); ?></td>
+						<?php } ?>
+					</tr>
+				<?php
+
+				// remove data not needed anymore for painting
+				unset($lookup_values[$url][$layout_name]);
+				if (empty($lookup_values[$url])) {
+					// populate with empty data for painting the user defined layout section
+					$lookup_values[$url][$name_prefix.'::user::'] =  Array();
+				}
 
 			}//end foreach
 
+			echo '</table>';
+
+			$o->closeField();
+
+			// end individual URL section
 			$o->closeSection();
 
 		}//end foreach
 
+		// close the URL specific definitions
+		$o->closeSection();
+
+		$o->openSection(translate('user_defined_layouts'));
+
+		foreach ($lookups as $url) {
+
+			$o->openSection($url);
+
+			$o->openField(translate('current'));
+				if (in_array($url, $lookups_user)) {
+					?>
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header"><?php echo 'Layout code'; ?></td>
+							<td class="sq-backend-table-header"><?php echo 'Paint layout'; ?></td>
+						</tr>
+					<?php
+					foreach ($lookup_values[$url] as $layout_name => $data) {
+						$effective_layout_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($data['value']));
+						$buttons = Array('reset');
+						if (!$data['inhd']) $buttons[] = 'clear';
+						?>
+							<tr>
+							<?php if ($wa) { ?>
+								<td class="sq-backend-table-cell"><?php echo $data['inhd'] ? $data['code'] : text_box($prefix.'['.$url.']['.$layout_name.'][name]', $data['code'], 20, 30).self::_getSuffix($data['inhd'], TRUE); ?></td>
+							<?php } else { ?>
+								<td class="sq-backend-table-cell"><?php echo $data['code']; ?></td>
+							<?php } ?>
+							<?php if ($wa) { ?>
+								<td class="sq-backend-table-cell"><?php echo $data['inhd'] ? get_asset_tag_line($data['value']).self::_getSuffix($data['inhd'], FALSE) : asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $data['value'], Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $buttons);?></td>
+							<?php } else { ?>
+								<td class="sq-backend-table-cell"><?php echo empty($effective_layout_info) ? translate('none') : get_asset_tag_line($data['value']).self::_getSuffix($data['inhd'], FALSE); ?></td>
+							<?php } ?>
+							</tr>
+						<?php
+
+					}//end foreach
+
+					// end user defined layouts for this individual URL
+					echo '</table>';
+				} else {
+					// no user defined layouts yet for this URL
+					echo '<i>'.translate('none').'</i>';
+				}
+			$o->closeField();
+
+			if ($wa) {
+				$o->openSection(translate('create_user_defined_layout'));
+				$o->openField(translate('layout_code'));
+					text_box($prefix.'['.$url.']['.$name_prefix.'::user::][name]', '', 20, 30);
+				$o->openField(translate('new_question'));
+					asset_finder($prefix.'['.$url.']['.$name_prefix.'::user::][value]', 0, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+				$o->closeField();
+				$o->closeSection();
+			}
+
+			// end individual URL section
+			$o->closeSection();
+
+		}//end foreach
+
+		// close the URL specific definitions
+		$o->closeSection();
+
 		return $wa;
 
 	}//end paintInterface()
+
+
+	/**
+	* Returns HTML used for indicating that a lookup value is inherited
+	*
+	* @param boolean	$inhd			whether this lookup value is inherited
+	* @param boolean	$parentheses	whether to use parantheses or a hyphen
+	*
+	* @return string
+	* @access private
+	* @static
+	*/
+	private static function _getSuffix($inhd, $parentheses)
+	{
+		if ($parentheses) {
+			return $inhd ? ' <strong style="font-size:11px"><i>('.translate('inherited').')</i></strong>' : '';
+		} else {
+			return $inhd ? ' - <strong style="font-size:11px"><i>'.translate('inherited').'</i></strong>' : '';
+		}
+
+	}//end _getSuffix()
 
 
 	/**
@@ -229,25 +382,76 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		$lookup_values = Array();
 		$name_prefix = Paint_Layout_Lookup_Value::namePrefix();
 
-		foreach ($_POST[$prefix] as $url => $layouts) {
-			foreach ($layouts as $layout_name => $layout_data) {
+		foreach ($_POST[$prefix] as $resource => $layouts) {
 
-				// new user defined layout ?
-				if ($layout_name == $name_prefix.'::user::') {
+			foreach ($layouts as $layout_name => $layout_data) {
+				if ($layout_name === $name_prefix.'::user::') {
+					// creating a new user defined layout
 					if (empty($layout_data['name'])) continue;
 					if (empty($layout_data['value']['assetid'])) continue;
 					$layout_name .= strtolower($layout_data['name']);
-					if (isset($lookup_values[$url][$layout_name])) {
-						trigger_error('Layout Name "'.$layout_data['name'].'" already in use for "'.$url.'"', E_USER_WARNING);
+					if (isset($lookup_values[$resource][$layout_name])) {
+						trigger_error('Layout Name "'.$layout_data['name'].'" already in use for "'.$resource.'"', E_USER_WARNING);
 						continue;
 					}
-				}// end if
+				} else if (!is_bool(strstr($layout_name, $name_prefix.'::user::'))) {
+					// updating an existing user defined layout
+					// this is the new layout code
+					$new_layout_name = $name_prefix.'::user::'.strtolower($layout_data['name']);
 
-				// if it's empty set to blank strring so it get's deleted
-				$lookup_values[$url][$layout_name]['value'] = (empty($layout_data['value']['assetid'])) ? '' : $layout_data['value']['assetid'];
+					// deal with deleted user defined layouts
+					if (empty($layout_data['name'])) {
+						$lookup_values[$resource][$layout_name]['value'] = '';
+						continue;
+					}
 
-			}
-		}
+					// remove the previous one if it has changed
+					if ($new_layout_name !== $layout_name) {
+						if (isset($_POST[$prefix][$resource][$new_layout_name])) {
+							trigger_error('Layout Name "'.$new_layout_name.'" already in use for "'.$resource.'"', E_USER_WARNING);
+							continue;
+						}
+						$lookup_values[$resource][$layout_name]['value'] = '';
+					}
+					$layout_name = $new_layout_name;
+				} else if (!is_bool(strstr($layout_name, $name_prefix.'::system::frontend'))) {
+					// url layouts and override layouts fall in here
+
+					if ($layout_data['value']['assetid'] === $layout_data['value']['original']) {
+						// don't overwrite inherited system::frontend values unless there is a valid change
+						continue;
+					} else {
+						// empty values come through because the asset finder is not pre-populated with values if an asset based layout is defined
+						// if these empty values went through, it would result in updateLookups() being run unnecessarily
+						// we need to make sure that values being deleted are not being caught here inadvertently as well
+						if (preg_match('/.+\/$/', $resource)) {
+							// override layout
+							if (isset($_POST[$prefix]['asset']['override::paint_layout']['value']['assetid']) && (empty($layout_data['value']['assetid']))) {
+								if ($layout_data['value']['original'] === $_POST[$prefix]['asset']['override::paint_layout']['value']['assetid']) {
+									continue;
+								}
+							}
+						} else {
+							// normal layout
+							if (isset($_POST[$prefix]['asset']['paint_layout']['value']['assetid']) && (empty($layout_data['value']['assetid']))) {
+								if ($layout_data['value']['original'] === $_POST[$prefix]['asset']['paint_layout']['value']['assetid']) {
+									continue;
+								}
+							}
+						}
+
+					}
+				}
+
+				if (empty($layout_data['value']['assetid'])) {
+					// set to blank string to delete
+					$lookup_values[$resource][$layout_name]['value'] = '';
+				} else {
+					$lookup_values[$resource][$layout_name]['value'] = $layout_data['value']['assetid'];
+				}
+
+			}//end foreach
+		}//end foreach
 
 		return TRUE;
 
