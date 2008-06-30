@@ -11,14 +11,14 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: add.php,v 1.1.2.2 2008/06/29 23:40:05 bpearson Exp $
+* $Id: schedule_bulkmail_job.php,v 1.1.2.2 2008/06/30 03:26:35 bpearson Exp $
 *
 */
 
 /**
 * Add a bulkmail job to the bulkmail queue
 *
-* Usage: php add.php /path/to/system/root/ [assetid of job]
+* Usage: php schedule_bulkmail_job.php /path/to/system/root/ [assetid of job]
 *		This script adds a bulkmail job to the bulkmail queue.
 *		Used to allow cron systems to handle bulkmail jobs.
 *
