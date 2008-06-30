@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.214 2008/06/25 23:00:37 bpearson Exp $
+* $Id: page_calendar.inc,v 1.215 2008/06/30 06:46:28 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.214 $
+* @version $Revision: 1.215 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1429,7 +1429,7 @@ class Page_Calendar extends Page
 	function _getTitleList($events)
 	{
 		$res = '';
-		if (!empty($res)) {
+		if (!empty($events)) {
 			$res = '<ul>';
 			foreach ($events as $id => $data) {
 				$real_id = strtok($id, ':');
