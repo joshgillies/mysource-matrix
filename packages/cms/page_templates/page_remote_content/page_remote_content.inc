@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.74.2.2 2008/03/31 00:45:33 hnguyen Exp $
+* $Id: page_remote_content.inc,v 1.74.2.3 2008/06/30 05:40:01 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.74.2.2 $
+* @version $Revision: 1.74.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -83,7 +83,12 @@ class Page_Remote_Content extends Page
 			return;
 		}
 
-		$this->_tmp['success'] = $this->_process();
+		$success = $this->_process();
+
+		if (!is_null($success)) {
+			$url = $this->_tmp['url'];
+			$this->_tmp['success'][$url] = $success;
+		}
 
 		if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
@@ -93,11 +98,13 @@ class Page_Remote_Content extends Page
 			return parent::printFrontend();
 		} else {
 			// do not use design
-			$headers = array_get_index($this->_tmp, 'headers', Array());
+			$headers_list = array_get_index($this->_tmp, 'headers', Array());
+			$headers = array_get_index($headers_list, $url, Array());
 			foreach ($headers as $name => $value) {
 				header("$name: $value");
 			}
-			echo array_get_index($this->_tmp, 'content', '');
+			$content = array_get_index($this->_tmp, 'content', Array());
+			echo array_get_index($content, $url, '');
 		}
 
 	}//end printFrontend()
@@ -120,11 +127,10 @@ class Page_Remote_Content extends Page
 		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
-		if (!array_get_index($this->_tmp, 'processed', FALSE)) {
-			$this->_tmp['success'] = $this->_process();
-		}
+		$success = $this->_process();
+		$url = array_get_index($this->_tmp, 'url', '');
 
-		if (!$this->_tmp['success']) {
+		if ($success === FALSE) {
 			// processing failed
 			if ($this->attr('display_error')) {
 				echo $this->attr('error_message');
@@ -135,12 +141,11 @@ class Page_Remote_Content extends Page
 				// if we have got to this point and are trying to tunnel
 				// binary data, we must be nested and so we'll have to show
 				// a message instead of the content
-				$replacements['remote_url'] = $this->_tmp['url'];
+				$replacements['remote_url'] = $url;
 				echo replace_keywords($this->attr('binary_message'), $replacements);
 			} else {
 				// everything is good. get the page body.
-				echo $this->_tmp['content'];
-
+				echo $this->_tmp['content'][$url];
 			}
 		}
 		return TRUE;
@@ -151,7 +156,13 @@ class Page_Remote_Content extends Page
 	/**
 	* Process the remote content request and return the processed HTML
 	*
-	* @return string
+	* Returns:
+	*   TRUE on a successful retrieval.
+	*   FALSE on a failure of some sort.
+	*   NULL if we have already processed the URL. This status MUST NOT be
+	*   cached, and any previous success/failure result SHOULD be used.
+	*
+	* @return boolean
 	* @access public
 	*/
 	function _process()
@@ -177,21 +188,15 @@ class Page_Remote_Content extends Page
 			unset($this->_tmp['transform_settings']['url']);
 		}
 
-		// here we mark that we've attempted processing of this request and that it failed
-		// requires explicit override on success
-		$this->_tmp['processed'] = TRUE;
-
 		if (!$url) {
 			trigger_localised_error('CMS0062', E_USER_WARNING);
 			return FALSE;
 		}
 
-
 		if (!$this->isUrlAllowed($url)) {
 			trigger_localised_error('CMS0057', E_USER_WARNING, $url);
 			return FALSE;
 		}
-
 
 		$query_string = array_get_index($_SERVER, 'QUERY_STRING');
 		if (!empty($query_string) && !is_null($remote_source)) {
@@ -204,9 +209,21 @@ class Page_Remote_Content extends Page
 		// merge the get vars of current request with those of the source string
 		$url_parts = explode('?', $url);
 		if (isset($url_parts[1])) {
+			// Replace global keywords on the HARD CODED portion of the query string only
+			replace_global_keywords($url_parts[1]);
 			$query_string = $url_parts[1].'&'.$query_string;
 		}
 		$url = $url_parts[0].'?'.$query_string;
+
+		// If we have already handled this complete URL, mark it as such
+		$processed = array_get_index($this->_tmp, 'processed', Array());
+		if (array_get_index($processed, $url, FALSE)) {
+			return NULL;
+		}
+
+		// here we mark that we've attempted processing of this request and that it failed
+		// requires explicit override on success
+		$this->_tmp['processed'][$url] = TRUE;
 
 		$post_data = NULL;
 		$post_is_encoded = FALSE;
@@ -371,7 +388,7 @@ class Page_Remote_Content extends Page
 
 		} else {
 			// fix a php 5 strict warning
-			$result = @$HTTP_Client->get($url);
+			$result = $HTTP_Client->get($url);
 			//$dummy_http = new HTTP_Client();
 			//$result = $dummy_http->get($url);
 		}
@@ -401,20 +418,20 @@ class Page_Remote_Content extends Page
 		}
 
 		// prepare temporary variables for output
-		$this->_tmp['headers'] = $response['headers'];
-		$this->_tmp['content'] = $response['body'];
+		$this->_tmp['headers'][$this->_tmp['url']] = $response['headers'];
+		$this->_tmp['content'][$this->_tmp['url']] = $response['body'];
 
 		// wipe the response because we won't use it again and it could be too big to just ignore
 		$HTTP_Client->_responses = NULL;
 		$_SESSION['SQ_REMOTE_HTTP_CLIENT'][$this->id] = serialize($HTTP_Client);
 		unset($HTTP_Client);
 
-		if ($this->_shouldPassStraightThrough($this->_tmp['headers'])) {
+		if ($this->_shouldPassStraightThrough($this->_tmp['headers'][$this->_tmp['url']])) {
 			foreach ($this->_tmp['transform_settings'] as $i => $v) {
 				$this->_tmp['transform_settings'][$i] = FALSE;
 			}
 		} else {
-			$this->_transformContent($this->_tmp['content']);
+			$this->_transformContent($this->_tmp['content'][$this->_tmp['url']]);
 		}
 
 		return TRUE;
