@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.652 2008/06/30 01:46:33 bshkara Exp $
+* $Id: asset.inc,v 1.653 2008/07/01 00:29:29 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.652 $
+* @version $Revision: 1.653 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1919,9 +1919,9 @@ class Asset extends MySource_Object
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('permissions')) {
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
 				foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-					$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
-					foreach ($set_perms as $userid => $granted) {
-						if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $granted, $override)) {
+					$set_perms = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($this->id, $perm, NULL, TRUE);
+					foreach ($set_perms as $perm_info) {
+						if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $perm_info['userid'], $perm, $perm_info['granted'], TRUE, $override)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							unset($this->_tmp[__CLASS__.'_in_create_cascading']);
@@ -1968,13 +1968,14 @@ class Asset extends MySource_Object
 				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($clone->id)) {
 					// apply the schemas from the cloner to the clonee
-					$schemas = $mm->getSchemas($this->id);
+					// But only if they're set to cascade to new assets
+					$schemas = $mm->getSchemas($this->id, NULL, TRUE);
 					$metadata = Array();
 					foreach ($schemas as $schemaid => $granted) {
 						if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) {
 							continue;
 						}
-						if (!$mm->setSchema($clone->id, $schemaid, $granted, $override)) {
+						if (!$mm->setSchema($clone->id, $schemaid, $granted, TRUE, $override)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
@@ -2016,9 +2017,10 @@ class Asset extends MySource_Object
 		if (in_array('workflow', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->adminAccess('workflow')) {
 				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-				$schemas = $wfm->getSchemas($this->id);
+				// Get all schemas that are set to cascade down to new assets
+				$schemas = $wfm->getSchemas($this->id, NULL, FALSE, TRUE);
 				foreach ($schemas as $schemaid => $granted) {
-					if (!$wfm->setSchema($clone->id, $schemaid, $granted, $override)) {
+					if (!$wfm->setSchema($clone->id, $schemaid, $granted, TRUE, $override)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 						return FALSE;

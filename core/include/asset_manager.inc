@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.696 2008/06/30 01:46:33 bshkara Exp $
+* $Id: asset_manager.inc,v 1.697 2008/07/01 00:29:29 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.696 $
+* @version $Revision: 1.697 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3119,11 +3119,17 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($query_assetids)) {
 			// we couldnt palm the request off, so we better do it ourselves
-			$query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
-			if (!empty($query)) {
-				$db = MatrixDAL::getDb();
-				$final_query = implode(' ', $query);
-				$result = MatrixDAL::executeSqlGroupedAssoc($final_query);
+			$links_query = $this->generateGetLinksQuery($query_assetids, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access, $effective);
+
+			if (!empty($links_query)) {
+				$sql = implode(' ', $links_query['sql_array']);
+				$query = MatrixDAL::preparePdoQuery($sql);
+
+				foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
+					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+				}
+
+				$result = MatrixDAL::executePdoGroupedAssoc($query);
 				$links = $this->arrayMerge($result,$links);
 			}
 		}
@@ -3315,15 +3321,14 @@ class Asset_Manager extends MySource_Object
 				$link_lineages = array_slice($link_lineages, 0, $result_limit);
 			}
 
-			 // Clean up link_linkages Array as shadow assets cause a complex array return (as per Bug #2977)
-			 foreach ($link_lineages as $key => $value) {
-				 foreach ($value['lineage'] as $lineage_key => $lineage_value) {
-					 if (is_array($lineage_value)) {
-						 $link_lineages[$key]['lineage'][$lineage_key] = $lineage_value[0][0];
-					 }
-				 }
-			 }
-
+			// Clean up link_linkages Array as shadow assets cause a complex array return (as per Bug #2977)
+			foreach ($link_lineages as $key => $value) {
+				foreach ($value['lineage'] as $lineage_key => $lineage_value) {
+					if (is_array($lineage_value)) {
+						$link_lineages[$key]['lineage'][$lineage_key] = $lineage_value[0][0];
+					}
+				}
+			}
 
 			return $link_lineages;
 
@@ -4323,9 +4328,9 @@ class Asset_Manager extends MySource_Object
 		// First, we should check that we don't already have a link of this type
 		$current_link = $this->getLinkByAsset($major->id, $minor->id, $link_type, $value);
 		if (empty($current_link) === FALSE) {
-			$trash_folder_id = $this->getSystemAssetid('trash_folder');
 			// The link we are creating already exists, so throw an error
 			// unless the major is the trash, in which case we just pretend we linked ok
+			$trash_folder_id = $this->getSystemAssetid('trash_folder');
 			if ($trash_folder_id != $major->id) {
 				trigger_localised_error('SYS0192', E_USER_WARNING, "$major->name (#$major->id)", "$minor->name (#$minor->id)");
 			}
@@ -6399,13 +6404,14 @@ class Asset_Manager extends MySource_Object
 						AND permission '.(($and_greater) ? '>= ' : '= ').':permission';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
+
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'assetid',    $assetid, PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'permission', $permission, PDO::PARAM_INT);
 				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
-				throw new Exception('Unable to get set permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+				throw new Exception('Unable to get permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
 			}
 
 			// cache the result for next time
@@ -6457,6 +6463,45 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Get list of permissions for a certain asset, filtered by cascading setting
+	*
+	* This is primarily used for showing settings on the Permissions screen.
+	* Therefore, roles will NOT be collapsed.
+	*/
+	function getAssetPermissionByCascade($assetid, $permission, $userid=NULL, $cascades=NULL)
+	{
+		$sql = '  SELECT DISTINCT userid, granted, cascades
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm ';
+		$where = 'assetid = :assetid AND permission = :permission';
+		if (!is_null($cascades)) {
+			$where .= ' AND cascades = :cascades';
+		}
+		if (!is_null($userid)) {
+			$where .= ' AND userid = :userid';
+		}
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid',    $assetid, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'permission', $permission, PDO::PARAM_STR);
+			if (!is_null($cascades)) {
+				MatrixDAL::bindValueToPdo($query, 'cascades', $cascades ? '1' : '0', PDO::PARAM_STR);
+			}
+			if (!is_null($userid)) {
+				MatrixDAL::bindValueToPdo($query, 'userid', $userid, PDO::PARAM_STR);
+			}
+			$result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get set permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+		}
+
+		return $result;
+
+	}//end getAssetPermissionByCascade()
+
+
+	/**
 	* Sets a permission for the passed user or user_group
 	*
 	* @param int		$assetid	the assetid for asset whose permissions to set
@@ -6468,7 +6513,7 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setPermission($assetid, $userid, $permission, $granted, $force_set=FALSE)
+	function setPermission($assetid, $userid, $permission, $granted, $cascades=TRUE, $force_set=FALSE)
 	{
 		$permission = (int)  $permission;
 		$granted    = (bool) $granted;
@@ -6502,7 +6547,15 @@ class Asset_Manager extends MySource_Object
 		// check if this permission is already set
 		$current = $this->getPermission($assetid, $permission, $granted, FALSE, FALSE, FALSE, TRUE);
 		if (in_array($userid, array_values($current))) {
-			return TRUE;
+			// Check whether the cascade setting is also matched
+			$perm_info = $this->getAssetPermissionByCascade($assetid, $permission, $userid, $cascades);
+			if (!empty($perm_info)) {
+				return TRUE;
+			} else {
+				// We are merely changing the cascade setting, so
+				// set it to update
+				$db_action = 'update';
+			}
 		}
 
 		// if we dont have an userid, we are granting public access
@@ -6549,14 +6602,16 @@ class Asset_Manager extends MySource_Object
 								assetid,
 								userid,
 								permission,
-								granted
+								granted,
+								cascades
 							)
 							VALUES
 							(
 								:assetid,
 								:userid,
 								:permission,
-								:granted
+								:granted,
+								:cascades
 							)';
 
 			break;
@@ -6564,7 +6619,8 @@ class Asset_Manager extends MySource_Object
 				$sql = 'UPDATE
 							sq_ast_perm
 						SET
-							granted = :granted
+							granted  = :granted,
+							cascades = :cascades
 						WHERE
 							assetid        = :assetid
 							AND userid     = :userid
@@ -6579,6 +6635,7 @@ class Asset_Manager extends MySource_Object
 					MatrixDAL::bindValueToPdo($query, 'userid',     $userid);
 					MatrixDAL::bindValueToPdo($query, 'permission', $permission);
 					MatrixDAL::bindValueToPdo($query, 'granted',    $granted ? '1' : '0', PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'cascades',   $cascades ? '1' : '0', PDO::PARAM_STR);
 					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to '.$db_action.' permissions for asset "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());
@@ -7014,7 +7071,7 @@ class Asset_Manager extends MySource_Object
 			$option  = '';
 			$url_condition = ' IN (';
 			foreach ($sections as $piece) {
-				$url_condition .= (($option) ? ',' : '').'\''.$option.$piece.'\'';
+				$url_condition .= (($option) ? ',' : '').MatrixDAL::quote($option.$piece);
 				$option .= $piece.'/';
 			}
 			$url_condition .= ') ';
@@ -7023,7 +7080,7 @@ class Asset_Manager extends MySource_Object
 		$where = 'l.url '.$url_condition;
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol." = '1'";
+			$where .= ' AND l.'.$protocol.' = '.MatrixDAL::quote('1');
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -7267,11 +7324,11 @@ class Asset_Manager extends MySource_Object
 							)';
 
 		if (!is_null($protocol)) {
-			$where .= ' AND l.'.$protocol." = '1'";
-			$protocol_select = '\''.$protocol.'\'';
+			$where .= ' AND l.'.$protocol.' = '.MatrixDAL::quote('1');
+			$protocol_select = MatrixDAL::quote($protocol);
 		} else {
 			$curr_proto = current_protocol();
-			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = \'1\' THEN \''.$curr_proto.'\' ELSE \''.(($curr_proto == 'http') ? 'https' : 'http').'\' END';
+		$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.MatrixDAL::quote('1').' THEN '.MatrixDAL::quote($curr_proto).' ELSE '.MatrixDAL::quote(($curr_proto == 'http') ? 'https' : 'http').' END';
 		}
 
 		// if we are using oracle, we cannot specify an alias
@@ -7999,30 +8056,37 @@ class Asset_Manager extends MySource_Object
 	*											Specify that links should be returned for assets the user has read,
 	*											write, or admin access for. Leave NULL to ignore permissions.
 	* @param boolean		$effective			If effective permissions should be considered or not.
+	* @param string			$bind_prefix		The prefix for bind variables generated by this function
+	*											(default: 'gc_'). Set this parameter if you are planning to use more than
+	*											one call to this function in a query (through a UNION, say).
 	*
 	* @return array
 	* @access public
 	*/
-	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE)
+	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $bind_prefix='gl_')
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
 
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-		$db = MatrixDAL::getDb();
+		$bind_vars = Array();
 
 		$assetid_cond = '';
 		// TODO: queries.xml format will just send arrays unedited
 		if (is_array($assetid)) {
+			$assetid_binds = Array();
 			for (reset($assetid); NULL !== ($i = key($assetid)); next($assetid)) {
 				assert_valid_assetid($assetid[$i]);
-				$assetid[$i] = '\''.$assetid[$i].'\'';
+				$assetid_binds[] = ':'.$bind_prefix.'assetids_'.$i;
+				$bind_vars[$bind_prefix.'assetids_'.$i] = $assetid[$i];
 			}
-			$assetid_cond = 'IN ('.implode(', ', $assetid).')';
+			$assetid_cond = 'IN ('.implode(', ', $assetid_binds).')';
 		} else {
 			assert_valid_assetid($assetid);
-			$assetid_cond = '= \''.$assetid.'\'';
+			$assetid_cond = '= :'.$bind_prefix.'assetid';
+			$bind_vars[$bind_prefix.'assetid'] = $assetid;
 		}
 
 		$select = 'SELECT  l.'.$side_of_link.'id, l.'.$other_side.'id, l.linkid, l.value, l.link_type,
@@ -8030,17 +8094,23 @@ class Asset_Manager extends MySource_Object
 		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_'.$other_side.' l';
 
 		$where  = 'l.'.$side_of_link.'id '.$assetid_cond.'
-			AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_types).' > 0 ';
+			AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', ':'.$bind_prefix.'link_types').' > 0 ';
+		$bind_vars[$bind_prefix.'link_types'] = $link_types;
+
 		if (!is_null($value)) {
-			$where .= ' AND (l.value = \''.$value.'\'';
+			$where .= ' AND (l.value = :'.$bind_prefix.'link_value';
 			if ($value == '') $where .= ' OR l.value IS NULL';
 			$where .= ')';
+
+			$bind_vars[$bind_prefix.'link_value'] = $value;
 		}
 		if (!is_null($dependant)) {
-			$where .= ' AND l.is_dependant = '.(($dependant) ? "'1'" : "'0'");
+			$where .= ' AND l.is_dependant = :'.$bind_prefix.'is_dependant';
+			$bind_vars[$bind_prefix.'is_dependant'] = ($dependant) ? '1' : '0';
 		}
 		if (!is_null($exclusive)) {
-			$where .= ' AND l.is_exclusive = '.(($exclusive) ? "'1'" : "'0'");
+			$where .= ' AND l.is_exclusive = :'.$bind_prefix.'is_exclusive';
+			$bind_vars[$bind_prefix.'is_exclusive'] = ($exclusive) ? '1' : '0';
 		}
 
 		$group_by = '';
@@ -8054,34 +8124,58 @@ class Asset_Manager extends MySource_Object
 				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.minorid';
 
 				// get user and group ids
+				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
+				$userid2_conds = Array(':'.$bind_prefix.'userids_2_current', ':'.$bind_prefix.'userids_2_public_user');
+				$userid3_conds = Array(':'.$bind_prefix.'userids_3_current', ':'.$bind_prefix.'userids_3_public_user');
+
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
 				$public_userid = (string)$this->getSystemAssetid('public_user');
-				$userids[] = $public_userid;
+
+				$bind_vars[$bind_prefix.'userids_1_current'] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
+				$bind_vars[$bind_prefix.'userids_1_public_user']  = $public_userid;
+				$bind_vars[$bind_prefix.'userids_2_current'] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
+				$bind_vars[$bind_prefix.'userids_2_public_user']  = $public_userid;
+				$bind_vars[$bind_prefix.'userids_3_current'] = (string)$GLOBALS['SQ_SYSTEM']->user->id;
+				$bind_vars[$bind_prefix.'userids_3_public_user']  = $public_userid;
+
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = '\''.(string)$userids[$i].'\'';
+					$userid1_conds[] = ':'.$bind_prefix.'userids_1_'.$i;
+					$bind_vars[$bind_prefix.'userids_1_'.$i] = $userids[$i];
+					$userid2_conds[] = ':'.$bind_prefix.'userids_2_'.$i;
+					$bind_vars[$bind_prefix.'userids_2_'.$i] = $userids[$i];
+					$userid3_conds[] = ':'.$bind_prefix.'userids_3_'.$i;
+					$bind_vars[$bind_prefix.'userids_3_'.$i] = $userids[$i];
 				}
 
-				$userids_str = implode(',', $userids);
+				$userids1_str = implode(',', $userid1_conds);
+				$userids2_str = implode(',', $userid2_conds);
+				$userids3_str = implode(',', $userid3_conds);
 
-				$userid_cond = ' AND (p.userid IN ('.$userids_str.') OR r.userid IN ('.$userids_str.'))';
+				$userid_cond = ' AND (p.userid IN ('.$userids1_str.') OR r.userid IN ('.$userids2_str.'))';
 				// join to roles table
 				$from .= '
 					LEFT JOIN (SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role WHERE userid IN
-					('.$userids_str.')) r on p.userid = r.roleid';
+					('.$userids3_str.')) r on p.userid = r.roleid';
 
 
 				$where .= $userid_cond.'
 					AND (
 						(p.permission = '.$access.' AND (
-									p.userid <> '.MatrixDAL::quote($public_userid).'
-									OR r.userid <> '.MatrixDAL::quote($public_userid).'
-									OR (p.userid = '.MatrixDAL::quote($public_userid).' AND p.granted = \'1\')
-									OR (r.userid = '.MatrixDAL::quote($public_userid).' AND p.granted = \'1\')
+									p.userid <> :'.$bind_prefix.'public_userid
+									OR r.userid <> :'.$bind_prefix.'public_userid_1
+									OR (p.userid = :'.$bind_prefix.'public_userid_2 AND p.granted = \'1\')
+									OR (r.userid = :'.$bind_prefix.'public_userid_3 AND p.granted = \'1\')
 								)
 						)';
+
+				$bind_vars[$bind_prefix.'public_userid']   = $public_userid;
+				$bind_vars[$bind_prefix.'public_userid_1'] = $public_userid;
+				$bind_vars[$bind_prefix.'public_userid_2'] = $public_userid;
+				$bind_vars[$bind_prefix.'public_userid_3'] = $public_userid;
+
 				if ($effective) {
-					$where .= ' OR (p.permission > '.$access.' AND p.granted = \'1\')';
+					$where .= ' OR (p.permission > :'.$bind_prefix.'access AND p.granted = \'1\')';
+					$bind_vars[$bind_prefix.'access'] = $access;
 				}
 				$where .= ')';
 				$having .= 'HAVING MIN(p.granted) <> \'0\'';
@@ -8095,12 +8189,15 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
+				$type_code_binds = Array();
 				for (reset($type_code); NULL !== ($i = key($type_code)); next($type_code)) {
-					$type_code[$i] = '\''.$type_code[$i].'\'';
+					$type_code_binds[] = ':'.$bind_prefix.'type_code_'.$i;
+					$bind_vars[$bind_prefix.'type_code_'.$i] = $type_code[$i];
 				}
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+				$type_code_cond = 'IN ('.implode(', ', $type_code_binds).')';
 			} else {
-				$type_code_cond = '= \''.$type_code.'\'';
+				$type_code_cond = '= :'.$bind_prefix.'type_code';
+				$bind_vars[$bind_prefix.'type_code'] = $type_code;
 			}
 
 			if ($strict_type_code) {
@@ -8129,13 +8226,18 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
+		$sql_array = Array(
+						'select'	=> $select,
+						'from'		=> $from,
+						'where'		=> $where,
+						'group_by'	=> $group_by,
+						'having'	=> $having,
+						'order_by'	=> $order_by,
+					 );
+
 		return Array(
-				'select'	=> $select,
-				'from'		=> $from,
-				'where'		=> $where,
-				'group_by'	=> $group_by,
-				'having'	=> $having,
-				'order_by'	=> $order_by,
+				'sql_array'	=> $sql_array,
+				'bind_vars'	=> $bind_vars,
 			   );
 
 	}//end generateGetLinksQuery()
