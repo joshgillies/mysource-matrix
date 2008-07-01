@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.130 2008/06/26 00:57:31 bpearson Exp $
+* $Id: page_asset_builder.inc,v 1.131 2008/07/01 01:28:54 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -440,6 +440,14 @@ class Page_Asset_Builder extends Page
 							// take a copy of the attribute so we don't muck anything up for the processBackend() below
 							$attribute = clone $real_attribute;
 							$attribute->process($prefix.'_'.$attribute->id);
+
+							// For attributes that use paint and process functions, they return an empty result
+							// So we should try again with a different param
+							// See Bug #3099
+							if (empty($attribute->value)) {
+								$attribute->process($prefix.'_'.$attribute->name);
+							}//end if
+
 							if (!$attribute->processed) {
 								if (empty($error_text)) {
 									$error_text = translate('cms_asset_builder_invalid_attr_value', $attribute->name);
