@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.9 2008/06/30 01:25:23 bshkara Exp $
+* $Id: asset.inc,v 1.633.2.10 2008/07/01 03:28:25 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.9 $
+* @version $Revision: 1.633.2.10 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4882,7 +4882,7 @@ class Asset extends MySource_Object
 		$old_web_paths = Array();
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
-			$current_urls[] = MatrixDAL::quote($url);
+			$current_urls[] = $url;
 			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid'])) {
 				// get the asset lineage and use that as the basis for indexing old URLs
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
@@ -4935,7 +4935,6 @@ class Asset extends MySource_Object
 
 			// delete rows which have override values applied
 			for ($i=0; $i<count($current_urls); $i++) {
-				$current_urls[$i] = str_replace('\'', '', $current_urls[$i]);
 				$current_urls[$i] .= '/';
 			}
 			try {
