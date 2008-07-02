@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.266 2008/05/27 05:15:19 bpearson Exp $
+* $Id: mysource.inc,v 1.267 2008/07/02 04:02:28 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.266 $
+* @version $Revision: 1.267 $
 * @package MySource_Matrix
 */
 class MySource
@@ -430,8 +430,13 @@ class MySource
 								if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
 									$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 									header('Pragma: cache');
-									$cache_expiry = $cm->getExpiry($page->type());
-									header('Cache-Control: max-age='.$cache_expiry.', public');
+
+									$browser_cache_expiry = $cm->getBrowserCacheExpiry($page->type());
+									if (empty($browser_cache_expiry)) {
+										$browser_cache_expiry = $cm->getExpiry($page->type());
+									}
+
+									header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 								}
 
 								ob_start();
@@ -457,8 +462,13 @@ class MySource
 						if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
 							$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 							header('Pragma: cache');
-							$cache_expiry = $cm->attr('expiry');
-							header('Cache-Control: max-age='.$cache_expiry.', public');
+
+							$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+							if (empty($browser_cache_expiry)) {
+								$browser_cache_expiry = $cm->attr('expiry');
+							}
+
+							header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 						}
 
 						// last resort, display little green error
@@ -566,8 +576,14 @@ class MySource
 		// save/load the cache information of this asset
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info');
+
 		$cache_expiry = $cm->getExpiry($asset->type());
-		header('Cache-Control: max-age='.$cache_expiry.', public');
+		$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type());
+		if (empty($browser_cache_expiry)) {
+			$browser_cache_expiry = $cache_expiry;
+		}
+
+		header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 
 		ob_start();
 			$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
@@ -582,13 +598,17 @@ class MySource
 			$assetids = array_diff($all_assetids, $loaded_assetids);
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
 
+			// The Matrix Cache Expiry (a.k.a "Default Expiry") is used when saving to cache
 			$info = Array(
 						'last_modified'	=> $last_updated,
 						'expires'		=> (time() + $cache_expiry),
 					);
 			$cache_status = $cm->saveToCache($asset->id, $asset->type(), 'cache_info', serialize($info));
 			// if cache_status is FALSE, then caching is probably disabled, expiry time = now
-			$expiry_time = $cache_status ? $info['expires'] : time();
+
+			// Calculate the "Browser Cache Expiry" value for use in HTTP headers
+			$expiry_time = $cache_status ? (time() + $browser_cache_expiry) : time();
+
 			header('Expires: '.gmdate('D, d M Y H:i:s', $expiry_time).' GMT');
 			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER && $cache_status) {
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s', $info['last_modified']).' GMT');
@@ -606,7 +626,14 @@ class MySource
 				$not_modified =TRUE;
 			}
 
-			header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
+			// If the Browser Cache Expiry is set, caclculate the expiry time from now.
+			// Otherwise, use the expiry time as supplied by the Matrix cache.
+			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type());
+			if (empty($browser_cache_expiry)) {
+				header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
+			} else {
+				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
+			}
 
 			if (SQ_CONF_SEND_LAST_MODIFIED_HEADER) {
 				header('Last-Modified: '.$last_modified);
