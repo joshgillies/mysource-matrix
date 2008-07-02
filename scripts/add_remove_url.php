@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.6.8 $
+* @version $Revision: 1.1.6.9 $
 * @package MySource_Matrix
 */
 
@@ -131,7 +131,7 @@ Make sure you have all you information you need before Proceeding\n");
 				$new_url = NULL;
 			}
 
-			$sql_check_new_url = 'SELECT url FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($new_url).';';
+			$sql_check_new_url = 'SELECT url FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($new_url);
 			$new_url_check = $db->getOne($sql_check_new_url);
 			assert_valid_db_result($new_url_check);
 			if (!empty($new_url_check)) {
@@ -160,7 +160,7 @@ Make sure you have all you information you need before Proceeding\n");
 			exit(0);
 		}
 
-		$sql_check_existing_url = 'SELECT urlid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($existing_url).';';
+		$sql_check_existing_url = 'SELECT urlid FROM sq_ast_url WHERE url LIKE '.$db->quoteSmart($existing_url);
 		$existing_urlid = $db->getOne($sql_check_existing_url);
 		assert_valid_db_result($existing_urlid);
 		if (empty($existing_urlid)) {
@@ -205,12 +205,12 @@ Make sure you have all you information you need before Proceeding\n");
 		.$db->quoteSmart($assetid).','
 		.$db->quoteSmart($new_url).','
 		.$db->quoteSmart($new_urlid)
-		.');';
+		.')';
 
 		$sql_update_sq_ast_lookup_value = 'INSERT INTO sq_ast_lookup_value (url, name, value, inhd)
 										SELECT replace(url, '.$db->quoteSmart($existing_url).', '.$db->quoteSmart($new_url).'), name, value, inhd
 											FROM sq_ast_lookup_value
-											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($existing_urlid).');';
+											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = '.$db->quoteSmart($existing_urlid).')';
 
 		$sql_update_sq_ast_lookup		= 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
 										SELECT '.$db->quoteSmart($http).', '.$db->quoteSmart($https).', assetid, replace(url,'.$db->quoteSmart($existing_url).','.$db->quoteSmart($new_url).'),'.$new_urlid.'
