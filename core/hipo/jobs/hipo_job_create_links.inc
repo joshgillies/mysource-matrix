@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.61 2008/06/19 06:23:27 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.62 2008/07/02 06:42:25 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1468,16 +1468,17 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$permission_vars = Array();
 
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->_running_vars['to_parent_assetid'], $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($this->_running_vars['to_parent_assetid'], $perm, NULL, TRUE);
 
-			foreach ($set_perms as $userid => $granted) {
-				$permission_vars[$perm][] = Array(
-												'granted'			=> $granted,
-												'userid'			=> $userid,
-												'previous_access'	=> NULL,
-												'assets'			=> array_keys($this->_running_vars['assets']),
-												'cascades'			=> TRUE,
-											);
+			foreach ($set_perms as $userid => $perm_data) {
+				$permission_vars[] = Array(
+										'permission'		=> $perm,
+										'granted'			=> $perm_data['granted'],
+										'userid'			=> $perm_data['userid'],
+										'previous_access'	=> NULL,
+										'assetids'			=> array_keys($this->_running_vars['assets']),
+										'cascades'			=> TRUE,
+									 );
 			}
 		}
 
@@ -1500,7 +1501,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	{
 		$job_type = 'hipo_job_edit_metadata_schemas';
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemas = $mm->getSchemas($this->_running_vars['to_parent_assetid']);
+		$schemas = $mm->getSchemas($this->_running_vars['to_parent_assetid'], NULL, TRUE);
 		$schema_vars = Array();
 
 		foreach ($schemas as $schemaid => $granted) {
@@ -1532,7 +1533,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	{
 		$job_type = 'hipo_job_edit_workflow_schemas';
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-		$schemas = $wfm->getSchemas($this->_running_vars['to_parent_assetid']);
+		$schemas = $wfm->getSchemas($this->_running_vars['to_parent_assetid'], NULL, FALSE, TRUE);
 		$schema_vars = Array();
 
 		foreach ($schemas as $schemaid => $granted) {
