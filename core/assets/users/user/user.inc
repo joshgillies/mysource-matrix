@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.125 2008/03/18 02:28:51 lwright Exp $
+* $Id: user.inc,v 1.126 2008/07/02 14:15:22 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,12 +96,7 @@ class User extends Asset
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		// set an initial web path
-		$initial_path = strtolower($this->attr('username'));
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
-		if (!$this->saveWebPaths($good_paths)) {
+		if (!$this->makeAndSaveInitialWebPath(strtolower($this->attr('username')), $link)) {
 			trigger_localised_error('CORE0019', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
