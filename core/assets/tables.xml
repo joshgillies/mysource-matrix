@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.50.2.3 2008/03/12 05:56:00 lwright Exp $
+* $Id: tables.xml,v 1.50.2.4 2008/07/02 06:18:35 lwright Exp $
 *
 */
 -->
@@ -895,6 +895,12 @@
 					<default>'0'</default>
 					<description />
 				</column>
+				<column name="cascades" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
+					<description />
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
@@ -967,6 +973,12 @@
 					<type>CHAR(1)</type>
 					<type_variations />
 					<default>'0'</default>
+					<description />
+				</column>
+				<column name="cascades" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
 					<description />
 				</column>
 			</columns>
@@ -1059,6 +1071,12 @@
 					<type>CHAR(1)</type>
 					<type_variations />
 					<default>'0'</default>
+					<description />
+				</column>
+				<column name="cascades" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'1'</default>
 					<description />
 				</column>
 			</columns>

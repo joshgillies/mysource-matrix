@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.66 2007/12/21 02:54:32 hnguyen Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.66.2.1 2008/07/02 06:18:36 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.66.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -107,7 +107,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.md5(implode('-',array_keys($this->_running_vars['assets'])));
+		return parent::getCodeName().'-'.md5(serialize($this->_running_vars['permission_changes']));
 
 	}//end getCodeName()
 
@@ -166,7 +166,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids'])) {
 			return 0;
 		}
-		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
+		return ((count($this->_running_vars['total_changes']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
 
 	}//end getThresholdPercentageRequired()
 
@@ -197,41 +197,58 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	*/
 	function prepare()
 	{
-		if (empty($this->_running_vars['assets'])) {
-			trigger_localised_error('HIPO0015', E_USER_WARNING);
-			return '';
-		}
-
 		if (empty($this->_running_vars['permission_changes'])) {
 			trigger_localised_error('HIPO0014', E_USER_WARNING);
 			return '';
 		}
 
-		$assets = $this->_running_vars['assets'];
-		$child_assets = Array();
-		for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
-			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-			if (empty($asset_info)) {
-				trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
-				return '';
-			}
+		$this->_running_vars['done_changes']  = 0;
+		$this->_running_vars['total_changes'] = 0;
 
-			if (array_get_index($this->_running_vars, 'dependants_only')) {
-				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
-			} else {
-				$child_assets += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
-			}
+		if (empty($this->_running_vars['permission_changes'])) {
+			// no schema changes, so do nothing
+			$this->_running_vars['todo_assetids'] = Array();
+		} else {
+			$this->_running_vars['todo_assetids'] = Array();
+			foreach ($this->_running_vars['permission_changes'] as $perm_change) {
+				$assetids = $perm_change['assetids'];
+				foreach ($assetids as $assetid) {
+					$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-			$child_assets[$assetid]	= Array (
-										0	=> Array (
-												'type_code'	=> $asset_info[$assetid]['type_code'],
-											   ),
-									  );
+					if (empty($asset_info)) {
+						trigger_localised_error('HIPO0013', E_USER_WARNING, $assetid);
+						return '';
+					}
+
+					if (array_get_index($perm_change, 'dependants_only')) {
+						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
+					} else {
+						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+					}
+
+					// add the parent asset to the list too
+					$child_assets[$assetid]	= Array (
+												0	=> Array (
+														'type_code'	=> $asset_info[$assetid]['type_code'],
+													   ),
+											  );
+
+					$child_assets = array_reverse($child_assets, TRUE);
+
+					// Now assign permission changes to each asset
+					foreach ($child_assets as $child_assetid => $child_asset) {
+						$type_code = $child_asset[0]['type_code'];
+
+						$this_todo =& $this->_running_vars['todo_assetids'][$child_assetid];
+						$this_todo['type_code'] = $type_code;
+						$this_todo['permission_changes'][] = $perm_change;
+						$this->_running_vars['total_changes']++;
+					}
+				}
+			}
 		}
 
-		$child_assets = array_reverse($child_assets,true);
-		$this->_running_vars['todo_assetids'] = $child_assets;
-		$this->_running_vars['done_assetids'] = Array();
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -251,7 +268,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			reset($this->_running_vars['todo_assetids']);
 			$assetid = key($this->_running_vars['todo_assetids']);
-			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
+			$asset_type = $this->_running_vars['todo_assetids'][$assetid]['type_code'];
+			$perm_changes = $this->_running_vars['todo_assetids'][$assetid]['permission_changes'];
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
@@ -260,73 +278,82 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 				// check we can acquire lock and change permissions, otherwise silently pass by
 				 if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'permissions')) {
 					if ($asset->adminAccess('permissions')) {
-						foreach ($this->_running_vars['permission_changes'] as $perm => $perm_data) {
-							require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+						foreach ($perm_changes as $set_data) {
+							$perm = $set_data['permission'];
 							$perm_name = permission_type_name($perm);
 
-							foreach ($perm_data as $set_data) {
-								if ($set_data['userid']) {
-									// use getAssetInfo() because deleting permissions
-									// held by deleted users (eg.LDAP) will cause an assertion
-									$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($set_data['userid']), 'user', false);
+							$this->_running_vars['done_changes']++;
+							if ($set_data['userid']) {
+								// use getAssetInfo() because deleting permissions
+								// held by deleted users (eg.LDAP) will cause an assertion
+								$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($set_data['userid']), 'user', false);
 
-									// check that the passed userid is a user or user_group
-									if (empty($user_info)) {
-										$user_name = 'Unknown User';
-									} else {
-										$user_name = $user_info[$set_data['userid']]['name'];
-									}
+								// check that the passed userid is a user or user_group
+								if (empty($user_info)) {
+									$user_name = 'Unknown User';
 								} else {
-									$user_name = 'General Public';
+									$user_name = $user_info[$set_data['userid']]['name'];
 								}
-								if ($set_data['previous_access'] === null) {
-									// to edit this permission, there must not currently be a permission set
-									// at all - either grant OR deny - for this user
-									$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], FALSE, FALSE, TRUE, TRUE);
-									if (isset($current[$set_data['userid']])) {
-										$new_access     = ($set_data['granted']) ? translate('grant') : translate('revoke');
-										$current_access = ($current[$set_data['userid']]) ? translate('granted') : translate('revoked');
-										$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
-										continue;
-									}
-								} else {
-									// we need to have a permission set and the access level be the same
-									$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, null, false, false, true);
-									if (!isset($current[$set_data['userid']])) {
-										continue;
-									} else if ($current[$set_data['userid']] != $set_data['previous_access']) {
-										$new_access     = ($set_data['previous_access']) ? translate('grant') : translate('revoke');
-										$current_access = ($set_data['previous_access']) ? translate('revoked') : translate('granted');
-										$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
-										continue;
-									}
-
+							} else {
+								$user_name = 'General Public';
+							}
+							if ($set_data['previous_access'] === null) {
+								// to edit this permission, there must not currently be a permission set
+								// at all - either grant OR deny - for this user
+								$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, !(bool)$set_data['granted'], FALSE, FALSE, TRUE, TRUE);
+								if (isset($current[$set_data['userid']])) {
+									$new_access     = ($set_data['granted']) ? translate('grant') : translate('revoke');
+									$current_access = ($current[$set_data['userid']]) ? translate('granted') : translate('revoked');
+									$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
+									continue;
+								}
+							} else {
+								// we need to have a permission set and the access level be the same
+								$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, null, false, false, true);
+								if (!isset($current[$set_data['userid']])) {
+									continue;
+								} else if ($current[$set_data['userid']] != $set_data['previous_access']) {
+									$new_access     = ($set_data['previous_access']) ? translate('grant') : translate('revoke');
+									$current_access = ($set_data['previous_access']) ? translate('revoked') : translate('granted');
+									$this->_addError(translate('hipo_cannot_modify_permission', $new_access, $perm_name, $user_name, $asset->name, $current_access), true);
+									continue;
 								}
 
-								switch ($set_data['granted']) {
-									case -1 :
-										// delete a permission
-										$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $set_data['userid'], $perm);
-									break;
+							}
 
-									case 0  :
-									case 1  :
-										// deny a permission
-										// grant a permission
-										$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted']);
-									break;
-								}
+							switch ($set_data['granted']) {
+								case -1 :
+									// delete a permission
+									$step_data['message'] = htmlentities('Removing '.$perm_name.' permission from "'.$asset->name.'" (#'.$asset->id.')');
+									$GLOBALS['SQ_SYSTEM']->am->deletePermission($asset->id, $set_data['userid'], $perm);
+								break;
+
+								case 0  :
+								case 1  :
+									// deny a permission
+									// grant a permission
+									$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing '.$perm_name.' permission to "'.$asset->name.'" (#'.$asset->id.')');
+									$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted'], $set_data['cascades']);
+								break;
 							}
 						}
 
-						$step_data['message'] = translate('hipo_edit_permission', htmlentities($asset->name));
+						// If there are multiple schema changes to make, say we are
+						// (otherwise use more specific message set above)
+						if (count($perm_changes) > 1) {
+							$step_data['message'] = htmlentities('Making '.count($perm_changes).' permission changes to '.$asset->name.' (Id: #'.$asset->id.')');
+						} else if (count($perm_changes) == 0) {
+							$step_data['message'] = translate('hipo_skipping_asset', $assetid);
+						}
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'permissions');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						unset($asset);
 
 					} else {
-							// we do not have admin access
-							trigger_localised_error('SYS0111', E_USER_WARNING, $asset->name);
+						// we do not have admin access
+						trigger_localised_error('SYS0111', E_USER_WARNING, $asset->name);
 					}
 				} else {
 					// we do not acquire lock
@@ -337,19 +364,14 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 				$this->_addError(translate('hipo_skipping_permission', $assetid));
 			}
 
-			// add this assetid to the done array so we dont do it again
-			$this->_running_vars['done_assetids'][] = $assetid;
-
 		}//end if
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
-			$step_data['complete']     = true;
-			unset($this->_running_vars['done_assetids']);
+			$step_data['complete']     = TRUE;
 		} else {
-			$total = count($this->_running_vars['todo_assetids']) + count($this->_running_vars['done_assetids']);
-			$step_data['percent_done'] =(count($this->_running_vars['done_assetids']) / $total) * 100;
-			$step_data['complete']     = false;
+			$step_data['percent_done'] = ($this->_running_vars['done_changes'] / $this->_running_vars['total_changes']) * 100;
+			$step_data['complete']     = FALSE;
 		}
 
 		return true;

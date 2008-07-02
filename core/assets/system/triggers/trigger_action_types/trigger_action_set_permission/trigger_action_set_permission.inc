@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.18 2007/11/28 03:50:04 colivar Exp $
+* $Id: trigger_action_set_permission.inc,v 1.18.2.1 2008/07/02 06:18:36 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,6 +77,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$granted = array_get_index($settings, 'granted', TRUE);
 		$dependant_only = array_get_index($settings, 'dependant_only', FALSE);
 		$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
+		$cascade_to_new = array_get_index($settings, 'cascade_to_new', TRUE);
 
 		// if dependant_parents is turned on, look for all our dependant parents
 		// and change their statuses, instead of our own
@@ -97,19 +98,20 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		// need to use a hipo job to set status (handles dependant children)
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$hipo_assets = Array();
 		foreach ($target_assets as $assetid => $asset) {
-			$vars['assets'][$assetid] = Array(
-											'type_code'	=> $asset->type(),
-										);
+			$hipo_assets[] = $assetid;
 		}
 		$vars['permission_changes'] = Array(
-										$settings['permission']	=> Array(
-																	Array(
-																		'granted'			=> $granted,
-																		'userid'			=> $userid,
-																		'previous_access'	=> NULL,
-																	),
-																   ),
+											Array(
+												'permission'		=> $settings['permission'],
+												'granted'			=> $granted,
+												'userid'			=> $userid,
+												'previous_access'	=> NULL,
+												'dependants_only'	=> $dependant_only,
+												'cascades'			=> $cascade_to_new,
+												'assetids'			=> $hipo_assets,
+											),
 									  );
 		$vars['dependants_only'] = $dependant_only;
 
@@ -122,6 +124,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 				'userid'		=> $userid,
 				'permission'	=> $settings['permission'],
 				'granted'		=> $granted,
+				'cascades'		=> $cascade_to_new,
 			   );
 
 	}//end execute()
@@ -139,6 +142,11 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 	*/
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
+		$current_schemaid      = array_get_index($settings, 'schemaid', 0);
+		$granted               = array_get_index($settings, 'granted', 1);
+		$dependants_only       = array_get_index($settings, 'dependant_only', FALSE);
+		$dependant_parents     = array_get_index($settings, 'dependant_parents', FALSE);
+		$cascade_to_new        = array_get_index($settings, 'cascade_to_new', TRUE);
 
 	// due to "access for" being the only stable text in this interface
 		// we are not translating like the rest but just the text as it appears
@@ -215,24 +223,37 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$atr_parameter_map->setParameter('user', 'Userid or Groupid');
 		echo $atr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
 
-		// dependants_only
-		$dependants_only = array_get_index($settings, 'dependants_only', FALSE);
+
+		// Only cascade to our dependants (and not all our children)?
 		if ($write_access) {
 			echo '<br />';
-			check_box($prefix.'[dependants_only]', 1, array_get_index($settings, 'dependants_only', FALSE));
+			check_box($prefix.'[dependants_only]', 1, $dependants_only);
 			echo translate('trigger_set_permission_dependants_only');
 		} else {
-			echo '<br />Dependant Children Only : <b>'.($dependants_only ? 'True' : 'False').'</b>';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($depandants_only ? 'tick' : 'cross').'.gif" alt="'.($depandants_only ? translate('yes') : translate('no')).'" /> ';
+			echo translate('trigger_set_permission_dependants_only');
 		}
 
-		// dependant_parents
-		$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
+		// Look for dependant parents (and change them instead)?
+		if ($write_access) {
+			echo '<br />';
+			check_box($prefix.'[dependant_parents]', 1, $dependant_parents);
+			echo translate('trigger_set_permission_dependant_parents');
+		} else {
+			echo '<br />';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($depandant_parents ? 'tick' : 'cross').'.gif" alt="'.($depandant_parents ? translate('yes') : translate('no')).'" /> ';
+			echo translate('trigger_set_permission_dependant_parents');
+		}
+
+		// Cascade to new children
 		if ($write_access) {
 			echo '<br />';
 			check_box($prefix.'[dependant_parents]', 1, array_get_index($settings, 'dependant_parents', FALSE));
-			echo translate('trigger_set_permission_dependant_parents');
+			echo translate('cascade_schema_changes_to_new_children');
 		} else {
-			echo '<br />Dependant Parent : <b>'.($dependant_parents ? 'True' : 'False').'</b>';
+			echo '<br />';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
+			echo translate('cascade_schema_changes_to_new_children');
 		}
 
 		return ob_get_clean();
@@ -300,6 +321,10 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		// dependant_parents
 		$dependant_parents = array_get_index($request_data, 'dependant_parents', FALSE);
 		$settings['dependant_parents'] = ($dependant_parents == '1') ? TRUE : FALSE;
+
+		// dependant_parents
+		$cascade_to_new = array_get_index($request_data, 'cascade_to_new', FALSE);
+		$settings['cascade_to_new'] = ($cascade_to_new == '1') ? TRUE : FALSE;
 
 		return FALSE;
 

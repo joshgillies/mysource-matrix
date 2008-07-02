@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.33 2007/12/10 06:22:41 rong Exp $
+* $Id: permissions.inc,v 1.33.2.1 2008/07/02 06:18:37 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @return boolean
 * @access public
 */
-function paintInlinePermissions(&$owner, &$o, &$ei)
+function paintInlinePermissions(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, $cascades=TRUE)
 {
 	$prefix = $owner->getPrefix();
 	$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
@@ -43,13 +43,14 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 	$direct = Array();
 
 	foreach ($perms as $title => $perm) {
-		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+		$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm, NULL, $cascades);
 
-		foreach ($permissions as $userid => $granted) {
+		foreach ($permissions as $userid => $perm_info) {
+			$granted = $perm_info['granted'];
 			if (!isset($direct[$perm][$granted])) {
 				$direct[$perm][$granted] = Array();
 			}
-			$direct[$perm][$granted][] = $userid;
+			$direct[$perm][$granted][] = $perm_info['userid'];
 		}
 
 		if (!empty($direct[$perm])) ksort($direct[$perm]);
@@ -137,17 +138,20 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 	foreach ($perms as $title => $perm) {
 		$o->openSection(translate('permission_section', translate($title)));
 
-		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+		$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm);
 
 		$direct = Array();
-		foreach ($permissions as $userid => $granted) {
+		foreach ($permissions as $perm_info) {
+			$granted = $perm_info['granted'];
+			$userid = $perm_info['userid'];
+
 			if (!isset($direct[$granted])) {
 				$direct[$granted] = Array();
 			}
-			$direct[$granted][] = $userid;
+			$direct[$granted][$userid] = $perm_info;
 		}
 		ksort($direct);
-		
+
 		if ($admin_access) {
 			$o->openField(translate('current'));
 		} else {
@@ -155,13 +159,14 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 
 		if (!empty($direct)) {
-			foreach ($direct as $granted => $userids) {
+			foreach ($direct as $granted => $perm_details) {
 			?>
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">
 							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
 						</td>
+						<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('cascade_question'); ?></td>
 						<?php
 						if ($admin_access) {
 							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td><?php
@@ -170,12 +175,21 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					</tr>
 				<?php
 
-				foreach ($userids as $userid) {
+				foreach ($perm_details as $userid => $perm_detail) {
 					?>
 					<tr>
 						<td class="sq-backend-table-cell">
 							<?php
 							echo get_asset_tag_line($userid);
+							?>
+						</td>
+						<td align="center" width="100" class="sq-backend-table-cell">
+						<?php
+						if ($admin_access) {
+							check_box($prefix.'_permissions['.$perm.'][cascades]['.rawurlencode($userid).']', 1, $perm_detail['cascades']);
+						} else {
+							?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($perm_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+						}
 							?>
 						</td>
 						<?php
@@ -197,13 +211,13 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		} else {
 			echo translate('no_access_permissions_set', strtolower($title));
 		}//end if
-		
+
 		if ($admin_access) {
 			$o->closeField();
 		} else {
 			$o->closeRaw();
 		}
-		
+
 		if ($admin_access) {
 			$o->openField(translate('new'));
 				?>
@@ -214,9 +228,9 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					?>
 					<tr>
 						<td colspan="2">
-							<?php 
+							<?php
 							combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-							echo ' '.translate('public_permission'); 
+							echo ' '.translate('public_permission');
 							?>
 						</td>
 					</tr>
@@ -225,9 +239,9 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				?>
 					<tr>
 						<td valign="top">
-							<?php 
+							<?php
 							combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-							echo ' '.translate('specific_permission'); 
+							echo ' '.translate('specific_permission');
 							?>
 							&nbsp;
 						</td>
@@ -235,6 +249,11 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					</tr>
 				</table>
 				<?php
+			$o->closeField();
+			$o->openField(translate('cascade_question'), 'new_line');
+				check_box($prefix.'_permissions['.$perm.'][new][cascades]', 1, TRUE);
+				?> Automatically cascade this permission to new children<?php
+				//$o->note('If unchecked, the new permission(s) above will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
 			$o->closeField();
 		}//end if
 
@@ -313,10 +332,14 @@ function processPermissions(&$owner, &$o, &$ei)
 
 		// grant public access
 		if (isset($post_data['public_access']['granted']) && $post_data['public_access']['granted'] != '') {
-			$permission_vars[$perm][] = Array(
+			$permission_vars[] = Array(
+											'permission'		=> $perm,
+											'assetids'			=> Array($owner->id),
 											'granted'			=> (int)$post_data['public_access']['granted'],
 											'userid'			=> $public_userid,
+											'cascades'			=> (int)isset($post_data['new']['cascades']),
 											'previous_access'	=> NULL,
+											'dependants_only'	=> !($cascade_changes && isset($post_data['new']['cascades'])),
 										);
 		}
 
@@ -328,10 +351,14 @@ function processPermissions(&$owner, &$o, &$ei)
 						trigger_localised_error('SYS0269', E_USER_NOTICE);
 						break;
 					} else {
-						$permission_vars[$perm][] = Array(
+						$permission_vars[] = Array(
+														'permission'		=> $perm,
+														'assetids'			=> Array($owner->id),
 														'granted'			=> (int)$post_data['new']['granted'],
 														'userid'			=> $entry['assetid'],
+														'cascades'			=> (int)isset($post_data['new']['cascades']),
 														'previous_access'	=> NULL,
+														'dependants_only'	=> !($cascade_changes && isset($post_data['new']['cascades'])),
 													);
 					}
 				}
@@ -342,23 +369,48 @@ function processPermissions(&$owner, &$o, &$ei)
 		if (!empty($post_data['delete'])) {
 			foreach ($post_data['delete'] as $userid => $on) {
 				$userid = rawurldecode($userid);
-				$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
-				$current_access = $current[$userid];
-				$permission_vars[$perm][] = Array(
+				$current_access = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm, $userid);
+				$current_access = $current_access[0];
+				$permission_vars[] = Array(
+												'permission'		=> $perm,
+												'assetids'			=> Array($owner->id),
 												'granted'			=> -1,
 												'userid'			=> $userid,
-												'previous_access'	=> $current_access,
+												'previous_access'	=> $current_access['granted'],
+												'dependants_only'	=> !($cascade_changes && $current_access['cascades']),
 											);
 			}
 		}
 
+		// Change of cascade status
+		$perm_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm);
+		foreach ($perm_infos as $perm_info) {
+			$userid   = $perm_info['userid'];
+			$cascades = isset($post_data['cascades'][$userid]);
+			if ((boolean)$cascades != (boolean)$perm_info['cascades']) {
+				// Cascade changes are only made to dependants
+				$permission_vars[] = Array(
+									'permission'		=> $perm,
+									'assetids'			=> Array($owner->id),
+									'granted'			=> $perm_info['granted'],
+									'userid'			=> $userid,
+									'previous_access'	=> NULL,
+									'cascades'			=> $cascades,
+									'dependants_only'	=> 1,
+								 );
+			}
+		}
+
 		if (!empty($_POST[$prefix.'_permissions']['manual_cascade'])) {
-			$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
-			foreach ($current as $userid => $granted) {
-				$permission_vars[$perm][] = Array(
-												'granted'			=> $granted,
-												'userid'			=> $userid,
+			$current = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm, NULL, TRUE);
+			foreach ($current as $perm_info) {
+				$permission_vars[] = Array(
+												'permission'		=> $perm,
+												'granted'			=> $perm_info['granted'],
+												'userid'			=> $perm_info['userid'],
+												'assetids'			=> Array($owner->id),
 												'previous_access'	=> NULL,
+												'cascades'			=> TRUE,
 											);
 			}
 		}
@@ -368,10 +420,8 @@ function processPermissions(&$owner, &$o, &$ei)
 	if (!empty($permission_vars)) {
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
-					'assets'				=> Array($owner->id => Array('type_code' => $owner->type())),
 					'permission_changes'	=> $permission_vars,
 				);
-		if (!$cascade_changes) $vars['dependants_only'] = 1;
 		$hh->queueHipo('hipo_job_edit_permissions', $vars);
 	}
 

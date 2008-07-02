@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168.2.8 2008/05/28 01:12:26 bpearson Exp $
+* $Id: metadata_manager.inc,v 1.168.2.9 2008/07/02 06:18:36 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168.2.8 $
+* @version $Revision: 1.168.2.9 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -113,15 +113,18 @@ class Metadata_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function getSchemas($assetid, $granted=NULL)
+	function getSchemas($assetid, $granted=NULL, $cascades=NULL)
 	{
 		$db = DAL::getDb();
 
-		$sql = '  SELECT DISTINCT schemaid, granted
+		$sql = '  SELECT DISTINCT schemaid, granted, cascades
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
 		$where = 'assetid = :assetid';
 		if (!is_null($granted)) {
 			$where .= ' AND granted = :granted';
+		}
+		if (!is_null($cascades)) {
+			$where .= ' AND cascades = :cascades';
 		}
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -130,6 +133,9 @@ class Metadata_Manager extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			if (!is_null($granted)) {
 				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
+			}
+			if (!is_null($cascades)) {
+				MatrixDAL::bindValueToPdo($query, 'cascades', $cascades ? '1' : '0', PDO::PARAM_STR);
 			}
 			$result = DAL::executePdoAll($query);
 		} catch (Exception $e) {
@@ -151,17 +157,77 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
+	* Get list of schemas for a certain asset, optionally filtered by cascading setting
+	*
+	* This is primarily used for showing settings on the Metadata Schemas
+	* screen.
+	*/
+	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE)
+	{
+		$sql = '  SELECT DISTINCT schemaid, granted, cascades
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
+		$where = 'assetid = :assetid';
+		if (!is_null($schemaid)) {
+			$where .= ' AND schemaid = :schemaid';
+		}
+		if (!is_null($cascades)) {
+			$where .= ' AND cascades = :cascades';
+		}
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
+			if (!is_null($schemaid)) {
+				MatrixDAL::bindValueToPdo($query, 'schemaid', (int)$schemaid, PDO::PARAM_INT);
+			}
+			if (!is_null($cascades)) {
+				MatrixDAL::bindValueToPdo($query, 'cascades', $cascades ? '1' : '0', PDO::PARAM_STR);
+			}
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get asset metadata schemas of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+		}
+
+		$schemas = Array();
+		foreach ($result as $data) {
+			if ($include_cascades) {
+				$schemas[$data['schemaid']] = Array(
+												'granted'	=> $data['granted'],
+												'cascades'	=> $data['cascades'],
+											  );
+			} else {
+				$schemas[$data['schemaid']] = $data['granted'];
+			}
+		}
+
+		// If a schemaid is specified, flatten out array
+		if (!is_null($schemaid)) {
+			if (array_key_exists($schemaid, $schemas)) {
+				$schemas = $schemas[$schemaid];
+			} else {
+				$schemas = Array();
+			}
+		}
+
+		return $schemas;
+
+	}//end getAssetSchemaInfo()
+
+
+	/**
 	* Apply a schema to or Deny from, an asset
 	*
 	* @param string		$assetid	the ID of the asset to set the schema on
 	* @param string		$schemaid	the ID of the schema to set
 	* @param boolean	$granted	is this schema applied (TRUE) or denied (FALSE)?
+	* @param boolean	$cascades	does this schema cascade to newly created assets?
 	* @param boolean	$force_set	if true, existing metadata schemas will be updated regardless of whether or not the new metadata schemas are found to conflict with them
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setSchema($assetid, $schemaid, $granted, $force_set=FALSE)
+	function setSchema($assetid, $schemaid, $granted, $cascades=TRUE, $force_set=FALSE)
 	{
 		$db_action = 'insert';
 		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
@@ -187,13 +253,20 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		// get the current schemas that are set
-		$schemas = $this->getSchemas($assetid);
+		$schema_info = $this->getAssetSchemaInfo($assetid, $schemaid);
 
 		// check if this schema is already set
-		if (isset($schemas[$schemaid])) {
-			if ((bool)$schemas[$schemaid] == $granted) {
+		if (!empty($schema_info)) {
+
+			if ((bool)$schema_info['granted'] == $granted) {
 				// schema is set with same access level
-				return TRUE;
+				if ((bool)$schema_info['cascades'] == $cascades) {
+					// same cascade level too, so no update needed
+					return TRUE;
+				} else {
+					// same access level, but different cascade, so update it
+					$db_action = 'update';
+				}
 			} else {
 				if ($force_set) {
 					$db_action = 'update';
@@ -218,8 +291,9 @@ class Metadata_Manager extends MySource_Object
 					$message = 'set';
 					$bind_vars	= Array (
 									'assetid'	=> $asset->id,
-									'schemaid'	=> $schemaid,
-									'granted'	=> ($granted ? '1' : '0'),
+									'schemaid'	=> (string) $schemaid,
+									'granted'	=> (string) ($granted ? '1' : '0'),
+									'cascades'	=> (string) ($cascades ? '1' : '0'),
 								  );
 					$result = MatrixDAL::executeQuery('core', 'setMetadataSchemaOnAsset', $bind_vars);
 					break;
@@ -229,6 +303,7 @@ class Metadata_Manager extends MySource_Object
 									'assetid'	=> $asset->id,
 									'schemaid'	=> (string) $schemaid,
 									'granted'	=> (string) ($granted ? '1' : '0'),
+									'cascades'	=> (string) ($cascades ? '1' : '0'),
 								  );
 					$result = MatrixDAL::executeQuery('core', 'updateMetadataSchemaOnAsset', $bind_vars);
 					break;

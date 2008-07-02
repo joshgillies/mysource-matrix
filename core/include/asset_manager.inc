@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.19 2008/06/30 01:25:23 bshkara Exp $
+* $Id: asset_manager.inc,v 1.655.2.20 2008/07/02 06:18:36 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.19 $
+* @version $Revision: 1.655.2.20 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6399,13 +6399,14 @@ class Asset_Manager extends MySource_Object
 						AND permission '.(($and_greater) ? '>= ' : '= ').':permission';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
+
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'assetid',    $assetid, PDO::PARAM_STR);
 				MatrixDAL::bindValueToPdo($query, 'permission', $permission, PDO::PARAM_INT);
 				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
-				throw new Exception('Unable to get set permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+				throw new Exception('Unable to get permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
 			}
 
 			// cache the result for next time
@@ -6457,6 +6458,45 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Get list of permissions for a certain asset, filtered by cascading setting
+	*
+	* This is primarily used for showing settings on the Permissions screen.
+	* Therefore, roles will NOT be collapsed.
+	*/
+	function getAssetPermissionByCascade($assetid, $permission, $userid=NULL, $cascades=NULL)
+	{
+		$sql = '  SELECT DISTINCT userid, granted, cascades
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm ';
+		$where = 'assetid = :assetid AND permission = :permission';
+		if (!is_null($cascades)) {
+			$where .= ' AND cascades = :cascades';
+		}
+		if (!is_null($userid)) {
+			$where .= ' AND userid = :userid';
+		}
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'assetid',    $assetid, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'permission', $permission, PDO::PARAM_STR);
+			if (!is_null($cascades)) {
+				MatrixDAL::bindValueToPdo($query, 'cascades', $cascades ? '1' : '0', PDO::PARAM_STR);
+			}
+			if (!is_null($userid)) {
+				MatrixDAL::bindValueToPdo($query, 'userid', $userid, PDO::PARAM_STR);
+			}
+			$result = MatrixDAL::executePdoAll($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get set permissions of asset ID #'.$assetid.' due to database error: '.$e->getMessage());
+		}
+
+		return $result;
+
+	}//end getAssetPermissionByCascade()
+
+
+	/**
 	* Sets a permission for the passed user or user_group
 	*
 	* @param int		$assetid	the assetid for asset whose permissions to set
@@ -6468,7 +6508,7 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setPermission($assetid, $userid, $permission, $granted, $force_set=FALSE)
+	function setPermission($assetid, $userid, $permission, $granted, $cascades=TRUE, $force_set=FALSE)
 	{
 		$permission = (int)  $permission;
 		$granted    = (bool) $granted;
@@ -6502,7 +6542,15 @@ class Asset_Manager extends MySource_Object
 		// check if this permission is already set
 		$current = $this->getPermission($assetid, $permission, $granted, FALSE, FALSE, FALSE, TRUE);
 		if (in_array($userid, array_values($current))) {
-			return TRUE;
+			// Check whether the cascade setting is also matched
+			$perm_info = $this->getAssetPermissionByCascade($assetid, $permission, $userid, $cascades);
+			if (!empty($perm_info)) {
+				return TRUE;
+			} else {
+				// We are merely changing the cascade setting, so
+				// set it to update
+				$db_action = 'update';
+			}
 		}
 
 		// if we dont have an userid, we are granting public access
@@ -6549,14 +6597,16 @@ class Asset_Manager extends MySource_Object
 								assetid,
 								userid,
 								permission,
-								granted
+								granted,
+								cascades
 							)
 							VALUES
 							(
 								:assetid,
 								:userid,
 								:permission,
-								:granted
+								:granted,
+								:cascades
 							)';
 
 			break;
@@ -6564,7 +6614,8 @@ class Asset_Manager extends MySource_Object
 				$sql = 'UPDATE
 							sq_ast_perm
 						SET
-							granted = :granted
+							granted  = :granted,
+							cascades = :cascades
 						WHERE
 							assetid        = :assetid
 							AND userid     = :userid
@@ -6579,6 +6630,7 @@ class Asset_Manager extends MySource_Object
 					MatrixDAL::bindValueToPdo($query, 'userid',     $userid);
 					MatrixDAL::bindValueToPdo($query, 'permission', $permission);
 					MatrixDAL::bindValueToPdo($query, 'granted',    $granted ? '1' : '0', PDO::PARAM_STR);
+					MatrixDAL::bindValueToPdo($query, 'cascades',   $cascades ? '1' : '0', PDO::PARAM_STR);
 					MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to '.$db_action.' permissions for asset "'.$asset->name.'" (#'.$asset->id.') due to database error: '.$e->getMessage());

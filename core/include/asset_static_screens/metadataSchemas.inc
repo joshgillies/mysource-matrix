@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.25 2007/12/10 06:22:41 rong Exp $
+* $Id: metadataSchemas.inc,v 1.25.2.1 2008/07/02 06:18:37 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix
 */
 
@@ -41,7 +41,7 @@ function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Ed
 	$prefix = $owner->getPrefix();
 
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-	$schemas = $mm->getSchemas($owner->id);
+	$schemas = $mm->getAssetSchemaInfo($owner->id, NULL, TRUE, FALSE);
 
 	$direct = Array();
 	foreach ($schemas as $schemaid => $granted) {
@@ -76,11 +76,12 @@ function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Ed
 							continue;
 						}
 					}
+
 				?>
 					<tr>
 						<td class="sq-backend-table-cell">
 						<?php
-						echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+						echo get_asset_tag_line($schemaid);
 						?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
@@ -119,26 +120,30 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 	$o->openSection(translate('metadata_schemas'));
 
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-	$schemas = $mm->getSchemas($owner->id);
+	$schemas = $mm->getAssetSchemaInfo($owner->id);
 
 	$direct = Array();
-	foreach ($schemas as $schemaid => $granted) {
+	foreach ($schemas as $schemaid => $schema_info) {
+		$granted = $schema_info['granted'];
 		if (!isset($direct[$granted])) {
 			$direct[$granted] = Array();
 		}
-		$direct[$granted][] = $schemaid;
+		$direct[$granted][$schemaid] = $schema_info;
 	}
 	ksort($direct);
 
 
 	if (!empty($direct)) {
-		$o->openField('&nbsp;');
-		foreach ($direct as $granted => $schemaids) {
+		$o->openRaw();
+		foreach ($direct as $granted => $schema_list) {
 		?>
 			<table class="sq-backend-table">
 				<tr>
 					<td class="sq-backend-table-header">
 						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
+					</td>
+					<td align="center" width="100" class="sq-backend-table-header">
+						<?php echo translate('cascade_question'); ?>
 					</td>
 					<?php
 					if ($admin_access) {
@@ -147,7 +152,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 					?>
 				</tr>
 			<?php
-			foreach ($schemaids as $schemaid) {
+			foreach ($schema_list as $schemaid => $schema_detail) {
 				if ($schemaid) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'metadata_schema', FALSE);
 					if (empty($schema_info)) continue;
@@ -157,6 +162,17 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 					<td class="sq-backend-table-cell">
 					<?php
 					echo get_asset_tag_line($schemaid);
+					?>
+					</td>
+					<td align="center" width="100" class="sq-backend-table-cell">
+					<?php
+					if ($admin_access) {
+						check_box($prefix.'_metadata[cascades]['.$schemaid.']', 1, $schema_detail['cascades']);
+					} else {
+					?>
+						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
+					<?php
+					}
 					?>
 					</td>
 					<?php
@@ -175,6 +191,8 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 		<?php
 		}//end foreach inherited
 
+		$o->closeRaw();
+
 	}//end if
 
 	if ($admin_access) {
@@ -182,6 +200,10 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 			combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
 			echo ' '.translate('metadata_schema').' ';
 			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+		$o->closeField();
+		$o->openField(translate('cascade_question'), 'new_line');
+			check_box($prefix.'_metadata[new][cascades]', 1, TRUE);
+			?> Cascade this new schema to newly-created children<?php
 		$o->closeField();
 	}
 
@@ -252,16 +274,20 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 		if (!isset($post_data['new']['granted']) || $post_data['new']['granted'] == '') {
 			trigger_localised_error('SYS0268', E_USER_NOTICE, $post_data['new']['schemaid']['assetid']);
 		} else {
-			if ($cascade_changes) {
+			// Only cascade changes to lower assets if "cascade to new assets"
+			// is set.
+			if ($cascade_changes && isset($post_data['new']['cascades'])) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array(
+									'assetids'			=> Array($owner->id),
 									'granted'			=> (int)$post_data['new']['granted'],
 									'schemaid'			=> (int)$post_data['new']['schemaid']['assetid'],
+									'cascades'			=> (int)(isset($post_data['new']['cascades']) ? 1 : 0),
 									'previous_access'	=> NULL,
 								 );
 			} else {
 				// lets do this ourselves
-				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'])) {
+				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['granted'], (isset($post_data['new']['cascades']) ? 1 : 0))) {
 					return FALSE;
 				}
 			}
@@ -272,10 +298,11 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 	if (!empty($post_data['delete'])) {
 		foreach ($post_data['delete'] as $schemaid => $on) {
 			$schemaid = (int)$schemaid;
-			if ($cascade_changes) {
-				$schemas = $mm->getSchemas($owner->id);
-				$current_access = $schemas[$schemaid];
+			$schema_info = $mm->getAssetSchemaInfo($owner->id, $schemaid);
+			if ($cascade_changes && $schema_info['cascades']) {
+				$current_access = $schema_info['granted'];
 				$schema_vars[] = Array(
+									'assetids'			=> Array($owner->id),
 									'granted'			=> -1,
 									'schemaid'			=> $schemaid,
 									'previous_access'	=> $current_access,
@@ -288,11 +315,24 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 		}
 	}
 
+	// Set cascades here
+	$schemas = $mm->getAssetSchemaInfo($owner->id);
+	foreach ($schemas as $schemaid => $schema_info) {
+		$cascades = isset($post_data['cascades'][$schemaid]);
+		if ((boolean)$cascades != (boolean)$schema_info['cascades']) {
+			if (!$mm->setSchema($owner->id, (int)$schemaid, (int)$schema_info['granted'], (int)$cascades)) {
+				return FALSE;
+			}
+		}
+	}
+
 	if (isset($_POST[$prefix.'_metadata']['manual_cascade']) && $_POST[$prefix.'_metadata']['manual_cascade']) {
-		$schemas = $mm->getSchemas($owner->id);
-		foreach ($schemas as $schemaid => $granted) {
+		$schemas = $mm->getAssetSchemaInfo($owner->id, NULL, TRUE);
+		foreach ($schemas as $schemaid => $schema_info) {
 			$schema_vars[] = Array(
-								'granted'			=> $granted,
+								'assetids'			=> Array($owner->id),
+								'granted'			=> $schema_info['granted'],
+								'cascades'			=> TRUE,
 								'schemaid'			=> $schemaid,
 								'previous_access'	=> NULL,
 							 );
@@ -302,7 +342,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 
 	if (!empty($schema_vars)) {
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
+		$vars = Array('schema_changes' => $schema_vars);
 		$hh->queueHipo('hipo_job_edit_metadata_schemas', $vars);
 	}
 
