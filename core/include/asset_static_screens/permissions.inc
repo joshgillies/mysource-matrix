@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.34 2008/06/16 06:56:42 lwright Exp $
+* $Id: permissions.inc,v 1.35 2008/07/02 01:36:49 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 
@@ -355,7 +355,7 @@ function processPermissions(&$owner, &$o, &$ei)
 														'assetids'			=> Array($owner->id),
 														'granted'			=> (int)$post_data['new']['granted'],
 														'userid'			=> $entry['assetid'],
-														'cascades'			=> (int)$post_data['new']['cascades'],
+														'cascades'			=> (int)isset($post_data['new']['cascades']),
 														'previous_access'	=> NULL,
 														'dependants_only'	=> !($cascade_changes && isset($post_data['new']['cascades'])),
 													);
