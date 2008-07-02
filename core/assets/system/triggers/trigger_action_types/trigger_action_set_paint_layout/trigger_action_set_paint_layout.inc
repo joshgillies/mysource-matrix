@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_paint_layout.inc,v 1.1 2008/07/02 05:36:26 bshkara Exp $
+* $Id: trigger_action_set_paint_layout.inc,v 1.2 2008/07/02 23:53:02 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,8 +40,8 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
-	*		'layout_assetid'			=> string // the paint layout to apply as the asset defined layout
-	*		'override_layout_assetid'	=> string // the paint layout to apply as the asset defined override layout
+	*		'layout_assetid'			=> int // the paint layout to apply as the asset defined layout
+	*		'override_layout_assetid'	=> int // the paint layout to apply as the asset defined override layout
 	*		);
 	* </PRE>
 	*
