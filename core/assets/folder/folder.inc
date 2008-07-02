@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.42 2007/11/29 00:06:30 lwright Exp $
+* $Id: folder.inc,v 1.43 2008/07/02 14:17:38 gnoel Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,18 +84,11 @@ class Folder extends Asset
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
-		// set a web path if we are linking this folder somewhere
 		// NOTE: the main time we wont want to do this is if we are creating
 		// the root folder as it is not linked anywhere
-		if (!empty($link)) {
-			// set an initial web path
-			$initial_path = strtolower($this->attr('name'));
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$valid_paths = make_valid_web_paths(Array($initial_path));
-			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, TRUE);
-			if (!$this->saveWebPaths($good_paths)) return FALSE;
-		}
-		return TRUE;
+		if (empty($link)) return TRUE;
+
+		return $this->makeAndSaveInitialWebPath(strtolower($this->attr('name')), $link);
 
 	}//end _createAdditional()
 
