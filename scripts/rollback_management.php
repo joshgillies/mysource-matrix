@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.16.8.2 2008/05/16 03:34:32 mbrydon Exp $
+* $Id: rollback_management.php,v 1.16.8.3 2008/07/02 03:40:05 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16.8.2 $
+* @version $Revision: 1.16.8.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -269,7 +269,7 @@ function close_rollback_entries($table_name, $date)
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$error->getMessage());
+		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
 
 	$affected_rows =  $query->rowCount();
@@ -340,7 +340,7 @@ function align_rollback_entries($table_name, $date)
 		$query->bindValue('date2', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$error->getMessage());
+		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
 
 	$affected_rows =  $query->rowCount();
@@ -373,7 +373,7 @@ function delete_rollback_entries($table_name, $date)
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to delete rollback table '.$table_name.' due to the following error:'.$error->getMessage());
+		throw new Exception('Unable to delete rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
 
 	$affected_rows =  $query->rowCount();
@@ -461,7 +461,7 @@ function purge_file_versioning($date)
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoAssoc($query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to select from rollback table '.$table_name.' due to the following error:'.$error->getMessage());
+		throw new Exception('Unable to select from rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
 
 	$count = 0;
@@ -482,7 +482,7 @@ function purge_file_versioning($date)
 		$query->bindValue('date', $date);
 		$result = MatrixDAL::executePdoOne($query);
 	} catch (Exception $e) {
-		throw new Exception('Unable to delete from rollback table '.$table_name.' due to the following error:'.$error->getMessage());
+		throw new Exception('Unable to delete from rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
 
 	$affected_rows = $query->rowCount();
