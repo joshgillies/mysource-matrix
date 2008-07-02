@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.83 2008/05/09 00:16:58 lwright Exp $
+* $Id: general_occasional.inc,v 1.84 2008/07/02 14:04:50 gnoel Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 */
 
@@ -342,14 +342,19 @@ function asset_link_treeid_convert($value, $encode)
 /**
 * Returns an array of the passed web paths made valid
 *
-* @param array	$paths	array of web paths to check
+* If $paths argument is not empty and none of the paths in it are valid (ie. they are stripped of all their characters)
+* then the function will return $fallback_path. This logic still allows to clear the web paths by providing an empty $paths.
+*
+* @param array	$paths			array of web paths to check
+* @param string	$fallback_path	a fallback path
 *
 * @return array
 * @access public
 */
-function make_valid_web_paths($paths)
+function make_valid_web_paths($paths, $fallback_path='')
 {
 	$valid_paths = Array();
+
 	foreach ($paths as $path) {
 		$path = trim($path);
 
@@ -406,6 +411,11 @@ function make_valid_web_paths($paths)
 			$valid_paths[] = $path;
 		}
 	}//end foreach
+
+	// Fallback: only if there is no valid path at all AND at least one non blank path has been provided
+	if (empty($valid_paths) && strlen(trim(join('', $paths)))) {
+		$valid_paths = make_valid_web_paths(Array($fallback_path));
+	}
 
 	return $valid_paths;
 
