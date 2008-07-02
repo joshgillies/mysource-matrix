@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.14.2.1 2008/06/30 01:25:23 bshkara Exp $
+* $Id: lookupValues.inc,v 1.14.2.2 2008/07/02 05:30:51 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14.2.1 $
+* @version $Revision: 1.14.2.2 $
 * @package MySource_Matrix
 */
 
@@ -164,26 +164,14 @@ function processLookupValues(&$owner, &$o, &$ei)
 
 							// also need to delete any other URLs which use the same value
 							// deleting an asset based value means all other URLs which use the same value are also deleted
-							foreach ($lookup_values as $delete_url => $delete_data) {
-								foreach ($delete_data as $delete_name => $delete_value) {
-									if (strstr($layout_name, 'override::')) {
-										if (preg_match('/.+\/$/', $delete_url)) {
-											// override layout
-											if ((str_replace('override::', '', $layout_name) === $delete_name) && ($existing_layout_link['minorid'] === $delete_value['value'])) {
-												unset($lookup_values[$delete_url][$delete_name]);
-											}
-										}
-									} else {
-										if (preg_match('/.+\/{0}$/', $delete_url)) {
-											// normal layout
-											if (($layout_name === $delete_name) && ($existing_layout_link['minorid'] === $delete_value['value'])) {
-												unset($lookup_values[$delete_url][$delete_name]);
-											}
-										}
-									}
-								}
+							if (!$new_values = $owner->deleteLookupValue($layout_name, $existing_layout_link['minorid'])) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$layouts_ok = FALSE;
+								break;
+							} else {
+								$lookup_values = $new_values;
+								unset($new_values);
 							}
-
 						}
 					}
 

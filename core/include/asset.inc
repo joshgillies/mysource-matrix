@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.11 2008/07/02 04:40:39 bpearson Exp $
+* $Id: asset.inc,v 1.633.2.12 2008/07/02 05:30:51 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.11 $
+* @version $Revision: 1.633.2.12 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4824,6 +4824,57 @@ class Asset extends MySource_Object
 		return $ret_val;
 
 	}//end getLookupValues()
+
+
+	/**
+	* Removes a lookup value from this asset and returns the list of values after modification
+	*
+	* @param string	$layout_name	The name of the layout, can also be in notice link style,
+	*								e.g. override::paint_layout::system::frontend
+	* @param string	$layout_value	The value that the layout has in the sq_lookup_values table
+	*
+	* @return mixed array|boolean
+	* @access public
+	*/
+	public function deleteLookupValue($layout_name, $layout_value)
+	{
+		$lookup_values = $this->getLookupValues(FALSE);
+
+		foreach ($lookup_values as $resource => $data) {
+			foreach ($data as $name => $value) {
+				if (strstr($layout_name, 'override::')) {
+					if (preg_match('/.+\/$/', $resource)) {
+						// override layout
+						if ((str_replace('override::', '', $layout_name) === $name) && ($layout_value === $value['value'])) {
+							unset($lookup_values[$resource][$name]);
+						}
+					}
+				} else {
+					if (preg_match('/.+\/{0}$/', $resource)) {
+						// normal layout
+						if (($layout_name === $name) && ($layout_value === $value['value'])) {
+							unset($lookup_values[$resource][$name]);
+						}
+					}
+				}
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!$this->setLookupValues($lookup_values)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $lookup_values;
+
+	}//end deleteLookupValue()
 
 
 	/**
