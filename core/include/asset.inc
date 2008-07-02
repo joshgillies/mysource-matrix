@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.13 2008/07/02 06:18:36 lwright Exp $
+* $Id: asset.inc,v 1.633.2.14 2008/07/02 23:44:26 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.13 $
+* @version $Revision: 1.633.2.14 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4808,7 +4808,7 @@ class Asset extends MySource_Object
 			$query = MatrixDAL::preparePdoQuery($full_sql);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
 			if ($prefix !== '') {
-				MatrixDAL::bindValueToPdo($query, 'lookup_value', $prefix);
+				MatrixDAL::bindValueToPdo($query, 'lookup_value', $prefix.'%');
 			}
 			$result = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
