@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.134 2008/06/16 06:52:58 lwright Exp $
+* $Id: workflow_manager.inc,v 1.135 2008/07/02 06:37:53 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -94,6 +94,9 @@ class Workflow_Manager extends MySource_Object
 			if (!is_null($granted) || $running) {
 				$where .= ' AND granted = :granted';
 			}
+			if (!is_null($cascades)) {
+				$where .= ' AND cascades = :cascades';
+			}
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			try {
@@ -106,6 +109,9 @@ class Workflow_Manager extends MySource_Object
 						$granted_bind = $granted ? '1' : '0';
 					}
 					MatrixDAL::bindValueToPdo($query, 'granted', $granted_bind, PDO::PARAM_STR);
+				}
+				if (!is_null($cascades)) {
+					MatrixDAL::bindValueToPdo($query, 'cascades', $cascades ? '1' : '0', PDO::PARAM_STR);
 				}
 				$result = MatrixDAL::executePdoAll($query);
 			} catch (Exception $e) {
