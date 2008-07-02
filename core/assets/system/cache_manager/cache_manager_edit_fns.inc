@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.15.2.1 2008/03/12 04:03:51 lwright Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.15.2.2 2008/07/02 04:35:46 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15.2.1 $ - 1.0
+* @version $Revision: 1.15.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -180,7 +180,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->openField(translate('default_expiry'), '', translate('valid_cache_length'));
 				$using_default = !isset($type_codes[$selected]['expiry']);
 				if ($using_default) {
-					echo 'Using default value of '.$asset->attr('expiry').' seconds<br/>';
+					echo translate('using_default_value_of', $asset->attr('expiry').' seconds').'<br/>';
 				} else {
 					if ($write_access) {
 						text_box($prefix.'_expiry', $type_codes[$selected]['expiry'], 5);
@@ -190,6 +190,28 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 				if ($write_access) {
 					check_box($prefix.'_default_expiry', '1', $using_default);
+					echo ' '.translate('use_default');
+				}
+			$o->closeField();
+
+			$o->openField(translate('cache_manager_browser_cache_expiry'), '', translate('cache_manager_browser_valid_cache_length'));
+				$using_default = !isset($type_codes[$selected]['browser_cache_expiry']);
+				if ($using_default) {
+					$browser_cache_expiry = $asset->attr('browser_cache_expiry');
+					if (empty($browser_cache_expiry)) {
+						echo translate('cache_manager_using_blank_default_value_equal_to', 'the system Default Expiry', $asset->attr('expiry').' seconds').'<br>';
+					} else {
+						echo translate('using_default_value_of', $browser_cache_expiry.' seconds').'<br/>';
+					}
+				} else {
+					if ($write_access) {
+						text_box($prefix.'_browser_cache_expiry', $type_codes[$selected]['browser_cache_expiry'], 5);
+					} else {
+						echo $type_codes[$selected]['browser_cache_expiry'];
+					}
+				}
+				if ($write_access) {
+					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
 					echo ' '.translate('use_default');
 				}
 			// field closed by asset_edit_interface
@@ -221,7 +243,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if (isset($_REQUEST[$prefix.'_type'])) {
 			$type = $_REQUEST[$prefix.'_type'];
-			$defaults = Array('enabled', 'expiry');
+			$defaults = Array('enabled', 'expiry', 'browser_cache_expiry');
 			$save = FALSE;
 
 			foreach ($defaults as $default) {
