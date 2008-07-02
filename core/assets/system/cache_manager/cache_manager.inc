@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.56.4.1 2008/04/29 04:49:09 lwright Exp $
+* $Id: cache_manager.inc,v 1.56.4.2 2008/07/02 04:20:51 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56.4.1 $
+* @version $Revision: 1.56.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -656,6 +656,33 @@ class Cache_Manager extends Asset
 		return $this->attr('expiry');
 
 	}//end getExpiry()
+
+
+	/**
+	* Returns the browser cache expiry time for the specified type code.
+	*
+	* If the expiry value for that type code has not been customised,
+	* then the default browser cache expiry is returned.
+	*
+	* @param string	$type_code	the type code of the requested browser cache expiry value
+	*
+	* @return int
+	* @access public
+	*/
+	function getBrowserCacheExpiry($type_code='')
+	{
+		$type_codes = $this->attr('type_codes');
+		if (isset($type_codes[$type_code]['browser_cache_expiry'])) {
+			if (!empty($type_codes[$type_code]['browser_cache_expiry'])) {
+				return $type_codes[$type_code]['browser_cache_expiry'];
+			}
+		}
+
+		$browser_cache_expiry = $this->attr('browser_cache_expiry');
+
+		return $browser_cache_expiry;
+
+	}//end getBrowserCacheExpiry()
 
 
 	/**

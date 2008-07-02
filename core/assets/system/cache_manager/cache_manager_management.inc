@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.10 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: cache_manager_management.inc,v 1.10.6.1 2008/07/02 04:20:51 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $ - 0.1
+* @version $Revision: 1.10.6.1 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,6 +87,13 @@ class Cache_Manager_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'serialise',
 													'default'	=> Array(),
+												   ),
+						'browser_cache_expiry'	=> Array(
+													'added'				=> '0.1',
+													'type'				=> 'int',
+													'default'			=> '',
+													'allow_negative'	=> FALSE,
+													'allow_empty'		=> TRUE,
 												   ),
 					  );
 
