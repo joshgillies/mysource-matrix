@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.656 2008/07/02 05:27:03 bshkara Exp $
+* $Id: asset.inc,v 1.657 2008/07/02 14:07:51 gnoel Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.656 $
+* @version $Revision: 1.657 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4527,6 +4527,32 @@ class Asset extends MySource_Object
 
 
 	/**
+	* Create an initial webpath for an asset
+	* This function is typically called by _createAdditional()
+	* Returns FALSE only if a web path cannot be saved
+	*
+	* @param string	$path			an initial web path
+	* @param Asset	$parent_asset	asset under which this asset is being created (NULL is none)
+	*
+	* @return boolean
+	* @access protected
+	*/
+	protected function makeAndSaveInitialWebPath($path, $parent_link=NULL)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($path), $this->id);
+
+		// don't check for path conflicts if we have no parent
+		if (!empty($parent_link['asset'])) {
+			$valid_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent_link['asset'], $valid_paths, $this->id, TRUE);
+		}
+
+		return $this->saveWebPaths($valid_paths);
+
+	}//end makeAndSaveInitialWebPath($path)
+
+
+	/**
 	* Attempts to override all current paths for this asset with those passed in the array
 	*
 	* @param array		$paths			array of paths to give this asset
@@ -4542,7 +4568,7 @@ class Asset extends MySource_Object
 
 		// make sure these paths are compliant
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$save_paths = make_valid_web_paths($paths);
+		$save_paths = make_valid_web_paths($paths, $this->id ? $this->id : '');
 
 		// do not run hipo if any of the paths start with __ or is reserved by Matrix
 		foreach ($paths as $orig_path) {
@@ -4556,7 +4582,6 @@ class Asset extends MySource_Object
 		if (!array_diff_assoc($save_paths, $current_paths) && !array_diff_assoc($current_paths, $save_paths)) {
 			return TRUE;
 		}
-
 
 		//// CHECK INSERTED PATHS ////
 
