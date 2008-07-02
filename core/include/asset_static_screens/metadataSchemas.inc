@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.27 2008/06/19 06:22:07 lwright Exp $
+* $Id: metadataSchemas.inc,v 1.28 2008/07/02 06:38:50 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -81,7 +81,7 @@ function paintInlineMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Ed
 					<tr>
 						<td class="sq-backend-table-cell">
 						<?php
-						echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+						echo get_asset_tag_line($schemaid);
 						?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
