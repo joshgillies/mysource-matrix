@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.35 2008/07/02 01:36:49 lwright Exp $
+* $Id: permissions.inc,v 1.36 2008/07/02 06:39:37 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @return boolean
 * @access public
 */
-function paintInlinePermissions(&$owner, &$o, &$ei)
+function paintInlinePermissions(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface $ei, $cascades=TRUE)
 {
 	$prefix = $owner->getPrefix();
 	$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
@@ -43,13 +43,14 @@ function paintInlinePermissions(&$owner, &$o, &$ei)
 	$direct = Array();
 
 	foreach ($perms as $title => $perm) {
-		$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, NULL, FALSE, FALSE, TRUE, TRUE);
+		$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm, NULL, $cascades);
 
-		foreach ($permissions as $userid => $granted) {
+		foreach ($permissions as $userid => $perm_info) {
+			$granted = $perm_info['granted'];
 			if (!isset($direct[$perm][$granted])) {
 				$direct[$perm][$granted] = Array();
 			}
-			$direct[$perm][$granted][] = $userid;
+			$direct[$perm][$granted][] = $perm_info['userid'];
 		}
 
 		if (!empty($direct[$perm])) ksort($direct[$perm]);
