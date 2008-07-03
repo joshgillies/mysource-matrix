@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.92.2.5 2008/07/03 01:29:29 bshkara Exp $
+* $Id: lang_errors.xml,v 1.92.2.6 2008/07/03 01:37:23 bshkara Exp $
 *
 */
 
@@ -1728,7 +1728,7 @@ Full Node Contents :
 	<error code="CORE0281">It is either that the workflow has already been %1$s or you do not have access to edit the workflow of the asset</error>
 
 	<!-- Asset based paint layouts -->
-	<error code="CORE0283">Unable to delete paint layout notice link with linkid: %1$s and value: %2$s</error>
+	<error code="CORE0283">Unable to delete paint layout notice link with linkid: %1$s and value: %2$s for asset: #%3$s</error>
 	<error code="CORE0284">Unable to delete paint layout lookup value with name: %1$s for asset: #%2$s</error>
 	<error code="CORE0285">Unable to create paint layout notice link (%1$s) with value: %2$s for asset: #%3$s</error>
 
