@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.658 2008/07/02 23:42:17 bshkara Exp $
+* $Id: asset.inc,v 1.659 2008/07/03 01:25:34 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.658 $
+* @version $Revision: 1.659 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4902,6 +4902,89 @@ class Asset extends MySource_Object
 		return $lookup_values;
 
 	}//end deleteLookupValue()
+
+
+	/**
+	* Sets asset based paint layouts which apply to all of this asset's URLs
+	*
+	* @param array	$layouts	Array of the paint layouts that we wish to apply.
+	*							There are 2 types you can apply and both are optional.
+	* <pre>
+	*							Array(
+	*								'paint_layout::system::frontend' => [assetid of paint layout],
+	*								'override::paint_layout::system::frontend' => [assetid of paint layout],
+	*							)
+	* </pre>
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function setPaintLayouts($layouts)
+	{
+		if (!is_array($layouts)) return FALSE;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$modified = FALSE;
+		// work out what links we have currently and create new ones if they do not exist
+		foreach ($layouts as $layout_name => $assetid) {
+			if (!empty($assetid)) {
+				$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!($layout instanceof Paint_Layout_Page)) return FALSE;
+
+				$create_link = FALSE;
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $layout_name);
+				if (isset($link['minorid'])) {
+					// this asset already has an asset based layout
+					if ($link['minorid'] !== $assetid) {
+						// different so delete existing link so we can create a new one
+						if (!$this->deleteLink($link['linkid'])) {
+							trigger_localised_error('CORE0283', E_USER_WARNING, $this->name, $filename);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
+
+						// also need to delete any other URLs which use the same value
+						// deleting an asset based value means all other URLs which use the same value are also deleted
+						if (!$this->deleteLookupValue($layout_name, $link['minorid'])) {
+							trigger_localised_error('CORE0284', E_USER_WARNING, $layout_name, $this->id);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
+
+						$create_link = TRUE;
+					}
+				} else {
+					// no existing link so let's just create one
+					$create_link = TRUE;
+				}
+
+				if ($create_link) {
+					$modified = TRUE;
+					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $layout, SQ_LINK_NOTICE, $layout_name)) {
+						trigger_localised_error('CORE0285', E_USER_WARNING, $layout->id, $layout_name, $this->id);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
+					}
+				}
+			}
+		}
+
+		if ($modified && !$this->updateLookups()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end setPaintLayouts()
 
 
 	/**

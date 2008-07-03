@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_paint_layout.inc,v 1.2 2008/07/02 23:53:02 bshkara Exp $
+* $Id: trigger_action_set_paint_layout.inc,v 1.3 2008/07/03 01:25:33 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,49 +82,8 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 		$layouts['paint_layout::system::frontend'] = empty($layouts['paint_layout::system::frontend']) ? array_get_index($settings, 'layout_assetid', 0) : $layouts['paint_layout::system::frontend'];
 		$layouts['override::paint_layout::system::frontend'] = empty($layouts['override::paint_layout::system::frontend']) ? array_get_index($settings, 'override_layout_assetid', 0) : $layouts['override::paint_layout::system::frontend'];
 
-		// work out what links we have currently and create new ones if they do not exist
-		$modified = FALSE;
-		foreach ($layouts as $layout_name => $assetid) {
-			if (!empty($assetid)) {
-				$layout = $am->getAsset($assetid);
-				if (!($layout instanceof Paint_Layout_Page)) return FALSE;
-
-				$create_link = FALSE;
-				$link = $am->getLink($state['assetid'], SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $layout_name);
-				if (isset($link['minorid'])) {
-					// this asset already has an asset based layout
-					if ($link['minorid'] !== $assetid) {
-						// different so delete existing link so we can create a new one
-						if (!$am->deleteAssetLink($link['linkid'])) {
-							return FALSE;
-						}
-
-						// also need to delete any other URLs which use the same value
-						// deleting an asset based value means all other URLs which use the same value are also deleted
-						if (!$state['asset']->deleteLookupValue($layout_name, $link['minorid'])) {
-							return FALSE;
-						}
-
-						$create_link = TRUE;
-					}
-				} else {
-					// no existing link so let's just create one
-					$create_link = TRUE;
-				}
-
-				if ($create_link) {
-					$modified = TRUE;
-					if (!$am->createAssetLink($state['asset'], $layout, SQ_LINK_NOTICE, $layout_name)) {
-						return FALSE;
-					}
-				}
-			}
-		}
-
-		if ($modified) {
-			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetids' => Array($state['asset']->id));
-			$hh->freestyleHipo('hipo_job_update_lookups', $vars);
+		if (!$state['asset']->setPaintLayouts($layouts)) {
+			return FALSE;
 		}
 
 		return Array(
