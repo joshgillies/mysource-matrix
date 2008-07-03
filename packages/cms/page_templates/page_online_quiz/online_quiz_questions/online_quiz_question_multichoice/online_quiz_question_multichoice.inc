@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_question_multichoice.inc,v 1.6 2007/06/12 07:00:00 mbrydon Exp $
+* $Id: online_quiz_question_multichoice.inc,v 1.7 2008/07/03 06:38:06 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -529,9 +529,9 @@ class Online_Quiz_Question_Multichoice extends Online_Quiz_Question
 									$option['text'] = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $option['text']);
 								}
 
-								label($option['text'], $prefix.'_response['.$option_key.']');
+								label($option['text'], $prefix.'_response_'.$option_key);
 							} else {
-								label(htmlentities($option['text']), $prefix.'_response['.$option_key.']');
+								label(htmlentities($option['text']), $prefix.'_response_'.$option_key);
 							}
 
 							?></li><?php
