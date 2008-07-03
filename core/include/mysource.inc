@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.4 2008/07/02 04:35:46 mbrydon Exp $
+* $Id: mysource.inc,v 1.258.2.5 2008/07/03 05:30:15 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.4 $
+* @version $Revision: 1.258.2.5 $
 * @package MySource_Matrix
 */
 class MySource
@@ -424,29 +424,7 @@ class MySource
 						if (!is_null($site)) {
 							$page = $site->getSpecialPage('not_found');
 							if (!is_null($page)) {
-								header('HTTP/1.0 404 Not Found');
-
-								// Send Cacheable Header based on Not Found page asset type
-								if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
-									$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-									header('Pragma: cache');
-
-									$browser_cache_expiry = $cm->getBrowserCacheExpiry($page->type());
-									if (empty($browser_cache_expiry)) {
-										$browser_cache_expiry = $cm->getExpiry($page->type());
-									}
-
-									header('Cache-Control: max-age='.$browser_cache_expiry.', public');
-								}
-
-								ob_start();
-									$site->paintAsset($page);
-								$content = ob_get_clean();
-
-								$this->_replaceKeyword($content);
-
-								echo $content;
-
+								$this->_paintNotFoundAsset($page, $site);
 								exit(1);
 							}
 						}
@@ -479,6 +457,27 @@ class MySource
 				exit(1);
 
 			}//end if is_null(asset)
+
+			// Are we an archived asset and we don't have the correct permission?
+			// (We need read permission, which in Archived mode actually means
+			// WRITE permission is required)
+			if (($asset->status == SQ_STATUS_ARCHIVED) && !$asset->readAccess()) {
+				// Don't get in the way of backend operations
+				if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+					$url      = strip_url(current_url(FALSE, TRUE));
+					$root_url = $this->am->getRootURL($url);
+					if (!empty($root_url)) {
+						$site = $this->am->getAsset($root_url['assetid']);
+						if (!is_null($site)) {
+							$page = $site->getSpecialPage('archive');
+							if (!is_null($page)) {
+								$this->_paintNotFoundAsset($page, $site);
+								exit(1);
+							}
+						}
+					}
+				}
+			}
 
 			$this->frontend_asset = &$asset;
 			$this->broadcastTriggerEvent('trigger_event_asset_accessed', $asset);
@@ -2831,6 +2830,47 @@ class MySource
 		}
 
 	}//end _getHeaders()
+
+
+	/**
+	* Paint a Not Found page
+	*
+	* This function will print the HTTP 404 header, any necessary headers for
+	* the sending of Cacheable Headers, and then the "Not Found" asset itself.
+	* This will typically be the "Not Found" asset of the site, but may have
+	* been set to something else (eg. the "Archived Asset" 404 link).
+	*
+	* @param Asset	$asset	The asset that represents the Not Found page
+	* @param Site	$site	The site that has set the Not Found page
+	*
+	* @return void
+	*/
+	protected function _paintNotFoundAsset(Asset $asset, Site $site)
+	{
+		header('HTTP/1.0 404 Not Found');
+
+		// Send Cacheable Header based on Not Found page asset type
+		if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			header('Pragma: cache');
+
+			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type());
+			if (empty($browser_cache_expiry)) {
+				$browser_cache_expiry = $cm->getExpiry($asset->type());
+			}
+
+			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+		}
+
+		ob_start();
+			$site->paintAsset($asset);
+		$content = ob_get_clean();
+
+		$this->_replaceKeyword($content);
+
+		echo $content;
+
+	}//end _paintNotFoundAsset()
 
 
 	/**

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.108.2.5 2008/06/30 01:25:23 bshkara Exp $
+* $Id: site.inc,v 1.108.2.6 2008/07/03 05:30:16 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.108.2.5 $
+* @version $Revision: 1.108.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -655,6 +655,9 @@ class Site extends Folder
 			case 'not_found' :
 				return translate('core_site_not_found_page');
 			break;
+			case 'archive' :
+				return translate('core_site_archive_page');
+			break;
 			default :
 				return parent::describeLink($linkid);
 			break;
@@ -851,12 +854,12 @@ class Site extends Folder
 		switch ($page) {
 			case 'index'     :
 			case 'not_found' :
-			case 'forbidden' :
+			case 'archive'   :
 				return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', TRUE, $page);
 			break;
 
 			default :
-				trigger_localised_error('CORE0075', $page);
+				trigger_localised_error('CORE0075', E_USER_WARNING, $page);
 				return Array();
 		}
 

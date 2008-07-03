@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.69.2.2 2008/06/30 04:22:18 bshkara Exp $
+* $Id: site_edit_fns.inc,v 1.69.2.3 2008/07/03 05:30:16 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69.2.2 $
+* @version $Revision: 1.69.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -388,6 +388,40 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	public function processIndexPage(Site $asset, Backend_Outputter $o, $prefix)
 	{
 		return $this->processNoticeLinkedAsset($asset, 'index');
+
+	}//end processIndexPage()
+
+
+	/**
+	* Paint the interface for setting the "archived 404" page for this site
+	*
+	* @param Site				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintArchivedPage(Site $asset, Backend_Outputter $o, $prefix)
+	{
+		return $this->paintNoticeLinkedAsset($asset, 'archive');
+
+	}//end paintIndexPage()
+
+
+	/**
+	* Processes the setting of the "archived 404" page for this site
+	*
+	* @param Site				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processArchivedPage(Site $asset, Backend_Outputter $o, $prefix)
+	{
+		return $this->processNoticeLinkedAsset($asset, 'archive');
 
 	}//end processIndexPage()
 
