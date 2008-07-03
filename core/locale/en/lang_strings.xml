@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.284 2008/07/02 05:52:36 bshkara Exp $
+* $Id: lang_strings.xml,v 1.285 2008/07/03 02:07:23 bshkara Exp $
 *
 */
 
@@ -1442,6 +1442,7 @@
 	<string source="asset_definitions">Asset Definitions</string>
 	<string source="url_specific_definitions">URL Specific Definitions</string>
 	<string source="user_defined_layouts">User Defined Layouts</string>
+	<string source="not_customised">Not customised</string>
 
 	<string source="rollback_mode_warning_message">The system is as it appeared on %s.&lt;br /&gt;While viewing in rollback mode you cannot make any changes to the system.</string>
 	<string source="exit_rollback_view">Exit Rollback View</string>

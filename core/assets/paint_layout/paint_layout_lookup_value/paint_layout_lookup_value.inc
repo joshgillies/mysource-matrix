@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.14 2008/06/30 23:07:59 bshkara Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.15 2008/07/03 02:07:23 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -239,7 +239,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 						<?php if ($wa) { ?>
 							<td class="sq-backend-table-cell"><?php asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layout_value, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $normal_buttons);?></td>
 						<?php } else { ?>
-							<td class="sq-backend-table-cell"><?php echo empty($url_layout_info) ? '<i>'.translate('none').'</i>' : get_asset_tag_line($layout_value).self::_getSuffix($data['inhd'], FALSE); ?></td>
+							<td class="sq-backend-table-cell"><?php echo empty($url_layout_info) ? '<i>'.translate('not_customised').'</i>' : get_asset_tag_line($layout_value).self::_getSuffix($data['inhd'], FALSE); ?></td>
 						<?php } ?>
 					</tr>
 					<tr>
@@ -247,7 +247,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 						<?php if ($wa) { ?>
 							<td class="sq-backend-table-cell"><?php asset_finder($prefix.'['.$url.'/]['.$layout_name.'][value]', $url_override_layout, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $override_buttons);?></td>
 						<?php } else { ?>
-							<td class="sq-backend-table-cell"><?php echo empty($url_override_info) ? '<i>'.translate('none').'</i>': get_asset_tag_line($url_override_layout); ?></td>
+							<td class="sq-backend-table-cell"><?php echo empty($url_override_info) ? '<i>'.translate('not_customised').'</i>': get_asset_tag_line($url_override_layout); ?></td>
 						<?php } ?>
 					</tr>
 				<?php
