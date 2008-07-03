@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.659 2008/07/03 01:25:34 bshkara Exp $
+* $Id: asset.inc,v 1.660 2008/07/03 01:36:03 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.659 $
+* @version $Revision: 1.660 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4939,7 +4939,7 @@ class Asset extends MySource_Object
 					if ($link['minorid'] !== $assetid) {
 						// different so delete existing link so we can create a new one
 						if (!$this->deleteLink($link['linkid'])) {
-							trigger_localised_error('CORE0283', E_USER_WARNING, $this->name, $filename);
+							trigger_localised_error('CORE0283', E_USER_WARNING, $link['linkid'], $layout_name, $this->id);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
