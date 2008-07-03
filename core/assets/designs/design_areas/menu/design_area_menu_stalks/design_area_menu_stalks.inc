@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.29 2008/06/23 00:12:27 hnguyen Exp $
+* $Id: design_area_menu_stalks.inc,v 1.30 2008/07/03 04:33:35 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -167,7 +167,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			$level_check = '';
 			if ($this->attr('level') == 1) {
 				$level_check	= '$level != '.$this->attr('level').' && ';
-			}//
+			}// end if
 			echo '
 				if ('.$level_check.'in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;';
 		}//end if
@@ -213,17 +213,17 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			}
 
 			echo '?', '>
-					<td'.$cell_class.' style="vertical-align: top;"';
+					<td'.$cell_class;
 
 					if ($use_blanks) {
-						echo '><img alt="" src="<', '?php echo $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'" /></td>';
+						echo ' style="vertical-align: top;"><img alt="" src="<', '?php echo $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'" /></td>';
 					} else {
 						// if there is the need to a stalk
 						// and if we are at the end of a sub listing and
 						// not it the indent closest to the text (which will have the end branch)
 						echo '<', '?php
 						if ($depth[$j] && !($end && ($j == $depth_count - 1)))
-							echo \' style="background-image:url(\', $stalk_prefix, \'stalk.png); background-repeat: repeat-y;"\';
+							echo \' style="vertical-align:top; background-image:url(\', $stalk_prefix, \'stalk.png); background-repeat: repeat-y;"\';
 
 						?', '>><img alt="" src="<', '?php
 						if ($j != $depth_count - 1) {
