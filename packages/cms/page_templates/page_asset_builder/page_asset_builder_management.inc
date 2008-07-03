@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.35 2008/02/27 22:12:53 bpearson Exp $
+* $Id: page_asset_builder_management.inc,v 1.36 2008/07/03 02:19:36 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -252,6 +252,16 @@ class Page_Asset_Builder_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> 'Regenerate security key',
 										   );
+		$this->vars['layout_to_apply'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'assetid',
+											'default'	=> 0,
+										 );
+		$this->vars['override_layout_to_apply'] = Array(
+													'added'		=> '0.9',
+													'type'		=> 'assetid',
+													'default'	=> 0,
+												  );
 
 
 	}//end constructor

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2008/02/27 22:12:53 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.16 2008/07/03 02:19:36 bshkara Exp $
 *
 */
 -->
@@ -53,6 +53,12 @@
 		</field>
 		<field attribute="link_value">
 			<text width="25" height="1" />
+		</field>
+		<field attribute="layout_to_apply">
+			<assetid type_codes="paint_layout_page:D" />
+		</field>
+		<field attribute="override_layout_to_apply">
+			<assetid type_codes="paint_layout_page:D" />
 		</field>
 		<field>
 			<function_call>

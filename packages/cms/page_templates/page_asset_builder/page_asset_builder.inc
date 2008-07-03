@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.131 2008/07/01 01:28:54 bpearson Exp $
+* $Id: page_asset_builder.inc,v 1.132 2008/07/03 02:19:36 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -561,7 +561,7 @@ class Page_Asset_Builder extends Page
 						}
 						$new_asset->saveAttributes();
 
-						// Process metadata
+						// process metadata
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$metadata_values = Array();
 						$schemaids = $this->_getMetadataSchemasToApply();
@@ -589,6 +589,10 @@ class Page_Asset_Builder extends Page
 							}
 						}
 
+						// process paint layouts
+						$layouts['paint_layout::system::frontend'] = $this->attr('layout_to_apply');
+						$layouts['override::paint_layout::system::frontend'] = $this->attr('override_layout_to_apply');
+						$new_asset->setPaintLayouts($layouts);
 
 						// if we have multiple locations to create this asset under, create
 						// the new links to all the other parents
