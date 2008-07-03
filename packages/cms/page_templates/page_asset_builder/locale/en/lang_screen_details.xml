@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11.6.1 2008/03/12 04:04:22 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.11.6.2 2008/07/03 03:48:30 bshkara Exp $
 *
 */
 -->
@@ -64,6 +64,14 @@
 		<field attribute="link_value">
 			<display_name>Set Link Value</display_name>
 			<note>If this option holds a value, each link will be created with the value. If this option is left blank, then each link will be created without a value</note>
+		</field>
+		<field attribute="layout_to_apply">
+			<display_name>Paint Layout to Apply</display_name>
+			<note>You may select a paint layout to apply to newly created assets. This paint layout is an asset based layout which means it will be applied to all URLs of the asset and will be inherited by all of its children.</note>
+		</field>
+		<field attribute="override_layout_to_apply">
+			<display_name>Override Paint Layout to Apply</display_name>
+			<note>You may select an override paint layout to apply to newly created assets. This paint layout is an asset based override layout which means it will be applied to all URLs of the asset but will not be inherited by any of its children.</note>
 		</field>
 		<field>
 			<display_name>Create Form Customisation</display_name>
