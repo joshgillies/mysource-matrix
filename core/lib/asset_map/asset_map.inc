@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265.2.6 2008/04/16 23:12:58 gsherwood Exp $
+* $Id: asset_map.inc,v 1.265.2.7 2008/07/03 02:26:29 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.6 $
+* @version $Revision: 1.265.2.7 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -216,23 +216,27 @@ class Asset_Map
 					throw new Exception('Unable to get the sort orders for URL: '.$asset_lineage[$i]['url'].' due to database error: '.$e->getMessage());
 				}
 
-				// adjust real sort order for links that are not visible on nav
-				$sql = 'SELECT count(*) FROM sq_ast_lnk
-						WHERE majorid = :previd
-								AND sort_order < :sort_order
-								AND link_type > 2';
-				try {
-					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, 'previd', $previd);
-					MatrixDAL::bindValueToPdo($query, 'sort_order', $sort_order);
-					$count = MatrixDAL::executePdoOne($query);
-				} catch (Exception $e) {
-					throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
-				}
-				if ($count > 0) $sort_order = $sort_order - $count;
+				// Bug #3108
+				// No sort order found here - because the site exists under a folder (under the root folder)
+				// Excution stops here because an exception is caught by an empty sort order
+				if (!empty($sort_order)) {
+					// adjust real sort order for links that are not visible on nav
+					$sql = 'SELECT count(*) FROM sq_ast_lnk
+							WHERE majorid = :previd
+									AND sort_order < :sort_order
+									AND link_type > 2';
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'previd', $previd, PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, 'sort_order', $sort_order, PDO::PARAM_INT);
+						$count = MatrixDAL::executePdoOne($query);
+					} catch (Exception $e) {
+						throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
+					}
+					if ($count > 0) $sort_order = $sort_order - $count;
 
-				$sort_orders .= $sort_order.'|';
-
+					$sort_orders .= $sort_order.'|';
+				}//end if
 			}//end for
 
 			$assetid_lineage = Array();
