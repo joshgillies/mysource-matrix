@@ -1,0 +1,42 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+*
+*/
+-->
+<contents>
+	<section name="Details">
+        <field attribute="name">
+            <display_name>Name</display_name>
+            <note />
+        </field>
+		<field>
+            <function_call>
+                <paint_function   name="paintTestConnection"  />
+                <process_function name="processTestConnection" />
+            </function_call>
+		</field>
+		<field attribute="wsdl">
+			<display_name>WSDL</display_name>
+			<note>The URL to the WSDL of the TRIM system.</note>
+		</field>
+		<field attribute="username">
+			<display_name>Username</display_name>
+			<note>The username used to connect to TRIM</note>
+		</field>
+		<field attribute="password">
+			<display_name>Password</display_name>
+			<note>The password used to connect to TRIM</note>
+		</field>
+	</section>
+</contents>
