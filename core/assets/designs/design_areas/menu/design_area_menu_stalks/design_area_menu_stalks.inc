@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.28.2.1 2008/06/23 00:22:31 hnguyen Exp $
+* $Id: design_area_menu_stalks.inc,v 1.28.2.2 2008/07/04 06:28:40 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.28.2.1 $
+* @version $Revision: 1.28.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,12 +164,8 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		if (!empty($unwanted_types)) {
 			$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
-			$level_check = '';
-			if ($this->attr('level') == 1) {
-				$level_check	= '$level != '.$this->attr('level').' && ';
-			}//
 			echo '
-				if ('.$level_check.'in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;';
+				if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;';
 		}//end if
 
 		echo '

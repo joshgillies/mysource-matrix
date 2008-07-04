@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2006/12/05 22:42:15 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.2.8.1 2008/07/04 06:28:41 hnguyen Exp $
 *
 */
 -->
@@ -38,5 +38,13 @@
 			<display_name>Self Link</display_name>
 			<note>Whether or not to add self-referential links</note>
 		</field>
+        <field>
+            <function_call>
+                <paint_function   name="paintExcludedTypes" />
+                <process_function name="processExcludedTypes" />
+            </function_call>
+            <display_name>Excluded Asset Types</display_name>
+            <note>Assets of these types and their inherited types will be omitted from the lineage</note>
+        </field>
 	</section>
 </contents>
