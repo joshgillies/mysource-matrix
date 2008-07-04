@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178.2.7 2008/07/01 01:37:14 bpearson Exp $
+* $Id: form.inc,v 1.178.2.8 2008/07/04 03:45:54 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178.2.7 $
+* @version $Revision: 1.178.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2778,6 +2778,8 @@ class Form extends Asset implements Bridge
 
 			if (!empty($referrer)) {
 				// use the url to work out the referring asset
+				$referrer = clean_url($referrer);
+
 				$url_parts = parse_url($referrer);
 				$protocol = array_get_index($url_parts, 'scheme');
 				$path = array_get_index($url_parts, 'host').array_get_index($url_parts, 'path');
