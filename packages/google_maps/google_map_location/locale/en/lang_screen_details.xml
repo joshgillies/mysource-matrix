@@ -1,0 +1,44 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.1.1 2008/07/04 05:19:54 hnguyen Exp $
+*
+*/
+-->
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Location Name</display_name>
+			<note>The name of the location</note>
+		</field>
+		<field attribute="short_name">
+			<display_name>Short Name</display_name>
+			<note>The short name of the location</note>
+		</field>
+		<field attribute="latitude">
+			<display_name>Latitude</display_name>
+			<note>The latitude of the location</note>
+		</field>
+		<field attribute="longitude">
+			<display_name>Longitude</display_name>
+			<note>The longitude of the location</note>
+		</field>
+		<field attribute="description">
+			<display_name>Description</display_name>
+			<note>The description of the location</note>
+		</field>
+		<field attribute="icon_url">
+			<display_name>Icon URL</display_name>
+			<note>The URL for this location icon</note>
+		</field>
+	</section>
+</contents>

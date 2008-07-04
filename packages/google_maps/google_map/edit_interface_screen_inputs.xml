@@ -1,0 +1,8 @@
+<contents>
+    <section name="Dynamic Variables" write_access="write:attributes">
+        <function_call>
+            <paint_function name="paintDataMapping" />
+            <process_function name="processDataMapping" />
+        </function_call>
+    </section>
+</contents>
