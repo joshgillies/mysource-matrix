@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.268 2008/07/03 05:35:21 lwright Exp $
+* $Id: mysource.inc,v 1.269 2008/07/04 06:19:22 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.268 $
+* @version $Revision: 1.269 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2914,6 +2914,14 @@ class MySource
 
 		// build the new URL, and redirect - this exits the script
 		$url = $protocol.'://'.preg_replace('|^'.addslashes($root_url['url']).'|', $new_root_url['url'], $current_url);
+
+		// Before redirecting, blanking out the public user, see ya on the flip side!
+		if ($this->userPublic($this->user)) {
+			$_SESSION['user'] = NULL;
+			$_SESSION['userid'] = NULL;
+			$_SESSION['user_type_code'] = NULL;
+		}
+
 		do_redirect($url);
 
 		// Fall-through that should never be executed
