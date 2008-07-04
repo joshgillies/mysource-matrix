@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.188 2008/07/01 01:36:31 bpearson Exp $
+* $Id: form.inc,v 1.189 2008/07/04 04:04:57 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.188 $
+* @version $Revision: 1.189 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -148,7 +148,7 @@ class Form extends Asset implements Bridge
 		// Deny public read access to the submissions folder by default
 		// force run level so users without admin permissions can still create a form
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE)) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE, TRUE)) {
 			return FALSE;
 		}
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
