@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2007/02/08 06:04:09 rong Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2008/07/04 06:13:09 hnguyen Exp $
 *
 */
 -->
@@ -37,5 +37,11 @@
 		<field attribute="self_link">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+        <field>
+            <function_call>
+                <paint_function   name="paintExcludedTypes" />
+                <process_function name="processExcludedTypes" />
+            </function_call>
+        </field>
 	</section>
 </contents>

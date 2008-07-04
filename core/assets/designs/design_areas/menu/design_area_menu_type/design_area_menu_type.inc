@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.96 2008/06/23 00:12:27 hnguyen Exp $
+* $Id: design_area_menu_type.inc,v 1.97 2008/07/04 06:13:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -802,9 +802,7 @@ class Design_Area_Menu_Type extends Design_Area
 					if (!is_null($parent_menu)) {
 						echo '<? if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
 					} else {
-						$sub_level_menu	= ($this->attr('level') == -2) ? 'TRUE' : 'FALSE';
-						// We are parents menu / or a single menu, but only restrict when level is children
-						echo '<? if ('.$sub_level_menu.' && in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
+						echo '<? if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
 					}//end else
 				}//end if
 

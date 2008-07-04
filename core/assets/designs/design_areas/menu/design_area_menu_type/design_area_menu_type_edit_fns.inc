@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.55 2008/06/23 00:12:27 hnguyen Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.56 2008/07/04 06:13:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,6 +359,69 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		return $asset->setAttrValue('level', $level);
 
 	}//end processLevel()
+
+
+    /**
+    * Paint the interface for choosing asset types to exclude from the lineage
+    *
+    * @param Design_Area_Asset_Lineage  $asset  the asset whose interface we are painting
+    * @param Backend_Outputter          $o      the Backend Outputter object
+    * @param string                     $prefix prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    public function paintExcludedTypes(Design_Area_Menu_Type $asset, Backend_Outputter $o, $prefix)
+    {
+        $excluded_types = $asset->attr('unwanted_asset_types');
+        if ($asset->writeAccess('attributes')) {
+            asset_type_chooser($prefix.'_excluded_types', TRUE, $excluded_types);
+        } else {
+            if (empty($excluded_types)) {
+                echo 'No types are excluded';
+            } else {
+                ?>
+                <ul>
+                <?php
+                foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($excluded_types, 'name') as $type_name) {
+                    ?>
+                    <li><?php echo $type_name; ?></li>
+                    <?php
+                }
+                ?>
+                </ul>
+                <?php
+            }
+        }
+
+    }//end paintExcludedTypes()
+
+
+    /**
+    * Paint the interface for choosing asset types to exclude from the lineage
+    *
+    * @param Design_Area_Asset_Lineage  $asset  the asset whose interface we are painting
+    * @param Backend_Outputter          $o      the Backend Outputter object
+    * @param string                     $prefix prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    public function processExcludedTypes(Design_Area_Menu_Type $asset, Backend_Outputter $o, $prefix)
+    {
+        if ($asset->writeAccess('attributes')) {
+            // bug #2712: asset chooser returns an array of empty strings
+            // instead of an empty array
+            $exclude_list = Array();
+            foreach ($_POST[$prefix.'_excluded_types'] as $type) {
+                if ($type != '') $exclude_list[] = $type;
+            }
+            return $asset->setAttrValue('unwanted_asset_types', $exclude_list);
+        } else {
+            return FALSE;
+        }
+
+    }//end processExcludedTypes()
 
 
 }//end class
