@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.97 2008/07/04 06:13:09 hnguyen Exp $
+* $Id: design_area_menu_type.inc,v 1.98 2008/07/04 06:25:44 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -799,11 +799,7 @@ class Design_Area_Menu_Type extends Design_Area
 				if (!empty($unwanted_types)) {
 					$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
 					// We are sub menu
-					if (!is_null($parent_menu)) {
-						echo '<? if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
-					} else {
-						echo '<? if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
-					}//end else
+					echo '<? if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
 				}//end if
 
 				if ($this_contents = $this->attr('asset_contents')) {
