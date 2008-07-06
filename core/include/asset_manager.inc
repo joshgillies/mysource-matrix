@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.20 2008/07/02 06:18:36 lwright Exp $
+* $Id: asset_manager.inc,v 1.655.2.21 2008/07/06 22:28:07 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.20 $
+* @version $Revision: 1.655.2.21 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8687,7 +8687,7 @@ class Asset_Manager extends MySource_Object
 							 )
 							 AND (
 									(
-										ll.permission = :access AND
+										ll.permission = :'.$bind_prefix.'outer_access AND
 																					(
 																						ll.userid <> :'.$bind_prefix.'public_userid
 																						OR r.userid <> :'.$bind_prefix.'public_userid_1
