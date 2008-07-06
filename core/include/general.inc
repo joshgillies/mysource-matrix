@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.187.2.5 2008/06/30 05:39:11 lwright Exp $
+* $Id: general.inc,v 1.187.2.6 2008/07/06 23:51:23 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187.2.5 $
+* @version $Revision: 1.187.2.6 $
 * @package MySource_Matrix
 */
 
@@ -1566,6 +1566,11 @@ function replace_global_keywords(&$text)
 					if (!is_scalar($keyword_value)) {
 						$replacements[$keyword] = '';
 					} else {
+						// whitelist of characters that will not be stripped out,
+						// for some security
+						$safe_list = 'A-Za-z0-9\.\-\_\%\$\(\)\=';
+						$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
+
 						$replacements[$keyword] = $keyword_value;
 					}
 				}
