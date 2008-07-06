@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.138 2008/03/26 23:19:42 bpearson Exp $
+* $Id: html_form.inc,v 1.139 2008/07/06 23:20:01 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -778,7 +778,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	text_box($safe_name.'_label', $label, 20, 0, FALSE, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 	// only print the buttons if in the backend (where there's an asset map frame available)
 	if (SQ_IN_BACKEND || SQ_IN_LIMBO || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
-		?><span class="sq-form-asset-finder sq-asset-finder-id-label">Id : #</span><?php
+		?><span class="sq-asset-finder-id-label">Id : #</span><?php
 		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'style="border:1px solid #EFEFEF;width:7ex;" onchange="'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
 		?> <?php
 		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
