@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.275 2008/07/03 02:29:03 bpearson Exp $
+* $Id: asset_map.inc,v 1.276 2008/07/07 23:22:33 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.275 $
+* @version $Revision: 1.276 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -234,9 +234,8 @@ class Asset_Map
 						throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
 					}
 					if ($count > 0) $sort_order = $sort_order - $count;
-
-					$sort_orders .= $sort_order.'|';
 				}//end if
+				$sort_orders .= $sort_order.'|';
 			}//end for
 
 			$assetid_lineage = Array();
@@ -300,7 +299,7 @@ class Asset_Map
 										'majorid'	=> $previd,
 										'minorid'	=> $currentid,
 									  );
-						$type_codes = MatrixDAL::executeOne('core', 'getSortOrder', $bind_vars);
+						$sort_order = MatrixDAL::executeOne('core', 'getSortOrder', $bind_vars);
 					} catch (Exception $e) {
 						throw new Exception('Unable to get sort order for majorid: '.$previd.' and minorid: '.$currentid.' due to database error: '. $e->getMessage());
 					}
