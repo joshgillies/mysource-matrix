@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.190 2008/07/04 04:19:28 lwright Exp $
+* $Id: form.inc,v 1.191 2008/07/07 05:09:01 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1265,10 +1265,7 @@ class Form extends Asset implements Bridge
 				return FALSE;
 			}//end if
 
-			$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-			$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 			if (!$content_type->saveAttributes()) return FALSE;
-			$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
 		}//end if
 
