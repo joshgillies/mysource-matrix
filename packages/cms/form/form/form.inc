@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.170.2.9 2008/07/01 01:37:52 bpearson Exp $
+* $Id: form.inc,v 1.170.2.10 2008/07/07 04:35:34 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.170.2.9 $
+* @version $Revision: 1.170.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1156,7 +1156,7 @@ class Form extends Asset
 				if (!empty($bodycopy)) {
 					$containers =& $bodycopy->getContainers();
 					foreach ($containers as $container) {
-						$content_type = $container->getContentType();
+						$content_type =& $container->getContentType();
 						if ($container->type() == 'bodycopy_table') {
 							if (is_array($content_type)) {
 								foreach ($content_type as $cell_type) {

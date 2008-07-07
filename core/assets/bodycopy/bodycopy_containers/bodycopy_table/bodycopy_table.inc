@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.19.6.1 2008/06/19 22:38:42 bpearson Exp $
+* $Id: bodycopy_table.inc,v 1.19.6.2 2008/07/07 04:35:31 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19.6.1 $
+* @version $Revision: 1.19.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,7 +124,7 @@ class Bodycopy_Table extends Bodycopy_Container
 	* @return object
 	* @access public
 	*/
-	function getContentType()
+	function &getContentType()
 	{
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO || !isset($this->_tmp['content_type'])) {
 			unset($this->_tmp['content_type']);
