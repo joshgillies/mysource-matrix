@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.5.4.1 2008/05/09 04:28:49 lwright Exp $
+* $Id: proxy_authentication_config.inc,v 1.5.4.2 2008/07/07 03:14:07 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.5.4.1 $
+* @version $Revision: 1.5.4.2 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -42,7 +42,7 @@ class Proxy_Authentication_Config extends Config
 						'SQ_PA_PORT'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_PA_USERNAME'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_PA_PASSWORD'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_PA_ALTERNATIVES'		=> Array('editable' => 1, 'default' => ''),
+						'SQ_PA_ALTERNATIVES'		=> Array('editable' => 1, 'default' => 'a:0:{}'),
 						'SQ_PROXY_URL_PORT_STRIP'	=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
