@@ -1,5 +1,124 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.3
+
+Featured Changes
+-----------------------------------
+
+Delete Bulkmail Users Tool
+
+	This tool will delete all Bulkmail Users from the system that match email addresses present in a text file, which is uploaded as part of the tool's interface.
+
+
+Unwanted Asset Types Menu Design Area setting
+
+	This new Menu Design Area setting ("unwanted_asset_types") lets you set a number of asset type(s) that are excluded from a menu. The types chosen will also exclude all descendant asset types. 
+
+
+Paint Layout changes
+
+	The way Paint Layouts work in general has been overhauled quite radically. The "Lookup Values" screen has been renamed "Lookup Settings". The changes to this screen in summary:
+
+	- Paint Layouts can now be applied on a per-asset basis, rather than just per URL. Paint Layouts set this way will apply across all URLs of the asset. Per-URL Paint Layout settings are still available.
+	- Override Paint Layouts can also be applied at either a per-asset or per-URL level, working similar to designs.
+
+	When evaluating which Paint Layout asset to display, the following rules apply:
+
+	- URL-based paint layouts have priority over asset-based ones. Where no URL-based paint layouts exist for the current URL, the asset-based one will be used instead.
+	- All Override layouts take priority over all normal (inherited) layouts. For instance, if you have an Override Paint Layout at an asset level but only an inherited Paint Layout at a URL level, then the Override asset-level Paint Layout takes priority.
+
+
+Set Paint Layout Trigger Action
+
+	This new trigger action allows you to set an asset-level Paint Layout (both standard and Override) on an asset that fires a trigger. Dynamic parameters can be used to select an alternative asset ID for either one.
+
+
+Set Paint Layouts on built assets
+
+	Asset-based Paint Layouts can now be set on assets created through an Asset Builder.
+
+
+Pass extra GET variables to Nest Content
+
+	This new functionality allows you to pass extra GET variables to an asset being included via Nest Content. The values can include global keywords and keywords of the asset you are nesting (using %nested_asset_*% instead of %asset_*%). These extra keywords will overwrite GET variables passed through a query string, but will only have the lifetime of that nesting.
+
+
+HTTP GET variables available as a Global Keyword
+
+	HTTP GET variables are now available as global keywords using the %globals_get_*% format. Only scalar variables are able to be used as global keywords; arrays are not supported.
+
+
+Global Keywords in Remote Content URLs
+
+	The Remote Content asset now accepts global keywords in the URL. Caching of output has changed slightly to better handle the possibility for dynamic URLs.
+
+
+Set "Not Found" Page for archived assets
+
+	This is a new "Special Page" option added to Site assets. It is triggered when a user accesses an asset with "Archived" status, without the appropriate read permissions. (Due to it being archived, users actually need write permissions to get read permission too.) The page behaves exactly like the "Not Found" special page option, in that it will return a HTTP 404 status code.
+
+
+Schedule Bulkmail Job script
+
+	This new command-line script, located in the root of the Bulkmail package, lets you queue up a Bulkmail Job to run immediately. This can be used by a Cron system outside of Matrix to schedule a time to send a Bulkmail Job. Apart from the system root, the script accepts one parameter: the asset ID of the Bulkmail Job to queue. It will only run if it is not already running (ie. status is set to "Under Construction").
+
+
+Remove Metadata Schema Trigger Action
+
+	This new trigger action will remove either a single metadata schema (if it exists) or all metadata schemas from the asset that fired the trigger.
+
+
+Browser Cache Expiry option in Cache Manager
+
+	This option allows you to set a different period for requesting the browser cache the output of a Matrix asset, to the period that Matrix itself caches things using the Cache Manager. Specified in seconds. If omitted or zero (which is the default), these values are the same.
+
+
+Prevent Cascade of Schemas / Permissions
+
+	It is now possible to designate certain permissions, workflow schemas and metadata schemas with the ability to not cascade to lower assets, regardless of the normal asset-level "Cascade" setting. When this option is selected, new children of the asset (whether created or linked/moved) will not have those settings cascaded to them. (Workflow schemas and permissions will still cascade to their dependent children, to be consistent with current practices of adding these with cascading to existing assets turned off.)
+
+
+Workflow Approval / Rejection Trigger Events
+
+	Two new Trigger Events are now available for Workflow Approval and Workflow Rejection. These events are fired when a workflow is resolved on an asset in the respective way.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed bug #3053: WYSIWYG does not display mutimedia files when editing
+* Fixed bug #3054: Asset filesize (when file has not been uploaded)
+* Fixed bug #3057: system_parse_design.php fails with Call to protected method fatal error
+* Fixed bug #3059: SQ_CONF_CONFIRM_SAVE_CHANGES reset after upgrade
+* Fixed bug #3061: Issues when cloning Design assets
+* Fixed bug #3068: Update lookups doesn't log the lookup change
+* Fixed bug #3071: Purge Trash warning javascript error
+* Fixed bug #3077: Viewing Web Path screen fails on Oracle with 1000+ URLs
+* Fixed bug #3096: Printing in IE - Structred Asset Report Screen cut off
+* Fixed bug #3102: Setting override design on a site asset fails
+* Fixed bug #3107: Old override values applied to assets remain in the lookup values table after URL has changed
+* Fixed bug #3108: Asset Map not loading after upgrade to 3.18.1 / 3.18.2
+
+CMS
+* Fixed bug #3049: Asset Listing: Group format %group_name% keyword doesn't convert & to &amp;
+* Fixed bug #3078: Custom form section_title_xxx keywords do not work in Thank You bodycopy
+* Fixed bug #3087: Cloning Custom Form with bodycopy table used result in fatal error
+* Fixed bug #3099: Asset Builder required attributes
+* Fixed bug #3113: Asset Listing generates DB error when listing "Up the Tree" when viewed by Public User
+
+Calendar
+* Fixed bug #3044: Calendar Page: Year view, events with no time don't get sorted
+* Fixed bug #3098: Invalid XHTML for calendar output (month view, table format)
+
+LDAP
+* Fixed bug #3072: errors linking LDAP users with ampersand in Group name
+
+Search
+* Fixed bug #3065: Search log report assign by reference error
+
+
+
 VERSION 3.18.2
 
 Featured Changes
