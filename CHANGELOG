@@ -1,5 +1,54 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.10
+
+Featured Changes
+-----------------------------------
+
+Delete Bulkmail Users Tool
+
+	This tool will delete all Bulkmail Users from the system that match email addresses present in a text file, which is uploaded as part of the tool's interface.
+
+
+Browser Cache Expiry option in Cache Manager
+
+	This option allows you to set a different period for requesting the browser cache the output of a Matrix asset, to the period that Matrix itself caches things using the Cache Manager. Specified in seconds. If omitted or zero (which is the default), these values are the same. 
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3053: WYSIWYG does not display mutimedia files when editing
+* Fixed Bug #3061: Issues when cloning Design assets
+* Fixed Bug #3068: Update lookups doesn't log the lookup change
+* Fixed Bug #3077: Viewing Web Path screen fails on Oracle with 1000+ URLs
+* Fixed Bug #3054: Asset filesize (when file has not been uploaded)
+* Fixed Bug #3091: Oracle error in scripts/add_remove_url.php
+* Fixed Bug #3096: Printing in IE - Structred Asset Report Screen cut off
+* Fixed Bug #3102: Setting override design on a site asset fails 
+* Fixed Bug #3105: Unknown issue when using script to add urls
+
+CMS
+* Fixed Bug #3049: Asset Listing: Group format %group_name% keyword doesn't convert & to &amp;
+* Fixed Bug #3078: Custom form section_title_xxx keywords do not work in Thank You bodycopy 
+* Fixed Bug #3076: DB Error on Custom Form create
+* Fixed Bug #3087: Cloning Custom Form with bodycopy table used result in fatal error 
+* Fixed Bug #3099: Asset Builder required attributes
+
+Calendar
+* Fixed Bug #3044: Calendar Page: Year view, events with no time don't get sorted
+* Fixed Bug #3098: Invalid XHTML for calendar output (month view, table format)
+
+LDAP
+* Fixed Bug #3072: Errors linking LDAP users with ampersand in Group name
+
+Search
+* Fixed Bug #3064: Search log report Regenerate Report field incorrect
+* Fixed Bug #3065: Search log report assign by reference error 
+
+
+
 VERSION 3.16.9
 
 Featured Changes
