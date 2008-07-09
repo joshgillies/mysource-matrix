@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.17.4.2 2007/10/03 01:11:20 lmarchese Exp $
+* $Id: page_rss_feed.inc,v 1.17.4.3 2008/07/09 06:57:57 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.17.4.2 $
+* @version $Revision: 1.17.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -281,8 +281,8 @@ class Page_RSS_Feed extends Page
 				$index = 0;
 				$mm = null;
 
-				foreach ($items as $type => $keywords) {
-					foreach ($assets_to_list as $assetid => $asset_type) {
+				foreach ($assets_to_list as $assetid => $asset_type) {
+					foreach ($items as $type => $keywords) {
 						if (!empty($num_assets_as_items)) {
 							if ($index >= $num_assets_as_items) break;
 						}
@@ -329,8 +329,8 @@ class Page_RSS_Feed extends Page
 							}//end if asset exists
 							$index++;
 						}//end if type and asset_type are equal
-					}//end foreach assets_to_list
-				}//end foreach items
+					}//end foreach items
+				}//end foreach assets_to_list
 
 				$no_errors = $this->validateItems($new_items);
 				if (!$no_errors) return;
