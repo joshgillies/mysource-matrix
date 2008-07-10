@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.52.2.1 2008/07/02 06:18:36 lwright Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.52.2.2 2008/07/10 00:10:19 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.1 $
+* @version $Revision: 1.52.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -212,7 +212,11 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 						return '';
 					}
 
-					$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+					if ($schema_change['cascades']) {
+						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
+					} else {
+						$child_assets = Array();
+					}
 
 					// add the parent asset to the list too
 					$child_assets[$assetid]    = Array (
