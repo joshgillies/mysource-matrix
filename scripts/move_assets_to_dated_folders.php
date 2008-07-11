@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets_to_dated_folders.php,v 1.1.2.2 2008/07/11 01:32:25 mbrydon Exp $
+* $Id: move_assets_to_dated_folders.php,v 1.1.2.3 2008/07/11 01:45:47 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * Credit to Richard Hulse for this concept which is now available to the Matrix Community!
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 */
 
@@ -257,11 +257,25 @@ function moveAssetToDatedFolder($asset_id, $parent_id, $asset_date_field, $time_
 			$asset_timestamp = $asset->published;
 		}
 
-		// Find a destination folder for our asset
-		$destination_folder_id = searchExistingDatedFolder($parent_id, $asset_timestamp, $time_period, $folder_link_type);
+		if ($asset_timestamp != NULL) {
+			// Find a destination folder for our asset
+			$destination_folder_id = searchExistingDatedFolder($parent_id, $asset_timestamp, $time_period, $folder_link_type);
 
-		if ($destination_folder_id > 0) {
-			$result = moveAsset($asset->id, $parent_id, $destination_folder_id);
+			if ($destination_folder_id > 0) {
+				if ($asset_id == $destination_folder_id) {
+					echo 'asset is our destination dated folder. SKIPPING this asset. ';
+
+					// Continue anyway
+					$result = TRUE;
+				} else {
+					$result = moveAsset($asset->id, $parent_id, $destination_folder_id);
+				}
+			}
+		} else {
+				echo 'asset '.$asset_date_field.' date does not exist. SKIPPING this asset. ';
+
+				// Continue anyway
+				$result = TRUE;
 		}
 	}
 
