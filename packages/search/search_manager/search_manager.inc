@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.7 2008/06/16 23:56:40 hnguyen Exp $
+* $Id: search_manager.inc,v 1.164.2.8 2008/07/11 05:42:52 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.7 $
+* @version $Revision: 1.164.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -540,6 +540,8 @@ class Search_Manager extends Asset
 
 			$attribute = $asset->getAttribute($var_name);
 			$value = strtolower($attribute->getContent());
+			$value = strip_tags($value);
+			$value = str_replace('&nbsp;', ' ', $value);
 			if (empty($value)) continue;
 
 			$comp_name = 'attr:'.$var_name;
@@ -1101,6 +1103,12 @@ class Search_Manager extends Asset
 
 			$keywords = retrieve_keywords_replacements($value, '.');
 			$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+			foreach($keywords as $keyword) {
+				if (!isset($the_replacement[$keyword])) {
+					// Looking for further replacements
+					$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
+				}//end if
+			}//end foreach
 			replace_keywords($value, $the_replacement);
 
 			// check field_type to define the indexing way
