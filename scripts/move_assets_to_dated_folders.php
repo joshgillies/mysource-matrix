@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets_to_dated_folders.php,v 1.2 2008/07/11 01:13:49 mbrydon Exp $
+* $Id: move_assets_to_dated_folders.php,v 1.3 2008/07/11 01:33:11 mbrydon Exp $
 *
 */
 
@@ -21,10 +21,10 @@
 *
 * If a suitable folder structure exists under the parent asset, it will be re-used.
 *
-* Credit to Richard Hulse (Radio NZ) for this concept which is now available to the Matrix Community!
+* Credit to Richard Hulse for this concept which is now available to the Matrix Community!
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -40,12 +40,12 @@ function printUsage()
         echo "Move assets into dated folders\n\n";
         echo "Usage: move_assets_to_dated_folders [system root] [root node asset ID] [asset type code] [asset date field] [time period] (folder link type)\n";
         echo "system root         : The Matrix System Root directory\n";
-		echo "root node asset ID  : The asset under which child assets are to be moved\n";
-		echo "asset type code     : The type of assets to be moved\n";
-		echo "asset date field    : The date field determining the destination for each asset - either 'created' or 'published'\n";
+	echo "root node asset ID  : The asset under which child assets are to be moved\n";
+	echo "asset type code     : The type of assets to be moved\n";
+	echo "asset date field    : The date field determining the destination for each asset - either 'created' or 'published'\n";
         echo "time period         : A specification of the folder structure to be created - either 'year', 'month' or 'day'\n";
-		echo "                      eg; when 'asset date field' is 'created', 'day' will create or re-use a structure of 2008 > 03 > 28 for assets created on 28th March 2008\n";
-		echo "folder link type    : The link type for newly-created folders (either 1 or 2). This is optional and will default to Type 2\n\n";
+	echo "                      eg; when 'asset date field' is 'created', 'day' will create or re-use a structure of 2008 > 03 > 28 for assets created on 28th March 2008\n";
+	echo "folder link type    : The link type for newly-created folders (either 1 or 2). This is optional and will default to Type 2\n\n";
 
 }//end printUsage()
 
