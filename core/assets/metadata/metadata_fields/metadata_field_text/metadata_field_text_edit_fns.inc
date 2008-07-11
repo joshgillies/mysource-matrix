@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.34 2008/07/11 05:35:54 bpearson Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.35 2008/07/11 05:41:55 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,7 +187,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				$value_components = $asset->attr('value_components');
 				for (reset($value_components); NULL !== ($vc_name = key($value_components)); next($value_components)) {
 					if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
-						$clean_vc = trim(str_replace($keyword, '', $_POST[$prefix.'_vc_value']));
+						$clean_vc = trim(str_replace($keyword, '', $_POST[$prefix.'_vc_value'][$vc_name]));
 						$value_components[$vc_name] = str_replace(Array('\n', '\r'), Array(' ', ''), $clean_vc);
 					}
 				}
