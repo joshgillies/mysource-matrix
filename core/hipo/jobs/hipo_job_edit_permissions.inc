@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.66.2.2 2008/07/10 04:45:17 lwright Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.66.2.3 2008/07/11 01:23:07 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.2 $
+* @version $Revision: 1.66.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -248,9 +248,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			}
 		}
 
-		bam($this->_running_vars);
-
-
 		return parent::prepare();
 
 	}//end prepare()
@@ -337,7 +334,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 									// deny a permission
 									// grant a permission
 									$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing '.$perm_name.' permission to "'.$asset->name.'" (#'.$asset->id.')');
-									bam($step_data['message']);
 									$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted'], $set_data['cascades']);
 								break;
 							}
