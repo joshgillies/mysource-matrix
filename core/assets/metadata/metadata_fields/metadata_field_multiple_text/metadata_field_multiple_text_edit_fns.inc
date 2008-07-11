@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.4 2007/03/08 04:00:37 tbarrett Exp $
+* $Id: metadata_field_multiple_text_edit_fns.inc,v 1.4.4.1 2008/07/11 05:33:07 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,6 +155,8 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			if ($attribute->processed) {
 				// Get the string into proper form for the metadata field function
 				$value = str_replace($attribute->delimiter, '; ', $attribute->value);
+				$keyword = '%asset_metadata_'.$asset->name.'%';
+				$value = trim(str_replace($keyword, '', $value));
 				$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 				return TRUE;
 			} else {
