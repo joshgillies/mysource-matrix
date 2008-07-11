@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets_to_dated_folders.php,v 1.1.2.1 2008/07/11 00:32:35 mbrydon Exp $
+* $Id: move_assets_to_dated_folders.php,v 1.1.2.2 2008/07/11 01:32:25 mbrydon Exp $
 *
 */
 
@@ -21,10 +21,10 @@
 *
 * If a suitable folder structure exists under the parent asset, it will be re-used.
 *
-* Credit to Richard Hulse (Radio NZ) for this concept which is now available to the Matrix Community!
+* Credit to Richard Hulse for this concept which is now available to the Matrix Community!
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 */
 
