@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.37.2.3 2008/06/20 04:52:42 lwright Exp $
+* $Id: remap_manager.inc,v 1.37.2.4 2008/07/14 04:17:05 gsherwood Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37.2.3 $
+* @version $Revision: 1.37.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -270,13 +270,13 @@ class Remap_Manager extends Asset
 			$union_select = '(SELECT
 								(\'http://\' || url)
 							FROM sq_ast_lookup
-							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('http = 1
+							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('http = \'1\'
 								AND assetid = :assetid').')
 							UNION
 							(SELECT
 								(\'https://\' || url)
 							FROM sq_ast_lookup
-							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('https = 1
+							'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('https = \'1\'
 								AND assetid = :assetid_1').')';
 
 			$bind_vars['assetid'] = $asset->id;
