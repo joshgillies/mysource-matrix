@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing_edit_fns.inc,v 1.8 2007/12/06 05:10:03 rong Exp $
+* $Id: page_related_asset_listing_edit_fns.inc,v 1.9 2008/07/16 12:56:27 gnoel Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -141,6 +141,42 @@ class Page_Related_Asset_Listing_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	}//end processRelator()
 
 
+	/**
+	* Paints the thesaurus filter selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintThesaurusFilters(&$asset, &$o, $prefix)
+	{
+		return $this->paintNoticeLinkedAsset($asset, 'thesaurus_filter', Array('thesaurus' => 'D'), $prefix.'thesaurus_filters', TRUE);
+		
+	}//end paintThesaurusFilter()
+
+	
+	/**
+	* Processes the value input from thesaurus filter selection box
+	*
+	* @param object	&$asset	asset being painted
+	* @param object	&$o		backend outputter
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processThesaurusFilters(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('links')) {
+			$this->processNoticeLinkedAsset($asset, 'thesaurus_filter', $prefix.'thesaurus_filters', TRUE);
+		}
+		return FALSE; // no need to save attrs, it's only links
+		
+	}//end processThesaurusFilter()
+	
 }//end class
 
 ?>
