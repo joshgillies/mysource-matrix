@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tag_manager.inc,v 1.12 2007/12/11 02:57:26 rong Exp $
+* $Id: tag_manager.inc,v 1.13 2008/07/16 12:53:13 gnoel Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Tag_Manager extends Asset
@@ -113,12 +113,13 @@ class Tag_Manager extends Asset
 	/**
 	* Get all the tags on an asset
 	*
-	* @param int	$assetid	The asset who's tag we want.
+	* @param int	$assetid				The asset who's tag we want.
+	* @param array	$thesaurus_filter_ids	The thesauruses we use to filter the tags (only get tags or terms defined by these thesauruses).
 	*
 	* @return array
 	* @access public
 	*/
-	function getTagLinks($assetid)
+	function getTagLinks($assetid, $thesaurus_filter_ids=Array())
 	{
 
 		$tag_links = Array();
@@ -127,11 +128,13 @@ class Tag_Manager extends Asset
 			$id_parts = explode(':', $notice_link['minorid']);
 			if (!empty($id_parts[1])) {
 				$thes_id = $id_parts[0];
-				$thes = $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
-				if (!is_null($thes)) {
-					$tag_term_exists = $GLOBALS['SQ_SYSTEM']->am->getAsset($notice_link['minorid'], 'thesaurus_term', FALSE);
-					if (!is_null($tag_term_exists)) {
-						$tag_links[] = $notice_link;
+				if (empty($thesaurus_filter_ids) || in_array($thes_id, $thesaurus_filter_ids)) {
+					$thes = $GLOBALS['SQ_SYSTEM']->am->getAsset($thes_id, 'thesaurus', TRUE);
+					if (!is_null($thes)) {
+						$tag_term_exists = $GLOBALS['SQ_SYSTEM']->am->getAsset($notice_link['minorid'], 'thesaurus_term', FALSE);
+						if (!is_null($tag_term_exists)) {
+							$tag_links[] = $notice_link;
+						}
 					}
 				}
 			}
@@ -224,12 +227,13 @@ class Tag_Manager extends Asset
 	/**
 	* Get all the assets that are related to an asset or assets
 	*
-	* @param array	$relator_id	The tag or array of tags in which we are interested
+	* @param array	$relator_id				The tag or array of tags in which we are interested
+	* @param array	$thesaurus_filter_ids	The thesauruses we use to filter the assets (only get assets that are tagged by terms defined by these thesauruses).
 	*
 	* @return array
 	* @access public
 	*/
-	function getRelatedAssets($relator_id)
+	function getRelatedAssets($relator_id, $thesaurus_filter_ids=Array())
 	{
 		// Get the tag links for all the relators then all the asset links these tags have.
 		// we need to iterate through the relator's tag links to build the array for getting the tags' assets, so
@@ -244,7 +248,7 @@ class Tag_Manager extends Asset
 
 		$relator_weightings = Array();
 		foreach ($relator_ids as $relator_id) {
-			$tag_links = $this->getTagLinks($relator_id);
+			$tag_links = $this->getTagLinks($relator_id, $thesaurus_filter_ids);
 			foreach ($tag_links as $tag_link) {
 				$tag_id =  $tag_link['minorid'];
 				$current_value = array_get_index($relator_weightings, $tag_id, 0);
