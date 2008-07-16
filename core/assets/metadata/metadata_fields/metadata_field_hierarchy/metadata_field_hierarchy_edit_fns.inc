@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.6 2008/07/16 06:56:51 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.7 2008/07/16 07:48:47 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.6 $
+* @version $Revision: 1.1.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,6 +119,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				// drill-down view
 				$level_titles = $asset->attr('level_titles');
 				$preview_options = $this->_sortHierarchyOptions($hierarchy_options, 1, FALSE);
+				if (!is_array($value)) {
+					$value = explode('; ', $value);
+				}
 				$this->paintDrillDownView($hierarchy_options, $value, $level_titles, $prefix);
 			}
 		} else {
