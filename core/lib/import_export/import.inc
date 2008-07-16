@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.18 2007/12/23 21:54:56 gsherwood Exp $
+* $Id: import.inc,v 1.19 2008/07/16 01:41:45 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -146,13 +146,14 @@ function populate_import_action_array(&$store, &$vals)
 *
 * Also populates the output array for storage of import action outputs
 *
-* @param array	$action		the array of action data
-* @param array	&$outputs	an array in which to store import action outputs
+* @param array	$action			the array of action data
+* @param array	&$outputs		an array in which to store import action outputs
+* @param array	$input_values	an array of known good input values to use
 *
 * @return boolean
 * @access public
 */
-function execute_import_action($action, &$outputs)
+function execute_import_action($action, &$outputs, $input_values=array())
 {
 	$settings = Array();
 	$state = Array();
@@ -169,7 +170,7 @@ function execute_import_action($action, &$outputs)
 		if ($key == 'action_id') continue;
 		if ($key == 'action_type') continue;
 
-		$value = get_import_action_input_value($action, $key, $outputs);
+		$value = get_import_action_input_value($action, $key, $outputs, $input_values);
 
 		if ($key == 'asset') {
 			// this is a special case where the value populates
@@ -205,14 +206,15 @@ function execute_import_action($action, &$outputs)
 * Also handles references to previous action outputs.
 * The function will die with E_USER_ERROR if it encounters any errors.
 *
-* @param array	$action		the array of action data
-* @param string	$attribute	the name of the input attribute to get
-* @param array	$outputs	the output values from previous import actions
+* @param array	$action			the array of action data
+* @param string	$attribute		the name of the input attribute to get
+* @param array	$outputs		the output values from previous import actions
+* @param array	$input_values	an array of known good input values to use
 *
 * @return string
 * @access public
 */
-function get_import_action_input_value($action, $attribute, $outputs=Array())
+function get_import_action_input_value($action, $attribute, $outputs=Array(), $input_values=array())
 {
 	// first make sure the attribute exists for this action
 	if (!isset($action[$attribute])) {
@@ -220,6 +222,8 @@ function get_import_action_input_value($action, $attribute, $outputs=Array())
 	} else {
 		$value = $action[$attribute][0];
 	}
+
+	if (isset($input_values[$value]) === true) return $input_values[$value];
 
 	// loop until there are no more changes
 	do {
