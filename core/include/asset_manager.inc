@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.698 2008/07/06 22:27:35 mbrydon Exp $
+* $Id: asset_manager.inc,v 1.699 2008/07/16 04:17:31 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.698 $
+* @version $Revision: 1.699 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -965,10 +965,12 @@ class Asset_Manager extends MySource_Object
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'attr_name', $attr_name);
-			MatrixDAL::bindValueToPdo($query, 'asset_type', $asset_type);
+			if ($asset_type != 'asset') {
+				MatrixDAL::bindValueToPdo($query, 'asset_type', $asset_type);
+			}
 			$custom_vals = DAL::executePdoGroupedAssoc($query);
 		} catch (Exception $e) {
-			throw new Exception('Unable to get customised attribute values due to database error: '.$e->getMessage());
+			throw new Exception('Unable to get customised attribute values for attr "'.$attr_name.'" and type "'.$asset_type.'" due to database error: '.$e->getMessage());
 		}
 
 		// Combine the two
