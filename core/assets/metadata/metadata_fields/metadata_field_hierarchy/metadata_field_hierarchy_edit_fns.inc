@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.5 2008/07/16 06:45:09 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.6 2008/07/16 06:56:51 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.5 $
+* @version $Revision: 1.1.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,10 +84,10 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 		// If we're OK to edit, get our hierarchy attribute, and paint it
+		$hierarchy = $asset->getHierarchyAttribute();
+		$hierarchy_options = $hierarchy->_params['options'];
 		if ($write_access) {
 			$display_type = $asset->attr('display_type');
-			$hierarchy = $asset->getHierarchyAttribute();
-			$hierarchy_options = $hierarchy->_params['options'];
 
 			if (!$display_type) {
 				// flat view
