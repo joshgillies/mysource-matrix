@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1.2.3 2008/05/16 03:41:12 bpearson Exp $
+* $Id: lang_strings.xml,v 1.1.2.4 2008/07/16 06:45:09 bshkara Exp $
 *
 * Core Localised Strings File for Asset:
 *	Metadata Hierarchy Field (metadata_field_hierarchy)
@@ -21,4 +21,6 @@
 	<string source="no_hierarchy_box_options">No Hierarchy found</string>
 	<string source="hierarchy_no_default">No Default Value set</string>
 	<string source="preview">Preview the Hierarchy</string>
+	<string source="add">Add</string>
+	<string source="remove_all">Remove All</string>
 </strings>

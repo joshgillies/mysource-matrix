@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.2.3 2008/05/16 03:41:12 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.2.4 2008/07/16 06:45:09 bshkara Exp $
 *
 */
 -->
@@ -40,18 +40,6 @@
 		</field>
 	</section>
 	<section name="Settings" write_access="write:attributes">
-		<field attribute="multiple">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="allow_empty">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-<!--		<field>
-			<function_call>
-				<paint_function   name="paintEditParams"   />
-				<process_function name="processEditParams" />
-			</function_call>
-		</field>-->
 		<field>
 			<function_call>
 				<paint_function   name="paintHierarchy"   />
@@ -59,21 +47,31 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Options" write_access="write:attributes">
-<!--		<field attribute="editable">
+	<section name="View Options" write_access="write:attributes">
+		<field attribute="display_type">
+			<selection style="list" columns="1" extras="" />
+		</field>
+		<field attribute="allow_empty">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="required">
+	</section>
+	<section name="Flat View Options" show_if="isFlatView" write_access="write:attributes">
+		<field attribute="hier_structure">
+			<selection style="list" columns="1" extras="" />
+		</field>
+		<field attribute="multiple">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="frontend">
-			<selection style="list" />
-		</field>-->
 		<field attribute="hier_sort">
 			<selection style="list" columns="1" extras="" />
 		</field>
-		<field attribute="hier_structure">
-			<selection style="list" columns="1" extras="" />
+	</section>
+	<section name="Drill-Down View Options" show_if="isDrillDownView" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintLevelTitles"   />
+				<process_function name="processLevelTitles" />
+			</function_call>
 		</field>
 	</section>
 </contents>
