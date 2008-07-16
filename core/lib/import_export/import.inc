@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.19 2008/07/16 01:41:45 gsherwood Exp $
+* $Id: import.inc,v 1.20 2008/07/16 04:55:40 gsherwood Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -223,7 +223,7 @@ function get_import_action_input_value($action, $attribute, $outputs=Array(), $i
 		$value = $action[$attribute][0];
 	}
 
-	if (isset($input_values[$value]) === true) return $input_values[$value];
+	if (isset($input_values[(string)$value]) === true) return $input_values[$value];
 
 	// loop until there are no more changes
 	do {
