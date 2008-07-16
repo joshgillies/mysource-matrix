@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_management.inc,v 1.1 2008/05/14 06:15:49 bpearson Exp $
+* $Id: metadata_field_hierarchy_management.inc,v 1.2 2008/07/16 07:40:53 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,6 +99,24 @@ class Metadata_Field_Hierarchy_Management extends Asset_Management
 																	'multiple'		=> FALSE,
 																	'allow_empty'	=> FALSE,
 																   ),
+											   ),
+						'display_type'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'selection',
+												'default'		=> '0',
+												'parameters'	=> Array(
+																	'options'		=> Array(
+																						'0'	=> 'Flat View',
+																						'1'	=> 'Drill-Down View',
+																					   ),
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																   ),
+											   ),
+						'level_titles'	=> Array(
+												'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
 											   ),
 					  );
 

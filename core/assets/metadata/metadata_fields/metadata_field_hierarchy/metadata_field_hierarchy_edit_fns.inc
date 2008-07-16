@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.4 2008/05/20 06:09:43 bpearson Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.5 2008/07/16 07:40:53 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,33 +84,43 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		}
 		// If we're OK to edit, get our hierarchy attribute, and paint it
+		$hierarchy = $asset->getHierarchyAttribute();
+		$hierarchy_options = $hierarchy->_params['options'];
 		if ($write_access) {
-			$hierarchy = $asset->getHierarchyAttribute();
-			$hierarchy->value = $value;
-			$hierarchy_options = $hierarchy->_params['options'];
-			$hierarchy_sort = $hierarchy->_params['sort'];
-			$hierarchy_structure = $hierarchy->_params['structure'];
+			$display_type = $asset->attr('display_type');
 
-			$hier_sort = (isset($hierarchy_sort) && $hierarchy_sort>=0) ? $hierarchy_sort : '0';
-			$hier_structure = (isset($hierarchy_structure) && $hierarchy_structure) ? $hierarchy_structure : FALSE;
+			if (!$display_type) {
+				// flat view
+				$hierarchy->value = $value;
+				$hierarchy_sort = $hierarchy->_params['sort'];
+				$hierarchy_structure = $hierarchy->_params['structure'];
 
-			if ($enable_default) {
-				$hierarchy->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
-				if ($is_default) {
-					$hierarchy->_edit_params['extras'] .= ' disabled="disabled"';
+				$hier_sort = (isset($hierarchy_sort) && $hierarchy_sort>=0) ? $hierarchy_sort : '0';
+				$hier_structure = (isset($hierarchy_structure) && $hierarchy_structure) ? $hierarchy_structure : FALSE;
+
+				if ($enable_default) {
+					$hierarchy->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
+					if ($is_default) {
+						$hierarchy->_edit_params['extras'] .= ' disabled="disabled"';
+					}
+					echo '<span id="'.$prefix.'_field">';
 				}
-				echo '<span id="'.$prefix.'_field">';
-			}
 
-			// Sort the hierarchy if selected
-			if ($hier_sort) {
-				$options = $hierarchy->_params['options'];
-				$options = $this->_sortHierarchyOptions($options, $hier_sort, $hier_structure);
+				// Sort the hierarchy if selected
+				if ($hier_sort) {
+					$options = $hierarchy->_params['options'];
+					$options = $this->_sortHierarchyOptions($options, $hier_sort, $hier_structure);
 
-				$hierarchy->_params['options'] = $options;
+					$hierarchy->_params['options'] = $options;
+				}
+				$hierarchy->paint($prefix, FALSE);
+				if ($enable_default) echo '</span>';
+			} else {
+				// drill-down view
+				$level_titles = $asset->attr('level_titles');
+				$preview_options = $this->_sortHierarchyOptions($hierarchy_options, 1, FALSE);
+				$this->paintDrillDownView($hierarchy_options, explode(';', $value), $level_titles, $prefix);
 			}
-			$hierarchy->paint($prefix, FALSE);
-			if ($enable_default) echo '</span>';
 		} else {
 			if (!((is_array($value) && empty($value)) || (is_string($value) && $value == ''))) {
 				if (!is_array($value)) $value = Array($value);
@@ -199,7 +209,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			$hierarchy->value = $value;
 
 			$new_value_str = $value;
-			$processed=TRUE;
+			$processed = TRUE;
 
 		}//end if
 
@@ -313,7 +323,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 							$default_hier->_params['options'] = $default_options;
 						}
 
-					}//end if
+					}
 					$default_hier->paint($prefix.'_default', FALSE);
 				} else {
 					if (isset($default_hier->_params['options'][$default_hier->value])) {
@@ -321,27 +331,37 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					} else {
 						echo translate('hierarchy_no_default');
 					}
-				}//end if
+				}
 			$o->closeField();
-		}//end if
+		}
 
 		// Being user friendly show a quick preview of what it looks like
 		$o->openField(translate('preview'));
 			if (!empty($hierarchy_options)) {
-				// Show no setting or value
-				$preview_hierarchy = $asset->getHierarchyAttribute();
-				$preview_hierarchy->value = '';
-				if ($sort > 0) {
-					$preview_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
-					if (isset($preview_options) && !is_null($preview_options)) {
-						foreach ($preview_options as $key => $value) {
-							$preview_options[$key] = substr($value, 0, 100);
+
+				$display_type = $asset->attr('display_type');
+				if (!$display_type) {
+
+					// perform any sorting and indentation
+					if ($sort > 0) {
+						$preview_options = $this->_sortHierarchyOptions($hierarchy_options, $sort, $format);
+						if (isset($preview_options) && !is_null($preview_options)) {
+							foreach ($preview_options as $key => $value) {
+								$preview_options[$key] = substr($value, 0, 100);
+							}
 						}
-						$preview_hierarchy->_params['options'] = $preview_options;
 					}
 
-				}//end if
-				$preview_hierarchy->paint('some_name_not_used', FALSE);
+					// flat view
+					$preview_hierarchy = $asset->getHierarchyAttribute();
+					$preview_hierarchy->_params['options'] = $preview_options;
+					$preview_hierarchy->value = '';
+					$preview_hierarchy->paint('some_name_not_used', FALSE);
+				} else {
+					$preview_options = $this->_sortHierarchyOptions($hierarchy_options, 1, FALSE);
+					$level_titles = $asset->attr('level_titles');
+					$this->paintDrillDownView($preview_options, Array(), $level_titles, $prefix);
+				}
 			} else {
 				echo translate('no_hierarchy_box_options');
 			}//end if
@@ -350,6 +370,338 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		return TRUE;
 
 	}//end paintHierarchy()
+
+
+	/**
+	* How deep the hierarchy is
+	*
+	* @param array	$options	The options
+	*
+	* @return int
+	* @access public
+	*/
+	public function hierarchyDepth($options)
+	{
+		// find out how deep this hierarchy is
+		$deepest = 0;
+		foreach ($options as $key => $value) {
+			if (strlen($key) > $deepest) {
+				$deepest = strlen($key);
+			}
+		}
+
+		return $deepest;
+
+	}//end hierarchyDepth()
+
+
+	/**
+	* Recursively paint the drill-down view of the hierarchy
+	*
+	* @param array		$options			The array options
+	* @param array		$receptacle_keys	The keys of the receptacle box
+	* @param array		$level_titles		The titles for each level
+	* @param string		$prefix				Prefix of the asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintDrillDownView($options, $receptacle_keys, $level_titles, $prefix)
+	{
+		echo '<table>';
+
+		$levels = Array();
+		$receptacle_options = Array();
+		foreach ($options as $key => $value) {
+			// hierarchy may not be linear so calculate how many select boxes we will need this way
+			if (!in_array(strlen($key), $levels)) {
+				$levels[] = strlen($key);
+			}
+
+			// get formatted receptacle contents
+			foreach ($receptacle_keys as $receptacle_key) {
+				if ($receptacle_key === $key) {
+					$receptacle_options[$key] = $key.'. '.$value;
+				}
+			}
+		}
+
+		$the_options = Array();
+		$count_levels = count($levels);
+		$field_name = '';
+		$receptacle_field_name = $prefix;
+		for ($i=0; $i<$count_levels; $i++) {
+			$title = isset($level_titles[$levels[$i]]) ? $level_titles[$levels[$i]] : '';
+			echo '<tr><td>';
+			echo empty($title) ? '' : $title;
+			echo '</td><td>';
+
+			foreach ($options as $key => $value) {
+				$field_name = $prefix.'_stationary_drill_'.$i;
+
+				// print each level's combo boxes and filter at the same time
+				if (strlen($key) === $levels[$i]) {
+					// first level is easy
+					if ($i === 0) {
+						$the_options[$key] = $value;
+					} else {
+						// fetch the children for the previous list
+						// the currently selected value is the first in the array
+						$keys = array_keys($the_options);
+
+						// used for the initial painting of the drill-down
+						if (isset($keys[0])) {
+							$the_options = $this->_getImmediateChildren($options, $keys[0]);
+						} else {
+							// hierarchy may not be linear so deal with it
+							// look for the next level if this is the case
+							foreach ($options as $search_key => $search_value) {
+								// the options must be sorted for this to work
+								if (strlen($search_key) === $levels[$i-1]) {
+									$found_key = $search_key;
+									break;
+								}
+							}
+
+							$the_options = $this->_getImmediateChildren($options, $found_key);
+						}
+
+						break;
+					}
+
+				}
+			}
+
+			// deepest level box allows multiple selections
+			// also give the deepest level box a maximum height
+			echo combo_box($field_name, $the_options, ($i === $count_levels-1) ? TRUE : FALSE, '', ($i === $count_levels-1) ? 5 : '', 'onChange="swapOptions(this)"');
+
+			// print the 'add' button
+			// $field_name contains the name of the last box
+			$add_on_click = 'addToReceptacle(\''.$field_name.'\')';
+			// new column for 'add' buttons
+			echo '</td><td valign="top">';
+			echo normal_button($prefix.'_drill_down_button', translate('add'), $add_on_click).'</td></tr>';
+
+			echo '</td></tr>';
+		}
+
+		// print the receptacle box
+		echo '<tr><td></td><td>';
+		echo combo_box($receptacle_field_name, $receptacle_options, TRUE, '', 5, 'style="width:300px";');
+
+		// print the remove buttons
+		echo '<br />';
+		$remove_on_click = 'removeFromReceptacle()';
+		echo normal_button($prefix.'_drill_down_button', translate('remove'), $remove_on_click);
+		$remove_all_on_click = 'removeAllFromReceptacle()';
+		echo normal_button($prefix.'_drill_down_button', translate('remove_all'), $remove_all_on_click);
+		
+		// close the receptacle row
+		echo '</td></tr>';
+
+		echo $this->_printJSObjects($options, $prefix);
+
+		?>
+			<script type="text/javascript">
+			var prefix = '<?php echo $prefix; ?>';
+			// select all options in the receptacle box otherwise on commit we will lose our values
+			var receptacleName = '<?php echo $receptacle_field_name; ?>';
+			var receptacle = document.getElementById(receptacleName);
+			selectAllReceptacleItems(receptacle);
+			
+			function swapOptions(select)
+			{
+				// the values to replace with
+				var replaceWith = data[select.value];
+
+				// get the next box which is the box we will populate
+				var stationaryDrillNum = select.name.match(/.+_stationary_drill_(.+)/);
+				stationaryDrillNum = parseInt(stationaryDrillNum[1]) + 1;
+				var nextBoxName = prefix + '_stationary_drill_' + stationaryDrillNum;
+				var nextBox = document.getElementById(nextBoxName);
+
+				// does it exist or are we at the end of the line?
+				if (!isset(nextBox)) {
+					return;
+				}
+
+				// truncate entries from the next box
+				nextBox.options.length = 0;
+
+				// populate the next box with the correct entries
+				var i = 0;
+				for (key in replaceWith) {
+					nextBox.options[i] = new Option(replaceWith[key], key);
+					i++;
+				}
+
+				// recurse until there are no more boxes to populate
+				if (nextBox) {
+					swapOptions(nextBox);
+				}
+
+			}
+
+			function addToReceptacle(selectName)
+			{
+				// get the box which holds the values we want to add
+				var select = document.getElementById(selectName);
+
+				var options = select.options;
+				for (var i=0; i<options.length; i++) {
+					if (options[i].selected) {
+
+						// we have the selected options, now add them to the receptacle if not currently present
+						var found = false;
+						for (var j=0; j<receptacle.options.length; j++) {
+							if (receptacle.options[j].value == options[i].value) {
+								found = true;
+							}
+						}
+
+						if (!found) {
+							// didn't find it, so append it to the receptacle
+							receptacle.options[receptacle.options.length] = new Option(options[i].value + '. ' + options[i].text, options[i].value);
+						}
+					}
+				}
+
+				selectAllReceptacleItems(receptacle);
+			}
+
+			function removeFromReceptacle()
+			{
+				// remove all selected items from the receptacle
+				var receptacle = document.getElementById(receptacleName);
+				var options = receptacle.options;
+				for (var i=0; i<options.length; i++) {
+					if (options[i].selected) {
+						receptacle.remove(i);
+					}
+				}
+
+				selectAllReceptacleItems(receptacle);
+			}
+
+			function removeAllFromReceptacle()
+			{
+				// remove all items from the receptacle
+				var receptacle = document.getElementById(receptacleName);
+				receptacle.options.length = 0;
+			}
+
+			function isset(v)
+			{
+				if (typeof v !== 'undefined' && v !== null) {
+					return true;
+				}
+
+				return false;
+			}
+
+			function selectAllReceptacleItems(receptacle)
+			{
+				var options = receptacle.options;
+				for (var i=0; i<options.length; i++) {
+					if (!options[i].selected) {
+						options[i].selected = true;
+					}
+				}
+			}
+
+			</script>
+
+		<?php
+
+	}//end paintDrillDownView()
+
+
+	/**
+	* Outputs JS objects needed for the drill-down view
+	*
+	* @param array	$options	The hierarchy options
+	* @param string	$prefix		The prefix of the asset
+	*
+	* @return void
+	* @access private
+	*/
+	function _printJSObjects($options, $prefix)
+	{
+		echo '<script type="text/javascript">';
+		echo 'var data = {};';
+		foreach ($options as $key => $value) {
+			$children = $this->_getImmediateChildren($options, $key);
+
+			if (!empty($children)) {
+				echo 'var options = {};';
+				// create a JS object holding the values of the children
+				foreach ($children as $child_key => $child_value) {
+					echo 'options[\''.$child_key.'\'] = \''.$child_value.'\';';
+				}
+				?>
+					data.<?php echo $key; ?> = options;
+				<?php
+			}
+		}
+		echo '</script>';
+
+	}//end _printJSObjects()
+
+
+	/**
+	* Gets the immediate children of the passed parent
+	*
+	* @param array	$options		The hierarchy options
+	* @param string	$parent_string	The parent string
+	* @param int	$target_length	The length of the next child of the passed parent
+	*
+	* @return array
+	* @access private
+	*/
+	function _getImmediateChildren($options, $parent_string, $target_length=NULL)
+	{
+		if (is_null($target_length)) {
+			// a child is by definition, 1 char longer
+			$target_length = strlen($parent_string) + 1;
+		}
+
+		$children = Array();
+		foreach ($options as $key => $value) {
+			// ensure we are getting children of this value
+			if ((strlen($key) === $target_length) && (strpos($key, $parent_string) === 0)) {
+				$children[$key] = $value;
+			}
+		}
+
+		if (empty($children)) {
+			// look for a deeper level because the hierarchy may not be linear
+			$levels = Array();
+			foreach ($options as $key => $value) {
+				if (strlen($key) > $target_length) {
+					if (!in_array(strlen($key), $levels)) {
+						$levels[] = strlen($key);
+					}
+				}
+			}
+
+			// sort so we are sure the first index is the next level
+			sort($levels);
+			if (isset($levels[0])) {
+				$target_length = $levels[0];
+				// do our search again
+				foreach ($options as $key => $value) {
+					// ensure we are getting children of this value
+					if ((strlen($key) === $target_length) && (strpos($key, $parent_string) === 0)) {
+						$children[$key] = $value;
+					}
+				}
+			}
+		}
+
+		return $children;
+
+	}//end _getImmediateChildren()
 
 
 	/**
@@ -639,6 +991,106 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		return $return_val;
 
 	}//end getChildrenHierarchy()
+
+
+	/**
+	* Show-if conditional: display flat view options if selected
+	*
+	* @param object &$asset asset being painted
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isFlatView(&$asset)
+	{
+		$attr = $asset->attr('display_type');
+		return empty($attr) ? TRUE : FALSE;
+
+	}//end isFlatView()
+
+
+	/**
+	* Show-if conditional: display drill-down view options if selected
+	*
+	* @param object &$asset asset being painted
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isDrillDownView(&$asset)
+	{
+		$attr = $asset->attr('display_type');
+		return empty($attr) ? FALSE : TRUE;
+
+	}//end isDrillDownView()
+
+
+	/**
+	* Paint the interface for setting level titles
+	*
+	* @param Metadata_Field_Hierarchy	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintLevelTitles(Metadata_Field_Hierarchy $asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$hierarchy = $asset->getHierarchyAttribute();
+		$hierarchy_options = $hierarchy->_params['options'];
+		unset($hierarchy);
+		$level_titles = $asset->attr('level_titles');
+
+		$levels = Array();
+		foreach ($hierarchy_options as $key => $value) {
+			// hierarchy may not be linear so calculate how many select boxes we will need this way
+			if (!in_array(strlen($key), $levels)) {
+				$levels[] = strlen($key);
+			}
+		}
+
+		echo '<table>';
+		foreach ($levels as $id) {
+			echo '<tr>';
+			echo '<td>Level '.$id.':</td><td>';
+			if ($wa) {
+				echo text_box($prefix.'_level_titles['.$id.']', isset($level_titles[$id]) ? $level_titles[$id] : '').'</td>';
+			} else {
+				echo isset($level_titles[$id]) ? $level_titles[$id] : '';
+			}
+			echo '</tr>';
+		}
+		echo '</table>';
+
+		return $wa;
+
+	}//end paintLevelTitles()
+
+
+	/**
+	* Processes the interface for setting level titles
+	*
+	* @param Metadata_Field_Hierarchy	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processLevelTitles(Metadata_Field_Hierarchy $asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			if (isset($_POST[$prefix.'_level_titles'])) {
+				$asset->setAttrValue('level_titles', $_POST[$prefix.'_level_titles']);
+			}
+		}
+
+		return $wa;
+
+	}//end processLevelTitles()
 
 
 }//end class
