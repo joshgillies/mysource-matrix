@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.10 2008/07/17 05:16:20 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.11 2008/07/17 05:33:26 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.10 $
+* @version $Revision: 1.1.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -467,7 +467,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			// deepest level box allows multiple selections
 			// also give the deepest level box a maximum height
-			$extras = $is_default ? 'disabled="disabled";onChange="swapOptions(this)"' : 'onChange="swapOptions(this)"';
+			$extras = $is_default ? 'disabled="disabled"; onChange="swapOptions(this)";' : 'onChange="swapOptions(this)";';
 			echo combo_box($field_name, $the_options, ($i === $count_levels-1) ? TRUE : FALSE, '', ($i === $count_levels-1) ? 5 : '', $extras);
 
 			// print the 'add' button
