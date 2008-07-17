@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.js,v 1.1.2.3 2008/07/17 00:39:47 bshkara Exp $
+* $Id: metadata_field_hierarchy.js,v 1.1.2.4 2008/07/17 02:26:58 bshkara Exp $
 *
 */
 
@@ -33,7 +33,7 @@ function in_array(elt, ar)
 	}
 	return false;
 }
-function setSelection(prefix, values, drill, selected)
+function setSelection(prefix, keys, default_values, drill, selected)
 {
 	var select = document.getElementById(prefix);
 	if ((select !== null) && (typeof select.options != "undefined")) {
@@ -44,8 +44,13 @@ function setSelection(prefix, values, drill, selected)
 			if (selected) {
 				// add elements
 				select.options.length = 0;
-				for (var i=0; i < values.length; i++) {
-					select.options[select.options.length] = new Option(values[i], values[i]);
+				for (var i=0; i < keys.length; i++) {
+					if (typeof default_values[i] !== 'undefined' && default_values[i] !== null) {
+						var text = keys[i] + '. ' + default_values[i];
+					} else {
+						var text = keys[i];
+					}
+					select.options[select.options.length] = new Option(text, keys[i]);
 					select.options[i].selected = true;
 				}
 			} else {
@@ -59,17 +64,17 @@ function setSelection(prefix, values, drill, selected)
 
 			// select/deselect elements because we are handling a flat view
 			for (var i=0; i < select.options.length; i++) {
-				if (in_array(select.options[i].value, values)) {
+				if (in_array(select.options[i].value, keys)) {
 					select.options[i].selected = selected;
 				}
 			}
 
 		}
 	} else {
-		for (var i=0; i < values.length; i++) {
-			var obj = document.getElementById(prefix+'_'+values[i]);
+		for (var i=0; i < keys.length; i++) {
+			var obj = document.getElementById(prefix+'_'+keys[i]);
 			if (null === obj) {
-				alert(prefix+'_'+values[i]+' is null!');
+				alert(prefix+'_'+keys[i]+' is null!');
 			}
 			if (obj.tagName == 'OPTION') {
 				obj.selected = selected;
@@ -80,16 +85,16 @@ function setSelection(prefix, values, drill, selected)
 		}
 	}
 }
-function handleDefaultClick(defaultCheckbox, prefix, default_vals, non_default_vals, drill_down)
+function handleDefaultClick(defaultCheckbox, prefix, default_keys, default_values, non_default_keys, drill_down)
 {
 	if (defaultCheckbox.checked) {
-		setSelection(prefix, default_vals, drill_down, true);
+		setSelection(prefix, default_keys, default_values, drill_down, true);
 		if (!drill_down) {
-			setSelection(prefix, non_default_vals, drill_down, false);
+			setSelection(prefix, non_default_keys, default_values, drill_down, false);
 		}
 	} else {
 		if (drill_down) {
-			setSelection(prefix, default_vals, drill_down, false);
+			setSelection(prefix, default_keys, default_values, drill_down, false);
 		}
 	}
 	setInputsEnabled(document.getElementById(prefix+'_field'), prefix+'_default', prefix+'_cascade_value', !defaultCheckbox.checked);

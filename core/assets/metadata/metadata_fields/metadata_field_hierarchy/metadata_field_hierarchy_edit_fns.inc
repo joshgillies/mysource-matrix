@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.8 2008/07/17 00:39:46 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.9 2008/07/17 02:26:58 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.8 $
+* @version $Revision: 1.1.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,18 +147,21 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$default_keys = explode('; ', $asset->attr('default'));
 				$default_selected = Array();
 
-				$default_vals = Array();
-				$non_default_vals = Array();
+				$default_key_values = Array();
+				$default_values = Array();
+				$non_default_keys = Array();
 				foreach ($hierarchy_options as $key => $hierarchy_option) {
 					if (in_array($key, $default_keys)) {
-						$default_vals[] = "'".addslashes($key)."'";
+						$default_key_values[] = "'".addslashes($key)."'";
+						$default_values[] = "'".addslashes($hierarchy_option)."'";
 					} else {
-						$non_default_vals[] = "'".addslashes($key)."'";
+						$non_default_keys[] = "'".addslashes($key)."'";
 					}
 				}
-				$default_vals_expr = '['.implode(', ', $default_vals).']';
-				$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
-				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr, $display_type); ");
+				$default_keys_expr = '['.implode(', ', $default_key_values).']';
+				$default_values_expr = '['.implode(', ', $default_values).']';
+				$non_default_keys_expr = '['.implode(', ', $non_default_keys).']';
+				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_keys_expr, $default_values_expr, $non_default_keys_expr, $display_type); ");
 				label(translate('use_default'), $prefix.'_default');
 				$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_hierarchy/js/metadata_field_hierarchy.js');
 			} else {
