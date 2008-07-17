@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.6 2008/07/16 07:47:02 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.7 2008/07/17 00:42:04 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,12 +83,19 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$value = explode('; ', $value);
 			}
 		}
-		// If we're OK to edit, get our hierarchy attribute, and paint it
+
+		if ($enable_default) {
+			$hierarchy->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
+			if ($is_default) {
+				$hierarchy->_edit_params['extras'] .= ' disabled="disabled"';
+			}
+			echo '<span id="'.$prefix.'_field">';
+		}
+
+		$display_type = $asset->attr('display_type');
 		$hierarchy = $asset->getHierarchyAttribute();
 		$hierarchy_options = $hierarchy->_params['options'];
 		if ($write_access) {
-			$display_type = $asset->attr('display_type');
-
 			if (!$display_type) {
 				// flat view
 				$hierarchy->value = $value;
@@ -98,14 +105,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$hier_sort = (isset($hierarchy_sort) && $hierarchy_sort>=0) ? $hierarchy_sort : '0';
 				$hier_structure = (isset($hierarchy_structure) && $hierarchy_structure) ? $hierarchy_structure : FALSE;
 
-				if ($enable_default) {
-					$hierarchy->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
-					if ($is_default) {
-						$hierarchy->_edit_params['extras'] .= ' disabled="disabled"';
-					}
-					echo '<span id="'.$prefix.'_field">';
-				}
-
 				// Sort the hierarchy if selected
 				if ($hier_sort) {
 					$options = $hierarchy->_params['options'];
@@ -114,7 +113,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 					$hierarchy->_params['options'] = $options;
 				}
 				$hierarchy->paint($prefix, FALSE);
-				if ($enable_default) echo '</span>';
 			} else {
 				// drill-down view
 				$level_titles = $asset->attr('level_titles');
@@ -138,6 +136,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		if ($enable_default) {
+
+			echo '</span>';
+
 			if ($write_access) {
 				echo ' &nbsp; &nbsp; &nbsp; ';
 
@@ -157,7 +158,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 				$default_vals_expr = '['.implode(', ', $default_vals).']';
 				$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
-				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
+				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr, $display_type); ");
 				label(translate('use_default'), $prefix.'_default');
 				$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_hierarchy/js/metadata_field_hierarchy.js');
 			} else {
@@ -373,29 +374,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		return TRUE;
 
 	}//end paintHierarchy()
-
-
-	/**
-	* How deep the hierarchy is
-	*
-	* @param array	$options	The options
-	*
-	* @return int
-	* @access public
-	*/
-	public function hierarchyDepth($options)
-	{
-		// find out how deep this hierarchy is
-		$deepest = 0;
-		foreach ($options as $key => $value) {
-			if (strlen($key) > $deepest) {
-				$deepest = strlen($key);
-			}
-		}
-
-		return $deepest;
-
-	}//end hierarchyDepth()
 
 
 	/**
@@ -749,11 +727,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$new_default = implode('; ', $new_default);
 			}
 		}
-		if (!$asset->attr('multiple')) {
-			if (!isset($hierarchy_options[$new_default])) {
-				$new_default = '';
-			}
-		}
 		$asset->setAttrValue('default', $new_default);
 
 		return TRUE;
@@ -1055,15 +1028,17 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		echo '<table>';
+		$i = 1;
 		foreach ($levels as $id) {
 			echo '<tr>';
-			echo '<td>Level '.$id.':</td><td>';
+			echo '<td>'.translate('level').' '.$i.':</td><td>';
 			if ($wa) {
 				echo text_box($prefix.'_level_titles['.$id.']', isset($level_titles[$id]) ? $level_titles[$id] : '').'</td>';
 			} else {
 				echo isset($level_titles[$id]) ? $level_titles[$id] : '';
 			}
 			echo '</tr>';
+			$i++;
 		}
 		echo '</table>';
 

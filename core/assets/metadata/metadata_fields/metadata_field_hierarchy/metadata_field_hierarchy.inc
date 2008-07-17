@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.inc,v 1.3 2008/07/16 07:40:53 bshkara Exp $
+* $Id: metadata_field_hierarchy.inc,v 1.4 2008/07/17 00:42:04 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,9 +66,10 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		$selection->_params['sort'] = $this->attr('hier_sort');
 		$selection->_params['structure'] = $this->attr('hier_structure');
 
-		$default = $this->attr('default');
+		$default = explode('; ', $this->attr('default'));
 		if ($selection->validateValue($default)) {
 			$selection->setValue($default);
+			$selection->_default_value = $default;
 		}
 
 		return $selection;
@@ -86,6 +87,9 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 	{
 		// return the correct default key/value depending on the 'Visible Part'
 		$default_key = parent::getDefaultValue();
+
+		// using semi-colons to delimit so remove any escaping done by DAL
+		$default_key = str_replace('\\', '', $default_key);
 
 		$options = $this->attr('hierarchy_options');
 

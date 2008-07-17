@@ -9,15 +9,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.js,v 1.1 2008/05/14 06:15:49 bpearson Exp $
+* $Id: metadata_field_hierarchy.js,v 1.2 2008/07/17 00:42:04 bshkara Exp $
 *
 */
 
-function setInputsEnabled(parent, enabled)
+function setInputsEnabled(parent, default_box, cascade_box, enabled)
 {
 	var inputs = parent.getElementsByTagName('INPUT');
 	for (var i=0; i < inputs.length; i++) {
-		inputs[i].disabled = !enabled;
+		if (inputs[i].name !== default_box || inputs[i].name !== cascade_box) {
+			inputs[i].disabled = !enabled;
+		}
 	}
 	var selects = parent.getElementsByTagName('SELECT');
 	for (var i=0; i < selects.length; i++) {
@@ -31,14 +33,37 @@ function in_array(elt, ar)
 	}
 	return false;
 }
-function setSelection(prefix, values, selected)
+function setSelection(prefix, values, drill, selected)
 {
 	var select = document.getElementById(prefix);
 	if ((select !== null) && (typeof select.options != "undefined")) {
-		for (var i=0; i < select.options.length; i++) {
-			if (in_array(select.options[i].value, values)) {
-				select.options[i].selected = selected;
+
+		if (drill) {
+
+			// add elements to the receptacle because we are handling a drill-down view
+			if (selected) {
+				// add elements
+				select.options.length = 0;
+				for (var i=0; i < values.length; i++) {
+					select.options[select.options.length] = new Option(values[i], values[i]);
+					select.options[i].selected = true;
+				}
+			} else {
+				// deselect elements
+				for (var i=0; i < select.options.length; i++) {
+					select.options[i].selected = false;
+				}
 			}
+
+		} else {
+
+			// select/deselect elements because we are handling a flat view
+			for (var i=0; i < select.options.length; i++) {
+				if (in_array(select.options[i].value, values)) {
+					select.options[i].selected = selected;
+				}
+			}
+
 		}
 	} else {
 		for (var i=0; i < values.length; i++) {
@@ -55,11 +80,17 @@ function setSelection(prefix, values, selected)
 		}
 	}
 }
-function handleDefaultClick(defaultCheckbox, prefix, default_vals, non_default_vals)
+function handleDefaultClick(defaultCheckbox, prefix, default_vals, non_default_vals, drill_down)
 {
 	if (defaultCheckbox.checked) {
-		setSelection(prefix, default_vals, true)
-		setSelection(prefix, non_default_vals, false);
+		setSelection(prefix, default_vals, drill_down, true);
+		if (!drill_down) {
+			setSelection(prefix, non_default_vals, drill_down, false);
+		}
+	} else {
+		if (drill_down) {
+			setSelection(prefix, default_vals, drill_down, false);
+		}
 	}
-	setInputsEnabled(document.getElementById(prefix+'_field'), !defaultCheckbox.checked);
+	setInputsEnabled(document.getElementById(prefix+'_field'), prefix+'_default', prefix+'_cascade_value', !defaultCheckbox.checked);
 }
