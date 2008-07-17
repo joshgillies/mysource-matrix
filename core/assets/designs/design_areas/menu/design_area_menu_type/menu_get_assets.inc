@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.5.2.5 2008/05/15 05:23:20 hnguyen Exp $
+* $Id: menu_get_assets.inc,v 1.5.2.6 2008/07/17 00:46:45 bpearson Exp $
 *
 */
 
@@ -49,6 +49,7 @@ function menu_get_assets($id_name, $majorids)
 
 	// Watch out for this static var, once it has been set, it won't go into the if is_null. However the bind vars will need to be there because this static var contain the query that uses bind vars.
 	static $USERIDS_COND = NULL;
+	static $USERIDS_BIND_VARS = NULL;
 	$bind_vars = Array();
 
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
@@ -62,12 +63,20 @@ function menu_get_assets($id_name, $majorids)
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			$userids[] = $public_userid;
 			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+			$userids_bind_vars = Array();
+			$userids_vars_p = Array();
+			$userids_vars_r = Array();
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-				$userids[$i] = '\''.(string)$userids[$i].'\'';
+				$userids_vars_p[] = ':mga_userids_p_'.$i;
+				$userids_bind_vars['mga_userids_p_'.$i] = (string) $userids[$i];
+				$userids_vars_r[] = ':mga_userids_r_'.$i;
+				$userids_bind_vars['mga_userids_r_'.$i] = (string) $userids[$i];
 			}//end for
-			$userids_str = implode(',', $userids);
-			$USERIDS_COND = 'AND (p.userid  IN ('.$userids_str.') ';
-			$USERIDS_COND .= 'OR r.userid  IN ('.$userids_str.')) ';
+			$USERIDS_BIND_VARS = serialize($userids_bind_vars);
+			$userids_p_str = implode(', ', $userids_vars_p);
+			$userids_r_str = implode(', ', $userids_vars_r);
+			$USERIDS_COND = 'AND (p.userid  IN ('.$userids_p_str.') ';
+			$USERIDS_COND .= 'OR r.userid  IN ('.$userids_r_str.')) ';
 			$USERIDS_COND .= ' AND (
 				(p.permission = :p_permission AND (
 						p.userid <> :p_userid
@@ -97,6 +106,14 @@ function menu_get_assets($id_name, $majorids)
 		$bind_vars['r_userid']       = $public_userid;
 		$bind_vars['r_userid_1']     = $public_userid;
 	}//end if
+
+	// Add the User IDs bind vars
+	if (!is_null($USERIDS_BIND_VARS)) {
+		$userids_bind_vars_values = @unserialize($USERIDS_BIND_VARS);
+		foreach ($userids_bind_vars_values as $bind_id => $bind_value) {
+			$bind_vars[$bind_id] = $bind_value;
+		}
+	}
 
 	$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
 			   FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
