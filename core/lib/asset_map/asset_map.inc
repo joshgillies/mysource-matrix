@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265.2.8 2008/07/07 23:21:47 bpearson Exp $
+* $Id: asset_map.inc,v 1.265.2.9 2008/07/17 05:44:58 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.8 $
+* @version $Revision: 1.265.2.9 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1120,20 +1120,23 @@ class Asset_Map
 		// create the result array to be a single (assetid => asset_data)
 		// because the DB result contains multiple entries because of possible multiple URLs
 		$result = Array();
-		$res_count = 0;
-		$added = 0;
-		foreach ($db_result as $db_result_v) {
-			if ($res_count >= $start) {
-				$result[$db_result_v['assetid']] = $db_result_v;
-				$result[$db_result_v['assetid']]['assetid'] = $db_result_v['assetid'];
-				if (($limit > 0) && ($added >= $limit-1)) {
-					break;
-				}
-				$added++;
-			} else {
-				$res_count++;
-			}
-		}
+                $skipped = Array();
+                $res_count = 0;
+                $added = 0;
+                foreach ($db_result as $db_result_v) {
+                        if (isset($skipped[$db_result_v['assetid']]) === true) continue;
+                        if ($res_count >= $start) {
+                                if (isset($result[$db_result_v['assetid']]) === true) continue;
+                                $result[$db_result_v['assetid']] = $db_result_v;
+                                if (($limit > 0) && ($added >= $limit-1)) {
+                                        break;
+                                }
+                                $added++;
+                        } else {
+                                $skipped[$db_result_v['assetid']] = 1;
+                                $res_count++;
+                        }
+                }
 		unset($db_result);
 		unset($bind_vars);
 		try {
