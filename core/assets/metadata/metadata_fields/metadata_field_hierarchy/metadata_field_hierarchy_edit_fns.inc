@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.11 2008/07/17 05:33:26 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.12 2008/07/17 05:55:25 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.11 $
+* @version $Revision: 1.1.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,10 +85,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 
 		if ($enable_default) {
-			$hierarchy->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
-			if ($is_default) {
-				$hierarchy->_edit_params['extras'] .= ' disabled="disabled"';
-			}
 			echo '<span id="'.$prefix.'_field">';
 		}
 
@@ -105,6 +101,14 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$hier_sort = (isset($hierarchy_sort) && $hierarchy_sort>=0) ? $hierarchy_sort : '0';
 				$hier_structure = (isset($hierarchy_structure) && $hierarchy_structure) ? $hierarchy_structure : FALSE;
 
+				if ($enable_default) {
+					$hierarchy->_edit_params['extras'] = 'onclick="document.getElementById(\''.$prefix.'_default\').checked = false;"';
+					if ($is_default) {
+						$hierarchy->_edit_params['extras'] .= ' disabled="disabled"';
+					}
+					echo '<span id="'.$prefix.'_field">';
+				}
+
 				// Sort the hierarchy if selected
 				if ($hier_sort) {
 					$options = $hierarchy->_params['options'];
@@ -116,7 +120,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			} else {
 				// drill-down view
 				$level_titles = $asset->attr('level_titles');
-				$preview_options = $this->_sortHierarchyOptions($hierarchy_options, 1, FALSE);
+				$hierarchy_options = $this->_sortHierarchyOptions($hierarchy_options, 1, FALSE);
 				if (!is_array($value)) {
 					$value = explode('; ', $value);
 				}
@@ -356,6 +360,15 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 							foreach ($preview_options as $key => $value) {
 								$preview_options[$key] = substr($value, 0, 100);
 							}
+						}
+					} else {
+						$preview_options = $hierarchy_options;
+					}
+
+					// Only preview don't show full length
+					if (isset($preview_options) && !is_null($preview_options)) {
+						foreach ($preview_options as $key => $value) {
+							$preview_options[$key] = substr($value, 0, 100);
 						}
 					}
 

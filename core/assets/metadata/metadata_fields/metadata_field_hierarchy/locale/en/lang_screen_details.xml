@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.2.4 2008/07/16 06:45:09 bshkara Exp $
+* $Id: lang_screen_details.xml,v 1.1.2.5 2008/07/17 05:55:25 bpearson Exp $
 *
 */
 -->
@@ -68,8 +68,7 @@
 	</section>
 	<section name="Flat View Options" show_if="isFlatView">
 		<field attribute="hier_structure">
-			<display_name>Show structure on the frontend</display_name>
-			<note />
+			<display_name>Show structure</display_name>
 		</field>
 		<field attribute="multiple">
 			<display_name>Allow Multiple</display_name>
