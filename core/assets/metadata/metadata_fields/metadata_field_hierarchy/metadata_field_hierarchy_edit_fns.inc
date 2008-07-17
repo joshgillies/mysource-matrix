@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.8 2008/07/17 02:27:49 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.9 2008/07/17 05:18:47 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				if (!is_array($value)) {
 					$value = explode('; ', $value);
 				}
-				$this->paintDrillDownView($hierarchy_options, $value, $level_titles, $prefix);
+				$this->paintDrillDownView($hierarchy_options, $value, $level_titles, $is_default, explode('; ', $asset->attr('default')), $prefix);
 			}
 		} else {
 			if (!((is_array($value) && empty($value)) || (is_string($value) && $value == ''))) {
@@ -161,7 +161,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$default_keys_expr = '['.implode(', ', $default_key_values).']';
 				$default_values_expr = '['.implode(', ', $default_values).']';
 				$non_default_keys_expr = '['.implode(', ', $non_default_keys).']';
-				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_keys_expr, $default_values_expr, $non_default_keys_expr, $display_type); ");
+				check_box($prefix.'_default', '1', $is_default, "handleDefaultClickHierarchy(this, '$prefix', $default_keys_expr, $default_values_expr, $non_default_keys_expr, $display_type); ");
 				label(translate('use_default'), $prefix.'_default');
 				$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_hierarchy/js/metadata_field_hierarchy.js');
 			} else {
@@ -367,7 +367,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				} else {
 					$preview_options = $this->_sortHierarchyOptions($hierarchy_options, 1, FALSE);
 					$level_titles = $asset->attr('level_titles');
-					$this->paintDrillDownView($preview_options, Array(), $level_titles, $prefix);
+					$this->paintDrillDownView($preview_options, Array(), $level_titles, FALSE, Array(), $prefix);
 				}
 			} else {
 				echo translate('no_hierarchy_box_options');
@@ -385,14 +385,16 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @param array		$options			The array options
 	* @param array		$receptacle_keys	The keys of the receptacle box
 	* @param array		$level_titles		The titles for each level
+	* @param boolean	$is_default			Whether the 'use default' button is selected
+	* @param array		$default_keys		The default keys
 	* @param string		$prefix				Prefix of the asset
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintDrillDownView($options, $receptacle_keys, $level_titles, $prefix)
+	public function paintDrillDownView($options, $receptacle_keys, $level_titles, $is_default, $default_keys, $prefix)
 	{
-		echo '<table>';
+		echo '<table width="100px">';
 
 		$levels = Array();
 		$receptacle_options = Array();
@@ -403,9 +405,16 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 
 			// get formatted receptacle contents
-			foreach ($receptacle_keys as $receptacle_key) {
-				if ($receptacle_key === $key) {
+			if ($is_default) {
+				// default values
+				if (in_array($key, $default_keys)) {
 					$receptacle_options[$key] = $key.'. '.$value;
+				}
+			} else {
+				foreach ($receptacle_keys as $receptacle_key) {
+					if ($receptacle_key === $key) {
+						$receptacle_options[$key] = $key.'. '.$value;
+					}
 				}
 			}
 		}
@@ -458,7 +467,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			// deepest level box allows multiple selections
 			// also give the deepest level box a maximum height
-			echo combo_box($field_name, $the_options, ($i === $count_levels-1) ? TRUE : FALSE, '', ($i === $count_levels-1) ? 5 : '', 'onChange="swapOptions(this)"');
+			$extras = $is_default ? 'disabled="disabled";onChange="swapOptions(this)"' : 'onChange="swapOptions(this)"';
+			echo combo_box($field_name, $the_options, ($i === $count_levels-1) ? TRUE : FALSE, '', ($i === $count_levels-1) ? 5 : '', $extras);
 
 			// print the 'add' button
 			// $field_name contains the name of the last box
@@ -472,7 +482,8 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		// print the receptacle box
 		echo '<tr><td></td><td>';
-		echo combo_box($receptacle_field_name, $receptacle_options, TRUE, '', 5, 'style="width:300px";');
+		$extras = $is_default ? 'disabled="disabled"; style="width:300px";' : 'style="width:300px";';
+		echo combo_box($receptacle_field_name, $receptacle_options, TRUE, '', 5, $extras);
 
 		// print the remove buttons
 		echo '<br />';

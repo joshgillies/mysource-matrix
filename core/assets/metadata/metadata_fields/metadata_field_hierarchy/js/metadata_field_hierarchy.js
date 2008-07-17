@@ -9,21 +9,30 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy.js,v 1.3 2008/07/17 02:27:49 bshkara Exp $
+* $Id: metadata_field_hierarchy.js,v 1.4 2008/07/17 05:18:47 bshkara Exp $
 *
 */
 
-function setInputsEnabled(parent, default_box, cascade_box, enabled)
+function setHierarchyInputsEnabled(prefix, parent, default_box, cascade_box, enabled)
 {
 	var inputs = parent.getElementsByTagName('INPUT');
 	for (var i=0; i < inputs.length; i++) {
-		if (inputs[i].name !== default_box || inputs[i].name !== cascade_box) {
+		var matched = inputs[i].name.search(prefix);
+		if (matched != -1) {
 			inputs[i].disabled = !enabled;
 		}
+
+		if (inputs[i].name === default_box || inputs[i].name === cascade_box) {
+			inputs[i].disabled = false;
+		}
 	}
+
 	var selects = parent.getElementsByTagName('SELECT');
 	for (var i=0; i < selects.length; i++) {
-		selects[i].disabled = !enabled;
+		var matched = selects[i].name.search(prefix);
+		if (matched != -1) {
+			selects[i].disabled = !enabled;
+		}
 	}
 }
 function in_array(elt, ar)
@@ -33,7 +42,7 @@ function in_array(elt, ar)
 	}
 	return false;
 }
-function setSelection(prefix, keys, default_values, drill, selected)
+function setSelectionHierarchy(prefix, keys, default_values, drill, selected)
 {
 	var select = document.getElementById(prefix);
 	if ((select !== null) && (typeof select.options != "undefined")) {
@@ -85,17 +94,17 @@ function setSelection(prefix, keys, default_values, drill, selected)
 		}
 	}
 }
-function handleDefaultClick(defaultCheckbox, prefix, default_keys, default_values, non_default_keys, drill_down)
+function handleDefaultClickHierarchy(defaultCheckbox, prefix, default_keys, default_values, non_default_keys, drill_down)
 {
 	if (defaultCheckbox.checked) {
-		setSelection(prefix, default_keys, default_values, drill_down, true);
+		setSelectionHierarchy(prefix, default_keys, default_values, drill_down, true);
 		if (!drill_down) {
-			setSelection(prefix, non_default_keys, default_values, drill_down, false);
+			setSelectionHierarchy(prefix, non_default_keys, default_values, drill_down, false);
 		}
 	} else {
 		if (drill_down) {
-			setSelection(prefix, default_keys, default_values, drill_down, false);
+			setSelectionHierarchy(prefix, default_keys, default_values, drill_down, false);
 		}
 	}
-	setInputsEnabled(document.getElementById(prefix+'_field'), prefix+'_default', prefix+'_cascade_value', !defaultCheckbox.checked);
+	setHierarchyInputsEnabled(prefix, document.getElementById(prefix+'_field'), prefix+'_default', prefix+'_cascade_value', !defaultCheckbox.checked);
 }
