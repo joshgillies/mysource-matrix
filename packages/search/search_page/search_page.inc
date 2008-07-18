@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.3 2008/05/16 03:49:42 bpearson Exp $
+* $Id: search_page.inc,v 1.213.2.4 2008/07/18 04:40:34 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.3 $
+* @version $Revision: 1.213.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -331,6 +331,10 @@ class Search_Page extends Listing_Engine
 				$sq_index = $pmap->getParameterValue($params);
 
 				if (!is_null($sq_index)) {
+					replace_global_keywords($sq_index);
+					// If a pipe separated list remove
+					$sq_index = str_replace('|', ' ', $sq_index);
+
 					// Now set these variables into $_REQUEST so search_page can read them directly
 					if ($params == 'stored_query') {
 						// Direct match to all fields
@@ -991,10 +995,30 @@ class Search_Page extends Listing_Engine
 		if (!isset($fields[$field_name])) return;
 		$this->registerFormField('queries_'.$query_var.'%');
 		$query = '';
+
 		if (isset($_SESSION['SQ_LAST_SEARCH'][$this->id])) {
 			$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
 		}
 		$read_only = FALSE;
+
+		// Check if a stored stored session variable is set and set query to match
+		// But don't touch it if there was some SESSION var already set
+		$pmap = $this->getAttribute('stored_query_session');
+		$pmap_params = $pmap->getParameters();
+		if (is_array($pmap_params) && !empty($pmap_params)) {
+			// Check for all fields
+			if (in_array('stored_query', $pmap_params)) {
+				$key_field = array_search('stored_query', $pmap_params);
+				$query = $pmap->getParameterValue($pmap_params[$key_field]);
+			}
+
+			// Check for current field
+			if (in_array($field_name, $pmap_params)) {
+				$key_field = array_search($field_name, $pmap_params);
+				$query = $pmap->getParameterValue($pmap_params[$key_field]);
+			}
+			replace_global_keywords($query);
+		}
 
 		ob_start();
 
@@ -1025,6 +1049,7 @@ class Search_Page extends Listing_Engine
 								break;
 								case 'metadata_field_hierarchy' :
 									$hierarchy = $asset->getHierarchyAttribute();
+
 									if (!empty($query)) $hierarchy->value = $query;
 									if ($asset->attr('hier_sort')) {
 										$sort = $asset->attr('hier_sort');
@@ -2156,12 +2181,15 @@ class Search_Page extends Listing_Engine
 
 		$fields = $this->attr('fields');
 
-		// If the search params were passed, get them and use them
-		// Otherwise go and look up some search params
+		$queries = $this->_getSearchedQueries();
+
+		// If the search params were passed, get them and use them, if the search queries are empty
 		if (!empty($search) || count($search)>0) {
-			$queries = $search;
-		} else {
-			$queries = $this->_getSearchedQueries();
+			foreach ($search as $search_key => $search_value) {
+				if (!isset($queries[$search_key]) || empty($queries[$search_key])) {
+					$queries[$search_key] = $search_value;
+				}
+			}
 		}
 
 		// save the search terms into the session so that we can use them for
