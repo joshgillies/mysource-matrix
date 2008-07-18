@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.217 2008/05/20 06:17:16 bpearson Exp $
+* $Id: search_page.inc,v 1.218 2008/07/18 04:43:56 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.217 $
+* @version $Revision: 1.218 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -331,6 +331,11 @@ class Search_Page extends Listing_Engine
 				$sq_index = $pmap->getParameterValue($params);
 
 				if (!is_null($sq_index)) {
+					replace_global_keywords($sq_index);
+					// If a pipe separated list remove
+					$sq_index = str_replace('|', ' ', $sq_index);
+
+					// Now set these variables into $_REQUEST so search_page can read them directly
 					if ($params == 'stored_query') {
 						// Direct match to all fields
 						foreach ($fields as $fieldname => $fieldvalue) {
@@ -1012,6 +1017,7 @@ class Search_Page extends Listing_Engine
 				$key_field = array_search($field_name, $pmap_params);
 				$query = $pmap->getParameterValue($pmap_params[$key_field]);
 			}
+			replace_global_keywords($query);
 		}
 
 		ob_start();
@@ -2175,12 +2181,15 @@ class Search_Page extends Listing_Engine
 
 		$fields = $this->attr('fields');
 
-		// If the search params were passed, get them and use them
-		// Otherwise go and look up some search params
+		$queries = $this->_getSearchedQueries();
+
+		// If the search params were passed, get them and use them, if the search queries are empty
 		if (!empty($search) || count($search)>0) {
-			$queries = $search;
-		} else {
-			$queries = $this->_getSearchedQueries();
+			foreach ($search as $search_key => $search_value) {
+				if (!isset($queries[$search_key]) || empty($queries[$search_key])) {
+					$queries[$search_key] = $search_value;
+				}
+			}
 		}
 
 		// save the search terms into the session so that we can use them for
