@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip_edit_fns.inc,v 1.13 2008/07/18 01:51:47 ewang Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.14 2008/07/18 02:24:09 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -467,7 +467,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public static function _isInSubnet($ip_address, $network_ip, $subnet_ip)
+	public static function isInSubnet($ip_address, $network_ip, $subnet_ip)
 	{
 		$ip_octets = explode('.', $ip_address);
 		$network_octets = explode('.', $network_ip);
@@ -482,7 +482,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 
 		return TRUE;
 
-	}//end _isInSubnet()
+	}//end isInSubnet()
 
 
 	/**
@@ -527,7 +527,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	public static function _sortByCIDROrder($ip_ranges)
+	public static function sortByCIDROrder($ip_ranges)
 	{
 		$ip_ranges_by_cidr = Array();
 
@@ -545,7 +545,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 
 		return $ip_ranges;
 
-	}//end _sortByCIDROrder()
+	}//end sortByCIDROrder()
 
 
 	/**

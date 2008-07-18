@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip.inc,v 1.9 2007/11/22 22:24:00 lwright Exp $
+* $Id: condition_user_ip.inc,v 1.10 2008/07/18 02:24:09 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip_edit_fns.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,10 +71,10 @@ class Condition_User_IP extends Condition
 		$grant = array_get_index($condition_data, 'default_grant', FALSE);
 
 		// sort the IP ranges by subnet mask order
-		$ip_ranges = Condition_User_IP_Edit_Fns::_sortByCIDROrder($condition_data['user_ip_ranges']);
+		$ip_ranges = Condition_User_IP_Edit_Fns::sortByCIDROrder($condition_data['user_ip_ranges']);
 
 		foreach ($ip_ranges as $ip_range) {
-			if (Condition_User_IP_Edit_Fns::_isInSubnet($remote_ip, $ip_range['ip_address'], $ip_range['subnet'])) {
+			if (Condition_User_IP_Edit_Fns::isInSubnet($remote_ip, $ip_range['ip_address'], $ip_range['subnet'])) {
 				$grant = $ip_range['grant'];
 			}
 		}
