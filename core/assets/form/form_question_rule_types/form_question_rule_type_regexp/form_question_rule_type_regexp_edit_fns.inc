@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp_edit_fns.inc,v 1.3 2006/12/06 00:35:29 emcdonald Exp $
+* $Id: form_question_rule_type_regexp_edit_fns.inc,v 1.3.8.1 2008/07/21 05:23:40 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Form_Question_Rule_Type_Regexp_Edit_Fns extends Form_Question_Rule_Edit_Fn
 
 		if (!$write_access) {
 			$o->openField(translate('core_form_rule_details'));
-			echo translate('core_form_rule_regexp_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'));
+			echo translate('core_form_rule_regexp_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), array_get_index($rule_data, 'value', translate('none')));
 			$o->closeField();
 
 		} else {
@@ -92,7 +92,7 @@ class Form_Question_Rule_Type_Regexp_Edit_Fns extends Form_Question_Rule_Edit_Fn
 		$case = array_get_index($_POST[$prefix], 'case', 0);
 
 		$rule_data['operator'] = $operator;
-		$rule_data['value'] = $regexp;
+		$rule_data['value'] = $regexp; 
 		$rule_data['case_sensitive'] = $case;
 
 		return true;
