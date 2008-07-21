@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.8 2008/07/21 04:26:17 ewang Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.9 2008/07/21 04:59:13 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,8 +116,9 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	function evaluate($answer, $rule_data)
 	{
 		$operator = array_get_index($rule_data, 'operator', 1);
-		$pattern = '/'.array_get_index($rule_data, 'value', '').'/';
-
+		
+		$pattern = '/'.str_replace('/', '\\'.'/', array_get_index($rule_data, 'value', '')).'/';
+		
 		// case insensitive?
 		if (!array_get_index($rule_data, 'case_sensitive', 1)) {
 			$pattern .= 'i';
