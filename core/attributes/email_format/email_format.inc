@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.40.2.1 2008/03/12 04:03:57 lwright Exp $
+* $Id: email_format.inc,v 1.40.2.2 2008/07/21 06:34:02 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -369,9 +369,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				if (is_null($addressee)) continue;
 
 				if ($addressee->type() == 'user_group') {
-					$user_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($addressee->id, SQ_LINK_TYPE_1, 'user', FALSE);
-					foreach ($user_links as $user_link) {
-						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_link['minorid']);
+					// Include shadow assets
+					$users = $GLOBALS['SQ_SYSTEM']->am->getChildren($addressee->id, 'user', FALSE);
+
+					foreach ($users as $user_id => $type_code) {
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 						$assetid_emails[] = $user->attr('email');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 					}
