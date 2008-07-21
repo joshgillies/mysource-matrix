@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.19 2008/04/03 05:29:00 lwright Exp $
+* $Id: trigger_action_send_email.inc,v 1.20 2008/07/21 06:34:23 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,11 +93,12 @@ class Trigger_Action_Send_Email extends Trigger_Action
 				}
 			}
 
-			// strip out non-live users and add to the email attribute value
+			// strip out non-live users unless they are shadow assets (eg; LDAP Users) and add to the email attribute value
 			if (!empty($group_members)) {
 				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($group_members), Array(), TRUE, 'status');
+
 				foreach ($asset_info as $member_id => $member_status) {
-					if ($member_status < SQ_STATUS_LIVE) {
+					if ((!stristr($member_id, ':')) && ($member_status < SQ_STATUS_LIVE)) {
 						unset($group_members[$member_id]);
 					}
 				}
