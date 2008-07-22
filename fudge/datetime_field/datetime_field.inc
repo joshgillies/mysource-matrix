@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.48 2007/11/27 03:58:43 rong Exp $
+* $Id: datetime_field.inc,v 1.49 2008/07/22 04:58:42 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -170,8 +170,8 @@ class DateTime_Field
 	*/
 	function printField()
 	{
-		$show = $this->getParam('show');
-		$null = $this->getParam('null');
+		$show =& $this->getParam('show');
+		$null =& $this->getParam('null');
 		if (!is_array($show)) $show = Array();
 		if (!is_array($null)) $null = Array();
 		?>
@@ -237,11 +237,11 @@ class DateTime_Field
 	*/
 	function inputBox($u, $prefix, &$value, $allow_null=FALSE)
 	{
-		$input_style = $this->getParam('style');
-		$extras = $this->getParam('extras');
-		$increments = $this->getParam('increment');
-		$min_array = $this->getParam('min');
-		$max_array = $this->getParam('max');
+		$input_style =& $this->getParam('style');
+		$extras =& $this->getParam('extras');
+		$increments =& $this->getParam('increment');
+		$min_array =& $this->getParam('min');
+		$max_array =& $this->getParam('max');
 
 		$min = (int) $this->getUnit($u, $min_array);
 		$max = (int) $this->getUnit($u, $max_array);
@@ -546,7 +546,7 @@ class DateTime_Field
 				} else if (preg_match("/^[0-9]+$/", $value)) { // Timestamp?
 					$value = date('Y-m-d H:i:s', $value);
 				} else {
-					$show = $this->getParam('show');
+					$show =& $this->getParam('show');
 					// Okay lets try to parse this thing.
 					$v = Array('y'=>-1,'m'=>-1,'d'=>-1,'h'=>-1,'i'=>-1,'s'=>-1);
 					// Dates
@@ -641,8 +641,8 @@ class DateTime_Field
 		}//end if value not array
 
 		// Now we can assume we have an array of units values to verify
-		$min = $this->getParam('min');
-		$max = $this->getParam('max');
+		$min =& $this->getParam('min');
+		$max =& $this->getParam('max');
 		$value_str = $this->unitsArraytoStr($value);
 		if ($value_str != '---------- --:--:--') {
 			$value_substr = Array(
@@ -775,7 +775,7 @@ class DateTime_Field
 	function format($format=NULL)
 	{
 		if (is_null($format)) {
-			$format = $this->getParam('print_format');
+			$format =& $this->getParam('print_format');
 		}
 
 		// We need to strip certain elements out of the format if we don't have enough
@@ -846,7 +846,7 @@ class DateTime_Field
 				'style'		=> $this->getParam('style'),
 			 );
 		$p['style']['y'] = 't';
-		$min_val = $this->getParam('min');
+		$min_val =& $this->getParam('min');
 		$d = new DateTime_Field($this->prefix.'_min', $min_val, $p);
 		$d->printField();
 
@@ -868,7 +868,7 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$min = $this->getParam('min');
+		$min =& $this->getParam('min');
 		$d = new DateTime_Field($this->prefix.'_min', $min, $p);
 		$d->processField();
 
@@ -891,7 +891,7 @@ class DateTime_Field
 				'style'		=> $this->getParam('style'),
 			 );
 		$p['style']['y'] = 't';
-		$max_val = $this->getParam('max');
+		$max_val =& $this->getParam('max');
 		$d = new DateTime_Field($this->prefix.'_max', $max_val, $p);
 		$d->printField();
 
@@ -913,7 +913,7 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$max = $this->getParam('max');
+		$max =& $this->getParam('max');
 		$d = new DateTime_Field($this->prefix.'_max', $max, $p);
 		$d->processField();
 
@@ -933,11 +933,11 @@ class DateTime_Field
 		if (empty($show)) $show = Array('s','n','c','t'); // default set of fields to show
 
 		$us = Array('d'=>'Day','m'=>'Month','y'=>'Year','h'=>'Hour','i'=>'Min.','s'=>'Sec.');
-		$s = $this->getParam('show');
-		$n = $this->getParam('null');
-		$y = $this->getParam('style');
-		$c = $this->getParam('allow_circa');
-		$t = $this->getParam('standard');
+		$s =& $this->getParam('show');
+		$n =& $this->getParam('null');
+		$y =& $this->getParam('style');
+		$c =& $this->getParam('allow_circa');
+		$t =& $this->getParam('standard');
 		?>
 
 		<table cellspacing="0" cellpadding="2" border="1">
