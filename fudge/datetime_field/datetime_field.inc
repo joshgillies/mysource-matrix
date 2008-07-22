@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.48 2007/11/27 03:58:43 rong Exp $
+* $Id: datetime_field.inc,v 1.48.2.1 2008/07/22 04:56:26 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.2.1 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -128,7 +128,7 @@ class DateTime_Field
 	* @return void
 	*/
 	function setParameters(&$parameters)
-	{
+	{ 
 		$this->parameters =& $parameters;
 
 	}//end setParameters()
@@ -170,8 +170,8 @@ class DateTime_Field
 	*/
 	function printField()
 	{
-		$show = $this->getParam('show');
-		$null = $this->getParam('null');
+		$show =& $this->getParam('show');
+		$null =& $this->getParam('null');
 		if (!is_array($show)) $show = Array();
 		if (!is_array($null)) $null = Array();
 		?>
@@ -206,7 +206,6 @@ class DateTime_Field
 		}
 		foreach (Array('d','m','y','h','i','s','a') as $t) {
 			$u = $this->getUnit($t);
-
 			if (in_array($t, $show)) {
 				$this->inputBox($t, $this->prefix, $u, in_array($t, $null));
 			} else if ($t != 'a') {
@@ -237,11 +236,11 @@ class DateTime_Field
 	*/
 	function inputBox($u, $prefix, &$value, $allow_null=FALSE)
 	{
-		$input_style = $this->getParam('style');
-		$extras = $this->getParam('extras');
-		$increments = $this->getParam('increment');
-		$min_array = $this->getParam('min');
-		$max_array = $this->getParam('max');
+		$input_style =& $this->getParam('style');
+		$extras =& $this->getParam('extras');
+		$increments =& $this->getParam('increment');
+		$min_array =& $this->getParam('min');
+		$max_array =& $this->getParam('max');
 
 		$min = (int) $this->getUnit($u, $min_array);
 		$max = (int) $this->getUnit($u, $max_array);
@@ -514,10 +513,14 @@ class DateTime_Field
 		if (!isset($_REQUEST[$this->prefix.'value'])) {
 			return FALSE;
 		}
+		
 		$input = $_REQUEST[$this->prefix.'value'];
+
 		$input = $this->unitsArrayToStr($input);
+		
 		$validated_value = $this->validateValue($input);
 		$this->value = $validated_value;
+
 		return TRUE;
 
 	}//end processField()
@@ -546,7 +549,7 @@ class DateTime_Field
 				} else if (preg_match("/^[0-9]+$/", $value)) { // Timestamp?
 					$value = date('Y-m-d H:i:s', $value);
 				} else {
-					$show = $this->getParam('show');
+					$show =& $this->getParam('show');
 					// Okay lets try to parse this thing.
 					$v = Array('y'=>-1,'m'=>-1,'d'=>-1,'h'=>-1,'i'=>-1,'s'=>-1);
 					// Dates
@@ -641,8 +644,8 @@ class DateTime_Field
 		}//end if value not array
 
 		// Now we can assume we have an array of units values to verify
-		$min = $this->getParam('min');
-		$max = $this->getParam('max');
+		$min =& $this->getParam('min');
+		$max =& $this->getParam('max');
 		$value_str = $this->unitsArraytoStr($value);
 		if ($value_str != '---------- --:--:--') {
 			$value_substr = Array(
@@ -720,7 +723,7 @@ class DateTime_Field
 	*/
 	function strToUnitsArray($value)
 	{
-		$r = Array();
+		$r = Array(); 
 		$r['y'] = ((($i = (int) ($s = substr($value,0,4)))  || ($s{0} != '-' && strlen($s))) ? $i : -1);
 		$r['m'] = ((($i = (int) ($s = substr($value,5,2)))  || ($s{0} != '-' && strlen($s))) ? $i : -1);
 		$r['d'] = ((($i = (int) ($s = substr($value,8,2)))  || ($s{0} != '-' && strlen($s))) ? $i : -1);
@@ -775,7 +778,7 @@ class DateTime_Field
 	function format($format=NULL)
 	{
 		if (is_null($format)) {
-			$format = $this->getParam('print_format');
+			$format =& $this->getParam('print_format');
 		}
 
 		// We need to strip certain elements out of the format if we don't have enough
@@ -846,8 +849,8 @@ class DateTime_Field
 				'style'		=> $this->getParam('style'),
 			 );
 		$p['style']['y'] = 't';
-		$min_val = $this->getParam('min');
-		$d = new DateTime_Field($this->prefix.'_min', $min_val, $p);
+		$min_val =& $this->getParam('min');
+		$d = new DateTime_Field($this->prefix.'_min', $min_val, $p); 
 		$d->printField();
 
 	}//end printMinField()
@@ -868,10 +871,9 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$min = $this->getParam('min');
+		$min =& $this->getParam('min'); 
 		$d = new DateTime_Field($this->prefix.'_min', $min, $p);
 		$d->processField();
-
 	}//end processMinField()
 
 
@@ -891,7 +893,7 @@ class DateTime_Field
 				'style'		=> $this->getParam('style'),
 			 );
 		$p['style']['y'] = 't';
-		$max_val = $this->getParam('max');
+		$max_val =& $this->getParam('max');
 		$d = new DateTime_Field($this->prefix.'_max', $max_val, $p);
 		$d->printField();
 
@@ -913,9 +915,9 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$max = $this->getParam('max');
+		$max =& $this->getParam('max'); 
 		$d = new DateTime_Field($this->prefix.'_max', $max, $p);
-		$d->processField();
+		$d->processField(); 
 
 	}//end processMaxField()
 
@@ -933,11 +935,11 @@ class DateTime_Field
 		if (empty($show)) $show = Array('s','n','c','t'); // default set of fields to show
 
 		$us = Array('d'=>'Day','m'=>'Month','y'=>'Year','h'=>'Hour','i'=>'Min.','s'=>'Sec.');
-		$s = $this->getParam('show');
-		$n = $this->getParam('null');
-		$y = $this->getParam('style');
-		$c = $this->getParam('allow_circa');
-		$t = $this->getParam('standard');
+		$s =& $this->getParam('show');
+		$n =& $this->getParam('null');
+		$y =& $this->getParam('style');
+		$c =& $this->getParam('allow_circa');
+		$t =& $this->getParam('standard');
 		?>
 
 		<table cellspacing="0" cellpadding="2" border="1">
@@ -1049,16 +1051,14 @@ class DateTime_Field
 		$y = $_REQUEST[$this->prefix.'_style'];
 		$c = $_REQUEST[$this->prefix.'_allow_circa'];
 		$t = isset($_REQUEST[$this->prefix.'_standard']) ? $_REQUEST[$this->prefix.'_standard'] : Array();
-
 		$this->parameters['show']        = $s;
 		$this->parameters['null']        = $n;
 		$this->parameters['style']       = $y;
 		$this->parameters['allow_circa'] = $c;
 		$this->parameters['standard']    = $t;
 
-		$this->processMinField();
+		$this->processMinField();		
 		$this->processMaxField();
-
 		return TRUE;
 
 	}//end processEditOptions()
