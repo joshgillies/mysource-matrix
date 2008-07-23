@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.43 2007/04/05 04:00:47 mbrydon Exp $
+* $Id: datetime_field.inc,v 1.43.2.1 2008/07/23 03:42:40 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -519,7 +519,7 @@ class DateTime_Field
 		$validated_value = $this->validateValue($input);
 		$this->value = $validated_value;
 		return TRUE;
-
+		
 	}//end processField()
 
 
@@ -750,12 +750,12 @@ class DateTime_Field
 			$v['h'] = ($v['h'] % 12) + (($v['a'] == 'pm') ? 12 : 0);
 		}
 
-		$r = (($v['y'] < 0 || !strlen($v['y']) || $v['y']{0} == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
-			.(($v['m'] < 0 || !strlen($v['m']) || $v['m']{0} == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
-			.(($v['d'] < 0 || !strlen($v['d']) || $v['d']{0} == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
-			.(($v['h'] < 0 || !strlen($v['h']) || $v['h']{0} == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
-			.(($v['i'] < 0 || !strlen($v['i']) || $v['i']{0} == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
-			.(($v['s'] < 0 || !strlen($v['s']) || $v['s']{0} == '-') ?  '--'  : sprintf('%02d', $v['s']));
+		$r = ((!isset($v['y']) || $v['y'] < 0 || !strlen($v['y']) || $v['y']{0} == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
+			.((!isset($v['m']) || $v['m'] < 0 || !strlen($v['m']) || $v['m']{0} == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
+			.((!isset($v['d']) || $v['d'] < 0 || !strlen($v['d']) || $v['d']{0} == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
+			.((!isset($v['h']) || $v['h'] < 0 || !strlen($v['h']) || $v['h']{0} == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
+			.((!isset($v['i']) || $v['i'] < 0 || !strlen($v['i']) || $v['i']{0} == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
+			.((!isset($v['s']) || $v['s'] < 0 || !strlen($v['s']) || $v['s']{0} == '-') ?  '--'  : sprintf('%02d', $v['s']));
 		if ($this->getParam('allow_circa')) {
 			$r .= ' '.(isset($v['c']) && $v['c'] ? '1' : '0');
 		}
@@ -869,7 +869,6 @@ class DateTime_Field
 			 );
 		$d =& new DateTime_Field($this->prefix.'_min', $this->getParam('min'), $p);
 		$d->processField();
-
 	}//end processMinField()
 
 
