@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.48.2.1 2008/07/22 04:56:26 ewang Exp $
+* $Id: datetime_field.inc,v 1.48.2.2 2008/07/23 01:41:51 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48.2.1 $
+* @version $Revision: 1.48.2.2 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -244,7 +244,6 @@ class DateTime_Field
 
 		$min = (int) $this->getUnit($u, $min_array);
 		$max = (int) $this->getUnit($u, $max_array);
-
 		$diff = Array();
 		foreach (Array('y','m','d','h','i','s') as $diff_unit) {
 			$diff[$diff_unit] = $this->getUnit($diff_unit, $max_array) - $this->getUnit($diff_unit, $min_array);
@@ -515,12 +514,10 @@ class DateTime_Field
 		}
 		
 		$input = $_REQUEST[$this->prefix.'value'];
-
 		$input = $this->unitsArrayToStr($input);
 		
 		$validated_value = $this->validateValue($input);
 		$this->value = $validated_value;
-
 		return TRUE;
 
 	}//end processField()
@@ -707,7 +704,6 @@ class DateTime_Field
 		if (strlen($value) > 20 && !$this->getParam('allow_circa')) {
 			$value = substr($value, 20);
 		}
-
 		return $value;
 
 	}//end validateValue()
@@ -752,16 +748,15 @@ class DateTime_Field
 		if (isset($v['a']) && !empty($v['a'])) {
 			$v['h'] = ($v['h'] % 12) + (($v['a'] == 'pm') ? 12 : 0);
 		}
-
-		$r = (($v['y'] < 0 || !strlen($v['y']) || $v['y']{0} == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
-			.(($v['m'] < 0 || !strlen($v['m']) || $v['m']{0} == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
-			.(($v['d'] < 0 || !strlen($v['d']) || $v['d']{0} == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
-			.(($v['h'] < 0 || !strlen($v['h']) || $v['h']{0} == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
-			.(($v['i'] < 0 || !strlen($v['i']) || $v['i']{0} == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
-			.(($v['s'] < 0 || !strlen($v['s']) || $v['s']{0} == '-') ?  '--'  : sprintf('%02d', $v['s']));
+		$r = ((!isset($v['y']) || $v['y'] < 0 || !strlen($v['y']) || $v['y']{0} == '-') ? '----' : sprintf('%04d', $v['y'])).'-'
+			.((!isset($v['m']) || $v['m'] < 0 || !strlen($v['m']) || $v['m']{0} == '-') ?  '--'  : sprintf('%02d', $v['m'])).'-'
+			.((!isset($v['d']) || $v['d'] < 0 || !strlen($v['d']) || $v['d']{0} == '-') ?  '--'  : sprintf('%02d', $v['d'])).' '
+			.((!isset($v['h']) || $v['h'] < 0 || !strlen($v['h']) || $v['h']{0} == '-') ?  '--'  : sprintf('%02d', $v['h'])).':'
+			.((!isset($v['i']) || $v['i'] < 0 || !strlen($v['i']) || $v['i']{0} == '-') ?  '--'  : sprintf('%02d', $v['i'])).':'
+			.((!isset($v['s']) || $v['s'] < 0 || !strlen($v['s']) || $v['s']{0} == '-') ?  '--'  : sprintf('%02d', $v['s']));
 		if ($this->getParam('allow_circa')) {
 			$r .= ' '.(isset($v['c']) && $v['c'] ? '1' : '0');
-		}
+		} 
 		return $r;
 
 	}//end unitsArrayToStr()
@@ -871,9 +866,10 @@ class DateTime_Field
 				'increment'	=> Array(),
 				'style'		=> $this->getParam('style'),
 			 );
-		$min =& $this->getParam('min'); 
+		$min =& $this->getParam('min');
 		$d = new DateTime_Field($this->prefix.'_min', $min, $p);
 		$d->processField();
+
 	}//end processMinField()
 
 
