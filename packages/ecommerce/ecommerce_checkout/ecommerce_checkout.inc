@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.52.2.10 2008/07/18 06:20:18 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.52.2.11 2008/07/23 04:01:31 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.52.2.10 $
+* @version $Revision: 1.52.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -311,9 +311,10 @@ class Ecommerce_Checkout extends Page
 					// find the country code they have selected as their address
 					if (isset($form_answers[$country_question])) {
 						$country_code = $form_answers[$country_question]['value'];
-					}
-					if (isset($country_code[0])) {
-						$country_code = $country_code[0];
+						if (is_array($country_code)) {
+							// need a scalar
+							$country_code = $country_code[0];
+						}
 					}
 
 					// only set region specific options if we have a country code to compare against
