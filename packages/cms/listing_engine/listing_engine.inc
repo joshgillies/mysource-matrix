@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.254 2008/06/03 00:42:02 bshkara Exp $
+* $Id: listing_engine.inc,v 1.255 2008/07/23 18:31:14 gnoel Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2235,6 +2235,20 @@ class Listing_Engine extends Page
 
 				}
 
+				// Body with user-defined paint layout applied (%asset_contents_paint_NAME%)
+				if (preg_match('|%asset_contents_paint_([^%]+)%|is', $bodycopy->getRawBodycopyContent(), $paint_layouts)) {
+					if ($assetid != $this->id) {
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);						
+						$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layouts[1]);
+						if (!empty($layout_id) && $GLOBALS['SQ_SYSTEM']->am->assetExists($layout_id)) {
+							ob_start();
+							$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
+							$layout->paint($asset);
+							$keywords['asset_contents_paint_'.$paint_layouts[1]] = ob_get_clean();
+						}
+					}
+				}
+
 				// %asset_contents_raw% will print the asset's body WITHOUT a
 				// paint layout
 				if (preg_match('|%asset_contents_raw%|is', $bodycopy->getRawBodycopyContent())) {
@@ -3562,6 +3576,7 @@ class Listing_Engine extends Page
 		$keywords['asset_lineage'] = translate('asset_lineage');
 		$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
 		$keywords['asset_contents'] = translate('cms_listing_asset_contents');
+		$keywords['asset_contents_paint_'] = translate('cms_listing_asset_contents_paint');
 		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
 		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
