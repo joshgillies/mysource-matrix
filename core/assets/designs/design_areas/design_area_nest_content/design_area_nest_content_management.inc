@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_management.inc,v 1.10 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_nest_content_management.inc,v 1.10.2.1 2008/07/25 04:43:52 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,18 @@ class Design_Area_Nest_Content_Management extends Asset_Management
 											'type'			=> 'serialise',
 											'default'		=> Array(),
 											'description'	=> 'A list of type codes to restrict the asset selection to, these types are not strict however so any sub-types of these will also be valid. While this is a "serialise" attribute it can be set using a comma or space separated list of type codes',
+										   ),
+						'paint_with'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> 'raw',
+											'description'	=> 'Allow this nested content to be painted by a specified paint layout',
+										   ),
+						'paint_layout'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'int',
+											'default'		=> '0',
+											'description'	=> 'Allow this nested content to be painted by a this paint layout',
 										   ),
 					  );
 
