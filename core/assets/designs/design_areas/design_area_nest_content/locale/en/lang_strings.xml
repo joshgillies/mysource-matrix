@@ -1,0 +1,24 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1 2008/07/25 04:53:14 bpearson Exp $
+*
+*/
+-->
+
+<strings>
+	<string source="nest_content_menu_nesting">Nesting the contents of: </string>
+	<string source="nest_content_menu_paint_with">Paint this asset:</string>
+	<string source="nest_content_menu_paint_raw">Raw (no Paint Layout)</string>
+	<string source="nest_content_menu_paint_default">Using default Paint Layout (based on lookup rules)</string>
+	<string source="nest_content_menu_paint_arbitrary">Using an arbitrary Paint Layout: </string>
+</strings>

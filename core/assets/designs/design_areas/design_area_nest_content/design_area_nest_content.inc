@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.29 2007/12/20 22:38:01 colivar Exp $
+* $Id: design_area_nest_content.inc,v 1.30 2008/07/25 04:52:49 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -162,8 +162,15 @@ class Design_Area_Nest_Content extends Design_Area
 	protected function _printInitCode()
 	{
 		$assetid = (int) $this->_getNestAssetInfo('minorid');
+		$paint_layout_id = (int) $this->attr('paint_layout');
+		$paint_with = (string) $this->attr('paint_with');
 		echo '<', '?php
-		$nest_content_'.$this->attr('id_name').'_asset = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
+		$nest_content_'.$this->attr('id_name').'_paint_layout = NULL;
+		$nest_content_'.$this->attr('id_name').'_asset = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');';
+		if (!empty($paint_layout_id) && $paint_with == 'arbitrary') {
+			echo '$nest_content_'.$this->attr('id_name').'_paint_layout = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$paint_layout_id.');';
+		}
+		echo '$nest_content_'.$this->attr('id_name').'_paint_with = \''.$paint_with.'\';
 		?', '>';
 
 	}//end _printInitCode()
@@ -184,7 +191,33 @@ class Design_Area_Nest_Content extends Design_Area
 		if (!is_null($nest_content_'.$this->attr('id_name').'_asset)) {
 			if ($nest_content_'.$this->attr('id_name').'_asset->readAccess()) {
 				ob_start();
-					$nest_content_'.$this->attr('id_name').'_asset->printBody();
+					switch ($nest_content_'.$this->attr('id_name').'_paint_with) {
+						case \'arbitrary\':
+							if (!is_null($nest_content_'.$this->attr('id_name').'_paint_layout)) {
+								$switched_frontend = FALSE;
+								if ($GLOBALS[\'SQ_SYSTEM\']->frontend_asset->id !== $this->id) {
+									$current_frontend_asset =& $GLOBALS[\'SQ_SYSTEM\']->frontend_asset;
+									$GLOBALS[\'SQ_SYSTEM\']->frontend_asset =& $nest_content_'.$this->attr('id_name').'_asset;
+									$switched_frontend = TRUE;
+								}
+								$nest_content_'.$this->attr('id_name').'_paint_layout->paint($nest_content_'.$this->attr('id_name').'_asset);
+
+								if ($switched_frontend) {
+									$GLOBALS[\'SQ_SYSTEM\']->frontend_asset =& $current_frontend_asset;
+								}
+							} else {
+								$nest_content_'.$this->attr('id_name').'_asset->printBody();
+							}
+						break;
+
+						case \'default\':
+							$nest_content_'.$this->attr('id_name').'_asset->printBodyWithPaintLayout();
+						break;
+
+						default:
+							$nest_content_'.$this->attr('id_name').'_asset->printBody();
+						break;
+					}
 				$body = ob_get_clean();
 
 				echo $body;

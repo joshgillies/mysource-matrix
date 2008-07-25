@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.17 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.18 2008/07/25 04:52:49 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,23 +55,49 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintAssetid(Design_Area_Nest_Content $asset, Backend_Outputter $o, $prefix)
 	{
-		if ($asset->writeAccess('links')) {
-			$type_codes = $asset->attr('type_codes');
-			$type_code_restrictions = Array();
-			if (is_array($type_codes)) {
-				foreach ($type_codes as $type_code) {
-					$type_code_restrictions[$type_code] = 'D';
-				}
+		$type_codes = $asset->attr('type_codes');
+		$paint_with = $asset->attr('paint_with');
+		$paint_layout = $asset->attr('paint_layout');
+		$type_code_restrictions = Array();
+		if (is_array($type_codes)) {
+			foreach ($type_codes as $type_code) {
+				$type_code_restrictions[$type_code] = 'D';
 			}
-			asset_finder($prefix.'_assetid', $asset->_getNestAssetInfo('minorid'), $type_code_restrictions);
-
+		}
+		if ($asset->writeAccess('links')) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-cell-alt"><b><?php echo translate('nest_content_menu_nesting') ?></b></td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-cell">
+					<?php 
+						asset_finder($prefix.'_assetid', $asset->_getNestAssetInfo('minorid'), $type_code_restrictions);
+					?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-cell-alt"><b><?php echo translate('nest_content_menu_paint_with'); ?></b></td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-cell">
+					<input name="<?php echo $prefix ?>_paint_with" type="radio" value="raw" <?php if ($paint_with == 'raw') { ?>checked="checked"<?php } ?>> <?php echo translate('nest_content_menu_paint_raw'); ?><br />
+					<input name="<?php echo $prefix ?>_paint_with" type="radio" value="default" <?php if ($paint_with == 'default') { ?>checked="checked"<?php } ?>> <?php echo translate('nest_content_menu_paint_default'); ?><br />
+					<input name="<?php echo $prefix ?>_paint_with" type="radio" value="arbitrary" <?php if ($paint_with == 'arbitrary') { ?>checked="checked"<?php } ?>><?php
+					echo translate('nest_content_menu_paint_arbitrary');
+					asset_finder($prefix.'_paint_layout', $paint_layout, Array('paint_layout_page' => 'D'));
+					?><br />
+					</td>
+				</tr>
+			</table>
+			<?php
 		} else if ($asset->_getNestAssetInfo('minorid')) {
 			$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getNestAssetInfo('minorid'));
 			if (!is_null($link_asset)) {
 				echo get_asset_tag_line($link_asset->id);
 			}
-
-		}// end if
+		}
 
 		return TRUE;
 
@@ -94,39 +120,53 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			return FALSE;
 		}
 
-		if ($asset->_getNestAssetInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) {
-			return FALSE;
-		}
-
 		$assetid = (int) $_POST[$prefix.'_assetid']['assetid'];
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// remove the old link first
-		if ($old_linkid = $asset->_getNestAssetInfo('linkid')) {
-			if (!$asset->deleteLink($old_linkid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
-			}
-		}
+		// Save the paint layout information
+		if (isset($_POST[$prefix.'_paint_layout']['assetid'])) {
+			$paint_layout = $_POST[$prefix.'_paint_layout']['assetid'];
+			$asset->setAttrValue('paint_layout', $paint_layout);
+		}//end if
 
-		// now create the new link
-		if ($assetid) {
-			$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (is_null($link_asset)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
+		if (isset($_POST[$prefix.'_paint_with'])) {
+			$paint_with = $_POST[$prefix.'_paint_with'];
+			if (($paint_with != ('raw'||'default'||'arbitrary'))) {
+				// Something went very wrong, use the default
+				$paint_with = 'raw';
 			}
-			if (!$asset->createLink($link_asset, SQ_LINK_NOTICE, 'nest_content_asset')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
+			$asset->setAttrValue('paint_with', $paint_with);
+		}//end if
+
+		// Update the nested content asset
+		if ($asset->_getNestAssetInfo('minorid') != $_POST[$prefix.'_assetid']['assetid']) {
+			// remove the old link first
+			if ($old_linkid = $asset->_getNestAssetInfo('linkid')) {
+				if (!$asset->deleteLink($old_linkid)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
 			}
-		}
+
+			// now create the new link
+			if ($assetid) {
+				$link_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (is_null($link_asset)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+				if (!$asset->createLink($link_asset, SQ_LINK_NOTICE, 'nest_content_asset')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				}
+			}
+		}//end if
 
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
