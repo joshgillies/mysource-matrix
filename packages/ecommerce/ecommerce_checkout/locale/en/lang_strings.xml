@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9.6.3 2008/07/25 05:01:01 bshkara Exp $
+* $Id: lang_strings.xml,v 1.9.6.4 2008/07/25 06:10:47 bshkara Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -40,7 +40,7 @@
 	<string source="ecom_checkout_keyword_insufficient_quantity_message">Insufficient Product Quantity Message</string>
 
 	<string source="ecom_checkout_keyword_item_quantity_added">Item Quantity Added To Cart</string>
-	<string source="ecom_checkout_keyword_item_price_incl_tax">Individual Item Price Including Tax</string>
+	<string source="ecom_checkout_keyword_item_price_incl_tax">Individual Item Price Including Tax Calculations</string>
 	<string source="ecom_checkout_keyword_item_tax">Individual Item Tax Amount</string>
 	<string source="ecom_checkout_keyword_total_item_price">Item Price Total</string>
 	<string source="ecom_checkout_keyword_total_item_tax">Item Tax Total</string>

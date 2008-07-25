@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.11.2.5 2008/07/25 05:01:03 bshkara Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.11.2.6 2008/07/25 06:10:47 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11.2.5 $
+* @version $Revision: 1.11.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -820,7 +820,7 @@ class Ecommerce_Cart_Processor
 			$format_replacements['item_price_incl_tax'] = sprintf($price_format, $cost);
 			$format_replacements['item_tax'] = sprintf($price_format, $tax_cost);
 
-			$format_replacements['total_item_price'] = sprintf($price_format, ($cost + $tax_cost) * $product_quantity);
+			$format_replacements['total_item_price'] = sprintf($price_format, $cost * $product_quantity);
 			$format_replacements['total_item_tax'] = sprintf($price_format, $tax_cost * $product_quantity);
 
 			$format_bodycopy->setKeywordReplacements($format_replacements);
