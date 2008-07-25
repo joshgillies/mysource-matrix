@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.11.2.4 2008/05/07 03:25:31 bshkara Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.11.2.5 2008/07/25 05:01:03 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11.2.4 $
+* @version $Revision: 1.11.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -694,7 +694,6 @@ class Ecommerce_Cart_Processor
 			$calculate_tax = array_get_index($details, 'taxable', FALSE);
 			if ($calculate_tax) {
 				$item_costs = $this->_calculateItemCosts($cost, $taxation_rate, $has_tax);
-				$cost = $remove_tax ? $item_costs['tax_adjusted_cost'] : array_get_index($details, 'price', 0);
 				$cost = $item_costs['tax_adjusted_cost'];
 				$tax_cost = $item_costs['tax_cost'];
 			} else {
@@ -738,9 +737,9 @@ class Ecommerce_Cart_Processor
 					echo sprintf($row_format, $name, '', sprintf('$%.2f', $price));
 				}
 
-				$grand_total = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
+				$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
 
-				$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total);
+				$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
 
 				if ($total_delivery_cost > 0) {
 					echo sprintf($row_format, 'Delivery Fee', '', sprintf('$%.2f', $total_delivery_cost));
@@ -750,7 +749,7 @@ class Ecommerce_Cart_Processor
 				if (($total_delivery_cost > 0) || ($flat_charges_total > 0)) {
 					echo $break;
 				}
-				echo sprintf($row_format, 'Grand Total', '', sprintf('$%.2f', $grand_total + $total_delivery_cost));
+				echo sprintf($row_format, 'Grand Total', '', sprintf('$%.2f', $grand_total_ex_delivery + $total_delivery_cost));
 			}
 		} else {
 			echo sprintf($row_format, 'Total', $this->getCount());
@@ -759,6 +758,110 @@ class Ecommerce_Cart_Processor
 		return;
 
 	}//end printReceipt()
+
+
+	/**
+	*
+	* Prints out the contents of the Ecommerce Cart adhering to the Receipt Format bodycopy
+	*
+	* @param object		&$contents_bodycopy	receipt contents bodycopy
+	* @param object		&$format_bodycopy	receipt format bodycopy
+	* @param string		$taxation_name		name of tax
+	* @param int		$taxation_rate		tax value (0.1 is 10%, 0.2 is 20%)
+	* @param array		$flat_charges		flat charges Array('Name' => 'Price')
+	* @param boolean	$remove_tax			whether to remove tax from taxed products, i.e. if country is not defined as taxable
+	* @param string		$currency_symbol	symbol to use as the currency for all prices
+	* @param int		$float_precision	precision of the floating numbers used for prices
+	*
+	* @return void
+	* @access public
+	*/
+	function printCustomisedReceipt(&$contents_bodycopy, &$format_bodycopy, $taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2)
+	{
+		if (empty($this->cart)) return;
+
+		// ensure the float precision is an int
+		$float_precision = (int) $float_precision;
+		$price_format = $currency_symbol.'%.'.$float_precision.'f';
+
+		$content_keywords = $contents_bodycopy->getKeywords();
+		$content_replacements = Array();
+
+		// print each asset in the cart using the receipt type format
+		$format_keywords = $format_bodycopy->getKeywords();
+		ob_start();
+		foreach ($this->cart as $assetid => $details) {
+			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$format_replacements = Array();
+
+			// replace all asset based keywords
+			foreach ($format_keywords as $keyword) {
+				$format_replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			}
+
+			$product_quantity = array_get_index($details, 'quantity', 0);
+
+			// calculate tax and costs for this item
+			$cost = array_get_index($details, 'price', 0);
+			// calculate tax for this item only if we are not removing tax
+			$has_tax = array_get_index($details, 'has_tax', FALSE);
+			$calculate_tax = array_get_index($details, 'taxable', FALSE);
+			if ($calculate_tax) {
+				$item_costs = $this->_calculateItemCosts($cost, $taxation_rate, $has_tax);
+				$cost = $item_costs['tax_adjusted_cost'];
+				$tax_cost = $item_costs['tax_cost'];
+			} else {
+				$tax_cost = 0;
+			}
+
+			// replace all ecommerce specific keywords
+			$format_replacements['item_quantity_added'] = $product_quantity;
+
+			$format_replacements['item_price_incl_tax'] = sprintf($price_format, $cost);
+			$format_replacements['item_tax'] = sprintf($price_format, $tax_cost);
+
+			$format_replacements['total_item_price'] = sprintf($price_format, ($cost + $tax_cost) * $product_quantity);
+			$format_replacements['total_item_tax'] = sprintf($price_format, $tax_cost * $product_quantity);
+
+			$format_bodycopy->setKeywordReplacements($format_replacements);
+			$format_bodycopy->printBody();
+		}
+		
+		// receipt contents bodycopy keyword replacements
+		$content_replacements['receipt_listing'] = ob_get_clean();
+
+		$total_tax = $this->getTotalTax($taxation_rate);
+		$content_replacements['total_tax'] = $remove_tax ? sprintf('-'.$price_format, $total_tax) : sprintf($price_format, $total_tax);
+		$content_replacements['tax_name'] = $taxation_name;
+
+		ob_start();
+		$flat_charges_total = 0.0;
+		echo '<table>';
+		foreach ($flat_charges as $name => $price) {
+			echo '<tr><td>'.$name.':</td><td>'.sprintf($price_format, $price).'</td></tr>';
+			$flat_charges_total += $price;
+		}
+		echo '</table>';
+		$content_replacements['flat_fees_table'] = ob_get_clean();
+		$content_replacements['flat_fees_total'] = sprintf($price_format, $flat_charges_total);
+
+		$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
+		$content_replacements['sub_total'] = sprintf($price_format, $sub_total);
+
+		$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
+		$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
+		$content_replacements['delivery_total'] = sprintf($price_format, $total_delivery_cost);
+		$content_replacements['grand_total'] = sprintf($price_format, $grand_total_ex_delivery + $total_delivery_cost);
+
+		$contents_bodycopy->setKeywordReplacements($content_replacements);
+
+		ob_start();
+		$contents_bodycopy->printBody();
+		$customised_receipt = ob_get_clean();
+
+		return $customised_receipt;
+
+	}//end printCustomisedReceipt()
 
 
 	/**

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.6 2008/05/09 05:51:52 lwright Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.7 2008/07/25 05:00:59 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.6 $
+* @version $Revision: 1.6.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -944,6 +944,74 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return FALSE;
 
 	}//end processConditionalDeliveryFee()
+
+
+	/**
+	* Paint the option to customise the receipt
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCustomiseReceipt(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('links');
+		$customise_receipt = $asset->attr('customise_receipt');
+		if ($wa) {
+			$contents = Array(
+							'1'	=> translate('yes'),
+							'0'	=> translate('no'),
+						);
+			echo combo_box($prefix.'_customise_receipt', $contents, FALSE, $customise_receipt);
+		} else {
+			echo $customise_receipt ? translate('yes') : translate('no');
+		}
+
+		return $wa;
+
+	}//end paintCustomiseReceipt()
+
+
+	/**
+	* Process the option to customise the receipt
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCustomiseReceipt(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('links');
+		if ($wa) {
+			if (isset($_POST[$prefix.'_customise_receipt'])) {
+				$asset->setAttrValue('customise_receipt', (bool) $_POST[$prefix.'_customise_receipt']);
+			}
+		}
+
+		return $wa;
+
+	}//end processCustomiseReceipt()
+
+
+	/**
+	* Show-if condition
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function receiptCustomised(&$asset)
+	{
+		return $asset->attr('customise_receipt');
+
+	}//end receiptCustomised()
 
 
 }//end class

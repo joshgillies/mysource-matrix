@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9.6.2 2008/05/06 06:56:14 bshkara Exp $
+* $Id: lang_strings.xml,v 1.9.6.3 2008/07/25 05:01:01 bshkara Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -19,6 +19,7 @@
 
 <strings>
 	<!-- Keywords -->
+	<string source="ecom_checkout_keyword_customised_receipt">Customised Receipt</string>
 	<string source="ecom_checkout_keyword_delivery_selector">Delivery Method Selector</string>
 	<string source="ecom_checkout_keyword_delivery_interface">Delivery Method Interface</string>
 	<string source="ecom_checkout_keyword_error_messages">Error Messages</string>
@@ -38,6 +39,21 @@
 	<string source="ecom_checkout_keyword_total_items_count">Number Of Total Items</string>
 	<string source="ecom_checkout_keyword_insufficient_quantity_message">Insufficient Product Quantity Message</string>
 
+	<string source="ecom_checkout_keyword_item_quantity_added">Item Quantity Added To Cart</string>
+	<string source="ecom_checkout_keyword_item_price_incl_tax">Individual Item Price Including Tax</string>
+	<string source="ecom_checkout_keyword_item_tax">Individual Item Tax Amount</string>
+	<string source="ecom_checkout_keyword_total_item_price">Item Price Total</string>
+	<string source="ecom_checkout_keyword_total_item_tax">Item Tax Total</string>
+
+	<string source="ecom_checkout_keyword_receipt_listing">Receipt Listing</string>
+	<string source="ecom_checkout_keyword_total_tax">Total Tax</string>
+	<string source="ecom_checkout_keyword_tax_name">Tax Name</string>
+	<string source="ecom_checkout_keyword_flat_fees_table">All Flat Fees Listed</string>
+	<string source="ecom_checkout_keyword_flat_fees_total">Total Flat Charges</string>
+	<string source="ecom_checkout_keyword_sub_total">Sub Total (Grand Total Excluding Tax and Delivery)</string>
+	<string source="ecom_checkout_keyword_delivery_total">Delivery Total</string>
+	<string source="ecom_checkout_keyword_grant_total">Grand Total</string>
+
 	<!-- Various Strings -->
 	<string source="ecom_checkout_select_delivery_method">Select Delivery Method</string>
 	<string source="ecom_checkout_checkout_context_desc">The main checkout page where users enter the data required for processing</string>
@@ -49,4 +65,3 @@
 	<string source="ecom_checkout_additional_cost">Additional Cost</string>
 	<string source="ecom_checkout_remove_fees">Remove All Fees</string>
 </strings>
-
