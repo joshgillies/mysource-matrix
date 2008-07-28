@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.65 2008/07/02 05:49:18 bpearson Exp $
+* $Id: page_account_manager.inc,v 1.66 2008/07/28 03:45:08 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -410,7 +410,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$new_asset =& $this->_tmp['created_asset'];
 
 							// manually parse the create locations, format into an array in the format Array(locationid => Array('name'=>code_name, 'link_type'=>link_type), ...)
-							$selected_create_locations = Array();
+							$selected_create_locations = Array(); 
 							foreach ($this->attr('create_location_optional') as $set_name => $details) {
 								$tmp_locations = Array();
 								$code_name = $this->_sanitiseLocationSetName($set_name);
@@ -441,7 +441,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 								}
 							}
 
-
+							
 							// use the formatted array, create the notice links
 							if (!empty($selected_create_locations)) {
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -452,7 +452,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 										foreach ($selected_create_locations as $locationid => $link_type) {
 											$location = $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
 											if (is_null($location)) continue;
-											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type)) {
+											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type['link_type'])) {
 												// bail out
 												$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 												$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
