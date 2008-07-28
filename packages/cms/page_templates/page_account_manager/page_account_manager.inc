@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.59.2.2 2008/02/05 23:41:16 bshkara Exp $
+* $Id: page_account_manager.inc,v 1.59.2.3 2008/07/28 03:49:34 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.59.2.2 $
+* @version $Revision: 1.59.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -451,7 +451,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 										foreach ($selected_create_locations as $locationid => $link_type) {
 											$location =& $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
 											if (is_null($location)) continue;
-											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type)) {
+											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type['link_type'])) {
 												// bail out
 												$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 												$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
