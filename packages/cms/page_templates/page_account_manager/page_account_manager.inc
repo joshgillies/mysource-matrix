@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.63.2.3 2008/07/02 05:51:00 bpearson Exp $
+* $Id: page_account_manager.inc,v 1.63.2.4 2008/07/28 03:42:28 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.63.2.3 $
+* @version $Revision: 1.63.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -441,7 +441,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 								}
 							}
 
-
 							// use the formatted array, create the notice links
 							if (!empty($selected_create_locations)) {
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -452,7 +451,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 										foreach ($selected_create_locations as $locationid => $link_type) {
 											$location = $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
 											if (is_null($location)) continue;
-											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type)) {
+											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type['link_type'])) {
 												// bail out
 												$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 												$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -708,6 +707,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$create_locations = parent::getFixedCreateLocations()
 							+ parent::getRuleMatchCreateLocations($create_type, $user_attributes)
 							+ $selected_create_locations;
+
 
 		if (empty($create_locations)) {
 			trigger_localised_error('CMS0071', E_USER_WARNING);
