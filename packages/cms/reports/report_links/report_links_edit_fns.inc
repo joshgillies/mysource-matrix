@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.39.2.2 2008/03/17 03:16:11 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.39.2.3 2008/07/28 06:02:14 ncallahan Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39.2.2 $
+* @version $Revision: 1.39.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1208,7 +1208,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				// Have to initialise the headers
 				$attribute_list = Array('assetid', 'name', 'short_name', 'type_code', 'status');
 				if ($top_headers) {
-					$header = $attribute_list;
+					$headers = $attribute_list;
 				}
 
 				foreach ($attribute_list as $attr) {
