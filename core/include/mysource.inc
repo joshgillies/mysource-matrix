@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.6 2008/07/04 06:20:14 bpearson Exp $
+* $Id: mysource.inc,v 1.258.2.7 2008/07/29 22:42:48 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.6 $
+* @version $Revision: 1.258.2.7 $
 * @package MySource_Matrix
 */
 class MySource
@@ -285,7 +285,7 @@ class MySource
 			}
 
 			// check if we are in rollback view mode
-			if (!empty($_SESSION['sq_rollback_view']) && (!isset($_REQUEST['SQ_ACTION']) || $_REQUEST['SQ_ACTION'] != 'logout')) {
+/*			if (!empty($_SESSION['sq_rollback_view']) && (!isset($_REQUEST['SQ_ACTION']) || $_REQUEST['SQ_ACTION'] != 'logout')) {
 				// we are viewing the system at some time in the past
 				define('SQ_ROLLBACK_VIEW',        '1');
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_rb_');
@@ -311,10 +311,10 @@ class MySource
 					throw new Exception('Unable to set rollback timestamp due to database error: '.$e->getMessage());
 				}
 
-			} else {
+			} else {*/
 				define('SQ_ROLLBACK_VIEW', '0');
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
-			}
+//			}
 
 			$this->setupUser();
 			$this->_updateSessionCookie();
@@ -1444,7 +1444,9 @@ class MySource
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
-			do_redirect('http://'.current_url(FALSE)); // exits
+
+			// Strip login suffix if we are "in login" as we have already been authenticated
+			do_redirect('http://'.current_url(FALSE, SQ_IN_LOGIN)); // exits
 		}
 
 		if (SQ_IN_LOGIN) {
