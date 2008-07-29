@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.52.2.12 2008/07/25 05:00:59 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.52.2.13 2008/07/29 23:25:10 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.52.2.12 $
+* @version $Revision: 1.52.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1715,10 +1715,10 @@ class Ecommerce_Checkout extends Page
 		// create customised receipt bodycopies
 		if ($this->id) {
 			$customise_receipt = $this->attr('customise_receipt');
-			$bodycopies_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
-			$customised_receipt_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopies_folder_link['minorid'], SQ_LINK_TYPE_2, 'folder', TRUE, 'customised_receipt_folder');
-
 			if ($customise_receipt) {
+				$bodycopies_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
+				$customised_receipt_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopies_folder_link['minorid'], SQ_LINK_TYPE_2, 'folder', TRUE, 'customised_receipt_folder');
+
 				// create folder and bodycopies
 				if (empty($customised_receipt_folder_link)) {
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');

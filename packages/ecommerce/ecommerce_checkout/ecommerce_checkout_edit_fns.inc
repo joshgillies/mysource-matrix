@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.7 2008/07/25 05:00:59 bshkara Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.6.2.8 2008/07/29 23:25:10 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6.2.7 $
+* @version $Revision: 1.6.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -958,7 +958,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCustomiseReceipt(&$asset, &$o, $prefix)
 	{
-		$wa = $asset->writeAccess('links');
+		$wa = $asset->writeAccess('attributes');
 		$customise_receipt = $asset->attr('customise_receipt');
 		if ($wa) {
 			$contents = Array(
@@ -987,7 +987,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processCustomiseReceipt(&$asset, &$o, $prefix)
 	{
-		$wa = $asset->writeAccess('links');
+		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
 			if (isset($_POST[$prefix.'_customise_receipt'])) {
 				$asset->setAttrValue('customise_receipt', (bool) $_POST[$prefix.'_customise_receipt']);
