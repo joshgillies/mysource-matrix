@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.5.4.4 2008/05/07 04:35:22 bshkara Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.5.4.5 2008/07/29 06:01:01 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5.4.4 $
+* @version $Revision: 1.5.4.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -212,8 +212,29 @@ class Ecommerce_Checkout_Management extends Asset_Management
 																'added'		=> '0.3',
 																'type'		=> 'serialise',
 																'default'	=> Array(),
-																'is_admin'	=> 'TRUE',
+																'is_admin'	=> TRUE,
 															);
+
+		$this->vars['customise_receipt'] = Array(
+											'added'		=> '0.3',
+											'type'		=> 'boolean',
+											'default'	=> FALSE,
+											'is_admin'	=> TRUE,
+										   );
+
+		$this->vars['currency_symbol'] = Array(
+											'added'		=> '0.3',
+											'type'		=> 'text',
+											'default'	=> '$',
+											'is_admin'	=> TRUE,
+										 );
+
+		$this->vars['float_precision'] = Array(
+											'added'		=> '0.3',
+											'type'		=> 'int',
+											'default'	=> '2',
+											'is_admin'	=> TRUE,
+										 );
 
 	}//end constructor
 
