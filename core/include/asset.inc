@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.661 2008/07/29 06:27:17 ewang Exp $
+* $Id: asset.inc,v 1.662 2008/07/29 10:28:16 gnoel Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.661 $
+* @version $Revision: 1.662 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4217,13 +4217,17 @@ class Asset extends MySource_Object
 
 	/**
 	* Called by the design to print the body of this asset, WITH the paint layout applied
+	* 
+	* @param string	$layout_id	the assetid of the paint layout (leave empty to guess it from URL/Global define)
 	*
 	* @return void
 	* @access public
 	*/
-	public function printBodyWithPaintLayout()
+	public function printBodyWithPaintLayout($layout_id='')
 	{
-		$layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
+		if (empty($layout_id)) {
+			$layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
+		}
 		if (empty($layout_id)) {
 			$url = strip_url(current_url(FALSE, TRUE));
 			$layout_name = $this->getCurrentPaintLayoutName();
@@ -4235,7 +4239,7 @@ class Asset extends MySource_Object
 				$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'paint_layout::system::frontend');
 			}
 		}
-
+		
 		if ($layout_id) {
 			// we have found the design to use... we might need to fool the system
 			// into thinking we are printing the frontend of that asset
@@ -4245,6 +4249,7 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->frontend_asset = &$this;
 				$switched_frontend = TRUE;
 			}
+			
 			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
 			$layout->paint($this);
 
