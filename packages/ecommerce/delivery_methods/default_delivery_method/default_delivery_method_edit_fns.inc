@@ -43,6 +43,7 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 				$key_parts = split(':', $key);
 				echo '<tr><td>%response_'.$key_parts[1].'%</td><td>print field value <strong>"'.$value['name'].'"</strong> </td></tr>';
 			}
+			echo '<tr><td>%customised_receipt%</td><td>print the customised receipt (if enabled via the checkout asset)</td></tr>';
 			echo '<tr><td>%order_receipt%</td><td>print the order receipt</td></tr>';
 			echo '<tr><td>%cart_summary%</td><td>print the cart summary</td></tr>';
 			echo '<tr><td>%cart_summary_text%</td><td>print the cart summary in a text format</td></tr>';

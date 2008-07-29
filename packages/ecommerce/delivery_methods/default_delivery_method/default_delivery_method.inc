@@ -617,6 +617,10 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	* This function process the delivery
 	*
 	* @param object		&$order					Ecommerce_Order asset
+	* @param object		&$contents_bodycopy		Receipt contents bodycopy
+	* @param object		&$format_bodycopy		Receipt format bodycopy
+	* @param string		$currency_symbol		Symbol to use as the currency for all prices
+	* @param int		$float_precision		Precision of the floating numbers used for prices
 	* @param string		$taxation_name			Name of the tax
 	* @param float		$taxation_rate			Tax value
 	* @param array		$flat_charges			Array('Charge Name' => 'Price')
@@ -626,7 +630,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 	* @return boolean
 	* @access public
 	*/
-	function processDelivery(&$order, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array(), $neg_quantity_list='', $neg_quantity_message='')
+	function processDelivery(&$order, &$contents_bodycopy, &$format_bodycopy, $currency_symbol='$', $float_precision=2, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array(), $neg_quantity_list='', $neg_quantity_message='')
 	{
 		$this->state['transaction_id']  = $order->id;
 
@@ -675,6 +679,12 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 			$keywords_to_replace[] = 'cart_summary_text';
 			$keywords_replacements[] = $tmp_order_receipt_cart_text;
+
+			// get keyword replacements for customised receipt
+			if (!is_null($contents_bodycopy) && !is_null($format_bodycopy)) {
+				$keywords_to_replace[] = 'customised_receipt';
+				$keywords_replacements[] = $cart->printCustomisedReceipt($contents_bodycopy, $format_bodycopy, $taxation_name, $taxation_rate, $flat_charges, $remove_tax, $currency_symbol, $float_precision);
+			}
 
 			// get keyword replacements for form summary
 			$keywords_to_replace[] = 'form_summary';

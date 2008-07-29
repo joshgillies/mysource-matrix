@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.60 2008/07/23 04:03:39 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.61 2008/07/29 06:42:13 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -537,8 +537,19 @@ class Ecommerce_Checkout extends Page
 
 		$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 
+		// get the arguments for customised receipts if set
+		$format_bodycopy = NULL;
+		$contents_bodycopy = NULL;
+		$currency_symbol = '$';
+		$float_precision = 2;
+		if ($this->attr('customise_receipt')) {
+			$format_bodycopy =& $this->getBodycopy('receipt_format', TRUE);
+			$contents_bodycopy =& $this->getBodycopy('receipt_contents', TRUE);
+			$currency_symbol = $this->attr('currency_symbol');
+			$float_precision = $this->attr('float_precision');
+		}
 		// process the delivery and provide the tax name and tax rate
-		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '');
+		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $contents_bodycopy, $format_bodycopy, $currency_symbol, $float_precision, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '');
 
 		$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
@@ -1046,8 +1057,8 @@ class Ecommerce_Checkout extends Page
 		ob_start();
 			if ($html) echo '<pre>';
 
-			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 			// if products are taxed, remove tax from final amount
+			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax);
 
 			if ($html) echo '</pre>';
@@ -1151,19 +1162,36 @@ class Ecommerce_Checkout extends Page
 			$bodycopy_folder_id = $bodycopy_folder_link['minorid'];
 		}
 
+		$customise_receipt = $this->attr('customise_receipt');
+
 		$broadcaster_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
-		$content_bodycopy_value = NULL;
 		foreach (array_keys($broadcaster_parents) as $bodycopy_id) {
+			// get the bodycopy context for bodycopies linked underneath the Bodycopies folder
 			$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($bodycopy_folder_id, $bodycopy_id);
 			if (!empty($content_bodycopy_link) && !empty($content_bodycopy_link['value'])) {
 				$bodycopy_context = $content_bodycopy_link['value'];
 				break;
 			}
+
+			// get the bodycopy context for bodycopies linked underneath the Customised Receipt Bodycopies folder
+			if ($customise_receipt) {
+				$customised_receipt_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopy_folder_id, SQ_LINK_TYPE_2, 'folder', TRUE, 'customised_receipt_folder');
+				$content_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($customised_receipt_folder_link['minorid'], $bodycopy_id);
+				if (!empty($content_bodycopy_link) && !empty($content_bodycopy_link['value'])) {
+					$bodycopy_context = $content_bodycopy_link['value'];
+					break;
+				}
+			}
 		}
 
 		// check if the found bodycopy context is recognised
+		$receipt_contexts = Array(
+								'receipt_format',
+								'receipt_contents',
+							);
+
 		$contexts = $this->_getAvailableContexts();
-		if (empty($bodycopy_context) || !isset($contexts[$bodycopy_context])) {
+		if (empty($bodycopy_context) || !isset($contexts[$bodycopy_context]) && !in_array($bodycopy_context, $receipt_contexts)) {
 			return;
 		}
 
@@ -1185,12 +1213,14 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getCheckoutContextKeywords()
 	{
-		$keywords = parent::getAvailableKeywords();
+		if ($this->attr('customise_receipt')) {
+			$keywords['customised_receipt'] = translate('ecom_checkout_keyword_customised_receipt');
+		}
 
+		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 		$keywords['delivery_selector']			= translate('ecom_checkout_keyword_delivery_selector');
 		$keywords['delivery_interface'] 		= translate('ecom_checkout_keyword_delivery_interface');
 		$keywords['error_messages']				= translate('ecom_checkout_keyword_error_messages');
-		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 		$keywords['go_to_confirmation_button']	= translate('ecom_checkout_keyword_go_to_confirmation_button');
 		$keywords['items_count']				= translate('ecom_checkout_keyword_items_count');
 		$keywords['items_total_count']			= translate('ecom_checkout_keyword_total_items_count');
@@ -1208,6 +1238,10 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getConfirmationContextKeywords()
 	{
+		if ($this->attr('customise_receipt')) {
+			$keywords['customised_receipt'] = translate('ecom_checkout_keyword_customised_receipt');
+		}
+
 		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 		$keywords['confirmation_summary']		= translate('ecom_checkout_keyword_confirmation_summary');
 		$keywords['confirm_order_button']		= translate('ecom_checkout_keyword_confirm_order_button');
@@ -1228,8 +1262,12 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getReceiptContextKeywords()
 	{
+		if ($this->attr('customise_receipt')) {
+			$keywords['customised_receipt'] = translate('ecom_checkout_keyword_customised_receipt');
+		}
+
 		$keywords['receipt_summary']	= translate('ecom_checkout_keyword_receipt_summary');
-		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
+		$keywords['cart_summary']		= translate('ecom_checkout_keyword_cart_summary');
 
 		return $keywords;
 
@@ -1237,7 +1275,7 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* Get keywords for 'Receipt' context
+	* Get keywords for 'Failure' context
 	*
 	* @return array
 	* @access private
@@ -1245,12 +1283,58 @@ class Ecommerce_Checkout extends Page
 	function _getFailureContextKeywords()
 	{
 		$keywords['failure_summary']						= translate('ecom_checkout_keyword_failure_summary');
-		$keywords['insufficient_quantity_message']			= translate('ecom_checkout_keyword_insufficient_quantity_message');
+		if ($this->attr('enforce_quantities')) {
+			$keywords['insufficient_quantity_message']			= translate('ecom_checkout_keyword_insufficient_quantity_message');
+		}
 		$keywords['return_to_checkout_button']				= translate('ecom_checkout_keyword_return_to_checkout_button');
 
 		return $keywords;
 
 	}//end _getFailureContextKeywords()
+
+
+	/**
+	* Get keywords for 'Receipt Format' customised receipt context
+	*
+	* @return array
+	* @access private
+	*/
+	function _getReceiptFormatContextKeywords()
+	{
+		$keywords['item_quantity_added']	= translate('ecom_checkout_keyword_item_quantity_added');
+		$keywords['item_price_incl_tax']	= translate('ecom_checkout_keyword_item_price_incl_tax');
+		$keywords['item_tax']				= translate('ecom_checkout_keyword_item_tax');
+
+		$keywords['total_item_price']		= translate('ecom_checkout_keyword_total_item_price');
+		$keywords['total_item_tax']			= translate('ecom_checkout_keyword_total_item_tax');
+
+		return $keywords;
+
+	}//end _getReceiptFormatContextKeywords()
+
+
+	/**
+	* Get keywords for 'Receipt Contents' customised receipt context
+	*
+	* @return array
+	* @access private
+	*/
+	function _getReceiptContentsContextKeywords()
+	{
+		$keywords['receipt_listing']	= translate('ecom_checkout_keyword_receipt_listing');
+
+		$keywords['total_tax']			= translate('ecom_checkout_keyword_total_tax');
+		$keyowrds['tax_name']			= translate('ecom_checkout_keyword_tax_name');
+
+		$keywords['flat_fees_table']	= translate('ecom_checkout_keyword_flat_fees_table');
+		$keywords['flat_fees_total']	= translate('ecom_checkout_keyword_flat_fees_total');
+		$keywords['sub_total']			= translate('ecom_checkout_keyword_sub_total');
+		$keywords['delivery_total']		= translate('ecom_checkout_keyword_delivery_total');
+		$keywords['grand_total']		= translate('ecom_checkout_keyword_grant_total');
+
+		return $keywords;
+
+	}//end _getReceiptContentsContextKeywords()
 
 
 	//// -- Replacements
@@ -1447,6 +1531,7 @@ class Ecommerce_Checkout extends Page
 	*/
 	function getCartSummaryKeywordReplacement()
 	{
+		// essentially the cart's current receipt
 		return $this->_getCartSummary(TRUE);
 
 	}//end getCartSummaryKeywordReplacement()
@@ -1543,6 +1628,152 @@ class Ecommerce_Checkout extends Page
 		return $cart->getCount();
 
 	}//end getItemsTotalCountKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'customised_receipt' keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getCustomisedReceiptKeywordReplacement()
+	{
+		if ($this->attr('customise_receipt')) {
+			$cart =& new Ecommerce_Cart_Processor();
+			$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+
+			ob_start();
+
+				// if products are taxed, remove tax from final amount
+				$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
+				// get the customised receipt bodycopies
+				$contents_bodycopy =& $this->getBodycopy('receipt_contents', TRUE);
+				$format_bodycopy =& $this->getBodycopy('receipt_format', TRUE);
+				echo $cart->printCustomisedReceipt($contents_bodycopy, $format_bodycopy, $this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'));
+
+			$customised_receipt = ob_get_clean();
+			unset($cart);
+
+			return $customised_receipt;
+		}
+
+	}//end getCustomisedReceiptKeywordReplacement()
+
+
+	/**
+	* Returns a reference to a bodycopy based of the name of the bodycopy
+	*
+	* @param string		$name			the name of the bodycopy
+	* @param boolean	$receipt_folder	whether the bodycopy is inside the attached Customised Receipt Bodycopies folder
+	*
+	* @return object
+	* @access public
+	*/
+	function &getBodycopy($name='', $receipt_folder=FALSE)
+	{
+		$null = NULL;
+
+		if (!$name) return $null;
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
+		if (empty($folder_link)) return $null;
+
+		$folder =& $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+		if (is_null($folder)) return $null;
+
+		if ($receipt_folder) {
+			$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'customised_receipt_folder');
+			if (empty($folder_link)) return $null;
+			$folder =& $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+			if (is_null($folder)) return $null;
+		}
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
+		if (empty($bodycopy_link)) return $null;
+
+		$bodycopy =& $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+
+		return $bodycopy;
+
+	}//end getBodycopy()
+
+
+	/**
+	* Save attributes set with setAttrValue to the database
+	*
+	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	* @see setAttrValue()
+	*/
+	function saveAttributes($dont_run_updated=FALSE)
+	{
+		if (!parent::saveAttributes($dont_run_updated)) {
+			return FALSE;
+		}
+
+		// create customised receipt bodycopies
+		if ($this->id) {
+			$customise_receipt = $this->attr('customise_receipt');
+			if ($customise_receipt) {
+				$bodycopies_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
+				$customised_receipt_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($bodycopies_folder_link['minorid'], SQ_LINK_TYPE_2, 'folder', TRUE, 'customised_receipt_folder');
+				// create folder and bodycopies
+				if (empty($customised_receipt_folder_link)) {
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+					$db =& $GLOBALS['SQ_SYSTEM']->db;
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+					// create a folder for the bodycopies
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+					$folder =& new Folder();
+					$folder->setAttrValue('name', 'Customised Receipt Bodycopies');
+
+					$bodycopies_folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopies_folder_link['minorid']);
+
+					$folder_link = Array('asset' => &$bodycopies_folder, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'customised_receipt_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
+
+					if (!$folder->create($folder_link)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
+					}
+
+					$bodycopies = Array(
+									'Receipt Format',
+									'Receipt Contents',
+								  );
+					foreach ($bodycopies as $name) {
+						// create a link to the folder so we can put the bodycopies in it
+						$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => strtolower(str_replace(' ', '_', $name)));
+
+						$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+						$bodycopy =& new Bodycopy();
+						$bodycopy->setAttrValue('name', $name);
+
+						if (!$bodycopy->create($copy_link)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
+					}
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+				}
+			}
+		}
+
+		return TRUE;
+
+	}//end saveAttributes()
 
 
 }//end class
