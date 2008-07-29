@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.660 2008/07/03 01:36:03 bshkara Exp $
+* $Id: asset.inc,v 1.661 2008/07/29 06:27:17 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.660 $
+* @version $Revision: 1.661 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5518,7 +5518,7 @@ class Asset extends MySource_Object
 			$query = MatrixDAL::preparePdoQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'assetid_1', $this->id);
 			MatrixDAL::bindValueToPdo($query, 'assetid_2', $this->id);
-			$result = MatrixDAL::executePdoOne($query);
+			$result = MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete lookup values for asset: '.$this->id.' due to database error: '.$e->getMessage());
 		}
