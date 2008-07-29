@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.228.2.5 2008/07/02 04:20:50 mbrydon Exp $
+* $Id: mysource.inc,v 1.228.2.6 2008/07/29 22:46:59 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.228.2.5 $
+* @version $Revision: 1.228.2.6 $
 * @package MySource_Matrix
 */
 class MySource
@@ -453,7 +453,7 @@ class MySource
 							if (empty($browser_cache_expiry)) {
 								$browser_cache_expiry = $cm->attr('expiry');
 							}
-							
+
 							header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 						}
 
@@ -1389,7 +1389,9 @@ class MySource
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
-			do_redirect('http://'.current_url(FALSE)); // exits
+
+			// Strip login suffix if we are "in login" as we have already been authenticated
+			do_redirect('http://'.current_url(FALSE, SQ_IN_LOGIN)); // exits
 		}
 
 		if (SQ_IN_LOGIN) {
