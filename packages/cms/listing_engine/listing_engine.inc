@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.256 2008/07/24 13:37:46 gnoel Exp $
+* $Id: listing_engine.inc,v 1.257 2008/07/29 10:32:56 gnoel Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2242,8 +2242,7 @@ class Listing_Engine extends Page
 						$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layouts[1]);
 						if (!empty($layout_id) && $GLOBALS['SQ_SYSTEM']->am->assetExists($layout_id)) {
 							ob_start();
-							$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
-							$layout->paint($asset);
+							$asset->printBodyWithPaintLayout($layout_id);
 							$keywords['asset_contents_paint_'.$paint_layouts[1]] = ob_get_clean();
 						}
 					}
