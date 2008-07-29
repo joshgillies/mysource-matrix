@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.269 2008/07/04 06:19:22 bpearson Exp $
+* $Id: mysource.inc,v 1.270 2008/07/29 22:41:46 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.269 $
+* @version $Revision: 1.270 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1444,7 +1444,9 @@ class MySource
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
-			do_redirect('http://'.current_url(FALSE)); // exits
+
+			// Strip login suffix if we are "in login" as we have already been authenticated
+			do_redirect('http://'.current_url(FALSE, SQ_IN_LOGIN)); // exits
 		}
 
 		if (SQ_IN_LOGIN) {
