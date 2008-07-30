@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.132 2008/07/03 02:19:36 bshkara Exp $
+* $Id: page_asset_builder.inc,v 1.133 2008/07/30 17:36:28 gnoel Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1450,8 +1450,8 @@ class Page_Asset_Builder extends Page
 	{
 		ob_start();
 			?>
-			<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>">
-			<input type="hidden" name="SQ_LOGIN_REFERER"  value="">
+			<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>" />
+			<input type="hidden" name="SQ_LOGIN_REFERER"  value="" />
 
 			<table border="0">
 				<tr>
@@ -1466,7 +1466,7 @@ class Page_Asset_Builder extends Page
 					<td valign="top">&nbsp;</td>
 					<td valign="top">
 						<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />
-						<?php echo submit_button('', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'AB_'.$this->id.'_ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
+						<?php echo submit_button('SQ_LOGIN_SUBMIT', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'AB_'.$this->id.'_ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
 					</td>
 				</tr>
 			</table>
