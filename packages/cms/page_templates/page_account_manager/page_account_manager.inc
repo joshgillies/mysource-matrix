@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.59.2.3 2008/07/28 03:49:34 ewang Exp $
+* $Id: page_account_manager.inc,v 1.59.2.4 2008/07/30 00:27:57 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.59.2.3 $
+* @version $Revision: 1.59.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -344,7 +344,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		// resend validation email form was submitted?
 
-		if (isset($_POST[$this->id.'_ASSET_BUILDER_ACTION']) && $_POST[$this->id.'_ASSET_BUILDER_ACTION'] == 'resend_validation') {
+		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION']) && $_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'] == 'resend_validation') {
 			return $this->resendValidation();
 		}
 
@@ -365,9 +365,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			}//end if
 		}//end if action is validate
-
 		// additional checks if we are using email validation
-		if ($this->attr('use_email_validation') && isset($_POST[$this->id.'_ASSET_BUILDER_ACTION']) && strtolower($_POST[$this->id.'_ASSET_BUILDER_ACTION']) == 'create') {
+		if ($this->attr('use_email_validation') && isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION']) && strtolower($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION']) == 'create') {
 
 			// create the unique ID we will use to identify this new user if it gets created
 			$this->_tmp['am_created_asset_key'] = '';
@@ -399,8 +398,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$success = parent::_processGlobalActions();
 		if (!$success) return FALSE;
 
-		if (isset($_POST[$this->id.'_ASSET_BUILDER_ACTION'])) {
-			switch (strtolower($_POST[$this->id.'_ASSET_BUILDER_ACTION'])) {
+		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
+			switch (strtolower($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 				case 'create' :
 					if (empty($this->_errors) && !empty($this->_tmp['created_asset'])) {
 						if ($this->attr('use_email_validation')) {
@@ -1179,7 +1178,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		ob_start();
 			text_box($this->getPrefix().'_resend_validation_username', '',20);
-			submit_button('', $this->attr('resend_validation_button'), 'document.getElementById(\''.$this->id.'_ASSET_BUILDER_ACTION\').value = \'resend_validation\';');
+			submit_button('', $this->attr('resend_validation_button'), 'document.getElementById(\'AB_'.$this->id.'_ASSET_BUILDER_ACTION\').value = \'resend_validation\';');
 		return ob_get_clean();
 
 	}//end getReSendValidationFormKeywordReplacement()
