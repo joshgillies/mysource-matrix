@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.18.2.1 2008/07/02 06:18:36 lwright Exp $
+* $Id: trigger_action_set_permission.inc,v 1.18.2.2 2008/07/30 01:25:52 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18.2.1 $
+* @version $Revision: 1.18.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -230,7 +230,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			check_box($prefix.'[dependants_only]', 1, $dependants_only);
 			echo translate('trigger_set_permission_dependants_only');
 		} else {
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($depandants_only ? 'tick' : 'cross').'.gif" alt="'.($depandants_only ? translate('yes') : translate('no')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependants_only ? 'tick' : 'cross').'.gif" alt="'.($dependants_only ? translate('yes') : translate('no')).'" /> ';
 			echo translate('trigger_set_permission_dependants_only');
 		}
 
@@ -241,7 +241,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 			echo translate('trigger_set_permission_dependant_parents');
 		} else {
 			echo '<br />';
-			echo '<img src="'.sq_web_path('lib').'/web/images/'.($depandant_parents ? 'tick' : 'cross').'.gif" alt="'.($depandant_parents ? translate('yes') : translate('no')).'" /> ';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('yes') : translate('no')).'" /> ';
 			echo translate('trigger_set_permission_dependant_parents');
 		}
 
