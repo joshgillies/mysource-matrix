@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.218 2008/07/18 04:43:56 bpearson Exp $
+* $Id: search_page.inc,v 1.219 2008/07/31 06:19:11 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.218 $
+* @version $Revision: 1.219 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2186,11 +2186,13 @@ class Search_Page extends Listing_Engine
 		// If the search params were passed, get them and use them, if the search queries are empty
 		if (!empty($search) || count($search)>0) {
 			foreach ($search as $search_key => $search_value) {
-				if (!isset($queries[$search_key]) || empty($queries[$search_key])) {
-					$queries[$search_key] = $search_value;
-				}
-			}
-		}
+				if (!isset($_REQUEST['queries_'.$search_key.'_query_posted'])) {
+					if (!isset($queries[$search_key]) || empty($queries[$search_key])) {
+						$queries[$search_key] = $search_value;
+					}//end if
+				}//end if
+			}//end foreach
+		}//end if
 
 		// save the search terms into the session so that we can use them for
 		// search within search results
