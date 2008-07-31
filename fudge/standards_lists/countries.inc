@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: countries.inc,v 1.8 2006/12/06 05:12:31 bcaldwell Exp $
+* $Id: countries.inc,v 1.8.8.1 2008/07/31 16:05:14 gnoel Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     and the country name as defined by ISO Standard 3166
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.8.1 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -49,7 +49,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'bb' => 'Barbados',
 									'by' => 'Belarus',
 									'be' => 'Belgium',
-									'by' => 'Belize',
+									'bz' => 'Belize',
 									'bj' => 'Benin',
 									'bm' => 'Bermuda',
 									'bt' => 'Bhutan',
@@ -153,6 +153,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'lt' => 'Lithuania',
 									'lu' => 'Luxembourg',
 									'mo' => 'Macau',
+									'mk' =>	'Macedonia', 
 									'mg' => 'Madagascar',
 									'mw' => 'Malawi',
 									'my' => 'Malaysia',
@@ -169,6 +170,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'md' => 'Moldova, Republic of',
 									'mc' => 'Monaco',
 									'mn' => 'Mongolia',
+									'me' => 'Montenegro',
 									'ms' => 'Montserrat',
 									'ma' => 'Morocco',
 									'mz' => 'Mozambique',
