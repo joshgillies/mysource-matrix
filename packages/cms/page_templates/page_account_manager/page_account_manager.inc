@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.66 2008/07/28 03:45:08 ewang Exp $
+* $Id: page_account_manager.inc,v 1.67 2008/07/31 04:15:53 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -819,6 +819,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function hipoDeleteUser($index, $item, $settings)
 	{
 		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
+		$user->saveWebPaths(Array());	
 		$GLOBALS['SQ_SYSTEM']->am->trashAsset($item);
 
 		// trick the user asset into thinking we're purging the
@@ -834,6 +835,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 			// Delete the workspace and remove its URLs
 			$workspace = $user->getWorkspace();
+			$workspace->saveWebPaths(Array());
 			$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
 			$workspace->updateLookups();
 
