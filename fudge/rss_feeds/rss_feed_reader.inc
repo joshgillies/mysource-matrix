@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.14 2007/12/21 23:09:51 gsherwood Exp $
+* $Id: rss_feed_reader.inc,v 1.15 2008/07/31 05:44:10 gsherwood Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -220,8 +220,12 @@ class RSS_Feed_Reader
 					// strip out possible http headers (when proxy is used)
 					if ($first_chunk) {
 						$data = explode('<?xml', $data);
-						if (count($data) > 1) array_shift($data);
-						$data = '<?xml'.implode('<?xml', $data);
+						if (count($data) > 1) {
+							array_shift($data);
+							$data = '<?xml'.implode('<?xml', $data);
+						} else {
+							$data = $data[0];
+						}
 
 						// we're done with the first chunk, shouldn't be headers elsewhere
 						$first_chunk = FALSE;
