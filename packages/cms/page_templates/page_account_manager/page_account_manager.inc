@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.63.2.4 2008/07/28 03:42:28 ewang Exp $
+* $Id: page_account_manager.inc,v 1.63.2.5 2008/07/31 04:05:03 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.63.2.4 $
+* @version $Revision: 1.63.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -819,6 +819,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function hipoDeleteUser($index, $item, $settings)
 	{
 		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
+		$user->saveWebPaths(Array());
 		$GLOBALS['SQ_SYSTEM']->am->trashAsset($item);
 
 		// trick the user asset into thinking we're purging the
@@ -826,19 +827,20 @@ class Page_Account_Manager extends Page_Asset_Builder
 		// will release its hold on its inbox and workspace
 		$GLOBALS['SQ_PURGING_TRASH'] = TRUE;
 
-			// Delete the inbox and remove its URLs
-			$inbox_link = $user->getInboxLink();
-			$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
-			$GLOBALS['SQ_SYSTEM']->am->trashAsset($inbox->id);
-			$inbox->updateLookups();
+		// Delete the inbox and remove its URLs
+		$inbox_link = $user->getInboxLink();
+		$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
+		$GLOBALS['SQ_SYSTEM']->am->trashAsset($inbox->id);
+		$inbox->updateLookups();
 
-			// Delete the workspace and remove its URLs
-			$workspace = $user->getWorkspace();
-			$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
-			$workspace->updateLookups();
-
-			$inbox->delete(FALSE);
-			$workspace->delete(FALSE);
+		// Delete the workspace and remove its URLs
+		$workspace = $user->getWorkspace();
+		$workspace->saveWebPaths(Array());
+		$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
+		$workspace->updateLookups();
+		
+		$inbox->delete(FALSE);
+		$workspace->delete(FALSE);
 
 		$GLOBALS['SQ_PURGING_TRASH'] = FALSE;
 
