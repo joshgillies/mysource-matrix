@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.44 2008/05/01 23:58:48 lwright Exp $
+* $Id: user_group_edit_fns.inc,v 1.45 2008/08/01 01:45:34 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -265,6 +265,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$bind_vars['screen']	= 'details';
 
 				foreach ($screen_data as $doomed_screen => $on) {
+
 					if ($doomed_screen == '0' && count($current[$type_code]) == 1) {
 						// deleting the All Screens option without having a fall back
 						// option to stop this whole type being deleted
@@ -278,6 +279,8 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 					// note that we need to put quote around the doomed screen to ensure
 					// it is treated like a string and thus does not blow away all entries
 					// for the type code from the DB
+
+					$bind_vars['screen'] = $doomed_screen;
 
 					try {
 						$result = MatrixDAL::executeOne('user_group', 'deleteAccessRestrictionForUser', $bind_vars);
