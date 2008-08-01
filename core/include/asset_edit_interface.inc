@@ -10,12 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.348 2008/05/02 01:57:10 bpearson Exp $
+* $Id: asset_edit_interface.inc,v 1.349 2008/08/01 01:43:38 bpearson Exp $
 *
 */
 
 
-//require_once 'XML/Tree.php';
+// require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.348 $
+* @version $Revision: 1.349 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -250,7 +250,9 @@ class Asset_Edit_Interface extends MySource_Object
 			exit();
 		}
 
-		if ($creating && SQ_IN_BACKEND) $o->addOnLoad('focusFirstTextInput();');
+		if ($creating && SQ_IN_BACKEND) {
+			$o->addOnLoad('focusFirstTextInput();');
+		}
 		// if there are no screens or static screens
 		assert_false(!count($this->_screens) && empty($this->_edit_fns->static_screens));
 
@@ -294,10 +296,20 @@ class Asset_Edit_Interface extends MySource_Object
 		}//end if
 
 
-		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
-			// this user is not allowed to view the current screen
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_inline_asset_screen', $active_screen, $owner->name));
-			exit();
+		if ($check_screen_restrictions) {
+			$user_is_not_allowed = TRUE;
+
+			foreach ($allowed_screens as $allowed_screen) {
+				if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $active_screen)) {
+					$user_is_not_allowed = FALSE;
+				}//end if
+			}//end foreach
+
+			if ($user_is_not_allowed) {
+				// this user is not allowed to view the current screen
+				$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_inline_asset_screen', $active_screen, $owner->name));
+				exit();
+			}//end if
 		} else {
 			if (SQ_IN_LIMBO && $owner->id) {
 					// broadcast the 'entering simple edit'
@@ -740,23 +752,37 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!$creating) {
 			// add static screens for the asset
 			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
-				if ($check_screen_restrictions && !isset($allowed_screens[$code_name])) {
-					continue;
-				}
+				if ($check_screen_restrictions) {
+					$user_is_not_allowed = TRUE;
+					foreach ($allowed_screens as $allowed_screen) {
+						if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $code_name)) {
+							$user_is_not_allowed = FALSE;
+						}//end if
+					}//end foreach
+
+					if ($user_is_not_allowed) continue;
+				}//end if
 				$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code_name)), $current_loc_base, $current_loc_query);
 				$o->addStaticScreen($url, $data['name']);
 			}
 			for (reset($this->_screens); NULL !== ($code = key($this->_screens)); next($this->_screens)) {
-				if ($check_screen_restrictions && !isset($allowed_screens[$code])) {
-					continue;
-				}
+				if ($check_screen_restrictions) {
+					$user_is_not_allowed = TRUE;
+					foreach ($allowed_screens as $allowed_screen) {
+						if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $code)) {
+							$user_is_not_allowed = FALSE;
+						}//end if
+					}//end foreach
+
+					if ($user_is_not_allowed) continue;
+				}//end if
 				if ($this->_screens[$code]['invisible'] && $code != $active_screen) {
 					continue;
 				}
 				$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code)), $current_loc_base, $current_loc_query);
 				$o->addScreen($url, $this->_screens[$code]['name']);
-			}
-		}
+			}//end for
+		}//end if
 
 
 		  //////////////////////
@@ -830,14 +856,23 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 		// this user is not allowed to view the current screen
-		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
-			$o->openField('');
-			?>
-				<span class="error"><?php echo translate('cannot_access_inline_asset_screen', $active_screen, $owner->name); ?></span>
-			<?php
-			$o->closeField();
-			return FALSE;
-		}
+		if ($check_screen_restrictions) {
+			$user_is_not_allowed = TRUE;
+			foreach ($allowed_screens as $allowed_screen) {
+				if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $active_screen)) {
+					$user_is_not_allowed = FALSE;
+				}//end if
+			}//end foreach
+
+			if ($user_is_not_allowed) {
+				$o->openField('');
+				?>
+					<span class="error"><?php echo translate('cannot_access_inline_asset_screen', $active_screen, $owner->name); ?></span>
+				<?php
+				$o->closeField();
+				return FALSE;
+			}//end if
+		}//end if
 
 		if (!isset($this->_edit_fns->static_screens[$active_screen]) && empty($this->_screens[$active_screen])) {
 			// we cant find this screen, so we will use the details screen as a backup
@@ -1096,7 +1131,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 					}//end switch
 
-				}//end for fields
+				}//end foreach fields
 
 			}//end else section uses function call
 
@@ -1106,7 +1141,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$o->closeSection();
 
-		}//end for
+		}//end foreach
 
 		return $print_commit_button;
 
@@ -1517,7 +1552,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$o->openSection((string)$section->attributes()->name);
 			}
 
-			if (isset($section->function_call)) {//TODO TOF FIX
+			if (isset($section->function_call)) {// TODO TOF FIX
 				if ($get_section || $get_screen) {
 					$paint_node = $section->children[0]->children[0];
 
@@ -1673,7 +1708,7 @@ class Asset_Edit_Interface extends MySource_Object
 							}
 						break;
 					}//end switch
-				}//end for
+				}//end foreach
 			}//end else section == function_call
 
 			if ($get_section || $get_screen) {
@@ -1796,12 +1831,21 @@ class Asset_Edit_Interface extends MySource_Object
 				if (!$owner->adminAccess('')) {
 					$allowed_screens = $this->getAllowedScreens($owner);
 
-					if (!empty($allowed_screens) && !isset($allowed_screens[$active_screen])) {
-						// this user is not allowed to view the current screen
-						$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
-						exit();
-					}
-				}
+					if (!empty($allowed_screens)) {
+						$user_is_not_allowed = TRUE;
+						foreach ($allowed_screens as $allowed_screen) {
+							if (isset($allowed_screen['screen']) && ($allowed_screen['screen'] == $active_screen)) {
+								$user_is_not_allowed = FALSE;
+							}//end if
+						}//end foreach
+
+						if ($user_is_not_allowed) {
+								// this user is not allowed to view the current screen
+								$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
+								exit();
+						}//end if
+					}//end if
+				}//end if
 
 			}//end if
 
@@ -1943,9 +1987,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 								$attr = $owner->getAttribute((string)$field->attributes()->attribute);
 								if (is_null($attr)) continue;
-								if (!$attr->setEditParams($last_child)) {
-									continue;
-								}
+								if (!$attr->setEditParams($last_child)) continue;
 
 								$revert_attr = $attr;
 								$attr->process($prefix.'_'.$attr->id);
@@ -1983,11 +2025,11 @@ class Asset_Edit_Interface extends MySource_Object
 
 							}//end if
 
-						}//end for fields
+						}//end foreach fields
 
 					}//end else section funcion call
 
-				}//end for
+				}//end foreach
 
 			}//end if $file
 
@@ -2367,9 +2409,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 				}// end switch
 
-			}//end for
+			}//end foreach
 
-		}//end for
+		}//end foreach
 
 		return Array($create_sections, (string)$root->attributes()->screen);
 //		return Array($create_sections, $root->attributes['screen']);
