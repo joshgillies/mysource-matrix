@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.10.4.2 2008/05/28 01:34:22 bpearson Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.10.4.3 2008/08/03 23:36:45 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10.4.2 $
+* @version $Revision: 1.10.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,7 +99,9 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function paintValueInterface(&$asset, &$o, $value_str, $write_access, $enable_default=TRUE)
 	{
-		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) return;
+		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+			return;
+		}
 
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -131,7 +133,12 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		foreach ($values as $term) {
 			$term = str_replace('&#44;', ',', $term);
 			$termid = $thesaurus->getTermIdByName($term);
-			$term_assetids[$termid] = $thesaurus->id.':'.$termid;
+			// Bug #3123
+			// If the thesaurus field has changed, this produces errors on the backend
+			// Only deal with valid terms
+			if (!empty($termid)) {
+				$term_assetids[$termid] = $thesaurus->id.':'.$termid;
+			}
 			$term_info[$termid] = $term;
 		}
 
@@ -206,6 +213,10 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 					</tr>
 				<?php
 				foreach ($term_info as $term_id => $term_name) {
+					// Bug #3123
+					// If the thesaurus field has changed, this produces errors on the backend
+					// Only deal with valid terms
+					if (!empty($term_id)) {
 					?>
 					<tr>
 						<td><?php echo get_asset_tag_line($term_assetids[$term_id], 'details') ?></td>
@@ -227,6 +238,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 						</td>
 					</tr>
 					<?php
+					}//end if
 				}//end foreach
 				?>
 				</table>
@@ -290,7 +302,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			} else {
 				return FALSE;
 			}
-		}
+		}//end else
 
 	}//end processInlineValueInterface()
 
