@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.95 2008/05/06 01:22:10 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.96 2008/08/04 23:17:30 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -81,7 +81,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$from = new Datetime_Field($prefix.'_from', $from_value, $parameters);
 		$to = new Datetime_Field($prefix.'_to', $to_value, $parameters);
-
 
 		$from->printField();
 		echo ' '.translate('to').' ';
@@ -2029,10 +2028,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($action['type_code']);
 				$settings = $action['settings'];
 
-				// This looks wrong, having a call-time pass-by-reference on $settings, but
-				// this is actually required when calling call_user_func in order for
-				// pass-by-reference to work!
-				$result = call_user_func(Array($action['type_code'], 'processInlineInterface'), $asset, &$settings, $o, $prefix);
+				// Bug Fix #3145
+				// call_user_func doesn't work with pass-by-reference in PHP5, so using call_user_func_array instead
+				$result = call_user_func_array(Array($action['type_code'], 'processInlineInterface'), Array($asset, &$settings, $o, $prefix));
 				if ($result) {
 					$actions[$selected_action]['settings'] = $settings;
 					$asset->setAttrValue('actions', $actions);
