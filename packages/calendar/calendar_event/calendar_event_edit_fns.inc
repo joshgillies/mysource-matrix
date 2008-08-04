@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.42.4.1 2007/10/10 23:58:40 mbrydon Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.42.4.2 2008/08/04 01:16:27 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.42.4.1 $
+* @version $Revision: 1.42.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -311,7 +311,9 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			$attrs_code .= ' '.$name.'="'.$value.'"';
 		}
 		if ($timestamp === FALSE) {
+			if(!isset ($attributes['disabled'])){
 			$attrs_code .= ' disabled="disabled"';
+			}
 		}
 		if (!$timestamp) $timestamp = time();
 		?>
@@ -351,7 +353,9 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			$attrs_code .= ' '.$name.'="'.$value.'"';
 		}
 		if ($timestamp === FALSE) {
+			if(!isset ($attributes['disabled'])){
 			$attrs_code .= ' disabled="disabled"';
+			}
 		}
 		$checked_text = ($timestamp !== FALSE) ? 'checked="checked"' : '';
 		if (!$timestamp) $timestamp = time();
