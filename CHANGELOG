@@ -1,5 +1,90 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.4
+
+Featured Changes
+-----------------------------------
+
+Move assets into dated folders script
+
+	A new command-line script "move_assets_to_dated_folders.php" is available in the "scripts" folder which can be used to move assets under a specified parent and asset type under a dated folder structure. Folders are created for each applicable year, month and day. Assets are moved to these folders depending on their 'created' or 'published' dates.
+
+
+Custom Keywords in Metadata Fields are now indexed by Search Manager
+
+	Asset-based keywords such as %event_start_date% for Single Calendar Events are now evaluated and indexed by Search Manager when used as Metadata Field values. Previously these keywords were not evaluated and were indexed as the keyword without reserved characters (eg; %event_start_date% was indexed as "eventstartdate" instead of the evaluated date content).
+
+
+Global Keywords replaced when used as a search query
+
+	Global Keywords can now be specified as search terms in a Search Page query. For example, a query containing %globals_asset_name% from a Search Page will be modified when searching to replace the keyword with the name of the Search Page. 
+
+
+Drill-down Display Type added to Metadata Heirarchy fields
+
+	The editing interface for Metadata Hierarachy fields has been modified to provide a "Drill-Down" Display Type. Values can be added from the hierarchy by clicking the "Add" button next to each level.
+
+
+Paint Layout configuration for Nested Content Design Area
+
+	Three new Paint Layout options are now available in Nested Content Design Areas. These design areas can now use either the default Paint Layout, no Paint Layout, or an arbitrary Paint Layout. 
+
+
+Customisable Receipt Format for E-Commerce Checkout and Default Delivery Method assets
+
+	Customisable formats are now available to configure E-Commerce receipts. This functionality works similar to Asset Listing in that there are "Receipt Format" and "Receipt Contents" bodycopies. Custom keywords are available to show attributes such as price, tax and other fees. The %customised_receipt% keyword is available for use in the email contents of the default delivery method, as well as certain bodycopies of the checkout asset. 
+
+
+Sending email to Shadow Assets in Send Email Trigger Action
+
+	New functionality has been added to Send Email Trigger to allow email messages to be sent to shadow assets (ie; LDAP Users). LDAP Users can be added individually in the "General Options" section, or included when associated with User Groups or Roles.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3123: Changed Thesaurus Term used in Metadata not applied correctly
+* Fixed Bug #3127: Security Restrictions broken
+* Fixed Bug #3133: Unable to change Metadata date min/max values
+* Fixed Bug #3136: Regular expressions don't match if alternation is used
+* Fixed Bug #3143: Error thrown on call to protected method in User IP Condition 
+* Fixed Bug #3150: PHP Notice in regular expresion complex validation rule backend interface
+* Fixed Bug #3155: Oracle error with getValueFromURL()
+* Fixed Bug #3158: PHP Notice in metadata schema date field with min date later than max date 
+* Fixed Bug #3159: URL suffix "_login" shows secondary login box on sites set to "Require Secure Login"
+* Fixed Bug #3167: Metadata field hierarchy drill-down view in asset builder is disabled
+* Fixed Bug #3168: Error in Remap Manager
+* Fixed Bug #3169: Wrong variables' names in Trigger_Action_Set_Permission class
+* Fixed Bug #3171: Oracle error with paint layout change in lookup setting screen
+
+Calendar
+* Fixed Bug #3154: Calendar Recurring Event, and Recurring Event Modification
+* Fixed Bug #3157: Single calendar simple edit duplicate attributes
+
+CMS
+* Fixed Bug #3113: Asset Listing generates DB error when listing "Up the Tree" when viewed by Public User 
+* Fixed Bug #3141: Email validation does not work with more than one account manager create location
+* Fixed Bug #3161: Links report export generates incomplete CSV
+* Fixed Bug #3163: PHP Notice in removing pending account in account manager
+
+Data
+* Fixed Bug #3172: RSS data source not processing some RSS 2.0 format feeds 
+
+E-Commerce
+* Fixed Bug #3148: Ecommerce checkout region-specific conditional delivery fee options are not adhered to
+
+LDAP
+* Fixed Bug #3139: LDAP Users with a comma in the name, causes database error
+
+News
+* Fixed Bug #3126: RSS Feed asset doesn't respect Sort settings when multiple Asset Types are in listing engine
+
+Search
+* Fixed Bug #3156: Can not move search page's children assets
+
+
+
 VERSION 3.18.3
 
 Featured Changes
