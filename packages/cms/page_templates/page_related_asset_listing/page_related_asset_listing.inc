@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.10 2008/07/16 12:56:27 gnoel Exp $
+* $Id: page_related_asset_listing.inc,v 1.11 2008/08/04 09:54:57 gnoel Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -205,6 +205,20 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 		return $res;
 
 	}//end _getThesaurusFilters()
+	
+	
+	/**
+	* Work out the unique cache key to represent the current page
+	* Add relatorsid to the parent cache key
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		return parent::_getCacheKey().'-REL:'.join(',', $this->getRelators());
+		
+	}//end _getCacheKey()
 	
 
 }//end class
