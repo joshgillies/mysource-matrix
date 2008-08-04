@@ -1,5 +1,55 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.11
+
+Featured Changes
+-----------------------------------
+
+Move assets into dated folders script
+
+	A new command-line script "move_assets_to_dated_folders.php" is available in the "scripts" folder which can be used to move assets under a specified parent and asset type under a dated folder structure. Folders are created for each applicable year, month and day. Assets are moved to these folders depending on their 'created' or 'published' dates.
+
+
+Custom Keywords in Metadata Fields are now indexed by Search Manager
+
+	Asset-based keywords such as %event_start_date% for Single Calendar Events are now evaluated and indexed by Search Manager when used as Metadata Field values. Previously these keywords were not evaluated and were indexed as the keyword without reserved characters (eg; %event_start_date% was indexed as "eventstartdate" instead of the evaluated date content).
+
+
+Customisable Receipt Format for E-Commerce Checkout and Default Delivery Method assets
+
+	Customisable formats are now available to configure E-Commerce receipts. This functionality works similar to Asset Listing in that there are "Receipt Format" and "Receipt Contents" bodycopies. Custom keywords are available to show attributes such as price, tax and other fees. The %customised_receipt% keyword is available for use in the email contents of the default delivery method, as well as certain bodycopies of the checkout asset. 
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3123: Changed Thesaurus Term used in Metadata not applied correctly
+* Fixed Bug #3136: Regular expressions don't match if alternation is used
+* Fixed Bug #3150: PHP Notice in regular expresion complex validation rule backend interface
+* Fixed Bug #3158: PHP Notice in metadata schema date field with min date later than max date 
+* Fixed Bug #3159: URL suffix "_login" shows secondary login box on sites set to "Require Secure Login" 
+
+CMS
+* Fixed Bug #3141: Email validation does not work with more than one account manager create location 
+* Fixed Bug #3163: PHP Notice in removing pending account in account manager
+* Fixed Bug #3164: Registration error in account manager page with email validation on
+
+Calendar
+* Fixed Bug #3154: Calendar Recurring Event, and Recurring Event Modification
+* Fixed Bug #3157: Single calendar simple edit duplicate attributes
+
+Data
+* Fixed Bug #3172: RSS data source not processing some RSS 2.0 format feeds 
+
+E-Commerce
+* Fixed Bug #3148: Ecommerce checkout region-specific conditional delivery fee options are not adhered to
+
+News
+* Fixed Bug #3126: RSS Feed asset doesn't respect Sort settings when multiple Asset Types are in listing engine
+
+
+
 VERSION 3.16.10
 
 Featured Changes
