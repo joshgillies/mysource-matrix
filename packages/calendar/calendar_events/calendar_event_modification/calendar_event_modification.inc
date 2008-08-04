@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.23 2007/10/17 01:48:21 mbrydon Exp $
+* $Id: calendar_event_modification.inc,v 1.24 2008/08/04 03:57:35 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -211,6 +211,115 @@ class Calendar_Event_Modification extends Calendar_Event
 		<?php
 
 	}//end printBody()
+
+
+	/**
+	* Returns the start and end dates/times of this instance for use with
+	* %instance_start...% and %instance_end...% keywords
+	*
+	* Return value is Array('start' => start date/time of instance,
+	*						'end' => end date/time of instance)
+	*
+	* @param string	$date	The date to find an instance with
+	*
+	* @return array
+	* @access public
+	*/
+	function getInstanceDates($date)
+	{
+		$res = Array();
+		$res['start'] = $date;
+		$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / 86400);
+		if ($this->getStartTime()) {
+			$res['start'] .= ' '.$this->getStartTime();
+		}
+		if ($this->getEndTime()) {
+			$res['end'] .= ' '.$this->getEndTime();
+		}
+
+		return $res;
+
+	}//end getInstanceDates()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* Provides a mechanism for providing keyword replacement functions by
+	* looking up the function named 'getKeywordNameKeywordReplacement'
+	* so an asset wishing to add support for 'best_ever' custom keyword
+	* should implement a function getBestEverKeywordReplacement()
+	* which returns a replacement string
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getKeywordReplacement($keyword)
+	{
+		if (in_array($keyword, Array('instance_start_datetime', 'instance_end_datetime'))) {
+			if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+				$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+				switch ($keyword) {
+					case 'instance_start_datetime':
+						return $instance_dates['start'];
+					case 'instance_end_datetime':
+						return $instance_dates['end'];
+				}
+			}
+		}
+		$matches = Array();
+		preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
+		if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+			$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+			return date($matches[1], iso8601_ts($instance_dates['start']));
+		}
+		$matches = Array();
+		preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
+		if ((!empty($matches)) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+			$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+			return date($matches[1], iso8601_ts($instance_dates['end']));
+		}
+
+		$replacement = parent::getKeywordReplacement($keyword);
+		$empty_replacement = (((string)$replacement) == '%'.$keyword.'%');
+
+		return $replacement;
+
+	}//end getKeywordReplacement()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* This function is called in asset-listing situations like the asset listing, search page etc
+	* The return value is in the form:
+	* <PRE>
+	* Array(
+	*   'name' => 'description' => 'the asset name',
+	* );
+	* </PRE>
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableKeywords()
+	{
+		$res = parent::getAvailableKeywords();
+
+		$our_keywords[] = 'instance_end_datetime';
+		$our_keywords[] = 'instance_start_datetime';
+		$our_keywords[] = 'instance_start_datetime_';
+		$our_keywords[] = 'instance_end_datetime_';
+
+		foreach ($our_keywords as $keyword) {
+			$res[$keyword] = translate('cal_evt_recur_keyword_'.$keyword);
+		}
+		ksort($res);
+		return $res;
+
+	}//end getAvailableKeywords()
 
 
 }//end class
