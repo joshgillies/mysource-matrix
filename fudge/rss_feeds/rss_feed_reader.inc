@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.14.2.1 2008/07/31 05:43:36 gsherwood Exp $
+* $Id: rss_feed_reader.inc,v 1.14.2.2 2008/08/05 05:21:58 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.14.2.1 $
+* @version $Revision: 1.14.2.2 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -446,10 +446,9 @@ class RSS_Feed_Reader
 			// and var is CHANNEL
 			// if teh tag is an unrecognised tag then the var is unrecognised
 			$key = array_search($element, $this->open_tags);
-
 			$class_vars = get_class_vars(get_class($this));
 			for ( ; $key != -1; $key--) {
-				if (isset($class_vars[strtolower($this->open_tags[$key])])) {
+				if (isset($class_vars[strtolower($this->open_tags[$key])]) && ($this->open_tags[$key] != 'TYPE')) {
 					break;
 				}
 			}
@@ -528,6 +527,7 @@ class RSS_Feed_Reader
 							$data = $value.$data;
 						}
 					} else {
+						
 						if (isset($this->{$var}[$index][$parent][$element]['value']) && (!$attributes)) {
 							$value = $this->{$var}[$index][$parent][$element]['value'];
 							$data = $value.$data;
@@ -536,6 +536,7 @@ class RSS_Feed_Reader
 					// if it is value that we are dealing with then store it in the array with the 'value' key
 					// otherwise then it is an attribute we are trying to store. So we store it in the right place
 					// with the '_attributes' key
+					
 					if (!$attributes) {
 						if (empty($parent)) {
 							$this->{$var}[$index][$element]['value'] = $data;
