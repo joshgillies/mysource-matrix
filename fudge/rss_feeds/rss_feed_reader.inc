@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.15 2008/07/31 05:44:10 gsherwood Exp $
+* $Id: rss_feed_reader.inc,v 1.16 2008/08/05 05:15:05 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -449,7 +449,7 @@ class RSS_Feed_Reader
 
 			$class_vars = get_class_vars(get_class($this));
 			for ( ; $key != -1; $key--) {
-				if (isset($class_vars[strtolower($this->open_tags[$key])])) {
+				if (isset($class_vars[strtolower($this->open_tags[$key])]) && ($this->open_tags[$key] != 'TYPE')) {
 					break;
 				}
 			}
