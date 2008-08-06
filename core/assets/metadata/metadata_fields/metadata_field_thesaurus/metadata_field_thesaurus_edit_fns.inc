@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.10.4.3 2008/08/03 23:36:45 bpearson Exp $
+* $Id: metadata_field_thesaurus_edit_fns.inc,v 1.10.4.4 2008/08/06 04:25:32 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10.4.3 $
+* @version $Revision: 1.10.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -274,7 +274,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			if (!empty($_REQUEST[$prefix.'_terms_submitted'])) {
 				$new_terms = array_get_index($_REQUEST, $prefix.'_thes_term', Array());
-				log_dump($new_terms);
+
 				foreach ($new_terms as $one_term) {
 					if (empty($one_term['assetid'])) continue;
 					$term_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($one_term['assetid']);
@@ -294,10 +294,10 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($old_count != count($value)) {
 					$asset->_tmp['error'][] = translate('thesaurus_term_duplicate_removed');
 				}
-				log_dump($value);
+
 				$value = implode(',', $value);
 				$new_value_str = Metadata_Field::encodeValueString($value, Array());
-				log_dump($new_value_str);
+
 				return TRUE;
 			} else {
 				return FALSE;
