@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.58 2008/04/18 00:04:43 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.59 2008/08/06 06:47:02 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -414,7 +414,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			echo ' scheme="'.$mm->escapeMetadata($asset->attr('scheme')).'"';
 		}
 
-		echo ' content="<?php echo $mm->escapeMetadata($metadata_values[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\']); foreach ($metadata_value_components[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\'] as $k => $v) {echo \'; \'.$k.\'=\'.$v; } ?>" />'."\n";
+		echo ' content="<?php echo $mm->escapeMetadata($metadata_values[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\']); foreach ($metadata_value_components[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\'] as $k => $v) {echo \'\'.$k.\'=\'.$v; } ?>" />'."\n";
 
 
 		return TRUE;
