@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.323.2.7 2008/06/13 07:08:51 bpearson Exp $
+* $Id: asset_edit_interface.inc,v 1.323.2.8 2008/08/07 03:58:56 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.323.2.7 $
+* @version $Revision: 1.323.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1176,7 +1176,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		$o->openRaw();
-			hidden_field('sq_limbo_lock_type', serialize($locks));
+			hidden_field('sq_limbo_lock_type', urlencode(serialize($locks)));
 		$o->closeRaw();
 
 	}//end acquireLimboLocks()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.180.2.2 2008/04/16 22:37:41 bpearson Exp $
+* $Id: backend.inc,v 1.180.2.3 2008/08/07 03:58:56 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.180.2.2 $
+* @version $Revision: 1.180.2.3 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -380,10 +380,24 @@ class Backend extends MySource_Object
 				if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
 					current_assetid = parent.frames["sq_main"].get_form_element_value('backend_assetid');
 					lock_type       = parent.frames["sq_main"].get_form_element_value('sq_lock_type');
+					<?php
+						if (SQ_IN_LIMBO) {
+					?>
+					limbo_lock_type = parent.frames["sq_main"].get_form_element_value('sq_limbo_lock_type');
+					<?php
+						}//end if in limbo
+					?>
 				}
 				var url = '<?php echo $this->getBackendUrl('header'); ?>'
 									+ '&current_assetid=' + current_assetid
 									+ '&sq_lock_type=' + lock_type
+									<?php 
+										if (SQ_IN_LIMBO) {
+									?>
+									+ '&sq_limbo_lock_type=' + limbo_lock_type
+									<?php
+										}//end if in limbo
+									?>
 									+ '&sq_popups_blocked=' + popups_blocked;
 				document.location = url;
 			}
@@ -421,7 +435,16 @@ class Backend extends MySource_Object
 		// refresh lock held on current page
 		if (!empty($_GET['current_assetid']) && !empty($_GET['sq_lock_type'])) {
 			$GLOBALS['SQ_SYSTEM']->am->updateLock($_GET['current_assetid'], $_GET['sq_lock_type']);
-		}
+
+			// If we are in Limbo, we may need to refresh more locks
+			if (SQ_IN_LIMBO && !empty($_GET['sq_limbo_lock_type'])) {
+				foreach (@unserialize(urldecode($_GET['sq_limbo_lock_type'])) as $limbo_lock_types) {
+					if ($limbo_lock_types != $_GET['sq_lock_type']) {
+						$GLOBALS['SQ_SYSTEM']->am->updateLock($_GET['current_assetid'], $limbo_lock_types);
+					}
+				}//end foreach
+			}//end if
+		}//end if
 
 
 		  //////////////////////////////////////
