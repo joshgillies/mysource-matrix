@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.349 2008/08/01 01:43:38 bpearson Exp $
+* $Id: asset_edit_interface.inc,v 1.350 2008/08/07 03:43:42 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.349 $
+* @version $Revision: 1.350 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -571,7 +571,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// If none found, try layout manager
 			$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-			if ($lm->hasLayout($owner->type(), $active_screen)) {
+			if ($lm->hasLayout($owner, $active_screen)) {
 				$paint_layout = TRUE;
 			}
 		}
@@ -663,7 +663,7 @@ class Asset_Edit_Interface extends MySource_Object
 				return $this->paintLayout($owner, $o, $layout);
 			}
 			// Otherwise refer to layout manager
-			if (NULL !== ($layout = $lm->getLayout($owner->type(), $active_screen))) {
+			if (NULL !== ($layout = $lm->getLayout($owner, $active_screen))) {
 				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
 				return $this->paintLayout($owner, $o, $layout);
 			}
@@ -884,7 +884,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$paint_layout = FALSE;
 		if (SQ_IN_LIMBO && !$creating) {
 			$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-			if ($lm->hasLayout($owner->type(), $active_screen)) {
+			if ($lm->hasLayout($owner, $active_screen)) {
 				$paint_layout = TRUE;
 			}
 		}
@@ -925,7 +925,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
 		if ($paint_layout) {
-			if (NULL !== ($layout = $lm->getLayout($owner->type(), $active_screen))) {
+			if (NULL !== ($layout = $lm->getLayout($owner, $active_screen))) {
 				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
 				return $this->paintLayout($owner, $o, $layout);
 			}
@@ -1168,9 +1168,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
 
-		if ($lm->hasLayout($owner->type(), $active_screen)) {
+		if ($lm->hasLayout($owner, $active_screen)) {
 
-			$layout = $lm->getLayout($owner->type(), $active_screen);
+			$layout = $lm->getLayout($owner, $active_screen);
 			if (is_null($layout)) return FALSE;
 
 			$keywords = $layout->getLayoutKeywords();
@@ -1416,12 +1416,12 @@ class Asset_Edit_Interface extends MySource_Object
 				list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 
 				for (reset($this->_screens); NULL !== ($code = key($this->_screens)); next($this->_screens)) {
-					if (!$lm->hasLayout($owner->type(), $code)) continue;
+					if (!$lm->hasLayout($owner, $code)) continue;
 					$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code)), $current_loc_base, $current_loc_query);
 					$o->addScreen($url, $this->_screens[$code]['name']);
 				}
 				foreach ($this->_edit_fns->static_screens as $code_name => $data) {
-					if (!$lm->hasLayout($owner->type(), $code_name)) {
+					if (!$lm->hasLayout($owner, $code_name)) {
 						continue;
 					}
 					$url = replace_query_string_vars(Array('asset_ei_screen' => rawurlencode($code_name)), $current_loc_base, $current_loc_query);
@@ -1798,7 +1798,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$screens = Array($current_screen);
 
 			$lm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-			$layout = $lm->getLayout($owner->type(), $current_screen);
+			$layout = $lm->getLayout($owner, $current_screen);
 
 			// if we have a layout and there are some defined screen components, then these
 			// screens also need to be processed

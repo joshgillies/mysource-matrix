@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.18 2007/12/12 23:27:08 lwright Exp $
+* $Id: layout_manager.inc,v 1.19 2008/08/07 03:49:47 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,20 +135,29 @@ class Layout_Manager extends Asset
 	*  );
 	* </pre>
 	*
-	* @param string	$type_code	the type_code for which the layout is wanted
+	* @param object	$asset		the asset for which the layout is wanted
 	* @param string	$screen		the name of the screen for which the layout is defined
 	*
 	* @return object
 	* @access public
 	*/
-	public function getLayout($type_code, $screen='')
+	public function getLayout($asset, $screen='')
 	{
 		$null = NULL; // for returning a reference
 
 		// layouts should only be used on the frontend
 		if (!SQ_IN_LIMBO) return $null;
 
-		if ($type_code == '') return $null;
+		if (is_null($asset)) return $null;
+
+		// Go and find if there is a layout on this asset, first.
+		// Layouts defined by the Layouts screen on the asset
+		$layout = $this->_getAssetLayout($asset, $screen);
+
+		if (!is_null($layout)) return $layout;
+
+		// If no Asset Layout found, continue to use Layout Manager for a layout
+		$type_code = $asset->type();
 		$layouts = $this->attr('layouts');
 
 		// if there are no layouts directly applied for this type code will
@@ -216,16 +225,26 @@ class Layout_Manager extends Asset
 
 
 	/**
-	* Returns TRUE if a layout is defined for a particualt type_code and screen
+	* returns true if a layout is defined for a particular type_code and screen
 	*
-	* @param string	$type_code	the type_code to check
+	* @param string	$asset		the asset to check
 	* @param string	$screen		the screen of the type_code to check
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function hasLayout($type_code, $screen='details')
+	public function hasLayout($asset, $screen='details')
 	{
+		// Check for errors first
+		if (is_null($asset)) return FALSE;
+
+		// Check for a valid asset layout set by the Layouts screen of the asset
+		$layout = $this->_hasAssetLayout($asset, $screen);
+
+		// If a layout found, return, otherwise continue
+		if ($layout) return TRUE;
+
+		$type_code = $asset->type();
 		$layouts = $this->attr('layouts');
 		if (!isset($layouts[$type_code][$screen])) {
 			// if there is no screen defined for this type_code, check to see if there is
@@ -240,6 +259,67 @@ class Layout_Manager extends Asset
 		return TRUE;
 
 	}//end hasLayout()
+
+
+	/**
+	* Returns a Layout Asset for a type_code and its screen (or NULL on error)
+	*
+	* OR, if no screen is specified, an array of layouts for all the defined screens for the type_code in the form:
+	* <pre>
+	*  Array(
+	*     'screen_name1' => &$layout_asset1,
+	*     'screen_name2' => &$layout_asset2,
+	*  );
+	* </pre>
+	*
+	* @param object	$asset		the asset for which the layout is wanted
+	* @param string	$screen		the name of the screen for which the layout is defined
+	*
+	* @return object
+	* @access public
+	*/
+	public function _getAssetLayout($asset, $screen='')
+	{
+		$layout_def = 'layout::'.$asset->type().'::'.$screen;
+		$layouts = $asset->getLookupValues(NULL, $layout_def);
+		$url = str_replace('http://', '', $asset->getURL());
+
+		if (!empty($layouts)) {
+			$layout = NULL;
+			if (isset($layouts[$url][$layout_def]['value']) && !empty($layouts[$url][$layout_def]['value'])) {
+					$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layouts[$url][$layout_def]['value']);
+			}//end if
+
+			if (is_null($layout)) {
+				return NULL;
+			} else {
+				return $layout;
+			}
+		}//end if
+
+		return NULL;
+
+	}//end _getAssetLayout()
+
+
+	/**
+	* returns true if a layout is defined for a particular type_code and screen
+	*
+	* @param string	$asset		the asset to check
+	* @param string	$screen		the screen of the type_code to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function _hasAssetLayout($asset, $screen='details')
+	{
+		$layout = $asset->getLookupValues(NULL, 'layout::'.$asset->type());
+
+		if (!empty($layout)) return TRUE;
+
+		return FALSE;
+
+	}//end _hasAssetLayout()
 
 
 }//end class

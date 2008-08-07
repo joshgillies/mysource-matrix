@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.25 2008/05/02 01:57:10 bpearson Exp $
+* $Id: page_standard.inc,v 1.26 2008/08/07 03:47:38 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -246,7 +246,7 @@ class Page_Standard extends Page
 
 		if (!empty($details_layout) && ($details_layout > 0)) {
 			parent::initLimbo();
-		} else if ($lm->hasLayout($this->type(), 'details')) {
+		} else if ($lm->hasLayout($this, 'details')) {
 			// Otherwise lookup layout manager
 			parent::initLimbo();
 		} else {
