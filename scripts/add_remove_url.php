@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.6.9 $
+* @version $Revision: 1.1.6.10 $
 * @package MySource_Matrix
 */
 
@@ -214,7 +214,7 @@ Make sure you have all you information you need before Proceeding\n");
 
 		$sql_update_sq_ast_lookup		= 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
 										SELECT '.$db->quoteSmart($http).', '.$db->quoteSmart($https).', assetid, replace(url,'.$db->quoteSmart($existing_url).','.$db->quoteSmart($new_url).'),'.$new_urlid.'
-										FROM sq_ast_lookup WHERE url like '.$db->quoteSmart($existing_url.'%').' AND root_urlid ='.$db->quoteSmart($existing_urlid).';';
+										FROM sq_ast_lookup WHERE url like '.$db->quoteSmart($existing_url.'%').' AND root_urlid ='.$db->quoteSmart($existing_urlid);
 
 		$sql_update_sq_ast_lookup_public	= 'UPDATE sq_ast_lookup set root_urlid = 0 WHERE url like '.$db->quoteSmart($new_url.'%').' AND url like \'%/__data/%\' AND root_urlid = '.$db->quoteSmart($new_urlid);
 
@@ -281,7 +281,7 @@ Make sure you have all you information you need before Proceeding\n");
 					//add more checking condition to make sure the script run if there are urls which are the same as those we are going to insert
 					//this case happens when we add URL for one site which have an asset is a linked asset of other's site => use the same webpath
 					$added_condition = ' AND replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).') NOT IN (
-											SELECT url from sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'));';
+											SELECT url from sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like replace(url, '.$db->quoteSmart($existing_url_public).','.$db->quoteSmart($new_url_public).'))';
 					$sql_update_sq_ast_lookup_public_file .= $added_condition;
 
 					bam($sql_update_sq_ast_lookup_public_file);
