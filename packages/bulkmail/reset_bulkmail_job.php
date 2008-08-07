@@ -11,19 +11,18 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: reset_bulkmail_job.php,v 1.2 2008/08/07 04:11:46 bpearson Exp $
+* $Id: reset_bulkmail_job.php,v 1.3 2008/08/07 06:38:02 bpearson Exp $
 *
 */
 
 /**
-* Add a bulkmail job to the bulkmail queue
+* Reset a bulkmail job
 *
-* Usage: php schedule_bulkmail_job.php /path/to/system/root/ [assetid of job]
-*		This script adds a bulkmail job to the bulkmail queue.
-*		Used to allow cron systems to handle bulkmail jobs.
+* Usage: php reset_bulkmail_job.php /path/to/system/root/ [assetid of job]
+*		This script resets a bulkmail job.
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
