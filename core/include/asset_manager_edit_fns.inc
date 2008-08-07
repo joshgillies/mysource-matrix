@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.102 2007/11/06 23:50:08 rong Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.102.2.1 2008/08/07 03:57:47 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.102.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -177,8 +177,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 						// limbo might require more locks so release them
 						if (SQ_IN_LIMBO && !empty($_POST['sq_limbo_lock_type'])) {
-							foreach (unserialize($_POST['sq_limbo_lock_type']) as $limbo_lock_type) {
-								if ($limbo_lock_type != $_POST['sq_limbo_lock_type']) {
+							foreach (unserialize(urldecode($_POST['sq_limbo_lock_type'])) as $limbo_lock_type) {
+								if ($limbo_lock_type != $_POST['sq_lock_type']) {
 									$this->am->releaseLock($asset->id, $limbo_lock_type);
 								}
 							}
