@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.51.2.2 2008/04/28 01:33:59 lwright Exp $
+* $Id: trigger_manager.inc,v 1.51.2.3 2008/08/08 03:57:24 ewang Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.51.2.2 $
+* @version $Revision: 1.51.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1030,7 +1030,7 @@ class Trigger_Manager extends Asset implements Bridge
 							)
 						)';
 
-			for ($i=1; $i<=$treeid_count; $i++) {
+			for ($i=$treeid_count-1; $i<=$treeid_count; $i++) {
 				$bind_vars['current_treeid_'.$i] = $current_treeid;
 			}
 			$bind_vars['propagate_flag_'.$propagate_flag_count]				= SQ_TRIG_TREE_PROPAGATE;
