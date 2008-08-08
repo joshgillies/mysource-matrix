@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.35.2.1 2007/08/29 05:00:47 lwright Exp $
+* $Id: form_ecommerce.inc,v 1.35.2.2 2008/08/08 00:33:30 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -413,7 +413,7 @@ class Form_Ecommerce extends Form_Email
 		$item_block_replacements['asset_item_list'] = $asset_item_list;
 
 		ob_start();
-		$question_list = @$_SESSION[$this->getPrefix()]['ecom_questions'];
+		$question_list = @$_SESSION[$this->getPrefix()]['order']['ecom_questions'];
 		if (empty($question_list)) $question_list = Array();
 		foreach ($question_list as $id => $item) {
 			$item_string = $question_item_format;
@@ -435,10 +435,16 @@ class Form_Ecommerce extends Form_Email
 		$log_entry_string = $log_entry_format;
 		$log_entry_keywords = extract_keywords($log_entry_format);
 		foreach ($log_entry_keywords as $keyword) {
-			$log_entry_replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+			if ($keyword == 'form_summary') {
+				$keyword2 = $keyword.'_text';
+				$log_entry_replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword2);
+			} else {
+				$log_entry_replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+			}
 		}
 
 		$log_entry_replacements['item_block'] = $item_block;
+		$log_entry_replacements['order_id'] = $this->getOrderNumberKeywordReplacement();
 		replace_keywords($log_entry_string, $log_entry_replacements);
 
 		replace_global_keywords($log_entry_string);
@@ -907,7 +913,7 @@ class Form_Ecommerce extends Form_Email
 		$questions =& $this->getAllQuestionAssets();
 
 		$order =& $this->getCurrentOrderAsset();
-		if (empty($order)) $order =& $this->createOrder();
+		if (is_null($order)) $order =& $this->createOrder();
 
 
 		$this->order =& $order;
@@ -1250,6 +1256,7 @@ class Form_Ecommerce extends Form_Email
 	function printConfirmationView()
 	{
 		$body =& $this->getBodycopy('Confirmation');
+		$replacements = Array();
 
 		$keyword_list = $body->getKeywords();
 		foreach ($keyword_list as $keyword) {
