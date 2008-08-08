@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 */
 
@@ -393,7 +393,7 @@ Make sure you have all you information you need before Proceeding\n");
 		foreach ($children as $child_id) {
 			$child_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
 			if ($child_asset->usePublicPath()) {
-					$get_count_links_query = 'SELECT COUNT(*) FROM sq_ast_lnk WHERE minorid = '.$child_id;
+					$get_count_links_query = 'SELECT COUNT(*) FROM sq_ast_lnk WHERE minorid = '.MatrixDAL::quote($child_id);
 					$count = MatrixDAL::executeSqlOne($get_count_links_query);
 					// We are only calling getParents if this asset is linked in multiple places
 					if ($count > 1) {
