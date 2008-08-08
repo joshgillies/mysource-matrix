@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.55 2008/04/28 01:12:16 lwright Exp $
+* $Id: trigger_manager.inc,v 1.56 2008/08/08 04:00:35 ewang Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -829,7 +829,7 @@ class Trigger_Manager extends Asset implements Bridge
 		if (!$this->_isEventListenedFor($event_name)) {
 			return TRUE;
 		}
-
+		
 		// calculate state, prepare state hash
 		$state = $this->_calculateState($event_name, $broadcaster, $parameters);
 		$state_hash = $this->_calculateStateHash($state);
@@ -1020,7 +1020,7 @@ class Trigger_Manager extends Asset implements Bridge
 		$current_tree_length_count = 0;
 		foreach ($state_hash['treeid'] as $current_treeid) {
 			if (empty($current_treeid)) continue;
-
+		
 			$treeid_sql_array[] = '
 						(
 							(treeid != :current_treeid'.'_'.++$treeid_count.' AND SUBSTR(:current_treeid'.'_'.++$treeid_count.', 1, LENGTH(treeid)) = treeid)
@@ -1030,7 +1030,7 @@ class Trigger_Manager extends Asset implements Bridge
 							)
 						)';
 
-			for ($i=1; $i<=$treeid_count; $i++) {
+			for ($i=$treeid_count-1; $i<=$treeid_count; $i++) {
 				$bind_vars['current_treeid_'.$i] = $current_treeid;
 			}
 			$bind_vars['propagate_flag_'.$propagate_flag_count]				= SQ_TRIG_TREE_PROPAGATE;
@@ -1080,7 +1080,7 @@ class Trigger_Manager extends Asset implements Bridge
 		if (!empty($state_hash['treeid'])) {
 			// children will always be the same, regardless which treeid is used, so just choose the first one off the top
 			$treeid        = reset($state_hash['treeid']);
-
+			
 			// TODO: This gets included twice, so needs to be modified to
 			// change the bind variables in the second query.
 			// get all the immediate children
@@ -1149,7 +1149,6 @@ class Trigger_Manager extends Asset implements Bridge
 					AND ('.$parent_type_sql.')
 					AND ('.$child_id_sql.')
 					AND ('.$child_type_sql.')';
-
 		$result = NULL;
 		 try {
 			$query = MatrixDAL::preparePdoQuery($sql);
