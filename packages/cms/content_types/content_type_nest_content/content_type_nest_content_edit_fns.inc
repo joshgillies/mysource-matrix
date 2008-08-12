@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.52.2.1 2008/06/30 05:39:37 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.52.2.2 2008/08/12 05:32:11 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.1 $
+* @version $Revision: 1.52.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -162,7 +162,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 										noVarBody.style.display = (node.getElementsByTagName('tr').length > 0) ? 'none' : 'table-row-group';
 									},
 								};
-							}
+							}//end if
 
 							// Set the first new index for newly created rows
 							<?php echo $asset->type(); ?>.nextIndex['<?php echo $prefix; ?>'] = <?php echo ($last_key + 1); ?>;
@@ -293,7 +293,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			// Ask the asset to do its thing
 			ob_start();
-				switch ($this->attr('paint_with')) {
+				switch ($asset->attr('paint_with')) {
 					case 'raw':
 						// Raw - just paint it
 						$nested_asset->printBody();
@@ -326,7 +326,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 							if ($switched_frontend) {
 								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $current_frontend_asset;
 							}
-						}
+						}//end else
 					break;
 				}//end switch
 
@@ -336,7 +336,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			$_GET = $old_get;
 
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
-		}
+		}//end else
 
 		echo $asset_contents;
 
@@ -466,6 +466,67 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		<?php echo "\n".'?'.'>';
 
 	}//end paintGenerated()
+
+
+	/**
+	* Process any Additional GET vars
+	*
+	* @param object	&$asset			the table whose interface we are painting
+	* @param object	&$nested_asset	the asset to nest
+	*
+	* @return array
+	* @access private
+	*/
+	function _processAdditionalGetVars(&$asset, &$nested_asset)
+	{
+		$additional_get_vars = $asset->attr('additional_get');
+		$processed_get_vars = Array();
+		foreach ($additional_get_vars as $get_var) {
+			$get_name = $get_var['name'];
+			$get_value = $get_var['value'];
+			$found = preg_match_all('/%(asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
+			$asset_matches = $set_matches[1];
+
+			$found = preg_match_all('/%(nested\_(asset\_.*))%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
+			$nested_asset_orig_matches = $set_matches[1];
+			$nested_asset_matches = $set_matches[2];
+
+			foreach ($nested_asset_matches as $na_id => $nested_asset_keyword) {
+				$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
+				if (!is_null($replacement)) {
+					$get_value = str_replace('%'.$nested_asset_orig_matches[$na_id].'%', $replacement, $get_value);
+				}
+			}
+
+			replace_global_keywords($get_value);
+
+			preg_match('/([^\[]*)(.*)/', $get_name, $base_name);
+			$array_bits = $base_name[2];
+			if (empty($array_bits)) {
+				$processed_get_vars[$base_name[1]] = $get_value;
+			} else {
+				$array_els = Array();
+
+				if (!isset($processed_get_vars[$base_name[1]])) {
+					$processed_get_vars[$base_name[1]] = Array();
+				}
+
+				$done = FALSE;
+				while (!empty($array_bits)) {
+					$found = preg_match('/\[([^\]]*)\](.*)/', $array_bits, $base_name);
+					if (!$found) break;
+					$array_bits = $base_name[2];
+					$array_els[] = addslashes($base_name[1]);
+				}
+
+				$eval_str = '$processed_get_vars[\''.addslashes($base_name[1]).'\'][\''.implode('\'][\'', $array_els).'\'] = '.addslashes($get_value);
+				eval($eval_str);
+			}//end else
+		}//end foreach
+
+		return $processed_get_vars;
+
+	}//end _processAdditionalGetVars()
 
 
 	/**
