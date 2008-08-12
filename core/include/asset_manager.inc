@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.700 2008/07/29 06:44:27 ewang Exp $
+* $Id: asset_manager.inc,v 1.701 2008/08/12 06:22:49 gsherwood Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.700 $
+* @version $Revision: 1.701 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8544,16 +8544,6 @@ class Asset_Manager extends MySource_Object
 		$bind_vars = Array();
 		$assetid = (string) $assetid;
 
-		$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(:'.$bind_prefix.'treeids_assetid, :'.$bind_prefix.'treeids_tree_size)';
-		$bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
-		$bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
-
-		if (MatrixDAL::getDbType() === 'oci') {
-			$in_sql = 'SELECT DISTINCT(column_value) FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
-		} else {
-			$in_sql = 'SELECT * FROM '.$in_sql;
-		}
-
 		$select = 'SELECT DISTINCT(ll.majorid), ll.type_code, ll.treeid, length(ll.treeid)/:'.$bind_prefix.'tree_size as depth';
 		$bind_vars[$bind_prefix.'tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
 
@@ -8618,7 +8608,18 @@ class Asset_Manager extends MySource_Object
 
 		} else {
 			// No conditions, just stick the treeids query straight into the main query
-			$where  ='t.treeid IN (
+			$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(:'.$bind_prefix.'treeids_assetid, :'.$bind_prefix.'treeids_tree_size)';
+                        
+			$bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
+                        $bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
+
+                        if (MatrixDAL::getDbType() === 'oci') {
+                                $in_sql = 'SELECT DISTINCT(column_value) FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
+                        } else {
+                                $in_sql = 'SELECT * FROM '.$in_sql;
+                        }	
+			
+			$where = 't.treeid IN (
 						'.$in_sql.'
 					  )';
 		}
