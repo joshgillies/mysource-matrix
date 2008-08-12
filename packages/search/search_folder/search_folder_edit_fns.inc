@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.23 2006/12/07 01:08:48 bcaldwell Exp $
+* $Id: search_folder_edit_fns.inc,v 1.23.6.1 2008/08/12 06:56:20 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -43,7 +43,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 									'details'		=> Array(
 														'name'			=> 'Details',
 														'force_unlock'	=> FALSE,
-														'lock_type'		=> 'attributes',
+														'lock_type'		=> 'menu',
 													   ),
 									'permissions'	=> Array(
 														'name'			=> 'Permissions',
