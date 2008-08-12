@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.36.2.2 2008/05/21 05:55:27 bshkara Exp $
+* $Id: bodycopy_container.inc,v 1.36.2.3 2008/08/12 05:11:28 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.2.2 $
+* @version $Revision: 1.36.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -400,7 +400,7 @@ class Bodycopy_Container extends Asset
 			if (SQ_ROLLBACK_VIEW) {
 				$edit = $this->getEditFns();
 				ob_start();
-					$edit->paint($this, FALSE, TRUE);
+					$edit->paint($this, FALSE, FALSE);
 					$output = ob_get_contents();
 				ob_end_clean();
 

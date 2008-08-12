@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.48.2.1 2007/08/23 07:07:40 hnguyen Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.48.2.2 2008/08/12 05:12:45 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48.2.1 $
+* @version $Revision: 1.48.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -161,7 +161,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			// Ask the asset to do its thing
 			ob_start();
-				switch ($this->attr('paint_with')) {
+				switch ($asset->attr('paint_with')) {
 					case 'raw':
 						// Raw - just paint it
 						$nested_asset->printBody();
