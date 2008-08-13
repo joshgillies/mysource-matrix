@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.152.2.7 2008/07/11 05:34:09 bpearson Exp $
+* $Id: search_manager.inc,v 1.152.2.8 2008/08/13 04:56:00 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.152.2.7 $
+* @version $Revision: 1.152.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1087,6 +1087,18 @@ class Search_Manager extends Asset
 			}
 			$value_components = Array();
 			Metadata_Field::decodeValueString($value, $value, $value_components);
+			
+			
+			$keywords = retrieve_keywords_replacements($value, '.');
+			$replacements = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
+			foreach ($keywords as $keyword) {
+					if (!isset($replacements[$keyword])) {
+						// Looking for further replacements
+						$replacements[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
+					}//end if
+			}//end foreach
+
+			replace_keywords($value, $replacements);
 
 			// check field_type to define the indexing way
 			if ($field_type == 'metadata_field_date') {
@@ -1099,17 +1111,7 @@ class Search_Manager extends Asset
 								   );
 			} else {
 
-				$keywords = retrieve_keywords_replacements($value, '.');
-				$replacements = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
-				foreach ($keywords as $keyword) {
-					if (!isset($replacements[$keyword])) {
-						// Looking for further replacements
-						$replacements[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
-					}//end if
-				}
-
-				replace_keywords($value, $replacements);
-
+				
 				switch ($field_type) {
 					case 'metadata_field_select':
 						if ($field->attr('multiple')) {
