@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.18 2007/10/29 00:43:23 colivar Exp $
+* $Id: lang_screen_details.xml,v 1.19 2008/08/13 23:16:59 bpearson Exp $
 *
 */
 -->
@@ -47,11 +47,11 @@
 		</field>
 		<field attribute="min_depth">
 			<display_name>Minimum Depth/Height</display_name>
-			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'.</note>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be at least this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0, will include the root nodes in the results</note>
 		</field>
 		<field attribute="max_depth">
 			<display_name>Maximum Depth/Height</display_name>
-			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'.</note>
+			<note>This optional setting only applies when &lt;em&gt;Direct Links Only&lt;/em&gt; is turned off.  If a number is entered here, assets must be no more than this number of levels below/above a root node to qualify for listing.  Immediate children/parents are considered to be at level '1'. Setting this attribute to 0 (with the minimum depth/height set to 0 as well) will only return the root nodes.</note>
 		</field>
 		<field attribute="link_value_filter">
 			<display_name>Link Value</display_name>
