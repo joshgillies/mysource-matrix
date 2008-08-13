@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.124 2008/05/14 22:38:28 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.125 2008/08/13 23:04:55 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -234,15 +234,16 @@ class Page_Asset_Listing extends Listing_Engine
 
 						$new_assets_to_list = Array();
 						foreach ($links as $link_info) {
-							$new_assets_to_list[$link_info[$link_type.'id']] = Array( 0	=> Array(
-																								'type_code'		=> $link_info[$link_type.'_type_code'],
-																								'first_letter'	=> $link_info['first_letter'],
-																								)
-																					);
+							$new_assets_to_list[$link_info[$link_type.'id']] = Array(
+																				0	=> Array(
+																						'type_code'		=> $link_info[$link_type.'_type_code'],
+																						'first_letter'	=> $link_info['first_letter'],
+																					   ),
+																			   );
 						}
 
 						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
-					}
+					}//end foreach
 
 				break;
 
@@ -307,7 +308,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 
 						$assets_to_list = $this->_combineAssets($logic, $new_assets_to_list, $assets_to_list);
-					}
+					}//end foreach
 				break;
 
 				case 'grouped' :
@@ -446,6 +447,18 @@ class Page_Asset_Listing extends Listing_Engine
 				break;
 			}//end switch
 
+			// If the min/max both set to 0, show only the root nodes
+			// If the min set to 0, show asset list with root nodes
+			$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
+			$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
+			$root_nodes = $this->getRootNodes();
+
+			if ($min_depth === '0' && !is_null($max_depth)) {
+				$assets_to_list = $this->_combineRootNodes($assets_to_list, $root_nodes, $wanted_types);
+			} else if ($min_depth === '0' && $max_depth === '0') {
+				$assets_to_list = $this->_combineRootNodes(Array(), $root_nodes, $wanted_types);
+			}//end if
+
 		}//end else subs_only
 
 		if (empty($assets_to_list)) return Array();
@@ -508,6 +521,39 @@ class Page_Asset_Listing extends Listing_Engine
 		return $existing;
 
 	}//end _combineAssets()
+
+
+	/**
+	* Combines assets and root nodes together 
+	*
+	* @param array	$assets		Set of assets
+	* @param array	$root_nodes	Set of root nodes
+	* @param array	$types		List of the wanted types
+	*
+	* @return array
+	* @access private
+	*/
+	function _combineRootNodes($assets=Array(), $root_nodes=Array(), $types=Array())
+	{
+		foreach ($root_nodes as $root_node) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node);
+			if (!is_null($asset)) {
+				foreach ($types as $wanted_type => $include) {
+					if ($asset instanceof $wanted_type) {
+						$assets[$root_node] = Array(
+												Array(
+													'type_code'	=> $asset->type(),
+												),
+											  );
+					}//end if
+				}//end foreach
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}//end if
+		}//end foreach
+
+		return $assets;
+
+	}//end _combineRootNodes()
 
 
 }//end class
