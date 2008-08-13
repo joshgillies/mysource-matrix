@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.31 2008/01/03 00:43:08 rong Exp $
+* $Id: search_folder.inc,v 1.31.2.1 2008/08/13 03:41:46 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -169,6 +169,7 @@ class Search_Folder extends Asset implements Bridge
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$search_info['fields'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['word_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 				$search_info['fields'][$settings['phrase']]['data_sources'] = Array(Array('type' => 'include_all'));
 				$search_results = $sm->processSearch($search_info);
 			}
@@ -241,6 +242,7 @@ class Search_Folder extends Asset implements Bridge
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$search_info['fields'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['word_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 				$search_info['fields'][$settings['phrase']]['data_sources'] = Array(Array('type' => 'include_all'));
 				$search_results = $sm->processSearch($search_info);
 			}
