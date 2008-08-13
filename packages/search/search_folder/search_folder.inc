@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.29 2007/01/08 04:00:57 emcdonald Exp $
+* $Id: search_folder.inc,v 1.29.4.1 2008/08/13 03:40:04 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -122,9 +122,7 @@ class Search_Folder extends Asset
 		// a clue that what is underneath.
 		$links = Array();
 		$id_parts = explode(':', $assetid);
-		if (isset($id_parts[1])) {
-			return $links;
-		}
+		if (isset($id_parts[1])) return $links;
 
 		assert_equals($assetid, $this->id, translate('sch_folder_only_own_links'));
 
@@ -172,6 +170,7 @@ class Search_Folder extends Asset
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$search_info['fields'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['word_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 				$search_info['fields'][$settings['phrase']]['data_sources'] = Array(Array('type' => 'include_all'));
 				$search_results = $sm->processSearch($search_info);
 			}
@@ -244,6 +243,7 @@ class Search_Folder extends Asset
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$search_info['fields'][$settings['phrase']]['words'] = $settings['phrase'];
+				$search_info['fields'][$settings['phrase']]['word_logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
 				$search_info['fields'][$settings['phrase']]['data_sources'] = Array(Array('type' => 'include_all'));
 				$search_results = $sm->processSearch($search_info);
 			}
@@ -285,7 +285,7 @@ class Search_Folder extends Asset
 	/**
 	* Get asset info for use by asset map
 	*
-	* @param string $assetid    Full Asset id to get information for
+	* @param string	$assetid	Full Asset id to get information for
 	*
 	* @return array
 	* @access public
