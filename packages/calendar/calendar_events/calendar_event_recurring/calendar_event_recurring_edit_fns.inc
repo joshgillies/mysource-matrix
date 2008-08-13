@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.28 2006/12/07 05:51:50 bcaldwell Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.28.6.1 2008/08/13 06:24:25 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -214,6 +214,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			</script>
 			<?php
 
+			hidden_field($prefix.'_frequency_field_printed', 1);
+
 		} else {
 			echo $asset->getFriendlyFrequency();
 		}
@@ -235,6 +237,12 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	*/
 	function processFrequencyField(&$asset, &$o, $prefix)
 	{
+		// Do not process further if the Frequency Field interface is not printed to the user.
+		// This can occur when a Simple Edit Layout does not include this field.
+		if (!(isset($_REQUEST[$prefix.'_frequency_field_printed']) && ($_REQUEST[$prefix.'_frequency_field_printed'] == 1))) {
+			return FALSE;
+		}
+
 		$res = TRUE;
 		if (isset($_REQUEST[$prefix.'_stop_date_selected']) && ($_REQUEST[$prefix.'_stop_date_selected'])) {
 			$_REQUEST[$prefix.'_stop_year'] = (int)$_REQUEST[$prefix.'_stop_year'];
