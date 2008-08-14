@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_user.inc,v 1.6 2007/01/11 05:37:25 amiller Exp $
+* $Id: ipb_user.inc,v 1.7 2008/08/14 03:47:40 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -62,9 +62,10 @@ class Ipb_User extends Backend_User
 
 		// set general object properties
 		$this->id = $ipb_bridge->id.':'.$data['id'];
-		$this->name = $data['name'];
-		if (empty($this->name)) {
+		if (!isset($data['name'])) {
 			$this->name = translate('ipb_unknown_user');
+		} else {
+			$this->name = $data['name'];
 		}
 
 		$this->short_name = $this->name;
@@ -112,11 +113,19 @@ class Ipb_User extends Backend_User
 			$this->vars['date_of_birth']['value'] = $data['bday_day'].' / '.$data['bday_month'].' / '.$data['bday_year'];
 		}
 
-		$this->vars['photo_type']['type']		= 'text';
-		$this->vars['photo_type']['value']		= $data['photo_type'];
+		if (isset($data['photo_type'])) {
+			$this->vars['photo_type']['value']	= $data['photo_type'];
+		} else {
+			$this->vars['photo_type']['value']	= '';
+		}
+		$this->vars['photo_type']['type']       = 'text';
 
-		$this->vars['photo_location']['type']	= 'text';
-		$this->vars['photo_location']['value']	= $data['photo_location'];
+		if (isset($data['photo_location'])) {
+			$this->vars['photo_location']['value']	= $data['photo_location'];
+		} else {
+			$this->vars['photo_location']['value']  = '';
+		}
+		$this->vars['photo_location']['type']   = 'text';
 
 		$this->vars['aim_name']['type']			= 'text';
 		$this->vars['aim_name']['value']		= (empty($data['aim_name'])) ? 'none' : $data['aim_name'];
