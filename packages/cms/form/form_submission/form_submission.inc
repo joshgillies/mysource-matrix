@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.31 2007/01/25 04:48:00 arailean Exp $
+* $Id: form_submission.inc,v 1.32 2008/08/15 01:54:58 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -453,6 +453,28 @@ class Form_Submission extends Asset
 		return $this->getIP();
 
 	}//end getSubmissionIpAddressKeywordReplacement()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = Array(
+						SQ_LINK_NOTICE	=> Array(
+											'file'	=> Array(
+														'card'		=> 'M',
+														'exclusive'	=> FALSE,
+													   ),
+										   ),
+					  );
+		return $page_links;
+
+	}//end _getAllowedLinks()
 
 
 }//end class

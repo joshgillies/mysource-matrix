@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.191 2008/07/07 05:09:01 bshkara Exp $
+* $Id: form.inc,v 1.192 2008/08/15 01:54:25 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1841,6 +1841,19 @@ class Form extends Asset implements Bridge
 				$this->submission_asset = $this->createSubmission();
 				for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
 					$this->submission_asset->setAnswer(key($questions), $question->getValue());
+					$uploaded_file_id = '';
+					if ($question instanceof Form_Question_Type_File_Upload) {
+						$uploaded_file_id = $question->getUploadedFileId();
+						if (trim($uploaded_file_id) != '') {
+							$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_file_id);
+							if (!is_null($uploaded_file)) {
+								$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->submission_asset->id, 'links');
+								$this->submission_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
+								$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->submission_asset->id, 'links');
+							}//end if
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($uploaded_file);
+						}//end if
+					}//end if
 					$this->submission_asset->setSummary(key($questions), $question->attr('name'), $question->getSummary());
 				}
 				$this->submission_asset->setIP($_SERVER['REMOTE_ADDR']);

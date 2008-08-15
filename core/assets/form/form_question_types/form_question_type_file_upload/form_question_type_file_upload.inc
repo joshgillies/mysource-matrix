@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.22 2008/02/18 04:52:48 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.23 2008/08/15 01:53:29 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -181,7 +181,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 				$ok = FALSE;
 				$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
 			}
-		}
+		}//end if
 
 		if ($ok) {
 			return parent::hasValidValue($answer, $mute_errors);
@@ -237,6 +237,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 			// Check that we are not going to have web path conflicts
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 			$valid_names = make_valid_web_paths(Array($this->getValue()));
 			$name = array_shift($valid_names);
 
@@ -261,11 +262,16 @@ class Form_Question_Type_File_Upload extends Form_Question
 			if (!empty($existing_file)) {
 				$existing_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
 				$info = $existing_file_asset->getExistingFile();
+				$assetid = $this->getUploadedFileId();
+				if (trim($assetid) != '') {
+					$this->_tmp['summary'] = get_asset_tag_line($assetid);
+					return $this->_tmp['summary'];
+				}//end if
 				$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
 			} else {
 				$this->_tmp['summary'] = translate('core_form_file_upload_none');
 			}
-		}
+		}//end if
 		return $this->_tmp['summary'];
 
 	}//end getSummary()
@@ -363,8 +369,8 @@ class Form_Question_Type_File_Upload extends Form_Question
 					}
 					$this->setValue($filename);
 				break;
-			}
-		}
+			}//end switch
+		}//end if
 
 		if ($existing_file) {
 
