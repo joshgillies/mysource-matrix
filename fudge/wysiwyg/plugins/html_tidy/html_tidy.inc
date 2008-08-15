@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.61 2008/08/13 01:58:58 akarelia Exp $
+* $Id: html_tidy.inc,v 1.62 2008/08/15 03:35:44 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -172,6 +172,8 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				if (!empty($this->_new_inline_tags)) {
 					$config['new-inline-tags']	= implode('","',$this->_new_inline_tags);
 				}
+				// replaces &middot; with a <li> 
+				$html = str_replace('&middot;','<li>',$html);
 
 				$html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 						<html><head><title></title>
@@ -196,7 +198,6 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				}
 
 				$this->htmltidy_errors = trim($error);
-
 				if (empty($tidy) || empty($tidy_char_set)) {
 					$this->htmltidy_status = 'fail';
 				} else {
