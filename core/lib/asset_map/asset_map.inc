@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.277 2008/07/17 05:43:57 gsherwood Exp $
+* $Id: asset_map.inc,v 1.278 2008/08/15 04:52:00 gsherwood Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.277 $
+* @version $Revision: 1.278 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -474,7 +474,10 @@ class Asset_Map
 					foreach ($parameters as $parameter => $value) {
 						?><param name="<?php echo $parameter; ?>" value="<?php echo $value; ?>" /><?php
 					}
-				echo translate('asset_map_error_jre_latest_version_msg', '<a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80" target="_blank">Java Runtime Environment</a>');
+
+					echo '<p class="sq-backend-header-item" style="margin: 10px;">';
+					echo translate('asset_map_error_jre_latest_version_msg', '<a class="sq-backend-header-item" style="text-decoration: underline" href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80" target="_blank">Java Runtime Environment</a>');
+					echo '</p>';
 			?>
 			</applet>
 			<?php
