@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.35 2007/12/06 23:06:33 lwright Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.36 2008/08/18 04:26:18 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,6 +118,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		$o->openField(translate('require_comment_from_unlisted_users'));
 			$require_comment_attr = $asset->getAttribute('require_comment_from_unlisted_users');
+			$xml = simplexml_load_string('<boolean true_text="yes" false_text="no" />');
+			$require_comment_attr->setEditParams($xml);
 			$require_comment_attr->paint($prefix.'_require_comment_from_unlisted_users', !$write_access);
 			$o->note(translate('require_comment_from_unlisted_users_explanation'));
 		$o->closeField();
@@ -134,6 +136,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$o->closeField();
 		$o->openField('Escalate?');
 			$comparator_attr = $asset->getAttribute('escalate');
+			$xml = simplexml_load_string('<boolean true_text="yes" false_text="no" />');
+			$comparator_attr->setEditParams($xml);
 			$comparator_attr->paint($prefix.'_escalate', !$write_access);
 			$o->note(translate('escalate_note'));
 			if ($asset->attr('escalate') == TRUE) {
