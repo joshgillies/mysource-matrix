@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.5 2007/03/05 22:03:45 rong Exp $
+* $Id: replace_text.inc,v 1.5.4.1 2008/08/18 04:43:57 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -38,15 +38,17 @@ class Replace_Text extends WYSIWYG_Plugin
 	* Constructor
 	* Adds the buttons for this plugins functions
 	*
-	* @returns object Format_Text
-	* @access  public
+	* @return object
+	* @access public
 	*/
 	function replace_text()
 	{
 		$this->_add_button('replacetext','ReplaceText','Replace Text','false','11');
-	}
 
-/**
+	}//end replace_text()
+
+
+	/**
 	* Open the Replace Text plugin dialog
 	*
 	* @return void
@@ -77,6 +79,13 @@ class Replace_Text extends WYSIWYG_Plugin
 					for (var i=1;i<types.length;i++)
 						if (types[i])
 							{
+							// Bug #3204  - Remove Word Document HTML Clipboard Tags, that get pasted through on Firefox 3
+							localreg = new RegExp("<link rel=\"(.*)\" href=\"file(.*)\">", "gi");
+							localrep = "";
+							curHTML = curHTML.replace(localreg, localrep);
+							wordreg = new RegExp("<w\:(.*)>(.*)<\/w\:(.*)>", "gi");
+							wordrep = "";
+							curHTML = curHTML.replace(wordreg, wordrep);
 							switch (i) {
 								case 1	: {
 									reg = new RegExp("<\/?font ?[^>]*>", "gi");
