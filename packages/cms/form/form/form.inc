@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178.2.11 2008/08/15 01:49:41 bpearson Exp $
+* $Id: form.inc,v 1.178.2.12 2008/08/18 05:33:12 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178.2.11 $
+* @version $Revision: 1.178.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1835,9 +1835,9 @@ class Form extends Asset implements Bridge
 						if (trim($uploaded_file_id) != '') {
 							$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_file_id);
 							if (!is_null($uploaded_file)) {
-								$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->submission_asset->id, 'links');
+								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 								$this->submission_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
-								$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->submission_asset->id, 'links');
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 							}//end if
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($uploaded_file);
 						}//end if
