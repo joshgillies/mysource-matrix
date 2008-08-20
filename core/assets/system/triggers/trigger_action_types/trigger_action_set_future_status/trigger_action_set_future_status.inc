@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.20 2007/12/11 02:57:27 rong Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.21 2008/08/20 00:56:46 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Avi Miller <amiller@squiz.net>
 * @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -404,7 +404,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 					if ($write_access) {
 						$attr_options = Array('' => '');
 						foreach ($attrs as $name => $type) {
-							if ($type == 'datetime') $attr_options[$name] = $name;
+							if ($type['type'] == 'datetime') $attr_options[$name] = $name;
 						}
 						combo_box($prefix.'[attribute]', $attr_options, FALSE, $attr);
 					} else {
