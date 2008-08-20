@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.13 2006/12/06 05:15:10 bcaldwell Exp $
+* $Id: csv.inc,v 1.13.8.1 2008/08/20 23:00:15 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.8.1 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -204,6 +204,23 @@ class CSV
 		} else {
 			header('Content-Type: application/csv');
 			header('Content-Disposition: attachment; filename='.$this->_filename.';');
+			
+			//This is known that Internet Explorer has problems with SSL connection (https).
+			//http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
+			//http://support.microsoft.com/default.aspx?scid=kb;en-us;
+			// do not send no cache header in https for IE
+
+			// get protocol information
+            $url_info = parse_url(current_url());
+            $protocol = (isset($url_info['scheme'])) ? $url_info['scheme'] : NULL;
+
+            if (!is_null($protocol) && $protocol == 'https') {
+                header('Cache-Control: private, max-age=0, must-revalidate');
+                header('Pragma: private');
+                header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+
+            }
+
 		}
 
 	}//end setHeader()
