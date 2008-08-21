@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_schema.inc,v 1.11 2008/06/19 06:24:02 lwright Exp $
+* $Id: trigger_action_set_metadata_schema.inc,v 1.12 2008/08/21 06:28:37 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that applies or denies a metadata schema
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -189,7 +189,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 		$settings['schemaid'] = array_get_index($schema_info, 'assetid', 0);
 		$settings['granted'] = array_get_index($request_data, 'granted', TRUE);
 		$settings['cascade'] = array_get_index($request_data, 'cascade', FALSE);
-		$settings['cascade_to_new'] = array_get_index($request_data, 'cascade_to_new', TRUE);
+		$settings['cascade_to_new'] = array_get_index($request_data, 'cascade_to_new', FALSE);
 		return FALSE;
 
 	}//end processInterface()
