@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.219 2008/07/31 06:19:11 bpearson Exp $
+* $Id: search_page.inc,v 1.220 2008/08/21 23:49:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.219 $
+* @version $Revision: 1.220 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -430,8 +430,8 @@ class Search_Page extends Listing_Engine
 	/**
 	* Remove assets with a status that we do not want to show
 	*
-	* Search page doesnt need to filter anything because does everything for it,
-	* including checking read access.
+	* Search page doesnt need to filter anything because Search Manager does
+	* everything for it, including checking read access.
 	*
 	* @param array	&$todo	an array of assets to list in the same format as the return
 	*						value of getAssetList()
