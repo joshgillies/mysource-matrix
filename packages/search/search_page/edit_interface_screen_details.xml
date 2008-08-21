@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.44 2008/05/14 06:39:24 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.45 2008/08/21 03:53:19 lwright Exp $
 *
 */
 -->
@@ -23,7 +23,7 @@
 			<text width="15" />
 		</field>
 	</section>
-	<section name="Search Parameters" >
+	<section name="Search Parameters">
 		<field  write_access="write:content">
 			<function_call>
 				<paint_function   name="paintRootNode"  />
@@ -56,37 +56,37 @@
 				<process_function name="processCustomiseSearchForms" />
 			</function_call>
 		</field>
-		<field attribute="lineage_seperator" read_access="" write_access="write:attributes" >
+		<field attribute="lineage_seperator" write_access="write:attributes">
 			<text />
 		</field>
-		<field attribute="search_as_public_user" read_access="" write_access="write:attributes" >
+		<field attribute="search_as_public_user" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="no_roles_check" read_access="" write_access="write:attributes" >
+		<field attribute="no_roles_check" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="no_group_access_check" read_access="" write_access="write:attributes" >
+		<field attribute="no_group_access_check" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="root_in_lineage" read_access="" write_access="write:attributes" >
+		<field attribute="root_in_lineage" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="self_in_lineage" read_access="" write_access="write:attributes" >
+		<field attribute="self_in_lineage" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="submit_button_text" read_access="" write_access="write:attributes" >
+		<field attribute="submit_button_text" write_access="write:attributes">
 			<text />
 		</field>
-		<field attribute="reset_button_text" read_access="" write_access="write:attributes" >
+		<field attribute="reset_button_text" write_access="write:attributes">
 			<text />
 		</field>
-		<field attribute="sis_button_text" read_access="" write_access="write:attributes" >
+		<field attribute="sis_button_text" write_access="write:attributes">
 			<text />
 		</field>
-		<field attribute="prev_page_text" read_access="" write_access="write:attributes" >
+		<field attribute="prev_page_text" write_access="write:attributes">
 			<text width="30" />
 		</field>
-		<field attribute="next_page_text" read_access="" write_access="write:attributes" >
+		<field attribute="next_page_text" write_access="write:attributes">
 			<text width="30" />
 		</field>
 	</section>
