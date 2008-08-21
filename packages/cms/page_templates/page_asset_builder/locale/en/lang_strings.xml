@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.10.8.1 2008/03/12 04:04:22 lwright Exp $
+* $Id: lang_strings.xml,v 1.10.8.2 2008/08/21 00:29:27 bpearson Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -63,6 +63,8 @@
 <string source="cms_asset_builder_keyword_form_captcha_image">Display Captcha Image</string>
 <string source="cms_asset_builder_keyword_form_captcha_field">Display Captcha Field</string>
 <string source="cms_asset_builder_keyword_form_captcha_link">Display Captcha Link</string>
+
+<string source="unknown_metadata_field">Unknown Metadata Field</string>
 
 
 <!-- strings for javascript -->

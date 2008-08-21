@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.9 2008/07/30 17:37:20 gnoel Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.10 2008/08/21 00:29:27 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.9 $
+* @version $Revision: 1.122.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -435,37 +435,108 @@ class Page_Asset_Builder extends Page
 					if (!empty($required_fields[$new_asset->type()])) {
 
 						foreach ($required_fields[$new_asset->type()] as $attr => $error_text) {
-							$real_attribute = $new_asset->getAttribute($attr, TRUE);
-							if (is_null($real_attribute)) continue;
-							// take a copy of the attribute so we don't muck anything up for the processBackend() below
-							$attribute = clone $real_attribute;
-							$attribute->process($prefix.'_'.$attribute->id);
-
-							// For attributes that use paint and process functions, they return an empty result
-							// So we should try again with a different param
-							// See Bug #3099
-							if (empty($attribute->value)) {
-								$attribute->process($prefix.'_'.$attribute->name);
-							}//end if
-
-							if (!$attribute->processed) {
-								if (empty($error_text)) {
-									$error_text = translate('cms_asset_builder_invalid_attr_value', $attribute->name);
+							$pos = strpos($attr, $this->getPrefix().'_metadata_');
+							if ($pos !== FALSE) {
+								// Process metadata
+								$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+								$am = $GLOBALS['SQ_SYSTEM']->am;
+								$metadata_values = Array();
+								$cascade_values_asset_ids = Array();
+								$metadata_schemas = Array();
+								$metadata_schema_list = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'schema_to_apply');
+								foreach ($metadata_schema_list as $metadata_schema) {
+									$metadata_schemas[] = $metadata_schema['minorid'];
 								}
-								trigger_error($error_text, E_USER_NOTICE);
-								$required_error = TRUE;
-							} else if (empty($attribute->value)) {
-								if (empty($error_text)) {
-									$error_text = translate('cms_asset_builder_missing_attr', $attribute->name);
-								}
-								trigger_error($error_text, E_USER_NOTICE);
-								$required_error = TRUE;
-							}
+								if (!empty($metadata_schemas)) {
+									$create_locations = $this->getCreateLocations($create_type);
+									$metadata_field = substr($attr, strlen($this->getPrefix().'_metadata_'));
+									$mf_asset = $am->getAsset($metadata_field);
+									$valid_value = TRUE;
+									$no_write_access = TRUE;
+									$empty_value = TRUE;
 
+									// Validate the metadata value
+									if (!is_null($mf_asset)) {
+										$edit_fns = $mf_asset->getEditFns();
+										$cascade = TRUE;
+										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade);
+										if (!$did_process) {
+											$valid_value = FALSE;
+										}//end if
+										if (empty($result_value)) {
+											// Maybe using default
+											if (!is_null($result_value)) {
+												$empty_value = FALSE;
+											}
+										}//end if
+									}//end if
+
+									// Check for write access
+									if (!empty($create_locations)) {
+										foreach ($create_locations as $create_location => $omgwtfbbq) {
+											$asset = $am->getAsset($create_location);
+												if (!is_null($asset) && !$asset->writeAccess('')) {
+													$no_write_access = FALSE;
+												}//end if
+											$am->forgetAsset($asset);
+										}//end foreach
+									}//end if
+
+									if (!$valid_value || !$no_write_access) {
+										if (empty($error_text)) {
+											$error_text = translate('cms_asset_builder_invalid_attr_value', $mf_asset->name);
+										}
+										trigger_error($error_text, E_USER_NOTICE);
+										$required_error = TRUE;
+									} else if (!$empty_value) {
+										if (empty($error_text)) {
+											$error_text = translate('cms_asset_builder_missing_attr', $mf_asset->name);
+										}
+										trigger_error($error_text, E_USER_NOTICE);
+										$required_error = TRUE;
+									}//end else
+
+									// Forget a few things
+									$am->forgetAsset($schema);
+									$am->forgetAsset($mf_asset);
+									$am->forgetAsset($temp_asset);
+									unset($temp_asset);
+
+								}//end if
+							} else {
+								// Process attributes
+								$real_attribute = $new_asset->getAttribute($attr, TRUE);
+								if (is_null($real_attribute)) continue;
+								// take a copy of the attribute so we don't muck anything up for the processBackend() below
+								$attribute = clone $real_attribute;
+								$attribute->process($prefix.'_'.$attribute->id);
+
+								// For attributes that use paint and process functions, they return an empty result
+								// So we should try again with a different param
+								// See Bug #3099
+								if (empty($attribute->value)) {
+									$attribute->process($prefix.'_'.$attribute->name);
+								}//end if
+
+								if (!$attribute->processed) {
+									if (empty($error_text)) {
+										$error_text = translate('cms_asset_builder_invalid_attr_value', $attribute->name);
+									}
+									trigger_error($error_text, E_USER_NOTICE);
+									$required_error = TRUE;
+								} else if (empty($attribute->value)) {
+									if (empty($error_text)) {
+										$error_text = translate('cms_asset_builder_missing_attr', $attribute->name);
+									}
+									trigger_error($error_text, E_USER_NOTICE);
+									$required_error = TRUE;
+								}
+
+								unset($real_attribute);
+								unset($attribute);
+
+							}//end else
 						}//end foreach
-
-						unset($real_attribute);
-						unset($attribute);
 
 					}//end if
 

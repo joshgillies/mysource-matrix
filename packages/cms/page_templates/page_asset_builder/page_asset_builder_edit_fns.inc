@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.47 2007/12/05 06:09:10 colivar Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.47.2.1 2008/08/21 00:29:27 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1382,6 +1382,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current = $asset->attr('required_fields');
+		$metadata_schemas = Array();
+		$metadata_schema_list = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'schema_to_apply');
+		foreach ($metadata_schema_list as $metadata_schema) {
+			$metadata_schemas[] = $metadata_schema['minorid'];
+		}
 
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
 
@@ -1403,7 +1408,6 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			if (empty($current[$create_type])) {
 				echo translate('cms_asset_builder_no_required_attrs');
 			} else {
-
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -1417,9 +1421,24 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					</tr>
 					<?php
 					foreach ($current[$create_type] as $attr => $error_text) {
+						$required_name = '';
+						$pos = strpos($attr, $prefix.'_metadata_');
+						if ($pos !== FALSE) {
+							if (empty($metadata_schemas)) continue;
+							$metadata_field = substr($attr, strlen($prefix.'_metadata_'));
+							$am = $GLOBALS['SQ_SYSTEM']->am;
+							$mf_asset = $am->getAsset($metadata_field);
+							if (!is_null($mf_asset)) {
+								$required_name = 'Metadata: '.$mf_asset->name;
+							} else {
+								$required_name = translate('unknown_metadata_field');
+							}
+						} else {
+							$required_name = $attributes[$attr];
+						}
 						?>
 						<tr>
-							<td class="sq-backend-table-cell"><?php echo $attributes[$attr]; ?></td>
+							<td class="sq-backend-table-cell"><?php echo $required_name; ?></td>
 							<td class="sq-backend-table-cell">
 								<?php
 								if ($write_access) {
@@ -1440,7 +1459,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							?>
 						</tr>
 						<?php
-					}
+					}//end foreach
 					?>
 				</table>
 				<?php
@@ -1452,6 +1471,21 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				foreach ($attributes as $attr => $name) {
 					if (isset($current[$create_type][$attr])) continue;
 					$new_required[$attr] = $name;
+				}
+				// If a metadata schema is applied, allow the option to choose Metadata as a required field
+				if (!empty($metadata_schemas)) {
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$am = $GLOBALS['SQ_SYSTEM']->am;
+					$metadata_fields = $mm->getMetadataFields($metadata_schemas);
+					foreach ($metadata_fields as $metadata_field => $metadata_field_type_code) {
+						if (isset($current[$create_type][$prefix.'_metadata_'.$metadata_field])) continue;
+						// Get each field from the schema
+						$asset = $am->getAsset($metadata_field);
+						if (!is_null($asset)) {
+							$new_required[$prefix.'_metadata_'.$metadata_field] = 'Metadata: '.$asset->name;
+						}//end if
+						$am->forgetAsset($asset);
+					}//end foreach
 				}
 
 				echo '<br/><b>'.translate('cms_asset_builder_new_req_attr_question').' </b>';
@@ -1493,9 +1527,13 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			// construct new required fields array removing deleted fields and updating error text
 			foreach ($current[$create_type] as $attr => $error_text) {
 				if (!isset($_POST[$type_prefix.'_delete_required'][$attr]) || !$_POST[$type_prefix.'_delete_required'][$attr]) {
-					$required_fields[$create_type][$attr] = (isset($_POST[$type_prefix.'_required_field'][$attr])) ? trim($_POST[$type_prefix.'_required_field'][$attr]) : $current[$create_type][$attr];
-				}
-			}
+					if (isset($_POST[$type_prefix.'_required_field'][$attr])) {
+						$required_fields[$create_type][$attr] = trim($_POST[$type_prefix.'_required_field'][$attr]);
+					} else {
+						$required_fields[$create_type][$attr] = $current[$create_type][$attr];
+					}//end else
+				}//end if
+			}//end foreach
 
 			// add new required field
 			if (isset($_POST[$type_prefix.'_new_required']) && !empty($_POST[$type_prefix.'_new_required'])) {
