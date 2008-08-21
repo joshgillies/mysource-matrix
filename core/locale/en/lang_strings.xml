@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.285 2008/07/03 02:07:23 bshkara Exp $
+* $Id: lang_strings.xml,v 1.286 2008/08/21 06:37:19 ewang Exp $
 *
 */
 
@@ -568,6 +568,7 @@
 
 	<string source="manually_cascade_schema">Manually cascade schemas</string>
 	<string source="cascade_schema_changes">Cascade schema changes</string>
+	<string source="cascade_schema_changes_to_new_children">Cascade this new schema to newly-created children </string>
 	<string source="no_children_to_cascade_workflow">There are no children to cascade workflow schemas to</string>
 	<string source="cannot_cascade_while_workflow_running">You cannot cascade workflow schemas while workflow is running</string>
 	<string source="no_access_to_cascade_workflow">You do not have access to cascade workflow schemas for this asset</string>
