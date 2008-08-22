@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.60.2.1 2008/03/12 04:03:48 lwright Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.60.2.2 2008/08/22 04:03:24 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60.2.1 $
+* @version $Revision: 1.60.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -303,6 +303,11 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$output = str_replace("\r\n","\n", $output);
 		$output = str_replace("\r","\n", $output);
 		$output = preg_replace("/\\?>\n/m", '?'.'>'."\n\n", $output);
+
+		// Line endings should really be \r\n; when sent to a browser, MIME type
+		// standards require \r\n line endings for all text/* types
+		// [cf. RFC 2046]. Best to cache it out using \r\n endings then
+		$output = str_replace("\n","\r\n", $output);
 
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
