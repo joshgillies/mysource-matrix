@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.25.2.1 2008/07/02 06:18:37 lwright Exp $
+* $Id: metadataSchemas.inc,v 1.25.2.2 2008/08/22 01:46:44 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25.2.1 $
+* @version $Revision: 1.25.2.2 $
 * @package MySource_Matrix
 */
 
@@ -305,6 +305,7 @@ function processMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 									'assetids'			=> Array($owner->id),
 									'granted'			=> -1,
 									'schemaid'			=> $schemaid,
+									'cascades'			=> $cascade_changes,
 									'previous_access'	=> $current_access,
 								 );
 			} else {
