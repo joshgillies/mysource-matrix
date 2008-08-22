@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_sort_orders.php,v 1.1.2.1 2008/08/22 05:14:26 bpearson Exp $
+* $Id: system_integrity_fix_sort_orders.php,v 1.1.2.2 2008/08/22 06:20:50 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * This script resorts the sort order of the SQ_AST_LNK table
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -198,7 +198,7 @@ function get_children($node, &$errors)
 	// Empty by default until something goes into it
 	$children = Array();
 
-	$children_sql = 'SELECT minorid FROM sq_ast_lnk WHERE majorid='.$db->quoteSmart($node).' ORDER BY link_type';
+	$children_sql = 'SELECT minorid FROM sq_ast_lnk WHERE majorid='.$db->quoteSmart($node).' ORDER BY link_type,sort_order';
 	$found_children	= $db->getCol($children_sql);
 	assert_valid_db_result($found_children);
 
