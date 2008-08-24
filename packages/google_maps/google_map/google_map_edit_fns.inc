@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_edit_fns.inc,v 1.1.1.1 2008/07/04 05:19:54 hnguyen Exp $
+* $Id: google_map_edit_fns.inc,v 1.2 2008/08/24 23:23:49 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -113,7 +113,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
     function redirectToBodycopy(&$asset, &$o, $prefix)
     {
         // get the bodycopy attached to us
-        $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', 'Map Content', '1', '1');
+        $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', 'page_contents', '1', '1');
         $bodycopy = NULL;
         if (!empty($bodycopy_link)) {
             $bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
@@ -623,48 +623,6 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		?>
 		<?php
 
-
-		/*
-		$o->openField('Custom Keywords For Assets Mapping');
-			if ($wa) {
-				$options =	Array(
-								'1'	=> 'Yes',
-								'0'	=> 'No',
-							);
-				combo_box($prefix.'_default_listing_asset', $options, FALSE, $default_listing_asset, 0, $extra_custom);
-			} else {
-				echo $default_listing_asset ? 'Yes' : 'No';
-			}//end else
-		$o->closeField();
-
-		$latitude_keyword		= $asset->attr('latitude_keyword');
-		$o->openField('Latitude Keyword');
-			if ($wa) {
-				text_box($prefix.'_latitude_keyword', $latitude_keyword, 25, '', FALSE, $extra_fields);
-			} else {
-				echo $latitude_keyword;
-			}//end else
-		$o->closeField();
-
-		$longitude_keyword		= $asset->attr('longitude_keyword');
-		$o->openField('Longitude Keyword');
-			if ($wa) {
-				text_box($prefix.'_longitude_keyword', $longitude_keyword, 25, '', FALSE, $extra_fields);
-			} else {
-				echo $longitude_keyword;
-			}//end else
-		$o->closeField();
-
-		$description_keyword	= $asset->attr('description_keyword');
-		$o->openField('Description Keyword');
-			if ($wa) {
-				text_box($prefix.'_description_keyword', $description_keyword, 25, '', FALSE, $extra_fields);
-			} else {
-				echo $description_keyword;
-			}//end else
-		$o->closeField();
-*/
-
 		return $wa;
 
     }//end paintListingOption()
@@ -757,48 +715,210 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}//end foreach
 		}//end if
 
-		/*
-		$enable_listing			= $asset->attr('enable_listing');
-		$default_listing_asset	= $asset->attr('default_listing_asset');
-		$latitude_keyword		= $asset->attr('latitude_keyword');
-		$longitude_keyword		= $asset->attr('longitude_keyword');
-		$description_keyword	= $asset->attr('description_keyword');
-
-		if (!$enable_listing || !$wa) {
-			return FALSE;
-		}//end if
-
-		$attr_change	= FALSE;
-		$new_default_listing_asset	= isset($_POST[$prefix.'_default_listing_asset']) ? $_POST[$prefix.'_default_listing_asset'] : '';
-		if (!is_null($new_default_listing_asset) && $new_default_listing_asset != $default_listing_asset) {
-			$asset->setAttrValue('default_listing_asset', $new_default_listing_asset);
-			$attr_change = TRUE;
-		}//end if
-
-		$new_latitude_keyword		= isset($_POST[$prefix.'_latitude_keyword']) ? $_POST[$prefix.'_latitude_keyword'] : '';
-		if (!empty($new_latitude_keyword) && $new_latitude_keyword != $latitude_keyword) {
-			$asset->setAttrValue('latitude_keyword', $new_latitude_keyword);
-			$attr_change = TRUE;
-		}//end if
-
-		$new_longitude_keyword		= isset($_POST[$prefix.'_longitude_keyword']) ? $_POST[$prefix.'_longitude_keyword'] : '';
-		if (!empty($new_longitude_keyword) && $new_longitude_keyword != $longitude_keyword) {
-			$asset->setAttrValue('longitude_keyword', $new_longitude_keyword);
-			$attr_change = TRUE;
-		}//end if
-
-		$new_description_keyword	= isset($_POST[$prefix.'_description_keyword']) ? $_POST[$prefix.'_description_keyword'] : '';
-		if (!empty($new_description_keyword) && $new_description_keyword != $description_keyword) {
-			$asset->setAttrValue('description_keyword', $new_description_keyword);
-			$attr_change = TRUE;
-		}//end if
-		*/
-
 		if ($attr_change)	$asset->saveAttributes();
 
 		return TRUE;
 
     }//end paintListingOption()
+
+
+    /**
+    * paint Asset Types
+    *
+    * @param object $asset
+    * @param object $o
+    * @param string $prefix
+    *
+    * @return boolean
+    * @access public
+    */
+    function paintAssetTypes(&$asset, &$o, $prefix)
+    {
+    	$wa = $asset->writeAccess('attributes');
+		parent::paintAssetTypes(&$asset, &$o, $prefix);
+		$types = $asset->attr('types');
+		$keywords_list	= $asset->attr('asset_types_keywords');
+
+		$o->openRaw();
+		foreach ($types as $type_code => $inherit) {
+			if ($type_code !== 'google_map_location') {
+
+					?>
+					<div id="<?php echo $prefix ?>_mandatory_fields" style="padding: 0.5em 0px 0px 30px;margin-left:75px;">
+						<?php if (!isset($keywords_list[$type_code])) echo 'Type code '.ucwords(str_replace('_',' ', $type_code)) .' is not of type Google Map Location, Mapping of keywords is required.'; ?>
+						<p class="sq-backend-section-subheading"><?php echo 'Keyword mapping for '.ucwords(str_replace('_',' ', $type_code)); ?></p>
+
+						<div id="<?php echo $prefix ?>_connector_div" style="padding: 0px 0px 2em 30px;">
+							<table class="sq-backend-table" style="width:100%">
+								<tr>
+									<td width="100"><p></p>Location Name keyword</td>
+									<td><p><?php
+												if (!$wa) {
+													echo array_get_index($keywords_list[$type_code], 'name_keyword', '');
+												} else {
+													text_box($prefix.'_'.$type_code.'_name_keyword', array_get_index($keywords_list[$type_code], 'name_keyword', ''), 50);
+												}//end if
+										   ?></p></td>
+								</tr>
+								<tr>
+									<td width="100"><p></p>Latitute keyword</td>
+									<td><p><?php
+												if (!$wa) {
+													echo array_get_index($keywords_list[$type_code], 'latitude_keyword', '');
+												} else {
+													text_box($prefix.'_'.$type_code.'_latitute_keyword', array_get_index($keywords_list[$type_code], 'latitude_keyword', ''), 50);
+												}//end if
+										   ?></p></td>
+								</tr>
+								<tr>
+									<td width="100"><p></p>Longitude keyword</td>
+									<td><p><?php
+												if (!$wa) {
+													echo array_get_index($keywords_list[$type_code], 'longitude_keyword', '');
+												} else {
+													text_box($prefix.'_'.$type_code.'_longitude_keyword', array_get_index($keywords_list[$type_code], 'longitude_keyword', ''), 50);
+												}//end else
+										   ?></p></td>
+								</tr>
+								<tr>
+									<td width="100"><p></p>Description keyword</td>
+									<td><p><?php
+												if (!$wa) {
+													echo array_get_index($keywords_list[$type_code], 'description_keyword', '');
+												} else {
+													text_box($prefix.'_'.$type_code.'_description_keyword', array_get_index($keywords_list[$type_code], 'description_keyword', ''), 50);
+												}//end else
+										   ?></p></td>
+								</tr>
+								<tr>
+									<td width="100"><p></p>Icon URL keyword</td>
+									<td><p><?php
+												if (!$wa) {
+													echo array_get_index($keywords_list[$type_code], 'icon_url_keyword', '');
+												} else {
+													text_box($prefix.'_'.$type_code.'_icon_url_keyword', array_get_index($keywords_list[$type_code], 'icon_url_keyword', ''), 50);
+												}
+										   ?></p></td>
+								</tr>
+								<tr>
+									<td width="100"><p></p>Address Keyword</td>
+									<td><p><?php
+												if (!$wa) {
+													echo array_get_index($keywords_list[$type_code], 'address_keyword', '');
+												} else {
+													text_box($prefix.'_'.$type_code.'_address_keyword', array_get_index($keywords_list[$type_code], 'address_keyword', ''), 50);
+												}
+										   ?></p></td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<?php
+
+			}//end if
+		}//end foreach
+		?><br /><br /><?php
+		$o->closeRaw();
+
+    }//end paintAssetTypes()
+
+
+	/**
+    * process listing function
+    *
+    * @param object $asset
+    * @param object $o
+    * @param string $prefix
+    *
+    * @return boolean
+    * @access public
+    */
+    function processAssetTypes(&$asset, &$o, $prefix)
+    {
+		parent::processAssetTypes(&$asset, &$o, $prefix);
+
+		// In this process function we have to capture all the values given to each of the asset types.
+		$types = $asset->attr('types');
+		$keywords_list	= $asset->attr('asset_types_keywords');
+
+		foreach ($types as $type_code => $inherit) {
+			if ($type_code !== 'google_map_location') {
+				// Now we check for everything in POST
+				$keywords_list[$type_code]['name_keyword']			= array_get_index($_POST, $prefix.'_'.$type_code.'_name_keyword', NULL);
+				$keywords_list[$type_code]['latitude_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_latitute_keyword', NULL);
+				$keywords_list[$type_code]['longitude_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_longitude_keyword', NULL);
+				$keywords_list[$type_code]['description_keyword']	= array_get_index($_POST, $prefix.'_'.$type_code.'_description_keyword', NULL);
+				$keywords_list[$type_code]['icon_url_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_icon_url_keyword', NULL);
+				$keywords_list[$type_code]['address_keyword']		= array_get_index($_POST, $prefix.'_'.$type_code.'_address_keyword', NULL);
+			}//end if
+		}//end foreach
+		$asset->setAttrValue('asset_types_keywords', $keywords_list);
+
+    }//end processAssetTypes()
+
+
+    /**
+    * This function paint the map code
+    *
+    * @return void
+    * @access public
+    */
+    function paintMapInitialisation(&$asset, &$o, $prefix)
+    {
+		$wa = $asset->writeAccess('attributes');
+
+		$o->openField('Map Initialisation');
+		$map_code	= $asset->attr('map_code');
+		if ($wa) {
+			text_area($prefix.'_map_code', $map_code, 100, 10);
+		} else {
+			echo nl2br(htmlentities($map_code));
+		}//end else
+		$o->closeField();
+
+		$o->openField('Street View Initialisation');
+		$street_view_code	= $asset->attr('street_view_code');
+		if ($wa) {
+			text_area($prefix.'_street_view_code', $street_view_code, 100, 10);
+		} else {
+			echo nl2br(htmlentities($street_view_code));
+		}//end else
+		$o->closeField();
+
+
+		return $wa;
+
+    }//end paintMapInitialisation()
+
+
+    /**
+    * This function paint the map code
+    *
+    * @return void
+    * @access public
+    */
+    function processMapInitialisation(&$asset, &$o, $prefix)
+    {
+		$wa = $asset->writeAccess('attributes');
+		if (isset($_POST[$prefix.'_map_code'])) {
+			$new_map_code	= $_POST[$prefix.'_map_code'];
+			$map_code	= $asset->attr('map_code');
+			if ($new_map_code != $map_code) {
+				$asset->setAttrValue('map_code', $new_map_code);
+			}//end if
+		}//end if
+
+		if (isset($_POST[$prefix.'_street_view_code'])) {
+			$new_street_view_code	= $_POST[$prefix.'_street_view_code'];
+			$street_view_code	= $asset->attr('street_view_code');
+			if ($new_street_view_code != $street_view_code) {
+				$asset->setAttrValue('street_view_code', $new_street_view_code);
+			}//end if
+		}//end if
+
+		return TRUE;
+
+    }//end processMapInitialisation()
 
 
 }//end class

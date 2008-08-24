@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_management.inc,v 1.1.1.1 2008/07/04 05:19:54 hnguyen Exp $
+* $Id: google_map_management.inc,v 1.2 2008/08/24 23:23:49 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -45,6 +45,30 @@ class Google_Map_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '',
 													'description'	=> 'The API Key provided by Google',
+													'is_admin'		=> FALSE,
+													'parameters'	=> Array (
+																		'allow_empty'	=> TRUE,
+																   ),
+												   ),
+						'map_code'				=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '<div id="map" style="width:300px;height:400px;border:solid 0px;"></div>
+<script type="text/javascript">
+	init();
+	window.onunload = GUnload;
+</script>',
+													'description'	=> 'Map code',
+													'is_admin'		=> FALSE,
+													'parameters'	=> Array (
+																		'allow_empty'	=> TRUE,
+																   ),
+												   ),
+						'street_view_code'		=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '<div id="street_view" style="width:400px; height:300px"></div>',
+													'description'	=> 'Map code',
 													'is_admin'		=> FALSE,
 													'parameters'	=> Array (
 																		'allow_empty'	=> TRUE,
@@ -210,6 +234,7 @@ class Google_Map_Management extends Asset_Management
                                                    					'longitude'				=> '',
 																	'description'			=> '',
                                                    					'zoom_level'			=> '',
+																	'icon_url'				=> '',
                                                    					'map_type'				=> '',
                                                                    ),
                                                    ),
@@ -233,32 +258,32 @@ class Google_Map_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																   ),
 												   ),
-						'enable_adding_marker'	=> Array (
+						'enable_geocoder'		=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
 													'default'		=> 'FALSE',
-													'description'	=> 'Allow adding of markers on the map',
+													'description'	=> 'Use of Geocoding service',
 													'is_admin'		=> FALSE,
 													'parameters'	=> Array (
 																		'allow_empty'	=> FALSE,
 																   ),
 												   ),
-						'listing_root_nodes'	=> Array (
+						'asset_types_keywords'	=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'serialise',
 													'default'		=> Array (),
 													'description'	=> 'Store all the associate',
 													'is_admin'		=> FALSE,
 												   ),
-						'default_listing_asset'	=> Array (
+						'toggle_root_nodes'		=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
 													'default'		=> 'FALSE',
-													'description'	=> 'Enable or Disable use of keywords for listing',
+													'description'	=> 'Enable or Disable toogling marker of different rootnodes.',
 													'is_admin'		=> FALSE,
 													'parameters'	=> Array (
 																		'allow_empty'	=> FALSE,
-																   ),
+																	   ),
 												   ),
 						'latitude_keyword'		=> Array (
 													'added'			=> '0.1',
@@ -290,6 +315,26 @@ class Google_Map_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
+						'enable_street_view'		=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> 'FALSE',
+													'description'	=> 'Enable or Disable Google Street View capability',
+													'is_admin'		=> FALSE,
+													'parameters'	=> Array (
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
+						'enable_create_location'	=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> 'FALSE',
+													'description'	=> 'Enable or Disable creating of new Google Map Location',
+													'is_admin'		=> FALSE,
+													'parameters'	=> Array (
+																		'allow_empty'	=> FALSE,
+																	   ),
+												   ),
 					  );
 
 	}//end constructor
@@ -308,9 +353,40 @@ class Google_Map_Management extends Asset_Management
 				'js/map_lib.js',
         		'images/star_icon.png',
         		'images/globe.png',
+        		'images/arrowdown.png',
+        		'images/glasses.png',
+				'images/binocular.png',
+        		'images/map.png',
 			   );
 
 	}//end _getFileList()
+
+
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> FALSE,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 
 }//end class

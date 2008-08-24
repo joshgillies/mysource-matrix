@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2008/07/04 05:19:54 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2008/08/24 23:23:49 hnguyen Exp $
 *
 */
 -->
@@ -36,13 +36,16 @@
 		<field attribute="map_type_control">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="enable_listing">
+		<field attribute="toggle_root_nodes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="use_custom_popup_html">
+		<field attribute="enable_create_location">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="enable_adding_marker">
+		<field attribute="enable_geocoder">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="enable_street_view">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
@@ -67,6 +70,14 @@
 	            <paint_function name="paintDefaultIconSize" />
 	            <process_function name="processDefaultIconSize" />
 	        </function_call>
+		</field>
+	</section>
+	<section name="Map Initialisation" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+	            <paint_function name="paintMapInitialisation" />
+	            <process_function name="processMapInitialisation" />
+			</function_call>
 		</field>
 	</section>
 </contents>

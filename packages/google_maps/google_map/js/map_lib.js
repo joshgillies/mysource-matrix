@@ -1,3 +1,8 @@
+
+	/**
+	* This function is used to initialize the GMAP Object and set all the default parameters
+	*
+	*/
 	function init()	{
 		if (GBrowserIsCompatible()) {
 			map = new GMap2(document.getElementById("map"));
@@ -5,52 +10,104 @@
 			var location = new GLatLng(centerLatitude, centerLongitude);
 			map.setCenter(location, zoomLevel);
 			map.setMapType(map_type);
-			getCoveredArea(centerLatitude, centerLongitude, 3.0, "#000000", .1, 0.75, "#ffcc66",.2);
-		    //addMarker(centerLatitude, centerLongitude);
 	    }//end if
 
 	}//end init()
 
 
-	function addListeners(name)	{
+	/**
+	* This function is used to add listener to the map for manipulation. Switch name is the name of the image/link for coloring.
+	*
+	*/
+	function addListeners(name, switch_name)	{
+		if (current_listener_name) {
+			document.getElementById(current_listener_name).style.borderColor	= 'white';
+		}//end if
+		if (current_listener) {
+			GEvent.removeListener(current_listener);
+			current_listener	= null;
+		}//end if
+
 		switch (name) {
-			case 'latlngMouseLocation' :
-				GEvent.addListener(map, 'mousemove', function(latlng) {
+			case 'lat_lng_mouse_location' :
+				current_listener = GEvent.addListener(map, 'mousemove', function(latlng) {
 					var pixelLocation  = map.fromLatLngToDivPixel(latlng);
 				 	GLog.write('Latitude Longtitude:' + latlng + ' at PIXEL LOCATION:' + pixelLocation);
 				 }//end function
 				)//end addListener
 				break;
 
-			case 'zoomChange' :
-				GEvent.addListener(map, 'zoomend', function(oldLevel, newLevel) {
+			case 'zoom_change' :
+				current_listener = GEvent.addListener(map, 'zoomend', function(oldLevel, newLevel) {
 				      GLog.write('ZOOM CHANGED from '+ oldLevel + ' to ' + newLevel);
 				     }//end function
 				)//end addListener
 				break;
 
-			case 'addMarker' :
-				GEvent.addListener(map, 'click',
+			case 'add_marker' :
+				current_listener = GEvent.addListener(map, 'click',
 					function(overlay, latlng) {
-						if (icon_url != '' && icon_url != null) {
-							var icon = new GIcon();
-							icon.image = icon_url;
-							icon.iconSize = new GSize(icon_width, icon_height);
-							icon.iconAnchor  = new GPoint(14, 25);
-							icon.infoWindowAnchor = new GPoint(14, 14);
-							var marker  = new GMarker(latlng, icon);
-						} else {
-							var marker  = new GMarker(latlng);
-						}//end else
-						map.addOverlay(marker);
+						try {
+							if (icon_url != '' && icon_url != null) {
+								var icon = new GIcon();
+								icon.image = icon_url;
+								icon.iconSize = new GSize(icon_width, icon_height);
+								icon.iconAnchor  = new GPoint(14, 25);
+								icon.infoWindowAnchor = new GPoint(14, 14);
+								var marker  = new GMarker(latlng, icon);
+							} else {
+								var marker  = new GMarker(latlng);
+							}//end else
+							newMarkers.push(marker);
+							current_marker	= marker;
+							map.addOverlay(marker);
+						} catch (e) {}
 					}//end function
 				);
-				break;
 
+				break;
+			case 'street_view':
+				//We should decide whether we should allow set POV dynamically
+				current_listener = GEvent.addListener(map,"click", function(overlay,latlng) {
+					if (myPano) {
+						myPano.setLocationAndPOV(latlng);
+					}//end if
+					var div = document.getElementById("street_view");
+					if (div.style.display !='block') {
+						div.style.display = 'block';
+					}//end if
+				});
+				break;
 		}//end switch
+
+		current_listener_name	= name+'_tool';
+		document.getElementById(current_listener_name).style.borderColor	= 'red';
+		//return current_listener;
+
 	}//end addListeners()
 
 
+	/**
+	* This function is used to turn mouse wheel scroll zooming on or off
+	*
+	*/
+	function toggle_wheel_scrool()
+	{
+		var tool	= document.getElementById('mouse_scroll_zoom_tool');
+		if (map.scrollWheelZoomEnabled()) {
+			map.disableScrollWheelZoom();
+			tool.style.color	= 'white';
+		} else {
+			map.enableScrollWheelZoom();
+			tool.style.color	= 'green';
+		}//end else
+	}//end toggle_wheel_scrool()
+
+
+	/**
+	* This function is used to add Input Form to add Marker
+	*
+	*/
 	function addInputFormListener(html)
 	{
 		GEvent.addListener(map, "click",
@@ -69,7 +126,11 @@
 	}
 
 
-	function addMarker(name, latitude, longitude, icon_image, description) {
+	/**
+	* This function is used to add a marker on to the map
+	*
+	*/
+	function addMarker(name, latitude, longitude, icon_image, description, street_view_enabled) {
 		if (icon_image != null && icon_image != '') {
 			var icon_url_final = icon_image;
 		} else {
@@ -81,23 +142,46 @@
 			icon.iconSize = new GSize(icon_width, icon_height);
 			icon.iconAnchor  = new GPoint(icon_width/2, 25);
 			icon.infoWindowAnchor = new GPoint(icon_width/2, 14);
-			var marker  = new GMarker(new GLatLng(latitude, longitude), icon);
+			var marker	= new GMarker(new GLatLng(latitude, longitude), icon);
 		} else {
 			var marker  = new GMarker(new GLatLng(latitude, longitude));
 		}//end else
 
-		GEvent.addListener(marker, 'click',
-		  function () {
-		    //map.showMapBlowup(new GLatLng(latitude, longitude), 5, G_HYBRID_MAP);
-		    marker.openInfoWindowHtml(description);
-		  }//end function
-		)//end addListener
+		if (street_view_enabled) {
+			GEvent.addListener(marker, "click", function() {
+				current_marker = marker;
+				marker.openInfoWindowHtml(description);
+				var latlng = marker.getLatLng();
+				var div = document.getElementById("street_view");
+				if (div && div.style.display !='block') {
+					div.style.display = 'block';
+				}//end if
+				if (myPano) {
+					myPano.setLocationAndPOV(latlng);
+				}
+
+			});
+		} else {
+			GEvent.addListener(marker, 'click',
+			  function () {
+			    //map.showMapBlowup(new GLatLng(latitude, longitude), 5, G_HYBRID_MAP);
+			    current_marker = marker;
+			    marker.openInfoWindowHtml(description);
+			  }//end function
+			)//end addListener
+		}//end else
 
 		map.addOverlay(marker);
-		markerList[name] = marker;
-	}//end function
+
+		return marker;
+
+	}//end addMarker()
 
 
+	/**
+	* This function is used to store added marker using a script
+	*
+	*/
 	function storeMarker() {
 		var lng  = document.getElementById("longitude").value;
 		var lat  = document.getElementById("latitude").value;
@@ -168,6 +252,10 @@
 	}//end createMarker
 
 
+	/**
+	* This function is used to retrieve stored markers using a script
+	*
+	*/
 	function retrieveMarkers() {
 		var request  = GXmlHttp.create();
 
@@ -176,10 +264,8 @@
 
 		  if (request.readyState == 4) {
 		    var xmlDoc = request.responseXML;
-		     //console.info(xmlDoc);
 
 		    var markers = xmlDoc.documentElement.getElementsByTagName("marker");
-		   // console.info(markers);
 
 		    for (var i = 0; i < markers.length; i++) {
 		      var lng  = markers[i].getAttribute("lng");
@@ -209,30 +295,358 @@
 	}//end retrieveMarkers
 
 
+	/**
+	* This function is used to set the map type
+	*
+	*/
 	function setMapType(mapType)
 	{
 		map.setMapType(mapType);
 	}//end setMapType
 
 
-	/* This function from Kip - Pamela - Dave */
-	function getCoveredArea(lat, lng, radius, strokeColor, strokeWidth, strokeOpacity, fillColor, fillOpacity)
+	/**
+	* This function is used to get the information about a marker
+	*
+	*/
+	function getInfo(i)
 	{
-		var d2r = Math.PI/180;
-		var r2d = 180/Math.PI;
-		var Clat = radius * 0.014483;
-		var Clng = Clat/Math.cos(lat*d2r);
-		var Cpoints = [];
-		for (var i=0; i < 33; i++) {
-		  var theta = Math.PI * (i/16);
-		  Cy = lat + (Clat * Math.sin(theta));
-		  Cx = lng + (Clng * Math.cos(theta));
-		  var P = new GPoint(Cx,Cy);
-		  Cpoints.push(P);
+		GEvent.trigger(allMarkerList[i], "click");
+	}//end getInfo()
+
+
+	/**
+	* This function is used to clear all the new markers from the map
+	*
+	*/
+	function clearNewMarker(marker_array)
+	{
+		for (var i =0; i < marker_array.length; i++) {
+			if (marker_array[i]) {
+				marker_array[i].hide();
+				marker_array[i] = null;
+			}
+		}//end for
+	}//end clearNewMarker()
+
+
+	/**
+	* This function is used to get the nearest marker to the current marker (passed in).
+	*
+	*/
+	function getClosestLocationForMarker(marker)
+	{
+		var current_latlng	= marker.getLatLng();
+		var current_lat		= current_latlng.lat();
+		var current_lng		= current_latlng.lng();
+
+		var closest_distance	= 0;
+		var closest_marker		= null;
+
+		for (var obj in allMarkerList) {
+			if (!allMarkerList[obj].isHidden()) {
+				var latlng	= allMarkerList[obj].getLatLng();
+				var lng		= latlng.lng();
+				var lat		= latlng.lat();
+
+				// Haversine formular
+				var R = 6371; // km
+				var dLat = (current_lat-lat)* Math.PI / 180;
+				var dLon = (current_lng-lng)* Math.PI / 180;
+				var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+				        Math.cos(current_lat* Math.PI / 180) * Math.cos(lat* Math.PI / 180) *
+				        Math.sin(dLon/2) * Math.sin(dLon/2);
+				var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+				var distance = R * c;
+
+				if ((distance < closest_distance || closest_distance == 0) && distance != 0) {
+					closest_distance	= distance;
+					closest_marker		= allMarkerList[obj];
+				}//end if
+			}//end if
+		}//end for
+
+		return closest_marker;
+
+	}//end getClosestLocationForMarker()
+
+
+	/**
+	* This function is used to draw a line between two markers
+	*/
+	function drawLineBetweenMarkers(coordinate_1, coordinate_2, color)
+	{
+		var polyline = new GPolyline([
+		  coordinate_1,
+		  coordinate_2
+		], color, 10);
+		newPolylines.push(polyline);
+		map.addOverlay(polyline);
+	}//end drawLineBetweenMarkers()
+
+
+	/**
+	* Turn street view overlay on and off
+	*/
+	function toggleOverlay() {
+	  if (!overlay) {
+	    overlay = new GStreetviewOverlay();
+	    map.addOverlay(overlay);
+	  } else {
+	    map.removeOverlay(overlay);
+	    overlay = null;
+	  }
+	}//end toggleOverlay()
+
+
+	/**
+	* Make a element disappear or appear (mostly used for divs)
+	*/
+	function toggleDiv(div_name) {
+		var div = document.getElementById(div_name);
+		if (div.style.display!='none') {
+			div.style.display='none';
+		} else {
+			div.style.display='block';
+		}//end if
+	}//end toggleDiv()
+
+
+	/**
+	*
+	*/
+	function findLocationFromAddress(address, extra_text, icon_image, uid, street_view_enabled) {
+		if (address) {
+		  geocoder.getLatLng(
+		    address,
+		    function(point) {
+		      if (!point) {
+		        //alert(address + " not found");
+		      } else {
+		       if (!uid)  map.setCenter(point, 13);
+
+				if (icon_image != null && icon_image != '') {
+					var icon_url_final = icon_image;
+				} else {
+					var icon_url_final = icon_url;
+				}//end if
+				if (icon_url_final != '' && icon_url_final != null) {
+					var icon = new GIcon();
+					icon.image = icon_url_final;
+					icon.iconSize = new GSize(icon_width, icon_height);
+					icon.iconAnchor  = new GPoint(icon_width/2, 25);
+					icon.infoWindowAnchor = new GPoint(icon_width/2, 14);
+					var marker  = new GMarker(point, icon);
+				} else {
+					var marker  = new GMarker(point);
+				}//end else
+
+		        map.addOverlay(marker);
+
+				GEvent.addListener(marker, 'click',
+				  function () {
+				    marker.openInfoWindowHtml(extra_text+' '+address);
+				  }//end function
+				)//end addListener
+
+				if (cache_home_url) {
+
+					var lat	= point.lat();
+					var lng	= point.lng();
+					updateMapCache(cache_home_url, cache_key, uid, lat, lng);
+				}//end if
+
+		        if (!uid) marker.openInfoWindowHtml(address);
+		       	newMarkers.push(marker);
+		       	updateAddressList(marker, address);
+
+				if (street_view_enabled) {
+					GEvent.addListener(marker,"click", function() {
+						current_marker = marker;
+						var latlng = marker.getLatLng();
+						if (myPano) {
+							myPano.setLocationAndPOV(latlng);
+						}
+						var div = document.getElementById("street_view");
+						if (div.style.display !='block') {
+							div.style.display = 'block';
+						}//end if
+					});
+				} else {
+					GEvent.addListener(marker, 'click',
+					  function () {
+					    //map.showMapBlowup(new GLatLng(latitude, longitude), 5, G_HYBRID_MAP);
+					    current_marker = marker;
+					    marker.openInfoWindowHtml(description);
+					  }//end function
+					)//end addListener
+				}//end else
+
+		      }
+		    }
+		 );
+		}//end if address
+
+	}//end showAddress()
+
+
+	/**
+	* Update the address list on the map (could be hidden, but update the list anyway)
+	*/
+	function updateAddressList(marker, address)
+	{
+		var newLocation	= {};
+		newLocation['markerObj']	= marker;
+		newLocation['address']		= address;
+		addressList.push(newLocation);
+
+		var address_list_div = document.getElementById('new_address_list');
+		if (address_list_div) {
+			var new_text_ele	= document.createTextNode(' '+address);
+			var new_break		= document.createElement('br');
+			var new_link		= document.createElement('a');
+
+			var	addressListIndex	= addressList.length - 1;
+			new_link.setAttribute('href', 'javascript:populateAssetBuilderForm(addressList['+addressListIndex+'][\'markerObj\'], addressList['+addressListIndex+'][\'address\']);');
+			var new_text_link	= document.createTextNode('[-]');
+			new_link.appendChild(new_text_link)
+
+			address_list_div.appendChild(new_link);
+			address_list_div.appendChild(new_text_ele);
+			address_list_div.appendChild(new_break);
+		}//end if
+	}//end udpateAddressList()
+
+
+	/**
+	* If we have an asset builder form on the map, clicking on the address in the new address list will populate the form
+	*/
+	function populateAssetBuilderForm(marker, address)
+	{
+		var FormEle	= {};
+
+		document.getElementById('asset_builder').style.display = 'block';
+		var	EleName	= 'google_map_location_0_';
+		FormEle.name		= '2240';
+		FormEle.longitude	= '2242';
+		FormEle.latitude	= '2243';
+		FormEle.description	= '2244';
+
+		var	latlng	= marker.getLatLng();
+		populateElementValue(EleName+FormEle.longitude, latlng.lng());
+		populateElementValue(EleName+FormEle.latitude, latlng.lat());
+		populateElementValue(EleName+FormEle.description, address);
+
+	}//end if
+
+
+	/**
+	* Change the value/innerHTML of a element
+	*/
+	function populateElementValue(id, content)
+	{
+		var element	= document.getElementById(id);
+		if (element) {
+			element.value	= content;
+			element.innerHTML	= content;
+			return true;
+		}//end if
+		return false;
+
+	}//end populateAssetBuilderForm()
+
+
+	/**
+	* If we are using GMAP to look up address in LDAP, this function is used to cache the request everytime an address is found
+	*/
+	function updateMapCache(cache_home_url, cache_key, uid, lat, lng)
+	{
+		var	xmlHttp;
+		try {
+			xmlHttp	= new XMLHttpRequest();
+		} catch (e) {
+			try {
+				xmlHttp= new ActiveXObject("Msxml2.XMLHTTP");
+			} catch (e) {
+				try {
+					xmlHttp	= new ActiveXObject("Microsoft.XMLHTTP");
+				} catch (e) {
+					alert("Your browser does not support AJAX");
+					return false;
+				}//end catch
+			}//end catch
+		}//end catch
+		xmlHttp.onreadystatechange=function()
+		{
+			if (xmlHttp.readyState==4) {
+
+			}
 		}
-		//console.info(Cpoints);
-		var polygon = new GPolygon(Cpoints, strokeColor, strokeWidth, strokeOpacity, fillColor, fillOpacity);
-		map.addOverlay(polygon);
-	}//end getCoveredArea
+		xmlHttp.open("GET", cache_home_url+'?cache_key='+cache_key+'&uid='+uid+'&lat='+lat+'&lng='+lng, true);
+		xmlHttp.send(null);
+
+	}//end updateMapCache()
 
 
+	/**
+	*
+	*
+	*/
+	function toggleDisplay(marker_array, key_index)
+	{
+		if (!marker_array.toggle) {
+			for(var i= 0; i < marker_array[key_index].length; i++) {
+				marker_array[key_index][i].show();
+			}//end for
+		} else {
+			for(var i= 0; i < marker_array[key_index].length; i++) {
+				marker_array[key_index][i].hide();
+			}//end for
+		}
+		marker_array.toggle = (!marker_array.toggle);
+	}//end toggleDisplay
+
+
+	/**
+	*
+	*
+	*/
+	function getClosestLocation()
+	{
+		var last_marker		= getLastMarker();
+		var closest_marker	= getClosestLocationForMarker(last_marker);
+		drawLineBetweenMarkers(last_marker.getLatLng(), closest_marker.getLatLng(), '#ff0000');
+
+	}//end getClosestLocation()
+
+
+	/**
+	*
+	*
+	*/
+	function getLastMarker()
+	{
+		if (!current_marker) {
+			var num_markers		= newMarkers.length;
+			var	last_marker		= newMarkers[num_markers-1];
+			return last_marker;
+		} else {
+			return current_marker;
+		}//end else
+	}//end getLastMarker()
+
+
+	/**
+	* Javascript does not have a sleep/wait function so we use this (very CPU intensive though - so avoid it)
+	* setTimeout does not work as we need, it will execute the following function immediately
+	*/
+	function wait(msecs)
+	{
+		var start	= new Date().getTime();
+		var cur		= start
+		while(cur-start < msecs)
+		{
+			cur	= new Date().getTime();
+		}//end while
+
+	}//end wait()
