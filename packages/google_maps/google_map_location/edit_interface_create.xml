@@ -1,0 +1,8 @@
+<!--
+LICENCE
+-->
+<contents screen="details">
+    <section name="Details">
+        <field attribute="name" />
+    </section>
+</contents>
