@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.112 2008/08/25 22:59:26 mbrydon Exp $
+* $Id: system_config.inc,v 1.113 2008/08/25 23:01:43 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -47,7 +47,7 @@ class System_Config extends Config
 						'SQ_CONF_ASSET_TREE_SIZE'				=> Array('editable' => 0, 'default' =>  4),
 						'SQ_CONF_ASSET_CACHE_SIZE_WEB'			=> Array('editable' => 0, 'default' =>  -1),
 						'SQ_CONF_ASSET_CACHE_SIZE_CLI'			=> Array('editable' => 0, 'default' =>  -1),
-						'SQ_CONF_ROLLBACK_ENABLED'				=> Array('editable' => 1, 'default' => '0'),
+						'SQ_CONF_ROLLBACK_ENABLED'				=> Array('editable' => 0, 'default' => '0'),
 						'SQ_CONF_DEBUG'							=> Array('editable' => 1, 'default' => 0),
 						'SQ_CONF_SYSTEM_NAME'					=> Array('editable' => 1, 'default' => 'The System'),
 						'SQ_CONF_SYSTEM_OWNER'					=> Array('editable' => 1, 'default' => ''),
