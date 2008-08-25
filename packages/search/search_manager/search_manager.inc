@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.8 2008/07/11 05:42:52 bpearson Exp $
+* $Id: search_manager.inc,v 1.164.2.9 2008/08/25 04:23:58 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.8 $
+* @version $Revision: 1.164.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2132,7 +2132,7 @@ class Search_Manager extends Asset
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
 		if (empty($result)) {
 			$plugin =& $this->_getDBPlugin();
-			$result = $plugin->processDateSearch($this, $numeric_range, $data_source, $base_query);
+			$result = $plugin->processNumericSearch($this, $numeric_range, $data_source, $base_query);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
 		} else {
 			$result = unserialize($result);
