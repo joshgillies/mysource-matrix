@@ -7,37 +7,37 @@ Featured Changes
 
 Move assets into dated folders script
 
-	A new command-line script "move_assets_to_dated_folders.php" is available in the "scripts" folder which can be used to move assets under a specified parent and asset type under a dated folder structure. Folders are created for each applicable year, month and day. Assets are moved to these folders depending on their 'created' or 'published' dates.
+    A new command-line script "move_assets_to_dated_folders.php" is available in the "scripts" folder which can be used to move assets under a specified parent and asset type under a dated folder structure. Folders are created for each applicable year, month and day. Assets are moved to these folders depending on their 'created' or 'published' dates.
 
 
 Custom Keywords in Metadata Fields are now indexed by Search Manager
 
-	Asset-based keywords such as %event_start_date% for Single Calendar Events are now evaluated and indexed by Search Manager when used as Metadata Field values. Previously these keywords were not evaluated and were indexed as the keyword without reserved characters (eg; %event_start_date% was indexed as "eventstartdate" instead of the evaluated date content).
+    Asset-based keywords such as %event_start_date% for Single Calendar Events are now evaluated and indexed by Search Manager when used as Metadata Field values. Previously these keywords were not evaluated and were indexed as the keyword without reserved characters (eg; %event_start_date% was indexed as "eventstartdate" instead of the evaluated date content).
 
 
 Global Keywords replaced when used as a search query
 
-	Global Keywords can now be specified as search terms in a Search Page query. For example, a query containing %globals_asset_name% from a Search Page will be modified when searching to replace the keyword with the name of the Search Page. 
+    Global Keywords can now be specified as search terms in a Search Page query. For example, a query containing %globals_asset_name% from a Search Page will be modified when searching to replace the keyword with the name of the Search Page.
 
 
 Drill-down Display Type added to Metadata Heirarchy fields
 
-	The editing interface for Metadata Hierarachy fields has been modified to provide a "Drill-Down" Display Type. Values can be added from the hierarchy by clicking the "Add" button next to each level.
+    The editing interface for Metadata Hierarachy fields has been modified to provide a "Drill-Down" Display Type. Values can be added from the hierarchy by clicking the "Add" button next to each level.
 
 
 Paint Layout configuration for Nested Content Design Area
 
-	Three new Paint Layout options are now available in Nested Content Design Areas. These design areas can now use either the default Paint Layout, no Paint Layout, or an arbitrary Paint Layout. 
+    Three new Paint Layout options are now available in Nested Content Design Areas. These design areas can now use either the default Paint Layout, no Paint Layout, or an arbitrary Paint Layout.
 
 
 Customisable Receipt Format for E-Commerce Checkout and Default Delivery Method assets
 
-	Customisable formats are now available to configure E-Commerce receipts. This functionality works similar to Asset Listing in that there are "Receipt Format" and "Receipt Contents" bodycopies. Custom keywords are available to show attributes such as price, tax and other fees. The %customised_receipt% keyword is available for use in the email contents of the default delivery method, as well as certain bodycopies of the checkout asset. 
+    Customisable formats are now available to configure E-Commerce receipts. This functionality works similar to Asset Listing in that there are "Receipt Format" and "Receipt Contents" bodycopies. Custom keywords are available to show attributes such as price, tax and other fees. The %customised_receipt% keyword is available for use in the email contents of the default delivery method, as well as certain bodycopies of the checkout asset.
 
 
 Sending email to Shadow Assets in Send Email Trigger Action
 
-	New functionality has been added to Send Email Trigger to allow email messages to be sent to shadow assets (ie; LDAP Users). LDAP Users can be added individually in the "General Options" section, or included when associated with User Groups or Roles.
+    New functionality has been added to Send Email Trigger to allow email messages to be sent to shadow assets (ie; LDAP Users). LDAP Users can be added individually in the "General Options" section, or included when associated with User Groups or Roles.
 
 
 Additional Changes and Bug Fixes
@@ -48,10 +48,10 @@ Core
 * Fixed Bug #3127: Security Restrictions broken
 * Fixed Bug #3133: Unable to change Metadata date min/max values
 * Fixed Bug #3136: Regular expressions don't match if alternation is used
-* Fixed Bug #3143: Error thrown on call to protected method in User IP Condition 
+* Fixed Bug #3143: Error thrown on call to protected method in User IP Condition
 * Fixed Bug #3150: PHP Notice in regular expresion complex validation rule backend interface
 * Fixed Bug #3155: Oracle error with getValueFromURL()
-* Fixed Bug #3158: PHP Notice in metadata schema date field with min date later than max date 
+* Fixed Bug #3158: PHP Notice in metadata schema date field with min date later than max date
 * Fixed Bug #3159: URL suffix "_login" shows secondary login box on sites set to "Require Secure Login"
 * Fixed Bug #3167: Metadata field hierarchy drill-down view in asset builder is disabled
 * Fixed Bug #3168: Error in Remap Manager
@@ -63,13 +63,13 @@ Calendar
 * Fixed Bug #3157: Single calendar simple edit duplicate attributes
 
 CMS
-* Fixed Bug #3113: Asset Listing generates DB error when listing "Up the Tree" when viewed by Public User 
+* Fixed Bug #3113: Asset Listing generates DB error when listing "Up the Tree" when viewed by Public User
 * Fixed Bug #3141: Email validation does not work with more than one account manager create location
 * Fixed Bug #3161: Links report export generates incomplete CSV
 * Fixed Bug #3163: PHP Notice in removing pending account in account manager
 
 Data
-* Fixed Bug #3172: RSS data source not processing some RSS 2.0 format feeds 
+* Fixed Bug #3172: RSS data source not processing some RSS 2.0 format feeds
 
 E-Commerce
 * Fixed Bug #3148: Ecommerce checkout region-specific conditional delivery fee options are not adhered to
@@ -92,80 +92,80 @@ Featured Changes
 
 Delete Bulkmail Users Tool
 
-	This tool will delete all Bulkmail Users from the system that match email addresses present in a text file, which is uploaded as part of the tool's interface.
+    This tool will delete all Bulkmail Users from the system that match email addresses present in a text file, which is uploaded as part of the tool's interface.
 
 
 Unwanted Asset Types Menu Design Area setting
 
-	This new Menu Design Area setting ("unwanted_asset_types") lets you set a number of asset type(s) that are excluded from a menu. The types chosen will also exclude all descendant asset types. 
+    This new Menu Design Area setting ("unwanted_asset_types") lets you set a number of asset type(s) that are excluded from a menu. The types chosen will also exclude all descendant asset types.
 
 
 Paint Layout changes
 
-	The way Paint Layouts work in general has been overhauled quite radically. The "Lookup Values" screen has been renamed "Lookup Settings". The changes to this screen in summary:
+    The way Paint Layouts work in general has been overhauled quite radically. The "Lookup Values" screen has been renamed "Lookup Settings". The changes to this screen in summary:
 
-	- Paint Layouts can now be applied on a per-asset basis, rather than just per URL. Paint Layouts set this way will apply across all URLs of the asset. Per-URL Paint Layout settings are still available.
-	- Override Paint Layouts can also be applied at either a per-asset or per-URL level, working similar to designs.
+    - Paint Layouts can now be applied on a per-asset basis, rather than just per URL. Paint Layouts set this way will apply across all URLs of the asset. Per-URL Paint Layout settings are still available.
+    - Override Paint Layouts can also be applied at either a per-asset or per-URL level, working similar to designs.
 
-	When evaluating which Paint Layout asset to display, the following rules apply:
+    When evaluating which Paint Layout asset to display, the following rules apply:
 
-	- URL-based paint layouts have priority over asset-based ones. Where no URL-based paint layouts exist for the current URL, the asset-based one will be used instead.
-	- All Override layouts take priority over all normal (inherited) layouts. For instance, if you have an Override Paint Layout at an asset level but only an inherited Paint Layout at a URL level, then the Override asset-level Paint Layout takes priority.
+    - URL-based paint layouts have priority over asset-based ones. Where no URL-based paint layouts exist for the current URL, the asset-based one will be used instead.
+    - All Override layouts take priority over all normal (inherited) layouts. For instance, if you have an Override Paint Layout at an asset level but only an inherited Paint Layout at a URL level, then the Override asset-level Paint Layout takes priority.
 
 
 Set Paint Layout Trigger Action
 
-	This new trigger action allows you to set an asset-level Paint Layout (both standard and Override) on an asset that fires a trigger. Dynamic parameters can be used to select an alternative asset ID for either one.
+    This new trigger action allows you to set an asset-level Paint Layout (both standard and Override) on an asset that fires a trigger. Dynamic parameters can be used to select an alternative asset ID for either one.
 
 
 Set Paint Layouts on built assets
 
-	Asset-based Paint Layouts can now be set on assets created through an Asset Builder.
+    Asset-based Paint Layouts can now be set on assets created through an Asset Builder.
 
 
 Pass extra GET variables to Nest Content
 
-	This new functionality allows you to pass extra GET variables to an asset being included via Nest Content. The values can include global keywords and keywords of the asset you are nesting (using %nested_asset_*% instead of %asset_*%). These extra keywords will overwrite GET variables passed through a query string, but will only have the lifetime of that nesting.
+    This new functionality allows you to pass extra GET variables to an asset being included via Nest Content. The values can include global keywords and keywords of the asset you are nesting (using %nested_asset_*% instead of %asset_*%). These extra keywords will overwrite GET variables passed through a query string, but will only have the lifetime of that nesting.
 
 
 HTTP GET variables available as a Global Keyword
 
-	HTTP GET variables are now available as global keywords using the %globals_get_*% format. Only scalar variables are able to be used as global keywords; arrays are not supported.
+    HTTP GET variables are now available as global keywords using the %globals_get_*% format. Only scalar variables are able to be used as global keywords; arrays are not supported.
 
 
 Global Keywords in Remote Content URLs
 
-	The Remote Content asset now accepts global keywords in the URL. Caching of output has changed slightly to better handle the possibility for dynamic URLs.
+    The Remote Content asset now accepts global keywords in the URL. Caching of output has changed slightly to better handle the possibility for dynamic URLs.
 
 
 Set "Not Found" Page for archived assets
 
-	This is a new "Special Page" option added to Site assets. It is triggered when a user accesses an asset with "Archived" status, without the appropriate read permissions. (Due to it being archived, users actually need write permissions to get read permission too.) The page behaves exactly like the "Not Found" special page option, in that it will return a HTTP 404 status code.
+    This is a new "Special Page" option added to Site assets. It is triggered when a user accesses an asset with "Archived" status, without the appropriate read permissions. (Due to it being archived, users actually need write permissions to get read permission too.) The page behaves exactly like the "Not Found" special page option, in that it will return a HTTP 404 status code.
 
 
 Schedule Bulkmail Job script
 
-	This new command-line script, located in the root of the Bulkmail package, lets you queue up a Bulkmail Job to run immediately. This can be used by a Cron system outside of Matrix to schedule a time to send a Bulkmail Job. Apart from the system root, the script accepts one parameter: the asset ID of the Bulkmail Job to queue. It will only run if it is not already running (ie. status is set to "Under Construction").
+    This new command-line script, located in the root of the Bulkmail package, lets you queue up a Bulkmail Job to run immediately. This can be used by a Cron system outside of Matrix to schedule a time to send a Bulkmail Job. Apart from the system root, the script accepts one parameter: the asset ID of the Bulkmail Job to queue. It will only run if it is not already running (ie. status is set to "Under Construction").
 
 
 Remove Metadata Schema Trigger Action
 
-	This new trigger action will remove either a single metadata schema (if it exists) or all metadata schemas from the asset that fired the trigger.
+    This new trigger action will remove either a single metadata schema (if it exists) or all metadata schemas from the asset that fired the trigger.
 
 
 Browser Cache Expiry option in Cache Manager
 
-	This option allows you to set a different period for requesting the browser cache the output of a Matrix asset, to the period that Matrix itself caches things using the Cache Manager. Specified in seconds. If omitted or zero (which is the default), these values are the same.
+    This option allows you to set a different period for requesting the browser cache the output of a Matrix asset, to the period that Matrix itself caches things using the Cache Manager. Specified in seconds. If omitted or zero (which is the default), these values are the same.
 
 
 Prevent Cascade of Schemas / Permissions
 
-	It is now possible to designate certain permissions, workflow schemas and metadata schemas with the ability to not cascade to lower assets, regardless of the normal asset-level "Cascade" setting. When this option is selected, new children of the asset (whether created or linked/moved) will not have those settings cascaded to them. (Workflow schemas and permissions will still cascade to their dependent children, to be consistent with current practices of adding these with cascading to existing assets turned off.)
+    It is now possible to designate certain permissions, workflow schemas and metadata schemas with the ability to not cascade to lower assets, regardless of the normal asset-level "Cascade" setting. When this option is selected, new children of the asset (whether created or linked/moved) will not have those settings cascaded to them. (Workflow schemas and permissions will still cascade to their dependent children, to be consistent with current practices of adding these with cascading to existing assets turned off.)
 
 
 Workflow Approval / Rejection Trigger Events
 
-	Two new Trigger Events are now available for Workflow Approval and Workflow Rejection. These events are fired when a workflow is resolved on an asset in the respective way.
+    Two new Trigger Events are now available for Workflow Approval and Workflow Rejection. These events are fired when a workflow is resolved on an asset in the respective way.
 
 
 Additional Changes and Bug Fixes
@@ -211,52 +211,57 @@ Featured Changes
 
 Hierarchy Metadata Field
 
-	This new metadata field is similar to a Select Metadata Field, but creates a hierarchy based on the keys of the options provided (based on a character-by-character basis, eg. "1A" would be a child of "1"). When searching on this type of field, it will also search for the selected option's parents and children.
+    This new metadata field is similar to a Select Metadata Field, but creates a hierarchy based on the keys of the options provided (based on a character-by-character basis, eg. "1A" would be a child of "1"). When searching on this type of field, it will also search for the selected option's parents and children.
+
+
+Stored Searches for Search Page
+
+    Allows you to map the input of a search field(s) on a Search Page asset to a parameter map source(s). When the asset is loaded with this source filled, the Search Page can be set to bypass the initial search form and show the results page straight away.
 
 
 Support for Multiple Proxies
 
-	This new feature will allow additional proxy servers for MySource Matrix to use when making requests for external URLs for its own purposes (such as for Remote Content, Links Report, etc), based on matching a URL pattern. If no alternative proxies are matched, the primary proxy (previously the single proxy that could be configured) will be used.
+    This new feature will allow additional proxy servers for MySource Matrix to use when making requests for external URLs for its own purposes (such as for Remote Content, Links Report, etc), based on matching a URL pattern. If no alternative proxies are matched, the primary proxy (previously the single proxy that could be configured) will be used.
 
 
 Export Files Tool
 
-	This new tool allows you to export all File assets (and other assets inheriting from File) underneath a certain root node to a compressed tarball (.tar.gz) file. Folder structure can be maintained or removed at user's option.
+    This new tool allows you to export all File assets (and other assets inheriting from File) underneath a certain root node to a compressed tarball (.tar.gz) file. Folder structure can be maintained or removed at user's option.
 
 
 Date/Time Design Area: Created/Published Date
 
-	The Date/Time Design Area now allows you to print the created and published dates for the asset, in addition to the current date and last updated date.
+    The Date/Time Design Area now allows you to print the created and published dates for the asset, in addition to the current date and last updated date.
 
 
 Raw Form Response Keyword
 
-	New raw keywords return the raw value stored by the form for a response. For some question types such as Text, these will be the same as the normal keyword, but for others it will be different (eg. for Select, this would be the key of the selected option rather than the presentation value). These keywords are named the same as the normal keywords, but with "_raw" added to the end.
+    New raw keywords return the raw value stored by the form for a response. For some question types such as Text, these will be the same as the normal keyword, but for others it will be different (eg. for Select, this would be the key of the selected option rather than the presentation value). These keywords are named the same as the normal keywords, but with "_raw" added to the end.
 
 
 Form Submission Actions Infrastructure
 
-	This new infrastructure allows you to create custom actions that interact with a Custom Form, that are run whenever a form is submitted.
+    This new infrastructure allows you to create custom actions that interact with a Custom Form, that are run whenever a form is submitted.
 
 
 Send Email Form Submission Action Asset
 
-	This Form Submission Action allows you to send emails additional to the original three on the Email Options screen.
+    This Form Submission Action allows you to send emails additional to the original three on the Email Options screen.
 
 
 Database Query Form Submission Action Asset
 
-	This Form Submission Action allows you to run a query on an external database based on the values of a submitted form.
+    This Form Submission Action allows you to run a query on an external database based on the values of a submitted form.
 
 
 SOAP Server Asset
 
-	This feature provides the framework for external systems to communicate with MySource Matrix. A set of actions for interacting with the system is in development.
+    This feature provides the framework for external systems to communicate with MySource Matrix. A set of actions for interacting with the system is in development.
 
 
 Separate Database Connection for Searches
 
-	Searches can now be optionally redirected to another database connection using the new "dbsearch" DSN. This may prove useful where availability is critical and the database is replicated. If omitted, it defaults to the "db" connection.
+    Searches can now be optionally redirected to another database connection using the new "dbsearch" DSN. This may prove useful where availability is critical and the database is replicated. If omitted, it defaults to the "db" connection.
 
 
 Additional Changes and Bug Fixes
@@ -323,27 +328,27 @@ Featured Changes
 
 Metadata Value Trigger Condition
 
-	This trigger condition makes its appearance for the first time in the 3.18.x branch. This condition allows triggers to be excuted or not based on the value of a metadata field applied to the asset the trigger is firing upon. Also, this condition is now allowed to be specified multiple times within the same trigger.
+    This trigger condition makes its appearance for the first time in the 3.18.x branch. This condition allows triggers to be excuted or not based on the value of a metadata field applied to the asset the trigger is firing upon. Also, this condition is now allowed to be specified multiple times within the same trigger.
 
 
 Backend Unsaved Changes Warning
 
-	A warning message will now appear if you try to move away from a page on the Matrix backend while you are editing an asset. This allows users who try to accidentally navigate away from the backend to negate their action and not lose unsaved changes.
+    A warning message will now appear if you try to move away from a page on the Matrix backend while you are editing an asset. This allows users who try to accidentally navigate away from the backend to negate their action and not lose unsaved changes.
 
 
 Global Keywoards Replaced in Simple Edit
 
-	Global keywords - those keywords beginning with "globals_*" that refer to current user, current asset, arbitrary asset, and so on - are now replaced in Simple Edit interfaces.
+    Global keywords - those keywords beginning with "globals_*" that refer to current user, current asset, arbitrary asset, and so on - are now replaced in Simple Edit interfaces.
 
 
 E-Commerce Product Tax Handling
 
-	Products now can be configured to include tax upon checkout, by enabling the "Calculate Tax During Checkout" attribute for each applicable product. Product prices can be specified as tax-exclusive or tax-inclusive, by using the "Product Price Already Includes Tax" setting.
+    Products now can be configured to include tax upon checkout, by enabling the "Calculate Tax During Checkout" attribute for each applicable product. Product prices can be specified as tax-exclusive or tax-inclusive, by using the "Product Price Already Includes Tax" setting.
 
 
 E-Commerce Checkout Region-Specific Options Screen
 
-	This new screen allows you to set extra charges based upon the country of delivery (based upon a Country-type form question), for products that have the "Calculate Tax During Checkout" setting set.
+    This new screen allows you to set extra charges based upon the country of delivery (based upon a Country-type form question), for products that have the "Calculate Tax During Checkout" setting set.
 
 
 Additional Changes and Bug Fixes
@@ -401,17 +406,17 @@ Featured Changes
 
 Set Thumbnail Trigger Action
 
-	This new trigger action takes an asset ID of an Image asset from a parameter map variable (GET data, POST data, and Matrix "session" data), which is then linked as the thumbnail of the current asset.
+    This new trigger action takes an asset ID of an Image asset from a parameter map variable (GET data, POST data, and Matrix "session" data), which is then linked as the thumbnail of the current asset.
 
 
 Negative On-Hand Quantity Support in E-Commerce System
 
-	If a customer has paid for their cart, but between that time and delivery there are insufficient quantities of product(s) to fulfil the order, then the order will still go through, causing product quantity fields to turn negative. Fields are available in the Default Delivery Method to alert the form's owner to any back-ordering required.
+    If a customer has paid for their cart, but between that time and delivery there are insufficient quantities of product(s) to fulfil the order, then the order will still go through, causing product quantity fields to turn negative. Fields are available in the Default Delivery Method to alert the form's owner to any back-ordering required.
 
 
 Default Delivery Method Changes
 
-	The Default Delivery Method now allows you to process your cart using the eSec Payment Gateway asset. Emails will only be sent upon successful payment processing if this option is selected. There is also a new option to stop emails being sent.
+    The Default Delivery Method now allows you to process your cart using the eSec Payment Gateway asset. Emails will only be sent upon successful payment processing if this option is selected. There is also a new option to stop emails being sent.
 
 
 Additional Changes and Bug Fixes
@@ -450,97 +455,97 @@ Featured Changes
 
 Resume HIPO Jobs In New Window
 
-	The HIPO Herder screen now allows users the option to resume stalled HIPO Jobs in a new window, leaving the main window free to do other tasks. The original option to open in the main window still remains.
+    The HIPO Herder screen now allows users the option to resume stalled HIPO Jobs in a new window, leaving the main window free to do other tasks. The original option to open in the main window still remains.
 
 
 Filter By URL In Remap Manager
 
-	This feature allows URLs on the Remap Manager asset's "Remapped URLs" list to be filtered by their original and/or remapped URL.
+    This feature allows URLs on the Remap Manager asset's "Remapped URLs" list to be filtered by their original and/or remapped URL.
 
 
 Clear Matrix Cache for Multiple Root Nodes
 
-	The Clear Matrix Cache tool now allows multiple non-dependant assets to be cleared in a single run.
+    The Clear Matrix Cache tool now allows multiple non-dependant assets to be cleared in a single run.
 
 
 Direct Entry of Asset ID in Asset Finder
 
-	The Asset Finder widget has been changed slightly. The widget now supports the manual entering of an asset ID in the smaller box to the right of the "Id: #" label.
+    The Asset Finder widget has been changed slightly. The widget now supports the manual entering of an asset ID in the smaller box to the right of the "Id: #" label.
 
 
 Character Limit for Metadata Text Field
 
-	Metadata Text Field assets now contain an option to constrain the number of characters that said metadata field can contain.
+    Metadata Text Field assets now contain an option to constrain the number of characters that said metadata field can contain.
 
 
 Size of Metadata Text Field
 
-	Metadata Text Field assets now contain an option to customise the size of the field as displayed by such methods as Simple Edit keywords.
+    Metadata Text Field assets now contain an option to customise the size of the field as displayed by such methods as Simple Edit keywords.
 
 
 Option to Control Remapping of Web Paths
 
-	This feature allows users to override the previous behaviour of creating entries in the Remap Manager whenever a web path is changed. The default setting is set in the Remap Manager asset, and can be overridden on a change-by-change basis on an asset's Web Paths screen.
+    This feature allows users to override the previous behaviour of creating entries in the Remap Manager whenever a web path is changed. The default setting is set in the Remap Manager asset, and can be overridden on a change-by-change basis on an asset's Web Paths screen.
 
 
 New Re-Cache Suffix
 
-	This new suffix (default "_recache") will display the most recent version of an asset (like "_nocache"), but will also clear and re-populate the Matrix cache for that asset. This suffix will only work if the user has write access to that asset.
+    This new suffix (default "_recache") will display the most recent version of an asset (like "_nocache"), but will also clear and re-populate the Matrix cache for that asset. This suffix will only work if the user has write access to that asset.
 
 
 User Name on Asset History Screen
 
-	The History screen of an asset now shows the name of the user that committed each version.
+    The History screen of an asset now shows the name of the user that committed each version.
 
 
 Exclude Assets From Asset Listing Page
 
-	The Asset Listing Page can now be set to exclude one or more assets from being listed in that asset
+    The Asset Listing Page can now be set to exclude one or more assets from being listed in that asset
 
 
 Approve/Reject Links In Workflow Emails
 
-	The emails sent to users involved in the running workflow of an asset now have direct links to approve or reject the workflow.
+    The emails sent to users involved in the running workflow of an asset now have direct links to approve or reject the workflow.
 
 
 Metadata Value Cascading
 
-	This feature allows default and/or custom values to be cascaded to child assets on a field-by-field, asset-by-asset basis.
+    This feature allows default and/or custom values to be cascaded to child assets on a field-by-field, asset-by-asset basis.
 
 
 CAPTCHA Field in Asset Builder Page
 
-	This feature aads the option to insert a CAPTCHA test to an Asset Builder Page. When the "Require CAPTCHA" option is enabled, a number of CAPTCHA-related keywords will be made available to the Logged In bodycopy. The look and size of the CAPTCHA can also be modified.
+    This feature aads the option to insert a CAPTCHA test to an Asset Builder Page. When the "Require CAPTCHA" option is enabled, a number of CAPTCHA-related keywords will be made available to the Logged In bodycopy. The look and size of the CAPTCHA can also be modified.
 
 
 Image Content Type Can Use DIVs
 
-	The Image Content Type asset now has the option to wrap the image in a DIV tag, instead of the default behaviour of a TABLE tag. The default is determined by a user preference.
+    The Image Content Type asset now has the option to wrap the image in a DIV tag, instead of the default behaviour of a TABLE tag. The default is determined by a user preference.
 
 
 New Sorting Options for Asset Sorting Tool
 
-	The Asset Sorting Tool can now sort assets by Asset Attribute as well as by standard asset fields.
+    The Asset Sorting Tool can now sort assets by Asset Attribute as well as by standard asset fields.
 
 
 Use HTML Tidy as Accessibility Checker
 
-	This feature uses the HTML Tidy extension of PHP 5 to conduct automated components of WCAG accessibility checks. Failed accessibility checks are available as a new icon mouse-over, next to the Bodycopy's current HTML Tidy status indicator.
+    This feature uses the HTML Tidy extension of PHP 5 to conduct automated components of WCAG accessibility checks. Failed accessibility checks are available as a new icon mouse-over, next to the Bodycopy's current HTML Tidy status indicator.
 
 
 Workflow Approval/Rejection Trigger Events
 
-	These new Trigger Events are fired when a running workflow is completed and resolved in either approval or rejection.
+    These new Trigger Events are fired when a running workflow is completed and resolved in either approval or rejection.
 
 
 Option to Disable Roles
 
-	These System Configuration options will allow you to disable the Roles system, or just the Global Roles component. This will increase performance for systems that do not need them.
+    These System Configuration options will allow you to disable the Roles system, or just the Global Roles component. This will increase performance for systems that do not need them.
 
 
 Metadata Value Trigger Condition
 
-	This new Trigger Condition returns the result of a match between a specified value, and the value of an asset's metadata field.
+    This new Trigger Condition returns the result of a match between a specified value, and the value of an asset's metadata field.
 
 
 Additional Changes and Bug Fixes
@@ -593,67 +598,67 @@ Featured Changes
 
 Rewrite To Run On PHP 5
 
-	The MySource Matrix codebase has been revised significantly so that it will run on PHP 5. This was partly necessitated by PHP's recent end-of-life announcement for PHP 4.x. The minimum PHP version required for MySource Matrix 3.18.x is PHP 5.1.6 - this is the version supplied with Red Hat Enterprise Linux (RHEL) 5.
+    The MySource Matrix codebase has been revised significantly so that it will run on PHP 5. This was partly necessitated by PHP's recent end-of-life announcement for PHP 4.x. The minimum PHP version required for MySource Matrix 3.18.x is PHP 5.1.6 - this is the version supplied with Red Hat Enterprise Linux (RHEL) 5.
 
 
 CSV Data Source Asset
 
-	This new asset type, located in the Data package, allows you to store a comma-separated value (CSV) text file. Each row within the CSV file is turned into a Data Record shadow asset.
+    This new asset type, located in the Data package, allows you to store a comma-separated value (CSV) text file. Each row within the CSV file is turned into a Data Record shadow asset.
 
 
 XML Data Source Asset
 
-	This new asset type, located in the Data package, allows you to capture tags of a certain name from an XML source (not necessarily an RSS feed), and translate them into Data Record shadow assets.
+    This new asset type, located in the Data package, allows you to capture tags of a certain name from an XML source (not necessarily an RSS feed), and translate them into Data Record shadow assets.
 
 
 Weather Company Feed Asset
 
-	This new asset type, located in the Data package, is a specialised form of XML Data Source asset, allowing subscribers to The Weather Company's RSS feed services to display data from those feeds as shadow assets in their MySource Matrix system, so they can be listed by Matrix's tools.
+    This new asset type, located in the Data package, is a specialised form of XML Data Source asset, allowing subscribers to The Weather Company's RSS feed services to display data from those feeds as shadow assets in their MySource Matrix system, so they can be listed by Matrix's tools.
 
 
 Rich Text Format File Asset
 
-	This new asset type, part of Core asset package, is a specialised form of File asset that handles Rich Text Format (.rtf) documents. It has no additional function above what the File asset allows, however it allows RTF files to be handled separately in situations such as asset type customisation.
+    This new asset type, part of Core asset package, is a specialised form of File asset that handles Rich Text Format (.rtf) documents. It has no additional function above what the File asset allows, however it allows RTF files to be handled separately in situations such as asset type customisation.
 
 
 Optional Purge Root Added to Purge Trash Script
 
-	The purge_trash.php script now accepts an extra parameter - the ID of an asset currently in the trash. If provided, only this asset and their children will be purged, instead of the entire trash. If this extra argument is omitted, the entire trash will be purged as usual.
+    The purge_trash.php script now accepts an extra parameter - the ID of an asset currently in the trash. If provided, only this asset and their children will be purged, instead of the entire trash. If this extra argument is omitted, the entire trash will be purged as usual.
 
 
 "Hide Frames By Default" User Preference
 
-	This new user preference will, when turned on, hide the frames (ie. the top bar and asset map handle) in Simple Edit mode by default, leaving only your content visible.
+    This new user preference will, when turned on, hide the frames (ie. the top bar and asset map handle) in Simple Edit mode by default, leaving only your content visible.
 
 
 Asset Status Condition Asset
 
-	This new System Condition tests an asset's current status against one or more selected statuses, returning TRUE or FALSE as a result.
+    This new System Condition tests an asset's current status against one or more selected statuses, returning TRUE or FALSE as a result.
 
 
 Option to Offer HTTP Authentication
 
-	If you enable HTTP authentication on the System Configuration screen (as well as Process PHP Credentials), and also append the query string "USE_HTTP_LOGIN=1" to the login URL, MySource Matrix will now present a browser-level HTTP authentication dialogue box instead of Matrix's usual login prompt.
+    If you enable HTTP authentication on the System Configuration screen (as well as Process PHP Credentials), and also append the query string "USE_HTTP_LOGIN=1" to the login URL, MySource Matrix will now present a browser-level HTTP authentication dialogue box instead of Matrix's usual login prompt.
 
 
 Import Script Creates File Types Based On Extension
 
-	The import_files.php script will now create assets of more common file types (MS Excel, MS PowerPoint, RTF File, Text File) instead of standard File assets, based on file extension. This extends existing functionality which handled MS Word, PDF and Image files.
+    The import_files.php script will now create assets of more common file types (MS Excel, MS PowerPoint, RTF File, Text File) instead of standard File assets, based on file extension. This extends existing functionality which handled MS Word, PDF and Image files.
 
 
 New Folder Structure Import Script
 
-	This new sscript allows you to import a flat structure of existing directories into Folder assets under a specified root node. Folders will be named the same as the directories on the filesystem. Directories can then be optionally be renamed to their new asset IDs, allowing the use of the import_files.php script immediately after.
+    This new sscript allows you to import a flat structure of existing directories into Folder assets under a specified root node. Folders will be named the same as the directories on the filesystem. Directories can then be optionally be renamed to their new asset IDs, allowing the use of the import_files.php script immediately after.
 
 
 New CSV-Based Import Script
 
-	This new script converts information from three CSV files into assets of a single type. One file provides attribute and metadata values, and the other two files provide a mapping between field names located in the CSV file, and attribute and metadata values.
+    This new script converts information from three CSV files into assets of a single type. One file provides attribute and metadata values, and the other two files provide a mapping between field names located in the CSV file, and attribute and metadata values.
 
 
 Multiple Page Page Renaming
 
-	Normally, Multiple Page Page assets are named and renamed based on their position under the parent Multiple Page asset. Now, the web path of these assets can be changed from their default. If these new web-paths are non-numeric, they will not be renamed again when the pages are next re-ordered.
+    Normally, Multiple Page Page assets are named and renamed based on their position under the parent Multiple Page asset. Now, the web path of these assets can be changed from their default. If these new web-paths are non-numeric, they will not be renamed again when the pages are next re-ordered.
 
 
 
