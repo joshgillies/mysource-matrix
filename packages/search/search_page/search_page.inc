@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.220 2008/08/21 23:49:55 lwright Exp $
+* $Id: search_page.inc,v 1.221 2008/08/25 04:18:03 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.220 $
+* @version $Revision: 1.221 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -833,8 +833,6 @@ class Search_Page extends Listing_Engine
 			break;
 
 			case 'range':
-				$current_value = NULL;
-
 				if (!isset($current_value['upper'])) {
 					$current_value['upper'] = NULL;
 				}
