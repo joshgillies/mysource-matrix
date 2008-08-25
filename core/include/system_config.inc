@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.113 2008/08/25 23:01:43 mbrydon Exp $
+* $Id: system_config.inc,v 1.114 2008/08/25 23:10:13 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.113 $
+* @version $Revision: 1.114 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -959,8 +959,7 @@ class System_Config extends Config
 			$enable_global_roles_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']))?$_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']:$enable_global_roles_setting;
 		}
 
-		if (($enable_global_roles_setting != SQ_CONF_ENABLE_GLOBAL_ROLES) || ($enable_roles_system_setting != SQ_CONF_ENABLE_ROLES_SYSTEM))
-		{
+		if (($enable_global_roles_setting != SQ_CONF_ENABLE_GLOBAL_ROLES) || ($enable_roles_system_setting != SQ_CONF_ENABLE_ROLES_SYSTEM)) {
 			$this->configureRoleTables($enable_roles_system_setting, $enable_global_roles_setting);
 		}
 
