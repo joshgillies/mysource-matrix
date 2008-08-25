@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.5 2008/06/03 23:59:07 bpearson Exp $
+* $Id: system_config.inc,v 1.104.2.6 2008/08/25 23:18:57 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.5 $
+* @version $Revision: 1.104.2.6 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -969,9 +969,21 @@ class System_Config extends Config
 	}//end processBackend()
 
 
-	function configureRoleTables($enable_roles_system=TRUE, $enable_global_roles=TRUE)
+	/**
+	* Configures the Permissions and Roles database views to reflect the specified roles state
+	*
+	* @param boolean        $enable_roles_system    whether to enable or disable the Roles system completely
+	* @param boolean        $enable_global_roles    whether to enable or disable Global Roles
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function configureRoleTables($enable_roles_system=TRUE, $enable_global_roles=TRUE)
 	{
+		require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 		$roles_changed = FALSE;
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
 		$db = MatrixDAL::getDb();
 		$db_type = MatrixDAL::getDbType();
@@ -981,7 +993,7 @@ class System_Config extends Config
 		$drop_role_view_sql = 'DROP VIEW sq_vw_ast_role';
 
 		// Default is to retain the standard Matrix Roles View unless modified below
-		$create_role_view_sql = $this->getCommonViewDefinition('views', $db_type, 'sq_vw_ast_role View');
+		$create_role_view_sql = $this->_getCommonViewDefinition('views', $db_type, 'sq_vw_ast_role View');
 
 		// Modify Roles View to remove Global Role associations
 		if (!$enable_global_roles) {
@@ -1001,8 +1013,11 @@ class System_Config extends Config
 
 		// Restore Permissions View a la default Matrix installation
 		if ($enable_roles_system) {
-			$create_perm_view_sql = $this->getCommonViewDefinition('views', $db_type, 'sq_vw_ast_perm View');
+			$create_perm_view_sql = $this->_getCommonViewDefinition('views', $db_type, 'sq_vw_ast_perm View');
 		}
+
+		// Let's start a transaction for safety
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		try {
 			$drop_result = MatrixDAL::executeSql($drop_perm_view_sql);
@@ -1012,14 +1027,35 @@ class System_Config extends Config
 
 			$roles_changed = TRUE;
 		} catch (Exception $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 			throw $e;
 		}
 
+		// Allow the secondary user to operate (select, update etc.) with the Roles views
+		grant_secondary_user_perms(FALSE);
+  	 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 		return $roles_changed;
-	}
+
+	}//end configureRoleTables()
 
 
-	function getCommonViewDefinition($relations, $db_type, $display_name, $package=NULL)
+	/**
+	* Obtains a database definition from the specified core or package XML file
+	*
+	* @param string         $relations      the type of relations to install. Eg. functions|views
+	* @param string         $db_type        the database type (eg; 'pgsql')
+	* @param boolean        $display_name   the alias to refer to in the XML file for the wanted query
+	* @param string         $package        the Matrix Package in which the query can be found
+	*
+	* @return string
+	* @access private
+	*/
+	private function _getCommonViewDefinition($relations, $db_type, $display_name, $package=NULL)
 	{
 		$sql = NULL;
 
@@ -1059,17 +1095,25 @@ class System_Config extends Config
 
 				$display_names[] = isset($sql_element->attributes()->{'display_name'}) ? $sql_element->attributes()->{'display_name'} : '<Unknown Element>';
 				if ($sql_element->attributes()->{'display_name'} == $display_name) {
-					$sql = trim($this->xml_entity_decode((string)$sql_element));
+					$sql = trim($this->_xml_entity_decode((string)$sql_element));
 				}
 			}
 		}
 
 		return $sql;
 
-	}//end getCommonViewDefinition()
+	}//end _getCommonViewDefinition()
 
 
-	function xml_entity_decode($string)
+	/**
+	* Replaces elements that are considered XML elements, but not html elements.
+	*
+	* @param string $string the string that needs cleaning
+	*
+	* @return string
+	* @access private
+	*/
+	private function _xml_entity_decode($string)
 	{
 		$string = html_entity_decode($string);
 		$string = str_replace('&#124;', '|', $string);
@@ -1082,8 +1126,7 @@ class System_Config extends Config
 
 		return $string;
 
-	}//end xml_entity_decode()
-
+	}//end _xml_entity_decode()
 
 
 }//end class
