@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.38 2007/10/29 23:19:46 lwright Exp $
+* $Id: package_manager_core.inc,v 1.39 2008/08/26 08:35:15 gnoel Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -131,6 +131,7 @@ class Package_Manager_Core extends Package_Manager
 				'cron_job_generate_log_reports',
 				'cron_job_escalate_safe_trash',
 				'tag_manager',
+				'cron_job_metadata_triggers',				
 			   );
 
 	}//end getSystemAssetTypes()
@@ -733,6 +734,37 @@ class Package_Manager_Core extends Package_Manager
 		return $tag_manager;
 
 	}//end createTagManager()
+
+
+	/**
+	* Create the generate log report cron job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobMetadataTriggers()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Metadata Trigger cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_metadata_triggers');
+
+		$cron_job = new Cron_Job_Metadata_Triggers();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Metadata Triggers Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Metadata Triggers Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_metadata_triggers', $cron_job->id);
+
+		return $cron_job;
+		
+	}//end createCronJobManagePendingAccounts()
 
 
 }//end class
