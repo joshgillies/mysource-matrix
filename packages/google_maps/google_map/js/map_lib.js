@@ -449,13 +449,6 @@
 				  }//end function
 				)//end addListener
 
-				if (cache_home_url) {
-
-					var lat	= point.lat();
-					var lng	= point.lng();
-					updateMapCache(cache_home_url, cache_key, uid, lat, lng);
-				}//end if
-
 		        if (!uid) marker.openInfoWindowHtml(address);
 		       	newMarkers.push(marker);
 		       	updateAddressList(marker, address);
