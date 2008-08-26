@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.186.2.3 2008/08/07 03:57:47 bpearson Exp $
+* $Id: backend.inc,v 1.186.2.4 2008/08/26 05:51:01 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.186.2.3 $
+* @version $Revision: 1.186.2.4 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -403,7 +403,7 @@ class Backend extends MySource_Object
 										if (SQ_IN_LIMBO) {
 									?>
 									+ '&sq_limbo_lock_type=' + limbo_lock_type
-									<?
+									<?php
 										}//end if in limbo
 									?>
 									+ '&sq_popups_blocked=' + popups_blocked;
