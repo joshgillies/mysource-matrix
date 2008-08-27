@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.13 2008/05/05 22:55:50 gsherwood Exp $
+#* $Id: clean.sh,v 1.14 2008/08/27 00:05:28 csmith Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -76,10 +76,17 @@ case "${DB_TYPE}" in
 		psql ${args} -d "${DB_DSN_DBNAME}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 " CASCADE;" }' | psql ${args} -d "${DB_DSN_DBNAME}" -X -q
 	;;
 
-	"oci8")
-		args="${DB_USER}/${DB_PASSWORD}@${DB_DSN_HOST}";
+	"oci")
+		# The oracle dsn is in the format of:
+		# //localhost|ip.addr/dbname
+		# Split it up so we just get the dbname, then set the oracle_sid to the right thing.
+		DB_NAME=`echo $DB_DSN | awk -F'/' '{ print $NF }'`
+		old_oracle_sid=`echo $ORACLE_SID`
+		export ORACLE_SID=$DB_NAME
+		args="${DB_USER}/${DB_PASSWORD}@${DB_DSN}";
 		echo ${args};
 		sqlplus -S "${args}" "@${SYSTEM_ROOT}/scripts/dev/oracle_drop.sql" "${DB_USER}";
+		export ORACLE_SID=$old_oracle_sid
 	;;
 
 	*)
