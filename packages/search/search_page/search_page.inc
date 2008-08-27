@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.6 2008/08/25 04:22:34 hnguyen Exp $
+* $Id: search_page.inc,v 1.213.2.7 2008/08/27 05:07:50 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.6 $
+* @version $Revision: 1.213.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -309,7 +309,13 @@ class Search_Page extends Listing_Engine
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-		$current_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 0);
+		$listing_result_page = (int) array_get_index($_REQUEST, $this->id.'_result_page', 0);
+		$search_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 1);
+		if ($listing_result_page === 0) {
+			$current_result_page = $search_result_page;
+		} else {
+			$current_result_page = $listing_result_page;
+		}//end if
 		$results_per_page    = (int) array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 		$submitted_category  = htmlentities(array_get_index($_REQUEST, 'search_category', array_get_index($_REQUEST, 'submitted_search_category')));
 
@@ -1455,7 +1461,7 @@ class Search_Page extends Listing_Engine
 						value="'.$this->attr('submit_button_text').'" />';
 				} else {
 					$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
-						listing_form.current_result_page.value=\'0\';
+						listing_form.current_result_page.value=\'1\';
 						if (typeof listing_form.mode != \'undefined\') listing_form.mode.value = \'results\';
 						return true;
 					" value="'.$this->attr('submit_button_text').'" />';
@@ -1468,7 +1474,7 @@ class Search_Page extends Listing_Engine
 				$this->_tmp['prints_submit'] = TRUE;
 
 				$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
-					listing_form.current_result_page.value=\'0\';
+					listing_form.current_result_page.value=\'1\';
 					listing_form.mode.value = \'sis\';
 					return TRUE;
 				" value="'.$this->attr('sis_button_text').'" />';
@@ -1676,13 +1682,19 @@ class Search_Page extends Listing_Engine
 
 		$replaces = Array();
 
-		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
+		$listing_result_page = (int) array_get_index($_REQUEST, $this->id.'_result_page', 0);
+		$search_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 1);
+		if ($listing_result_page === 0) {
+			$current_result_page = $search_result_page;
+		} else {
+			$current_result_page = $listing_result_page;
+		}//end if
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
 		$queries = '';
 		foreach ($_GET as $query_name => $query_value) {
 			// skip some get vars that will be added later by the keyword replacements
-			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page'))) {
+			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page', $this->id.'_result_page'))) {
 				if (is_array($query_value)) {
 					foreach ($query_value as $value_index => $value_contents) {
 						$queries .= '&'.urlencode($query_name).'['.urlencode($value_index).']='.urlencode($value_contents);
@@ -1724,15 +1736,9 @@ class Search_Page extends Listing_Engine
 			switch ($keyword) {
 				case 'result_list':
 					$result_list = Array();
-					if ($results_per_page > 0) {
-						$sub_resultids = array_slice(array_keys($asset_info), $current_result_page * $results_per_page, $results_per_page);
-						foreach ($sub_resultids as $resultid) {
-							$result_list[$resultid] = $asset_info[$resultid];
-						}
-					} else {
-						$result_list = $asset_info;
-					}
 
+					$result_list = $this->getChunk($asset_info, $parent_replaces, $keywords, $current_result_page, $results_per_page);
+	
 					if ($this->attr('group_by') == 'grouped') {
 						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
 						$this->sortGroups($this->attr('asset_grouping'), $result_list, $result_list);
@@ -1758,7 +1764,21 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'current_result_page':
-					$replacement = min($current_result_page + 1, $total_pages);
+					$replacement = min($current_result_page, $total_pages);
+				break;
+
+				case 'current_result_page_start':
+					$start_record = ($current_result_page==1) ? $current_result_page : ((($current_result_page-1)*$results_per_page)+1);
+					$replacement = $start_record;
+				break;
+
+				case 'current_result_page_end':
+					$end_record = (($current_result_page) * $results_per_page);
+					if ($end_record > $this->_arrayCountRecursive($asset_info)) {
+						$end_record = $this->_arrayCountRecursive($asset_info);
+					}//end if
+					$replacement = $end_record;
+
 				break;
 
 				case 'total_result_pages':
@@ -1767,19 +1787,19 @@ class Search_Page extends Listing_Engine
 
 				case 'result_page_index':
 					$replacement = '';
-					for ($i = 0; $i < $total_pages; $i++) {
+					for ($i = 1; $i <= $total_pages; $i++) {
 						if ($replacement != '') $replacement .= ' ';
 
 						if ($i == $current_result_page) {
-							$replacement .= '<b>'.($i + 1).'</b>';
+							$replacement .= '<b>'.$i.'</b>';
 						} else {
-							$replacement .= '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.($i + 1).'</a>';
+							$replacement .= '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries).'">'.$i.'</a>';
 						}
 					}
 				break;
 
 				case 'previous_result_page_link':
-					if ($current_result_page < 1) {
+					if ($current_result_page <= 1) {
 						$replacement = $this->attr('prev_page_text');
 						break;
 					}
@@ -1787,7 +1807,7 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'next_result_page_link':
-					if ($current_result_page >= $total_pages - 1) {
+					if ($current_result_page >= $total_pages) {
 						$replacement = $this->attr('next_page_text');
 						break;
 					}
@@ -1900,7 +1920,7 @@ class Search_Page extends Listing_Engine
 							if (!empty($categories)) {
 								$query_string_vars = Array(
 														'mode'					=> $mode,
-														'current_result_page'	=> 0,
+														'current_result_page'	=> 1,
 													 );
 								ob_start();
 									?>
@@ -1987,7 +2007,7 @@ class Search_Page extends Listing_Engine
 								$base_url = $_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING'];
 								$base_url = preg_replace('|([&?])mode=([^&]+)|', '\\1mode='.$mode, $base_url);
 								$base_url = preg_replace('|&'.$query_key.'=([^&]+)?|', '', $base_url);
-								$base_url = preg_replace('|&current_result_page=([^&]+)?|', '&current_result_page=0', $base_url);
+								$base_url = preg_replace('|&current_result_page=([^&]+)?|', '&current_result_page=1', $base_url);
 								$base_url .= '&'.$query_key.'=';
 
 								if ($not_selected_text == '') {
