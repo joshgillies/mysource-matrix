@@ -28,6 +28,13 @@ begin
   for rec in (select object_name from user_objects where object_type='FUNCTION' AND (object_name LIKE 'sq_%' OR object_name LIKE 'SQ_%' OR object_name LIKE 'ASSET%')) loop
       execute immediate 'drop function &&1..' || rec.object_name;
   end loop;
+
+  execute immediate 'drop package &&1..sq_search_pkg';
+  execute immediate 'drop package &&1..sq_common_pkg';
+
+
+  execute immediate 'drop type &&1..VARCHAR_500_TABLE';
+  execute immediate 'drop type &&1..VARCHAR_2000_TABLE';
 end;
 /
 exit;
