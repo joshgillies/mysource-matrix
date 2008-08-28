@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.72 2008/02/18 05:26:27 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.73 2008/08/28 01:52:36 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -167,7 +167,7 @@ class Listing_Engine_Management extends Asset_Management
 		$this->vars['reverse_sort'] = Array(
 										'added'			=> '0.1',
 										'type'			=> 'boolean',
-										'default'		=> FALSE,
+										'default'		=> TRUE,
 										'parameters'	=> Array(
 															'allow_empty'	=> FALSE,
 														   ),
