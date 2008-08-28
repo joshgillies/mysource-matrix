@@ -156,6 +156,44 @@
 		</primary>
 	</query>
 
+	<!-- //		_recache Queries					// -->
+	<query id="getCachedAssetByUrl">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_cache" column="assetid" />
+					<field table="sq_cache" column="path" />
+				</fields>
+				<from>
+					<table>sq_cache</table>
+				</from>
+				<where>
+					<or>
+						<equal table="sq_cache" column="url">:url1</equal>
+						<equal table="sq_cache" column="url">:url2</equal>
+						<like table="sq_cache" column="url">:url3</like>
+						<like table="sq_cache" column="url">:url4</like>
+					</or>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="deleteCachedAssetByUrl">
+		<!-- Delete a cache entry based on URL. -->
+		<primary>
+			<delete>
+				<where>
+					<or>
+						<equal table="sq_cache" column="url">:url1</equal>
+						<equal table="sq_cache" column="url">:url2</equal>
+						<like table="sq_cache" column="url">:url3</like>
+						<like table="sq_cache" column="url">:url4</like>
+					</or>
+				</where>
+			</delete>
+		</primary>
+	</query>
+
 	<!-- //     trigger_action_set_cache_expiry     // -->
 	<query id="setNewCacheExpiry">
 		<primary>

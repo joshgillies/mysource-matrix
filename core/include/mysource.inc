@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.8 2008/07/30 01:59:52 mbrydon Exp $
+* $Id: mysource.inc,v 1.258.2.9 2008/08/28 23:22:28 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.8 $
+* @version $Revision: 1.258.2.9 $
 * @package MySource_Matrix
 */
 class MySource
@@ -488,19 +488,53 @@ class MySource
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
 					if (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $asset->writeAccess()) {
-						$hh = $this->getHipoHerder();
-						$vars = Array(
-									'assetid'		=> $asset->id,
-									'level'			=> 'single',
-									'type_codes'	=> Array(),
-									'delete_all'	=> 'no',
-								);
-						$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
-						if (SQ_CONF_SEND_CACHEABLE_HEADER) {
-							$this->_sendHTTPHeaders($asset);
-						} else {
-							$asset->printFrontend();
-						}
+						// Gather assetids from cache table
+						$url = strip_url(current_url(TRUE, TRUE));
+						$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
+
+						$bind_vars = Array(
+										'url1'		=> $url,		// exact match for:	url.com
+										'url2'		=> $url.'/',	// exact match for:	url.com/
+										'url3'		=> $url.'?%',	// like match for:	url.com?%
+										'url4'		=> $url.'/?%',	// like match for:	url.com/?%
+									 );
+						$cached_assets = MatrixDAL::executeAll('cache_manager', 'getCachedAssetByUrl', $bind_vars);
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+						if (!empty($cached_assets)) {
+							// Remove the content file for each assetid
+							foreach ($cached_assets as $cached_asset) {
+								if (isset($cached_asset['path'])) {
+									$asset_cache_path = SQ_CACHE_PATH.'/'.$cached_asset['path'];
+									if (is_file($asset_cache_path)) {
+										if (!unlink($asset_cache_path)) {
+											log_dump('Failed to delete cache file: '.$asset_cache_path);
+										}//end if
+									}//end if
+								}//end if
+							}//end foreach
+
+							// Purge assetids from cache table based on url
+							$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbcache');
+							$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+							try {
+								$delete_bind_vars = Array(
+														'url1'		=> $url,		// exact match for:	url.com
+														'url2'		=> $url.'/',	// exact match for:	url.com/
+														'url3'		=> $url.'?%',	// like match for:	url.com?%
+														'url4'		=> $url.'/?%',	// like match for:	url.com/?%
+													);
+								MatrixDAL::executeQuery('cache_manager', 'deleteCachedAssetByUrl', $delete_bind_vars);
+							} catch (DALException $e) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
+							}
+
+							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						}//end if
 					} else {
 						trigger_localised_error('CORE0279', E_USER_NOTICE);
 					}//end else
@@ -1217,9 +1251,9 @@ class MySource
 					$then = NULL;
 					try {
 						$bind_vars = Array(
-							'assetid'	=> $assetid,
-							'version'	=> $version,
-						);
+										'assetid'	=> $assetid,
+										'version'	=> $version,
+									 );
 						$then = MatrixDAL::executeOne('core', 'rollbackGetTimeStampFrom', $bind_vars);
 					} catch (Exception $e) {
 						throw new Exception('Could not find version '.$version.' of asset ID #'.$assetid.' in rollback system due to database error: '.$e->getMessage());
@@ -2236,7 +2270,7 @@ class MySource
 					// Turn off auto-commit, and ensure column names are
 					// returned in lowercase (important for Oracle)
 					if ($dsn_array['type'] === 'oci') {
-						$db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+						$db->setAttribute(PDO::ATTR_AUTOCOMMIT, FALSE);
 					}
 
 					// Ensure that no conversion is done to empty strings and NULLs
@@ -2253,7 +2287,7 @@ class MySource
 				header('HTTP/1.0 500 Internal Server Error');
 				throw new Exception('Could not create database connection: '.$e->getMessage());
 			}
-		}
+		}//end if
 
 		MatrixDAL::changeDb($conn);
 
@@ -2671,7 +2705,7 @@ class MySource
 
 			}//end if
 
-		}//endif
+		}//end if
 
 		$this->restoreDatabaseConnection();
 		return $result;
