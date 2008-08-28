@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.14 2008/08/27 00:05:28 csmith Exp $
+#* $Id: clean.sh,v 1.15 2008/08/28 23:58:59 csmith Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -77,6 +77,8 @@ case "${DB_TYPE}" in
 	;;
 
 	"oci")
+		export ORACLE_HOME="/home/oracle/oracle/product/10.2.0/db_1"
+
 		# The oracle dsn is in the format of:
 		# //localhost|ip.addr/dbname
 		# Split it up so we just get the dbname, then set the oracle_sid to the right thing.
@@ -85,7 +87,7 @@ case "${DB_TYPE}" in
 		export ORACLE_SID=$DB_NAME
 		args="${DB_USER}/${DB_PASSWORD}@${DB_DSN}";
 		echo ${args};
-		sqlplus -S "${args}" "@${SYSTEM_ROOT}/scripts/dev/oracle_drop.sql" "${DB_USER}";
+		$ORACLE_HOME/bin/sqlplus -S "${args}" "@${SYSTEM_ROOT}/scripts/dev/oracle_drop.sql" "${DB_USER}";
 		export ORACLE_SID=$old_oracle_sid
 	;;
 
