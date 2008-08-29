@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.62 2008/08/15 03:35:44 akarelia Exp $
+* $Id: html_tidy.inc,v 1.63 2008/08/29 06:33:26 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -151,28 +151,34 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 				// tidy the HTML produced using the PHP5 Tidy
-				$tidy = new tidy;
+				$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
 
 				$config = Array (
-							'output-xhtml'			=> TRUE,
-							'preserve-entities'		=> TRUE,
-							'show-body-only'		=> TRUE,
-							'wrap'					=> FALSE,
-							'word-2000'				=> TRUE,
-							'show-warnings'			=> TRUE,
-							'show-errors'			=> 1,
-							'char-encoding'			=> $tidy_char_set,
-							'force-output'			=> TRUE,
-							'quote-marks'			=> TRUE,
-							'accessibility-check'	=> SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL,
+							'--preserve-entities'	=> TRUE,
+							'--show-body-only'		=> TRUE,
+							'--show-errors'			=> 1,
+							'--show-warnings'		=> TRUE,
+							'--wrap'				=> FALSE,
+							'--quote-marks'			=> TRUE,
+							'--word-2000'			=> TRUE,
+							'--force-output'		=> TRUE,
+							'--char-encoding'		=> $tidy_char_set,
+							'-access'				=> SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL,
 						  );
 
 				// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
 				// so HTMLTidy doesnt strip them out
 				if (!empty($this->_new_inline_tags)) {
-					$config['new-inline-tags']	= implode('","',$this->_new_inline_tags);
+					$config['--new-inline-tags']	= implode('","',$this->_new_inline_tags);
 				}
-				// replaces &middot; with a <li> 
+
+				// Read the config variables into a string of arguments
+				$args = ' -iq -asxhtml';
+				foreach ($config as $param => $option) {
+					$args .= ' '.$param.' '.((is_bool($option)) ? (int) $option : $option);
+				}
+
+				// replaces &middot; with a <li>
 				$html = str_replace('&middot;','<li>',$html);
 
 				$html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -181,10 +187,21 @@ class HTML_Tidy extends Wysiwyg_Plugin
 						</head><body>
 						'.$html.'
 						</body></html>';
-				$tidy->parseString($html, $config, $tidy_char_set);
-				$tidy->cleanRepair();
 
-				$error = $tidy->errorBuffer;
+				// HTML Tidy logs the errors to stderr
+				$command = '/bin/echo '.escapeshellarg($html)." | $path_to_tidy $args 2>&1";
+
+				$tidy = Array();
+				exec($command, $tidy, $return);
+
+				// Find the errors
+				$error = '';
+				foreach ($tidy as $line_no => $line) {
+					if (preg_match('/line \d+ column \d+/i', $line)) {
+						$error .= $line."\n";
+						unset($tidy[$line_no]);
+					}//end if
+				}//end foreach
 
 				// First ignore anything we don't want to show for whatever reason
 				$ignore_errors_list = $this->getIgnoredErrors();
@@ -198,11 +215,12 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				}
 
 				$this->htmltidy_errors = trim($error);
-				if (empty($tidy) || empty($tidy_char_set)) {
+
+				if (!empty($return) || empty($tidy) || empty($tidy_char_set)) {
 					$this->htmltidy_status = 'fail';
 				} else {
 					// Only now we update the HTML
-					$html = $tidy;
+					$html = implode("\n", $tidy);
 
 					// HTML Tidy adds a new line character after <pre> and beofre </pre> tag
 					// which causes problem when the content is put back to WYSIWYG, replaced with a space
@@ -235,6 +253,12 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	}//end check_usable()
 
 
+	/**
+	* Ignore these errors
+	*
+	* @return array
+	* @access public
+	*/
 	function getIgnoredErrors()
 	{
 		$ignore_list = Array();
@@ -244,7 +268,9 @@ Accessibility Checks: Version 0.1
 ';
 
 		return $ignore_list;
-	}//end errorToIgnore
+
+	}//end getIgnoredErrors()
+
 
 }//end class
 

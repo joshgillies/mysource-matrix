@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.27 2008/02/01 01:15:41 hnguyen Exp $
+* $Id: external_tools_config.inc,v 1.28 2008/08/29 06:34:11 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -39,6 +39,7 @@ class External_Tools_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
+						'SQ_TOOL_HTML_TIDY_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
 						'SQ_TOOL_HTML_TIDY_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL'	=> Array('editable' => 1, 'default' => 0),
 						'SQ_TOOL_PDFTOHTML_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
@@ -199,6 +200,19 @@ class External_Tools_Config extends Config
 		$o->closeSection();
 
 		$o->openSection(translate('wysiwyg_editor_tools'));
+
+			$o->openField(translate('path_to_html_tidy'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_HTML_TIDY_PATH]', SQ_TOOL_HTML_TIDY_PATH, 30);
+				} else {
+					echo SQ_TOOL_HTML_TIDY_PATH;
+				}//end if
+
+				if (!is_file(SQ_TOOL_HTML_TIDY_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'HTML Tidy'); ?></span><?php
+				} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'HTML Tidy'); ?></span><?php
+				}//end if
 
 			$o->openField(translate('wysiwyg_spell_checker_pref_field'));
 			if ($write_access) {
