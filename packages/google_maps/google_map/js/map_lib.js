@@ -525,19 +525,13 @@
 	*/
 	function populateAssetBuilderForm(marker, address)
 	{
-		var FormEle	= {};
 
 		document.getElementById('asset_builder').style.display = 'block';
-		var	EleName	= 'google_map_location_0_';
-		FormEle.name		= '2240';
-		FormEle.longitude	= '2242';
-		FormEle.latitude	= '2243';
-		FormEle.description	= '2244';
 
 		var	latlng	= marker.getLatLng();
-		populateElementValue(EleName+FormEle.longitude, latlng.lng());
-		populateElementValue(EleName+FormEle.latitude, latlng.lat());
-		populateElementValue(EleName+FormEle.description, address);
+		populateElementValue(FormEle.longitude, latlng.lng());
+		populateElementValue(FormEle.latitude, latlng.lat());
+		populateElementValue(FormEle.description, address);
 
 	}//end if
 
