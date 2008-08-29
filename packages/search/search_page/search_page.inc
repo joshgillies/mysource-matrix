@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.7 2008/08/27 05:07:50 bpearson Exp $
+* $Id: search_page.inc,v 1.213.2.8 2008/08/29 00:12:06 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.7 $
+* @version $Revision: 1.213.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -99,6 +99,38 @@ class Search_Page extends Listing_Engine
 		parent::__construct($assetid);
 
 	}//end constructor
+
+
+	/**
+        * Perform any additional processing required during the creation of this asset
+        *
+        * For example, creating other child assets should be performed in this method
+        *
+        * @param array  &$link  information used to create the initial link<br/>
+        * <pre>
+        * Array (
+        *   'asset'        => [ref major asset to create link under],
+        *   'link_type'    => SQ_LINK_?,
+        *   'value'        => [link value],
+        *   'sort_order'   => [link sort order],
+        *   'is_dependant' => [0|1],
+        *   'is_exclusive' => [0|1],
+        * )
+        * </pre>
+        *
+        * @return boolean
+        * @access private
+        */
+        function _createAdditional(Array &$link)
+        {
+		if (!parent::_createAdditional($link)) return FALSE;
+
+		// Set the Sort Order to "Descending" by default, so the most relevant results are at the top (ref. Feature #2886)
+		$this->setAttrValue('reverse_sort', TRUE);
+
+                return TRUE;
+
+        }//end _createAdditional()
 
 
 	/**
