@@ -21,7 +21,10 @@
 	*/
 	function addListeners(name, switch_name)	{
 		if (current_listener_name) {
-			document.getElementById(current_listener_name).style.borderColor	= 'white';
+			var tool_div = document.getElementById(current_listener_name);
+			if (tool_div) {
+				tool_div.style.borderColor	= 'white';
+			}//end if
 		}//end if
 		if (current_listener) {
 			GEvent.removeListener(current_listener);
@@ -73,7 +76,7 @@
 						myPano.setLocationAndPOV(latlng);
 					}//end if
 					var div = document.getElementById("street_view");
-					if (div.style.display !='block') {
+					if (div && div.style.display !='block') {
 						div.style.display = 'block';
 					}//end if
 				});
@@ -81,7 +84,11 @@
 		}//end switch
 
 		current_listener_name	= name+'_tool';
-		document.getElementById(current_listener_name).style.borderColor	= 'red';
+		var new_tool_div = document.getElementById(current_listener_name);
+		if (new_tool_div) {
+			new_tool_div.style.borderColor	= 'red';
+		}//end if
+
 		//return current_listener;
 
 	}//end addListeners()
@@ -423,7 +430,7 @@
 		      if (!point) {
 		        //alert(address + " not found");
 		      } else {
-		       if (!uid)  map.setCenter(point, 13);
+		       if (!uid)  map.setCenter(point);
 
 				if (icon_image != null && icon_image != '') {
 					var icon_url_final = icon_image;
@@ -443,6 +450,7 @@
 
 		        map.addOverlay(marker);
 
+				if (!extra_text) extra_text = '';
 				GEvent.addListener(marker, 'click',
 				  function () {
 				    marker.openInfoWindowHtml(extra_text+' '+address);
@@ -461,7 +469,7 @@
 							myPano.setLocationAndPOV(latlng);
 						}
 						var div = document.getElementById("street_view");
-						if (div.style.display !='block') {
+						if (div && div.style.display !='block') {
 							div.style.display = 'block';
 						}//end if
 					});
@@ -470,7 +478,7 @@
 					  function () {
 					    //map.showMapBlowup(new GLatLng(latitude, longitude), 5, G_HYBRID_MAP);
 					    current_marker = marker;
-					    marker.openInfoWindowHtml(description);
+					    marker.openInfoWindowHtml(extra_text+' '+address);
 					  }//end function
 					)//end addListener
 				}//end else
@@ -587,16 +595,20 @@
 	*/
 	function toggleDisplay(marker_array, key_index)
 	{
-		if (!marker_array.toggle) {
-			for(var i= 0; i < marker_array[key_index].length; i++) {
-				marker_array[key_index][i].show();
+		if (!marker_array[key_index].toggle) {
+			for (var obj in marker_array[key_index]) {
+				if (obj != 'toggle') {
+					marker_array[key_index][obj].show();
+				}//end if
 			}//end for
 		} else {
-			for(var i= 0; i < marker_array[key_index].length; i++) {
-				marker_array[key_index][i].hide();
+			for (var obj in marker_array[key_index]) {
+				if (obj != 'toggle') {
+					marker_array[key_index][obj].hide();
+				}//end if
 			}//end for
 		}
-		marker_array.toggle = (!marker_array.toggle);
+		marker_array[key_index].toggle = (!marker_array[key_index].toggle);
 	}//end toggleDisplay
 
 
@@ -604,11 +616,17 @@
 	*
 	*
 	*/
-	function getClosestLocation()
+	function getClosestLocation(color)
 	{
 		var last_marker		= getLastMarker();
-		var closest_marker	= getClosestLocationForMarker(last_marker);
-		drawLineBetweenMarkers(last_marker.getLatLng(), closest_marker.getLatLng(), '#ff0000');
+		// Only execute this when there is a last selected marker
+		if (last_marker) {
+			var closest_marker	= getClosestLocationForMarker(last_marker);
+			if (!color)  {
+				color	= '#ff0000';
+			}//end if
+			drawLineBetweenMarkers(last_marker.getLatLng(), closest_marker.getLatLng(), color);
+		}//end if
 
 	}//end getClosestLocation()
 

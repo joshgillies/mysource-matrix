@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.2 2008/08/24 23:23:49 hnguyen Exp $
+* $Id: google_map.inc,v 1.3 2008/08/29 01:37:10 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -192,6 +192,7 @@ class Google_Map extends Page_Asset_Listing
     */
     public function printBody()
     {
+
     	$api_key			= $this->attr('api_key');
     	$this->api_key		= $api_key;
 		$lat				= $this->attr('default_latitude');
@@ -325,17 +326,22 @@ class Google_Map extends Page_Asset_Listing
 						// Check the cache
 						if (!empty($cached_result) && isset($cached_result[$index])) {
 							// If in cache
-							$locations_info[$loc_index]['lat']	= $cached_result[$index]['lat'];
-							$locations_info[$loc_index]['lng']	= $cached_result[$index]['lng'];
+							if (isset($locations_info[$loc_index]['lat'])) {
+								$locations_info[$loc_index]['lat']	= $cached_result[$index]['lat'];
+							}//end if
+							if (isset($locations_info[$loc_index]['lng'])) {
+								$locations_info[$loc_index]['lng']	= $cached_result[$index]['lng'];
+							}//end if
 						} else {
 							// We are calling the Geocoding service
 							$result	= $this->getLatLngFromAddress($child_address);
 							if ($result !== FALSE) {
-								$cached_result[$index]	= $result;
-								$this->cacheResultSet($cached_result, $cache_key);
 								$locations_info[$loc_index]['lat']	= $cached_result[$index]['lat'];
 								$locations_info[$loc_index]['lng']	= $cached_result[$index]['lng'];
 							}//end if
+
+							$cached_result[$index]	= $result;
+							$this->cacheResultSet($cached_result, $cache_key);
 						}//end else
 					}//end if
 
@@ -384,15 +390,15 @@ class Google_Map extends Page_Asset_Listing
 				var geocoder			= null;
 				var allMarkerList		= {};
 				var allDisplayingMarker	= {};
-				var markerTypes			= { toggle: true };
-				var markerRootNodes		= { toggle: true };
+				var markerTypes			= {};
+				var markerRootNodes		= {};
 				var addressList			= [];
 				var cache_home_url		= '<?php echo $this->getUrl(); ?>';
 				var	cache_key			= '<?php echo $cache_key; ?>';
 
 				var current_marker		= null;
 				var current_listener	= null;
-				var current_listener_name = null;
+				var current_listener_name = 'navigate_tool';
 
 			<?php
 				$geocoder	= $this->attr('enable_geocoder');
@@ -410,9 +416,10 @@ class Google_Map extends Page_Asset_Listing
 		<?php
 
 		// Need to print here so we can have the "map" div, and add stuff to it.
-		parent::printBody();
+
 
 		if (!empty($locations_info)) {
+			parent::printBody();
 			?>
 				<script type="text/javascript">
 
@@ -429,14 +436,14 @@ class Google_Map extends Page_Asset_Listing
 				$asset_types	= $this->attr('types');
 				foreach ($asset_types as $type_code	=> $inherit) {
 					?>
-					markerTypes['<?php echo $type_code; ?>'] = Array();
+					markerTypes['<?php echo $type_code; ?>'] = { toggle:true };
 					<?php
 				}//end foreach
 
 				if ($toggle_root_nodes) {
 					foreach ($root_nodes as $root_assetid) {
 						?>
-						markerRootNodes['<?php echo $root_assetid; ?>']	= [];
+						markerRootNodes['<?php echo $root_assetid; ?>']	= { toggle:true };
 						<?php
 					}//end foreach
 				}//end if
@@ -469,7 +476,8 @@ class Google_Map extends Page_Asset_Listing
 									//We can't have marker toggling while listing ldap users  (use Geocoder to find addresses)
 									// Array structure does not allow so
 							?>
-									markerRootNodes['<?php echo $assets_parent[$child_assetid][0]; ?>'].push(marker);
+//									markerRootNodes['<?php echo $assets_parent[$child_assetid][0]; ?>'].push(marker);
+									markerRootNodes['<?php echo $assets_parent[$child_assetid][0]; ?>']['<?php echo $child_assetid;?>'] = marker;
 						<?php
 								}//end if
 							}//end if ?>
@@ -480,7 +488,8 @@ class Google_Map extends Page_Asset_Listing
 								// We can't have marker toggling while listing ldap users (use Geocoder to find addresses),
 								// Array structure does not allow so
 						?>
-								markerTypes['<?php echo $res[$child_assetid][0]['type_code']; ?>'].push(marker);
+//								markerTypes['<?php echo $res[$child_assetid][0]['type_code']; ?>'].push(marker);
+								markerTypes['<?php echo $res[$child_assetid][0]['type_code']; ?>']['<?php echo $child_assetid;?>'] = marker;
 					<?php
 							}//end if
 					}//end if
@@ -501,7 +510,9 @@ class Google_Map extends Page_Asset_Listing
 			if ($street_view) {
 				$this->enableStreetView();
 			}//end if
-		}//end if
+		} else {	//end if empty locations_info
+			parent::printBody();
+		}//end else
 
 		$this->addControls();
 
@@ -646,7 +657,7 @@ class Google_Map extends Page_Asset_Listing
 
     	$keywords['address_finder']			= translate('google_map_address_finder');
     	$keywords['new_address_list']		= translate('google_map_new_address_list');
-    	$keywords['new_address_list_asset_builder']		= translate('google_map_new_address_list_asset_builder');
+    	$keywords['asset_builder']			= translate('google_map_asset_builder');
 
     	$keywords['get_closest_location']	= translate('google_map_get_closest_location');
     	$keywords['clear_new_markers']		= translate('google_map_clear_new_markers');
@@ -687,7 +698,7 @@ class Google_Map extends Page_Asset_Listing
 					</div>';
 		} else if ($keyword == 'map_type_menu') {
 			return '
-				<ul id="map_menu" class="map_type_menu">
+				<ul id="map_menu" class="map_type_menu" style="list-style:none;">
 			        <li><button onClick="setMapType(G_NORMAL_MAP);">NORMAL</button></li>
 					<li><button onClick="setMapType(G_PHYSICAL_MAP);">TERRAIN</button></li>
 			        <li><button onClick="setMapType(G_SATELLITE_MAP);">SATTELITE</button></li>
@@ -699,11 +710,8 @@ class Google_Map extends Page_Asset_Listing
 			return '<a href="javascript:clearNewMarker(newMarkers);clearNewMarker(newPolylines);">Clear New Markers</a>';
 		} else if ($keyword == 'get_closest_location') {
 			return '<a href="javascript:getClosestLocation();">Get Closest Location</a>';
-		} else if ($keyword == 'new_address_list_asset_builder') {
-			return '<div id="new_address_list" class="new_address_list">
-						<div id="asset_builder" class="asset_builder_div">
-						</div>
-					</div>';
+		} else if ($keyword == 'asset_builder') {
+			return '<div id="asset_builder" class="asset_builder_div">NEST YOUR ASSET BUILDER HERE</div>';
 		} else if ($keyword == 'toggle_overlay') {
 			return '<a href="javascript:toggleOverlay();" id="toggle_overlay">Street View Overlay</a>';
 		} else if ($keyword == 'toggle_street_view_window') {
@@ -716,18 +724,27 @@ class Google_Map extends Page_Asset_Listing
 			return '<a href="javascript:toggleDiv(\'tool_bar\');" id="toggle_tool_bar">Toggle Tool Bar</a>';
 		} else if ($keyword == 'tool_bar') {
 			return '
-				<a href="javascript:addListeners(\'navigate\', this.id);" style="color:white;" title="Navigate Map" >
-					<img src="'.sq_web_path('data').'/asset_types/google_map/images/map.png'.'" style="border-color:white;border:2px solid;" id="navigate_tool" name="navigate_tool"/>
+			<ul id="tool_bar_list" class="tool_bar" style="list-style:none;">
+				<li><a href="javascript:addListeners(\'navigate\', this.id);" style="color:red;" title="Navigate Map" >
+					<img src="'.sq_web_path('data').'/asset_types/google_map/images/map.png'.'" style="border-color:red;border:2px solid;" id="navigate_tool" name="navigate_tool"/>
 				</a>
+				</li>
+				<li>
 				<a href="javascript:addListeners(\'add_marker\', this.id);" style="color:white;" title="Add Marker">
 					<img src="'.sq_web_path('data').'/asset_types/google_map/images/arrowdown.png'.'" style="border-color:white;border:2px solid;" id="add_marker_tool" name="add_marker_tool"/>
 				</a>
+				</li>
+				<li>
 				<a href="javascript:addListeners(\'street_view\', this.id);" style="color:white;" title="Street View">
 					<img src="'.sq_web_path('data').'/asset_types/google_map/images/binocular.png'.'" style="border-color:white;border:2px solid;" id="street_view_tool" name="street_view_tool"/>
 					</a>
+				</li>
+				<li>
 				<a href="javascript:toggle_wheel_scrool();" style="color:white;" title="Mouse Scroll Zoom">
 					<img src="'.sq_web_path('data').'/asset_types/google_map/images/glasses.png'.'" style="border-color:white;border:2px solid;" alt="Mouse Scroll Zoom" id="mouse_scroll_zoom_tool" name="address_finder_tool" />
-				</a>';
+				</a>
+				</li>
+			</ul>';
 		} else if ($keyword == 'toggle_asset_types') {
 				$asset_types	= $this->attr('types');
 				$result			= '';
@@ -974,7 +991,7 @@ class Google_Map extends Page_Asset_Listing
 				$lng = $coordinates_array[0];
 			} else if (strcmp($status, "620") == 0) {
 				// slow down
-	      		$delay += 100000;
+	      		$delay += 20000;
 	    	} else {
 				// failure to geocode
 				$geocode_pending = false;

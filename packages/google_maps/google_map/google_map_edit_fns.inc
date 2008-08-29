@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_edit_fns.inc,v 1.2 2008/08/24 23:23:49 hnguyen Exp $
+* $Id: google_map_edit_fns.inc,v 1.3 2008/08/29 01:37:10 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -87,7 +87,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
         $write_access = $asset->writeAccess('attributes');
         if (!$write_access) return FALSE;
         $var_name_pattern = '/^[a-zA-Z_\-0-9\.]+$/';
-        $var_list = unserialize($asset->attr('dynamic_vars'));
+        $var_list = ($asset->attr('dynamic_vars'));
 
         $map = $asset->getAttribute('parameter_map');
 
@@ -876,10 +876,13 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}//end else
 		$o->closeField();
 
+		$street_view	= $asset->attr('enable_street_view');
+		$extra			= 'disabled=disabled';
+
 		$o->openField('Street View Initialisation');
 		$street_view_code	= $asset->attr('street_view_code');
 		if ($wa) {
-			text_area($prefix.'_street_view_code', $street_view_code, 100, 10);
+			text_area($prefix.'_street_view_code', $street_view_code, 100, 10, FALSE, $street_view ? '' : $extra);
 		} else {
 			echo nl2br(htmlentities($street_view_code));
 		}//end else
