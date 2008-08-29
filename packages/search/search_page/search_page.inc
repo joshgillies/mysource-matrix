@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.8 2008/08/29 00:12:06 mbrydon Exp $
+* $Id: search_page.inc,v 1.213.2.9 2008/08/29 00:27:28 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.8 $
+* @version $Revision: 1.213.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -125,8 +125,18 @@ class Search_Page extends Listing_Engine
         {
 		if (!parent::_createAdditional($link)) return FALSE;
 
+		// Grab the attributes lock
+		if (!$lock_held = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
+			return FALSE;
+		}
+
 		// Set the Sort Order to "Descending" by default, so the most relevant results are at the top (ref. Feature #2886)
 		$this->setAttrValue('reverse_sort', TRUE);
+		$this->saveAttributes();
+
+		if ($lock_held == 1) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+		}
 
                 return TRUE;
 
