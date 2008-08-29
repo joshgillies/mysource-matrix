@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: state.js,v 1.1.2.6 2008/06/12 04:57:26 bpearson Exp $
+* $Id: state.js,v 1.1.2.7 2008/08/29 00:39:12 hnguyen Exp $
 *
 */
 
@@ -99,7 +99,7 @@ onbeforeunload = function(e) {
 			{
 				if (document.forms[0]['state'].value != saveState())
 				{
-					return "Are you sure want to continue?";
+					return "You have unsaved changes!";
 				}
 			}
 		}
