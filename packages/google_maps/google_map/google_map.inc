@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.2.2.4 2008/08/29 02:27:28 hnguyen Exp $
+* $Id: google_map.inc,v 1.2.2.5 2008/08/29 05:54:19 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.4 $
+* @version $Revision: 1.2.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -640,7 +640,7 @@ class Google_Map extends Page_Asset_Listing
 
     	$keywords['street_view']			= translate('google_map_street_view');
     	$keywords['toggle_overlay']			= translate('google_map_toggle_overlay');
-    	$keywords['toggle_street_view']		= translate('google_map_toggle_street_view_window');
+    	$keywords['toggle_street_view_window']	= translate('google_map_toggle_street_view_window');
     	$keywords['toggle_new_address_list']= translate('google_map_toggle_new_address_list');
     	$keywords['toggle_tool_bar']		= translate('google_map_toggle_tool_bar');
     	$keywords['tool_bar']				= translate('google_map_tool_bar');
