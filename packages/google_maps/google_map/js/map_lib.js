@@ -460,6 +460,7 @@
 		        if (!uid) marker.openInfoWindowHtml(address);
 		       	newMarkers.push(marker);
 		       	updateAddressList(marker, address);
+				current_marker = marker;
 
 				if (street_view_enabled) {
 					GEvent.addListener(marker,"click", function() {
