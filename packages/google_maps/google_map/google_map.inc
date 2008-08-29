@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.4 2008/08/29 01:38:56 hnguyen Exp $
+* $Id: google_map.inc,v 1.5 2008/08/29 01:46:25 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -416,10 +416,9 @@ class Google_Map extends Page_Asset_Listing
 		<?php
 
 		// Need to print here so we can have the "map" div, and add stuff to it.
-
+		parent::printBody();
 
 		if (!empty($locations_info)) {
-			parent::printBody();
 			?>
 				<script type="text/javascript">
 
@@ -508,9 +507,7 @@ class Google_Map extends Page_Asset_Listing
 			if ($street_view) {
 				$this->enableStreetView();
 			}//end if
-		} else {	//end if empty locations_info
-			parent::printBody();
-		}//end else
+		}//end if
 
 		$this->addControls();
 
