@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.87 2008/08/28 01:52:45 akarelia Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.88 2008/08/29 00:54:49 mbrydon Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2182,7 +2182,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if ($write_access) {
 			combo_box($prefix.'_default_sort_direction', $options, FALSE, $sort_direction);
 		} else {
-			echo (!$sort_direction) ? $sort_asc_text : $sort_desc_text;
+			echo ($sort_direction) ? $sort_desc_text : $sort_asc_text;
 		}
 
 		return $write_access;
