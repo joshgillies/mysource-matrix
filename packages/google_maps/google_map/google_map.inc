@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.3 2008/08/29 01:37:10 hnguyen Exp $
+* $Id: google_map.inc,v 1.4 2008/08/29 01:38:56 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -476,7 +476,6 @@ class Google_Map extends Page_Asset_Listing
 									//We can't have marker toggling while listing ldap users  (use Geocoder to find addresses)
 									// Array structure does not allow so
 							?>
-//									markerRootNodes['<?php echo $assets_parent[$child_assetid][0]; ?>'].push(marker);
 									markerRootNodes['<?php echo $assets_parent[$child_assetid][0]; ?>']['<?php echo $child_assetid;?>'] = marker;
 						<?php
 								}//end if
@@ -488,7 +487,6 @@ class Google_Map extends Page_Asset_Listing
 								// We can't have marker toggling while listing ldap users (use Geocoder to find addresses),
 								// Array structure does not allow so
 						?>
-//								markerTypes['<?php echo $res[$child_assetid][0]['type_code']; ?>'].push(marker);
 								markerTypes['<?php echo $res[$child_assetid][0]['type_code']; ?>']['<?php echo $child_assetid;?>'] = marker;
 					<?php
 							}//end if
