@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.2.2.3 2008/08/29 02:17:41 hnguyen Exp $
+* $Id: google_map.inc,v 1.2.2.4 2008/08/29 02:27:28 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.3 $
+* @version $Revision: 1.2.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -985,7 +985,7 @@ class Google_Map extends Page_Asset_Listing
 				$lng = $coordinates_array[0];
 			} else if (strcmp($status, "620") == 0) {
 				// slow down
-	      		$delay += 30000;
+	      		$delay += 100000;
 	    	} else {
 				// failure to geocode
 				$geocode_pending = false;
