@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.2.2.1 2008/08/29 01:50:56 hnguyen Exp $
+* $Id: google_map.inc,v 1.2.2.2 2008/08/29 02:08:17 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -335,12 +335,11 @@ class Google_Map extends Page_Asset_Listing
 						} else {
 							// We are calling the Geocoding service
 							$result	= $this->getLatLngFromAddress($child_address);
+							$cached_result[$index]	= $result;
 							if ($result !== FALSE) {
 								$locations_info[$loc_index]['lat']	= $cached_result[$index]['lat'];
 								$locations_info[$loc_index]['lng']	= $cached_result[$index]['lng'];
 							}//end if
-
-							$cached_result[$index]	= $result;
 							$this->cacheResultSet($cached_result, $cache_key);
 						}//end else
 					}//end if
