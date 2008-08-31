@@ -3,7 +3,7 @@
 	* This function is used to initialize the GMAP Object and set all the default parameters
 	*
 	*/
-	function init()	{
+	function gmap_init()	{
 		if (GBrowserIsCompatible()) {
 			map = new GMap2(document.getElementById("map"));
 			//retrieveMarkers();
@@ -12,7 +12,7 @@
 			map.setMapType(map_type);
 	    }//end if
 
-	}//end init()
+	}//end gmap_init()
 
 
 	/**
