@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_management.inc,v 1.2.2.1 2008/08/29 01:55:45 hnguyen Exp $
+* $Id: google_map_management.inc,v 1.2.2.2 2008/08/31 22:26:52 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -55,7 +55,7 @@ class Google_Map_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> '<div id="map" style="width:300px;height:400px;border:solid 0px;"></div>
 <script type="text/javascript">
-	init();
+	gmap_init();
 	window.onunload = GUnload;
 </script>',
 													'description'	=> 'Map code',
