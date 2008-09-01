@@ -1,5 +1,48 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.12
+
+Featured Changes
+-----------------------------------
+
+Asset Sort Order System Integrity script
+
+	A new command-line script is available in the "scripts" directory called "system_integrity_fix_sort_orders.php", to verify and correct the asset sort order in the database. This script takes the Matrix System Root directory and an asset ID from which to start the repair. An incorrect sort order in can cause Asset Map errors, especially in paginated lists. This script is quite intensive and can potentially run for an extended period, so it is recommended that these factors are considered before running the script on a live system.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3178: Simple edit maintaining active locks
+* Fixed Bug #3185: add_remove_url.php Oracle Errors 
+* Fixed Bug #3190: Rollback doesn't display nested content assets
+* Fixed Bug #3196: Metadata default date not searchable
+* Fixed Bug #3203: IE6 displays non-secure items msg when logging into backend on https
+* Fixed Bug #3204: Word Document HTML Clipboard Tags get pasted through on Firefox 3
+* Fixed Bug #3222: Trigger Create Link can lead to orphaned asset 
+
+Calendar
+* Fixed Bug #3197: Recurring Calendar Event resets "stop date" when attribute is excluded from Simple Edit Layout 
+
+CMS
+* Fixed Bug #3207: Downloading submission log for Custom Form over HTTPS in IE7
+
+E-Commerce
+* Fixed Bug #3180: E-commerce Form not logging correctly
+
+IPB
+* Fixed Bug #3162: Unknown IPB Users cause Asset Map errors
+
+News
+* Fixed Bug #3120: RSS asset produces fatal error with feeds containing the tag 'type' in its items
+
+Search
+* Fixed Bug #3193: Search Folder not working with multiple terms
+* Fixed Bug #3194: Thumbnail fields no showing on Search Folder
+
+
+
 VERSION 3.16.11
 
 Featured Changes
