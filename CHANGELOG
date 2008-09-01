@@ -1,5 +1,98 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.5
+
+Featured Changes
+-----------------------------------
+
+HTML Tidy binary used instead of libtidy PHP module
+
+        MySource Matrix now uses the command-line version of Tidy instead of the libtidy plugin. The path to the HTML Tidy command must be added to the "External Tools Configuration" screen under "System Configuration" in order to provide this functionality.
+
+
+Reset Bulkmail Job script
+
+	This new command-line script, "reset_bulkmail_job.php", located in the Bulkmail package, prepares the specified Bulkmail Job so it can be queued for sending. This is achieved by changing the status of the Bulkmail Job from "Live" to "Under Construction". This script can be added to the system crontab to run on a schedule and takes the Matrix System root directory and the asset ID of a Bulkmail Job as parameters.
+
+
+Asset Listing modifications to display Root Nodes
+
+	Asset Listings can now be configured to include root nodes in listings. When the minimum asset depth is set to zero, the Root Nodes will be included in the results. When both the maximum and minimum asset depths are set to zero, only the Root Nodes will be shown.
+
+
+File Upload Questions add Notice Links to related Form Submissions
+
+	A Notice Link is now created between "File Upload" questions in Custom Form and the related Form Submission asset. An info icon and link to the uploaded file is provided when viewing individual submissions from the "Edit" link.
+
+
+Metadata Fields as required attributes in Asset Builder
+
+	Metadata Fields can now be assigned as required attributes in Asset Builder to prevent asset creation if they are not present.
+
+
+Asset Sort Order System Integrity script
+
+	A new command-line script is available in the "scripts" directory called "system_integrity_fix_sort_orders.php", to verify and correct the asset sort order in the database. This script takes the Matrix System Root directory and an asset ID from which to start the repair. An incorrect sort order in can cause Asset Map errors, especially in paginated lists. This script is quite intensive and can potentially run for an extended period, so it is recommended that these factors are considered before running the script on a live system.
+
+
+Google Maps Package (available under the SSV licence)
+
+	A new MySource Matrix package is available which provides functionality for providing customised maps through the Google Maps service. Two new asset types - "Google Map" (based on Asset Listing) and "Google Location" - can be configured manually or set up to retrieve location information from other assets and plot the corresponding locations and secondary information.
+
+
+Search Page: Default Sort Order changed
+
+	In order to provide the most relevant data at the top of search results in the default configuration, Search Page now has a default sort order of "Descending" instead of "Ascending". This value is controlled from the "Asset Sorting" screen of this asset.
+
+
+Search Page: New keywords and pagination control
+
+	Pagination keywords from Listing Engine asset types, such as Asset Listing, are now available for use in Search Page. A further two new keywords, "%current_result_page_start%" and "%current_result_page_end%", are also available to show the result number of the assets listed at the start and end of the current page.
+
+
+Suffix "_recache" now re-caches nested content
+
+	The "_recache" suffix now operates based on the URL instead of on an asset basis in order to provide recaching of nested content.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3178: Simple edit maintaining active locks
+* Fixed Bug #3187: Triggers do not match "Tree Location" when used with linked child assets
+* Fixed Bug #3188: Unicode characters get corrupted when tidy is on
+* Fixed Bug #3190: Rollback doesn't display nested content assets
+* Fixed Bug #3203: IE6 displays non-secure items msg when logging into backend on https
+* Fixed Bug #3204: Word Document HTML Clipboard Tags get pasted through on Firefox 3
+* Fixed Bug #3208: Date attributes drop-down is empty in Set Future Status trigger action
+* Fixed Bug #3210: Layout and text issues
+* Fixed Bug #3216: Cascade not working on the Metadata Schemas screen
+* Fixed Bug #3217: Inconsistencies in Paint Layout bodycopy vs. standard bodycopy line endings
+* Fixed Bug #3222: Trigger Create Link can lead to orphaned asset
+
+Calendar
+* Fixed Bug #3197: Recurring Calendar Event resets "stop date" when attribute is excluded from Simple Edit Layout
+
+CMS
+* Fixed Bug #3145: Custom form: warning on create   
+* Fixed Bug #3207: Downloading submission log for Custom Form over HTTPS in IE7
+
+E-Commerce
+* Fixed Bug #3180: E-commerce Form not logging correctly
+
+IPB
+* Fixed Bug #3162: Unknown IPB Users cause Asset Map errors
+
+News
+* Fixed Bug #3120: RSS asset produces fatal error with feeds containing the tag 'type' in its items
+
+Search
+* Fixed Bug #3193: Search Folder not working with multiple terms
+* Fixed Bug #3194: Thumbnail fields no showing on Search Folder
+
+
+
 VERSION 3.18.4
 
 Featured Changes
