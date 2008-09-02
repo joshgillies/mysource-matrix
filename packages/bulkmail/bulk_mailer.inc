@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.72 2008/06/27 01:48:46 bpearson Exp $
+* $Id: bulk_mailer.inc,v 1.73 2008/09/02 01:22:57 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -507,14 +507,14 @@ class Bulk_Mailer
 				$am->forgetAsset($recipient);
 			}//end if
 		}//end foreach
-
 		$recipients = Array();
 		$recipients_query = Array();
 		$permission_denied = $am->getPermission($asset_to_send_id, SQ_PERMISSION_READ, FALSE, FALSE);
 		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		$public_user_id = $public_user->id;
 		for ($recipients_expanded; NULL != ($recipient_id = key($recipients_expanded)); next($recipients_expanded)) {
-			if (!in_array($recipient_id, $permission_denied) && !is_array($recipients_expanded[$recipient_id])) {
+			//if it has right permission, but it is not an email address
+			if (!in_array($recipient_id, $permission_denied) &&  (!is_array ($recipients_expanded[$recipient_id]) || !array_key_exists('email',$recipients_expanded[$recipient_id]))) {
 				$recipient_id_parts = explode(':', $recipient_id);
 				if (isset($recipient_id_parts[1])) {
 					$recipient = $am->getAsset($recipient_id);
