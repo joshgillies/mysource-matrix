@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.228.2.6 2008/07/29 22:46:59 mbrydon Exp $
+* $Id: mysource.inc,v 1.228.2.7 2008/09/03 01:50:40 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.228.2.6 $
+* @version $Revision: 1.228.2.7 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1117,7 +1117,10 @@ class MySource
 				$stalled_hipo_array = Array();
 				$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				// if really logging out from back end, get stalled hipo job. Otherwise no point get stalled hipo job for public user
+				if($for_real){
 				$stalled_hipo_array = $hh->getJobsForUser($current_userid);
+				}
 				if (SQ_IN_BACKEND && !empty($stalled_hipo_array)) {
 					$return_url = current_protocol().'://'.current_url(FALSE);
 
