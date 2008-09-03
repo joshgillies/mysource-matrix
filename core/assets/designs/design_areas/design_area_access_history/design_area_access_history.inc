@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.8 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: design_area_access_history.inc,v 1.8.6.1 2008/09/03 06:18:45 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -425,6 +425,42 @@ class Design_Area_Access_History extends Design_Area
 
 	}//end getProtectedAttrs()
 
+      
+
+              
+
+
+    /**
+    * Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string	$name	the name of the attribute
+	* @param string	$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	function setAttrValue($name, $value)
+	{
+		if (($name == 'asset_types') && is_scalar($value)) {
+			$value = preg_split('/[ ,]+/', (string)$value);
+			foreach ($value as $type_code) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
+					return FALSE;
+				}
+			}
+		}
+		else if ($name == 'exclude_assets' && is_scalar($value)) {
+			$value = preg_split('/[ ,]+/', (string)$value);
+		}
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
+	
 
 }//end class
 ?>
