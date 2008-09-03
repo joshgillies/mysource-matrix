@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.182 2008/07/22 16:17:47 gnoel Exp $
+* $Id: metadata_manager.inc,v 1.183 2008/09/03 01:08:19 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1101,13 +1101,64 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		$result = FALSE;
 		if (!$regenerate) {
-			return TRUE;
+			$result = TRUE;
 		} else {
-			return $this->setMetadata($assetid, $metadata);
+			$result = $this->setMetadata($assetid, $metadata);
 		}
 
+		if ($result) {
+			$result = $this->_generateMetadataFieldFile($asset);
+		}
+
+		return $result;		
+
 	}//end generateContentFile()
+
+
+	/**
+        * Generate a PHP file that can be included to reassign Metadata Field values for an asset.
+	* This is used before Metadata Field values are placed under Safe Edit and for
+	* restoring values when Safe Edit is cancelled.
+        *
+	* @param Asset	&$metadata_asset	the asset to generate the file for
+        *
+        * @return boolean
+        * @access private
+        */
+	private function _generateMetadataFieldFile(Asset &$metadata_asset)
+	{
+		$schemas = $this->getSchemas($metadata_asset->id, TRUE);
+		if (empty($schemas)) return FALSE;
+
+		$metadata_field_values = $this->getMetadata($metadata_asset->id);
+
+		foreach ($schemas as $schema_id) {
+			$default_values = $this->getSchemaDefaultValues($schema_id);
+
+			// Allocate default value if not "manually" supplied
+			foreach ($default_values as $field_id => $field) {
+				if (!isset($metadata_field_values[$field_id])) {
+					$metadata_field_values[$field_id][0] = NULL;
+				}
+			}
+		}
+
+		ob_start();
+			echo serialize($metadata_field_values);
+			$metadata_str = ob_get_contents();
+		ob_end_clean();
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		if (!create_directory($metadata_asset->data_path)) return FALSE;
+		if (!string_to_file($metadata_str, $metadata_asset->data_path.'/metadata_field_values.php')) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end _generateMetadataFieldFile()
 
 
 	/**

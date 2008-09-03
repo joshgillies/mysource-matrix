@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.662 2008/07/29 10:28:16 gnoel Exp $
+* $Id: asset.inc,v 1.663 2008/09/03 01:08:18 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.662 $
+* @version $Revision: 1.663 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1133,10 +1133,32 @@ class Asset extends MySource_Object
 				return FALSE;
 			}
 		}
+
 		if (!$this->saveAttributes()) {
 			trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
 			return FALSE;
+		}
+
+		// If we have metadata, load the old version so we can revert the values
+		$metadata_filename = $this->data_path.'/.sq_system/metadata_field_values.php';
+		if (is_file($metadata_filename)) {
+			$old_metadata = unserialize(file_to_string($metadata_filename));
+
+			// Acquire the "metadata" lock to set values
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'metadata');
+			
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+			// Set the defaults and any customised values
+			if (!$mm->setMetadata($this->id, $old_metadata)) {
+				trigger_localised_error('SYS0331', E_USER_WARNING, $this->name);
+				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
+				return FALSE;
+			}
+
+			// ...and we're done
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'metadata');
 		}
 
 		if (!$this->clearSystemVersion()) {
