@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.272 2008/09/03 01:56:15 ewang Exp $
+* $Id: mysource.inc,v 1.273 2008/09/03 23:43:26 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.272 $
+* @version $Revision: 1.273 $
 * @package MySource_Matrix
 */
 class MySource
@@ -408,52 +408,67 @@ class MySource
 			if (is_null($asset)) {
 
 				$protocol = current_protocol();
+
+				// This URL is without parameters
 				$url      = strip_url(current_url(FALSE, TRUE));
 
+				// This URL is verbatim
+				$url_with_params = strip_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+
 				$rm = $this->am->getSystemAsset('remap_manager');
-				if (!$rm->loadRemapFromURL($protocol, $url)) {
 
-					// okay, the remap manager could not remap this url, so
-					// check to see if we can find a 404 page from a site matching this url
-					$root_url = $this->am->getRootURL($url);
+				// Firstly, look for an exact match in the database
+				if ($rm->loadRemapFromURL($protocol, $url_with_params)) {
+					$url = $url_with_params;
+				} else {
+					// Fall back to the URL without parameters if there is no a match
+					$rm = $this->am->getSystemAsset('remap_manager');
+					if (!$rm->loadRemapFromURL($protocol, $url)) {
 
-					// if we can get a site from the url,
-					// try to delegate the 404 to its not found page
-					if (!empty($root_url)) {
-						$site = $this->am->getAsset($root_url['assetid']);
-						if (!is_null($site)) {
-							$page = $site->getSpecialPage('not_found');
-							if (!is_null($page)) {
-								$this->_paintNotFoundAsset($page, $site);
-								exit(1);
+						// okay, the remap manager could not remap this url, so
+						// check to see if we can find a 404 page from a site matching this url
+						$root_url = $this->am->getRootURL($url);
+
+						// if we can get a site from the url,
+						// try to delegate the 404 to its not found page
+						if (!empty($root_url)) {
+							$site = $this->am->getAsset($root_url['assetid']);
+							if (!is_null($site)) {
+								$page = $site->getSpecialPage('not_found');
+								if (!is_null($page)) {
+									$this->_paintNotFoundAsset($page, $site);
+									exit(1);
+								}
 							}
 						}
-					}
 
-					// if we can't get a site from the url, or the
-					// site does not have a 404 page, then try asking
-					// the remap manager to remap to its 404 page
-					if (!$rm->paintPageNotFoundRemap()) {
-						header('HTTP/1.0 404 Not Found');
+						// if we can't get a site from the url, or the
+						// site does not have a 404 page, then try asking
+						// the remap manager to remap to its 404 page
+						if (!$rm->paintPageNotFoundRemap()) {
+							header('HTTP/1.0 404 Not Found');
 
-						// Send Cacheable Header based on cache manager default setting
-						if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
-							$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-							header('Pragma: cache');
+							// Send Cacheable Header based on cache manager default setting
+							if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
+								$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+								header('Pragma: cache');
 
-							$browser_cache_expiry = $cm->attr('browser_cache_expiry');
-							if (empty($browser_cache_expiry)) {
-								$browser_cache_expiry = $cm->attr('expiry');
+								$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+								if (empty($browser_cache_expiry)) {
+									$browser_cache_expiry = $cm->attr('expiry');
+								}
+
+								header('Cache-Control: max-age='.$browser_cache_expiry.', public');
 							}
 
-							header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+							// last resort, display little green error
+							trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
 						}
 
-						// last resort, display little green error
-						trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
-					}
+					}//end if !load remap
 
-				}//end if !load remap
+				}//end else
+
 				exit(1);
 
 			}//end if is_null(asset)
