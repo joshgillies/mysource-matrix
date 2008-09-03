@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.271 2008/08/28 23:26:23 bpearson Exp $
+* $Id: mysource.inc,v 1.272 2008/09/03 01:56:15 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.271 $
+* @version $Revision: 1.272 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1191,7 +1191,10 @@ class MySource
 				$stalled_hipo_array = Array();
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				// Only show hipo stalled job warning when it's really logging out from backend
+				if($for_real){
 				$stalled_hipo_array = $hh->getJobsForUser($current_userid);
+				}
 				if (SQ_IN_BACKEND && !empty($stalled_hipo_array)) {
 					$return_url = current_protocol().'://'.current_url(FALSE);
 
