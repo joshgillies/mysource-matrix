@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.25 2008/08/28 17:07:54 gnoel Exp $
+* $Id: trigger_action_create_link.inc,v 1.26 2008/09/04 06:46:51 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -133,7 +133,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		if ($remove_other_links) {
 			foreach ($old_links as $old_link) {
 				// don't remove the link we have just created
-				if ($action_link['majorid'] != $old_link['majorid']) {
+				if ($action_link['linkid'] != $old_link['linkid']) {
 					$am->deleteAssetLink($old_link['linkid']);
 				}
 			}
