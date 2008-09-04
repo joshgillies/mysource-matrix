@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.19 2008/02/18 05:28:41 lwright Exp $
+* $Id: recreate_link_tree.php,v 1.20 2008/09/04 04:42:43 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -108,7 +108,7 @@ while (TRUE) {
 	}
 
 	// advance the chains by as many results we actually got
-	$offset += count($result)
+	$offset += count($result);
 
 }//end while
 
