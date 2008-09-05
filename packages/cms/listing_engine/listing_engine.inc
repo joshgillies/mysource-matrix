@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.227.2.8 2008/06/03 00:34:34 bshkara Exp $
+* $Id: listing_engine.inc,v 1.227.2.9 2008/09/05 00:07:51 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.227.2.8 $
+* @version $Revision: 1.227.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2262,7 +2262,7 @@ class Listing_Engine extends Page
 			} else {
 				$keywords = Array();
 				foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
-					$keywords['asset_'.$field] = htmlentities($value);
+					$keywords['asset_'.$field] = htmlspecialchars($value);
 				}
 				$keywords['asset_url'] = array_get_index($this->_tmp['asset_urls'], $assetid, './?a='.$assetid);
 				$keywords['asset_name_linked'] = '<a href="'.$keywords['asset_url'].'">'.$keywords['asset_name'].'</a>';
