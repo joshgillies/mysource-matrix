@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.6 2008/08/25 23:18:57 mbrydon Exp $
+* $Id: system_config.inc,v 1.104.2.7 2008/09/05 00:31:24 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.6 $
+* @version $Revision: 1.104.2.7 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -1001,7 +1001,7 @@ class System_Config extends Config
 						SELECT
 							assetid, roleid, userid
 						FROM sq_ast_role
-						WHERE userid::text <> 0::text';
+						WHERE userid <> '.MatrixDAL::quote(0);
 		}
 
 		// Modify Permissions View
@@ -1022,8 +1022,8 @@ class System_Config extends Config
 		try {
 			$drop_result = MatrixDAL::executeSql($drop_perm_view_sql);
 			$drop_result = MatrixDAL::executeSql($drop_role_view_sql);
-			$create_role_view_result = MatrixDAL::executesql($create_role_view_sql);
-			$create_perm_view_result = MatrixDAL::executesql($create_perm_view_sql);
+			$create_role_view_result = MatrixDAL::executeSql($create_role_view_sql);
+			$create_perm_view_result = MatrixDAL::executeSql($create_perm_view_sql);
 
 			$roles_changed = TRUE;
 		} catch (Exception $e) {
