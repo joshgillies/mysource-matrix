@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.21 2007/12/12 23:22:10 bshkara Exp $
+* $Id: design_css_edit_fns.inc,v 1.22 2008/09/05 06:11:51 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -160,7 +160,9 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		}
 
 		// Now let's morph the dupe into a design customisation
-		if (!$clone->morph('design_css_customisation')) {
+		$clone = $clone->morph('design_css_customisation');
+
+		if (!$clone) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
