@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.65.2.1 2008/05/21 01:10:21 lwright Exp $
+* $Id: form_email.inc,v 1.65.2.2 2008/09/08 22:33:37 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65.2.1 $
+* @version $Revision: 1.65.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -182,11 +182,31 @@ class Form_Email extends Form
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			// send to a friend format
 			$recip = unserialize($this->attr('recipient_emails_format'));
-			$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
+			if ($recip['to']) {
+				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
+				$recip['to'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip['to']);
+			} else {
+				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
+			}
+
 			$rec = unserialize($this->attr('receipt_emails_format'));
-			$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
+			if ($rec['to']) {
+				$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
+				$rec['to'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec['to']);
+			} else {
+				$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
+			}
+
 			$staf = unserialize($this->attr('staf_format'));
-			$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
+			
+			if ($staf['to']) {
+				$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
+				$staf['to'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf['to']);
+			} else {
+				$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
+			}
+
+
 			$sel = $this->attr('selective_emails');
 			foreach ($sel as $key => $null) {
 				$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
@@ -208,7 +228,7 @@ class Form_Email extends Form
 
 			$clone->saveAttributes();
 
-		}
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
