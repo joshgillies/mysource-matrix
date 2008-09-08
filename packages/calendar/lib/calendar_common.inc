@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.68 2008/06/03 06:10:48 mbrydon Exp $
+* $Id: calendar_common.inc,v 1.69 2008/09/08 05:58:59 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -792,7 +792,7 @@ class Calendar_Common
 				$sql = "(86400 * (DATE (($y) || '-' || ($m) || '-' || ($d)) - DATE '1970-01-01') + ($h) * 3600 + ($i) * 60 + ($s))";
 			break;
 
-			case 'oci8':
+			case 'oci':
 				// Subtracting datetimes in Oracle gives a fractional number of
 				// days - I haven't had any problems yet but if rounding errors
 				// occur then might have to go with similar to above
