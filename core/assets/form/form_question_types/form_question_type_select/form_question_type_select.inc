@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.12 2008/04/01 05:44:30 bpearson Exp $
+* $Id: form_question_type_select.inc,v 1.13 2008/09/08 06:27:14 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -214,6 +214,27 @@ class Form_Question_Type_Select extends Form_Question
 		return in_array($option, $options);
 
 	}//end isSelected()
+
+
+	
+	/**
+	* returns TRUE if this particuar option is an --Leave Empty-- option
+	*
+	* @param string	$option	the value to check
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isEmptyOption($option)
+	{
+	$option_name = $this->getAnswerByOffset($option);
+		return $option_name == $this->attr('empty_text');
+
+	}//end isEmptyOption()
+
+
+
+
 
 
 	/**
