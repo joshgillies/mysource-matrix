@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.206.2.7 2008/06/30 06:46:53 bpearson Exp $
+* $Id: page_calendar.inc,v 1.206.2.8 2008/09/08 06:02:11 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.206.2.7 $
+* @version $Revision: 1.206.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2667,14 +2667,12 @@ class Page_Calendar extends Page
 		$last_day = sprintf('%04d-%02d-%02d', $year, $month, days_in_month($month, $year));
 
 		// Get our recurring events
-		$date_sql = 'cd.start_date_ts < :start_date_ts';
 		$sql = Calendar_Common::getRecurringEventQueryBase($root_ids, 'month', "$year-$month");
 		$sql .= $this->_getRootNodeRestrictionSQL();
 
 		$recur_result = Array();
 		 try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'start_date_ts', $end_ts);
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
