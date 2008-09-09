@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.227.2.9 2008/09/05 00:07:51 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.227.2.10 2008/09/09 03:34:44 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.227.2.9 $
+* @version $Revision: 1.227.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -606,13 +606,16 @@ class Listing_Engine extends Page
 	function printContents()
 	{
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+		$bodycopy_no_result_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'no_results');
 		if (empty($bodycopy_link)) return FALSE;
 
 		$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		$format_bodycopy_no_result = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_no_result_link['minorid'], $bodycopy_no_result_link['minor_type_code']);
 		if (is_null($format_bodycopy)) return FALSE;
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = $format_bodycopy->getKeywords();
+		$keywords = array_merge($format_bodycopy_no_result->getKeywords(),$keywords);
 		$replacements = Array();
 
 
