@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.60.4.2 2008/09/08 22:34:28 akarelia Exp $
+* $Id: form_email.inc,v 1.60.4.3 2008/09/09 04:25:04 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.60.4.2 $
+* @version $Revision: 1.60.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,7 +177,7 @@ class Form_Email extends Form
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			// send to a friend format
 			$recip = unserialize($this->attr('recipient_emails_format'));
-			if ($recip['to']) {
+			if(array_key_exists('to',$recip)) {
 				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
 				$recip['to'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip['to']);
 			} else {
@@ -185,7 +185,7 @@ class Form_Email extends Form
 			}
 
 			$rec = unserialize($this->attr('receipt_emails_format'));
-			if ($rec['to']) {
+			if (array_key_exists('to',$rec)) {
 				$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
 				$rec['to'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec['to']);
 			} else {
@@ -193,7 +193,7 @@ class Form_Email extends Form
 			}
 
 			$staf = unserialize($this->attr('staf_format'));
-			if ($staf['to']) {
+			if (array_key_exists('to',$staf)) {
 				$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
 				$staf['to'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf['to']);
 			} else {
