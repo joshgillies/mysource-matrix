@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.63 2008/08/29 06:33:26 bpearson Exp $
+* $Id: html_tidy.inc,v 1.64 2008/09/09 23:10:51 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -181,7 +181,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				// replaces &middot; with a <li>
 				$html = str_replace('&middot;','<li>',$html);
 
-				$html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+				$complete_html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 						<html><head><title></title>
 						<meta name="description" content="test content" />
 						</head><body>
@@ -189,7 +189,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 						</body></html>';
 
 				// HTML Tidy logs the errors to stderr
-				$command = '/bin/echo '.escapeshellarg($html)." | $path_to_tidy $args 2>&1";
+				$command = '/bin/echo '.escapeshellarg($complete_html)." | $path_to_tidy $args 2>&1";
 
 				$tidy = Array();
 				exec($command, $tidy, $return);
