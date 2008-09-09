@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.23 2008/08/27 05:02:43 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.655.2.24 2008/09/09 02:12:12 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.23 $
+* @version $Revision: 1.655.2.24 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7719,14 +7719,14 @@ class Asset_Manager extends MySource_Object
 		if (!empty($the_rest)) {
 			$assetid_cond_array = $the_rest;
 			for (reset($assetid_cond_array); NULL !== ($k = key($assetid_cond_array)); next($assetid_cond_array)) {
-				$assetid_cond_array[$k] = '\''.((string) $assetid_cond_array[$k]).'\'';
+				$assetid_cond_array[$k] = $assetid_cond_array[$k];
 			}
 
 			// IN query needs to be chunked to be Oracle-safe (is also slow
 			// in big doses on PostgreSQL). 200 at a time should be fine
 			$result = Array();
 			foreach (array_chunk($assetid_cond_array, 200) as $chunk) {
-				$assetid_cond = 'IN ('.implode(', ', $chunk).')';
+				$assetid_cond = 'IN ('.MatrixDAL::quote(implode(', ', $chunk)).')';
 
 				$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
 
