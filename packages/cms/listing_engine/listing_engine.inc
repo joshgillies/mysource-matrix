@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.7 2008/07/31 00:35:16 bpearson Exp $
+* $Id: listing_engine.inc,v 1.242.2.8 2008/09/09 03:27:59 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.7 $
+* @version $Revision: 1.242.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -568,7 +568,6 @@ class Listing_Engine extends Page
 	{
 		$no_results_bodycopy_printed = FALSE;
 		$no_results_bodycopy = $this->getNoResultsBodycopy();
-
 		// initialise keywords
 		$replacements = Array();
 		$replacements['asset_count']			= 0;
@@ -593,7 +592,6 @@ class Listing_Engine extends Page
 			$no_results_bodycopy->printBody();
 			$no_results_bodycopy_printed = TRUE;
 		}
-
 		return $no_results_bodycopy_printed;
 
 	}//end printNoResultsBodycopy()
@@ -608,13 +606,16 @@ class Listing_Engine extends Page
 	function printContents()
 	{
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents');
+		$bodycopy_no_result_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'no_results');
 		if (empty($bodycopy_link)) return FALSE;
 
 		$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		$format_bodycopy_no_result = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_no_result_link['minorid'], $bodycopy_no_result_link['minor_type_code']);
 		if (is_null($format_bodycopy)) return FALSE;
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = $format_bodycopy->getKeywords();
+		$keywords = array_merge($format_bodycopy_no_result->getKeywords(),$keywords);
 		$replacements = Array();
 
 
@@ -637,7 +638,6 @@ class Listing_Engine extends Page
 		// or the NO RESULTS bodycopy if it exists
 		if (empty($children)) {
 			$no_results_bodycopy_printed = $this->printNoResultsBodycopy($keywords);
-
 			if (!$no_results_bodycopy_printed) {
 				$selections = $this->attr('asset_selections');
 				foreach ($selections as $selection_name => $settings) {
@@ -716,7 +716,6 @@ class Listing_Engine extends Page
 			ob_end_clean();
 		} else {
 			$no_results_bodycopy_printed = $this->printNoResultsBodycopy($keywords);
-
 			if (!$no_results_bodycopy_printed) {
 				$selections = $this->attr('asset_selections');
 				foreach ($selections as $selection_name => $settings) {
@@ -886,6 +885,8 @@ class Listing_Engine extends Page
 	function sortAssetList($asset_list, $sort_info)
 	{
 		// If the option to sort is No sorting, just return the asset list here and don't do any sorting
+		log_dump($asset_list);
+		log_dump('result');
 		if (isset($sort_info['name']) && $sort_info['name'] == 'No Sorting') {
 			return $asset_list;
 		}//end if
