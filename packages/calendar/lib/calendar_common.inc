@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.64.2.5 2008/09/08 05:58:26 mbrydon Exp $
+* $Id: calendar_common.inc,v 1.64.2.6 2008/09/09 01:37:59 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.64.2.5 $
+* @version $Revision: 1.64.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -796,7 +796,7 @@ class Calendar_Common
 				// Subtracting datetimes in Oracle gives a fractional number of
 				// days - I haven't had any problems yet but if rounding errors
 				// occur then might have to go with similar to above
-				$sql = '(86400 * ('.db_extras_todate(MatrixDAL::getDbType(), "(($y) || '-' || ($m) || '-' || ($d) || ' ' || ($h) || ':' || ($i) || ':' || ($s))").' - '.db_extras_todate(MatrixDAL::getDbType(), '1970-01-01 00:00:00').'))';
+				$sql = '(86400 * ('.db_extras_todate(MatrixDAL::getDbType(), "(($y) || '-' || ($m) || '-' || ($d) || ' ' || ($h) || ':' || ($i) || ':' || ($s))", FALSE).' - '.db_extras_todate(MatrixDAL::getDbType(), '1970-01-01 00:00:00').'))';
 			break;
 		}
 
