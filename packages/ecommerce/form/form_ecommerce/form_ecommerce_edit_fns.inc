@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.13 2007/03/22 05:53:42 arailean Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.13.4.1 2008/09/09 00:08:07 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -137,15 +137,18 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 					$options = $question->getOptions();
 					$local_prefix = $prefix.'_ecom_rule['.$q_id.']';
 					foreach ($options as $key => $option_text) {
-						echo '<tr>';
-						$rule_value = array_get_index($rule, $key, 0);
-						echo '<td class="sq-backend-table-header" nowrap="nowrap">';
-						echo $option_text;
-						echo '</td>';
-						echo '<td class="sq-backend-table-cell" width="100%">';
-						text_box($local_prefix.'['.$key.']', $rule_value, 5);
-						echo '</td>';
-						echo '</tr>';
+						// if this option is not --leave empty--, print out the rule change table
+						if (!$question->isEmptyOption($key)){
+							echo '<tr>';
+							$rule_value = array_get_index($rule, $key, 0);
+							echo '<td class="sq-backend-table-header" nowrap="nowrap">';
+							echo $option_text;
+							echo '</td>';
+							echo '<td class="sq-backend-table-cell" width="100%">';
+							text_box($local_prefix.'['.$key.']', $rule_value, 5);
+							echo '</td>';
+							echo '</tr>';
+						}
 					}
 					echo '</table>';
 				} else {
