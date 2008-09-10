@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
+* $Id: trim_common.inc,v 1.3 2008/09/10 23:30:30 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -823,7 +823,7 @@ class TRIM_Common
 		// Check Whether the username exists in TRIM
 		$trim_userid = self::executeGetAssigneeRequest($connection, $username);
 		if (!$trim_userid) {
-			trigger_error('There is no such user with username "'.$username.'" in TRIM', E_USER_WARNING);
+			trigger_error('There is no such user with username "'.$username.'" in TRIM. Record creation aborted.', E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -847,7 +847,7 @@ class TRIM_Common
 
 		$parent_record_uri	= self::getURIFromRecordNumber($connection, $new_record_info['parent_record_number']);
 		if (!$parent_record_uri) {
-			trigger_error('There is no URI correspond to record number :'.$new_record_info['parent_record_number'].' in TRIM', E_USER_WARNING);
+			trigger_error('There is no URI correspond to record number "'.$new_record_info['parent_record_number'].'" in TRIM. Record creation aborted.', E_USER_WARNING);
 			return FALSE;
 		}//end if
 
@@ -879,7 +879,12 @@ class TRIM_Common
 		$new_record_uri	= 0;
 		if (!empty($data)) {
 			$return_xml	= new SimpleXMLElement((string) $data->ExecuteXmlResult);
-			$new_record_uri = (string) $return_xml->FetchResult->Objects->TrimObject->attributes()->Uri;
+			if (isset($return_xml->ErrorResult)) {
+				// We have an error, the submission has not been successful
+				trigger_error('Unable to create new record. '.(string) $return_xml->ErrorResult->Message.')');
+			} else {
+				$new_record_uri = (string) $return_xml->FetchResult->Objects->TrimObject->attributes()->Uri;
+			}//end else
 		}//end if
 
 		return $new_record_uri;
