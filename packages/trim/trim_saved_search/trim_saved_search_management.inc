@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: trim_saved_search_management.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,6 +43,14 @@ class TRIM_Saved_Search_Management extends Asset_Management
 													'added'			=> '0.1',
 													'type'			=> 'text',
 													'default'		=> '',
+												   ),
+						'cached_result'			=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'serialise',
+													'default'		=> Array(),
+											   		'parameters'	=> Array (
+												   						'allow_empty'		=> FALSE,
+												   					   ),
 												   ),
 						'trim_connector_id'		=> Array(
 													'added'			=> '0.1',

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_trim_submit.inc,v 1.1 2008/09/05 01:27:07 hnguyen Exp $
+* $Id: form_action_trim_submit.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -119,7 +119,6 @@ class Form_Action_TRIM_Submit extends Form_Action
 								document.getElementById(\''.$prefix.'_creator_username\').disabled = false;
 							}
 								', ' style="padding-top:2px;"');
-							//hidden_field($prefix.'_record_type', $record_type);
 						?>
 						<br />
 					</td>
@@ -179,7 +178,7 @@ class Form_Action_TRIM_Submit extends Form_Action
 						<td class="sq-backend-table-cell" style="width:180px;padding-left:15px;"><strong><?php echo $record_properties[$field_name]; ?></strong></td>
 						<td class="sq-backend-table-cell" style="width:165px;padding-left:5px;">
 						<?php
-							text_area($prefix.'_addtional_field_value', $field_value, 50, 3);
+							text_area($prefix.'_addtional_field_value_edit['.$field_name.']', $field_value, 50, 3);
 						?>
 						</td>
 						<td  class="sq-backend-table-cell">
@@ -209,12 +208,11 @@ class Form_Action_TRIM_Submit extends Form_Action
 					</tr>
 					<tr>
 						<td class="sq-backend-table-cell"><strong><?php
-						combo_box($prefix.'_addtional_field_name', $record_properties, FALSE, 'None');
-						//text_box($prefix.'_addtional_field_name', '', 25); ?></strong></td>
+							combo_box($prefix.'_addtional_field_name', $record_properties, FALSE, 'None');
+						?></strong></td>
 						<td class="sq-backend-table-cell">
 						<?php
 							text_area($prefix.'_addtional_field_value', '', 50, 3);
-							//text_box($prefix.'_addtional_field_value', '', 35);
 						?>
 						</td>
 					</tr>
@@ -278,6 +276,16 @@ class Form_Action_TRIM_Submit extends Form_Action
 		}//end if
 		if (isset($_POST[$prefix.'_addtional_field_name']) && !empty($_POST[$prefix.'_addtional_field_name'])) {
 			$settings['additional_fields'][$_POST[$prefix.'_addtional_field_name']]	= $_POST[$prefix.'_addtional_field_value'];
+		}//end if
+
+		if (isset($_POST[$prefix.'_addtional_field_value_edit']) && !empty($_POST[$prefix.'_addtional_field_value_edit'])) {
+			$editing_list	= $_POST[$prefix.'_addtional_field_value_edit'];
+			foreach ($editing_list as $field_name	=> $field_value) {
+				if ($settings['additional_fields'][$field_name] != $field_value) {
+					$settings['additional_fields'][$field_name]	= $field_value;
+				}//end if
+			}//end foreach
+
 		}//end if
 
 		return TRUE;

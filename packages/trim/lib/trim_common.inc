@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: trim_common.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -677,6 +677,10 @@ class TRIM_Common
 			@mkdir(SQ_TEMP_PATH.'/'.$hash_key);
 			$file_path		= SQ_TEMP_PATH.'/'.$hash_key.'/'.$file_name;
 			$file_path 		= $final_file_path.'/'.$file_name;
+			if (file_exists($file_path)) {
+				// Try to unlink it
+				unlink($file_path);
+			}//end if
 			if (!$handle	= fopen($file_path, 'w')) {
 				log_dump('Could not open file '.$file_path);
 			}//end if
@@ -819,7 +823,7 @@ class TRIM_Common
 		// Check Whether the username exists in TRIM
 		$trim_userid = self::executeGetAssigneeRequest($connection, $username);
 		if (!$trim_userid) {
-			trigger_error('There is no record for username :'.$username.' in TRIM', E_USER_WARNING);
+			trigger_error('There is no such user with username "'.$username.'" in TRIM', E_USER_WARNING);
 			return FALSE;
 		}//end if
 

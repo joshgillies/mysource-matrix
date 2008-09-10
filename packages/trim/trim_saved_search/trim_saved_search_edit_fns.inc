@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -610,10 +610,14 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			{
 				var update_text = document.getElementById('update_text');
 				eval(ajax.response);
-				if (numUpdate == 0) {
-					update_text.innerHTML = '<span style="color:green;font-weight:bold;>No Update Required</span>';
+				if (numUpdate !== false) {
+					if (numUpdate === 0) {
+						update_text.innerHTML = '<span style="color:green;font-weight:bold;>No Update Required</span>';
+					} else {
+						update_text.innerHTML = '<span style="color:red;font-weight:bold;>'+numUpdate+' out-of-date Records</span>';
+					}//end else
 				} else {
-					update_text.innerHTML = '<span style="color:red;font-weight:bold;>'+numUpdate+' out-of-date Records</span>';
+					update_text.innerHTML = '<span style="color:red;font-weight:bold;>Unable to check for update. Your cache might be turned off.</span>';
 				}//end else
 
 			}//end updateInterface()

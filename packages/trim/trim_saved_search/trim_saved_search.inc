@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,7 @@ class TRIM_Saved_Search extends Data_Source
 	{
 		parent::__construct($assetid);
 
+		$this->_ser_attrs = TRUE;
 		$this->search_clauses = NULL;
 
 	}//end constructor
@@ -109,47 +110,68 @@ class TRIM_Saved_Search extends Data_Source
 	public function &getResultSet()
 	{
 		$hash	= $this->getHashKey();
-		if (!isset($this->_tmp[$hash])) {
-			// Check the system cache
-			$result = $this->getCachedResultSet($hash);
-			if ($result !== FALSE) {
-				$this->_tmp[$hash]	= $result;
-			} else {
-				try {
-					// Not cached at all, so lets send a request
-					$res	= Array();
-					//$wsdl	= $this->attr('wsdl');
-					$connection	= $this->getConnection();
-					$object_list	= '';
-					if (!empty($connection['wsdl'])) {
-						$object_list	= $this->getTRIMRecords($connection);
-						// Only download files if we are asked to
-						if ($this->attr('download_files')) {
-							foreach ($object_list as &$record_info) {
-								$this->storeDocumentList($connection, $record_info);
-							}//end foreach
-						}//end if
-						unset($record_info);
+
+		$result = $this->getCachedResults($hash);
+		if (empty($result)) {
+			try {
+				// Not cached at all, so lets send a request
+				$res	= Array();
+				$connection	= $this->getConnection();
+				$object_list	= '';
+				if (!empty($connection['wsdl'])) {
+					$object_list	= $this->getTRIMRecords($connection);
+					// Only download files if we are asked to
+					if ($this->attr('download_files')) {
+						foreach ($object_list as &$record_info) {
+							$this->storeDocumentList($connection, $record_info);
+						}//end foreach
 					}//end if
+					unset($record_info);
+				}//end if
 
-					if (!isset($res[0]['error'])) {
-							$this->_tmp[$hash]	= $object_list;
-							if (!empty($this->_tmp[$hash])) {
-								$this->cacheResultSet($this->_tmp[$hash], $hash);
-							}//end if
-					} else if (isset($res[0]['FoundCount']) && $res[0]['FoundCount'] != 0) {
-						// We got some result, but there is error, lets throw an error.
-					}//end else if
-				} catch (Exception $sf) {
-					//trigger_error($res['error'], E_USER_WARNING);
-				}//end try catch
-			}//end else
-		}
-		// Fall-through failure case
+				if (!isset($res[0]['error'])) {
+						$result	= $object_list;
+						if (!empty($result)) {
+							$this->cacheResult($result, $hash);
+						}//end if
+				} else if (isset($res[0]['FoundCount']) && $res[0]['FoundCount'] != 0) {
+					// We got some result, but there is error, lets throw an error.
+				}//end else if
+			} catch (Exception $sf) {
+				//trigger_error($res['error'], E_USER_WARNING);
+			}//end try catch
+		}//end else
 
-		return $this->_tmp[$hash];
+		return $result;
 
 	}//end getResultSet()
+
+
+	public function getCachedResults($hash_key)
+	{
+		$result = $this->attr('cached_result');
+		if (isset($result[$hash_key])) {
+			return $result[$hash_key];
+		}//end if
+
+		return Array();
+
+	}//end cacheResult()
+
+
+	public function cacheResult($result, $hash_key)
+	{
+		$cached_result = $this->attr('cached_result');
+		$cached_result[$hash_key]	= $result;
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
+		if ($this->setAttrValue('cached_result', $cached_result) && $this->saveAttributes()) {
+			return TRUE;
+		}//end if
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+
+		return FALSE;
+
+	}//end cacheResult()
 
 
 	/**
@@ -158,13 +180,13 @@ class TRIM_Saved_Search extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function updateCachedResult($forced=FALSE)
+	public function updateCachedResult($forced=FALSE)
 	{
 		$hash	= $this->getHashKey();
 
-		// Check the system cache
-		$result = $this->getCachedResultSet($hash);
-		if ($result !== FALSE) {
+		// Check the cache
+		$result = $this->getCachedResults($hash);
+		if (!empty($result)) {
 			// Now we have cache. Lets get the records
 			$connection	= $this->getConnection();
 			if (!empty($connection['wsdl'])) {
@@ -172,25 +194,86 @@ class TRIM_Saved_Search extends Data_Source
 			}//end if
 
 			$updated = FALSE;
+
+			$result_uris		= $this->resultUris($result);
+			$new_result_uris	= $this->resultUris($new_object_list);
+			// Delete, Update, Integrity, New
+
+			// Delete
+			if (count($new_object_list) < count($result)) {
+				$uris_to_delete	= array_diff($result_uris, $new_result_uris);
+
+				foreach ($result as $index	=> $record_info) {
+					if (in_array($record_info['Uri'], $uris_to_delete)) {
+						// Unlink file first
+						$dir_path	= $this->data_path.'/'.$record_info['Uri'];
+						$files_stored		= glob($dir_path.'/*');
+						foreach ($files_stored as $file_name) {
+							unlink($file_name);
+						}//end foreach
+
+						// Unlink the directory
+						unlink($dir_path);
+
+						// Remove it from the cache
+						unset($result[$index]);
+						$updated = TRUE;
+					}//end if
+				}//end foreach
+				// We have something to delete
+
+			}///end if
+
+			// Update & Integrity
 			foreach ($result as $index	=> $record_info) {
 				foreach ($new_object_list as $new_index	=> $new_record_info) {
 					// Comparing the same record based on the URI
 					if ($record_info['Uri'] == $new_record_info['Uri']) {
 						// If Forced, dont even care about version number, update anyway.
 						if ($record_info['Version'] !== $new_record_info['Version'] || $forced) {
+							// UPDATE Check
 							$result[$index]	= $new_record_info;
 							if ($this->attr('download_files')) {
 								$this->storeDocumentList($connection, $new_record_info);
 							}//end if
 							$updated = TRUE;
-						}//end if
+						} else {
+							// INTEGRITY Check
+							if ($record_info['recDocumentType']	!= 'Record has no document attached.') {
+								// We have a file here, have to check whether it is still in the system
+								$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
+								$files_stored		= glob($final_file_path.'/*');
+
+								// If there is no file in there
+								if (empty($files_stored)) {
+									$this->storeDocumentList($connection, $new_record_info);
+									$updated = TRUE;
+								}//end if
+							}//end if
+
+						}//end else
 					}//end if
 				}//end foreach
 			}//end foreach
 
+			// New
+			if (count($new_object_list) > count($result)) {
+				$uris_to_add	= array_diff($new_result_uris, $result_uris);
+				foreach ($new_object_list as $index	=> $new_record_info) {
+					if (in_array($new_record_info['Uri'], $uris_to_add)) {
+						// We are taking it out again so we can modify it by reference
+						if ($this->attr('download_files')) {
+							$this->storeDocumentList($connection, $new_record_info);
+						}//end if
+						$result[]	=	$new_record_info;
+						$updated = TRUE;
+					}//end if
+				}//end foreach
+			}//end if
+
 			if ($updated) {
 				if (!empty($result)) {
-					$this->cacheResultSet($result, $hash);
+					$this->cacheResult($result, $hash);
 					return TRUE;
 				}//end if
 			}//end if
@@ -204,12 +287,27 @@ class TRIM_Saved_Search extends Data_Source
 
 
 	/**
+	 * This function return an array of Uris
+	 */
+	public function resultUris($result)
+	{
+		$new_result	= Array();
+		foreach ($result as $index => $record_info) {
+			$new_result[$record_info['Uri']] = $record_info;
+		}//end foreach
+
+		return array_keys($new_result);
+
+	}//end convertResultToAssoc
+
+
+	/**
 	* This function get attached file(s) for a particular URI
 	*
 	* @return void
 	* @access public
 	*/
-	function getAttachedFile($uri)
+	public function getAttachedFile($uri)
 	{
 		$dir_path	= $this->data_path.'/'.$uri;
 		if (file_exists($dir_path)) {
@@ -271,7 +369,6 @@ class TRIM_Saved_Search extends Data_Source
 						'Fetch'						=> TRIM_Common::constructFetch($record_properties, $search_limit),
 						'RecordSearch'				=> TRIM_Common::constructRecordSearch($search_clauses, $record_search_options),
 					  );
-
 		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch');
 
 		return $object_list;
@@ -286,6 +383,11 @@ class TRIM_Saved_Search extends Data_Source
 	* @access string
 	*/
 	function getHashKey() {
+
+		// Hash Key was used before when this asset uses the Cache Manager to manage its cache
+		// Since attribute is used now, it's hard to go back and clear the cache for different configuration
+		// so lets just use one cache set instead of multiple sets like before
+		/*
 		$search_kw 						= $this->getDynamicVariableValue('search_keyword');
 		$string_search_type				= $this->getDynamicVariableValue('string_search_type');
 		$parent_container_record_number	= $this->getDynamicVariableValue('search_parent_container');
@@ -297,7 +399,8 @@ class TRIM_Saved_Search extends Data_Source
 						.implode('-',$this->getDynamicVariableValue('fields'))
 						.$this->getDynamicVariableValue('fileTypes');
 
-		$hash = md5($unhashed_key);
+		$hash = md5($unhashed_key);*/
+		$hash = md5('resultSet');
 
 		return $hash;
 
@@ -373,8 +476,8 @@ class TRIM_Saved_Search extends Data_Source
 						  );
 
 			$hash_key			= $GLOBALS['SQ_SYSTEM']->user->attr('username').time();
-			//$final_file_path	= SQ_TEMP_PATH.'/'.$hash_key;
 			$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			create_directory($final_file_path);
 
 			$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, &$final_file_path);
@@ -442,31 +545,33 @@ class TRIM_Saved_Search extends Data_Source
 				$this->getAttachedFile(($_GET['Uri']));
 			} else if (isset($_GET['check_update']) && !empty($_GET['check_update'])) {
 				if ($this->adminAccess()) {
+					echo 'var numUpdate = false;';
 					$new_object_list	= $this->getTRIMRecords($connection);
 
 					$hash	= $this->getHashKey();
-					if (!isset($this->_tmp[$hash])) {
-						// Check the system cache
-						$result = $this->getCachedResultSet($hash);
-						if ($result !== FALSE) {
-							// We have some cache. Lets check them one by one.
-							$i = 0;
-							foreach ($result as $index	=> $record_info) {
-								foreach ($new_object_list as $new_index	=> $new_record_info) {
-									// Comparing the same record based on the URI
-									if ($record_info['Uri'] == $new_record_info['Uri']) {
-										if ($record_info['Version'] !== $new_record_info['Version']) {
-											$i++;
-										}//end if
+					$result = $this->getCachedResults($hash);
+
+					if (!empty($result)) {
+						// We have some cache. Lets check them one by one.
+						$i = 0;
+						foreach ($result as $index	=> $record_info) {
+							foreach ($new_object_list as $new_index	=> $new_record_info) {
+								// Comparing the same record based on the URI
+								if ($record_info['Uri'] == $new_record_info['Uri']) {
+									if ($record_info['Version'] !== $new_record_info['Version']) {
+										$i++;
 									}//end if
-								}//end foreach
+								}//end if
 							}//end foreach
-							echo 'var numUpdate = '.$i.';';;
-						} else {
-							// We have no cache. Just return the count in object_list
-							echo 'var numUpdate = '.count($new_object_list).';';
-						}//end else
-					}//end if
+						}//end foreach
+
+						// If we have records to add or delete, have to account for them as well
+						echo 'var numUpdate = '.$i+abs(count($result) - count($new_object_list)).';';
+					} else {
+						// We have no cache. Just return the count in object_list
+						echo 'var numUpdate = '.count($new_object_list).';';
+					}//end else
+
 				}//end if
 			} else if (isset($_GET['synch_now']) && !empty($_GET['synch_now'])) {
 				if ($this->adminAccess()) {
@@ -505,6 +610,37 @@ class TRIM_Saved_Search extends Data_Source
 		}//end if
 	}//end setAttrValue()
 
+
+	/**
+	* Returns a reference to the asset represented by the passed assetid
+	*
+	* @param int		$assetid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return object
+	* @access public
+	* @see Asset_Manager::getAsset()
+	*/
+	public function getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	{
+		$asset	= parent::getAsset($assetid, $type_code='', $mute_errors=FALSE);
+		if (isset($_REQUEST['a']) && isset($_REQUEST['a']) == $assetid) {
+			// Now we are looking for shadow assets to download
+			if (!is_null($asset)) {
+				if (isset($asset->vars['Uri']) && !empty($asset->vars['Uri'])) {
+					if ($this->getAttachedFile(($asset->vars['Uri']))) {
+						exit();
+					}
+				}//end if
+			}//end if
+		}//end if
+
+		return $asset;
+	}//end getAsset()
 
 }//end class
 ?>
