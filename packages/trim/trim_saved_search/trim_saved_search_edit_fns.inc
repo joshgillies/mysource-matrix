@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.2.2.1 2008/09/10 23:35:32 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,10 +136,16 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 					}
 				} else {
 					if (is_array($value)) {
-						?><ul style="margin: 1px 15px;"><?php
-						foreach ($value as $key => $val) {
-							echo '<li>'.$val.'</li>';
-						}//end foreach
+						?><ul style="position:relative;left:-41px;list-style:none;"><?php
+						if (urlencode($var) == 'fields') {
+							foreach ($value as $key => $val) {
+								echo '<li>'.$list[$val].'</li>';
+							}//end foreach
+						} else {
+							foreach ($value as $key => $val) {
+								echo '<li>'.$val.'</li>';
+							}//end foreach
+						}//end if
 						?></ul><?php
 					} else if (	strpos(urlencode($var), 'descending') !== FALSE || strpos(urlencode($var), 'use_expanded_number') !== FALSE) {
 						echo ($value) ? 'Yes' : 'No';

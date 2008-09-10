@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.2.2.1 2008/09/10 23:35:32 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -566,7 +566,8 @@ class TRIM_Saved_Search extends Data_Source
 						}//end foreach
 
 						// If we have records to add or delete, have to account for them as well
-						echo 'var numUpdate = '.$i+abs(count($result) - count($new_object_list)).';';
+						$final_count	= $i+abs(count($result) - count($new_object_list));
+						echo 'var numUpdate = '.$final_count.';';
 					} else {
 						// We have no cache. Just return the count in object_list
 						echo 'var numUpdate = '.count($new_object_list).';';
