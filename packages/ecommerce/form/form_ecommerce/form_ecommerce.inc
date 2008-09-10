@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.39.2.2 2008/09/08 06:34:01 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.39.2.3 2008/09/10 03:34:24 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.39.2.2 $
+* @version $Revision: 1.39.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1120,7 +1120,7 @@ class Form_Ecommerce extends Form_Email
 				if ($question->isSelection()) {
 					foreach ($rule as $option_id => $price) {
 						  //if option is selcted and option is not --leave empty--
-						if ($question->isSelected($option_id) && !$question->isEmptyOption($option_id)) {
+						if ($question->isSelected($option_id) && (!($question instanceof Form_question_type_select) || !$question->isEmptyOption($option_id))) {
 							$ecom_item['name']  = $question_title.': '.$question->getOptionName($option_id);
 							$ecom_item['price'] = $price;
 							$ecom_item['id'] = $q_id;
