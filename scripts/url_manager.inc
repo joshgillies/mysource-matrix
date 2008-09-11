@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 */
 
@@ -187,11 +187,11 @@ Make sure you have all you information you need before Proceeding\n");
 		$sql_update_sq_ast_lookup_value 	= 'INSERT INTO sq_ast_lookup_value (url, name, value, depth)
 										SELECT replace(url, :existing_url, :new_url), name, value, depth
 											FROM sq_ast_lookup_value
-											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = :existing_urlid);';
+											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = :existing_urlid)';
 
 		$sql_update_sq_ast_lookup			= 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
 										SELECT :http, :https, assetid, replace(url, :existing_url, :new_url), :new_urlid
-										FROM sq_ast_lookup WHERE url like :existing_url_wildcard AND root_urlid = :existing_urlid;';
+										FROM sq_ast_lookup WHERE url like :existing_url_wildcard AND root_urlid = :existing_urlid';
 
 		$sql_update_sq_ast_lookup_public	= 'UPDATE sq_ast_lookup set root_urlid = 0 WHERE url like :new_url_wildcard AND url like :data_url AND root_urlid = :new_urlid';
 
@@ -284,7 +284,7 @@ Make sure you have all you information you need before Proceeding\n");
 																SELECT :http, :https, assetid, replace(url, :existing_url, :new_url), 0
 																FROM sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like :existing_url_wildcard';
 					$added_condition = ' AND replace(url, :existing_url_1, :new_url_1) NOT IN (
-											SELECT url from sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like replace(url,:existing_url_2, :new_url_2));';
+											SELECT url from sq_ast_lookup WHERE root_urlid = 0 AND '. $condition. ' AND url like replace(url,:existing_url_2, :new_url_2))';
 
 					$sql_update_sq_ast_lookup_public_file .= $added_condition;
 
