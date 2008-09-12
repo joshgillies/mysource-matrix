@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.22 2008/09/05 06:11:51 ewang Exp $
+* $Id: design_css_edit_fns.inc,v 1.23 2008/09/12 01:05:10 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,18 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+		// increase run level to allow setting of components without cloning permissions from parents
+		if ($asset->writeAccess('all')) {
+             $GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+             // This clone will be morphed to customisation later, so it will NOT clone the parse file.
+             $asset->_tmp['custom'] = TRUE;
+			 $clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+			 unset ($asset->_tmp['custom']);
+			 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
+
+
+
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
