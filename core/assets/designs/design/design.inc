@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.131.2.1 2008/06/13 07:08:43 bpearson Exp $
+* $Id: design.inc,v 1.131.2.2 2008/09/12 01:07:50 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131.2.1 $
+* @version $Revision: 1.131.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,8 +112,8 @@ class Design extends Design_Area
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 			// Clone the parse file
-			// ONLY do this for the design
-			if ($this->type() == 'design') {
+			// ONLY do this for the design to design clone and if it will not be morphed to a customisation
+			if (($this->type() == 'design' || $this->type() == 'design_css')&& !isset($this->_tmp['custom'])) {
 					$orig_parse = $this->data_path.'/parse.txt';
 					$clone_parse = $clone->data_path.'/parse.txt';
 
