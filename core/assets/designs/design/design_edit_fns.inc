@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.126.2.2 2008/06/30 01:25:22 bshkara Exp $
+* $Id: design_edit_fns.inc,v 1.126.2.3 2008/09/12 01:06:19 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126.2.2 $
+* @version $Revision: 1.126.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -537,7 +537,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// increase run level to allow setting of components without cloning permissions from parents
 		if ($asset->writeAccess('all')) {
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+			// This clone will be morphed to customisation later, so it will NOT clone the parse file.
+			$asset->_tmp['custom'] = TRUE;
 			$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+			unset ($asset->_tmp['custom']);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
