@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.17.2.4 2008/05/23 05:48:40 mbrydon Exp $
+* $Id: page_online_quiz.inc,v 1.17.2.5 2008/09/14 23:30:41 akarelia Exp $
 *
 */
 
@@ -38,7 +38,6 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * Forms
 * 	- user_details
-
 * General notes
 * 	- "question pool": the group of question assets that can be used in the quiz,
 * 					   determined by the type, status and root-node preferences
@@ -61,7 +60,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.17.2.4 $
+* @version $Revision: 1.17.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -481,6 +480,28 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 
 	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printBody()
+	{
+		if ($this->getFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE)) {
+			if (!$this->attr('can_retake')) {
+				$this->printBodycopy('already_taken');
+				$can_take_quiz = FALSE;
+			}
+		} else {
+			parent::printBody();
+		}
+
+		return TRUE;
+
+	}//end printBody()
+
+
+	/**
 	* Prints a bodycopy (if available)
 	*
 	* @param string	$bodycopy_code	the code that indicates which bodycopy to manipulate (see $_bodycopies)
@@ -740,7 +761,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$can_take_quiz = TRUE;
 		if ($this->getFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE)) {
 			if (!$this->attr('can_retake')) {
-				$this->printBodycopy('already_taken');
 				$can_take_quiz = FALSE;
 			}
 		}
@@ -748,9 +768,8 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if ($can_take_quiz) {
 			$this->processQuestions();
 			$this->processAssetSelections();
-			parent::printFrontend();
 		}
-
+		parent::printFrontend();
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end printFrontend()
