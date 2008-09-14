@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.56 2008/08/08 04:00:35 ewang Exp $
+* $Id: trigger_manager.inc,v 1.57 2008/09/14 23:45:56 mbrydon Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1388,7 +1388,7 @@ class Trigger_Manager extends Asset implements Bridge
 								:id,
 								:data,
 								:active,
-								:desc,
+								:description,
 								:name
 							)';
 
@@ -1396,7 +1396,7 @@ class Trigger_Manager extends Asset implements Bridge
 				MatrixDAL::bindValueToPdo($prepared, 'id', $trigger['id']);
 				MatrixDAL::bindValueToPdo($prepared, 'data', serialize($trigger['data']));
 				MatrixDAL::bindValueToPdo($prepared, 'active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
-				MatrixDAL::bindValueToPdo($prepared, 'desc', $trigger['description']);
+				MatrixDAL::bindValueToPdo($prepared, 'description', $trigger['description']);
 				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
 				$result = MatrixDAL::execPdoQuery($prepared);
 
@@ -1407,7 +1407,7 @@ class Trigger_Manager extends Asset implements Bridge
 						SET
 							data		= :data,
 							active		= :active,
-							description	= :desc,
+							description	= :description,
 							name		= :name
 						WHERE
 						id = :id';
@@ -1416,7 +1416,7 @@ class Trigger_Manager extends Asset implements Bridge
 				MatrixDAL::bindValueToPdo($prepared, 'id', $trigger['id']);
 				MatrixDAL::bindValueToPdo($prepared, 'data', serialize($trigger['data']));
 				MatrixDAL::bindValueToPdo($prepared, 'active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
-				MatrixDAL::bindValueToPdo($prepared, 'desc', $trigger['description']);
+				MatrixDAL::bindValueToPdo($prepared, 'description', $trigger['description']);
 				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
 				$result = MatrixDAL::execPdoQuery($prepared);
 			}
