@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.223 2008/08/29 00:54:53 mbrydon Exp $
+* $Id: search_page.inc,v 1.224 2008/09/15 01:18:25 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.223 $
+* @version $Revision: 1.224 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1732,7 +1732,7 @@ class Search_Page extends Listing_Engine
 			$current_result_page = $listing_result_page;
 		}//end if
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
-		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
+		$this->_tmp['start_element'] = ($current_result_page - 1) * $results_per_page;
 		$queries = '';
 		foreach ($_GET as $query_name => $query_value) {
 			// skip some get vars that will be added later by the keyword replacements
