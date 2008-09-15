@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.11 2008/08/21 06:39:05 ewang Exp $
+* $Id: lang_strings.xml,v 1.262.2.12 2008/09/15 06:20:13 ata Exp $
 *
 */
 
@@ -27,6 +27,7 @@
 	<string source="active_locks">Active Locks</string>
 	<string source="add_language">Add Language ?</string>
 	<string source="add_new_future_status">Add New Future Status</string>
+	<string source="add_new_future_permission">Add New Future Permission</string>
 	<string source="add_new_trigger">Add New Trigger</string>
 	<string source="allow_ip_change">Allow IP Change</string>
 	<string source="allow_user_ip_to_fluctuate">Allow the IP of a user to fluctuate?</string>
@@ -81,6 +82,7 @@
 	<string source="cascade_permission_changes">Cascade Permission Changes?</string>
 	<string source="cascade">Cascade</string>
 	<string source="cascade_question">Cascade ?</string>
+	<string source="update_all_question">Update all ?</string>
 	<string source="case_sensitive">Case Sensitive ?</string>
 	<string source="category_specific_search_settings">Category Specific Search Settings</string>
 	<string source="change_log_of_original_patch">Change Log of Original Patch</string>
@@ -413,6 +415,7 @@
 	<string source="cron_new_future_linking">New Future Linking</string>
 	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
 	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
+	<string source="cron_job_asset_less_future_permission">Asset-less Future Permission Cron Job</string>
 	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe-Trash Cron Job</string>
 	<string source="cron_job_generate_log_reports">Generate Log Reports Cron Job</string>
 	<string source="cron_safe_trash_for">Safe-Trash for %s</string>
@@ -422,7 +425,9 @@
 	<string source="cron_fl_delete_all_existing_links_long">Delete all existing links</string>
 	<string source="cron_future_linking_for">Future Linking for %s</string>
 	<string source="cron_fs_for">FS for %s</string>
+	<string source="cron_fp_for">FP for %s</string>
 	<string source="cron_future_status_for">Future Status for %s</string>
+	<string source="cron_future_permission_for">Future Permission for %s</string>
 	<string source="create_new_link_for">Creating a new link for %1$s under %2$s</string>
 	<string source="deleting_link_id">Deleting Link Id #%s</string>
 	<string source="asset_from_under_asset">%1$s from under %2$s</string>
@@ -437,6 +442,7 @@
 	<string source="cron_job_refresh_cache_at">Refresh cache at </string>
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
+	<string source="scheduled_future_permission_change">Scheduled Future Permission Changes</string>
 	<string source="locking_editing">Locking / Editing</string>
 	<string source="forcibly_acquire_lock">You can forcibly acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.&lt;br /&gt;Any changes currently being made by "%1$s" will be lost if this lock is forcibly acquired.</string>
 	<string source="acquire_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to lock "%2$s" for editing.</string>
@@ -464,6 +470,8 @@
 	<string source="asset_search_default">Enter asset ID or URL</string>
 	<string source="quick_search">Quick Search</string>
 	<string source="cascade_status_change">Cascade Status Change</string>
+	<string source="cascade_permission_to_new_children">Automatically cascade this permission to newly-created children</string>
+	<string source="update_permission_to_current_children">Update this permission to all existing children that fall under this asset in the various hierarchies</string>
 	<string source="option_value">Option Value</string>
 	<string source="no_select_box_options">There are currently no select box options</string>
 
@@ -1322,6 +1330,7 @@
 	<string source="before">before</string>
 	<string source="after">after</string>
 	<string source="under">under</string>
+	<string source="set">Set</string>
 
 	<!-- priority level strings -->
 
@@ -1461,6 +1470,7 @@
 	<string source="unknown_or_deleted_user">Unknown or deleted user</string>
 	<string source="deleted_user_or_usergroup">Deleted user or user group</string>
 	<string source="no_access_permissions_set">No %s access permissions have been set</string>
+	<string source="no_future_permissions_set">No future permissions have been set</string>
 	<string source="cascade_permissions">Yes, cascade permission changes</string>
 	<string source="cascade_permissions_note">If you choose to cascade the changes to permissions you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
 	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
@@ -1468,6 +1478,7 @@
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>
 
+	<string source="future_permission">Future Permission</string>
 	<string source="permission_section">%1$s Permission</string>
 	<string source="specific_permission">Specific Permission</string>
 	<string source="public_permission">Public Permission</string>
@@ -2295,6 +2306,16 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
 	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
 
+	<!-- Future Permission Trigger Actions -->
+	<string source="trigger_delete_future_permission">Delete all future permission cron jobs that would change the asset's</string>
+	<string source="trigger_action_future_permission_add_cron_job_to">Add a cron job to</string>
+	<string source="trigger_action_future_permission_explicit_exact">at exactly</string>
+	<string source="trigger_action_future_permission_explicit_interval">after the trigger was fired</string>
+	<string source="trigger_action_future_permission_attr_exact">at exactly the date and time stored in the attribute</string>
+	<string source="trigger_action_future_permission_attr_interval">the date and time stored in the attribute</string>
+	<string source="trigger_action_future_permission_cascade_all">and cascade the permission change to all children of the asset</string>
+	<string source="trigger_action_future_permission_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future permission will be set</string>
+	
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
 	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
 
