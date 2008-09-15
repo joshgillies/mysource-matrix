@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.704 2008/09/10 01:29:37 bpearson Exp $
+* $Id: asset_manager.inc,v 1.705 2008/09/15 05:47:05 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.704 $
+* @version $Revision: 1.705 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -951,6 +951,13 @@ class Asset_Manager extends MySource_Object
 			throw new Exception('Unable to get default attribute values due to database error: '.$e->getMessage());
 		}
 
+		// We have to convert it here to the assetid=>value format
+		foreach ($res as $assetid => $val_info) {
+			if (isset($val_info[0]['default_val'])) {
+				$res[$assetid]	= $val_info[0]['default_val'];
+			}//end if
+		}//end foreach
+
 		// Now get customised values where applicable
 		$sub_sql = 'SELECT attrid FROM sq_ast_attr WHERE name = :attr_name';
 		if ($asset_type != 'asset') {
@@ -981,6 +988,7 @@ class Asset_Manager extends MySource_Object
 				$res[$assetid] = $rowinfo[0]['custom_val'];
 			}
 		}
+
 		return $res;
 
 	}//end getAttributeValuesByName()
