@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.39 2008/05/14 00:21:05 bshkara Exp $
+* $Id: file_versioning.inc,v 1.40 2008/09/15 00:26:16 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -722,8 +722,8 @@ class File_Versioning
 
 			try {
 				if (MatrixDAL::getDbType() == 'oci') {
-					$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
 					$sql = str_replace(':from_date_1', db_extras_todate(MatrixDAL::getDbType(), ':from_date_1', FALSE), $sql);
+					$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
 				}
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'fileid', $info['fileid']);
