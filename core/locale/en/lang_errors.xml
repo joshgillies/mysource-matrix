@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.102 2008/07/03 01:36:03 bshkara Exp $
+* $Id: lang_errors.xml,v 1.103 2008/09/15 04:41:15 ata Exp $
 *
 */
 
@@ -396,6 +396,28 @@
 	<error code="CRON0056">Failed to refresh the cache for (#%1$s), the HTTP request to URL, (%2$s), and the response code (%3$s) returned.</error>
 
 	<error code="CRON0057">Failed to run clear Matrix cache cron job.</error>
+
+	<error code="CRON0058">To add a future permission you must specify the date and time at which the permission should be changed</error>
+
+	<error code="CRON0059">Unable to create future permission cron job, unable to acquire "links" lock</error>
+		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:63: -->
+		
+	<error code="CRON0060">Unable to create future permission cron job, Unable to set asset in link</error>
+		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:70: -->
+
+	<error code="CRON0061">Unable to set the permission, it is not valid</error>
+		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:164: -->
+
+	<error code="CRON0062">Unable to set the type of a future permission cron job; it can only be a one off event</error>
+		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:170: -->
+
+	<error code="CRON0063">Failed changing Permission of "%1$s" (Id: #%2$s)</error>
+		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:358: -->
+
+	<error code="CRON0064">Unable to find asset to update the permission of</error>
+		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:363: -->
+
+	<error code="CRON0065">Unable to remove the future permission cron job id: %s</error>
 
 	<!-- MAPS - MYSOURCE AUTOMATED PATCHING SYSTEM -->
 

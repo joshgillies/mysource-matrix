@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.36 2008/07/02 06:39:37 lwright Exp $
+* $Id: permissions.inc,v 1.37 2008/09/15 04:38:53 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 
@@ -135,6 +135,139 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 	$admin_access = $owner->adminAccess('permissions');
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
+	//FUTURE PERMISSION (SIMILAR TO FUTURE STATUS)
+	$o->openSection(translate('future_permission'));
+	
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
+	$fp_jobs = Cron_Job_Future_Permission::getActiveJobs($owner);
+	if (!empty($fp_jobs)) {
+		$o->openField(translate('scheduled_future_permission_change'), 'new_line');
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header"><?php echo translate('permission'); ?></td>
+				<td class="sq-backend-table-header">
+					<span style="color:green"><?php echo translate('granted'); ?></span>
+				</td>
+				<td class="sq-backend-table-header">
+					<span style="color:red"><?php echo translate('denied'); ?></span>
+				</td>
+				<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
+				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></td>
+				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('update_all_question'); ?></td>
+				<?php
+				if ($admin_access) {
+				?>
+				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+				<?php
+				}
+				?>
+			</tr>
+			<?php
+			//sort the job by date
+			$sorted_fp_jobs = Array();
+			foreach ($fp_jobs as $fp_job) {
+				$sorted_fp_jobs[$fp_job->attr('when')] = $fp_job;
+			}
+			ksort($sorted_fp_jobs);
+			//print the active jobs
+			foreach ($sorted_fp_jobs as $fp_job) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php echo $fp_job->permissionName(); ?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php
+							 $granted_userids = $fp_job->getGrantedUsers(TRUE);
+							 foreach ($granted_userids as $userid) {
+							 	echo get_asset_tag_line($userid);
+							 	echo '<br />';
+							 }
+						?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php
+							 $denied_userids = $fp_job->getGrantedUsers(FALSE);
+							 foreach ($denied_userids as $userid) {
+							 	echo get_asset_tag_line($userid);
+							 	echo '<br />';
+							 }
+						?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php echo $fp_job->readableWhen(); ?>
+					</td>
+					<td align="center" class="sq-backend-table-cell">
+					<?php
+						if ($fp_job->attr('cascade_to_new')) {
+							echo translate('yes');
+						} else {
+							echo translate('no');
+						}
+					?>
+					</td>
+					<td align="center" class="sq-backend-table-cell">
+					<?php
+						if ($fp_job->attr('dependants_only')) {
+							echo translate('no');
+						} else {
+							echo translate('yes');
+						}
+						
+						if ($admin_access) {
+					?>
+					</td>
+					<td align="center" class="sq-backend-table-cell">
+					<?php
+						if ($fp_job->canDelete()) {
+							check_box($prefix.'_remove_fp[]', $fp_job->id);
+						} else {
+							echo '&nbsp;';
+						}
+						}
+					?>
+					</td>
+				</tr>
+				<?php
+			}//end for
+			?>
+		</table>
+		<?php
+		
+		$o->closeField();
+	} else if (!$admin_access){
+		$o->openRaw();
+		echo translate('no_future_permissions_set');
+		$o->closeRaw();
+	}//end if
+
+	if ($admin_access) {
+		$o->openField(translate('add_new_future_permission'), 'new_line');
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cron_epoc = (int)$cron_mgr->attr('epoch');
+			$cron_refresh = (int)$cron_mgr->attr('refresh_time');
+			if ($cron_epoc > 0 && $cron_refresh > 0) {
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
+				$fp = new Cron_Job_Future_Permission();
+				$edit_fns = $fp->getEditFns();
+				$edit_fns->paintInLineBackend($fp, $o, $prefix.'_new_fp');
+				echo '<br /><br />';
+
+				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+
+				$print_commit_button = TRUE;
+			} else {
+				echo translate('cron_manager_not_configured');
+			}
+		$o->closeField();
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
+	}//end if
+	
+	$o->closeSection();
+	//END FUTURE PERMISSION SECTION
+	
 	foreach ($perms as $title => $perm) {
 		$o->openSection(translate('permission_section', translate($title)));
 
@@ -308,8 +441,9 @@ function processPermissions(&$owner, &$o, &$ei)
 		exit();
 	}
 
+	$admin_access = $owner->adminAccess('permissions');
 	// if we dont have the permissions lock, dont process anything
-	if (!$owner->adminAccess('permissions')) return FALSE;
+	if (!$admin_access) return FALSE;
 
 	$permission_vars = Array();
 	$prefix = $owner->getPrefix();
@@ -322,6 +456,53 @@ function processPermissions(&$owner, &$o, &$ei)
 	$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
 	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
+	//PROCESS FUTURE PERMISSION
+	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+	if (!is_null($cron_mgr)) {
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
+
+		if (!empty($_POST[$prefix.'_remove_fp'])) {
+			$fp_jobs = Cron_Job_Future_Permission::getActiveJobs($owner);
+			if (!empty($fp_jobs)) {
+
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
+					for ($i = 0; $i < count($fp_jobs); $i++) {
+						if (in_array($fp_jobs[$i]->id, $_POST[$prefix.'_remove_fp'])) {
+							$cron_mgr->removeJob($fp_jobs[$i]);
+						}// end if
+					}// end for
+
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
+
+				} else {
+					trigger_localised_error('SYS0232', E_USER_NOTICE);
+
+				}// end if
+
+			}// end if
+		}// end if
+
+
+		if ($admin_access) {
+			$fp = new Cron_Job_Future_Permission();
+			$edit_fns = $fp->getEditFns();
+			if ($fp->setAssetToUpdate($owner) && $edit_fns->processInLineBackend($fp, $o, $prefix.'_new_fp')) {
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				if ($cron_mgr->addJob($fp, $GLOBALS['SQ_SYSTEM']->user)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				} else {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				}
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			}
+
+		}// end if
+
+	}//end if is NULL cron mgr
+	
+	//END PROCESS FUTURE PERMISSION
+	
 	foreach ($perms as $title => $perm) {
 		// we need to check for write access each time because
 		// we may actually be revoking write access and then
