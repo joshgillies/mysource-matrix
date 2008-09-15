@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.227.2.10 2008/09/09 03:34:44 akarelia Exp $
+* $Id: listing_engine.inc,v 1.227.2.11 2008/09/15 04:59:12 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.227.2.10 $
+* @version $Revision: 1.227.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -610,12 +610,14 @@ class Listing_Engine extends Page
 		if (empty($bodycopy_link)) return FALSE;
 
 		$format_bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-		$format_bodycopy_no_result = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_no_result_link['minorid'], $bodycopy_no_result_link['minor_type_code']);
 		if (is_null($format_bodycopy)) return FALSE;
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$keywords = $format_bodycopy->getKeywords();
-		$keywords = array_merge($format_bodycopy_no_result->getKeywords(),$keywords);
+		if ($bodycopy_no_result_link) {
+			$format_bodycopy_no_result = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_no_result_link['minorid'], $bodycopy_no_result_link['minor_type_code']);
+            $keywords = array_merge($format_bodycopy_no_result->getKeywords(),$keywords);
+		}
 		$replacements = Array();
 
 
@@ -623,6 +625,11 @@ class Listing_Engine extends Page
 		$children =& $this->convertProxyAssetTypes($children);
 		$this->filterAssetList($children);
 		$num_kids = count($children);
+
+		foreach ($keywords as $word) {
+			$replacements[$word] = $this->getKeywordReplacement($word);
+		}
+
 
 		// if there are no children available, just print the page bodycopy -
 		// or the NO RESULTS bodycopy if it exists
@@ -660,10 +667,6 @@ class Listing_Engine extends Page
 		if ($this->attr('group_by') == 'grouped') {
 			$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
 			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
-		}
-
-		foreach ($keywords as $word) {
-			$replacements[$word] = $this->getKeywordReplacement($word);
 		}
 
 		$num_per_page = $this->attr('num_per_page');
