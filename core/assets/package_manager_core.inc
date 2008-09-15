@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.39 2008/08/26 08:35:15 gnoel Exp $
+* $Id: package_manager_core.inc,v 1.40 2008/09/15 05:13:02 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -131,7 +131,6 @@ class Package_Manager_Core extends Package_Manager
 				'cron_job_generate_log_reports',
 				'cron_job_escalate_safe_trash',
 				'tag_manager',
-				'cron_job_metadata_triggers',				
 			   );
 
 	}//end getSystemAssetTypes()
