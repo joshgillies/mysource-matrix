@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.10 2008/09/15 04:57:20 akarelia Exp $
+* $Id: listing_engine.inc,v 1.242.2.11 2008/09/15 05:13:14 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.10 $
+* @version $Revision: 1.242.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -677,10 +677,6 @@ class Listing_Engine extends Page
 			$this->groupAssetsRecursively($this->attr('asset_grouping'), $children, $children);
 			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 		}
-
-		//foreach ($keywords as $word) {
-		//	$replacements[$word] = $this->getKeywordReplacement($word);
-		//}
 
 		$num_per_page = $this->attr('num_per_page');
 
