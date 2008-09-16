@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_links.php,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_integrity_check_links.php,v 1.3.8.1 2008/09/16 06:54:30 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Go through all WYSIWYG content types and ensure all ./?a=xx links are valid
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -45,8 +45,8 @@ if ($ROOT_ASSETID == 1) {
 
 // go trough each wysiwyg in the system and validate the links
 $wysiwygids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'content_type_wysiwyg', false);
-foreach ($wysiwygids as $wysiwygid => $type_code) {
-
+foreach ($wysiwygids as $wysiwygid => $type_code_data) {
+	$type_code = $type_code_data[0]['type_code'];
 	$wysiwyg = &$GLOBALS['SQ_SYSTEM']->am->getAsset($wysiwygid, $type_code);
 	$html = $wysiwyg->attr('html');
 

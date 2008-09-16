@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.6 2008/01/04 03:35:45 hnguyen Exp $
+* $Id: system_integrity_run_tidy.php,v 1.6.2.1 2008/09/16 06:55:20 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Go through all WYSIWYG content types and re-run HTML Tidy
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -72,8 +72,8 @@ closedir($dh);
 
 // go through each wysiwyg in the system, lock it, validate it, unlock it
 $wysiwygids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'content_type_wysiwyg', false);
-foreach ($wysiwygids as $wysiwygid => $type_code) {
-
+foreach ($wysiwygids as $wysiwygid => $type_code_data) {
+	$type_code = $type_code_data[0]['type_code'];
 	$wysiwyg = &$GLOBALS['SQ_SYSTEM']->am->getAsset($wysiwygid, $type_code);
 	printAssetName('WYSIWYG #'.$wysiwyg->id);
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: add_user_own_access.php,v 1.5 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: add_user_own_access.php,v 1.5.8.1 2008/09/16 06:54:06 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * become corrupted.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -58,8 +58,8 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 
 // go through each user in the system, lock it, set permissions, unlock it
 $assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'user', false);
-foreach ($assets as $assetid => $type_code) {
-
+foreach ($assets as $assetid => $type_code_data) {
+	$type_code = $type_code_data[0]['type_code'];
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 	printAssetName($asset);
 
