@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.705 2008/09/15 05:47:05 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.706 2008/09/16 01:48:04 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.705 $
+* @version $Revision: 1.706 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2364,7 +2364,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function updateLock($assetid, $lock_type, $expires=0)
 	{
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, TRUE);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -2372,13 +2372,13 @@ class Asset_Manager extends MySource_Object
 		$success = TRUE;
 
 		foreach (array_keys($current_locks) as $lock_type) {
-
-			if (TRUE !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
-				trigger_localised_error('SYS0122', E_USER_NOTICE, $assetid, $err_msg);
-				$success = FALSE;
-				break;
-			}
-
+			if (empty($lock_type)) {
+				if (TRUE !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
+					trigger_localised_error('SYS0122', E_USER_NOTICE, $assetid, $err_msg);
+					$success = FALSE;
+					break;
+				}//end if
+			}//end if
 		}//end foreach
 
 		if ($success) {
@@ -2401,28 +2401,54 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$force_array	always return the information in an array, as though more than one lock has been requested
 	* @param boolean	$full_chain		return the info for every asset in the lock chain
 	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
+	* @param boolean	$allow_only_one	Force only one lock returned
 	*
 	* @return array
 	* @access public
 	*/
-	function getLockInfo($assetid, $lock_type, $force_array=FALSE, $full_chain=FALSE, $check_expires=TRUE)
+	function getLockInfo($assetid, $lock_type, $force_array=FALSE, $full_chain=FALSE, $check_expires=TRUE, $allow_only_one=FALSE)
 	{
 		$lock_types = $this->getLockTypes($assetid, $lock_type);
 		$locks = Array();
-		foreach ($lock_types as $lock_type) {
+		$lockids = Array();
+		$count = 0;
+		foreach ($lock_types as $each_lock_type) {
+			$lockids[] = 'asset.'.$assetid.'.'.$each_lock_type;
+			$last_lock = 'asset.'.$assetid.'.'.$each_lock_type;
+			$count++;
+		}
 
-			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.'.'.$lock_type, $full_chain, $check_expires);
-			if (!empty($lock)) {
-				$lock['lock_type']      = $lock_type;
-				$lock['source_assetid'] = preg_replace('|^asset\.(.*)\.[\w]+$|', '\1', $lock['source_lockid']);
-				if ($full_chain) {
-					for (reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
-						$lock['chained_assets'][$k]['assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
-						$lock['chained_assets'][$k]['source_assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
+		if (!empty($lockids)) {
+			if ($count > 1) {
+				$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo($lockids, $full_chain, $check_expires, $allow_only_one);
+			} else {
+				$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo($last_lock, $full_chain, $check_expires, $allow_only_one);
+			}
+
+			$all_locks = Array();
+			if ($allow_only_one) {
+				$all_locks[] = $lock;
+			} else {
+				$all_locks = $lock;
+			}
+
+			foreach ($lock_types as $each_lock_type) {
+				$current_lock_id = 'asset.'.$assetid.'.'.$each_lock_type;
+				$locks[$each_lock_type] = Array();
+				foreach	($all_locks as $each_key => $each_lock) {
+					if (isset($each_lock['lockid']) && ($current_lock_id == $each_lock['lockid'])) {
+						$each_lock['lock_type']      = $lock_type;
+						$each_lock['source_assetid'] = preg_replace('|^asset\.(.*)\.[\w]+$|', '\1', $each_lock['source_lockid']);
+						if ($full_chain) {
+							for (reset($each_lock['chained_assets']); NULL !== ($k = key($each_lock['chained_assets'])); next($each_lock['chained_assets'])) {
+								$each_lock['chained_assets'][$k]['assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $each_lock['chained_assets'][$k]['lockid']);
+								$each_lock['chained_assets'][$k]['source_assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $each_lock['chained_assets'][$k]['source_lockid']);
+							}
+						}
+						$locks[$each_lock_type] = $each_lock;
 					}
 				}
 			}
-			$locks[$lock_type] = $lock;
 			unset($lock);
 		}//end foreach
 		if (!$force_array && count($locks) == 1) {

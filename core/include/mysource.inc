@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.273 2008/09/03 23:43:26 mbrydon Exp $
+* $Id: mysource.inc,v 1.274 2008/09/16 01:48:04 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.273 $
+* @version $Revision: 1.274 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2662,71 +2662,93 @@ class MySource
 	/**
 	* Returns an array of information about the passed lock
 	*
-	* @param string		$lockid			the id of the lock
-	* @param boolean	$full_chain		return the info for every lock in the lock chain
-	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
+	* @param string|array	$lockid			the id of the lock
+	* @param boolean		$full_chain		return the info for every lock in the lock chain
+	* @param boolean		$check_expires	check the expiry date and cleanup the lock if it has expired
+	* @param boolean		$allow_only_one	Force only one lock returned
 	*
 	* @return array
 	* @access public
 	*/
-	function getLockInfo($lockid, $full_chain=FALSE, $check_expires=TRUE)
+	function getLockInfo($lockid, $full_chain=FALSE, $check_expires=TRUE, $allow_only_one=TRUE)
 	{
+		// Did I get a string or an array?
+		$where = '';
+		$multiple = FALSE;
+		$locks_passed = Array();
+		if (is_array($lockid)) {
+			foreach ($lockid as $lock_key => $lock_value) {
+				$lockid[$lock_key] = MatrixDAL::quote($lock_value);
+			}
+			$where = ' WHERE lockid IN ('.implode(', ', $lockid).')';
+			$multiple = TRUE;
+			$locks_passed = $lockid;
+		} else {
+			$where = ' WHERE lockid = :lockid';
+			$multiple = FALSE;
+			$locks_passed[] = $lockid;
+		}
+
 		$this->changeDatabaseConnection('db3');
 		$db = MatrixDAL::getDb();
 
 		$sql = 'SELECT lockid, source_lockid, userid, expires
-				FROM sq_lock
-				WHERE lockid = :lockid';
+				FROM sq_lock'.$where;
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
-			$result = MatrixDAL::executePdoAssoc($query);
-			if (!empty($result)) {
-				$result = $result[0];
+			if (!$multiple) {
+				MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
 			}
+			$results = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
-			throw new Exception('Unable to get lock information for lock ID "'.$lockid.'" due to database error: '.$e->getMessage());
+			$lock_error = (is_array($lockid)) ? ('s '.implode(', ', $lockid)) : (' '.$lockid);
+			throw new Exception('Unable to get lock information for lock ID"'.$lock_error.'" due to database error: '.$e->getMessage());
 		}
 
-		if (!empty($result)) {
-			$result['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);
-			if ($check_expires && !empty($result['expires'])) {
-				if ($result['expires'] < time()) {
-					$this->releaseLock($lockid);
-					$this->restoreDatabaseConnection();
-					// this lock has expired
-					return Array();
-				}
-			}
-
-			if ($full_chain) {
-				$result['chained_assets'] = Array();
-				$sql = 'SELECT lockid, source_lockid, userid, expires
-						FROM sq_lock
-						WHERE source_lockid = :source_lockid
-							AND lockid <> :lockid';
-
-				try {
-					$query = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($query, 'source_lockid', $result['source_lockid']);
-					MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
-					$chain = MatrixDAL::executePdoAssoc($query);
-				} catch (Exception $e) {
-					throw new Exception('Unable to get lock chain information for source lock ID "'.$result['source_lockid'].'" due to database error: '.$e->getMessage());
+		if (!empty($results)) {
+			foreach ($results as $result_key => $result) {
+				$results[$result_key]['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);
+				if ($check_expires && !empty($result['expires'])) {
+					if ($results[$result_key]['expires'] < time()) {
+						$this->releaseLock($lockid);
+						$this->restoreDatabaseConnection();
+						// this lock has expired
+						return Array();
+					}
 				}
 
-				foreach ($chain as $lock_row) {
-					$lock_row['expires'] = (empty($lock_row['expires'])) ? NULL : iso8601_ts($lock_row['expires']);
-					$result['chained_assets'][$lock_row['lockid']] = $lock_row;
-				}
+				if ($full_chain) {
+					$results[$result_key]['chained_assets'] = Array();
+					foreach ($locks_passed as $lock_to_test) {
+						$sql = 'SELECT lockid, source_lockid, userid, expires
+								FROM sq_lock
+								WHERE source_lockid = :source_lockid
+									AND lockid <> :lockid';
 
-			}//end if
+						try {
+							$query = MatrixDAL::preparePdoQuery($sql);
+							MatrixDAL::bindValueToPdo($query, 'source_lockid', $result['source_lockid']);
+							MatrixDAL::bindValueToPdo($query, 'lockid', $lock_to_test);
+							$chain = MatrixDAL::executePdoAssoc($query);
+						} catch (Exception $e) {
+							throw new Exception('Unable to get lock chain information for source lock ID "'.$result['source_lockid'].'" due to database error: '.$e->getMessage());
+						}
 
+						foreach ($chain as $lock_row) {
+							$lock_row['expires'] = (empty($lock_row['expires'])) ? NULL : iso8601_ts($lock_row['expires']);
+							$results[$result_key]['chained_assets'][$lock_row['lockid']] = $lock_row;
+						}
+					}//end foreach
+				}//end if
+			}//end foreach
 		}//end if
+		if (!empty($results) && $allow_only_one) {
+				$results = $results[0];
+		}
 
 		$this->restoreDatabaseConnection();
-		return $result;
+		return $results;
 
 	}//end getLockInfo()
 
