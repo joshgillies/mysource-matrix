@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.33.2.2 2008/09/15 06:17:55 ata Exp $
+* $Id: permissions.inc,v 1.33.2.3 2008/09/16 00:27:50 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33.2.2 $
+* @version $Revision: 1.33.2.3 $
 * @package MySource_Matrix
 */
 
@@ -165,11 +165,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 			</tr>
 			<?php
 			//sort the job by date
-			$sorted_fp_jobs = Array();
-			foreach ($fp_jobs as $fp_job) {
-				$sorted_fp_jobs[$fp_job->attr('when')] = $fp_job;
-			}
-			ksort($sorted_fp_jobs);
+			$sorted_fp_jobs = _sortCronJobsByDate($fp_jobs);
 			//print the active jobs
 			foreach ($sorted_fp_jobs as $fp_job) {
 				?>
@@ -609,6 +605,40 @@ function processPermissions(&$owner, &$o, &$ei)
 	return TRUE;
 
 }//end processPermissions()
+
+
+/**
+ * Sort the array of cron jobs by their 'when' attributes
+ *
+ * @param array $cron_jobs	the array of cron jobs that needs to be sorted
+ * @return array			the sorted cron jobs array
+ */
+function _sortCronJobsByDate($cron_jobs) {
+	//create an array that keeps assetid and date of the cron jobs
+	$assetid_date_arr = Array();
+	foreach ($cron_jobs as $cron_job) {
+		$assetid_date_arr[$cron_job->id] = $cron_job->attr('when');
+	}
+	//sort the array by date but keep the keys associated with them
+	asort($assetid_date_arr);
+	
+	//the sorted cron jobs array
+	$sorted_cron_jobs = Array();
+	foreach ($assetid_date_arr as $assetid => $date) {
+		//get the cron job that has the $assetid
+		$matched = NULL;
+		foreach ($cron_jobs as $cron_job) {
+			if ($assetid == $cron_job->id) {
+				$matched = $cron_job;
+				break;
+			}
+		}
+		$sorted_cron_jobs[] = $matched;
+	}
+	
+	return $sorted_cron_jobs;
+	
+}//end _sortCronJobByDate()
 
 
 ?>
