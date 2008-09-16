@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.7 2008/09/16 06:59:26 ewang Exp $
+* $Id: system_integrity_run_tidy.php,v 1.8 2008/09/16 22:59:34 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Go through all WYSIWYG content types and re-run HTML Tidy
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -55,7 +55,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 // find the cache dirs that are currently in the cache repository
-$this->_running_vars['cache_dirs'] = Array();
+$tmp->_running_vars['cache_dirs'] = Array();
 $dh = opendir(SQ_CACHE_PATH);
 while (false !== ($file = readdir($dh))) {
 	if ($file == '.' || $file == '..') continue;
@@ -66,7 +66,7 @@ while (false !== ($file = readdir($dh))) {
 
 	// just add the relative path to the cache dir so
 	// we can compare the name with the asset hash
-	$this->_running_vars['cache_dirs'][] = $file;
+	$tmp->_running_vars['cache_dirs'][] = $file;
 }
 closedir($dh);
 
@@ -149,7 +149,7 @@ foreach ($wysiwygids as $wysiwygid => $type_code_data) {
 			$assetid_code = md5($parent_asset->id);
 			$group = $cm->getAssetHash($assetid_code);
 
-			foreach ($this->_running_vars['cache_dirs'] as $dir) {
+			foreach ($tmp->_running_vars['cache_dirs'] as $dir) {
 				if (substr($dir, 0, strlen($group)) == $group) {
 
 					// this directory contains cache entries for this particular asset
