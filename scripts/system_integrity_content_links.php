@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_content_links.php,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: system_integrity_content_links.php,v 1.4 2008/09/16 06:58:46 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Check the integrity of image/file asset NOTICE links in bodycopy contents
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -55,8 +55,8 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 
 // go trough each bodycopy_container in the system, lock it, validate it, unlock it
 $containerids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'bodycopy_container', false);
-foreach ($containerids as $containerid => $type_code) {
-
+foreach ($containerids as $containerid => $type_code_data) {
+	$type_code = $type_code_data[0]['type_code'];
 	$container = &$GLOBALS['SQ_SYSTEM']->am->getAsset($containerid, $type_code);
 	printContainerName('Container #'.$container->id);
 

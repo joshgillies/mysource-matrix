@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.15 2008/02/21 04:21:36 lwright Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.16 2008/09/16 06:59:15 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -73,8 +73,8 @@ $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 // go through each child of the specified asset, lock it, validate it, unlock it
 $assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'asset', FALSE);
-foreach ($assets as $assetid => $type_code) {
-
+foreach ($assets as $assetid => $type_code_data) {
+	$type_code = $type_code_data[0]['type_code'];
 
 	printAssetName($assetid);
 
