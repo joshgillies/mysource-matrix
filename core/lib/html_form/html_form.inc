@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.134.2.3 2008/07/06 23:12:03 bpearson Exp $
+* $Id: html_form.inc,v 1.134.2.4 2008/09/17 04:12:42 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.134.2.3 $
+* @version $Revision: 1.134.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -964,7 +964,7 @@ function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000',
 	// generate the url to get the security image to print
 	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
 	?>
-		<img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" />
+		<img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" alt="Security key" />
 	<?php
 
 }//end security_key_image_box()
