@@ -1202,7 +1202,8 @@ class DAL
                 // OCI: Oracle in PDO is far too buggy to be considered usable (tested
                 // in 5.1.x to 5.3dev). Therefore we'll be resigned to using
                 // legacy OCI8 extension functions.
-                $new_dbh = oci_connect($dsn['user'], $dsn['password'], $dsn['DSN']);
+                // use @ to suppress warning/error messages, it will be handled by ourself.
+                $new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN']);
                 if ($new_dbh === FALSE) {
                     $oci_error = oci_error();
                     throw new Exception('Unable to connect to database "'.$conn_id.'": '.$oci_error['code'].' '.$oci_error['message']);
