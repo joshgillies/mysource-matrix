@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.66.2.3 2008/07/11 01:23:07 gsherwood Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.66.2.4 2008/09/18 00:09:34 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.3 $
+* @version $Revision: 1.66.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -220,7 +220,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						return '';
 					}
 
-					if ((!array_get_index($perm_change, 'cascades')) || array_get_index($perm_change, 'dependants_only')) {
+					if ((!array_get_index($perm_change, 'cascades', TRUE)) || array_get_index($perm_change, 'dependants_only')) {
 						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid);
 					} else {
 						$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid);
