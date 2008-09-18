@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: countries.inc,v 1.10 2008/09/18 01:03:37 ewang Exp $
+* $Id: countries.inc,v 1.11 2008/09/18 01:28:37 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     and the country name as defined by ISO Standard 3166
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -136,6 +136,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'it' => 'Italy',
 									'jm' => 'Jamaica',
 									'jp' => 'Japan',
+									'je' => 'Jersey',
 									'jo' => 'Jordan',
 									'kz' => 'Kazakhstan',
 									'ke' => 'Kenya',
@@ -154,7 +155,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'lt' => 'Lithuania',
 									'lu' => 'Luxembourg',
 									'mo' => 'Macau',
-									'mk' =>	'Macedonia', 
+									'mk' =>	'Macedonia, The Former Yugoslav Republic Of', 
 									'mg' => 'Madagascar',
 									'mw' => 'Malawi',
 									'my' => 'Malaysia',
@@ -193,6 +194,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'om' => 'Oman',
 									'pk' => 'Pakistan',
 									'pw' => 'Palau',
+									'ps' => 'Palestinian Territory, Occupied',
 									'pa' => 'Panama',
 									'pg' => 'Papua New Guinea',
 									'py' => 'Paraguay',
@@ -207,9 +209,11 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'ro' => 'Romania',
 									'ru' => 'Russia Federation',
 									'rw' => 'Rwanda',
+									'bl' => 'Saint Barthelemy',
 									'sh' => 'Saint Helena',
 									'kn' => 'Saint Kitts and Nevis',
 									'lc' => 'Saint Lucia',
+									'mf' => 'Saint Martin',
 									'pm' => 'Saint Pierre et Miquelon',
 									'vc' => 'Saint Vincent and the Grenadines',
 									'ws' => 'Samoa',
@@ -217,7 +221,7 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'st' => 'Sao Tome and Principe',
 									'sa' => 'Saudi Arabia',
 									'sn' => 'Senegal',
-									'yu' => 'Serbia and Montenegro',
+									'yu' => 'Serbia',
 									'sc' => 'Seychelles',
 									'sl' => 'Sierra Leone',
 									'sg' => 'Singapore',
@@ -266,7 +270,6 @@ $standards_lists_countries = Array( 'af' => 'Afghanistan',
 									'wf' => 'Wallis and Futuna Islands',
 									'eh' => 'Western Sahara',
 									'ye' => 'Yemen',
-									'zr' => 'Zaire',
 									'zm' => 'Zambia',
 									'zw' => 'Zimbabwe',
 									);
