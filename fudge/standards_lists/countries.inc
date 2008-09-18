@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: countries.inc,v 1.9 2008/07/31 16:00:16 gnoel Exp $
+* $Id: countries.inc,v 1.10 2008/09/18 01:03:37 ewang Exp $
 *
 */
 
@@ -23,12 +23,13 @@
 *     and the country name as defined by ISO Standard 3166
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
 
 $standards_lists_countries = Array( 'af' => 'Afghanistan',
+									'ax' => 'Aland Islands',
 									'al' => 'Albania',
 									'dz' => 'Algeria',
 									'as' => 'American Samoa',
