@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.51.2.4 2008/09/14 23:46:37 mbrydon Exp $
+* $Id: trigger_manager.inc,v 1.51.2.5 2008/09/19 02:05:14 mbrydon Exp $
 *
 */
 
@@ -43,7 +43,7 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.51.2.4 $
+* @version $Revision: 1.51.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -2025,7 +2025,7 @@ class Trigger_Manager extends Asset implements Bridge
 			$bind_vars	= Array (
 									'event'			=> $event,
 								);
-			$trigger_count  = MatrixDAL::executeQuery('core', 'getNbOfTriggerHash', $bind_vars);
+			$trigger_count  = MatrixDAL::executeOne('core', 'getNbOfTriggerHash', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable get the number of trigger hashes:  due to database error: '.$e->getMessage());
 		}
