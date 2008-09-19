@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.707 2008/09/19 02:12:56 bpearson Exp $
+* $Id: asset_manager.inc,v 1.708 2008/09/19 04:40:38 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.707 $
+* @version $Revision: 1.708 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8387,8 +8387,12 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 			// adding a new filter 'link value'
+			// If $link_value_wanted is  '', we should get all records including '' and NULL,
+			// because Oracle will think '' same as NULL.
 			if ($link_value_wanted !== NULL) {
-				$where .= ' and l.value= :'.$bind_prefix.'link_value ';
+				$where .= ' AND (l.value= :'.$bind_prefix.'link_value ';
+				if ($link_value_wanted == '') $where .= ' OR l.value IS NULL';
+				$where .= ')';
 				$where_bind_vars[$bind_prefix.'link_value'] = $link_value_wanted;
 			}
 
@@ -8661,8 +8665,12 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
+		// If $link_value_wanted is  '', we should get all records including '' and NULL,
+		// because Oracle will think '' same as NULL.
 		if ($link_value_wanted !== NULL) {
-			$where .= ' and l.value = :'.$bind_prefix.'link_value_wanted ';
+			$where .= ' AND (l.value = :'.$bind_prefix.'link_value_wanted ';
+			if ($link_value_wanted == '') $where .= ' OR l.value IS NULL';
+			$where .= ')';
 			$bind_vars[$bind_prefix.'link_value_wanted'] = $link_value_wanted;
 		}
 
