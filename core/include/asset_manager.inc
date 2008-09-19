@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.25 2008/09/10 01:28:30 bpearson Exp $
+* $Id: asset_manager.inc,v 1.655.2.26 2008/09/19 02:13:57 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.25 $
+* @version $Revision: 1.655.2.26 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5859,7 +5859,7 @@ class Asset_Manager extends MySource_Object
 			$db = MatrixDAL::getDb();
 			try {
 				$bind_vars = Array('linkid' => $linkid);
-				$result = MatrixDAL::executeOne('core', 'deleteShadowAssetLink', $bind_vars);
+				$result = MatrixDAL::executeQuery('core', 'deleteShadowAssetLink', $bind_vars);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete shadow asset link with linkid: '.$linkid.' due to database error: '.$e->getMessage());
 			}
