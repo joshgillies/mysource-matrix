@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.68 2008/07/02 04:02:28 mbrydon Exp $
+* $Id: cache_manager.inc,v 1.69 2008/09/19 01:34:04 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -348,8 +348,7 @@ class Cache_Manager extends Asset
 				$result = Array();
 				foreach (array_chunk($assetids, 999) as $chunk) {
 					$bind_vars = Array('assetids' => &$chunk);
-					$result = array_merge($result, MatrixDAL::executeAll('cache_manager', 'deleteCacheEntriesByAsset', $bind_vars));
-					//$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+					MatrixDAL::executeQuery('cache_manager', 'deleteCacheEntriesByAsset', $bind_vars);
 				}
 			} catch (DALException $e) {
 				throw new Exception('Unable to delete cache entries due to database error: '.$e->getMessage());
