@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.49.2.1 2008/06/27 01:48:56 bpearson Exp $
+* $Id: bulkmail_manager.inc,v 1.49.2.2 2008/09/19 06:37:40 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.49.2.1 $
+* @version $Revision: 1.49.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -321,7 +321,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 							'po_id'		=> $post_office->id,
 							'status'	=> BML_JOB_STATE_NOT_RUNNING,
 						 );
-			$result = MatrixDAL::executeOne('bulkmail_package', 'addJob', $bind_vars);
+			$result = MatrixDAL::executeQuery('bulkmail_package', 'addJob', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception("Unable to add bulkmail job (#$unique_id) due to database error: ".$e->getMessage());
 		}
@@ -345,7 +345,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	{
 		try {
 			$bind_vars['job_id'] = $job_id;
-			$result = MatrixDAL::executeOne('bulkmail_package', 'deleteJob', $bind_vars);
+			$result = MatrixDAL::executeQuery('bulkmail_package', 'deleteJob', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception("Unable to delete bulkmail job (#$job_id) due to database error: ".$e->getMessage());
 		}
@@ -391,7 +391,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 								'status'	=> $state,
 								'job_id'	=> $job_id,
 						 	 );
-			$result = MatrixDAL::executeOne('bulkmail_package', 'updateJob', $bind_vars);
+			$result = MatrixDAL::executeQuery('bulkmail_package', 'updateJob', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception("Unable to update bulkmail job (#$job_id) due to database error: ".$e->getMessage());
 		}
