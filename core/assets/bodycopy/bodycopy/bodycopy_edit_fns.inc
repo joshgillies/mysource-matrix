@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.61 2008/03/12 06:20:41 hnguyen Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.62 2008/09/22 02:09:00 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -162,7 +162,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		// all available content types
 		$content_types = Array();
-		$types = $am->getAssetTypeHierarchy('content_type');
+		require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
+		$types = Content_Type::getAvailableContentTypes();
 		foreach ($types as $type => $type_data) {
 			$content_types[$type] = Array('name' => str_replace(' Content Type', '', $type_data['name']));
 		}

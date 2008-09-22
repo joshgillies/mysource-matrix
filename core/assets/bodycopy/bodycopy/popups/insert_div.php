@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.12 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: insert_div.php,v 1.13 2008/09/22 02:09:50 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,8 +49,8 @@ include(dirname(__FILE__).'/header.php');
 
 </script>
 <?php
-	$am = $GLOBALS['SQ_SYSTEM']->am;
-	$content_types = $am->getAssetTypeHierarchy('content_type');
+	require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
+	$content_types = Content_Type::getAvailableContentTypes();
 	$default_content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
 ?>
 <div class="title" style="text-align: right;"><?php echo translate('insert_div'); ?></div>
