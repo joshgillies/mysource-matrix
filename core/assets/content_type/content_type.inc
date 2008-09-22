@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.21 2007/12/03 23:12:50 lwright Exp $
+* $Id: content_type.inc,v 1.21.2.1 2008/09/22 04:36:42 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,6 +212,35 @@ class Content_Type extends Asset
 
 	}//end linksUpdated()
 
+	
+	/**
+	 * Get all the available content types in the system
+	 *
+	 * @return array	all the content types available in the system
+	 * @access public
+	 */
+	public static function getAvailableContentTypes() {
+		$content_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('content_type');
+		
+		if (isset($content_types['content_type_markdown'])) {
+			//if markdown is not enabled, remove it from the content type
+			$disable_markdown = TRUE;
+			require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+			if (SQ_TOOL_MARKDOWN_ENABLED && is_file(SQ_TOOL_MARKDOWN_PATH)) {
+				include_once SQ_TOOL_MARKDOWN_PATH;
+				if (function_exists('Markdown')) {
+					$disable_markdown = FALSE;
+				}
+			}
+			if ($disable_markdown) {
+				unset($content_types['content_type_markdown']);
+			}
+		}
+		
+		return $content_types;
+		
+	}//end getAvailableContentTypes()
+	
 
 }//end class
 
