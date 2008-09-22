@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.16.8.3 2008/07/02 03:40:05 gsherwood Exp $
+* $Id: rollback_management.php,v 1.16.8.4 2008/09/22 07:06:24 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.16.8.3 $
+* @version $Revision: 1.16.8.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -262,17 +262,16 @@ function close_rollback_entries($table_name, $date)
 {
 	global $db, $QUIET;
 
-	$sql = 'UPDATE sq_rb_'.$table_name.' SET sq_eff_to = :date WHERE sq_eff_to IS NULL';
+	$sql = 'UPDATE sq_rb_'.$table_name.' SET sq_eff_to = :date1 WHERE sq_eff_to IS NULL';
+	$affected_rows = 0;
 
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
+		MatrixDAL::bindValueToPdo($query, 'date1', $date);
+		$affected_rows = MatrixDAL::execPdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
-
-	$affected_rows =  $query->rowCount();
 
 	if (!$QUIET) {
 		echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table_name."\n";
@@ -297,17 +296,16 @@ function open_rollback_entries($table_name, $date)
 	$columns = $SQ_TABLE_COLUMNS[$table_name]['columns'];
 	$sql = 'INSERT INTO sq_rb_'.$table_name.' ('.implode(', ', $columns).
 		', sq_eff_from, sq_eff_to)
-		SELECT '.implode(',', $columns).',:date , NULL FROM sq_'.$table_name;
+		SELECT '.implode(',', $columns).',:date1 , NULL FROM sq_'.$table_name;
+	$affected_rows = 0;
 
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
+		MatrixDAL::bindValueToPdo($query, 'date1', $date);
+		$affected_rows = MatrixDAL::execPdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to insert into rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
-
-	$affected_rows =  $query->rowCount();
 
 	if (!$QUIET) {
 		echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table_name."\n";
@@ -333,17 +331,16 @@ function align_rollback_entries($table_name, $date)
 	$sql = 'UPDATE sq_rb_'.$table_name.'
 			SET sq_eff_from = :date1
 			WHERE sq_eff_from < :date2';
+	$affected_rows = 0;
 
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date1', $date);
-		$query->bindValue('date2', $date);
-		$result = MatrixDAL::executePdoOne($query);
+		MatrixDAL::bindValueToPdo($query, 'date1', $date);
+		MatrixDAL::bindValueToPdo($query, 'date2', $date);
+		$affected_rows = MatrixDAL::execPdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to update rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
-
-	$affected_rows =  $query->rowCount();
 
 	if (!$QUIET) {
 		echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table_name."\n";
@@ -366,17 +363,16 @@ function delete_rollback_entries($table_name, $date)
 	global $db, $QUIET;
 
 	$sql = 'DELETE FROM sq_rb_'.$table_name.'
-		WHERE sq_eff_to <= :date';
+		WHERE sq_eff_to <= :date1';
+	$affected_rows = 0;
 
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
+		MatrixDAL::bindValueToPdo($query, 'date1', $date);
+		$affected_rows = MatrixDAL::execPdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to delete rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
-
-	$affected_rows =  $query->rowCount();
 
 	if (!$QUIET) {
 		echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table_name."\n";
@@ -454,11 +450,11 @@ function purge_file_versioning($date)
 	$file_table = 'sq_file_vers_file';
 
 	// Get all the file versioning entries
-	$SQL = 'SELECT * FROM '.$history_table.' h JOIN '.$file_table.' f ON h.fileid = f.fileid WHERE to_date <= :date';
+	$SQL = 'SELECT * FROM '.$history_table.' h JOIN '.$file_table.' f ON h.fileid = f.fileid WHERE to_date <= :date1';
 
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
-		$query->bindValue('date', $date);
+		MatrixDAL::bindValueToPdo($query, 'date1', $date);
 		$result = MatrixDAL::executePdoAssoc($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to select from rollback table '.$table_name.' due to the following error:'.$e->getMessage());
@@ -475,17 +471,16 @@ function purge_file_versioning($date)
 	}
 
 	// Now delete the entries from the table
-	$SQL = 'DELETE FROM '.$history_table.' WHERE to_date <= :date';
+	$SQL = 'DELETE FROM '.$history_table.' WHERE to_date <= :date1';
+	$affected_rows = 0;
 
 	try {
 		$query = MatrixDAL::preparePdoQuery($SQL);
-		$query->bindValue('date', $date);
-		$result = MatrixDAL::executePdoOne($query);
+		MatrixDAL::bindValueToPdo($query, 'date1', $date);
+		$affected_rows = MatrixDAL::execPdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to delete from rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
-
-	$affected_rows = $query->rowCount();
 
 	if (!$QUIET) {
 		echo $affected_rows.' FILE VERSIONING FILES AND ENTRIES DELETED'."\n";
