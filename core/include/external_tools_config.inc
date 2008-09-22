@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.28 2008/08/29 06:34:11 bpearson Exp $
+* $Id: external_tools_config.inc,v 1.29 2008/09/22 02:11:08 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -50,6 +50,10 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_JPEG_TOOLKIT_PATH'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_JPEG_TOOLKIT_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_SPELL_CHECKER_LANG'			=> Array('editable' => 1, 'default' => 'en'),
+						'SQ_TOOL_MARKDOWN_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/markdown.php'),
+						'SQ_TOOL_MARKDOWN_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_MARKDOWNIFY_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/markdownify.php'),
+						'SQ_TOOL_MARKDOWNIFY_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 
@@ -197,6 +201,20 @@ class External_Tools_Config extends Config
 				echo (SQ_TOOL_JPEG_TOOLKIT_ENABLED) ? translate('yes') : translate('no');
 			}
 
+			$o->openField(translate('enable_markdown'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_MARKDOWN_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MARKDOWN_ENABLED);
+			} else {
+				echo (SQ_TOOL_MARKDOWN_ENABLED) ? translate('yes') : translate('no');
+			}
+			
+			$o->openField(translate('enable_markdownify'), '', '');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_MARKDOWNIFY_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MARKDOWNIFY_ENABLED);
+			} else {
+				echo (SQ_TOOL_MARKDOWNIFY_ENABLED) ? translate('yes') : translate('no');
+			}
+			
 		$o->closeSection();
 
 		$o->openSection(translate('wysiwyg_editor_tools'));
@@ -293,6 +311,43 @@ class External_Tools_Config extends Config
 
 		$o->closeSection();
 
+		$o->openSection(translate('markdown_tools'));
+		
+			$o->openField(translate('path_to_markdown'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_MARKDOWN_PATH]', SQ_TOOL_MARKDOWN_PATH, 60);
+			} else {
+				echo SQ_TOOL_MARKDOWN_PATH;
+			}//end if
+
+			if (!is_file(SQ_TOOL_MARKDOWN_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Markdown'); ?></span><?php
+			} else {
+				include_once SQ_TOOL_MARKDOWN_PATH;
+				if (!function_exists('Markdown')) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_markdown_no_required_function'); ?></span><?php
+				}
+			}//end if
+
+			$o->openField(translate('path_to_markdownify'));
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_MARKDOWNIFY_PATH]', SQ_TOOL_MARKDOWNIFY_PATH, 60);
+			} else {
+				echo SQ_TOOL_MARKDOWNIFY_PATH;
+			}//end if
+
+			if (!is_file(SQ_TOOL_MARKDOWNIFY_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Markdownify'); ?></span><?php
+			} else {
+				include_once SQ_TOOL_MARKDOWNIFY_PATH;
+				$class_name = basename(SQ_TOOL_MARKDOWNIFY_PATH, '.php');
+				if (!method_exists($class_name, 'parseString')) {
+					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_markdownify_no_required_method', $class_name); ?></span><?php
+				}
+			}//end if
+			
+		$o->closeSection();
+		
 		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
