@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.6 2008/09/22 03:53:23 bpearson Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.7 2008/09/22 04:16:01 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -594,19 +594,14 @@ class Search_Manager_Plugin_OCI
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
 	{
 		$index_content = Array();
-		$contents = strtolower($contents);
 
-		if (trim($contents) != '') {
-			foreach (get_word_counts($contents) as $word => $count) {
-				$index_content[] = Array(
-									'value'		=> $word,
-									'type_code'	=> $type_code,
-									'type'		=> $data_type,
-									'component'	=> $component,
-									'score'		=> $count * $weighting,
-								   );
-			}
-		}
+		$index_content[] = Array(
+							'value'		=> $contents,
+							'type_code'	=> $type_code,
+							'type'		=> $data_type,
+							'component'	=> $component,
+							'score'		=> $weighting,
+						   );
 
 		return $index_content;
 
