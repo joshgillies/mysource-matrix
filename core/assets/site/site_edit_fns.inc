@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.69.2.3 2008/07/03 05:30:16 lwright Exp $
+* $Id: site_edit_fns.inc,v 1.69.2.4 2008/09/22 04:54:09 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69.2.3 $
+* @version $Revision: 1.69.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -333,7 +333,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 					MatrixDAL::bindValueToPdo($query, 'old_url_like_slash', $old_urls[$urlid]['url'].'%/');
 					MatrixDAL::bindValueToPdo($query, 'substr_arg',         strlen($old_urls[$urlid]['url'])+1);
 					MatrixDAL::bindValueToPdo($query, 'urlid',              $urlid);
-					$result = MatrixDAL::executePdoOne($query);
+					$result = MatrixDAL::execPdoQuery($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to update this old URL: '.$old_urls[$urlid]['url'].' with this new URL: '.$urls[$urlid]['url'].' due to database error: '.$e->getMessage());
 				}
