@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.12 2008/09/15 06:20:13 ata Exp $
+* $Id: lang_strings.xml,v 1.262.2.13 2008/09/22 04:39:15 ata Exp $
 *
 */
 
@@ -21,6 +21,7 @@
 	<string source="acquire_lock_threshold">Acquire Lock Threshold</string>
 	<string source="add_field">Add Field</string>
 	<string source="active_external_tools">Active External Tools</string>
+	<string source="markdown_tools">Markdown Tools</string>
 	<string source="0_for_unlimited_idle_time">In seconds - minimum 60 or zero (0) for unlimited idle time</string>
 	<string source="0_is_unlimited_attempts">Zero (0) is unlimited attempts</string>
 	<string source="actions">Actions</string>
@@ -150,6 +151,8 @@
 	<string source="email_settings">Email Settings</string>
 	<string source="enable_antiword">Enable Antiword</string>
 	<string source="enable_html_tidy">Enable HTML Tidy</string>
+	<string source="enable_markdown">Enable Markdown</string>
+	<string source="enable_markdownify">Enable Markdownify</string>
 	<string source="html_tidy_accessibility_level">HTML Tidy Accessibility Check Level</string>
 	<string source="tidy_unsupported_char_set_warning">Your current System Default Character Set is not supported by HTML Tidy.</string>
 	<string source="enable_pdftohtml">Enable pdftohtml</string>
@@ -249,6 +252,8 @@
 	<string source="path_to_antiword">Path to Antiword</string>
 	<string source="path_to_html_tidy">Path to HTML Tidy</string>
 	<string source="path_to_pdftohtml">Path to pdftohtml</string>
+	<string source="path_to_markdown">Path to Markdown</string>
+	<string source="path_to_markdownify">Path to Markdownify</string>
 	<string source="permissions_threshold">Permissions Threshold</string>
 	<string source="permissions">Permissions</string>
 	<string source="please_note">Please Note</string>
@@ -806,6 +811,8 @@
 
 	<string source="path_to_not_valid">The path to %s is not valid</string>
 	<string source="path_to_not_executable">The path to %s is not executable</string>
+	<string source="path_to_markdown_no_required_function">The markdown PHP file does not have the required Markdown function</string>
+	<string source="path_to_markdownify_no_required_method">The markdownify PHP file does not have the required %s class (took from file name) or parseString method</string>
 
 	<string source="warn_set_max_file_size">You have not set a maximum file upload size. The current PHP limit of %s will be applied to all file uploads.</string>
 	<string source="warn_max_settable_file_size">The maximum file size can be entered in shorthand notation: 'K' for kilobytes, 'M' for megabytes. The maximum file size allowed by PHP on this system is "%s"</string>
