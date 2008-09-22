@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_prefs.inc,v 1.6 2007/12/04 05:35:34 lwright Exp $
+* $Id: bodycopy_container_prefs.inc,v 1.7 2008/09/22 02:05:17 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Bodycopy_Container_Prefs extends Prefs
@@ -74,6 +74,23 @@ class Bodycopy_Container_Prefs extends Prefs
 				$default_content_type = $this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['default'];
 				if ($have_lock) {
 					$all_content_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('content_type');
+					
+					//if markdown is not enabled, remove it from the content type
+					$markdown_key = array_search('content_type_markdown', $all_content_types);
+					if ($markdown_key !== FALSE) {
+						$disable_markdown = TRUE;
+						require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+						if (SQ_TOOL_MARKDOWN_ENABLED && is_file(SQ_TOOL_MARKDOWN_PATH)) {
+							include_once SQ_TOOL_MARKDOWN_PATH;
+							if (function_exists('Markdown')) {
+								$disable_markdown = FALSE;
+							}
+						}
+						if ($disable_markdown) {
+							unset($all_content_types[$markdown_key]);
+						}
+					}
+					
 					$content_type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($all_content_types, 'name');
 					combo_box('prefs[SQ_DEFAULT_CONTENT_TYPE]', $content_type_names, FALSE, $default_content_type);
 					echo '<div class="sq-backend-note">'.translate('default_content_type_note').'</div>';
