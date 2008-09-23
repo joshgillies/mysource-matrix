@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.84.2.2 2008/04/28 01:34:00 lwright Exp $
+* $Id: internal_message.inc,v 1.84.2.3 2008/09/23 02:00:56 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84.2.2 $
+* @version $Revision: 1.84.2.3 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -670,7 +670,7 @@ class Internal_Message extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
 			$bind_vars = Array('msgid' => $this->id);
-			$result = MatrixDAL::executeOne('core', 'deleteInternalMessage', $bind_vars);
+			MatrixDAL::executeQuery('core', 'deleteInternalMessage', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete this message #'.$this->id);
 		}
@@ -698,7 +698,7 @@ class Internal_Message extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$bind_vars = Array('status' => $status, 'msgid' => $this->id);
-		$result = MatrixDAL::executeOne('core', 'updateInternalMessage', $bind_vars);
+		MatrixDAL::executeQuery('core', 'updateInternalMessage', $bind_vars);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
