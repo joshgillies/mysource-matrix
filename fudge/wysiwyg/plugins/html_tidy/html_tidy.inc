@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.57.2.5 2008/09/09 23:09:27 bpearson Exp $
+* $Id: html_tidy.inc,v 1.57.2.6 2008/09/24 04:36:30 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.57.2.5 $
+* @version $Revision: 1.57.2.6 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -179,7 +179,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				}
 
 				$complete_html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-						<html><head><title></title>
+						<html lang="en"><head><title></title>
 						<meta name="description" content="test content" />
 						</head><body>
 						'.$html.'
