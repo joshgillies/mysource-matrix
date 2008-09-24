@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.22 2008/07/30 01:24:08 ewang Exp $
+* $Id: trigger_action_set_permission.inc,v 1.23 2008/09/24 01:36:09 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -248,7 +248,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		// Cascade to new children
 		if ($write_access) {
 			echo '<br />';
-			check_box($prefix.'[dependant_parents]', 1, array_get_index($settings, 'dependant_parents', FALSE));
+			check_box($prefix.'[cascade_to_new]', 1, $cascade_to_new);
 			echo translate('cascade_schema_changes_to_new_children');
 		} else {
 			echo '<br />';
@@ -325,7 +325,7 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		// dependant_parents
 		$cascade_to_new = array_get_index($request_data, 'cascade_to_new', FALSE);
 		$settings['cascade_to_new'] = ($cascade_to_new == '1') ? TRUE : FALSE;
-
+		
 		return FALSE;
 
 	}//end processInterface()
