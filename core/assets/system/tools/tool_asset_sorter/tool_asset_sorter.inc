@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.13 2008/09/24 04:58:14 mbrydon Exp $
+* $Id: tool_asset_sorter.inc,v 1.14 2008/09/24 05:01:25 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -253,7 +253,6 @@ class Tool_Asset_Sorter extends Tool
 			MatrixDAL::bindValueToPdo($query, 'link_type_1', SQ_LINK_TYPE_1);
 			MatrixDAL::bindValueToPdo($query, 'link_type_2', SQ_LINK_TYPE_2);
 			$linkids = MatrixDAL::executePdoAssoc($query, 0);
-log_dump(oci_error($query));
 		} catch (Exception $e) {
 			throw new Exception('Unable to get link ids for parent: '.$parentid.' due to database error: '.$e->getMessage());
 		}
