@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_trim_submit.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
+* $Id: form_action_trim_submit.inc,v 1.2.2.1 2008/09/24 00:49:37 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -281,7 +281,7 @@ class Form_Action_TRIM_Submit extends Form_Action
 		if (isset($_POST[$prefix.'_addtional_field_value_edit']) && !empty($_POST[$prefix.'_addtional_field_value_edit'])) {
 			$editing_list	= $_POST[$prefix.'_addtional_field_value_edit'];
 			foreach ($editing_list as $field_name	=> $field_value) {
-				if ($settings['additional_fields'][$field_name] != $field_value) {
+				if (isset($settings['additional_fields'][$field_name]) && $settings['additional_fields'][$field_name] != $field_value) {
 					$settings['additional_fields'][$field_name]	= $field_value;
 				}//end if
 			}//end foreach

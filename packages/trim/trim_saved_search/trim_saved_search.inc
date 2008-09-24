@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.2.2.1 2008/09/10 23:35:32 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.2.2.2 2008/09/24 00:49:37 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -197,32 +197,33 @@ class TRIM_Saved_Search extends Data_Source
 
 			$result_uris		= $this->resultUris($result);
 			$new_result_uris	= $this->resultUris($new_object_list);
+
 			// Delete, Update, Integrity, New
 
 			// Delete
-			if (count($new_object_list) < count($result)) {
-				$uris_to_delete	= array_diff($result_uris, $new_result_uris);
 
-				foreach ($result as $index	=> $record_info) {
-					if (in_array($record_info['Uri'], $uris_to_delete)) {
-						// Unlink file first
-						$dir_path	= $this->data_path.'/'.$record_info['Uri'];
-						$files_stored		= glob($dir_path.'/*');
-						foreach ($files_stored as $file_name) {
-							unlink($file_name);
-						}//end foreach
+			$uris_to_delete	= array_diff($result_uris, $new_result_uris);
+			foreach ($result as $index	=> $record_info) {
+				if (in_array($record_info['Uri'], $uris_to_delete)) {
+					// Unlink file first
+					$dir_path	= $this->data_path.'/'.$record_info['Uri'];
+					$files_stored		= glob($dir_path.'/*');
+					foreach ($files_stored as $file_name) {
+						unlink($file_name);
+					}//end foreach
 
-						// Unlink the directory
-						unlink($dir_path);
-
-						// Remove it from the cache
-						unset($result[$index]);
-						$updated = TRUE;
+					// Unlink the directory
+					if (is_dir($dir_path)) {
+						rmdir($dir_path);
 					}//end if
-				}//end foreach
-				// We have something to delete
 
-			}///end if
+					// Remove it from the cache
+					unset($result[$index]);
+					$updated = TRUE;
+				}//end if
+			}//end foreach
+			// We have something to delete
+
 
 			// Update & Integrity
 			foreach ($result as $index	=> $record_info) {
@@ -239,7 +240,7 @@ class TRIM_Saved_Search extends Data_Source
 							$updated = TRUE;
 						} else {
 							// INTEGRITY Check
-							if ($record_info['recDocumentType']	!= 'Record has no document attached.') {
+							if (isset($record_info['recDocumentType']) && $record_info['recDocumentType'] != 'Record has no document attached.') {
 								// We have a file here, have to check whether it is still in the system
 								$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
@@ -271,6 +272,9 @@ class TRIM_Saved_Search extends Data_Source
 				}//end foreach
 			}//end if
 
+			// Since we would have holes in our array keys as some entries is deleted, we need to reset the keys back to 0 onward.
+			// Data source expect the key values to be correctly sorted.
+			$result	= array_values($result);
 			if ($updated) {
 				if (!empty($result)) {
 					$this->cacheResult($result, $hash);
