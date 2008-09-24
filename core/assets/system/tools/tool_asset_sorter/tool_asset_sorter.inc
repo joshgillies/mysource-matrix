@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_asset_sorter.inc,v 1.10.2.1 2008/03/12 04:03:52 lwright Exp $
+* $Id: tool_asset_sorter.inc,v 1.10.2.2 2008/09/24 05:03:03 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -204,11 +204,17 @@ class Tool_Asset_Sorter extends Tool
 						AND a.type_code = :sort_asset_type
 						AND t.name = :sort_asset_attr
 						AND a.assetid = v.assetid
-						AND t.attrid = v.attrid
-					ORDER BY v.custom_val '.$direction;
+						AND t.attrid = v.attrid ';
+
+			// Special CLOB handling for Oracle
+			if (MatrixDAL::getDbType() === 'oci') {
+				$sql .= 'ORDER BY TO_CHAR(v.custom_val) '.$direction;
+			} else {
+				$sql .= 'ORDER BY v.custom_val '.$direction;
+			}
 
 			try {
-			$query = MatrixDAL::preparePdoQuery($sql);
+				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'parentid',        $parentid);
 				MatrixDAL::bindValueToPdo($query, 'link_type_1',     SQ_LINK_TYPE_1);
 				MatrixDAL::bindValueToPdo($query, 'link_type_2',     SQ_LINK_TYPE_2);
@@ -300,7 +306,7 @@ class Tool_Asset_Sorter extends Tool
 					SET sort_order = CASE '.$cases.' ELSE sort_order END
 					WHERE linkid IN ('.implode(', ', $chunk).')';
 			try {
-				$res = MatrixDAL::executeSqlOne($sql);
+				$res = MatrixDAL::executeSql($sql);
 			} catch (Exception $e) {
 				throw new Exception('Unable to update link table with new sort order due to database error: '.$e->getMessage());
 			}
