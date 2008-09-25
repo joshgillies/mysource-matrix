@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.8 2008/09/23 06:36:34 bpearson Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.9 2008/09/25 06:27:08 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -980,14 +980,20 @@ class Search_Manager_Plugin_OCI
 				// (we think)
 				$word = str_replace('_', '{_}', $word);
 				$word = str_replace('%', '{%}', $word);
+			}
+
+			$word = $this->_escapeContainReservedChars($word);
+			$word = $this->_escapeContainReservedWords($word);
+
+			if (!$exact) {
 				// Naming of this attribute is not good. If TRUE, full searching
 				// is actually enabled!
 				if ($sm->attr('enable_begins_with')) {
 					$word = '%'.$word.'%';
+				} else {
+					$word = $word.'%';
 				}
 			}
-			$word = $this->_escapeContainReservedChars($word);
-			$word = $this->_escapeContainReservedWords($word);
 
 			$terms = preg_replace('/#/', " $word ", $terms, 1);
 		}
@@ -1090,7 +1096,7 @@ class Search_Manager_Plugin_OCI
 			$term_string_built = FALSE;
 			$terms ='';
 			while (!$term_string_built && !empty($words)) {
-				$recent_term =array_pop($words);
+				$recent_term = array_pop($words);
 				if (strlen($terms.$recent_term) < 200) {
 					$escaped_term = $this->_escapeContainReservedChars($recent_term);
 					$escaped_term = $this->_escapeContainReservedWords($escaped_term);
