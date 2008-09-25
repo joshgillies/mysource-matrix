@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.38 2008/02/18 04:52:18 lwright Exp $
+* $Id: hipo_config.inc,v 1.39 2008/09/25 02:00:11 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -255,6 +255,8 @@ class HIPO_Config extends Config
 				$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 			} else {
 				$hipo_job_path = SQ_SYSTEM_ROOT.'/packages/'.$package['code_name'].'/hipo_jobs';
+				//include locale strings for hipo jobs because they are not assets and the strings are in package locale strings
+				$GLOBALS['SQ_SYSTEM']->lm->includePackageStrings($package['code_name']);
 			}
 
 			if (is_dir($hipo_job_path)) {
