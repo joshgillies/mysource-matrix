@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.9 2008/09/25 06:27:08 bpearson Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.10 2008/09/25 06:47:57 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1018,11 +1018,8 @@ class Search_Manager_Plugin_OCI
 		$multiple = FALSE;
 		if (strpos($terms, '|') !== FALSE) 	$multiple = TRUE;
 
-		$exact_search = '';
-		if(!$exact) $exact_search='%';
-
 		if ($use_contains) {
-			$sql = 'contains('.$column.', '.MatrixDAL::quote(trim($terms).$exact_search).', '.$score.') > 0';
+			$sql = 'contains('.$column.', '.MatrixDAL::quote(trim($terms)).', '.$score.') > 0';
 		} else {
 			$sql = MatrixDAL::quote(trim($terms)).' like '.MatrixDAL::quote('%').' || '.$column.' || '.MatrixDAL::quote('%');
 		}
