@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.35 2008/06/27 01:48:47 bpearson Exp $
+* $Id: lang_strings.xml,v 1.36 2008/09/25 01:56:34 ata Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -123,6 +123,7 @@ Please click on the following link if you would like to proceed:
 	<string source="bm_tool_import_bmail_user_file_upload_note">The format for each line must be: "Bulkmail User name, Bulkmail User email address"</string>
 	<string source="bm_tool_import_bmail_user_create_in">Create Users in</string>
 	<string source="bm_tool_import_bmail_user_create_in_note">Select the User Group to create Bulkmail Users in</string>
+	<string source="bm_tool_import_bmail_user_hipo_job_import_threshold">Bulkmail User Import Threshold</string>
 
 	<string source="bm_hipo_name_import_bmail_user">Import Bulkmail User</string>
 	<string source="bm_hipo_importing_bmail_users">Importing Bulkmail Users</string>
