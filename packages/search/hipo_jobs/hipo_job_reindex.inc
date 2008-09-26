@@ -10,21 +10,21 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.28 2007/12/20 03:14:58 rong Exp $
+* $Id: hipo_job_reindex.inc,v 1.28.2.1 2008/09/26 04:39:31 ata Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
-* Highly Intensive Processing Object (HIPO) to regenerate pre-processed metadata files
-* for all assets that use the supplied schema
+* Highly Intensive Processing Object (HIPO) to reindex all the assets in the asset tree
+* under the supplied asset
 *
 * Initial Running Vars :
-*    schemaid	-	the ID of the schema that has been updated
+*    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -47,6 +47,67 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	}//end constructor
 
 
+	/**
+	* Paints backend of this job
+	*
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	public static function paintConfig(&$o, $class, $write_access)
+	{
+		$o->openField(translate('sch_hipo_reindex_threshold'));
+
+		if ($write_access) {
+			text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_REINDEX_THRESHOLD;
+		}
+		echo ' '.translate('assets');
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getConfigVars()
+	{
+		return Array(
+				'SQ_HIPO_REINDEX_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 5),
+			   );
+
+	}//end getConfigVars()
+
+	
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run in
+	* freestyle mode in its current state.
+	*
+	* @return float
+	* @access public
+	*/
+	function getThresholdPercentageRequired()
+	{
+		if (SQ_HIPO_REINDEX_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) {
+			return 0;
+		}
+		
+		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_REINDEX_THRESHOLD) * 100);
+
+	}//end getThresholdPercentageRequired()
+	
+	
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
@@ -174,7 +235,6 @@ class HIPO_Job_ReIndex extends HIPO_Job
 			if (is_null($sm)) return FALSE;
 
 			// get next asset to reindex
-log_dump($this->_running_vars);
 			$array_keys = array_keys($this->_running_vars['todo_assetids']);
 			$assetid = array_shift($array_keys);
 			$asset_type = $this->_running_vars['todo_assetids'][$assetid][0]['type_code'];
