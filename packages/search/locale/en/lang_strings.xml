@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.9 2007/11/15 05:18:22 rong Exp $
+* $Id: lang_strings.xml,v 1.10 2008/09/26 04:24:47 ata Exp $
 *
 *
 * Search Package Localised Strings File
@@ -54,6 +54,7 @@
 	<string source="sch_hipo_replacing_asset_contents">Replacing Asset Contents</string>
 	<string source="sch_hipo_replacing_asset_metadata">Replacing Asset Metadata</string>
 	<string source="sch_hipo_replacing_schema_values">Replacing Schema Values</string>
+	<string source="sch_hipo_reindex_threshold">Reindex Threshold</string>
 
 	<string source="search_page_confirm_cat_delete">Are you sure you want to delete this category set?</string>
 	<string source="search_cat_unselected_text">Unselected Text</string>
