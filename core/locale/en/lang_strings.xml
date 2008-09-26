@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.13 2008/09/22 04:39:15 ata Exp $
+* $Id: lang_strings.xml,v 1.262.2.14 2008/09/26 01:33:19 ata Exp $
 *
 */
 
@@ -19,6 +19,7 @@
 
 <strings>
 	<string source="acquire_lock_threshold">Acquire Lock Threshold</string>
+	<string source="edit_role_threshold">Edit Role Threshold</string>
 	<string source="add_field">Add Field</string>
 	<string source="active_external_tools">Active External Tools</string>
 	<string source="markdown_tools">Markdown Tools</string>
