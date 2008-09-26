@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_roles.inc,v 1.11 2007/12/21 02:56:40 hnguyen Exp $
+* $Id: hipo_job_edit_roles.inc,v 1.11.2.1 2008/09/26 01:35:06 ata Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -56,6 +56,46 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
+
+	
+	/**
+	* Paints backend of this job
+	*
+	* @param object	&$o		reference to the backend outputter
+	* @param string	$class	calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	public static function paintConfig(&$o, $class, $write_access)
+	{
+		$o->openField(translate('edit_role_threshold'));
+
+		if ($write_access) {
+			text_box($class.'[SQ_HIPO_EDIT_ROLE_THRESHOLD]', SQ_HIPO_EDIT_ROLE_THRESHOLD, 5);
+		} else {
+			echo SQ_HIPO_EDIT_ROLE_THRESHOLD;
+		}
+		echo ' '.translate('assets');
+
+		$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getConfigVars()
+	{
+		return Array(
+				'SQ_HIPO_EDIT_ROLE_THRESHOLD'	=> Array('editable'	=> 1, 'default'	=> 1),
+			   );
+
+	}//end getConfigVars()
 
 
 	/**
@@ -121,10 +161,22 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	*/
 	function getThresholdPercentageRequired()
 	{
-		if (!isset($this->_running_vars['todo_assetids'])) {
+		if (SQ_HIPO_EDIT_ROLE_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids']) || !isset($this->_running_vars['role_changes'])) {
 			return 0;
 		}
-		return ((count($this->_running_vars['todo_assetids']) / count($this->_running_vars['role_changes'])) * 100);
+		
+		//total userids in 'add' and 'delete' role changes - include duplicated userids because we are counting the number of calls to setRole and deleteRole methods
+		$total_userids = 0;
+		foreach ($this->_running_vars['role_changes'] as $action_data) {
+			foreach ($action_data as $userids) {
+				$total_userids += count($userids);
+			}
+		}
+		
+		//we have to multiply with the number of users because we want to run runQueuedJobs() instead of freestyle() in hipo job
+		//when we want to set role for 1 asset but 1000 users. It will take time in this case
+		return ((count($this->_running_vars['todo_assetids']) * $total_userids / SQ_HIPO_EDIT_ROLE_THRESHOLD) * 100);
 
 	}//end getThresholdPercentageRequired()
 
