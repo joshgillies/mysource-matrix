@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.41 2008/09/25 23:12:45 ewang Exp $
+* $Id: file_versioning.inc,v 1.42 2008/09/26 00:07:12 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -715,21 +715,23 @@ class File_Versioning
 				$sql = 'SELECT version, removal, md5, sha1
 						FROM sq_file_vers_history
 						WHERE fileid = :fileid
-						  AND from_date <= :from_date
-						  AND (to_date IS NULL OR to_date > :from_date)
+						  AND from_date <= :from_date_1
+						  AND (to_date IS NULL OR to_date > :from_date_2)
 						ORDER BY version DESC';
 			}//end if
 
 
 			try {
 				if (MatrixDAL::getDbType() == 'oci') {
-					$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
+					$sql = str_replace(':from_date_1', db_extras_todate(MatrixDAL::getDbType(), ':from_date_1', FALSE), $sql);
+					$sql = str_replace(':from_date_2', db_extras_todate(MatrixDAL::getDbType(), ':from_date_2', FALSE), $sql);
 				}
 				
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'fileid', $info['fileid']);
 				if (!is_null($date)) {
-					MatrixDAL::bindValueToPdo($query, 'from_date',   $date);
+					MatrixDAL::bindValueToPdo($query, 'from_date_1',   $date);
+					MatrixDAL::bindValueToPdo($query, 'from_date_2',   $date);
 				}
 
 				$result = MatrixDAL::executePdoAll($query);
