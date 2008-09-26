@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.8.2.1 2008/09/26 01:19:27 ewang Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.8.2.2 2008/09/26 01:50:40 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,11 +359,26 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			MatrixDAL::dbConnect($dsn, 'dbalt');
 			$db = MatrixDAL::getDb('dbalt');
 			if ($dsn['type'] === 'oci') {
-				$db->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+					// We cannot specify any functions upon connect for OCI8
+					// functions - we must specify them in functions like
+					// oci_execute()...
+					;
+			} else {
+					// Turn off auto-commit, and ensure column names are
+					// returned in lowercase (important for Oracle)
+					
+					$db->setAttribute(PDO::ATTR_AUTOCOMMIT, FALSE);
+					
+
+					// Ensure that no conversion is done to empty strings and NULLs
+					$db->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
+
+					// Return field names in lowercase
+					$db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+
+					// String-ify all fetches
+					$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, TRUE);
 			}
-			$db->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
-			$db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
-			$db->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, TRUE);
 
 		} catch (Exception $e) {
 			if (!SQ_PHP_CLI) {
