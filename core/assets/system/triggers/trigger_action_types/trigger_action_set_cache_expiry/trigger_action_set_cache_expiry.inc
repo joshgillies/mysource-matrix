@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cache_expiry.inc,v 1.10 2008/09/26 01:49:44 ewang Exp $
+* $Id: trigger_action_set_cache_expiry.inc,v 1.11 2008/09/28 22:50:15 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action_types/trigger
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -364,12 +364,6 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 					// oci_execute()...
 					;
 			} else {
-					// Turn off auto-commit, and ensure column names are
-					// returned in lowercase (important for Oracle)
-					
-					$db->setAttribute(PDO::ATTR_AUTOCOMMIT, FALSE);
-					
-
 					// Ensure that no conversion is done to empty strings and NULLs
 					$db->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_NATURAL);
 
