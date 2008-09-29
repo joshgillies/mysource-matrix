@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.28 2008/09/26 06:30:16 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.655.2.29 2008/09/29 23:29:51 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.28 $
+* @version $Revision: 1.655.2.29 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7444,10 +7444,13 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 
+		/**
+		* Since we have the url,
+		* we don't need to include the ast_lookup table in the query.
+		* we can just join the ast_lookup_value table to ast directly.
+		*/
 		$sql = 'SELECT lv.value as designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
-						OR (l.url || \'/\' = lv.url)
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 				';
 		$where = 'lv.name = \''.$design_name.'\' AND '.
@@ -7459,7 +7462,6 @@ class Asset_Manager extends MySource_Object
 		$order_by = ' ORDER BY depth DESC';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where;
 
