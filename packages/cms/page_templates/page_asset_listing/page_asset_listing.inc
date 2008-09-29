@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.116.2.4 2008/08/13 23:07:09 bpearson Exp $
+* $Id: page_asset_listing.inc,v 1.116.2.5 2008/09/29 23:15:35 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116.2.4 $
+* @version $Revision: 1.116.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -449,7 +449,7 @@ class Page_Asset_Listing extends Listing_Engine
 			$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
 			$root_nodes = $this->getRootNodes();
 
-			if ($min_depth === '0' && !is_null($max_depth)) {
+			if ($min_depth === '0' && $max_depth !== '0') {
 				$assets_to_list = $this->_combineRootNodes($assets_to_list, $root_nodes, $wanted_types);
 			} else if ($min_depth === '0' && $max_depth === '0') {
 				$assets_to_list = $this->_combineRootNodes(Array(), $root_nodes, $wanted_types);
