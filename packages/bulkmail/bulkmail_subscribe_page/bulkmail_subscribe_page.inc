@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.23 2007/12/05 22:39:04 rong Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.24 2008/09/29 03:28:59 ata Exp $
 *
 */
 
@@ -18,6 +18,7 @@ check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_user_group_manager/page_user_group_manager.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once 'Mail.php';
+require_once 'Mail/mime.php';
 
 /**
 * Bulkmail_Subscribe_Page
@@ -27,7 +28,7 @@ require_once 'Mail.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -727,9 +728,22 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		$body .= translate('bsp_verification_email_body_part2', $url);
 
-		$mf = new Mail();
-		$mail = $mf->factory('mail');
-		@$mail->send($to, $headers, $body);
+		$mime = new Mail_mime("\n");
+		$mime->setTXTBody($body);
+		$param = Array(
+						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+					  );
+		$body = @$mime->get($param);
+		$headers = @$mime->headers($headers);
+		
+		$mail =& Mail::factory('mail');
+		$status = @$mail->send($to, $headers, $body);
+		if (PEAR::isError($status)) {
+			// unable to send verification email
+			trigger_localised_error('BML0018', E_USER_WARNING);
+		}
 
 		return;
 
