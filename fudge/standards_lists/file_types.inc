@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_types.inc,v 1.6 2006/12/06 05:12:31 bcaldwell Exp $
+* $Id: file_types.inc,v 1.6.6.1 2008/09/29 02:05:29 hnguyen Exp $
 *
 */
 
@@ -22,15 +22,17 @@
 *     Textural English descriptions of various standard file extensions
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
 
 $standards_lists_file_types = Array('txt'	=> 'Text Document',
 									'doc'	=> 'Microsoft Word Document',
+									'docx'	=> 'Microsoft Word Document',
 									'dot'	=> 'Microsoft Word Template',
 									'xls'	=> 'Microsoft Excel Spreadsheet',
+									'xlsx'	=> 'Microsoft Excel Spreadsheet',
 									'xlt'	=> 'Microsoft Excel Template',
 									'ppt'	=> 'Microsoft Powerpoint Presentation',
 									'pps'	=> 'Microsoft Powerpoint Presentation',
