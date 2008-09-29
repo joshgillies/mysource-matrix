@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: excel_doc.inc,v 1.1 2006/12/18 05:29:29 arailean Exp $
+* $Id: excel_doc.inc,v 1.1.4.1 2008/09/29 02:04:25 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -36,7 +36,7 @@ class Excel_Doc extends File
 	* All allowed extensions for a word doc (document and template recognised)
 	* @var Array(string)
 	*/
-	var $allowed_extensions = Array('xls');
+	var $allowed_extensions = Array('xls', 'xlsx');
 
 
 }//end class
