@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.inc,v 1.3 2008/09/22 06:17:40 mbrydon Exp $
+* $Id: rollback_management.inc,v 1.4 2008/09/29 04:52:08 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ function open_rollback_entries($table_name, $table_columns, $date)
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'date1', $date);
-		$result = MatrixDAL::execPdoQuery($query);
+		$affected_rows = MatrixDAL::execPdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to insert into rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
@@ -157,7 +157,7 @@ function delete_rollback_entries($table_name, $date)
 	try {
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'date1', $date);
-		$affected_rows = MatrixDAL::executePdoOne($query);
+		$affected_rows = MatrixDAL::executePdoQuery($query);
 	} catch (Exception $e) {
 		throw new Exception('Unable to delete rollback table '.$table_name.' due to the following error:'.$e->getMessage());
 	}//end try catch
