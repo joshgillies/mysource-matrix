@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.20 2007/12/02 22:30:46 lwright Exp $
+* $Id: word_doc.inc,v 1.20.2.1 2008/09/29 01:58:31 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,7 @@ class Word_Doc extends File
 	* All allowed extensions for a word doc (document and template recognised)
 	* @var Array(string)
 	*/
-	public $allowed_extensions = Array('doc', 'dot');
+	public $allowed_extensions = Array('doc', 'dot', 'docx');
 
 
 	/**
