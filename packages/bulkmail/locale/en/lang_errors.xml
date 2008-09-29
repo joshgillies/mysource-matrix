@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.13 2007/06/14 02:41:46 tbarrett Exp $
+* $Id: lang_errors.xml,v 1.14 2008/09/29 03:31:22 ata Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -38,4 +38,5 @@
 	<error code="BML0016">Cannot send the verification email</error>
 
 	<error code="BML0017">Could not change to the correct user for content generation</error>
+	<error code="BML0018">Unable to send verification email. Please contact your administrator.</error>
 </errors>
