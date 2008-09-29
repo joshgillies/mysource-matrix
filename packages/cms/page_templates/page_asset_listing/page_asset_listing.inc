@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.125 2008/08/13 23:04:55 bpearson Exp $
+* $Id: page_asset_listing.inc,v 1.126 2008/09/29 23:13:47 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -135,7 +135,6 @@ class Page_Asset_Listing extends Listing_Engine
 
 		$parameter_map =& $this->getAttribute('parameter_map');
 		$raw_assets_to_list = $parameter_map->getParameterValue('asset_selection');
-
 		if (!empty($raw_assets_to_list)) {
 			$assets_to_list = Array();
 
@@ -170,7 +169,7 @@ class Page_Asset_Listing extends Listing_Engine
 					break;
 
 				}
-
+			
 				if (!$allowed) continue;
 
 				// Now, let's check that the asset(s) are under the root nodes
@@ -427,6 +426,7 @@ class Page_Asset_Listing extends Listing_Engine
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
 							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, FALSE, $link_value_wanted);
+							
 							$assets_to_list = $this->_combineAssets($logic, $asset_list, $assets_to_list);
 						}
 					} else {
@@ -453,7 +453,7 @@ class Page_Asset_Listing extends Listing_Engine
 			$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
 			$root_nodes = $this->getRootNodes();
 
-			if ($min_depth === '0' && !is_null($max_depth)) {
+			if ($min_depth === '0' && $max_depth !== '0') {
 				$assets_to_list = $this->_combineRootNodes($assets_to_list, $root_nodes, $wanted_types);
 			} else if ($min_depth === '0' && $max_depth === '0') {
 				$assets_to_list = $this->_combineRootNodes(Array(), $root_nodes, $wanted_types);
