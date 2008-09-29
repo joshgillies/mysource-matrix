@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.2 2008/09/02 01:21:14 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.3 2008/09/29 04:48:41 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.2 $
+* @version $Revision: 1.71.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -207,6 +207,12 @@ class Bulk_Mailer
 	*/
 	function processJob($job_id)
 	{
+		$mime_param = Array(
+						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+					  );
+		
 		$this->_reconnectDB();
 		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
@@ -300,7 +306,7 @@ class Bulk_Mailer
 								// Check that the email is not the email address array
 								if (is_array($email)) $email = $email['email'];
 								$mime->setHTMLBody($content);
-								$body = @$mime->get();
+								$body = @$mime->get($mime_param);
 								// pass in custom_id as extra header details, for queue file naming
 								$header_details['custom_id'] = $user_id;
 								$header_details['To'] = $email; // FR: 2515
@@ -479,7 +485,6 @@ class Bulk_Mailer
 	*/
 	function getAllRecipients($asset_to_send_id, $recipients)
 	{
-
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (!is_array($recipients)) {
