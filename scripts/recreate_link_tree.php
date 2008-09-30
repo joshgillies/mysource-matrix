@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.18.8.2 2008/09/04 04:43:46 ewang Exp $
+* $Id: recreate_link_tree.php,v 1.18.8.3 2008/09/30 00:05:17 csmith Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.18.8.2 $
+* @version $Revision: 1.18.8.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -89,6 +89,8 @@ $offset = 0;
 $chunk_size = 2000;
 $echo_i = 0;
 
+$index = Array();
+
 while (TRUE) {
 	$sql = db_extras_modify_limit_clause($base_sql, MatrixDAL::getDbType(), $chunk_size, $offset);
 	$result = MatrixDAL::executeSqlAssoc($sql);
@@ -96,7 +98,6 @@ while (TRUE) {
 	// If no further results, we're done.
 	if (count($result) == 0) break;
 
-	$index = Array();
 	foreach ($result as $data) {
 		$majorid = $data['majorid'];
 		unset($data['majorid']);
@@ -112,10 +113,7 @@ while (TRUE) {
 
 }//end while
 
-
 fwrite(STDERR, "\n");
-
-$result->free();
 
 echo_headline('CREATING INSERTS');
 
