@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.89 2008/09/23 02:00:29 ewang Exp $
+* $Id: internal_message.inc,v 1.90 2008/10/01 06:50:52 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -382,7 +382,7 @@ class Internal_Message extends MySource_Object
 
 					// prepare the message content
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (is_null($user)) continue;
+					if (is_null($user) || !$user->canAccessBackend()) continue;
 					$user_locale = $user->attr('locale');
 					if (empty($user_locale)) {
 						$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
