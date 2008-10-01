@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.187.2.6 2008/07/06 23:51:23 lwright Exp $
+* $Id: general.inc,v 1.187.2.7 2008/10/01 17:07:10 gnoel Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187.2.6 $
+* @version $Revision: 1.187.2.7 $
 * @package MySource_Matrix
 */
 
@@ -1560,19 +1560,11 @@ function replace_global_keywords(&$text)
 				}
 				if (0 === strpos($keyword, 'globals_get_')) {
 					$sub_keyword = substr($keyword, 12);
-					$keyword_value = array_get_index($_GET, $sub_keyword, '');
-
-					// Only scalars are accepted
-					if (!is_scalar($keyword_value)) {
-						$replacements[$keyword] = '';
-					} else {
-						// whitelist of characters that will not be stripped out,
-						// for some security
-						$safe_list = 'A-Za-z0-9\.\-\_\%\$\(\)\=';
-						$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
-
-						$replacements[$keyword] = $keyword_value;
-					}
+					$replacements[$keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''));
+				}
+				if (0 === strpos($keyword, 'globals_session_')) {
+					$sub_keyword = substr($keyword, 16);
+					$replacements[$keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
 				}
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
@@ -1662,6 +1654,32 @@ function replace_global_keywords(&$text)
 	return $text;
 
 }//end replace_global_keywords()
+
+
+/**
+* Clean the content of a keyword value, only accepts whitelist characters
+* If the given value is not a scalar it will return an empty string
+*
+* @param string		$keyword_value	The value of keyword
+*
+* @return string
+* @access public
+*/
+function clean_keyword_value($keyword_value)
+{
+	// Only scalars are accepted
+	if (!is_scalar($keyword_value)) {
+		$keyword_value = '';
+	} else {
+		// whitelist of characters that will not be stripped out,
+		// for some security
+		$safe_list = 'A-Za-z0-9\.\-\_\%\$\(\)\=';
+		$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
+	}
+	
+	return $keyword_value;
+	
+}//end clean_keyword_value()
 
 
 /**
