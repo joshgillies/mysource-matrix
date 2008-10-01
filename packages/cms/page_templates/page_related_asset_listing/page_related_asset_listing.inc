@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_related_asset_listing.inc,v 1.9.2.1 2008/08/04 09:55:20 gnoel Exp $
+* $Id: page_related_asset_listing.inc,v 1.9.2.2 2008/10/01 17:58:35 gnoel Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,7 +93,7 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 		// get all the assets related to any of the relators
 		$relator_ids = $this->getRelators();
 		$tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
-		$related_assets = $tag_manager->getRelatedAssets($relator_ids);
+		$related_assets = $tag_manager->getRelatedAssets($relator_ids, $this->_getThesaurusFilters());
 		$related_ids = array_keys($related_assets);
 		$related_ids = array_diff($related_ids, $relator_ids);
 
@@ -187,7 +187,26 @@ class Page_Related_Asset_Listing extends Page_Asset_Listing
 
 	}//end getStaticRelators()
 
+	
+	/**
+	* Get the IDs of the thesauruses which are used to filter the related assets
+	*
+	* @return array
+	* @access protected
+	*/
+	function _getThesaurusFilters()
+	{
+		if (empty($this->id)) return Array();
+		$thesaurus_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'thesaurus', FALSE, 'major', 'thesaurus_filter');
+		$res = Array();
+		foreach ($thesaurus_links as $link) {
+			$res[] = $link['minorid'];
+		}
+		return $res;
 
+	}//end _getThesaurusFilters()
+	
+	
 	/**
 	* Work out the unique cache key to represent the current page
 	* Add relatorsid to the parent cache key
