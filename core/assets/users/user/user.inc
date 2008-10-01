@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.126 2008/07/02 14:15:22 gnoel Exp $
+* $Id: user.inc,v 1.127 2008/10/01 15:10:40 gnoel Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -635,7 +635,7 @@ class User extends Asset
 			$fetch_roles = ((SQ_CONF_ENABLE_ROLES_SYSTEM == '1') && (SQ_CONF_ENABLE_GLOBAL_ROLES == '1'));
 			$group_types = Array('user', 'user_group', 'system_user_group');
 			if ($fetch_roles) $group_types[] = 'role';
-			$_SESSION['sq_user_groups'] = Array($this->id => $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), $group_types, TRUE));
+			$_SESSION['sq_user_groups'] = Array($this->id => $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $group_types, TRUE));
 		}
 		return $_SESSION['sq_user_groups'][$this->id];
 
