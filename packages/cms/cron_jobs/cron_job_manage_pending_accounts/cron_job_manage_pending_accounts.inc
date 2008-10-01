@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.7 2008/02/18 05:26:27 lwright Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.8 2008/10/01 23:26:51 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -177,7 +177,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 				$resend_period = $asset->attr('resend_validation_period');
 				if ($resend_period > 0) {
 					$date_sql = db_extras_todate(MatrixDAL::getDbType(), ':created', FALSE);
-					
+
 					$sql = 'SELECT
 								a.assetid, l.linkid
 							FROM sq_ast a
@@ -192,12 +192,12 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 					MatrixDAL::bindValueToPdo($query, 'majorid',   $pending_group->id);
 					MatrixDAL::bindValueToPdo($query, 'link_type', SQ_LINK_TYPE_1);
 					MatrixDAL::bindValueToPdo($query, 'created',   ts_iso8601(time() - $resend_period));
-					$user_assetids = MatriDAL::executePdoAll($query);					
+					$user_assetids = MatrixDAL::executePdoAll($query);
 
 					foreach($user_assetids as $user_row) {
 						$user_assetid = $user_row['assetid'];
-						$user_linkid  = $user_row['linkid']; 
-						
+						$user_linkid  = $user_row['linkid'];
+
 						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 
 						// Resend the validation and update the link to TYPE_2
@@ -212,7 +212,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 				$remove_period = $asset->attr('remove_account_period');
 				if ($remove_period > 0) {
 					$date_sql = db_extras_todate(MatrixDAL::getDbType(), ':created', FALSE);
-					
+
 					$sql = 'SELECT
 								a.assetid, l.linkid
 							FROM sq_ast a
@@ -225,12 +225,12 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 					$query = MatrixDAL::preparePdoQuery($sql);
 					MatrixDAL::bindValueToPdo($query, 'majorid', $pending_group->id);
 					MatrixDAL::bindValueToPdo($query, 'created', ts_iso8601(time() - $remove_period));
-					$user_assetids = MatriDAL::executePdoAll($query);	
+					$user_assetids = MatrixDAL::executePdoAll($query);
 
 					foreach($user_assetids as $user_row) {
 						$user_assetid = $user_row['assetid'];
-						$user_linkid  = $user_row['linkid']; 
-						
+						$user_linkid  = $user_row['linkid'];
+
 						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($user_assetid);
