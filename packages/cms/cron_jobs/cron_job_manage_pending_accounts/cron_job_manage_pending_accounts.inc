@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.6.2.1 2008/03/12 04:04:21 lwright Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.6.2.2 2008/10/01 23:27:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -192,7 +192,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 					MatrixDAL::bindValueToPdo($query, 'majorid',   $pending_group->id);
 					MatrixDAL::bindValueToPdo($query, 'link_type', SQ_LINK_TYPE_1);
 					MatrixDAL::bindValueToPdo($query, 'created',   ts_iso8601(time() - $resend_period));
-					$user_assetids = MatriDAL::executePdoAll($query);					
+					$user_assetids = MatrixDAL::executePdoAll($query);					
 
 					foreach($user_assetids as $user_row) {
 						$user_assetid = $user_row['assetid'];
@@ -225,7 +225,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 					$query = MatrixDAL::preparePdoQuery($sql);
 					MatrixDAL::bindValueToPdo($query, 'majorid', $pending_group->id);
 					MatrixDAL::bindValueToPdo($query, 'created', ts_iso8601(time() - $remove_period));
-					$user_assetids = MatriDAL::executePdoAll($query);	
+					$user_assetids = MatrixDAL::executePdoAll($query);	
 
 					foreach($user_assetids as $user_row) {
 						$user_assetid = $user_row['assetid'];
