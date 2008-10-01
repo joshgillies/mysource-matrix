@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.663 2008/09/03 01:08:18 mbrydon Exp $
+* $Id: asset.inc,v 1.664 2008/10/01 06:01:27 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.663 $
+* @version $Revision: 1.664 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4266,7 +4266,9 @@ class Asset extends MySource_Object
 			// we have found the design to use... we might need to fool the system
 			// into thinking we are printing the frontend of that asset
 			$switched_frontend = FALSE;
-			if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
+
+			// Firstly check if the "frontend_asset" is set, and then try to extract the id from it
+			if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && $GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
 				$current_frontend_asset = &$GLOBALS['SQ_SYSTEM']->frontend_asset;
 				$GLOBALS['SQ_SYSTEM']->frontend_asset = &$this;
 				$switched_frontend = TRUE;
