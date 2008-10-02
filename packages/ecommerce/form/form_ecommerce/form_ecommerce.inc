@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.35.2.5 2008/10/02 01:14:42 hnguyen Exp $
+* $Id: form_ecommerce.inc,v 1.35.2.6 2008/10/02 01:21:58 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.35.2.5 $
+* @version $Revision: 1.35.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1141,7 +1141,6 @@ class Form_Ecommerce extends Form_Email
 
 							if (array_get_index($taxable_rules, $q_id, FALSE)) {
 								$taxable_items[$q_id] = $ecom_item;
-								//$taxable_total += $ecom_item['price'];
 								$taxable_total += $price;
 								$ecom_item['taxable'] = TRUE;
 							}
