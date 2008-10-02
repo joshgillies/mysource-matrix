@@ -1203,7 +1203,10 @@ class DAL
                 // in 5.1.x to 5.3dev). Therefore we'll be resigned to using
                 // legacy OCI8 extension functions.
                 // use @ to suppress warning/error messages, it will be handled by ourself.
-                $new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN']);
+
+				// Also support UTF-8 character encoding
+				$new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN'], 'AL32UTF8');
+
                 if ($new_dbh === FALSE) {
                     $oci_error = oci_error();
                     throw new Exception('Unable to connect to database "'.$conn_id.'": '.$oci_error['code'].' '.$oci_error['message']);
