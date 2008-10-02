@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.67.2.1 2008/03/12 04:04:00 lwright Exp $
+* $Id: messaging_service.inc,v 1.67.2.2 2008/10/02 00:41:59 ata Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67.2.1 $
+* @version $Revision: 1.67.2.2 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -684,6 +684,11 @@ class Messaging_Service extends MySource_Object
 	*/
 	function sendQueuedEmails()
 	{
+		$mime_param = Array(
+						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
+					  );
 		$crlf = "\n";
 		$mime = new Mail_mime($crlf);
 
@@ -732,7 +737,7 @@ class Messaging_Service extends MySource_Object
 					$user = SQ_CONF_SYSTEM_OWNER;
 				} else {
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($to);
-					if (is_null($user)) continue;
+					if (is_null($user) || !$user->canAccessBackend()) continue;
 					$to_email = trim($user->attr('email'));
 				}
 
@@ -761,7 +766,7 @@ class Messaging_Service extends MySource_Object
 					$mime->setHTMLBody($html_body);
 
 					// get() must be called before headers()
-					$body = $mime->get();
+					$body = $mime->get($mime_param);
 					$hdrs = $mime->headers($hdrs);
 					@$mail->send($to_email, $hdrs, $body);
 					unset($mime);
