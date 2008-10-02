@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.42 2008/09/10 03:36:30 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.43 2008/10/02 01:35:16 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1116,22 +1116,35 @@ class Form_Ecommerce extends Form_Email
 				$question_title = $question->attr('name');
 				// if it is a selection question, we ask the question to
 				// tell us if an option was selected
+
+				// Reset the var here because we are going to overwrite them anyway
+				$ecom_item['name']  = '';
+				$ecom_item['price'] = '';
 				if ($question->isSelection()) {
 					foreach ($rule as $option_id => $price) {
 						//if option is selcted and option is not --leave empty--
 						if ($question->isSelected($option_id) && (!($question instanceof Form_question_type_select) || !$question->isEmptyOption($option_id))) {
-							$ecom_item['name']  = $question_title.': '.$question->getOptionName($option_id);
-							$ecom_item['price'] = $price;
+							if (isset($ecom_item['name']) && !empty($ecom_item['name'])) {
+								$ecom_item['name']	.= ', '.$question->getOptionName($option_id);
+							} else {
+								$ecom_item['name']	= $question_title.': '.$question->getOptionName($option_id);
+							}//end if else
+							if (!isset($ecom_item['price']) && !empty($ecom_item['price'])) {
+								$ecom_item['price'] = $price;
+							} else {
+								$ecom_item['price'] += $price;
+							}//end if
+
 							$ecom_item['id'] = $q_id;
 
 							if (array_get_index($taxable_rules, $q_id, FALSE)) {
 								$taxable_items[$q_id] = $ecom_item;
-								$taxable_total += $ecom_item['price'];
+								$taxable_total += $price;
 								$ecom_item['taxable'] = TRUE;
 							}
 							$ecom_items[$q_id] = $ecom_item;
 							$ecom_questions[$q_id] = $ecom_item;
-							$total += $ecom_item['price'];
+							$total += $price;
 						}
 					}
 
