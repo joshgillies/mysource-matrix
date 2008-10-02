@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_maintenance.inc,v 1.1 2008/05/07 05:54:05 mbrydon Exp $
+* $Id: system_maintenance.inc,v 1.2 2008/10/02 07:02:51 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    useful for performance analysis and tuning.
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class System_Maintenance extends MySource_Object
@@ -53,7 +53,7 @@ class System_Maintenance extends MySource_Object
 		$o->setHeading(translate('system_maintenance'), sq_get_icon($o->filesPath('/images/icons/header/system_maintenance.png'), 20, 20, translate('system_maintenance')));
 		$o->setPageTitle(translate('system_maintenance'));
 
-                $o->openSection(translate('general_reports'));
+                $o->openSection(translate('reports_and_maintenance_tasks'));
                 $o->openField('');
                         $reports = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('simple_report');
 
@@ -82,7 +82,7 @@ class System_Maintenance extends MySource_Object
 					{
 						document.getElementById(selectedReport).innerHTML = responseText;
 						bg = document.getElementById(selectedReport+"_regen").style.background;
-						document.getElementById(selectedReport+"_regen").style.background = "#ddffdd";
+						document.getElementById(selectedReport+"_regen").style.background = "#e8ddeb";
 						window.setTimeout('document.getElementById(selectedReport+"_regen").style.background = bg;', 1500);
 					}
 
@@ -120,12 +120,15 @@ class System_Maintenance extends MySource_Object
 				ksort($report_list);
 				reset($report_list);
 
+				$expand_reports = '';
+				if (isset($_REQUEST['expand'])) $expand_reports = $_REQUEST['expand'];
+
                                 foreach ($report_list as $report_name => $report_info) {
                                         ?>
                                         <tr>
                                                 <td class="sq-backend-table-cell" style="background: white;"><a href="#<?php echo $report_info['type_code']; ?>" onclick="toggleDiv('<?php echo $report_info['type_code']; ?>');"><?php echo $report_name; ?></a></td>
                                                 <td class="sq-backend-table-cell" style="background: white;"><?php echo $report_info['description']; ?>
-						<div id="<?php echo $report_info['type_code']; ?>" style="display: none;">
+						<div id="<?php echo $report_info['type_code']; ?>" style="display: <?php echo (($report_info['type_code'] == 'report_'.$expand_reports)?'block':'none'); ?>">
 							<?php
 
 							$this->_paintReport($o, $report_info['type_code']);
@@ -167,7 +170,7 @@ class System_Maintenance extends MySource_Object
 			<br>
 			<div id="<?php echo $report_type_code; ?>_report">
 			<?php
-				call_user_func_array(Array($report_type_code, 'paintReport'), Array(&$o, $report_type_code));
+				call_user_func_array(Array($report_type_code, 'paintReport'), Array($o, $report_type_code));
 			?>
 			</div>
 			<br><br>
@@ -192,7 +195,7 @@ class System_Maintenance extends MySource_Object
 
 		if ($am->installed($report_type_code)) {
 			$am->includeAsset($report_type_code);
-			call_user_func_array(Array($report_type_code, 'processReport'), Array(&$o, $report_type_code));
+			call_user_func_array(Array($report_type_code, 'processReport'), Array($o, $report_type_code));
 		}
 
 	}//end _processReport()

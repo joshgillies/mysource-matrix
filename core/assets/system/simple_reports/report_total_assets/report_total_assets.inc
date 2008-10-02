@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_total_assets.inc,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
+* $Id: report_total_assets.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a total asset count for seven points in time, from today to one year ago
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -99,6 +99,7 @@ class Report_Total_Assets extends Simple_Report
 
 		$table = sprintf($table_format, $row_string);
 		Report_Total_Assets::paintLastGeneratedDate($type_code, date('d M Y, H:i:s', $generated));
+		echo '<br>';
 		Report_Total_Assets::_paintSystemInstallDate();
 		echo $current_day_assets_table;
 		echo $table;

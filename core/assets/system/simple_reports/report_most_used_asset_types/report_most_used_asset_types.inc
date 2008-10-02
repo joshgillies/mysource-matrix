@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_most_used_asset_types.inc,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
+* $Id: report_most_used_asset_types.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of the top ten asset types in use on the system
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,8 +71,8 @@ class Report_Most_Used_Asset_Types extends Simple_Report
 
 		// Lovingly borrowed from the Asset Counter Report
 		$row_format = '<tr>
-				<td class="sq-backend-table-cell">
-					<script language="JavaScript" type="text/javascript">sq_print_icon("%s", "16", "16", "");</script>
+				<td class="sq-backend-table-cell" style="width: 10px">
+					<img src="%s">
 				</td>
 				<td class="sq-backend-table-cell">
 					%s
@@ -91,8 +91,7 @@ class Report_Most_Used_Asset_Types extends Simple_Report
 		$table_format = '       <b>%s</b><br><br>
 				<table class="sq-backend-table">
 					<tr>
-						<th class="sq-backend-table-header" style="width: 10px">Icon</th>
-						<th class="sq-backend-table-header">Type</th>
+						<th class="sq-backend-table-header" colspan="2">Asset Type</th>
 						<th class="sq-backend-table-header" width="70" align="right">Total</th>
 					</tr>
 					%s
@@ -110,9 +109,9 @@ class Report_Most_Used_Asset_Types extends Simple_Report
 		$system_assets_table = sprintf($table_format, 'System Asset Types', $rows_string);
 
 		Report_Most_Used_Asset_Types::paintLastGeneratedDate($type_code, date('d M Y, H:i:s', $generated));
-		echo '<br>';
+		echo '<br><br>';
 		echo $user_assets_table;
-		echo $system_assets_table;
+		echo '<br>'.$system_assets_table;
 
 	}//end paintReport()
 

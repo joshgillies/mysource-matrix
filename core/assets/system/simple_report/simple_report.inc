@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_report.inc,v 1.1 2008/05/07 05:54:04 mbrydon Exp $
+* $Id: simple_report.inc,v 1.2 2008/10/02 07:02:50 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *    a form interface.
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,17 +153,16 @@ class Simple_Report extends Asset
 	*/
 	protected static function paintReportNotGenerated($type_code)
 	{
-                $generate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('generate_report').'</a>';
+		$generate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('generate_report').'</a>';
 
-                $table_format = '
-                                        <table class="sq-backend-table">
+		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="30%%">Last Generated</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('last_generated').'</th>
                                                         <td class="sq-backend-table-cell" id="'.$type_code.'_regen" align="right">%s &nbsp;&nbsp;( %s )</td>
                                                 </tr>
                                         </table>';
 
-                $table = sprintf($table_format, 'This report has not been generated', $generate_link);
+		$table = sprintf($table_format, translate('report_not_generated'), $generate_link);
 		echo $table;
 
 	}//end paintReportNotGenerated()
@@ -181,20 +180,66 @@ class Simple_Report extends Asset
 	*/
 	protected static function paintLastGeneratedDate($type_code, $date)
 	{
-                $regenerate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('regenerate_report').'</a>';
+		$regenerate_link = '<a href="#'.$type_code.'" onclick="regen(\''.$type_code.'\');">'.translate('regenerate_report').'</a>';
 
-                $table_format = '
-                                        <table class="sq-backend-table">
+		$table_format = '<table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header" width="30%%">Last Generated</th>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('last_generated').'</th>
                                                         <td class="sq-backend-table-cell" id="'.$type_code.'_regen" align="right">%s &nbsp;&nbsp;( %s )</td>
                                                 </tr>
                                         </table>';
 
-                $table = sprintf($table_format, $date, $regenerate_link);
-                echo $table;
+		$table = sprintf($table_format, $date, $regenerate_link);
+		echo $table;
 
-        }//end paintLastGeneratedDate()
+	}//end paintLastGeneratedDate()
+
+
+	/**
+	* Paints a list of recommended maintenance tasks
+	* 
+	* @param object	&$o			reference to the backend outputter of the object painting the tool
+	* @param string	$type_code		Asset type code of the report
+	* @param array	$report_type_code	Asset type codes of recommended tools
+	*
+	* @return void
+	* @access protected
+	* @static
+	*/
+	protected static function paintRecommendedTasks(Backend_Outputter &$o, $type_code, $report_type_codes)
+	{
+		$table_format = '<table class="sq-backend-table">
+                                                <tr>
+                                                        <th class="sq-backend-table-header" width="35%%">'.translate('recommended_maintenance_tasks').'</th>
+                                                        <td class="sq-backend-table-cell" align="right">%s</td>
+                                                </tr>
+                                        </table>';
+
+		// Get report name and description and sort reports by name
+		$report_list = Array();
+		foreach ($report_type_codes as $report_type_code) {
+			$report_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($report_type_code);
+			$report_name = $report_info['name'];
+			$report_list[$report_name] = Array(
+							'type_code'     => $report_type_code,
+							'description'   => $report_info['description'],
+						     );
+		}
+
+		ksort($report_list);
+		reset($report_list);
+
+		$row_string = '';
+
+		// Link to the relevant tools
+		foreach ($report_list as $report_name => $report) {
+			$row_string .= '<img src="'.sq_web_path('lib').'/web/images/icons/asset_map/myspace.png"> <a href="./?SQ_BACKEND_PAGE=main&backend_section=tools&tool_type_code='.$report['type_code'].'&redirect_to_sys_maintenance=1">'.$report_name.'</a>';
+		}
+		
+		$table = sprintf($table_format, $row_string);
+		echo $table;
+
+	}//end paintRecommendedTasks()
 
 
 }//end class

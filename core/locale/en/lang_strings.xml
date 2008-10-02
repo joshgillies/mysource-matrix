@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.289 2008/09/26 01:13:41 ata Exp $
+* $Id: lang_strings.xml,v 1.290 2008/10/02 07:02:51 mbrydon Exp $
 *
 */
 
@@ -492,17 +492,11 @@
 
 	<string source="tools">Tools</string>
 	<string source="hipo_herder">HIPO Herder</string>
+
 	<string source="system_maintenance">System Maintenance</string>
-	<string source="generate_report">Generate Report</string>
-	<string source="regenerate_report">Regenerate Report</string>
-	<string source="general_reports">General Reports</string>
+	<string source="reports_and_maintenance_tasks">Reports and Maintenance Tasks</string>
 	<string source="general_reports_not_installed">There are no General Reports installed</string>
-	<string source="advanced_reports">Advanced Reports</string>
-	<string source="total_assets">Total Assets</string>
-	<string source="most_used_asset_types">Most Used Asset Types</string>
-	<string source="trash_age_report">Trash Age Report</string>
-	<string source="trigger_report">Trigger Report</string>
-	<string source="internal_messages_report">Internal Messages Report</string>
+
 	<string source="asset_tree">Asset Tree</string>
 	<string source="logout">Logout</string>
 
@@ -1874,6 +1868,7 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_name_install_patch">Install Patch</string>
 	<string source="hipo_name_purge_trash">Purge Trash</string>
 	<string source="hipo_name_regenerate_metadata">Regenerate Metadata</string>
+	<string source="hipo_name_rollback_management">Rollback Management</string>
 	<string source="hipo_name_trigger_batch_events">Trigger Batch Events</string>
 	<string source="hipo_name_uninstall_patch">Uninstall Patch</string>
 	<string source="hipo_name_update_lookups">Update Lookups</string>
@@ -1885,6 +1880,23 @@ Are you sure you want to proceed?</string>
 	<string source="hipo_purging_trash_determining">Determining which assets to delete</string>
 	<string source="hipo_purging_trash_deleting">Deleting Assets</string>
 	<string source="hipo_purging_trash_cleaning">Cleaning up the trash</string>
+
+	<string source="hipo_job_rollback_changing_rb_config">Changing Rollback System Config Setting</string>
+	<string source="hipo_job_rollback_configuring_db_triggers">Configuring Database Triggers</string>
+	<string source="hipo_job_rollback_opening_db_transaction">Opening Database Transaction</string>
+	<string source="hipo_job_rollback_purging_file_versioning">Purging File Versioning</string>
+	<string source="hipo_job_rollback_resetting_rollback">Resetting Rollback</string>
+	<string source="hipo_job_rollback_toggling_rb_state">Toggling Rollback State</string>
+	<string source="hipo_job_rollback_deleting_rb_entries">Deleting Rollback Entries</string>
+	<string source="hipo_job_rollback_aligning_rb_entries">Aliging Rollback Entries</string>
+	<string source="hipo_job_rollback_completing_db_transaction">Completing Database Transaction</string>
+	<string source="hipo_job_rollback_truncating_rb_entries_in">Truncating rollback entries in %s</string>
+	<string source="hipo_job_rollback_opening_rb_entries_in">Opening rollback entries in %s</string>
+	<string source="hipo_job_rollback_closing_rb_entries_in">Closing rollback entries in %s</string>
+	<string source="hipo_job_rollback_deleting_rb_entries_from">Deleting rollback entries from %s</string>
+	<string source="hipo_job_rollback_aligning_rb_entries_in">Aligning rollback entries in %s</string>
+
+	<string source="hipo_job_regen_simple_reports_name">Regenerate Simple Reports</string>
 
 	<string source="hipo_refreshing_asset_map">Refreshing Asset Map</string>
 	<string source="hipo_releasing_locks">Releasing Locks</string>

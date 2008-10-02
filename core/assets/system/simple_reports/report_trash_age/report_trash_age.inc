@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_trash_age.inc,v 1.2 2008/05/15 05:07:44 mbrydon Exp $
+* $Id: report_trash_age.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of the top twenty assets in the trash which have not been updated recently
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,14 +70,11 @@ class Report_Trash_Age extends Simple_Report
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$row_format = '<tr>
-				<td class="sq-backend-table-cell">
-					<script language="JavaScript" type="text/javascript">sq_print_icon("%s", "16", "16", "");</script>
+				<td class="sq-backend-table-cell" style="width: 10px">
+					<img src="%s">
 				</td>
 				<td class="sq-backend-table-cell">
-					%s
-				</td>
-				<td class="sq-backend-table-cell">
-					%s
+					%s (Id: %s)
 				</td>
 				<td class="sq-backend-table-cell" align="right">
 					%s
@@ -86,14 +83,12 @@ class Report_Trash_Age extends Simple_Report
 
 		$rows_string = '';
 		foreach ($report as $asset_info) {
-			$rows_string .= sprintf($row_format, $am->getAssetIconURL($asset_info['type_code']), $asset_info['assetid'], $asset_info['name'], date('d M Y, H:i:s', strtotime($asset_info['updated'])));
+			$rows_string .= sprintf($row_format, $am->getAssetIconURL($asset_info['type_code']), $asset_info['name'], $asset_info['assetid'], date('d M Y, H:i:s', strtotime($asset_info['updated'])));
 		}
 
 		$table_format = '<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header" style="width: 10px">Icon</th>
-					<th class="sq-backend-table-header">Asset ID</th>
-					<th class="sq-backend-table-header">Name</th>
+					<th class="sq-backend-table-header" colspan="2">Name</th>
 					<th class="sq-backend-table-header" align="right">Last Updated</th>
 				</tr>
 				%s
@@ -102,6 +97,15 @@ class Report_Trash_Age extends Simple_Report
 		$table = sprintf($table_format, $rows_string);
 
 		Report_Trash_Age::paintLastGeneratedDate($type_code, date('d M Y, H:i:s', $generated));
+		echo '<br>';
+		if (empty($rows_string)) {
+			$table = '<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-cell">There are currently no assets in the trash</td>
+				</tr>
+				</table>';
+		}
+
 		echo $table;
 
 	}//end paintReport()

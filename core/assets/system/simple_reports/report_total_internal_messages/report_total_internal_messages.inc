@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_total_internal_messages.inc,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
+* $Id: report_total_internal_messages.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of Internal Message types and totals for each type
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,7 +97,7 @@ class Report_Total_Internal_Messages extends Simple_Report
                 $table = sprintf($table_format, 'System Messages', $rows_string);
 
                 Report_Total_Internal_Messages::paintLastGeneratedDate($type_code, date('d M Y, H:i:s', $generated));
-                echo $table;
+                echo '<br>'.$table;
 
                 $rows_string = '';
                 foreach ($total_user_messages_by_type as $report) {
@@ -106,11 +106,25 @@ class Report_Total_Internal_Messages extends Simple_Report
 
                 $table = sprintf($table_format, 'User Messages', $rows_string);
 
-		echo $table;
+		echo '<br>'.$table;
 
                 $rows_string = '';
+
+                $row_format = '<tr>
+                                <td class="sq-backend-table-cell" style="width: 10px">
+                                        %s
+                                </td>
+                                <td class="sq-backend-table-cell">
+                                        %s
+                                </td>
+                                <td class="sq-backend-table-cell" align="right">
+                                        %s
+                                </td>
+                                </tr>';
+
                 foreach ($total_messages_by_status as $report) {
 			$status = $report['status'];
+			$unknown_status = FALSE;
 
 			switch ($status) {
 				case 'U':	$status = 'Unread';
@@ -121,16 +135,28 @@ class Report_Total_Internal_Messages extends Simple_Report
 
 				case 'D':	$status = 'Deleted';
 				break;
+
+				default:	$unknown_status = TRUE;
+				break;
 			}
 
-                        $rows_string .= sprintf($row_format, $status, $report['total']);
+			$icon = '';
+			if (!$unknown_status) {
+				if ($status == 'Deleted') {
+					$icon = '<img src="'.sq_web_path('lib').'/web/images/icons/internal_message/trash.png">';
+				} else {
+					$icon = '<img src="'.sq_web_path('lib').'/web/images/icons/internal_message/message_'.strtolower($status).'.png">';
+				}
+			}
+
+                        $rows_string .= sprintf($row_format, $icon, $status, $report['total']);
                 }
 
 
                 $table_format = '	<br>
                                         <table class="sq-backend-table">
                                                 <tr>
-                                                        <th class="sq-backend-table-header">Message Status</th>
+                                                        <th class="sq-backend-table-header" colspan="2">Message Status</th>
                                                         <th class="sq-backend-table-header" width="70" align="right">Total</th>
                                                 </tr>
                                                 %s
@@ -218,7 +244,7 @@ class Report_Total_Internal_Messages extends Simple_Report
                 $db = MatrixDAL::getDb();
                 $sql = 'SELECT status, COUNT(*) AS total '.
 			'FROM sq_internal_msg '.
-			'GROUP BY status ORDER BY status';
+			'GROUP BY status ORDER BY status DESC';
 
                 $rows = MatrixDAL::executeSqlAssoc($sql);
 

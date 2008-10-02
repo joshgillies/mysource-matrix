@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_rollback.inc,v 1.2 2008/05/15 05:07:43 mbrydon Exp $
+* $Id: report_rollback.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of assets with rollback data
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,14 +78,14 @@ class Report_Rollback extends Simple_Report
 
 		$current_asset_rollback_table = '<br><table class="sq-backend-table">
 						<tr>
-							<th class="sq-backend-table-header" width="40%%">Rollback asset entries currently in the system</th>
+							<th class="sq-backend-table-header" width="45%%">Rollback asset entries currently in the system</th>
 							<td align="right">'.$report['num_asset_rb_entries_today'].'</td>
 						</tr>
 						</table>';
 
 		$current_link_rollback_table = '<br><table class="sq-backend-table">
 						<tr>
-							<th class="sq-backend-table-header" width="40%%">Rollback link entries currently in the system</th>
+							<th class="sq-backend-table-header" width="45%%">Rollback link entries currently in the system</th>
 							<td align="right">'.$report['num_link_rb_entries_today'].'</td>
 						</tr>
 						</table>';
@@ -130,7 +130,7 @@ class Report_Rollback extends Simple_Report
 
 		$row_format = '<tr>
 				<td class="sq-backend-table-cell">
-					<script language="JavaScript" type="text/javascript">sq_print_icon("%s", "16", "16", "");</script>
+					<image src="%s">
 				</td>
 				<td class="sq-backend-table-cell">
 					%s
@@ -162,11 +162,14 @@ class Report_Rollback extends Simple_Report
 
 		Report_Rollback::paintLastGeneratedDate($type_code, date('d M Y, H:i:s', $generated));
 
-		echo $current_asset_rollback_table;
+		echo '<br>'.$current_asset_rollback_table;
 		echo $asset_report_table;
-		echo $most_asset_rollback_entries_table;
 
-		echo $current_link_rollback_table;
+		if (!empty($rows_string)) {
+			echo $most_asset_rollback_entries_table;
+		}
+
+		echo '<br>'.$current_link_rollback_table;
 		echo $link_report_table;
 
 	}//end paintReport()
