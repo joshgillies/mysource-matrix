@@ -1,5 +1,41 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.13
+
+Featured Changes
+-----------------------------------
+
+URL Parameter support in Remap Manager
+
+	Remap Manager now supports URLs containing parameters for remapping. URLs of the form "http://example.com/page?param=1" will be compared for an exact match. Failing this, Remap Manager will fall back to any matches by URL without parameters (ie; "http://example.com/page") before issuing an HTTP 404 (Not Found) error.
+
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #2812: Custom Form Captcha image has no ALT tag
+* Fixed Bug #3228: Stalled HIPO screen
+* Fixed Bug #3231: attribute asset_types for design area access history can not be set and used
+* Fixed Bug #3234: Unlink from parent not working for the create link trigger action
+* Fixed Bug #3243: Global keywords in Asset Listing Page Contents (No Results) or Default Format don't print
+* Fixed Bug #3248: Design Customisation: design areas duplicated and pre-customised
+* Fixed Bug #3257: Error occurs on asset listing when the page content (no result page) is disabled
+* Fixed Bug #3268: Not allowed file types being created
++ MS Word and MS Excel file types now accept Microsoft Office 2007 files with "docx" and "xlsx" extensions
+
+CMS
+* Fixed Bug #3236: Custom Form cloning and keywords
+* Fixed Bug #3239: Extended characters displays wrongly when printed on frontend via asset listing
+* Fixed Bug #3256: Online Quiz frontend printed without design applied to it
+
+E-Commerce
+* Fixed Bug #3242: E-commerce Form - Select field "leave empty" not working as expected
+* Fixed Bug #3277: E-com form_summary keyword display incorrect information
+
+
+
 VERSION 3.16.12
 
 Featured Changes
