@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: trim_connector_edit_fns.inc,v 1.1.1.1 2008/07/04 04:56:22 hnguyen Exp $
+* $Id: trim_connector_edit_fns.inc,v 1.2 2008/10/07 22:00:26 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -66,7 +66,11 @@ class Trim_Connector_Edit_Fns extends Asset_Edit_Fns
 												   ),
 						  );
 
-			$valid = TRIM_Common::test_trim_connection($connection);
+			$valid = FALSE;
+			if (!empty($connection['wsdl'])) {
+				$valid = TRIM_Common::test_trim_connection($connection);
+			}//end if
+
 			if ($valid) {
 				echo '<span style="color:green;font-weight:bold">Connected</span>';
 			} else {
