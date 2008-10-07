@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.3.2.5 2008/04/17 02:26:43 bpearson Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.3.2.6 2008/10/07 23:03:47 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3.2.5 $
+* @version $Revision: 1.3.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,8 +66,8 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 			$totalid = $settings['totalid']['assetid'];
 		}
 
-		// Define $success here so we know we don't have success yet
-		$success = 0;
+		// Define $success here so we know we have success, if the trigger fails it should report to us further down
+		$success = 1;
 
 		// set the metadata value on all immediate parents if they have the schema applied
 		if (!empty($state['immediate_parents'])) {
@@ -100,49 +100,44 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 					$avgofratings = (int) ($sumofratings/$numofratings);
 					// returned array data
 					$parentdata[$parentid] = $avgofratings;
-					$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-					$metadata = Array(
-									$fieldid	=> Array(
-													0	=> Array(
-															'value'	=> $avgofratings,
-														   ),
-												   ),
-									$totalid	=> Array(
-													0	=> Array(
-															'value'	=> $numofratings,
-														   ),
-												   ),
-								);
-
-					// get the parent schema of this metadata field
-					$schemaid = $GLOBALS['SQ_SYSTEM']->am->getParents($fieldid, 'metadata_schema');
-					// get the schemas that apply to this asset
-					$schemas = $mm->getSchemas($parentid, TRUE);
-
-					if (array_intersect($schemas, array_keys($schemaid)) !== Array()) {
-						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-						$success = $mm->setMetadata($parentid, $metadata);
-						if ($success) $mm->generateContentFile($parentid);
-						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					}
-
-					$success_results = Array(
-										'fieldid'		=> $fieldid,
-										'totalid'		=> $totalid,
-										'parentdata'	=> $parentdata,
-									   );
 				} else {
 					$avgofratings = 0;
-
-					// set $success to 1, because trigger fired but no items found
-					$success = 1;
-
-					$success_results = Array(
-										'fieldid'		=> $fieldid,
-										'totalid'		=> $totalid,
-										'parentdata'	=> 0,
-									   );
+					$numofratings = 0;
+					$parentdata = 0;
 				}
+
+				// Update the metadata fields
+				$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$metadata = Array(
+								$fieldid	=> Array(
+												0	=> Array(
+														'value'	=> $avgofratings,
+													   ),
+											   ),
+								$totalid	=> Array(
+												0	=> Array(
+														'value'	=> $numofratings,
+													   ),
+											   ),
+							);
+
+				// get the parent schema of this metadata field
+				$schemaid = $GLOBALS['SQ_SYSTEM']->am->getParents($fieldid, 'metadata_schema');
+				// get the schemas that apply to this asset
+				$schemas = $mm->getSchemas($parentid, TRUE);
+
+				if (array_intersect($schemas, array_keys($schemaid)) !== Array()) {
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$success = $mm->setMetadata($parentid, $metadata);
+					if ($success) $mm->generateContentFile($parentid);
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				}
+
+				$success_results = Array(
+									'fieldid'		=> $fieldid,
+									'totalid'		=> $totalid,
+									'parentdata'	=> $parentdata,
+								   );
 			}//end foreach
 		}//end if
 
