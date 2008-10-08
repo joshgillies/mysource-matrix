@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.84.2.4 2008/08/29 00:11:39 mbrydon Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.84.2.5 2008/10/08 02:38:37 mbrydon Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.84.2.4 $
+* @version $Revision: 1.84.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -957,7 +957,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
 		}
 
-		if ($new_position > 0) {
+		if ($new_position != 0) {
 			// check that this position isnt already customised
 			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'position_'.$new_position);
 			if (empty($current_link)) {

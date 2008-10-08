@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.10 2008/09/15 01:17:20 ewang Exp $
+* $Id: search_page.inc,v 1.213.2.11 2008/10/08 02:38:41 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.10 $
+* @version $Revision: 1.213.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2799,11 +2799,12 @@ class Search_Page extends Listing_Engine
 	* @param string	$assetid		The assetid of the asset we are printing
 	* @param int	$list_position	Asset's position in the list
 	* @param array	$keywords		Keywords
+	* @param int	$num_items		the number of items in the current list (required by Listing Engine)
 	*
 	* @return void
 	* @access protected
 	*/
-	function _printAsset($assetid, $list_position, $keywords=Array())
+	function _printAsset($assetid, $list_position, $keywords=Array(), $num_items=0)
 	{
 		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
@@ -2814,7 +2815,7 @@ class Search_Page extends Listing_Engine
 			// by the "extended asset" keywords replacements defined in getExtendedAssetKeywordReplacements()
 
 			ob_start();
-			parent::_printAsset($assetid, $list_position);
+			parent::_printAsset($assetid, $list_position, $num_items);
 
 			$element_contents = ob_get_contents();
 			ob_end_clean();

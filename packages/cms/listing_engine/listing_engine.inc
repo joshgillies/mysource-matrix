@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.11 2008/09/15 05:13:14 akarelia Exp $
+* $Id: listing_engine.inc,v 1.242.2.12 2008/10/08 02:38:37 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.11 $
+* @version $Revision: 1.242.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2022,6 +2022,7 @@ class Listing_Engine extends Page
 		if ($using_columns) {
 			$num_rows = max(array_keys($column_layout)) + 1;
 			$num_columns = max(array_values($column_layout));
+			$num_items = count($todo);
 
 			$current_row = 1;
 
@@ -2042,7 +2043,7 @@ class Listing_Engine extends Page
 						if ($assetid == NULL) {
 							echo '&nbsp;';
 						} else {
-							$this->_printAsset($assetid, $list_position);
+							$this->_printAsset($assetid, $list_position, $num_items);
 							next($todo);
 							$assetid = key($todo);
 							$list_position++;
@@ -2058,7 +2059,7 @@ class Listing_Engine extends Page
 			echo '</table>';
 		} else {
 			foreach ($todo as $assetid => $type_code) {
-				$this->_printAsset($assetid, $list_position);
+				$this->_printAsset($assetid, $list_position, $num_items);
 				$list_position++;
 			}
 		}
@@ -2093,12 +2094,13 @@ class Listing_Engine extends Page
 	*
 	* @param string	$assetid		the ID of the asset we are printing
 	* @param int	$list_position	the position of this asset in the list
+	* @param int	$num_items		the number of items in the current list
 	*
 	* @return void
 	* @access private
 	* @see printAssetList()
 	*/
-	function _printAsset($assetid, $list_position)
+	function _printAsset($assetid, $list_position, $num_items=0)
 	{
 		// allows for asset listings within asset listings, see #2727
 		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {;
@@ -2133,7 +2135,20 @@ class Listing_Engine extends Page
 		// check to see if there is a specific position format for us
 		if (isset($this->_tmp['position_formats'][$list_position])) {
 			$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$list_position], 'bodycopy');
-		}//end if has position format
+		} else if ($num_items > 0) {
+				/*
+				* Secondly, check if there is a "negative position" that is applicable.
+				* Negative position values are used to dynamically control display of list entries by using an offset from the last list element.
+				* For example: -1 is a position format for the last entry, -2 is for the second-last entry.
+				*
+				* Positive position formats take precedence over "negative" ones.
+				* Ok, now back to the code...
+				*/
+				$negative_offset = -1 + ($list_position - $num_items);
+				if (isset($this->_tmp['position_formats'][$negative_offset])) {
+					$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$negative_offset], 'bodycopy');
+				}
+		}//end else
 
 		// if we can't find a position format
 		// search for type format, if we don't already know that default format should be used
