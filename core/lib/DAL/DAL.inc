@@ -1213,7 +1213,7 @@ class DAL
                 // legacy OCI8 extension functions.
 				// use @ to suppress warning/error messages, it will be handled by ourself.
 
-				// Connect to the database with the specified character encoding (if supplied)
+				// Connect to the database with the specified character encoding (if supplied).
 				$new_dbh = FALSE;
 				if (isset($dsn['encoding'])) {
 					$new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN'], $dsn['encoding']);
