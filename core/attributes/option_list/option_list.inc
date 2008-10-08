@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.37 2008/04/14 02:11:31 bpearson Exp $
+* $Id: option_list.inc,v 1.38 2008/10/08 18:05:34 gnoel Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -88,7 +88,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				<?php
 				$order = 0;
 				foreach ($value as $v) {
-					$v = htmlentities($v);
+					$v = htmlspecialchars($v);
 					?>
 					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
