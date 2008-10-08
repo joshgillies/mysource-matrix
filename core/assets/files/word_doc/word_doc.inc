@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.21 2008/09/29 01:59:58 hnguyen Exp $
+* $Id: word_doc.inc,v 1.22 2008/10/08 01:14:47 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -35,10 +35,14 @@ class Word_Doc extends File
 
 
 	/**
-	* All allowed extensions for a word doc (document and template recognised)
+	* All allowed extensions for a word doc
+	*
+	* Document and templates recognised, for both earlier versions of Word, and
+	* Office 2007+ OOXML format (with macros both disabled and enabled).
+	*
 	* @var Array(string)
 	*/
-	public $allowed_extensions = Array('doc', 'dot', 'docx');
+	public $allowed_extensions = Array('doc', 'dot', 'docx', 'docm', 'dotx', 'dotm');
 
 
 	/**
