@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.187.2.7 2008/10/01 17:07:10 gnoel Exp $
+* $Id: general.inc,v 1.187.2.8 2008/10/08 10:08:20 gnoel Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187.2.7 $
+* @version $Revision: 1.187.2.8 $
 * @package MySource_Matrix
 */
 
@@ -1565,6 +1565,10 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_session_')) {
 					$sub_keyword = substr($keyword, 16);
 					$replacements[$keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
+				}
+				if (0 === strpos($keyword, 'globals_server_')) {
+					$replacements[$keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
+					if (!is_scalar($replacements[$keyword])) $replacements[$keyword] = '';
 				}
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
