@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.175 2008/08/25 04:21:30 hnguyen Exp $
+* $Id: search_manager.inc,v 1.176 2008/10/08 00:47:17 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -540,8 +540,8 @@ class Search_Manager extends Asset
 
 			$attribute = $asset->getAttribute($var_name);
 			$value = strtolower($attribute->getContent());
-			$value = strip_tags($value);
-			$value = str_replace('&nbsp;', ' ', $value);
+			// strip tags and replace with whitespace so as to preserve word boundaries
+			$value = preg_replace('/<\/?[^>]+>/i', ' ', $value);
 			if (empty($value)) continue;
 
 			$comp_name = 'attr:'.$var_name;
@@ -662,6 +662,8 @@ class Search_Manager extends Asset
 					}
 				break;
 
+				//wysiwyg type would have the same characteristics to text type, e.g. a value which is longer than 255 characters will not be indexed
+				case 'wysiwyg':
 				case 'text':
 
 					$value = $this->_getRawNumberInText($value);
