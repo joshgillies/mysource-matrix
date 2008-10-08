@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.12 2008/10/08 02:38:37 mbrydon Exp $
+* $Id: listing_engine.inc,v 1.242.2.13 2008/10/08 02:48:23 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.12 $
+* @version $Revision: 1.242.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2017,12 +2017,12 @@ class Listing_Engine extends Page
 		$column_layout = $this->attr('column_layout');
 		$using_groups = $this->attr('group_by') == 'grouped';
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
+		$num_items = count($todo);
 
 		$list_position = 1;
 		if ($using_columns) {
 			$num_rows = max(array_keys($column_layout)) + 1;
 			$num_columns = max(array_values($column_layout));
-			$num_items = count($todo);
 
 			$current_row = 1;
 
