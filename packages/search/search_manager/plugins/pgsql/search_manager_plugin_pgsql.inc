@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.24 2008/05/27 05:16:03 bpearson Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.25 2008/10/08 00:50:48 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -612,6 +612,7 @@ class Search_Manager_Plugin_PgSQL
 	{
 		$index_content = Array();
 		$contents = strtolower($contents);
+		$contents = str_replace('&nbsp;', ' ', $contents);
 
 		if (trim($contents) != '') {
 			foreach (get_word_counts($contents) as $word => $count) {
