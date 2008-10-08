@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.22 2008/02/18 05:26:28 lwright Exp $
+* $Id: page_poll.inc,v 1.23 2008/10/08 17:01:21 gnoel Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -290,7 +290,7 @@ class Page_Poll extends Page
 			}
 
 			$format_bodycopy->setKeywordReplacements($keyword_reps);
-			$format_bodycopy->printBody();
+			$this->_printFormatAsset($format_bodycopy, $format_type);
 		}
 
 		if (isset($_POST['option_id']) && $can_vote) {
@@ -299,6 +299,29 @@ class Page_Poll extends Page
 		}
 
 	}//end printBody()
+	
+	
+	/**
+	* Print a format bodycopy
+	* Add extra HTML if required (surround the question format with a form tag)
+	*
+	* @param object	$format_bodycopy	a format bodycopy
+	* @param string	$format_type		the format type name
+	*
+	* @return void
+	* @access protected
+	*/
+	protected function _printFormatAsset($format_bodycopy, $format_type)
+	{
+		if ($format_type == 'question_format') {
+			echo '<form id="'.$this->getPrefix().'_poll" action="'.$this->getURL().'" method="post">';
+			$format_bodycopy->printBody();
+			echo '</form>';
+		} else {
+			$format_bodycopy->printBody();
+		}
+	
+	}//end _printFormatAsset()
 
 
 	/**
@@ -701,16 +724,8 @@ class Page_Poll extends Page
 		$options = $question->attr('options');
 		$output = '';
 
-		// form
-		ob_start();
-		?>
-		<form id="<?php echo $this->getPrefix(); ?>_poll" action="<?php echo $this->getURL(); ?>" method="post">
-		<?php
-		$output .= ob_get_clean();
-
 		// $option_values is an array of the options text and the options votes
 		foreach ($options as $option_id => $option_values ) {
-
 			$keywords['poll_option_label'] = $option_values['option_text'];
 			$keywords['poll_option_number'] = $option_id + 1;
 			ob_start();
@@ -727,12 +742,6 @@ class Page_Poll extends Page
 			$format_bodycopy->printBody();
 			$output .= ob_get_clean();
 		}
-
-		ob_start();
-		?>
-		</form>
-		<?php
-		$output .= ob_get_clean();
 
 		return $output;
 
@@ -753,8 +762,7 @@ class Page_Poll extends Page
 		$xtras = '';
 
 		if ($new_window) $xtras .= $this->_newWindowOption();
-
-		submit_button($this->getPrefix().'_poll', $this->attr('vote_button_text'), $xtras.' document.getElementById("'.$this->getPrefix().'_poll").submit();');
+		submit_button($this->getPrefix().'_poll', $this->attr('vote_button_text'), $xtras);
 
 		return ob_get_clean();
 
