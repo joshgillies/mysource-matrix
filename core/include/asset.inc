@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.664 2008/10/01 06:01:27 akarelia Exp $
+* $Id: asset.inc,v 1.665 2008/10/09 03:31:17 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.664 $
+* @version $Revision: 1.665 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4756,7 +4756,7 @@ class Asset extends MySource_Object
 
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((l.url LIKE lv.url || \'/%\')
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((lv.url LIKE l.url || \'/%\')
 							OR (l.url = lv.url)
 							OR (l.url || \'/\' = lv.url))
 					';
@@ -4836,7 +4836,7 @@ class Asset extends MySource_Object
 		// called by lookupValues.inc to paint the lookup settings screen
 		$sql_inherited = 'SELECT l.url, lv.name, lv.value, \'1\' as inhd, lv.depth
 								FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')
+								INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON (lv.url LIKE l.url || \'/%\')
 						';
 
 		if ($prefix !== '') {
