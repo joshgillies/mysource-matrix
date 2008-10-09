@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.19 2008/10/09 03:31:10 akarelia Exp $
+* $Id: asset.inc,v 1.633.2.20 2008/10/09 03:43:55 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.19 $
+* @version $Revision: 1.633.2.20 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4896,6 +4896,7 @@ class Asset extends MySource_Object
 	*/
 	public function setPaintLayouts($layouts)
 	{
+		if (!is_array($layouts)) return FALSE;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
