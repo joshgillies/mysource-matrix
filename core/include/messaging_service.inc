@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.70 2008/10/01 06:52:36 ata Exp $
+* $Id: messaging_service.inc,v 1.71 2008/10/09 21:46:21 csmith Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -427,26 +427,27 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Gets all messages for the passed userid
 	*
-	* @param string	$userid			id of the user you are fetching messages for (0 = system, NULL = any user except system)
-	* @param string	$type			the type of the message eg. asset.workflow or asset.attributes.*
-	* @param array	$statii			can limit returned messages to those with a status
-	*								in this array
-	* @param array	$messageids		can limit returned messages to those with a messageid
-	*								in this array
-	* @param int	$from			timestamp that every msg returned must be this time
-	*								or after (NULL to ignore)
-	* @param int	$to				timestamp that every msg returned must be this time
-	*								or before (NULL to ignore)
-	* @param string	$get_user_name	[name|short_name], used to return the name/short_name
-	*								of the from user with the return, which will be returned
-	*								in the field 'from_name'. (NULL to ignore)
-	* @param array	$parameters		can limit returned messages to those with these params set
-	* @param int	$max_msgs		the maximum number of messages
+	* @param string		$userid			id of the user you are fetching messages for (0 = system, NULL = any user except system)
+	* @param string		$type			the type of the message eg. asset.workflow or asset.attributes.*
+	* @param array		$statii			can limit returned messages to those with a status
+	*									in this array
+	* @param array		$messageids		can limit returned messages to those with a messageid
+	*									in this array
+	* @param int		$from			timestamp that every msg returned must be this time
+	*									or after (NULL to ignore)
+	* @param int		$to				timestamp that every msg returned must be this time
+	*									or before (NULL to ignore)
+	* @param string		$get_user_name	[name|short_name], used to return the name/short_name
+	*									of the from user with the return, which will be returned
+	*									in the field 'from_name'. (NULL to ignore)
+	* @param array		$parameters		can limit returned messages to those with these params set
+	* @param int		$max_msgs		the maximum number of messages
+	* @param boolean $count_only		whether to only get a count of the number of messages or not. defaults to FALSE
 	*
 	* @return array
 	* @access public
 	*/
-	function getMessages($userid, $type=NULL, $statii=Array(), $messageids=Array(), $from=NULL, $to=NULL, $get_user_name=NULL, $parameters=Array(), $max_msgs=0)
+	function getMessages($userid, $type=NULL, $statii=Array(), $messageids=Array(), $from=NULL, $to=NULL, $get_user_name=NULL, $parameters=Array(), $max_msgs=0, $count_only=FALSE)
 	{
 		$db = DAL::getDb();
 
@@ -456,17 +457,23 @@ class Messaging_Service extends MySource_Object
 			$get_user_name = 'short_name';
 		}
 
-		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
+		$select_clause = 'm.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
 		if (is_string($get_user_name)) {
-			$sql .= ',
+			$select_clause .= ',
 					CASE
 						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN :system_name
 						ELSE a.'.$get_user_name.'
 					END as from_name';
-			$sql  .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN \'root_user\''.
+			$select_clause .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN \'root_user\''.
 					' ELSE a.type_code END as type_code';
 			$bind_vars['system_name'] = SQ_SYSTEM_SHORT_NAME.' System';
 		}
+
+		if ($count_only) {
+			$select_clause = 'COUNT(msgid) AS message_count';
+		}
+
+		$sql = 'SELECT ' . $select_clause;
 
 		$sql  .= ' FROM sq_internal_msg m';
 		if (is_null($userid)) {
@@ -520,7 +527,11 @@ class Messaging_Service extends MySource_Object
 			$bind_vars['sent_to'] = ts_iso8601($to);
 		}
 
-		$sql .= ' '.$where.' ORDER BY m.sent DESC';
+		$sql .= ' '.$where;
+
+		if (!$count_only) {
+			$sql .= ' ORDER BY m.sent DESC';
+		}
 
 		if ($max_msgs) {
 			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $max_msgs);
@@ -537,6 +548,10 @@ class Messaging_Service extends MySource_Object
 		} catch (Exception $e) {
 			throw new Exception('Unable to get message information due to database error: '.$e->getMessage());
 		}//end try catch
+
+		if ($count_only) {
+			return $result[0]['message_count'];
+		}
 
 		for ($i = 0, $total = count($result); $i < $total; $i++) {
 			$result[$i]['sent'] = iso8601_ts($result[$i]['sent']);
