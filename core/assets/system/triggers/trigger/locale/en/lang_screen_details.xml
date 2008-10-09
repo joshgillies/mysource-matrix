@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2007/04/01 23:22:31 tbarrett Exp $
+* $Id: lang_screen_details.xml,v 1.6.6.1 2008/10/09 03:38:30 ewang Exp $
 *
 */
 -->
@@ -28,6 +28,9 @@
 		</field>
 		<field attribute="description">
 			<display_name>Description</display_name>
+		</field>
+		<field attribute="category">
+			<display_name>Category</display_name>
 		</field>
 		<note>A trigger consists of descriptive information and a set of events, conditions and actions. Use the sections below to change settings of this trigger. In order to speed trigger execution, MySource Matrix tries to make some pre-calculations. There is an overhead to determining whether a trigger needs to be run. Upon loading, the conditions are checked and if all pass, the actions are executed. It can be rewarding to put the fastest conditions first. As a rule of the thumb any condition that works on a whole range of values, like "anything that extends this asset type" will be relatively slow and should not be placed first. On the other hand system conditions that work on exact values of asset type (not inheritance), status and tree location should be placed first.</note>
 	</section>

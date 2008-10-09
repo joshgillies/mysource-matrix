@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.7 2007/11/30 00:52:16 hnguyen Exp $
+* $Id: trigger_edit_fns.inc,v 1.7.2.1 2008/10/09 03:37:53 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -661,7 +661,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 					</div>
 				</div>
 				<?php
-				$i++;
+				$i++; 
 			}//end foreach
 			if ($write_access) {
 				?>
@@ -814,7 +814,15 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			// maybe being created under a trigger manager
 			$parent_assetid = array_get_index($_REQUEST, 'parent_assetid');
 			if (!is_null($parent_assetid)) {
-				$tmid = $parent_assetid;
+				// if it's already a trigger manager
+				if(is_numeric($parent_assetid)){
+					$tmid = $parent_assetid;
+				}
+				// if it's a trigger folder, we should get the real trigger manager
+				else {
+					$id_parts = explode(':', $parent_assetid);
+					$tmid = $id_parts[0];
+				}
 			}
 		}
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.50.2.4 2008/07/02 06:18:35 lwright Exp $
+* $Id: tables.xml,v 1.50.2.5 2008/10/09 03:39:54 ewang Exp $
 *
 */
 -->
@@ -1352,6 +1352,12 @@
 					<default>'0'</default>
 					<description>A flag denoting whether a trigger is active or not</description>
 				</column>
+				<column name="category" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Trigger category</description>
+				</column>
 			</columns>
 			<keys>
 				<primary_key>
@@ -1361,6 +1367,9 @@
 			<indexes>
 				<index>
 					<column name="active" />
+				</index>
+				<index>
+					<column name="category" />
 				</index>
 			</indexes>
 		</table>

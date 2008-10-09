@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.51.2.5 2008/09/19 02:05:14 mbrydon Exp $
+* $Id: trigger_manager.inc,v 1.51.2.6 2008/10/09 03:39:24 ewang Exp $
 *
 */
 
@@ -43,14 +43,19 @@ register_implementation('trigger_manager', 'bridge');
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.51.2.5 $
+* @author  Edison Wang <ewang@squiz.net>
+* @version $Revision: 1.51.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Manager extends Asset implements Bridge
 {
 
-
+	// Triggers will be stored in a array structure as category hierarchy
+	// e.g $_trigger_tree['category1']['category2'][0] represents first trigger in category1/category2
+	var $_trigger_tree;
+	
+	
 	/**
 	* Constructor
 	*
@@ -212,78 +217,236 @@ class Trigger_Manager extends Asset implements Bridge
 		if (empty($type_code)) $type_code = 'trigger';
 
 		$id_parts = explode(':', $shadowid);
-		if (!empty($id_parts[1]) && $type_code == 'trigger') {
-			$id = $id_parts[1];
+		$id_part = $id_parts[count($id_parts)-1];
+		
+		// create either a trigger or a folder
+		if(is_numeric($id_part)){
+			if (!empty($id_part) && $type_code == 'trigger') {
+				$id = $id_part;
+	
+				// attempt to get trigger asset
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger');
+				$asset = new Trigger($this->id, $id);
+				//set up status and display name
+				$asset->short_name = $asset->vars['active']['value'] == '1' ? $asset->vars['name']['value'] : $asset->vars['name']['value'].' (disabled)';
+				$asset->status = $asset->vars['active']['value'] == '1' ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
 
-			// attempt to get trigger asset
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger');
-			$asset = new Trigger($this->id, $id);
-
-			// if no id, this trigger is bodge
-			if (empty($asset->id)) $asset = NULL;
+				// if no id, this trigger is bodge
+				if (empty($asset->id)) $asset = NULL;
+			}
+		}
+		else {
+			// create a shadow folder
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('trigger_folder');
+			$asset = new Trigger_Folder($shadowid);
+			$asset->status = SQ_STATUS_UNDER_CONSTRUCTION;
+			$asset->short_name = $id_part;
+				
 		}
 		return $asset;
 
 	}//end getAsset()
 
+	
+	/**
+	* Creates a trigger tree from a list of triggers
+	* Trigger tree is used to display category hierarchy in asset map 
+	* e.g $_trigger_tree['category1']['category2'][0] represents first trigger in category1/category2
+	*
+	* @param Array	$triggers	List of triggers to be processed
+	*									
+	*
+	* @return mixed Array|NULL
+	* @access private
+	*/
+	function _createCategoryTriggerTree($triggers)
+	{
+		$results = Array();
+		foreach ($triggers as $trigger) {
+		
+			$my_result = &$results;
+			//category name must have right format, otherwise, it will be linked under trigger manager
+			if(empty($trigger['category']) || !preg_match('/^[a-zA-Z][a-zA-Z0-9_\- ]*(\/[a-zA-Z][a-zA-Z0-9_\- ]+)*$/',$trigger['category'])){
+				$categories = NULL;
+			}
+			else {
+				$categories = explode('/',$trigger['category']);
+				foreach ($categories as $i => $cate) {
+					$my_result = &$my_result[$cate];
+				}
+			}
+		
+			$my_result [] = $trigger;
+		}
+		
+		return $results;
+	}// end _createCategoryTriggerTree ()
+	
+	
+	
+	/**
+	* Locates the  branch in trigger tree for the specified category. 
+	* It will recursively look for the category in the tree.
+	* 
+	* @param String	$assetid	Asset id which contains the category to be searched.
+	* @param Array	$trigger_tree	Trigger tree array.
+	*									
+	*
+	* @return mixed Array|NULL
+	* @access private
+	*/
+	function _findCategoryTriggerTree($assetid,$trigger_tree)
+	{
+
+		$id_parts = explode(':', $assetid);
+		array_shift($id_parts);
+		
+			
+		
+		// For  every recursion, go deeper.
+		$new_assetid = implode(':', $id_parts);
+		if(count($id_parts) == 0 || !array_key_exists($id_parts[0],$trigger_tree)){
+			return NULL;
+		}
+		else if(count($id_parts)==1) {
+				return $trigger_tree[$id_parts[0]];
+		}	
+		return $this->_findCategoryTriggerTree($new_assetid,$trigger_tree[$id_parts[0]]);
+	}// end _findCategoryTriggerTree()
+	
+	
+	
+	/**
+	* Returns all links in current level of trigger tree.
+	* Links will be created, sorted and passed to links array. 
+	* 
+	* @param String	$parentid	Parent asset id which has all links in this level
+	* @param Array	$trigger_tree	Trigger tree array.
+	*									
+	*
+	* @return mixed Array|NULL
+	* @access private
+	*/
+	function _getTopTriggerAssetMapLink ($parentid, $trigger_tree, &$links)
+	{	
+		// temp array for links before sorting
+		$links_unsorted = Array();
+		// temp array for sorting
+		$sort_index = Array();	
+			
+		if (!isset($trigger_tree) || !is_array($trigger_tree)) return NULL;
+
+
+			foreach ($trigger_tree as $cate => $trigger) {
+				$link = Array();
+
+				
+				//if it's a trigger, create a trigger link
+				if(is_numeric($cate)){
+					
+						$link['url'] = '';
+						$link['path'] = '';
+						$link['num_kids'] = 0;
+						$link['accessible'] = 1;
+	
+						$link['majorid'] = $this->id;
+						// link all triggers under trigger manager, it will help asset map to refresh properly
+						$link['minorid'] = implode(':', Array($this->id, $trigger['id']));
+						$link['assetid'] = implode(':', Array($this->id, $trigger['id']));
+						$link['minor_type_code'] = 'trigger';
+						$link['type_code'] = 'trigger';
+						$link['linkid'] = implode(':', Array($this->id, $trigger['id']));
+	
+						// make name and short name the same
+						$link['name'] = $trigger['name'];
+						$link['short_name'] = $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
+						$link['status'] = $trigger['active'] ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
+						$link['sort_order'] = NULL;
+						$link['link_type'] = SQ_LINK_TYPE_1;
+	
+						$sort_index ['trigger'][] = $link['name'];
+						$links_unsorted['trigger'][] = $link;	
+				}
+				// if it's category, create a folder link
+				else if(isset ($cate) && !empty($cate)) {
+				
+						$link['url'] = '';
+						$link['path'] = '';
+						$link['num_kids'] = -1;
+						$link['accessible'] = 1;
+	
+						$link['majorid'] = $parentid;
+						$link['minorid'] = implode(':', Array($parentid, $cate));
+						$link['assetid'] = implode(':', Array($parentid, $cate));
+						$link['minor_type_code'] = 'trigger_folder';
+						$link['type_code'] = 'trigger_folder';
+	
+						$link['linkid'] = implode(':', Array($parentid, $cate));
+	
+						// make name and short name the same
+						$link['name'] = $cate;
+						$link['short_name'] = $cate;
+						$link['status'] = SQ_STATUS_UNDER_CONSTRUCTION;
+						$link['sort_order'] = NULL;
+						$link['link_type'] = SQ_LINK_TYPE_1;
+						
+						$sort_index ['folder'][] = $link['name'];
+						$links_unsorted ['folder'][] = $link;
+					
+				}//end else if
+			}// end foreach
+			
+
+
+			/*
+			 * Sort links, folders come first, and then order by alphabet
+			 */
+
+
+			// make sure folder comes first
+			if(!empty($sort_index)){
+				ksort($sort_index);
+			}
+			
+			
+			// make sure everything is with alphabetic order
+			foreach(array_keys($sort_index) as $type){
+				asort($sort_index[$type]);	
+				foreach ($sort_index[$type] as $index => $name) {
+					// now, insert it into links array
+					$links[] = $links_unsorted[$type][$index];	
+				}
+			}
+			
+		
+	}// end _getTopTriggerAssetMapLink()
+	
 
 	/**
 	* Used by asset map to return a asset map-style link array
 	*
-	* @return array
+	* @return array|NULL
 	* @access public
 	*/
 	function getAssetMapLinks()
 	{
-		$bridge_id = $this->id;
-		$majorid = $bridge_id;
-
 		// use existing trigger manager functions to get our triggers
 		$linked_triggers = $this->getTriggerList();
-
-		// build a list of triggers that we can use to sort
-		$trigger_map = Array();
-		foreach ($linked_triggers as $position => $data) {
-			$trigger_map[$data['active']][$position] = $data['name'];
-		}
-
-		// sort triggers, active triggers should come first
-		$sorted_triggers = Array();
-		foreach ($trigger_map as $status => $triggers) {
-			asort($triggers);
-			$sorted_triggers += $triggers;
-		}
-
+	
 		$links = Array();
-		foreach (array_keys($sorted_triggers) as $position) {
-			$link = Array();
+		if(!isset($linked_triggers)) return NULL;
+		
+		
 
-			$trigger = $linked_triggers[$position];
-
-			// mould it all to the asset map's liking
-			$link['url'] = '';
-			$link['path'] = '';
-			$link['num_kids'] = 0;
-			$link['accessible'] = 1;
-
-			$link['majorid'] = $majorid;
-			$link['minorid'] = implode(':', Array($bridge_id, $trigger['id']));
-			$link['assetid'] = implode(':', Array($bridge_id, $trigger['id']));
-			$link['minor_type_code'] = 'trigger';
-			$link['type_code'] = 'trigger';
-			$link['linkid'] = implode(':', Array($bridge_id, $trigger['id']));
-
-			// make name and short name the same
-			$link['name'] = $trigger['name'];
-			$link['short_name'] = $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
-			$link['status'] = $trigger['active'] ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
-
-			$link['link_type'] = SQ_LINK_TYPE_1;
-
-			$link['sort_order'] = $position;
-
-			$links[] = $link;
+		// if trigger tree is not created, create it.
+		if(!isset($this->_trigger_tree)){
+			$this->_trigger_tree = $this->_createCategoryTriggerTree($linked_triggers);
 		}
+				
+		//get top level links from trigger tree
+		$this->_getTopTriggerAssetMapLink ($this->id, $this->_trigger_tree, &$links);
+		
+	
 		return $links;
 
 	}//end getAssetMapLinks()
@@ -302,23 +465,41 @@ class Trigger_Manager extends Asset implements Bridge
 		$asset_info = Array();
 
 		$id_parts = explode(':', $assetid);
-		if (empty($id_parts[1])) return $asset_info;
+		$id_part = $id_parts[count($id_parts)-1];
+		if (empty($id_part)) return $asset_info;
 
-		$trigger = $this->_loadTrigger($id_parts[1]);
-		if (empty($trigger)) return $asset_info;
+		// if it's trigger, return info of this trigger
+		if(is_numeric($id_part)){
+			$trigger = $this->_loadTrigger($id_part);
+			if (empty($trigger)) return $asset_info;
 
-		$asset_info['assetid']		= $assetid;
-		$asset_info['name']			= $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
-		$asset_info['short_name']	= $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
-		$asset_info['version']		= $this->version;
-		$asset_info['status']		= $trigger['active'] ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
-		$asset_info['type_code']	= 'trigger';
-		$asset_info['num_kids']		= 0;
-		$asset_info['accessible']	= 1;
-		$asset_info['url']			= '';
-		$asset_info['web_path']		= '';
+			$asset_info['assetid']		= $assetid;
+			$asset_info['name']			= $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
+			$asset_info['short_name']	= $trigger['active'] ? $trigger['name'] : $trigger['name'].' (disabled)';
+			$asset_info['version']		= $this->version;
+			$asset_info['status']		= $trigger['active'] ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
+			$asset_info['type_code']	= 'trigger';
+			$asset_info['num_kids']		= 0;
+			$asset_info['accessible']	= 1;
+			$asset_info['url']			= '';
+			$asset_info['web_path']		= '';
+		}
+		// return info of a folder
+		else {
+			$asset_info['assetid']		= $id_part;
+			$asset_info['name']			= $id_part;
+			$asset_info['short_name']	= $id_part;
 
+			$asset_info['status']		=  SQ_STATUS_UNDER_CONSTRUCTION;
+			$asset_info['type_code']	= 'folder';
+			//folders should always have at least one child
+			$asset_info['num_kids']		= -1;
+			$asset_info['accessible']	= 1;
+			$asset_info['url']			= '';
+			$asset_info['web_path']		= '';
+		}
 		return $asset_info;
+		
 
 	}//end getAssetMapAssetInfo()
 
@@ -348,36 +529,23 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
-		return Array();
-
-		// todo: handle case where we're getting links of one of the triggers, which
-		//       should result in nothing
-		$bridge_id = $this->id;
-		$majorid = $bridge_id;
-
-		// use existing trigger manager functions to get our triggers
-		$linked_triggers = $this->getTriggerList();
-
+		$id_parts = explode(':', $assetid);
+		//get last part of id
+		$id_part = $id_parts[count($id_parts)-1];
+		// only folders can have children, not for triggers
+		if (empty($id_part) || is_numeric($id_part)) return Array();
+		
 		$links = Array();
-		foreach ($linked_triggers as $trigger) {
-			$link = Array();
-
-			// build the link in expected format
-			$link['linkid'] = implode(':', Array($bridge_id, $trigger['id']));
-
-			$link['majorid'] = $majorid;
-			$link['minorid'] = implode(':', Array($bridge_id, $trigger['id']));
-			$link['major_type_code'] = 'trigger_manager';
-			$link['minor_type_code'] = 'trigger';
-
-			$link['link_type'] = SQ_LINK_TYPE_2;
-			$link['is_dependant'] = FALSE;
-			$link['is_exclusive'] = FALSE;
-
-			$link['sort_order'] = $trigger['id'];
-
-			$links[] = $link;
+		
+		// create trigger tree, if it hasn't been done yet
+		if(!isset($this->_trigger_tree)){
+			$linked_triggers = $this->getTriggerList();
+			$this->_trigger_tree = $this->_createCategoryTriggerTree($linked_triggers);
 		}
+		
+		//get links in current level  in trigger tree
+		$this->_getTopTriggerAssetMapLink ($assetid, $this->_findCategoryTriggerTree($assetid,$this->_trigger_tree), &$links);
+		
 		return $links;
 
 	}//end getLinks()
@@ -530,31 +698,52 @@ class Trigger_Manager extends Asset implements Bridge
 		$info_array = Array();
 
 		foreach ($assetids as $id) {
+			
+			$GLOBALS['SQ_SYSTEM']->am->setPermission($id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE, TRUE);
 			$id_parts = explode(':', $id);
 
-			$trigger_id = array_get_index($id_parts, 1);
-			if (is_null($trigger_id)) continue;
+			$id_part = $id_parts[count($id_parts)-1];
+			if (is_null($id_part)) continue;
+			// if asset is a trigger	
+			if(is_numeric($id_part)){
 
-			// use existing load trigger function to get trigger info
-			$trigger_info = $this->_loadTrigger($trigger_id);
-			if (empty($trigger_info)) continue;
-
-			$info_array[$id]['assetid']		= $id;
-			$info_array[$id]['name']		= $trigger_info['name'];
-			$info_array[$id]['short_name']	= $trigger_info['active'] ? $trigger_info['name'] : $trigger_info['name'].' (disabled)';
-			$info_array[$id]['version']		= $this->version;
-			$info_array[$id]['status']		= $this->status;
-			$info_array[$id]['type_code']	= 'trigger';
-			$info_array[$id]['num_kids']	= 0;
-			$info_array[$id]['accessible']	= 1;
-			$info_array[$id]['url']			= '';
-			$info_array[$id]['web_path']	= '';
-
-			if (!empty($field)) {
-				$info_array[$id] = array_get_index($info_array[$id], $field);
+				// use existing load trigger function to get trigger info
+				$trigger_info = $this->_loadTrigger($id_part);
+				if (empty($trigger_info)) continue;
+	
+				$info_array[$id]['assetid']		= $id;
+				$info_array[$id]['name']		= $trigger_info['name'];
+				$info_array[$id]['short_name']	= $trigger_info['active'] ? $trigger_info['name'] : $trigger_info['name'].' (disabled)';
+				$info_array[$id]['version']		= $this->version;
+				$info_array[$id]['status']		= $this->status;
+				$info_array[$id]['type_code']	= 'trigger';
+				$info_array[$id]['num_kids']	= 0;
+				$info_array[$id]['accessible']	= 1;
+				$info_array[$id]['url']			= '';
+				$info_array[$id]['web_path']	= '';
+	
+				if (!empty($field)) {
+					$info_array[$id] = array_get_index($info_array[$id], $field);
+				}
 			}
-		}
+			// or a folder
+			else {
+				$info_array[$id]['assetid']		= $id;
+				$info_array[$id]['name']		= $id_part;
+				$info_array[$id]['short_name']	= $id_part;
+				$info_array[$id]['version']		= $this->version;
+				$info_array[$id]['status']		= $this->status;
+				$info_array[$id]['type_code']	= 'trigger_folder';
+				$info_array[$id]['num_kids']	= -1;
+				$info_array[$id]['force_secure']	=$this->force_secure;
+				$info_array[$id]['accessible']	= 1;
+				$info_array[$id]['url']			= '';
+				$info_array[$id]['web_path']	= '';
+			
+			}//end else
+		}//end foreach
 		return $info_array;
+		
 
 	}//end getAssetInfo()
 
@@ -618,28 +807,56 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
+		
 		$link_parts = explode(':', $linkid);
-		$trigger_id = array_get_index($link_parts, 1);
+		$trigger_id = $link_parts[count($link_parts)-1];
 		if (is_null($trigger_id)) return NULL;
+		
+		//if it's a trigger, load trigger detail, return link info
+		if(is_numeric($trigger_id)){
+				$trigger_info = $this->_loadTrigger($trigger_id);
 
-		$trigger_info = $this->_loadTrigger($trigger_id);
-
-		// construct template
-		$link = Array(
+				// construct template
+				$link = Array(
 					'majorid'			=> $this->id,
-					'minorid'			=> $this->id.':'.$trigger_info['id'],
-					'link_type'			=> SQ_LINK_TYPE_2,
+					'minorid'			=> $trigger_id,
+					'link_type'			=> SQ_LINK_TYPE_1,
 					'major_type_code'	=> 'trigger_manager',
 					'minor_type_code'	=> 'trigger',
 					'value'				=> '',
-					'linkid'			=> $linkid,
+					'linkid'			=> $this->id.':'.$trigger_id,
 					'sort_order'		=> $trigger_info['id'],
 					'is_dependant'		=> 0,
 					'is_exclusive'		=> 0,
 				);
+				
+		}
+		else {
+				// get parent id
+				foreach($link_parts as $node){
+					$parent_parts [] = $node;	
+				}
+				array_pop($parent_parts);
+				$parent_id = implode(':',$parent_parts);
+				
+				
+				$link = Array(
+					'majorid'			=> $parent_id,
+					'minorid'			=> $trigger_id,
+					'link_type'			=> count($parent_parts) == 1 ? 'trigger_manager' : 'trigger_folder',
+					'minor_type_code'	=> 'trigger_folder',
+					'value'				=> '',
+					'linkid'			=> $trigger_id,
+					'sort_order'		=> NULL,
+					'is_dependant'		=> 0,
+					'is_exclusive'		=> 0,
+				);
+		
+
+		}
 
 		return $link;
-
+		
 	}//end getLinkById()
 
 
@@ -750,12 +967,18 @@ class Trigger_Manager extends Asset implements Bridge
 		// as triggers only have one link (with the manager)
 		$link_parts = explode(':', $linkid);
 
-		$trigger_id = array_get_index($link_parts, 1);
+		$trigger_id = $link_parts[count($link_parts)-1];
 		if (is_null($trigger_id)) return FALSE;
 
 		// use trigger manager function to delete the trigger
-		return $this->_deleteTrigger($trigger_id);
+		if (is_numeric($trigger_id)) return $this->_deleteTrigger($trigger_id);
 
+		
+		
+		// delete folder, that is deleting all triggers under this folder, not permitted
+		trigger_localised_error('SYS0069', E_USER_WARNING, $trigger_id);
+		
+		return FALSE;
 	}//end deleteAssetLink()
 
 
@@ -1332,6 +1555,7 @@ class Trigger_Manager extends Asset implements Bridge
 	{
 		$trigger['name'] = '';
 		$trigger['description'] = '';
+		$trigger['category'] = '';
 		$trigger['data'] = NULL;
 		$trigger['active'] = SQ_TRIG_STATUS_INACTIVE;
 		$trigger['state_hash'] = $this->_getHashObject();
@@ -1356,7 +1580,6 @@ class Trigger_Manager extends Asset implements Bridge
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return TRUE;
 		if (empty($trigger)) return FALSE;
-
 		try {
 			// start transaction
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -1382,6 +1605,7 @@ class Trigger_Manager extends Asset implements Bridge
 								data,
 								active,
 								description,
+								category,
 								name
 							)
 							VALUES
@@ -1390,6 +1614,7 @@ class Trigger_Manager extends Asset implements Bridge
 								:data,
 								:active,
 								:description,
+								:category,
 								:name
 							)';
 
@@ -1398,6 +1623,7 @@ class Trigger_Manager extends Asset implements Bridge
 				MatrixDAL::bindValueToPdo($prepared, 'data', serialize($trigger['data']));
 				MatrixDAL::bindValueToPdo($prepared, 'active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
 				MatrixDAL::bindValueToPdo($prepared, 'description', $trigger['description']);
+				MatrixDAL::bindValueToPdo($prepared, 'category', $trigger['category']);
 				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
 				$result = MatrixDAL::execPdoQuery($prepared);
 
@@ -1409,6 +1635,7 @@ class Trigger_Manager extends Asset implements Bridge
 							data		= :data,
 							active		= :active,
 							description	= :description,
+							category	= :category,
 							name		= :name
 						WHERE
 						id = :id';
@@ -1418,6 +1645,7 @@ class Trigger_Manager extends Asset implements Bridge
 				MatrixDAL::bindValueToPdo($prepared, 'data', serialize($trigger['data']));
 				MatrixDAL::bindValueToPdo($prepared, 'active', array_get_index($trigger,'active', SQ_TRIG_STATUS_DEFAULT));
 				MatrixDAL::bindValueToPdo($prepared, 'description', $trigger['description']);
+				MatrixDAL::bindValueToPdo($prepared, 'category', $trigger['category']);
 				MatrixDAL::bindValueToPdo($prepared, 'name', $trigger['name']);
 				$result = MatrixDAL::execPdoQuery($prepared);
 			}
@@ -1743,7 +1971,6 @@ class Trigger_Manager extends Asset implements Bridge
 		// $s will stop further checks from happening
 		$s  = TRUE;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-
 		// basic elements
 		$s = $s && isset($trigger['name']);
 		$s = $s && isset($trigger['description']);
@@ -1803,7 +2030,8 @@ class Trigger_Manager extends Asset implements Bridge
 						name,
 						data,
 						description,
-						active
+						active,
+						category
 					FROM
 						'.SQ_TABLE_RUNNING_PREFIX.'trig';
 
@@ -1860,6 +2088,7 @@ class Trigger_Manager extends Asset implements Bridge
 							id,
 							name,
 							description,
+							category,
 							active
 						FROM
 							'.SQ_TABLE_RUNNING_PREFIX.'trig';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger.inc,v 1.10 2007/11/30 00:19:22 hnguyen Exp $
+* $Id: trigger.inc,v 1.10.2.1 2008/10/09 03:37:35 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	in the Trigger_Manager.
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 *
@@ -141,6 +141,7 @@ class Trigger extends Asset
 		$this->vars['conditions']['value']	= $trigger_info['data']['conditions'];
 		$this->vars['actions']['value']		= $trigger_info['data']['actions'];
 		$this->vars['active']['value']		= $trigger_info['active'];
+		$this->vars['category']['value']		= $trigger_info['category'];
 		$this->vars['blocking']['value']	= empty($trigger_info['data']['settings']['blocking']) ? 0 : 1;
 
 		return TRUE;
@@ -224,6 +225,7 @@ class Trigger extends Asset
 		$trigger_info['data']['conditions']				= $this->attr('conditions');
 		$trigger_info['data']['actions']				= $this->attr('actions');
 		$trigger_info['active']							= $this->attr('active');
+		$trigger_info['category']						= $this->attr('category');
 
 		// Name cannot be empty
 		if (empty($trigger_info['name'])) {
