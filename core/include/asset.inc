@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.18 2008/10/01 05:58:27 akarelia Exp $
+* $Id: asset.inc,v 1.633.2.19 2008/10/09 03:31:10 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.18 $
+* @version $Revision: 1.633.2.19 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4627,7 +4627,6 @@ class Asset extends MySource_Object
 
 		unset($this->_tmp['paths']);
 		unset($this->_tmp['lookups']);
-
 		if ($this->updateLookups($auto_add_remaps)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -4703,7 +4702,7 @@ class Asset extends MySource_Object
 
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((l.url LIKE lv.url || \'/%\')
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((lv.url LIKE l.url || \'/%\')
 							OR (l.url = lv.url)
 							OR (l.url || \'/\' = lv.url))
 					';
@@ -4897,7 +4896,6 @@ class Asset extends MySource_Object
 	*/
 	public function setPaintLayouts($layouts)
 	{
-		if (!is_array($layouts)) return FALSE;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
