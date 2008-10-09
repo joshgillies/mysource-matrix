@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.176 2008/10/08 00:47:17 ata Exp $
+* $Id: search_manager.inc,v 1.177 2008/10/09 00:45:59 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2830,7 +2830,7 @@ class Search_Manager extends Asset
 
 						foreach ($metadata as $fieldid => $data) {
 							foreach ($words as $word) {
-								if (preg_match("/$word/i", $data['value'])) {
+								if (preg_match("/$word/i", $data[0]['value'])) {
 									$formatted_results[$assetid]['metadata'][$fieldid] = $data;
 									break;
 								}
