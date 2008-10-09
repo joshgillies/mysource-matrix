@@ -10,18 +10,23 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_sort_orders.php,v 1.1.2.2 2008/08/22 06:20:50 bpearson Exp $
+* $Id: system_integrity_fix_sort_orders.php,v 1.1.2.3 2008/10/09 23:45:17 bshkara Exp $
 *
 */
 
 /**
-* This script resorts the sort order of the SQ_AST_LNK table
+* Ensure the sort_order in the sq_ast_lnk table is linear.
+* Takes into consideration the existing sort_order.
+* You may specify a parent node to start from.  If omitted, the process will start from the root folder.
+* Note: This will not sort shadow asset links.
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @author  Basil Shkara <bshkara@squiz.net>
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
+ini_set('memory_limit', '1024M');
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
@@ -34,31 +39,19 @@ if (empty($system_root) || !is_dir($system_root)) {
 
 require_once $system_root.'/core/include/init.inc';
 
-// If none set, use the default root
-$rootnodeid = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '1';
-$rootnode =& $GLOBALS['SQ_SYSTEM']->am->getAsset($rootnodeid);
-if (is_null($rootnode)) {
-	trigger_error("ERROR: Unable to load that root node\n");
+// check the number of arguments
+if (count($argv) !== 3) {
+	echo 'Usage: system_integrity_fix_sort_orders.php <SYSTEM_ROOT> <PARENT ASSET ID>'."\n";
+	die;
+}
+
+$parentid = $_SERVER['argv'][2];
+$parent =& $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+if (is_null($parent)) {
+	trigger_error("ERROR: Unable to retrieve that asset.\n");
 	exit();
 }//end if
 
-// Check for confirmation on doing the whole system ... it is going to take a bloody long time
-if ($rootnodeid == '1') {
-	$confirmation = NULL;
-	while ($confirmation != 'y' && $confirmation != 'n') {
-		echo "You have opted for running this script across the whole system. This may take a long time.\n";
-		echo 'Are you sure you want to continue? (Y/N) ';
-		$confirmation = rtrim(fgets(STDIN, 4094));
-		$confirmation = strtolower($confirmation);
-		if ($confirmation != 'y' && $confirmation != 'n') {
-			echo "Please answer Y or N\n";
-		} else if ($confirmation == 'n') {
-			exit();
-		}//end else
-	}//end while
-}//end if
-
-// ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
 
@@ -69,148 +62,142 @@ if (!$root_user->comparePassword($root_password)) {
 	exit();
 }
 
-// log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	trigger_error("Failed login in as root user\n", E_USER_ERROR);
 }
 
-// Connect to the DB
+// connect to the DB
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-///////////////////////////// START RESORTING ///////////////////////////////////////////
-// Start message
-echo 'Starting the re-sorting of "'.SQ_CONF_SYSTEM_NAME."\"\n";
-echo "Please wait...\n";
+$todo = Array($parentid);
+$done = Array();
 
-$errors = Array();
-$stats = Array();
+echo "\n".'---BEGIN---'."\n";
 
-$return_status = resort($rootnode->id, $errors, $stats);
+$success = sortAssets($todo, $done);
 
-// End message
-echo 'Finished the re-sorting of "'.SQ_CONF_SYSTEM_NAME."\"\n";
-echo count($stats)." Assets haved been processed\n";
-if (!$return_status) {
-	echo count($errors)." Errors occured:\n";
-	if (empty($errors)) {
-		echo "No errors reported\n";
-	} else {
-		foreach ($errors as $error) {
-			echo 'ERROR: '.$error."\n";
-		}//end foreach
-	}//end else
-}//end if
-//////////////////////////// FINISH RESORTING //////////////////////////////////////////
+echo "\n".'---COMPLETED---'."\n";
 
-// Restore the Database connection
+// restore the Database connection
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-// Finish
 
 
 /**
-* This function resorts the sort of the children under the root node supplied
+* Ensure the sort order is linear and consistent taking into account the existing sort_order
+* Begins from the provided root node and cleans all branches stemming from the provided root node
+* Note: This is based on Tom's Tool_Asset_Sorter - the difference: Tom's tool is not based on existing sort_order and does not recurse
 *
-* @param string	$node		The root node assetid to resort
-* @param array	&$errors	The error message holding array (by reference)
-* @param array	&$stats		The stats holding array (by reference)
+* @param array	$todo	Parents to sort
+* @param array	$done	Parents done sorting
 *
 * @return boolean
 * @access public
 */
-function resort($node, &$errors, &$stats)
+function sortAssets($todo, $done)
 {
-	// Globalise
-	global $db;
+	if (!empty($todo)) {
 
-	// TRUE by default until something goes wrong
-	$return_value = TRUE;
+		$parentid = array_shift($todo);
 
-	// We need each link type done separately
-	$link_types = Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE);
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-	$children = get_children($node, $errors);
+		// order by existing sort_order
+		// only concerned with TYPE_1 and TYPE_2
+		// retrieve minorids as well because we need them for the recursive behaviour implemented towards the end of this routine
+		$sql = 'SELECT linkid, minorid
+				FROM sq_ast_lnk
+				WHERE majorid = '.$db->quote($parentid).'
+					AND link_type IN ('.$db->quote(SQ_LINK_TYPE_1).', '.$db->quote(SQ_LINK_TYPE_2).')
+				ORDER BY sort_order ASC';
+		$results = $db->getAssoc($sql);
+		assert_valid_db_result($results);
 
-	// If a valid asset do the sorting
-	$is_asset = $GLOBALS['SQ_SYSTEM']->am->assetExists($node);
-	if ($is_asset) {
-		foreach ($link_types as $link_type) {
-			$links_sql = 'SELECT linkid FROM sq_ast_lnk WHERE majorid = '.$db->quoteSmart($node).' AND link_type = '.$db->quoteSmart($link_type).' ORDER BY sort_order';
-			$links_result = $db->getCol($links_sql);
-			assert_valid_db_result($links_result);
+		echo "\n".'- Updating the sort order for kids of: #'.$parentid.'...';
 
-			foreach ($links_result as $i => $link) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		// separate results
+		$childids = $linkids = Array();
+		foreach ($results as $linkid => $minorid) {
+			// linkids used to update the sort_order
+			$linkids[] = $linkid;
+			// childids used to look for more parents
+			$childids[] = $minorid;
+		}
 
-				$sql = 'UPDATE sq_ast_lnk SET sort_order = '.$db->quote($i).' WHERE linkid = '.$db->quote($link);
-				$result = $db->query($sql);
-				if (assert_valid_db_result($result)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				} else {
-					$message = 'Unable to the sort_order for Link ID #'.$link;
-					error_log($message);
-					$errors[] = $message;
-					$return_value = FALSE;
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				}//end else
+		if (!empty($linkids)) {
+			// there is a limit to CASE statement size in Oracle, that limits it to
+			// 127 WHEN-THEN pairs (in theory), so limit to 127 at a time on Oracle
+			$chunk_size = ($db->phptype == 'oci8') ? 127 : 500;
 
-				// Update the stats
-				if ($return_value) $stats[] = $node;
-			}//end foreach
-		}//end foreach
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			foreach (array_chunk($linkids, $chunk_size, TRUE) as $chunk) {
+				$cases = '';
+				foreach ($chunk as $i => $linkid) {
+					$cases .= 'WHEN (linkid = '.$linkid.') THEN '.$i.' ';
+				}
+				$sql = 'UPDATE sq_ast_lnk
+						SET sort_order = CASE '.$cases.' ELSE sort_order END
+						WHERE linkid IN ('.implode(', ', $chunk).')';
+				$res = $db->query($sql);
+				assert_valid_db_result($res);
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		}
 
-	}//end if
+		// ensure we do not update this parent again
+		if (!in_array($parentid, $done)) {
+			$done[] = $parentid;
+		}
 
-	// Now descend into this node's children if any
-	foreach ($children as $current_child) {
-		// If a valid asset do the sorting
-		$is_asset = $GLOBALS['SQ_SYSTEM']->am->assetExists($current_child);
-		if ($is_asset) {
-			$child_status = resort($current_child, $errors, $stats);
-			if (!$child_status) {
-				// Woo woo, I found an error, I better report it
-				$return_value = FALSE;
-			}//end if
-		}//end if
-	}//end foreach
+		echo ' [done]';
 
-	// Report my status
-	return $return_value;
+		// check each child of the parent to see if the parent is a grandparent (i.e. parent's children have children)
+		// only examining 1 level deep at a time
+		if (!empty($childids)) {
+			echo "\n\t".'- Searching immediate children of: #'.$parentid.' for branches';
+			foreach ($childids as $assetid) {
+				// these are the kids that we have already sorted
+				// check to see if they are parents as well
+				// shadow asset links are ignored
+				$sql = 'SELECT minorid
+						FROM sq_ast_lnk
+						WHERE majorid = '.$db->quote($assetid);
+				$children = $db->getCol($sql);
+				assert_valid_db_result($children);
 
-}//end resort()
+				if ((!empty($children)) && count($children) > 1) {
+					// we have a potential new parent
+					// 1. check that we have not processed it yet
+					if (!in_array($assetid, $done)) {
+						// 2. check that the returned children contain at least one TYPE 1 or 2 linked asset
+						// e.g. asset could just be tagged with a thesaurus term (shadow link), meaning it is not a valid parent
+						$valid = FALSE;
+						foreach ($children as $grandchild) {
+							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($grandchild, NULL, '', TRUE, NULL, 'minor');
+							if (!empty($link) && (($link['link_type'] == SQ_LINK_TYPE_1) || ($link['link_type'] == SQ_LINK_TYPE_2))) {
+								$valid = TRUE;
+								break;
+							}
+						}
 
+						if ($valid) {
+							echo "\n\t\t#".$assetid.' is a parent with kids that will be sorted';
+							$todo[] = $assetid;
+						}
+					}
+				}
+			}
+		}
 
-/**
-* This function returns a list of the children under the supplied root node
-*
-* @param string	$node		The root node
-* @param array	&$errors	The error message holding array (by reference)
-*
-* @return array
-* @access public
-*/
-function get_children($node, &$errors)
-{
-	// Globalise
-	global $db;
+		echo "\n".'* '.count($todo).' items left to process'."\n";
+		echo '* Using '.round((memory_get_usage()/1048576), 2).' MB'."\n";
 
-	// Empty by default until something goes into it
-	$children = Array();
+		sortAssets($todo, $done);
 
-	$children_sql = 'SELECT minorid FROM sq_ast_lnk WHERE majorid='.$db->quoteSmart($node).' ORDER BY link_type,sort_order';
-	$found_children	= $db->getCol($children_sql);
-	assert_valid_db_result($found_children);
-
-	// Sort the children into a format this script likes
-	foreach ($found_children as $found_child) {
-		$children[] = $found_child;
-	}//end foreach
-
-	// Return all the children (none if none found)
-	return $children;
-
-}//end get_children()
+	} else {
+		// there are no more items to process
+		return TRUE;
+	}
+}
 
 
 ?>
