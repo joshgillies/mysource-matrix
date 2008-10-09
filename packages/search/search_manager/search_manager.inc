@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.177 2008/10/09 00:45:59 bpearson Exp $
+* $Id: search_manager.inc,v 1.178 2008/10/09 04:57:54 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.178 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1769,15 +1769,17 @@ class Search_Manager extends Asset
 			$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($search_info['roots']);
 			$shadow_results = Array();
 			foreach ($search_info['roots'] as $i => $assetid) {
-				$root = $root_info[$assetid];
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($root['type_code']);
-				// assert class implements bridge and contains method
-				if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processSearch'))) {
-					$shadow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$shadow_results = $this->_combineResults($shadow_results, $shadow_asset->processSearch($search_info, $include_context), array_get_index($search_info, 'root_logic', 'OR'));
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
-					unset($search_info['roots'][$i]);
-					$shadow_processed = TRUE;
+				if (array_key_exists($assetid, $root_info)) {
+					$root = $root_info[$assetid];
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($root['type_code']);
+					// assert class implements bridge and contains method
+					if (implements_interface($root['type_code'], 'bridge') && is_callable(Array($root['type_code'], 'processSearch'))) {
+						$shadow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						$shadow_results = $this->_combineResults($shadow_results, $shadow_asset->processSearch($search_info, $include_context), array_get_index($search_info, 'root_logic', 'OR'));
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($shadow_asset);
+						unset($search_info['roots'][$i]);
+						$shadow_processed = TRUE;
+					}
 				}
 			}
 			if (empty($search_info['roots'])) {
