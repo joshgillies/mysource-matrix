@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2007/02/09 03:46:25 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2008/10/09 03:51:44 ewang Exp $
 *
 */
 -->
@@ -28,6 +28,9 @@
 		</field>
 		<field attribute="description">
 			<text height="4" width="60" />
+		</field>
+		<field attribute="category">
+			<text width="60" />
 		</field>
 	</section>
 	<section name="Events" write_access="write:attributes">
