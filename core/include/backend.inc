@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.186.2.4 2008/08/26 05:51:01 lwright Exp $
+* $Id: backend.inc,v 1.186.2.5 2008/10/09 00:33:17 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.186.2.4 $
+* @version $Revision: 1.186.2.5 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -508,6 +508,19 @@ class Backend extends MySource_Object
 									break;
 
 									case 'metadata':
+										$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
+
+										// Find a friendly name for the metadata field, if there
+										// is none then use the standard name of the field itself
+										$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
+										if (empty($attr_values)) {
+											$name_detail .= $value['name'];
+										} else {
+											$name_detail .= $attr_values[$name];
+										}
+
+										$value = $value[0]['value'];
+									break;
 									case 'schema':
 										$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
 
