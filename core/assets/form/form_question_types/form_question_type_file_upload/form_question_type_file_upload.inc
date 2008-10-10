@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.23 2008/08/15 01:53:29 bpearson Exp $
+* $Id: form_question_type_file_upload.inc,v 1.24 2008/10/10 03:33:09 lwright Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../form_question/form_question.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 
 /**
@@ -25,7 +26,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,6 +82,11 @@ class Form_Question_Type_File_Upload extends Form_Question
 		}
 
 		ob_start();
+		$temp_path = array_get_index($this->extra_data, 'temp_filesystem_path', '');
+		if (!empty($temp_path)) {
+			?><p>Current file: <?php echo basename($temp_path); ?>
+			<?php echo check_box($name.'_clear', 1, FALSE) ?> Clear?</p><?php
+		}
 		file_upload($name, $extras);
 		$html = ob_get_contents();
 		ob_end_clean();
@@ -111,7 +117,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 	* Look at user-specified and internal rules to see if this question
 	* currently has a valid value
 	*
-	* Returns TRUE if all validation rules pass
+	* Returns TRUE if all validation rules pass.
+	*
+	* We cannot do our validation at the page level, only at the on-submit
+	* level. Any validation made at page level may not be true when the form
+	* is finally submitted, and the files are finally created in the Create
+	* Location(s) required.
 	*
 	* @param mixed		$answer			Custom value to compare with - if left
 	*									NULL (or unspecified), use the current
@@ -124,86 +135,48 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		$create_loc = $this->attr('create_location');
-		if (empty($create_loc)) {
-			// no create location set
-			$this->failed_rules[] = translate('core_form_file_upload_no_create_locs', $this->attr('name'));' "'.$this->attr('name').'"';
-			return FALSE;
-		}
-
-		if ($this->_tmp['file_info'] === FALSE) {
-			// there was an upload error
-			$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
-			return FALSE;
-		}
-
-		$ok = TRUE;
-
-		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
-			// no file uploaded to required field
-			if (strlen($this->attr('cust_required_error'))) {
-				$this->failed_rules[] = $this->attr('cust_required_error');
-			} else {
-				$this->failed_rules[] = translate('core_form_file_upload_none_rule', $this->attr('name'));
-			}
-			$ok = FALSE;
-		}
-
-		if ($this->attr('overwrite_rule') == 'D') {
-			// we want to throw an error if a file with this name already exists, so see if one does
-			$db = MatrixDAL::getDb();
-
-			// Check that we are not going to have web path conflicts
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$valid_names = make_valid_web_paths(Array($this->getValue()));
-			$name = array_shift($valid_names);
-
-			$sql = 'SELECT
-						a.assetid
-					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast a
-							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-							ON a.assetid = l.minorid
-					WHERE
-						l.majorid = :majorid
-						AND a.name = :name';
-
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'majorid', $create_loc);
-				MatrixDAL::bindValueToPdo($query, 'name', $name);
-				$existing_file = MatrixDAL::executePdoOne($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to check if file upload value is valid due to database error: '.$e->getMessage());
-			}
-			if ($existing_file) {
-				// file already exists so throw the error
-				$ok = FALSE;
-				$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
-			}
-		}//end if
-
-		if ($ok) {
-			return parent::hasValidValue($answer, $mute_errors);
-		}
-
-		return FALSE;
+		return TRUE;
 
 	}//end hasValidValue()
 
 
 	/**
-	* Look at user-specified and internal rules to see if this question currently has a valid value
+	* Populate the question based on what exists on the form
 	*
 	* @return void
 	* @access public
 	*/
-	function populate()
+	function populate(Asset $parent=NULL)
 	{
 		$this->_tmp['file_info'] = get_file_upload_info('q'.$this->id);
-		$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('core_form_file_upload_none')));
+
 		if (isset($this->_tmp['file_info']['name'])) {
-			$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);
+			$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('core_form_file_upload_none')));
+			$this->getSummary();
+			//$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);
+		} else {
+			// see if we have an incomplete file upload, if we do, then don't
+			// blank out the summary/value
+			$existing_file   = FALSE;
+			$submission_path = $this->getTempFileUploadPath($parent);
+			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+
+			if (is_dir($submission_path)) {
+				$dir = new DirectoryIterator($submission_path);
+				foreach ($dir as $dir_entry) {
+					if ($dir_entry->isFile()) {
+						$this->setValue($dir_entry->getFilename());
+						//$this->_tmp['summary'] = $dir_entry->getFilename().', type '.$standards_lists_mime_types[get_file_type($dir_entry->getFilename())].', '.easy_filesize($dir_entry->getSize());
+						$this->getSummary();
+						$existing_file = TRUE;
+						break;
+					}
+				}
+			}
+
+			if (!$existing_file) {
+				$this->setValue(translate('core_form_file_upload_none'));
+			}
 		}
 
 	}//end populate()
@@ -232,46 +205,91 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function getSummary()
 	{
-		if (!isset($this->_tmp['summary'])) {
-			$db = MatrixDAL::getDb();
+		//if (!isset($this->_tmp['summary'])) {
+			if (!empty($this->extra_data)) {
+				$value = reset($this->extra_data);
+				$key   = key($this->extra_data);
+				$new_summary = '';
+				require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 
-			// Check that we are not going to have web path conflicts
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-			$valid_names = make_valid_web_paths(Array($this->getValue()));
-			$name = array_shift($valid_names);
+				switch($key) {
+					case 'temp_filesystem_path' :
+						$filepath = $value;
+						if (is_file($filepath)) {
+							$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), '');
+							if (!empty($type)) $type = ', type '.$type;
+							$new_summary = basename($value).$type.', '.easy_filesize(filesize($filepath));
+						} else {
+							$new_summary = translate('core_form_file_upload_none');
+						}
+					break;
 
-			$sql = 'SELECT
-						a.assetid
-					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast a
-							JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-							ON a.assetid = l.minorid
-					WHERE
-						l.majorid = :majorid
-						AND a.name = :name';
+					case 'filesystem_path' :
+						$filepath = $value;
+						$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), '');
+						if (!empty($type)) $type = ', type '.$type;
 
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'majorid', $this->attr('create_location'));
-				MatrixDAL::bindValueToPdo($query, 'name', $name);
-				$existing_file = MatrixDAL::executePdoOne($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get summary of answers for: '.$name.' due to database error: '.$e->getMessage());
-			}
-			if (!empty($existing_file)) {
-				$existing_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
-				$info = $existing_file_asset->getExistingFile();
-				$assetid = $this->getUploadedFileId();
-				if (trim($assetid) != '') {
-					$this->_tmp['summary'] = get_asset_tag_line($assetid);
-					return $this->_tmp['summary'];
-				}//end if
-				$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
+						$new_summary = basename($value).$type.', '.easy_filesize(filesize($filepath));
+					break;
+
+					case 'new_file_assetid' :
+					case 'existing_file_assetid' :
+						if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
+							$new_summary = get_asset_tag_line($value);
+						} else {
+							$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($value);
+							$file_info = $file_asset->getExistingFile();
+							$type = array_get_index($standards_lists_mime_types, get_file_type($file_info['filename']), '');
+							if (!empty($type)) $type = ', type '.$type;
+							$new_summary = basename($file_info['filename']).$type.', '.easy_filesize($file_info['size']);
+						}
+
+					break;
+				}
+
+				$this->_tmp['summary'] = $new_summary;
 			} else {
-				$this->_tmp['summary'] = translate('core_form_file_upload_none');
-			}
-		}//end if
+				// Check that we are not going to have web path conflicts
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+				$valid_names = make_valid_web_paths(Array($this->getValue()));
+				$name = array_shift($valid_names);
+
+				$sql = 'SELECT
+							a.assetid
+						FROM
+							'.SQ_TABLE_RUNNING_PREFIX.'ast a
+								JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+								ON a.assetid = l.minorid
+						WHERE
+							l.majorid = :majorid
+							AND a.name = :name';
+
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'majorid', $this->attr('create_location'));
+					MatrixDAL::bindValueToPdo($query, 'name', $name);
+					$existing_file = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get summary of answers for: '.$name.' due to database error: '.$e->getMessage());
+				}
+
+				if (!empty($existing_file)) {
+					$existing_file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
+					$info = $existing_file_asset->getExistingFile();
+					$assetid = $this->getUploadedFileId();
+					if (trim($assetid) != '') {
+						$this->_tmp['summary'] = get_asset_tag_line($assetid);
+						return $this->_tmp['summary'];
+					}//end if
+					$this->_tmp['summary'] = $this->getValue().', '.easy_filesize($info['size']);
+				} else {
+					$this->_tmp['summary'] = translate('core_form_file_upload_none');
+				}
+			}//end if Extra Data exists
+
+		//}//end if temp summary exists
+
 		return $this->_tmp['summary'];
 
 	}//end getSummary()
@@ -298,157 +316,315 @@ class Form_Question_Type_File_Upload extends Form_Question
 	* @return void
 	* @access public
 	*/
-	function saveValue()
+	function saveValue(Asset $parent)
 	{
-		$create_loc = $this->attr('create_location');
-		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
-		if (is_null($create_loc_asset) || !isset($this->_tmp['file_info']['name'])) {
-			// we shouldn't get to this point if there is no create loc or no file was uploaded
-			return;
+		$prefix = 'q'.$this->id;
+		if (isset($_POST[$prefix.'_clear'])) {
+			if (isset($this->extra_data['temp_filesystem_path'])) {
+				// Just nuke the directory, because this means there will be no
+				// files left. We want to be as clean as possible in the data/
+				// path
+				$temp_path = $this->extra_data['temp_filesystem_path'];
+				delete_directory(dirname($temp_path));
+
+				//$this->setValue('');
+				unset($this->extra_data['temp_filesystem_path']);
+			}
 		}
 
-		$db = MatrixDAL::getDb();
-
-		// Check that we are not going to have web path conflicts
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_names = make_valid_web_paths(Array($this->getValue()));
-		$name = array_shift($valid_names);
-
-		$sql = 'SELECT
-					a.assetid
-				FROM
-					'.SQ_TABLE_RUNNING_PREFIX.'ast a
-						JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-						ON a.assetid = l.minorid
-				WHERE
-					l.majorid = :majorid
-					AND a.name = :name';
-
-		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'majorid', $create_loc);
-			MatrixDAL::bindValueToPdo($query, 'name', $name);
-			$existing_file = MatrixDAL::executePdoOne($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to check for web path conflicts for filename: '.$name.' due to database error: '.$e->getMessage());
+		if (empty($this->_tmp['file_info'])) {
+			return TRUE;
 		}
 
+		$file_info = $this->_tmp['file_info'];
 		$ok = TRUE;
-		if ($existing_file) {
-			switch ($this->attr('overwrite_rule')) {
-				case 'D':
-					// error was already thrown and we shouldn't even be here
-					return;
-				break;
 
-				case 'O':
-					// want overwrite so just leave filename as is
-				break;
+		if ($file_info['error'] === UPLOAD_ERR_OK) {
+			$temp_path = $this->getTempFileUploadPath($parent).'/'.$this->getValue();
+			$this->createTempFileUpload($parent);
+			$this->extra_data = Array(
+										'temp_filesystem_path'	=> $temp_path,
+										'mime_type'				=> $file_info['type'];
+									);
 
-				case 'R':
-					// find a new name to rename the file to
-					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					$filename = $name;
-					while ($existing_file) {
-						$filename = increment_filename($filename);
+			// We only have to upload this once, so remove file info
+			unset($this->_tmp['file_info']);
+		} else if ($file_info['error'] !== UPLOAD_ERR_NO_FILE) {
+			// If no file uploaded, then that is fine, but otherwise, error
+			$ok = FALSE;
+		}
 
-						$sql = 'SELECT
-									a.assetid
-								FROM
-									'.SQ_TABLE_RUNNING_PREFIX.'ast a
-										JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
-										ON a.assetid = l.minorid
-								WHERE
-									l.majorid = :create_loc
-									AND a.name = :filename';
+		if (!isset($this->extra_data['temp_filesystem_path'])) {
+			$this->setValue('');
+		}
 
-						$query = MatrixDAL::preparePdoQuery($sql);
-						MatrixDAL::bindValueToPdo($query, 'create_loc', $create_loc);
-						MatrixDAL::bindValueToPdo($query, 'filename',   $filename);
-						$existing_file = MatrixDAL::executePdoOne($query);
-					}
-					$this->setValue($filename);
-				break;
-			}//end switch
-		}//end if
-
-		if ($existing_file) {
-
-			// update the existing file asset
-			$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
-			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
-			$edit_fns = $file_asset->getEditFns();
-			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $this->_tmp['file_info'])) {
-				if ($lock_status === 1) {
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-				}
-				return FALSE;
-			}
-			if ($lock_status === 1) {
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-			}
-
-		} else {
-
-			// Check the filetype of the file being uploaded and create the
-			// appropriate asset type
-
-			// We could do a lot more with mime types if it weren't for Firefox (1.5)
-			// apparently determining MIME type based on file extension anyway
-
-			list($mime_type, $mime_subtype) = explode('/', $this->_tmp['file_info']['type']);
-
-			switch (get_file_type($this->getValue())) {
-
-				case 'pdf' :
-						$new_asset_type = 'pdf_file';
-				break;
-				case 'doc' :
-				case 'dot' :
-						$new_asset_type = 'word_doc';
-				break;
-				case 'gif' :
-				case 'jpg' :
-				case 'jpeg' :
-				case 'png' :
-						$new_asset_type = 'image';
-				break;
-				default :
-						// could be text or file. Use mime type
-						if ($mime_type=='text') {
-							$new_asset_type = 'text_file';
-						} else {
-							$new_asset_type = 'file';
-						}
-				break;
-			}//end switch
-
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_asset_type);
-
-
-			$file_asset = new $new_asset_type();
-
-
-			$file_asset->_tmp['uploading_file'] = TRUE;
-
-			// set the run level to ensure the file is correctly saved without
-			// the hassle of having to deal with permission errors
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
-			$this->_tmp['file_info']['name'] = $this->getValue();
-			if (!$file_asset->create($link, $this->_tmp['file_info'])) {
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-				return FALSE;
-			}
-			// update the summary
-			$this->_tmp['summary'] = $this->_tmp['file_info']['name'].', type '.$this->_tmp['file_info']['type'].', '.easy_filesize($this->_tmp['file_info']['size']);
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-		}//end else $existing_file
-
-		return TRUE;
+		return $ok;
 
 	}//end saveValue()
+
+
+	/**
+	* Perform on-submit actions and validation
+	*
+	* @return boolean
+	*/
+	public function onSubmitForm(Asset $parent)
+	{
+		// Do we have a create location?
+		$question_create_loc = $this->attr('create_location');
+		$ok = TRUE;
+		$mime_type = array_get_index($this->extra_data, 'mime_type', '');
+
+		if (!empty($question_create_loc)) {
+			// If we are creating a File asset, we need to check whether we need
+			// to handle a web path conflict
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+			// We are only going to have one valid name, so this is no problem
+			$valid_names = make_valid_web_paths(Array($this->getValue()));
+			$name = array_shift($valid_names);
+
+			$create_location = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_create_loc);
+
+			// Find an asset underneath the create location that has the same
+			// web path as the new would-be asset.
+			// Only consider significant links.
+			$sql = 'SELECT assetid
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path
+						WHERE assetid IN
+							(SELECT a.assetid
+								FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
+									JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
+									ON a.assetid = l.minorid
+								WHERE
+									l.majorid = :majorid
+									AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', ':link_types').' > 0
+							)
+						AND path = :webpath
+					';
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'majorid',    $question_create_loc);
+				MatrixDAL::bindValueToPdo($query, 'link_types', SQ_SC_LINK_WEB_PATHS);
+				MatrixDAL::bindValueToPdo($query, 'webpath',    $name);
+				$existing_assetid = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to check for web path conflicts for filename: '.$name.' due to database error: '.$e->getMessage());
+			}
+
+			$existing_asset = NULL;
+			if (!empty($existing_assetid)) {
+				switch ($this->attr('overwrite_rule')) {
+					case 'D' :
+						// D = Raise a Submission Error
+						$this->failed_rules[] = translate('core_form_file_upload_already_exists', $this->attr('name'));
+						$ok = FALSE;
+					break;
+
+					case 'O' :
+						// O = Overwrite the file
+						$existing_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_assetid);
+
+						if (!($existing_asset instanceof File)) {
+							// We will not overwrite an asset that is not a File.
+							$this->failed_rules[] = 'Refusing to overwrite a non-File asset at web path '.$name.' - an uploaded file can only overwrite a File asset';
+							$ok = FALSE;
+						}
+					break;
+
+					case 'R' :
+						// R = Rename the uploaded file
+						// Use webPathsInUse() to help us here.
+						$suggested_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($create_location, $name, 0, TRUE);
+						$name = array_shift($suggested_paths);
+					break;
+				}
+			}
+
+			// We are all good, so create the file
+			if ($ok) {
+				if ($existing_asset) {
+					// update the existing file asset
+					$filepath = $this->getTempFileUploadPath($parent).'/'.$this->getValue();
+
+					$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($existing_asset->id, 'attributes');
+					$edit_fns = $existing_asset->getEditFns();
+
+					$file_info = Array(
+									'tmp_name'			=> $filepath,
+									'name'				=> basename($filepath),
+									'non_uploaded_file'	=> TRUE,
+								 );
+
+					$o = NULL;
+					if (!$edit_fns->processFileUpload($existing_asset, $o, $existing_asset->getPrefix(), $file_info)) {
+						if ($lock_status === 1) {
+							$GLOBALS['SQ_SYSTEM']->am->releaseLock($existing_asset->id, 'attributes');
+						}
+						return FALSE;
+					}
+					if ($lock_status === 1) {
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($existing_asset->id, 'attributes');
+					}
+
+					$this->extra_data = Array(
+											'existing_file_assetid'	=> $existing_asset->id,
+											'mime_type'				=> $mime_type,
+										);
+
+				} else {
+
+					$file_ext = get_file_type($this->getValue());
+
+					// Switch based on the file extension
+					if (in_array($file_ext, Array('gif', 'jpg', 'jpeg', 'png'))) {
+						$file_type = 'Image';
+
+					} else if (preg_match('/^do[ct][xm]?$/', $file_ext)) {
+						// DOC, DOT - MS Word (document, template respectively)
+						// DOCX, DOCM, DOTX, DOTM - MS Word 2007+ OOXML
+						$file_type = 'Word_Doc';
+
+					} else if (preg_match('/^xl[st][xm]?$/', $file_ext)) {
+						// XLS, XLT - MS Excel (workbook, template respectively)
+						// XLSX, XLSM, XLTX, XLTM - MS Excel 2007+ OOXML
+						$file_type = 'Excel_Doc';
+
+					} else if (preg_match('/^p(pt|ps|ot)[xm]?$/', $file_ext)) {
+						// PPT, PPS, POT - MS PowerPoint
+						// (presentation, slideshow, template respectively)
+						// [ext]X, [ext]M - MS PowerPoint 2007+ OOXML
+						$file_type = 'PowerPoint_Doc';
+
+					} else if ($file_ext === 'pdf') {
+						$file_type = 'PDF_File';
+
+					} else if ($file_ext === 'rtf') {
+						$file_type = 'RTF_File';
+
+					} else if ($file_ext === 'txt') {
+						$file_type = 'Text_File';
+
+					} else if (substr($mime_type, 0, 5) === 'text/') {
+						$file_type = 'Text_File';
+
+					} else {
+						$file_type = 'File';
+
+					}//end if on file extension
+
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($file_type);
+
+					$file_asset = new $file_type();
+					$file_asset->_tmp['uploading_file'] = TRUE;
+
+					$link = Array(
+								'asset'		=> $GLOBALS['SQ_SYSTEM']->am->getAsset($question_create_loc),
+								'link_type'	=> SQ_LINK_TYPE_2,
+							);
+
+					$filepath = $this->getTempFileUploadPath($parent).'/'.$this->getValue();
+
+					$file_info = Array(
+									'tmp_name'			=> $filepath,
+									'name'				=> basename($filepath),
+									'non_uploaded_file'	=> TRUE,
+								 );
+
+					if ($file_asset->create($link, $file_info)) {
+						$ok = FALSE;
+					}
+
+					unset($file_asset->_tmp['uploading_file']);
+
+					$this->extra_data = Array(
+											'new_file_assetid'	=> $file_asset->id,
+											'mime_type'			=> $mime_type,
+										);
+
+				}//end if existing file
+
+			}//end if OK
+
+		}//end if create location exists
+
+		return $ok;
+
+	}//end onSubmitForm()
+
+
+	/**
+	* Clean up after the submission is completed
+	*
+	* Once the form is done with the question, this function should be called
+	* to clean up the incomplete submission.
+	*
+	* @param Asset	$parent	The asser that called for the clean-up
+	*
+	* @return void
+	*/
+	public function cleanUp(Asset $parent)
+	{
+		$filepath = array_get_index($this->extra_data, 'temp_filesystem_path', NULL);
+		if (!empty($filepath)) {
+			delete_directory(dirname($filepath));
+		}
+
+	}//end cleanUp()
+
+
+	/**
+	* Create incomplete file upload in the parent's space
+	*
+	* @param Asset	$parent	The parent asset for this file upload question.
+	*						This is most likely a Form, but could be the parent
+	*						of a Simple Form.
+	*
+	* @return void
+	*/
+	public function createTempFileUpload(Asset $parent)
+	{
+		$file_info = $this->_tmp['file_info'];
+
+		if ($file_info['error'] === UPLOAD_ERR_OK) {
+			$submission_path = $this->getTempFileUploadPath($parent);
+			create_directory($submission_path);
+
+			// Remove existing uploads, to ensure that there is only one file
+			// associated with an incomplete attachment
+			$dir = new DirectoryIterator($submission_path);
+			foreach ($dir as $dir_entry) {
+				if ($dir_entry->isFile()) {
+					unlink($dir_entry->getPathname());
+				}
+			}
+
+			$submission_file_name = $submission_path.'/'.$file_info['name'];
+
+			move_uploaded_file($file_info['tmp_name'], $submission_file_name);
+			$this->setValue(basename($submission_file_name));
+		}
+
+	}//end createTempFileUpload()
+
+
+	/**
+	* Returns the filesystem path
+	*
+	* @return string
+	*/
+	public function getTempFileUploadPath(Asset $parent)
+	{
+		if (method_exists($parent, 'getTempFileUploadPath')) {
+			$submission_path = $parent->getTempFileUploadPath();
+		} else {
+			$submission_path = $this->data_path.'/attachments/'.session_id().'_'.$parent->id;
+		}
+
+		$submission_path .= '/'.str_replace(':', '_', $this->id);
+
+		return $submission_path;
+	}
 
 
 	/**

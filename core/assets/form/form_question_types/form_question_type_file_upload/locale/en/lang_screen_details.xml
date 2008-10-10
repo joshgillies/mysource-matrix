@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.6 2008/10/10 03:33:09 lwright Exp $
 */
 -->
 
 <contents>
 	<section name="Locking / Editing">
-	    <field>
+		<field>
 			<display_name></display_name>
 			<note></note>
 			<function_call>
@@ -26,7 +26,7 @@
 		</field>
 	</section>
 	<section name="Question Options">
-	    <field attribute="name">
+		<field attribute="name">
 			<display_name>Title</display_name>
 			<note></note>
 		</field>
@@ -52,7 +52,7 @@
 		</field>
 	</section>
 	<section name="Simple Validation Rules">
-	    <field attribute="is_required">
+		<field attribute="is_required">
 			<display_name>Required Entry?</display_name>
 			<note>If required, a file must be uploaded at this question before the form can be submitted</note>
 		</field>
@@ -60,9 +60,13 @@
 			<display_name>Custom Required Error</display_name>
 			<note>This message will replace the default required error message</note>
 		</field>
-	    <field attribute="overwrite_rule">
+		<field attribute="overwrite_rule">
 			<display_name>Overwrite Rule</display_name>
-			<note>Specify what action is to be taken if a File asset exists in the create location with the same name is uploaded</note>
+			<note>If a <![CDATA[<em>Create Location</em>]]> is specified above, this action will be taken if the Create Location contains an asset with the same web path as the file being uploaded. The following options are available:<![CDATA[<ul>
+			<li><strong>Overwrite Existing File:</strong> If the web path conflict is with another File asset, store the newly uploaded file into that asset. If the conflict is with an asset that is a <em>not</em> a File, a submission error will appear instead.</li>
+			<li><strong>Rename Uploaded File:</strong> Apply a numeric suffix to the uploaded file's name (<em>file.ext</em> would be renamed <em>file2.ext</em>, then <em>file3.ext</em>, and so on), until the conflict is resolved.</li>
+			<li><strong>Raise a Submission Error:</strong> Do not overwrite or rename the uploaded file. An submission error will appear on the <em>last</em> page of the form if a naming conflict arises.</li>
+			</ul>]]>The Overwrite Rule will be applied after the form is finally submitted. If a <![CDATA[<em>Create Location</em>]]> is not specified, this option has no effect.</note>
 		</field>
 	</section>
 	<section name="Complex Validation Rules" />
