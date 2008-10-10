@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.25 2008/10/10 04:48:21 ata Exp $
+* $Id: form_question_type_file_upload.inc,v 1.26 2008/10/10 05:00:57 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,7 +135,29 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function hasValidValue($answer=NULL, $mute_errors=FALSE)
 	{
-		return TRUE;
+		if ($this->_tmp['file_info'] === FALSE) {
+			// there was an upload error
+			$this->failed_rules[] = translate('core_form_file_upload_error', $this->attr('name'));
+			return FALSE;
+		}
+
+		$ok = TRUE;
+
+		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
+			// no file uploaded to required field
+			if (strlen($this->attr('cust_required_error'))) {
+				$this->failed_rules[] = $this->attr('cust_required_error');
+			} else {
+				$this->failed_rules[] = translate('core_form_file_upload_none_rule', $this->attr('name'));
+			}
+			$ok = FALSE;
+		}
+
+		if ($ok) {
+			return parent::hasValidValue($answer, $mute_errors);
+		}
+
+		return FALSE;
 
 	}//end hasValidValue()
 
