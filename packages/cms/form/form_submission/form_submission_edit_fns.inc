@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.24 2007/12/07 06:01:49 bshkara Exp $
+* $Id: form_submission_edit_fns.inc,v 1.25 2008/10/10 03:52:51 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -89,7 +89,6 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSubmissionAnswers(&$asset, &$o, $prefix)
 	{
-
 		$wa = $asset->writeAccess('attributes');
 		$is_editable_q = FALSE;
 
@@ -140,16 +139,30 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				if ($q->isEditable() && !$is_editable_q) {
 					$is_editable_q = TRUE;
 				}
+
 				if (isset($section_questions[$section_id][$q_id])) {
-					$q->setValue($section_questions[$section_id][$q_id]['answer']);
+					$q->setValue(array_get_index($section_questions[$section_id][$q_id], 'answer', ''));
+					$q->setExtraData(array_get_index($section_questions[$section_id][$q_id], 'extra_data', Array()));
 				}
+
 				$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
+
 				$o->openField($q->getVal('title'), '', $note);
 				if ($q->isEditable() && $wa) {
 					echo $q->getHtmlField();
 					$is_editable_q = TRUE;
 				} else {
-					echo $q->getSummary().'&nbsp;';
+					$summary = $q->getSummary();
+
+					if ($q instanceof Form_Question_Type_File_Upload) {
+						$filepath = $q->getExtraData('filesystem_path');
+						if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && !empty($filepath)) {
+							$summary .= ' [ <a href="./?a='.$asset->id.'&q='.$q->id.'">'.'Click to download'.'</a> ]';
+						}
+					}
+
+					$summary .= '&nbsp;';
+					echo $summary;
 				}
 				$section_questions[$section_id][$q_id]['printed'] = TRUE;
 				$o->closeField();
@@ -187,6 +200,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 		$this->_tmp['question_errors'] = Array();
 		$unanswered_questions = $form->getAllQuestionAssets();
+
 		foreach ($attributes['answers'] as $q_id => $details) {
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_id);
 			if (!is_null($question_asset)) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.32 2008/08/15 01:54:58 bpearson Exp $
+* $Id: form_submission.inc,v 1.33 2008/10/10 03:52:51 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,6 +63,25 @@ class Form_Submission extends Asset
 		return FALSE;
 
 	}//end getAnswer()
+
+
+	/**
+	* returns the Extra Data of an question - returns an empty array if not exist
+	*
+	* @param int	$id	the id of the question
+	*
+	* @return Array
+	* @access public
+	*/
+	function getExtraData($id)
+	{
+		$a = $this->attr('attributes');
+		if (isset($a['answers'][$id]['extra_data'])) {
+			return $a['answers'][$id]['extra_data'];
+		}
+		return Array();
+
+	}//end getExtraData()
 
 
 	/**
@@ -110,6 +129,31 @@ class Form_Submission extends Asset
 
 
 	/**
+	* sets the Extra Data for a question's response
+	*
+	* @param int	$id		the id of the question
+	* @param Array	$data	the Extra Data of the question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setExtraData($id, Array $data=NULL)
+	{
+		$a = $this->attr('attributes');
+		if (empty($a['answers'])) $a['answers'] = Array();
+
+		$a['answers'][$id]['extra_data'] = $data;
+
+		if (!$this->setAttrValue('attributes', $a)) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end setAnswer()
+
+
+	/**
 	* set a form error into the error store
 	*
 	* @param string	$error	the error to set
@@ -143,7 +187,7 @@ class Form_Submission extends Asset
 	function getErrors()
 	{
 		$a = $this->attr('attributes');
-		return $a['errors'];
+		return array_get_index($a, 'errors', Array());
 
 	}//end getErrors()
 
@@ -192,7 +236,7 @@ class Form_Submission extends Asset
 	function getAnswers()
 	{
 		$a = $this->attr('attributes');
-		return $a['answers'];
+		return array_get_index($a, 'answers', Array());
 
 	}//end getAnswers()
 
@@ -300,6 +344,30 @@ class Form_Submission extends Asset
 	*/
 	function printBody()
 	{
+		if ($_GET['q'] && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+			// Download a file upload, but only if we are on the backend somewhere
+			$question_assetid = $_GET['q'];
+			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_assetid, '', TRUE);
+
+			if ($question_asset && ($question_asset instanceof Form_Question_Type_File_Upload)) {
+				$extra_data = $this->getExtraData($question_assetid);
+				if (!empty($extra_data['filesystem_path'])) {
+					$filepath = $extra_data['filesystem_path'];
+					if (is_file($filepath)) {
+						require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+						$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), 'application/octet-stream');
+
+						header('Content-type: '.$type);
+						header('Content-disposition: attachment; filename="'.(basename($filepath)).'"');
+						header('Content-length: '.filesize($filepath));
+						echo file_get_contents($filepath);
+					}
+				}
+			}
+
+			exit(0);
+		}
+
 		$summary = $this->attr('attributes');
 		$summary = $summary['summary'];
 		?>
