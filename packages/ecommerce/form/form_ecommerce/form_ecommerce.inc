@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.43 2008/10/02 01:35:16 hnguyen Exp $
+* $Id: form_ecommerce.inc,v 1.44 2008/10/10 04:31:29 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -212,6 +212,7 @@ class Form_Ecommerce extends Form_Email
 
 		if (!empty($order)) {
 			$this->current_answers = $order['submission'];
+			$this->extra_data = $order['submission_extra_data'];
 			$this->repopulate();
 		}
 
@@ -220,7 +221,7 @@ class Form_Ecommerce extends Form_Email
 		// check to see if the form has been submitted or not
 		$action = array_get_index($_REQUEST, $this->getPrefix().'_action');
 		if (isset($_REQUEST[$this->getPrefix().'_submit'])) {
-			if ($this->processForm() && empty($action)) {
+			if ($this->processPage(1) && empty($action)) {
 				$action = $this->confirm_view;
 			}
 		}
@@ -347,6 +348,7 @@ class Form_Ecommerce extends Form_Email
 				$this->_deleteOrderFile();
 
 				$this->current_answers = $order['submission'];
+				$this->extra_data = $order['submission_extra_data'];
 				// re-populate the active submissions
 				$this->repopulate();
 
@@ -878,25 +880,7 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function processForm()
 	{
-		$ok = TRUE;
-		$this->submission_errors = Array();
-
-		// verify captcha
-		if ($this->attr('require_captcha') && !validate_security_key()) {
-			$this->submission_errors = array_merge($this->submission_errors, translate('security_key_incorrect'));
-			$ok = FALSE;
-		}
-		$questions =& $this->getAllQuestionAssets();
-		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-			$question->populate();
-			if (!$question->hasValidValue()) {
-				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
-				$ok = FALSE;
-			}
-			$this->current_answers[$question->id] = $question->getValue();
-		}
-
-		return $ok;
+		return parent::processPage(1);
 
 	}//end processForm()
 
@@ -922,7 +906,7 @@ class Form_Ecommerce extends Form_Email
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		// save question values
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-			$question->saveValue();
+			$question->saveValue($this);
 
 			// If the question is sticky, stick the value then
 			if ($question->attr('sticky')) {
@@ -1176,6 +1160,7 @@ class Form_Ecommerce extends Form_Email
 		$order['taxable_total'] = $taxable_total;
 		$order['total'] = $total;
 		$order['submission'] = $this->current_answers;
+		$order['submission_extra_data'] = $this->extra_data;
 
 		$_SESSION[$this->getPrefix()]['order'] = $order;
 
@@ -1305,97 +1290,6 @@ class Form_Ecommerce extends Form_Email
 
 
 	/**
-	* Get keywords for thank you bodycopy
-	*
-	* @return array
-	* @access private
-	*/
-	function _getThankYouBodycopyKeywords()
-	{
-		$keywords = parent::_getThankYouBodycopyKeywords();
-
-		$keywords['confirm_text'] = 'Confirm and pay button text';
-		$keywords['cancel_text'] = 'Text Used on "Cancel" button';
-
-		$keywords['confirm_url'] = 'URL to Confirmation Screen';
-		$keywords['cancel_url'] = 'URL to Cancel Screen';
-
-		$keywords['order_item_count'] = 'Count of items being purchased';
-		$keywords['order_total'] = 'Total';
-		$keywords['order_total_excluding_tax'] = 'Total minus tax';
-		$keywords['order_total_tax'] = 'Total tax';
-		$keywords['order_taxable_total'] = 'Taxable total';
-		$keywords['order_taxable_item_count'] = 'Count of taxable items being purchased';
-		$keywords['order_item_list'] = 'List of items being purchased';
-
-		$keywords['tax_rate'] = 'Tax Rate';
-		$keywords['tax_name'] = 'Tax Name';
-
-		$keywords['taxable_item_string'] = 'String appended to the taxable items';
-
-		return $keywords;
-
-	}//end _getThankYouBodycopyKeywords()
-
-
-	/**
-	* Confirm Text keyword replacement
-	*
-	* @return string
-	* @access private
-	*/
-	function getConfirmTextKeywordReplacement()
-	{
-		return $this->attr('confirm_button_name');
-
-	}//end getConfirmTextKeywordReplacement()
-
-
-	/**
-	* Cancel Text keyword replacement
-	*
-	* @return string
-	* @access private
-	*/
-	function getCancelTextKeywordReplacement()
-	{
-		return $this->attr('cancel_button_name');
-
-	}//end getCancelTextKeywordReplacement()
-
-
-	/**
-	* Confirm URL keyword replacement
-	*
-	* @return string
-	* @access private
-	*/
-	function getConfirmUrlKeywordReplacement()
-	{
-		$confrim_url = $this->getUrl();
-		$confrim_url .= '?'.$this->getPrefix().'_action=process';
-
-		return $confrim_url;
-
-	}//end getConfirmUrlKeywordReplacement()
-
-
-	/**
-	* Cancel URL keyword replacement
-	*
-	* @return string
-	* @access private
-	*/
-	function getCancelUrlKeywordReplacement()
-	{
-		$cancel_url = $this->getUrl();
-
-		return $cancel_url;
-
-	}//end getCancelUrlKeywordReplacement()
-
-
-	/**
 	* Get parent page asset id
 	*
 	* @return string
@@ -1458,6 +1352,103 @@ class Form_Ecommerce extends Form_Email
 		return $url;
 
 	}//end getUrl()
+
+
+//--        KEYWORDS AVAILABLE        --//
+
+
+	/**
+	* Get keywords for thank you bodycopy
+	*
+	* @return array
+	* @access private
+	*/
+	function _getThankYouBodycopyKeywords()
+	{
+		$keywords = parent::_getThankYouBodycopyKeywords();
+
+		$keywords['confirm_text'] = 'Confirm and pay button text';
+		$keywords['cancel_text'] = 'Text Used on "Cancel" button';
+
+		$keywords['confirm_url'] = 'URL to Confirmation Screen';
+		$keywords['cancel_url'] = 'URL to Cancel Screen';
+
+		$keywords['order_item_count'] = 'Count of items being purchased';
+		$keywords['order_total'] = 'Total';
+		$keywords['order_total_excluding_tax'] = 'Total minus tax';
+		$keywords['order_total_tax'] = 'Total tax';
+		$keywords['order_taxable_total'] = 'Taxable total';
+		$keywords['order_taxable_item_count'] = 'Count of taxable items being purchased';
+		$keywords['order_item_list'] = 'List of items being purchased';
+
+		$keywords['tax_rate'] = 'Tax Rate';
+		$keywords['tax_name'] = 'Tax Name';
+
+		$keywords['taxable_item_string'] = 'String appended to the taxable items';
+
+		return $keywords;
+
+	}//end _getThankYouBodycopyKeywords()
+
+
+//--        KEYWORD REPLACEMENT FUNCTIONS        --//
+
+
+	/**
+	* Confirm Text keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getConfirmTextKeywordReplacement()
+	{
+		return $this->attr('confirm_button_name');
+
+	}//end getConfirmTextKeywordReplacement()
+
+
+	/**
+	* Cancel Text keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCancelTextKeywordReplacement()
+	{
+		return $this->attr('cancel_button_name');
+
+	}//end getCancelTextKeywordReplacement()
+
+
+	/**
+	* Confirm URL keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getConfirmUrlKeywordReplacement()
+	{
+		$confrim_url = $this->getUrl();
+		$confrim_url .= '?'.$this->getPrefix().'_action=process';
+
+		return $confrim_url;
+
+	}//end getConfirmUrlKeywordReplacement()
+
+
+	/**
+	* Cancel URL keyword replacement
+	*
+	* @return string
+	* @access private
+	*/
+	function getCancelUrlKeywordReplacement()
+	{
+		$cancel_url = $this->getUrl();
+
+		return $cancel_url;
+
+	}//end getCancelUrlKeywordReplacement()
 
 
 	/**
