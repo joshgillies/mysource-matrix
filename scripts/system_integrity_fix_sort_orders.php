@@ -10,19 +10,19 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_sort_orders.php,v 1.1.2.3 2008/10/09 23:45:17 bshkara Exp $
+* $Id: system_integrity_fix_sort_orders.php,v 1.1.2.4 2008/10/10 00:34:19 bshkara Exp $
 *
 */
 
 /**
-* Ensure the sort_order in the sq_ast_lnk table is linear.
+* Ensures the sort_order in the sq_ast_lnk table is linear.
 * Takes into consideration the existing sort_order.
 * You may specify a parent node to start from.  If omitted, the process will start from the root folder.
 * Note: This will not sort shadow asset links.
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -83,7 +83,7 @@ $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 
 /**
-* Ensure the sort order is linear and consistent taking into account the existing sort_order
+* Ensures the sort order is linear taking into account the existing sort_order
 * Begins from the provided root node and cleans all branches stemming from the provided root node
 * Note: This is based on Tom's Tool_Asset_Sorter - the difference: Tom's tool is not based on existing sort_order and does not recurse
 *
@@ -155,20 +155,20 @@ function sortAssets($todo, $done)
 		if (!empty($childids)) {
 			echo "\n\t".'- Searching immediate children of: #'.$parentid.' for branches';
 			foreach ($childids as $assetid) {
-				// these are the kids that we have already sorted
-				// check to see if they are parents as well
-				// shadow asset links are ignored
-				$sql = 'SELECT minorid
-						FROM sq_ast_lnk
-						WHERE majorid = '.$db->quote($assetid);
-				$children = $db->getCol($sql);
-				assert_valid_db_result($children);
+				// check that we have not processed it yet
+				if (!in_array($assetid, $done)) {
+					// these are the kids that we have already sorted
+					// check to see if they are parents as well
+					// shadow asset links are ignored
+					$sql = 'SELECT minorid
+							FROM sq_ast_lnk
+							WHERE majorid = '.$db->quote($assetid);
+					$children = $db->getCol($sql);
+					assert_valid_db_result($children);
 
-				if ((!empty($children)) && count($children) > 1) {
-					// we have a potential new parent
-					// 1. check that we have not processed it yet
-					if (!in_array($assetid, $done)) {
-						// 2. check that the returned children contain at least one TYPE 1 or 2 linked asset
+					if ((!empty($children)) && count($children) > 1) {
+						// we have a potential new parent
+						// check that the returned children contain at least one TYPE 1 or 2 linked asset
 						// e.g. asset could just be tagged with a thesaurus term (shadow link), meaning it is not a valid parent
 						$valid = FALSE;
 						foreach ($children as $grandchild) {
