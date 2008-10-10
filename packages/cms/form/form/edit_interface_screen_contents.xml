@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.26 2007/06/13 06:56:54 hnguyen Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.27 2008/10/10 04:25:25 lwright Exp $
 *
 */
 -->
@@ -45,6 +45,9 @@
 		</field>
 	</section>
 	<section name="Formatting">
+		<field attribute="use_confirmation_page">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 		<field>
 			<function_call>
 				<paint_function   name="paintUseBodycopy"   />
@@ -81,6 +84,32 @@
 		</field>
 		<field attribute="captcha_link_text">
 			<text width="50" />
+		</field>
+	</section>
+	<section name="Multiple Page Form Options">
+		<field attribute="multi_page">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="next_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="previous_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="save_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="save_and_exit_button">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="page_list_format">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="unattached_page_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="confirmation_page_name">
+			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Simple Formatting">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.54 2008/02/18 05:26:27 lwright Exp $
+* $Id: form_management.inc,v 1.55 2008/10/10 04:25:25 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -115,6 +115,30 @@ class Form_Management extends Asset_Management
 																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
+						'use_bodycopy_exit'			=> Array(
+														'added'			=> '0.0.1',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'use_bodycopy_confirmation'	=> Array(
+														'added'			=> '0.13',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'use_bodycopy_unattached'	=> Array(
+														'added'			=> '0.13',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
 						'use_client_side'			=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'boolean',
@@ -159,6 +183,83 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.9',
 														'type'		=> 'text',
 														'default'	=> 'Regenerate security key',
+													   ),
+						'multi_page'				=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'boolean',
+														'default'	=> FALSE,
+														'description'	=> 'If TRUE, top-level sections will be used as pages in a multi-page form, ordered by sort order. Unattached questions will appear on a first page, before the first section. If FALSE, the form will appear on a single page.',
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'use_confirmation_page'		=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'boolean',
+														'default'	=> FALSE,
+														'description'	=> 'Add a confirmation page after the final page of the form, allowing users of the form to review their entries before submitting.',
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'next_button'			=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> 'Next Page',
+														'description'	=> 'Sets the text of a Next Page button for multiple page forms. Next Page and Submit buttons both use the Submit Button keyword, however will show the Next Page text when there are still pages to view (rather than Submit on the last page).'
+													   ),
+						'previous_button'		=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> 'Previous Page',
+														'description'	=> 'Sets the text of a Previous Page button for multiple page forms. In a single-page form, any Previous Page button keywords will be blanked out.'
+													   ),
+						'save_button'			=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> 'Save',
+														'description'	=> 'Text of the Save button for multiple-page forms. The Save button saves the current page\'s contents (without validating), and reloads the same page.'
+													   ),
+						'save_and_exit_button'	=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> 'Save and Exit',
+														'description'	=> 'Text of the Save and Exit button for multiple-page forms. Save and Exit saves the current page\'s contents (without validating), and then paints an "Exit Bodycopy". The current page counter is not changed from where the user clicked Save and Exit.'
+													   ),
+						'unattached_page_name'		=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> 'Unattached Questions',
+														'description'	=> 'Page name in a multi-page form for the "Unattached Questions" page (ie. questions attached directly to the form), which are displayed as Page 1 when at least one exists.'
+													   ),
+						'confirmation_page_name'	=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> 'Confirmation',
+														'description'	=> 'Page name in a multi-page form for the "Confirmation" page, when turned on.'
+													   ),
+						'page_list_format'			=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> '%page_number%',
+														'description'	=> 'A format for each entry of a page list. Keywords allowed. HTML allowed, but keyword replacements will be escaped.'
+													   ),
+						'submission_warning_time'	=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'duration',
+														'default'	=> 0,
+														'description'	=> 'Length of time before a warning email is sent out to the owner of an incomplete submission',
+													   ),
+						'submission_expiry_time'	=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'duration',
+														'default'	=> 0,
+														'description'	=> 'Length of time until an incomplete submission is liable to be mopped up by a clean-up procedure',
+													   ),
+						'warning_email_format'		=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'email_format',
+														'default'	=> Array(),
 													   ),
 					  );
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.193 2008/08/18 05:32:51 bpearson Exp $
+* $Id: form.inc,v 1.194 2008/10/10 04:25:25 lwright Exp $
 *
 */
 
@@ -18,6 +18,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
@@ -27,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -37,9 +38,20 @@ class Form extends Asset implements Bridge
 
 	/**
 	* the current answers to the form questions
-	* @var object Form_Submission
+	* @var Array
 	*/
 	var $current_answers = Array();
+
+
+	/**
+	* A form-level variable to store current "Extra Data" attached to its
+	* questions
+	*
+	* Keyed by "questionid => array of Extra Data"
+	*
+	* @var Array
+	*/
+	var $extra_data = Array();
 
 
 	/**
@@ -77,6 +89,9 @@ class Form extends Asset implements Bridge
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+//--        GENERIC ASSET FUNCTIONS        --//
 
 
 	/**
@@ -118,62 +133,13 @@ class Form extends Asset implements Bridge
 	*/
 	function _createAdditional(&$link)
 	{
-		if (!$this->_createSubmissionsFolder()) return FALSE;
+		if (!$this->createSubmissionsFolder(translate('submissions'), 'submissions_folder')) {
+			return FALSE;
+		}
+
 		return parent::_createAdditional($link);
 
 	}//end _createAdditional()
-
-
-	/**
-	* Create the folder for storing submissions
-	*
-	* @return boolean
-	* @access protected
-	*/
-	function _createSubmissionsFolder()
-	{
-		$existing = $this->getSubmissionsFolder();
-		if (!empty($existing)) return TRUE;
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-		$folder = new Folder();
-		$folder->setAttrValue('name', translate('submissions'));
-		$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'submissions_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
-		if (!$folder->create($folder_link)) {
-			trigger_localised_error('CMS0070', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-		// Deny public read access to the submissions folder by default
-		// force run level so users without admin permissions can still create a form
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE, TRUE)) {
-			return FALSE;
-		}
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-		return TRUE;
-
-	}//end _createSubmissionsFolder()
-
-
-	/**
-	* Get the submissions folder
-	*
-	* @return object
-	* @access public
-	*/
-	function &getSubmissionsFolder()
-	{
-		$res = NULL;
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
-		if (!empty($link)) {
-			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'folder');
-		}
-		return $res;
-
-	}//end getSubmissionsFolder()
 
 
 	/**
@@ -193,6 +159,32 @@ class Form extends Asset implements Bridge
 
 
 	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$page_links = Array(
+						SQ_LINK_TYPE_2	=> Array(
+											'form_section'	=> Array(
+																'card'		=> 'M',
+																'exclusive'	=> FALSE,
+															   ),
+											'folder'		=> Array(
+																'card'		=> '3',
+																'exclusive'	=> TRUE,
+															   ),
+										   ),
+					  );
+		return $page_links;
+
+	}//end _getAllowedLinks()
+
+
+	/**
 	* Allow any required processesing to occur when any link is updated for the asset
 	*
 	* Bug Fix #1671
@@ -208,13 +200,218 @@ class Form extends Asset implements Bridge
 	}//end linksUpdated()
 
 
+
+	/**
+	* Clones certain specified components of the asset
+	*
+	* @param object		&$clone		the clone asset shell
+	* @param array		$components	the wanted components to clone eg.
+	* <pre>
+	* 								Array(
+	* 									'attributes',
+	* 									'metadata_schemas',
+	* 									'metadata',
+	* 									'workflow',
+	* 									'permissions',
+	* 									'data',
+	* 									'content_tags',
+	* 									'roles',
+	* 								);
+	* 								or alternately
+	* 								Array('all');
+	* </pre>
+	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components, $override=FALSE)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::cloneComponents($clone, $components, $override)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			$sort_order = $this->attr('sort_order');
+			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
+
+			// save the information
+			$clone->setAttrValue('sort_order', $sort_order);
+			$clone->saveAttributes();
+
+			// Change the content of the content type to replace question id.
+
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
+
+	}//end cloneComponents()
+
+
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param object	&$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array (
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data',
+	*							);
+	*							or alternately
+	*							Array('all');
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponentsAdditional()
+	*/
+	function cloneComponentsAdditional(&$clone, $components)
+	{
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+
+
+			$section_links = $this->getSectionLinks();
+			$clone_section_links = $clone->getSectionLinks();
+
+			$originals_clones	= Array();
+			foreach ($section_links as $link) {
+				foreach ($clone_section_links as $cloned_link) {
+					if ($cloned_link['sort_order'] == $link['sort_order']) {
+						// Create a new array mapping original id and cloned id of sections.
+						$originals_clones[]	= Array (
+												'original'	=> $link['minorid'],
+												'clone'		=> $cloned_link['minorid'],
+											  );
+					}
+				}
+			}
+
+			// Might as well add this form and its clone to the list to do.
+			$originals_clones[]	= Array (
+									'original'	=> $this->id,
+									'clone'		=> $clone->id,
+								  );
+
+			// Now get all the bodycopies, and get their content types
+			$bodycopies	= Array (
+							'use_bodycopy_main'			=> 'Page Contents',
+							'use_bodycopy_thank_you'	=> 'Thank You',
+						  );
+			$replace_keywords = Array ( 'question_name', 'response', 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
+			foreach ($bodycopies as $attribute => $bodycopy_name) {
+				$bodycopy = NULL;
+				$attr_value = $clone->attr($attribute);
+				if (!empty($attr_value)) {
+					$bodycopy = $clone->getBodycopy($bodycopy_name);
+				}
+				if (!empty($bodycopy)) {
+					$containers = $bodycopy->getContainers();
+					foreach ($containers as $container) {
+						$content_type = $container->getContentType();
+						if ($container->type() == 'bodycopy_table') {
+							if (is_array($content_type)) {
+								foreach ($content_type as $cell_type) {
+									if (!$this->_cloneDIVContents($cell_type, $originals_clones, $replace_keywords)) {
+										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+										$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+										return FALSE;
+									}//end if
+								}//end foreach
+							} else {
+								if (!$this->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+									$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+									return FALSE;
+								}//end if
+							}//end if
+						} else {
+							if (!$this->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								return FALSE;
+							}//end if
+						}//end if
+					}//end foreach
+				}//end if
+			}//end foreach
+
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+		}//end if components
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
+
+	}//end cloneComponentsAdditional()
+
+
+	/**
+	* Clone the contents div assets
+	*
+	* @param object	$content_type		The content type asset to be cloned
+	* @param array	$original_clones	An array containing the assetids of the original and cloned assets
+	* @param array	$replace_keywords	An array containing the keyword of the assets
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _cloneDIVContents($content_type, $original_clones=Array(), $replace_keywords=Array())
+	{
+		$old_html = $content_type->attr('html');
+		if (!empty($old_html) && !empty($original_clones)) {
+			$new_html = $content_type->attr('html');
+			foreach ($original_clones as $original_clone) {
+				// Replace the old question id with the new question id
+				foreach ($replace_keywords as $keyword) {
+					if ($keyword == 'section_title') {
+						$new_html = str_replace($keyword.'_'.$original_clone['original'], $keyword.'_'.$original_clone['clone'], $new_html);
+					} else {
+						$new_html = str_replace($keyword.'_'.$original_clone['original'].'_q', $keyword.'_'.$original_clone['clone'].'_q', $new_html);
+					}
+				}//end foreach
+			}//end foreach
+
+			// Save and check for errors, the rollback occurs above
+			if (!$content_type->setAttrValue('html', $new_html)) {
+				return FALSE;
+			}//end if
+
+			if (!$content_type->saveAttributes()) return FALSE;
+
+		}//end if
+
+		return TRUE;
+
+	}//end _cloneDIVContents()
+
+
 //--        BRIDGE FUNCTIONS        --//
 
 
 	/**
 	* Returns a reference to the asset represented by the passed assetid (or NULL on error)
 	*
-	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param int		$assetid		the full asset ID to be loaded
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -225,10 +422,10 @@ class Form extends Asset implements Bridge
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	public function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
-		$id_parts = explode(':', $shadowid);
+		$id_parts = explode(':', $assetid);
 
 		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
@@ -346,18 +543,16 @@ class Form extends Asset implements Bridge
 
 			// we are getting this type?
 			if ($get_type) {
-				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
-				if (empty($links_query)) return Array();
+				$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($assetid, $link_types & $allowed_link_types, $real_type_code, FALSE);
+				if (empty($query)) return Array();
 
+				$db = MatrixDAL::getDb();
 				try {
-					$sql = implode(' ', $links_query['sql_array']);
-					$query = MatrixDAL::preparePdoQuery($sql);
-
-					foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
-						MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+					$stmt = MatrixDAL::preparePdoQuery(implode(' ', $query['sql_array']));
+					foreach ($query['bind_vars'] as $bind_var => $bind_value) {
+						MatrixDAL::bindValueToPdo($stmt, $bind_var, $bind_value);
 					}
-
-					$type_links = MatrixDAL::executePdoGroupedAssoc($query);
+					$type_links = MatrixDAL::executePdoGroupedAssoc($stmt);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get links for asset: '.$assetid.' due to database error: '.$e->getMessage());
 				}
@@ -705,1676 +900,32 @@ class Form extends Asset implements Bridge
 
 
 	/**
-	* regenerates the content file for this form
+	* Return the number of links in the system that involve the specified asset
 	*
-	* @return boolean
-	* @access public
-	*/
-	function fileRegeneration()
-	{
-		$edit = $this->getEditFns();
-		return $edit->generateStandardContentFile($this);
-
-	}//end fileRegeneration()
-
-
-//--       QUESTION MANAGEMENT       --//
-
-
-	/**
-	* get the question links attached to this form
+	* Can be restricted by either link type and/or asset type code
 	*
-	* @return array
-	* @access public
-	*/
-	function &getQuestions()
-	{
-		$questions = $this->attr('questions');
-		return $questions;
-
-	}//end getQuestions()
-
-
-	/**
-	* get the assetids of ALL of this form's questions, including those
-	* inside sections
-	*
-	* Returns an array of (full assetid => question detail)
-	*
-	* @return array
-	* @access public
-	*/
-	function &getAllQuestions()
-	{
-		// getQuestions() returns an array of (q_id => detail) - this is
-		// ambiguous to return if sections are present, so we need to convert
-		// to an asset ID
-
-		$all_questions = Array();
-		$questions = $this->getQuestions();
-		foreach ($questions as $q_id => $question_detail) {
-			$all_questions[$this->id.':q'.$q_id] = $question_detail;
-		}
-
-		$sections = $this->getSections();
-		foreach ($sections as $section) {
-			$questions = $section->getQuestions();
-			foreach ($questions as $q_id => $question_detail) {
-				$all_questions[$section->id.':q'.$q_id] = $question_detail;
-			}
-		}
-
-		return $all_questions;
-
-	}//end getAllQuestions()
-
-
-	/**
-	* get the question assets attached to this form
-	*
-	* @return array
-	* @access public
-	*/
-	function &getQuestionAssets()
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$result = Array();
-
-		$questions = $this->attr('questions');
-		if (!empty($questions)) {
-			foreach ($questions as $q_id => $question) {
-				$id           = $this->id.':q'.$q_id;
-				$result[$id]  = $am->getAsset($id);
-			}
-		}
-
-		return $result;
-
-	}//end getQuestionAssets()
-
-
-	/**
-	* get the question assets attached to this form, even inside sections
-	*
-	* @return array
-	* @access public
-	*/
-	function &getAllQuestionAssets()
-	{
-		$all_questions = $this->getQuestionAssets();
-
-		$sections = $this->getSections();
-		foreach ($sections as $section) {
-			$questions = $section->getQuestionAssets();
-			$all_questions = array_merge($all_questions, $questions);
-		}
-
-		return $all_questions;
-
-	}//end getAllQuestionAssets()
-
-
-//--        ADDING AND DELETING QUESTIONS        --//
-
-
-	/**
-	* attach a question to this form
-	*
-	* Returns boolean FALSE if a database problem occurs or if question already
-	* attached, or TRUE if sucessful
-	*
-	* @param string	$type_code	the type code of the question we are adding
-	*
-	* @return boolean
-	* @access public
-	*/
-	function attachQuestion($type_code)
-	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$questions = $this->getQuestions();
-		if ($this->attr('next_questionid') > 0) {
-			$new_key = $this->attr('next_questionid');
-		} else if (empty($questions)) {
-			$new_key = 1;
-		} else {
-			$new_key = max(array_keys($questions)) + 1;
-		}
-
-		$questions[$new_key] = Array(
-								'question_type_code'	=> $type_code,
-								'attributes'			=> Array('name' => 'Question '.(count($questions)+1)),
-							   );
-
-		$this->setAttrValue('questions', $questions);
-		$this->setAttrValue('next_questionid', $new_key + 1);
-
-		$sort_order = $this->attr('sort_order');
-
-		if (empty($sort_order)) {
-			$new_index = 0;
-		} else {
-			$new_index = max(array_keys($sort_order))+1;
-		}
-		$sort_order[$new_index] = $this->id.':q'.$new_key;
-		$this->setAttrValue('sort_order', $sort_order);
-
-		if (!$this->saveAttributes()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-		// acquire the lock on the new question
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id.':q'.$new_key, 'all', $this->id, TRUE);
-		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return TRUE;
-
-	}//end attachQuestion()
-
-
-	/**
-	* delete a question to this form
-	*
-	* Returns boolean FALSE if a database problem occurs or if question already
-	* attached, or TRUE if sucessful
-	*
-	* @param object	&$question	the Form_Question object to delete
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deleteQuestion(&$question)
-	{
-		if ($question->_questionid == 0) return FALSE;
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$questions = $this->getQuestions();
-
-		unset($questions[$question->_questionid]);
-
-		$this->setAttrValue('questions', $questions);
-
-		$sort_order = $this->attr('sort_order');
-
-		// remove it from the sort order - it does not matter that there are gaps
-		$old_index = array_search($question->id, $sort_order);
-		unset($sort_order[$old_index]);
-
-		// unset the question
-		unset($question);
-
-		$this->setAttrValue('sort_order', $sort_order);
-
-		if (!$this->saveAttributes()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return TRUE;
-
-	}//end deleteQuestion()
-
-
-	/**
-	* returns the number of sections in this form
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param int		$ignore_linkid		ignore the link represented by this link
+	*										id when returning the count
 	*
 	* @return int
 	* @access public
 	*/
-	function getQuestionCount()
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
-		$questions = $this->getQuestions();
-		return count($questions);
+		return 0;
 
-	}//end getQuestionCount()
+	}//end countLinks()
 
-
-	/**
-	* get a specific question, and return the question's link
-	*
-	* @param string	$questionid	The question's (shadow?) ID
-	*
-	* @return array
-	* @access public
-	*/
-	function getQuestionByID($questionid)
-	{
-		$questions = $this->getQuestions();
-		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
-
-	}//end getQuestionByID()
-
-
-	/**
-	* get specific question by order, and return the question's link
-	*
-	* @param int	$orderid	The question's sort order
-	*
-	* @return array
-	* @access public
-	*/
-	function &getQuestionByOrder($orderid)
-	{
-		$sort_order = $this->attr('sort_order');
-		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
-		return $question;
-
-	}//end getQuestionByOrder()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = Array(
-						SQ_LINK_TYPE_2	=> Array(
-											'form_section'	=> Array(
-																'card'		=> 'M',
-																'exclusive'	=> FALSE,
-															   ),
-											'folder'		=> Array(
-																'card'		=> '2',
-																'exclusive'	=> TRUE,
-															   ),
-										   ),
-					  );
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-//--       SECTION MANAGEMENT       --//
-
-
-	/**
-	* returns all of the sections in this form in order of 'sort_order'
-	*
-	* Structure of return array is Array(object Form_Section).
-	*
-	* @return array
-	* @access public
-	*/
-	function &getSections()
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$section_links = $this->getSectionLinks();
-		$sections = Array();
-
-		foreach ($section_links as $link) {
-			$sections[$link['sort_order']] = $am->getAsset($link['minorid'], $link['minor_type_code']);
-		}
-		return $sections;
-
-	}//end getSections()
-
-
-	/**
-	* returns the number of sections in this form
-	*
-	* @return int
-	* @access public
-	*/
-	function getSectionCount()
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_section', TRUE);
-
-	}//end getSectionCount()
-
-
-	/**
-	* get the section links attached to this form
-	*
-	* @return array
-	* @access public
-	*/
-	function &getSectionLinks()
-	{
-		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
-		// lest we spin off into an infinite loop involving OUR &getAsset().
-
-		$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', '', '1', '0');
-		if (empty($links_query)) return Array();
-		$links_query['sql_array']['select'] .= ', l.majorid';		// we need the major id too
-
-		try {
-			$sql = implode(' ', $links_query['sql_array']);
-			$query = MatrixDAL::preparePdoQuery($sql);
-
-			foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-			}
-
-			$result = MatrixDAL::executePdoAssoc($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get section links attached to form: '.$this->id.' due to database error: '.$e->getMessage());
-		}
-		return $result;
-
-	}//end getSectionLinks()
-
-
-	/**
-	* Clones certain specified components of the asset
-	*
-	* @param object		&$clone		the clone asset shell
-	* @param array		$components	the wanted components to clone eg.
-	* <pre>
-	* 								Array(
-	* 									'attributes',
-	* 									'metadata_schemas',
-	* 									'metadata',
-	* 									'workflow',
-	* 									'permissions',
-	* 									'data',
-	* 									'content_tags',
-	* 									'roles',
-	* 								);
-	* 								or alternately
-	* 								Array('all');
-	* </pre>
-	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
-	*
-	* @return boolean
-	* @access public
-	* @see asset::cloneComponents()
-	*/
-	function cloneComponents(&$clone, $components, $override=FALSE)
-	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		if (!parent::cloneComponents($clone, $components, $override)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-		if (in_array('attributes', $components) || in_array('all', $components)) {
-			$sort_order = $this->attr('sort_order');
-			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-
-			// save the information
-			$clone->setAttrValue('sort_order', $sort_order);
-			$clone->saveAttributes();
-
-			// Change the content of the content type to replace question id.
-
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return TRUE;
-
-	}//end cloneComponents()
-
-
-	/**
-	* Perform any additional processing required during the cloning of this asset
-	*
-	* This function is being called by asset_manager after the dependants of asset
-	* have been cloned.
-	*
-	* @param object	&$clone		the clone asset shell
-	* @param array	$components	the wanted components to clone eg.
-	*							Array (
-	*							'attributes',
-	*							'metadata_schemas',
-	*							'metadata',
-	*							'workflow',
-	*							'permissions',
-	*							'data',
-	*							);
-	*							or alternately
-	*							Array('all');
-	*
-	* @return boolean
-	* @access public
-	* @see asset::cloneComponentsAdditional()
-	*/
-	function cloneComponentsAdditional(&$clone, $components)
-	{
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		if (in_array('attributes', $components) || in_array('all', $components)) {
-			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
-
-
-			$section_links = $this->getSectionLinks();
-			$clone_section_links = $clone->getSectionLinks();
-
-			$originals_clones	= Array();
-			foreach ($section_links as $link) {
-				foreach ($clone_section_links as $cloned_link) {
-					if ($cloned_link['sort_order'] == $link['sort_order']) {
-						// Create a new array mapping original id and cloned id of sections.
-						$originals_clones[]	= Array (
-												'original'	=> $link['minorid'],
-												'clone'		=> $cloned_link['minorid'],
-											  );
-					}
-				}
-			}
-
-			// Might as well add this form and its clone to the list to do.
-			$originals_clones[]	= Array (
-									'original'	=> $this->id,
-									'clone'		=> $clone->id,
-								  );
-
-			// Now get all the bodycopies, and get their content types
-			$bodycopies	= Array (
-							'use_bodycopy_main'			=> 'Page Contents',
-							'use_bodycopy_thank_you'	=> 'Thank You',
-						  );
-			$replace_keywords = Array ( 'question_name', 'response', 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
-			foreach ($bodycopies as $attribute => $bodycopy_name) {
-				$bodycopy = NULL;
-				$attr_value = $clone->attr($attribute);
-				if (!empty($attr_value)) {
-					$bodycopy = $clone->getBodycopy($bodycopy_name);
-				}
-				if (!empty($bodycopy)) {
-					$containers = $bodycopy->getContainers();
-					foreach ($containers as $container) {
-						$content_type = $container->getContentType();
-						if ($container->type() == 'bodycopy_table') {
-							if (is_array($content_type)) {
-								foreach ($content_type as $cell_type) {
-									if (!$this->_cloneDIVContents($cell_type, $originals_clones, $replace_keywords)) {
-										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-										$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-										return FALSE;
-									}//end if
-								}//end foreach
-							} else {
-								if (!$this->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
-									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-									$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-									return FALSE;
-								}//end if
-							}//end if
-						} else {
-							if (!$this->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-								return FALSE;
-							}//end if
-						}//end if
-					}//end foreach
-				}//end if
-			}//end foreach
-
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-		}//end if components
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return TRUE;
-
-	}//end cloneComponentsAdditional()
-
-
-	/**
-	* Clone the contents div assets
-	*
-	* @param object	$content_type		The content type asset to be cloned
-	* @param array	$original_clones	An array containing the assetids of the original and cloned assets
-	* @param array	$replace_keywords	An array containing the keyword of the assets
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _cloneDIVContents($content_type, $original_clones=Array(), $replace_keywords=Array())
-	{
-		$old_html = $content_type->attr('html');
-		if (!empty($old_html) && !empty($original_clones)) {
-			$new_html = $content_type->attr('html');
-			foreach ($original_clones as $original_clone) {
-				// Replace the old question id with the new question id
-				foreach ($replace_keywords as $keyword) {
-					if ($keyword == 'section_title') {
-						$new_html = str_replace($keyword.'_'.$original_clone['original'], $keyword.'_'.$original_clone['clone'], $new_html);
-					} else {
-						$new_html = str_replace($keyword.'_'.$original_clone['original'].'_q', $keyword.'_'.$original_clone['clone'].'_q', $new_html);
-					}
-				}//end foreach
-			}//end foreach
-
-			// Save and check for errors, the rollback occurs above
-			if (!$content_type->setAttrValue('html', $new_html)) {
-				return FALSE;
-			}//end if
-
-			if (!$content_type->saveAttributes()) return FALSE;
-
-		}//end if
-
-		return TRUE;
-
-	}//end _cloneDIVContents()
-
-
-//--       BODYCOPIES       --//
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @return void
-	* @access public
-	*/
-	function printBody()
-	{
-		$prefix = $this->getPrefix();
-
-		$clientside = ($this->attr('use_client_side')) ? 'onsubmit="return beforeSubmit_'.$prefix.'(this);"' : '';
-
-		$form_action = $_SERVER['PHP_SELF'];
-
-		// Add the query string as well if it exists, so asset references with ?a=###
-		// submit back to themselves.
-		if (!empty($_SERVER['QUERY_STRING'])) {
-			$form_action .= '?'.htmlentities($_SERVER['QUERY_STRING']);
-		}
-
-		ob_start();
-		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
-		if ($this->attr('use_client_side')) {
-			?><script type="text/javascript">
-			function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
-				var submission_errors = new Array();
-				i = 0;
-					<?php
-					echo $this->generateJSCode();
-				?>
-					if (submission_errors.length > 0) {
-					var errors_list = "<?php echo translate('cms_form_submission_errors'); ?>\n";
-					for(x in submission_errors) {
-						errors_list += submission_errors[x] + "\n";
-					}
-					alert(errors_list);
-					return false;
-				}
-				return true;
-			}
-			</script>
-		<?php
-		}
-
-		$this->printStandard();
-		echo '</form>';
-
-		$result = ob_get_contents();
-		ob_end_clean();
-
-		echo $result;
-
-	}//end printBody()
-
-
-	/**
-	* Print 'Page Contents' Bodycopy context
-	*
-	* @return void
-	* @access public
-	*/
-	function printPageContentsBodycopy()
-	{
-		$this->printForm();
-
-	}//end printPageContentsBodycopy()
-
-
-	/**
-	* Print 'Thank You' Bodycopy context
-	*
-	* @return void
-	* @access public
-	*/
-	function printThankYouBodycopy()
-	{
-		// Make sure that the thank you bodycopy is always able to access the
-		// newly created submission in replicated database instances, by tying
-		// it all to db2
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$this->finishForm();
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-	}//end printThankYouBodycopy()
-
-
-	/**
-	* Prints the form to screen
-	*
-	* @param array	$replacements	a list of additional replacements that
-	*								subclasses can use to insert additional
-	*								keywords
-	*
-	* @return void
-	* @access public
-	*/
-	function printForm($replacements=Array())
-	{
-
-		$error = !empty($this->submission_errors);
-
-		$bodycopy = $this->getBodycopy('Page Contents');
-
-		$content = '';
-
-		// check to see if the bodycopy attached to this form has any content
-		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
-			$questions = $this->getQuestions();
-			$sections = $this->getSections();
-
-			foreach ($questions as $q_id => $question) {
-				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-				$q_name = $q_asset->attr('name');
-				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
-				$replacements['question_id_'.$this->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
-				$replacements['question_note_'.$this->id.'_q'.$q_id] = $q_asset->attr('note');
-				$replacements['question_label_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
-			}
-
-			foreach ($sections as $section) {
-				$replacements['section_title_'.$section->id] = $section->attr('name');
-				$questions = $section->getQuestions();
-				foreach ($questions as $q_id => $question) {
-					$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-					$q_name = $section->attr('name').': '.$q_asset->attr('name');
-					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlField();
-					$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$section->id.'_q'.$q_id;
-					$replacements['question_note_'.$section->id.'_q'.$q_id] = $q_asset->attr('note');
-					$replacements['question_label_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
-				}
-			}
-
-			$keyword_list = $bodycopy->getKeywords();
-			if (!empty($keyword_list)) {
-				foreach ($keyword_list as $keyword) {
-					if (isset($replacements[$keyword])) continue;
-					$replacements[$keyword] = $this->getKeywordReplacement($keyword);
-				}
-			}
-
-			$bodycopy->setKeywordReplacements($replacements);
-			$bodycopy->printBody();
-
-		} else {
-			$form_width = $this->attr('form_width');
-			if (!empty($form_width)) {
-				$form_width = ' width="'.$form_width.'"';
-			}
-
-			$question_width = $this->attr('question_col_width');
-			if (!empty($question_width)) {
-				$question_width = ' width="'.$question_width.'"';
-			}
-
-			$answer_width = $this->attr('answer_col_width');
-			if (!empty($answer_width)) {
-				$answer_width = ' width="'.$answer_width.'"';
-			}
-
-			// note: the HTML section below is using the keywords so that it's easier
-			// to move it to a bodycopy later (as a default value)
-			// that way we will not need 2 paths of processing
-			ob_start();
-			?>
-				%form_contents%<table <?php echo $form_width; ?>>
-				<tr>
-				<td <?php echo $question_width; ?>>&nbsp;</td>
-				<td <?php echo $answer_width; ?>>
-					<?php
-					if ($this->attr('require_captcha')) {
-						?>
-						%form_captcha%
-						<?php
-					}
-					?>
-					%submit_button%
-					%reset_button%
-				</td>
-				</tr>
-				<?php
-				if ($error) {
-					?>
-					<tr><td colspan="2">%form_errors%</td></tr>
-					<?php
-				}
-				?>
-				</table>
-			<?php
-			$content = ob_get_clean();
-
-			require_once SQ_FUDGE_PATH.'/general/text.inc';
-
-			$keyword_list = extract_keywords($content);
-			if (!empty($keyword_list)) {
-				foreach ($keyword_list as $keyword) {
-					if (isset($replacements[$keyword])) continue;
-					$replacements[$keyword] = $this->getKeywordReplacement($keyword);
-				}
-				replace_keywords($content, $replacements);
-			}
-
-			echo $content;
-
-		}//end else
-
-	}//end printForm()
-
-
-	/**
-	* Form Contents keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getFormContentsKeywordReplacement()
-	{
-		ob_start();
-			$this->includeContentFile('Standard');
-		return ob_get_clean();
-
-	}//end getFormContentsKeywordReplacement()
-
-
-	/**
-	* Form Captcha keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getFormCaptchaKeywordReplacement()
-	{
-		ob_start();
-			security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
-		return ob_get_clean();
-
-	}//end getFormCaptchaKeywordReplacement()
-
-
-	/**
-	* Form Captcha Image keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getFormCaptchaImageKeywordReplacement()
-	{
-		ob_start();
-			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
-		return ob_get_clean();
-
-	}//end getFormCaptchaImageKeywordReplacement()
-
-
-	/**
-	* Form Captcha Field keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getFormCaptchaFieldKeywordReplacement()
-	{
-		ob_start();
-			security_key_field($this->attr('captcha_length'));
-		return ob_get_clean();
-
-	}//end getFormCaptchaFieldKeywordReplacement()
-
-
-	/**
-	* Form Captcha Link keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getFormCaptchaLinkKeywordReplacement()
-	{
-		ob_start();
-			security_key_image_link($this->attr('captcha_link_text'));
-		return ob_get_clean();
-
-	}//end getFormCaptchaLinkKeywordReplacement()
-
-
-	/**
-	* Form Errors keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getFormErrorsKeywordReplacement()
-	{
-		if (empty($this->submission_errors)) return '';
-
-		ob_start();
-			$this->printErrors();
-		return ob_get_clean();
-
-	}//end getFormErrorsKeywordReplacement()
-
-
-	/**
-	* Form Errors Message keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getFormErrorsMessageKeywordReplacement()
-	{
-		if (empty($this->submission_errors)) return '';
-
-		return $this->attr('submission_errors_msg');
-
-	}//end getFormErrorsMessageKeywordReplacement()
-
-
-	/**
-	* Submit Button keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getSubmitButtonKeywordReplacement()
-	{
-		$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : translate('submit');
-
-		ob_start();
-			submit_button($this->getPrefix().'_submit', $button_name);
-		return ob_get_clean();
-
-	}//end getSubmitButtonKeywordReplacement()
-
-
-	/**
-	* Reset Button keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getResetButtonKeywordReplacement()
-	{
-		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
-
-		ob_start();
-			submit_button($this->getPrefix().'_reset', $button_name);
-		return ob_get_clean();
-
-	}//end getResetButtonKeywordReplacement()
-
-
-	/**
-	* Prints the standard form i.e not a wizard
-	*
-	* @return boolean
-	* @access public
-	*/
-	function printStandard()
-	{
-		$prefix = $this->getPrefix();
-
-		$form_processed = FALSE;
-
-		// check to see if the form has been submitted or not
-		if (isset($_POST[$prefix.'_submit'])) {
-			$form_processed = $this->processForm();
-		}
-
-		if ($form_processed) {
-			$this->printThankYouBodycopy();
-		} else {
-			$this->printPageContentsBodycopy();
-		}
-
-		return TRUE;
-
-	}//end printStandard()
-
-
-	/**
-	* create a bodycopy and attach to the Bodycopies folder of the form
-	*
-	* The $name attribute will also be used for the Link Value of the link between
-	* the form's Bodycopies folder and the new bodycopy. The name will be lowercased,
-	* spaces replaced with underscores, and assigned to the link value. So if 'Thank
-	* You' is the name of the bodycopy (for instance), it will be linked to the
-	* Bodycopies folder with the link value 'thank_you'.
-	* Returns boolean FALSE if the bodycopy already exists or if the creation
-	* failed for some reason, or TRUE if it was successfully created
-	*
-	* @param string	$name	the name of the bodycopy to create
-	*
-	* @return boolean
-	* @access public
-	*/
-	function createBodycopy($name)
-	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = MatrixDAL::getDb();
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// search for a bodycopies folder and create one if there isn't one there
-		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
-		if (empty($folder_link)) {
-
-			// create a folder for the bodycopies
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-			$folder = new Folder();
-			$folder->setAttrValue('name', 'Bodycopies');
-
-			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
-
-			if (!$folder->create($folder_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return FALSE;
-			}
-		} else {
-			// folder already exists, get the reference
-			$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
-		}
-		if (is_null($folder)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-		// and see whether this bodycopy already exists
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
-		if (!empty($bodycopy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return TRUE;
-		}
-
-		// bodycopy doesn't exist, so create it willya
-		// create a link to the folder so we can put the bodycopies in it
-		$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => $name);
-
-		// create the thing
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy = new Bodycopy();
-		$bodycopy->setAttrValue('name', $name);
-
-		// create an appropriate value for this link
-		// to reflect that of the name
-		$name = strtolower(str_replace(' ', '_', $name));
-
-		if (!$bodycopy->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return TRUE;
-
-	}//end createBodycopy()
-
-
-	/**
-	* returns a reference to a bodycopy based of the name of the bodycopy
-	*
-	* @param string	$name	the name of the bodycopy
-	*
-	* @return object
-	* @access public
-	*/
-	function &getBodycopy($name='')
-	{
-		$null = NULL;
-
-		if (!$name) return $null;
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-
-		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
-		if (empty($folder_link)) return $null;
-
-		$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
-		if (is_null($folder)) return $null;
-
-		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
-		if (empty($bodycopy_link)) return $null;
-
-		$bodycopy = $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
-
-		return $bodycopy;
-
-	}//end getBodycopy()
-
-
-	/**
-	* includes the content file for this form
-	*
-	* For now 'standard' is the only option available.
-	*
-	* @param string	$type	the type of content file to generate
-	*
-	* @return boolean
-	* @access public
-	*/
-	function includeContentFile($type='standard')
-	{
-		if (!file_exists($this->data_path.'/content_file.php')) {
-			$edit = $this->getEditFns();
-			$fn = 'generate'.$type.'ContentFile';
-
-			if (!method_exists($edit, $fn)) return FALSE;
-			if (!$edit->$fn($this)) return FALSE;
-		}
-		include($this->data_path.'/content_file.php');
-
-		return TRUE;
-
-	}//end includeContentFile()
-
-
-//--       FORM PROCESSING       --//
-
-
-	/**
-	* processes the form and returns TRUE or FALSE depending on whether form processed successfully
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processForm()
-	{
-		$ok = TRUE;
-		$this->submission_errors = Array();
-
-		// verify captcha
-		if ($this->attr('require_captcha') && !validate_security_key()) {
-			$this->submission_errors = array_merge($this->submission_errors, Array(translate('security_key_incorrect')));
-			$ok = FALSE;
-		}
-		$questions = $this->getAllQuestionAssets();
-		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-			$question->populate();
-			if (!$question->hasValidValue()) {
-				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
-				$ok = FALSE;
-			}
-			$this->current_answers[$question->id] = $question->getValue();
-		}
-
-		if ($ok) {
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			// save question values
-			for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-				$question->saveValue();
-
-				// If the question is sticky, stick the value then
-				if ($question->attr('sticky')) {
-					$question->stickValue($question->getValue());
-				}
-			}
-
-			// create the submission asset
-			if ($this->attr('log_submissions')) {
-				$this->submission_asset = $this->createSubmission();
-				for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-					$this->submission_asset->setAnswer(key($questions), $question->getValue());
-					$uploaded_file_id = '';
-					if ($question instanceof Form_Question_Type_File_Upload) {
-						$uploaded_file_id = $question->getUploadedFileId();
-						if (trim($uploaded_file_id) != '') {
-							$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_file_id);
-							if (!is_null($uploaded_file)) {
-								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-								$this->submission_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
-								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-							}//end if
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($uploaded_file);
-						}//end if
-					}//end if
-					$this->submission_asset->setSummary(key($questions), $question->attr('name'), $question->getSummary());
-				}
-				$this->submission_asset->setIP($_SERVER['REMOTE_ADDR']);
-				$this->submission_asset->setAttrValue('complete', TRUE);
-				$this->submission_asset->setAttrValue('xml', $this->getXML());
-				$this->submission_asset->saveAttributes();
-			}
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		}
-
-		return $ok;
-
-	}//end processForm()
-
-
-	/**
-	* re-populates the active submissions of its members
-	*
-	* @return void
-	* @access public
-	*/
-	function repopulate()
-	{
-		if (empty($this->current_answers)) return;
-
-		$questions = $this->getAllQuestionAssets();
-		foreach (array_keys($questions) as $key) {
-			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($key);
-			$question->setValue($this->current_answers[$question->id]);
-		}
-
-	}//end repopulate()
-
-
-	/**
-	* function to finish off form and print thank you bodycopy
-	*
-	* @return boolean
-	* @access public
-	*/
-	function finishForm()
-	{
-		$tyb = $this->getBodycopy('Thank You');
-
-		ob_start();
-		$this->printSummary(TRUE);
-		$summary_info = ob_get_contents();
-		ob_end_clean();
-
-		// check to see if the bodycopy attached to this form has any content
-		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
-
-			if ($this->attr('show_results')) {
-				$keyword_list = $tyb->getKeywords();
-				$replacements = Array();
-
-				foreach ($keyword_list as $keyword) {
-					$lookup_keyword = $keyword;
-
-					// If form_info or form_summary, we need to make sure the
-					// HTML version gets printed
-					if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
-						$lookup_keyword = $keyword.'_html';
-					}
-
-					$replacement = $this->_getThankYouKeywordReplacement($lookup_keyword);
-					$replacements[$keyword] = $replacement;
-				}
-
-				$tyb->setKeywordReplacements($replacements);
-
-			}//end if
-
-			$tyb->printBody();
-
-		} else {
-			// no bodycopy
-			// print the results if we need to
-			if ($this->attr('show_results')) echo $summary_info;
-
-		}
-
-	}//end finishForm()
-
-
-	/**
-	* prints the errors that occured in a form submission
-	*
-	* @return boolean
-	* @access public
-	*/
-	function printErrors()
-	{
-		if (!empty($this->submission_errors)) {
-			echo '<ul>';
-			foreach ($this->submission_errors as $error) {
-				echo '<li>';
-				echo $error;
-				echo '</li>';
-			}
-			echo '</ul>';
-		}
-		return TRUE;
-
-	}//end printErrors()
-
-
-	/**
-	* returns the submission asset
-	*
-	* @return object
-	* @access public
-	*/
-	function &getSubmissionAsset()
-	{
-		$submission =& $this->submission_asset;
-		return $submission;
-
-	}//end getSubmissionAsset()
-
-
-	/**
-	* returns an answer summary in XML format (suitable for submission logs)
-	*
-	* @return boolean
-	* @access public
-	*/
-	function getXML()
-	{
-		$submission = $this->getSubmissionAsset();
-		$submission_ip = $submission->getIP();
-
-		ob_start();
-		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
-		echo ' ip="'.$submission_ip.'"';
-		if (!is_null($cur_user = $GLOBALS['SQ_SYSTEM']->user)) {
-			echo ' user="'.$cur_user->id.'"';
-		}
-		echo '>';
-
-		// unattached questions first
-		$sort_order = $this->attr('sort_order');
-
-		foreach ($sort_order as $sort_order_index => $assetid) {
-
-			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
-			if ($this->id == strtok($assetid, ':')) {
-				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				echo $question->getXML($question->getValue());
-			}
-
-		}
-
-		// now sections
-		$sections = $this->getSections();
-		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
-			$section =& $sections[$k];
-			echo '<section id="'.$section->id.'" name="'.$section->attr('name').'">';
-
-			$sort_order = $section->attr('sort_order');
-
-			foreach ($sort_order as $sort_order_index => $assetid) {
-
-				// check to see whether this belongs to the section
-				if ($section->id == strtok($assetid, ':')) {
-					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					echo $question->getXML($question->getValue($assetid));
-				}
-
-			}
-
-			echo '</section>';
-
-		}
-
-		echo '</submission>';
-
-		$contents = ob_get_contents();
-		ob_end_clean();
-
-		return $contents;
-
-	}//end getXML()
-
-
-	/**
-	* returns a summary about the answers in the form submission
-	*
-	* @param boolean	$html	return html formatted or not
-	*
-	* @return boolean
-	* @access public
-	*/
-	function printSummary($html=FALSE)
-	{
-		echo ($html) ? '<table>' : '';
-
-		// unattached questions first
-		$sort_order = $this->attr('sort_order');
-
-		foreach ($sort_order as $sort_order_index => $assetid) {
-
-			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
-			if ($this->id == strtok($assetid, ':')) {
-				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				echo ($html) ? '<tr><td><ul><li>' : '';
-				echo $question->attr('name');
-				echo ($html) ? ': </li></ul></td><td>' : ' : ';
-				echo $question->getSummary();
-				echo ($html) ? '</td></tr>' : "\n";
-			}
-
-		}
-
-		// now sections
-		$sections = $this->getSections();
-		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
-			$section =& $sections[$k];
-			$section->current_answers =& $this->current_answers;
-			echo ($html) ? '<tr><td colspan="2">' : "\n";
-			echo ($html) ? '<strong>'.$section->attr('name').'</strong>' : '** '.$section->attr('name').' **';
-			echo ($html) ? '</td></tr>' : "\n\n";
-
-			$sort_order = $section->attr('sort_order');
-
-			foreach ($sort_order as $sort_order_index => $assetid) {
-
-				// check to see whether this belongs to the section
-				if ($section->id == strtok($assetid, ':')) {
-					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					echo ($html) ? '<tr><td><ul><li>' : '';
-					echo $question->attr('name');
-					echo ($html) ? ': </li></ul></td><td>' : ' : ';
-					echo $question->getSummary();
-					echo ($html) ? '</td></tr>' : "\n";
-				}
-
-			}
-			echo ($html) ? '' : "\n";
-		}
-
-		echo ($html) ? '</table>' : '';
-
-	}//end printSummary()
-
-
-	/**
-	* returns information about where the form exists
-	*
-	* @return array
-	* @access public
-	*/
-	function getFormInfo()
-	{
-		$info = Array();
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-
-		$lineage = $am->getLineageFromURL();
-		foreach ($lineage as $asset) {
-			$info[$asset['type_code'].'_name'] = $asset['name'];
-			$info[$asset['type_code'].'_id']   = $asset['assetid'];
-		}
-		$info['url'] = current_url(TRUE, TRUE);
-
-		if (!is_null($this->submission_asset)) {
-			$info['submission_id'] = $this->submission_asset->id;
-		}
-
-		return $info;
-
-	}//end getFormInfo()
-
-
-	/**
-	* writes JavaScript code for client side validation
-	*
-	* This function assumes the skeleton of a JS validation function has been created around this code
-	* with a form variable named 'form' passed (this is done when generating the content file).
-	*
-	* @return string
-	* @access public
-	*/
-	function generateJSCode()
-	{
-		if (!$this->attr('use_client_side')) return '';
-
-		$keywords = Array();
-		$use_bc = ($this->attr('use_bodycopy_main') == 1) ? TRUE : FALSE;
-
-		if ($use_bc) {
-			// Bodycopy is being used, so lets get its keywords
-			$bc = $this->getBodycopy('Page Contents');
-			$keywords = $bc->getKeywords();
-
-			// Form contents is printed, which is just like not using a bodycopy(in this context)
-			// So we will print all questions' js code.
-			if (in_array('form_contents', $keywords)) {
-				$use_bc = FALSE;
-			}
-		}
-
-		ob_start();
-		?>
-			submission_errors = new Array();
-		<?php
-		$code = ob_get_contents();
-		ob_end_clean();
-
-		$questions = $this->getAllQuestionAssets();
-
-		foreach (array_keys($questions) as $key) {
-			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($key);
-			$q_code = '';
-			if ($use_bc) {
-				$keyword_search = 'question_field_'.str_replace(':', '_', $question->id);
-				if (in_array($keyword_search, $keywords)) {
-					// keyword is present in the bodycopy, we can safely print the js code.
-					$q_code = $question->generateJSCode();
-				}
-			} else {
-				$q_code = $question->generateJSCode();
-			}
-			$code .= $q_code.(empty($q_code) ? '' : "\n");
-		}
-
-		return $code;
-
-	}//end generateJSCode()
-
-
-	/**
-	* creates a new submission object
-	*
-	* @return object
-	* @access public
-	*/
-	function &createSubmission()
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
-
-		// create the form submission asset
-		$submission = new Form_Submission();
-		$submissions_folder = $this->getSubmissionsFolder();
-		if (is_null($submissions_folder)) {
-			trigger_localised_error('CMS0069', E_USER_WARNING);
-			$null = NULL;
-			return $null;
-		}
-		$copy_link  = Array('asset' => &$submissions_folder, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 0, 'is_exclusive' => 0);
-
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		if (!$submission->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		return $submission;
-
-	}//end createSubmission()
-
-
-	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param object	&$broadcaster	the asset that triggered the event
-	* @param array	$vars			the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		if (!isset($vars['keywords'])) return;
-
-		$keywords = Array();
-		// search for a bodycopies folder
-		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
-
-		$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
-
-		if (is_null($folder)) return FALSE;
-
-		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
-		// is in so we can return the correct keywords for the screen
-		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
-
-		$bodycopy_code = NULL;
-		foreach ($bodycopy_links as $link_info) {
-			if (isset($parents[$link_info['minorid']])) {
-				$bodycopy_code = $link_info['value'];
-				break;
-			}
-		}
-
-		if (is_null($bodycopy_code)) return;
-
-		$keywords = @$this->_tmp['keywords'][$bodycopy_code];
-		if (is_null($keywords) || !is_array($keywords)) {
-			$keywords = Array();
-			// note: if the value on the link is "Thank You", the method providing the keywords should be _getThankYouContextKeywords
-			$keyword_provider_method = '_get'.str_replace(' ','',ucfirst($bodycopy_code)).'BodycopyKeywords';
-
-			if (method_exists($this, $keyword_provider_method)) {
-				$keywords = $this->$keyword_provider_method();
-				$this->_tmp['keywords'][$bodycopy_code] = $keywords;
-			}
-		}
-
-		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-
-	}//end onRequestKeywords()
-
-
-	/**
-	* Get an array of keywords for Page Contents Bodycopy
-	*
-	* @return array
-	* @access private
-	*/
-	function _getPageContentsBodycopyKeywords()
-	{
-		$questions = $this->getQuestions();
-		$sections = $this->getSections();
-
-		$keywords['form_contents'] = translate('cms_form_contents');
-		$keywords['form_errors']   = translate('cms_form_errors');
-		$keywords['form_errors_message']   = translate('cms_form_errors_message');
-
-		foreach ($questions as $q_id => $question) {
-			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_name = $q_asset->attr('name');
-			$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
-			$keywords['question_id_'.$this->id.'_q'.$q_id] = translate('cms_form_question_id', ellipsisize($q_name,30));
-			$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
-			$keywords['question_label_'.$this->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
-		}
-
-		foreach ($sections as $section) {
-			$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
-			$questions = $section->getQuestions();
-			foreach ($questions as $q_id => $question) {
-				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-				$q_name = $q_asset->attr('name');
-				$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-				$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-				$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-				$keywords['question_label_'.$section->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
-			}
-		}
-
-		// These are best at the end
-		$keywords['reset_button']  = translate('cms_form_reset_button');
-		$keywords['submit_button'] = translate('cms_form_submit_button');
-
-		$keywords['form_captcha'] = translate('cms_form_captcha');
-		$keywords['form_captcha_image'] = translate('cms_form_captcha_image');
-		$keywords['form_captcha_field'] = translate('cms_form_captcha_field');
-		$keywords['form_captcha_link'] = translate('cms_form_captcha_link');
-
-		return $keywords;
-
-	}//end _getPageContentsBodycopyKeywords()
-
-
-	/**
-	* Get an array of keywords for Thank You Context (bodycopy)
-	*
-	* @return array
-	* @access private
-	*/
-	function _getThankYouBodycopyKeywords()
-	{
-		$questions = $this->getQuestions();
-		$sections = $this->getSections();
-
-		$keywords['form_summary']               = translate('cms_form_submission_summary');
-		$keywords['form_summary_html']          = translate('cms_form_submission_summary').' (html)';
-		$keywords['form_info']                  = translate('cms_form_submission_info');
-		$keywords['form_info_html']             = translate('cms_form_submission_info').' (html)';
-		$keywords['form_submission_id']         = translate('cms_form_submission_id');
-		$keywords['form_submission_ip_address'] = translate('cms_form_submission_ip_address');
-		$keywords['form_submission_time']       = translate('cms_form_submission_time_format', translate('date_format_default'));
-
-		foreach (get_date_format_names() as $date_name => $date_format) {
-			$keywords['form_submission_time_'.$date_name] = translate('cms_form_submission_time_format', translate('date_format_'.$date_name));
-		}
-
-		foreach ($questions as $q_id => $question) {
-			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_name = $q_asset->attr('name');
-			$keywords['response_'.$this->id.'_q'.$q_id]      = translate('cms_form_question_response', ellipsisize($q_name,30));
-			$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_question_name', ellipsisize($q_name,30));
-			$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
-		}
-
-		foreach ($sections as $section) {
-			$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
-			$questions = $section->getQuestions();
-			foreach ($questions as $q_id => $question) {
-				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
-				$q_name = $q_asset->attr('name');
-				$keywords['response_'.$section->id.'_q'.$q_id]   = translate('cms_form_section_response', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
-				$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_name', $section->attr('name'), ellipsisize($q_name,30));
-				$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_section_q_note', $section->attr('name'), ellipsisize($q_name,30));
-			}
-		}
-
-		return $keywords;
-
-	}//end _getThankYouBodycopyKeywords()
 
 
 	/**
@@ -2542,34 +1093,6 @@ class Form extends Asset implements Bridge
 
 
 	/**
-	* Return the number of links in the system that involve the specified asset
-	*
-	* Can be restricted by either link type afnd/or asset type code
-	*
-	* @param int		$assetid			id of the the $side_of_link asset
-	* @param string		$side_of_link		Which side of the link this (the current) asset
-	*										is on ('major' or 'minor')
-	* @param int		$link_types			integer that can be the product of bitwise operations
-	*										on the SQ_LINK_* constants
-	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
-	*										if an array returns link if matches any
-	*										of the array values
-	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
-	*										or $type_code and any of it's sub-classes
-	* @param int		$ignore_linkid		ignore the link represented by this link
-	*										id when returning the count
-	*
-	* @return int
-	* @access public
-	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
-	{
-		return 0;
-
-	}//end countLinks()
-
-
-	/**
 	* Get details of the link(s) between the two specified assets
 	*
 	* @param int		$assetid		id of the the $side_of_link asset
@@ -2687,21 +1210,3076 @@ class Form extends Asset implements Bridge
 	}//end createAssetLink()
 
 
+//--        QUESTION MANAGEMENT        --//
+
+
+	/**
+	* Get the question links attached to this form (and only to this form).
+	*
+	* Returns an array of (question ID => question detail).
+	*
+	* @return array
+	* @access public
+	*/
+	function &getQuestions()
+	{
+		$questions = $this->attr('questions');
+		return $questions;
+
+	}//end getQuestions()
+
+
+	/**
+	* get the assetids of ALL of this form's questions, including those
+	* inside sections (even nested sections).
+	*
+	* Returns an array of (full assetid => question detail)
+	*
+	* @return array
+	* @access public
+	*/
+	function &getAllQuestions()
+	{
+		// getQuestions() returns an array of (q_id => detail) - this is
+		// ambiguous to return if sections are present, so we need to convert
+		// to an asset ID
+
+		$all_questions = Array();
+		$questions = $this->getQuestions();
+		foreach ($questions as $q_id => $question_detail) {
+			$all_questions[$this->id.':q'.$q_id] = $question_detail;
+		}
+
+		$sections = $this->getAllSections();
+		foreach ($sections as $section) {
+			$questions = $section->getQuestions();
+			foreach ($questions as $q_id => $question_detail) {
+				$all_questions[$section->id.':q'.$q_id] = $question_detail;
+			}
+		}
+
+		return $all_questions;
+
+	}//end getAllQuestions()
+
+
+	/**
+	* Gets only the question assets that are attached to this form.
+	*
+	* @param string	$type_code	When specified, only return assets of this exact type
+	*
+	* @return array
+	* @access public
+	*/
+	function &getQuestionAssets($type_code=NULL)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$result = Array();
+
+		$questions = $this->attr('questions');
+		if (!empty($questions)) {
+			foreach ($questions as $q_id => $question) {
+				if (empty($type_code) || ($question['question_type_code'] === $type_code)) {
+					$id           =  $this->id.':q'.$q_id;
+					$result[$id]  = $am->getAsset($id);
+				}
+			}
+		}
+
+		return $result;
+
+	}//end getQuestionAssets()
+
+
+	/**
+	* get the question assets attached to this form, even inside sections
+	*
+	* This also includes all questions inside nested sections.
+	*
+	* @param string	$type_code	When specified, only return assets of this exact type
+	*
+	* @return array
+	* @access public
+	*/
+	function &getAllQuestionAssets($type_code=NULL)
+	{
+		$all_questions = $this->getQuestionAssets($type_code);
+
+		$sections = $this->getAllSections();
+		foreach ($sections as $section) {
+			$questions = $section->getQuestionAssets($type_code);
+			$all_questions = array_merge($all_questions, $questions);
+		}
+
+		return $all_questions;
+
+	}//end getAllQuestionAssets()
+
+
+	/**
+	* Get questions attached to certain page
+	*
+	* @param int	$page_number	The page number to get questions from
+	*
+	* @return array
+	*/
+	public function getQuestionAssetsOnPage($page_number)
+	{
+		// If we are on the last page of a form with a confirmation page, then
+		// we must be on the confirmation page, which by definition has no
+		// answerable questions (possibly a CAPTCHA but this doesn't count).
+		if (($page_number == $this->getTotalPages()) && $this->attr('use_confirmation_page')) {
+			return Array();
+		}
+
+		if ($this->attr('multi_page')) {
+			// do we have any unattached questions?
+			$unattached_questions = $this->getQuestions();
+
+			// Get top-level sections
+			$section_links = $this->getSectionLinks();
+
+			// If we have unattached questions, then reduce the page number
+			// internally - so that section 1 will be on page 2
+			if (!empty($unattached_questions)) {
+				$page_number--;
+			}
+
+			if ($page_number == 0) {
+				// Printing unattached questions (if any)
+				// Grab the default "unattached questions" content file (at the moment)
+				$questions = $this->getQuestionAssets();
+			} else {
+				// Printing a section - best way to do this is to slice it off
+				$section_link = reset(array_slice($section_links, $page_number - 1, 1));
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+				$questions = $section->getAllQuestionAssets();
+			}
+		} else {
+			// Single page form - get everything
+			$questions = $this->getAllQuestionAssets();
+		}
+
+		return $questions;
+
+	}//end getAllQuestionAssets()
+
+
+//--        ADDING AND DELETING QUESTIONS        --//
+
+
+	/**
+	* attach a question to this form
+	*
+	* Returns boolean FALSE if a database problem occurs or if question already
+	* attached, or TRUE if sucessful
+	*
+	* @param string	$type_code	the type code of the question we are adding
+	*
+	* @return boolean
+	* @access public
+	*/
+	function attachQuestion($type_code)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db = MatrixDAL::getDb();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$questions = $this->getQuestions();
+		if ($this->attr('next_questionid') > 0) {
+			$new_key = $this->attr('next_questionid');
+		} else if (empty($questions)) {
+			$new_key = 1;
+		} else {
+			$new_key = max(array_keys($questions)) + 1;
+		}
+
+		$questions[$new_key] = Array(
+								'question_type_code'	=> $type_code,
+								'attributes'			=> Array('name' => 'Question '.(count($questions)+1)),
+							   );
+
+		$this->setAttrValue('questions', $questions);
+		$this->setAttrValue('next_questionid', $new_key + 1);
+
+		$sort_order = $this->attr('sort_order');
+
+		if (empty($sort_order)) {
+			$new_index = 0;
+		} else {
+			$new_index = max(array_keys($sort_order))+1;
+		}
+		$sort_order[$new_index] = $this->id.':q'.$new_key;
+		$this->setAttrValue('sort_order', $sort_order);
+
+		if (!$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		// acquire the lock on the new question
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id.':q'.$new_key, 'all', $this->id, TRUE);
+		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end attachQuestion()
+
+
+	/**
+	* delete a question to this form
+	*
+	* Returns boolean FALSE if a database problem occurs or if question already
+	* attached, or TRUE if sucessful
+	*
+	* @param object	&$question	the Form_Question object to delete
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteQuestion(&$question)
+	{
+		if ($question->_questionid == 0) return FALSE;
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$questions = $this->getQuestions();
+
+		unset($questions[$question->_questionid]);
+
+		$this->setAttrValue('questions', $questions);
+
+		$sort_order = $this->attr('sort_order');
+
+		// remove it from the sort order - it does not matter that there are gaps
+		$old_index = array_search($question->id, $sort_order);
+		unset($sort_order[$old_index]);
+
+		// unset the question
+		unset($question);
+
+		$this->setAttrValue('sort_order', $sort_order);
+
+		if (!$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end deleteQuestion()
+
+
+	/**
+	* returns the number of sections in this form
+	*
+	* @return int
+	* @access public
+	*/
+	function getQuestionCount()
+	{
+		$questions = $this->getQuestions();
+		return count($questions);
+
+	}//end getQuestionCount()
+
+
+	/**
+	* get a specific question, and return the question's link
+	*
+	* @param string	$questionid	The question's (shadow?) ID
+	*
+	* @return array
+	* @access public
+	*/
+	function getQuestionByID($questionid)
+	{
+		$questions = $this->getQuestions();
+		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
+
+	}//end getQuestionByID()
+
+
+	/**
+	* get specific question by order, and return the question's link
+	*
+	* @param int	$orderid	The question's sort order
+	*
+	* @return array
+	* @access public
+	*/
+	function &getQuestionByOrder($orderid)
+	{
+		$sort_order = $this->attr('sort_order');
+		$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
+		return $question;
+
+	}//end getQuestionByOrder()
+
+
+//--        SECTION MANAGEMENT        --//
+
+
+	/**
+	* returns immediate sections in this form in order of 'sort_order'
+	*
+	* Structure of return array is Array(object Form_Section).
+	*
+	* @return array
+	* @access public
+	*/
+	function &getSections()
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$section_links = $this->getSectionLinks();
+		$sections = Array();
+
+		foreach ($section_links as $link) {
+			$sections[$link['sort_order']] = $am->getAsset($link['minorid'], $link['minor_type_code']);
+		}
+		return $sections;
+
+	}//end getSections()
+
+
+	/**
+	* Returns all sections regardless of depth
+	*
+	* Structure of return array is Array(object Form_Section).
+	*
+	* @return array
+	* @access public
+	*/
+	function &getAllSections()
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$section_links = $this->getSectionLinks();
+		$sections = Array();
+
+		while (!empty($section_links)) {
+			$link = array_shift($section_links);
+			$sections[] = $am->getAsset($link['minorid'], $link['minor_type_code']);
+
+			// get subsection links and add them onto the front
+			$sub_section_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link['minorid'], SQ_SC_LINK_ALL, 'form_section', FALSE);
+			$section_links = array_merge($sub_section_links, $section_links);
+		}
+		return $sections;
+
+	}//end getSections()
+
+
+	/**
+	* returns the number of sections in this form
+	*
+	* @return int
+	* @access public
+	*/
+	function getSectionCount()
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_section', TRUE);
+
+	}//end getSectionCount()
+
+
+	/**
+	* Get the question links attached to this form (and only to this form).
+	*
+	* Returns an array of (question ID => question detail).
+	*
+	* @return array
+	* @access public
+	*/
+	function &getSectionLinks()
+	{
+		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
+		// lest we spin off into an infinite loop involving OUR &getAsset().
+
+		$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', '', '1', '0');
+		if (empty($links_query)) return Array();
+		$links_query['sql_array']['select'] .= ', l.majorid';		// we need the major id too
+
+		try {
+			$sql = implode(' ', $links_query['sql_array']);
+			$query = MatrixDAL::preparePdoQuery($sql);
+
+			foreach ($links_query['bind_vars'] as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get section links attached to form: '.$this->id.' due to database error: '.$e->getMessage());
+		}
+		return $result;
+
+	}//end getSectionLinks()
+
+
+//--        BODYCOPIES        --//
+
+
+	/**
+	* Print the body of this asset
+	*
+	* @return void
+	* @access public
+	**/
+	function printBody()
+	{
+		// Pick up the current submission, if any.
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+			$this->restoreFromSubmissionCookie();
+			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
+		} else {
+			$submission = $this->getSubmissionAsset();
+		}
+
+		if (isset($submission)) {
+			$current_page = array_get_index($_POST, 'SQ_FORM_'.$this->id.'_PAGE', $submission->attr('current_page'));
+			$latest_page = $submission->attr('latest_page');
+		} else if (isset($submission_var)) {
+			$current_page = array_get_index($_POST, 'SQ_FORM_'.$this->id.'_PAGE', array_get_index($submission_var, 'current_page', NULL));
+			$latest_page = array_get_index($submission_var, 'latest_page', NULL);
+		} else {
+			$current_page = $latest_page = NULL;
+		}
+
+		$prefix         = $this->getPrefix();
+		$total_pages    = $this->getTotalPages();
+
+		$action = NULL;
+		$possible_actions = Array(
+								'submit',
+								'previous_page',
+								'reset',
+								'save',
+								'save_and_exit',
+							);
+
+		foreach ($possible_actions as $possible_action) {
+			if (isset($_POST[$prefix.'_'.$possible_action])) {
+				$action = $possible_action;
+				break;
+			}
+		}
+
+		$jump_to_page   = array_get_index($_GET, 'SQ_FORM_'.$this->id.'_PAGE', NULL);
+		$finished       = FALSE;
+
+		// Process the current page, if any - process if:
+		// - we are moving to the next or previous page (save submission), OR
+		// - we are jumping to an arbitrary page (do NOT save submission).
+		if (!is_null($current_page) || !is_null($jump_to_page) || (!is_null($action) && ($action !== 'reset'))) {
+			// Are we jumping to another page? If not, then we do NOT save the
+			// submission at this point.
+			if (!is_null($jump_to_page)) {
+				$current_page = $jump_to_page;
+			} else {
+				// Only validate the page responses if.
+				// In other words, allow gunky data to be stored because we
+				// aren't actually progressing in the form; we will get sto it
+				// when we go forward from this page (whenever that happens).
+				$validate_page = ($action === 'submit') ? TRUE : FALSE;
+
+				if (is_null($current_page)) $current_page = 1;
+				$success = $this->processPage($current_page, $validate_page);
+
+				if ($success) {
+					// If the submission has not yet been created, create the submission
+					// in the "Incomplete Submissions" folder - but if there was only
+					// one page, we can fudge it
+					if (!isset($submission_var) && !$submission) {
+						$create_in_completed = ($total_pages == 1) ? TRUE : FALSE;
+
+						// Get an incomplete submissions, and now we know
+						// this is page one
+						//if (!$create_in_completed) {
+							$submission = $this->createSubmission($create_in_completed);
+							$this->submission_asset = $submission;
+						//}
+					}
+
+					// If we have a submission, then, update it
+					if (isset($submission)) {
+						$this->updateSubmission($submission);
+					} else if (isset($submission_var)) {
+						$this->updateSubmissionCookie();
+					}
+
+					// Are we there yet? Assuming that we are moving forward
+					// on this page, and not backwards or same page...
+					if (($current_page == $total_pages) && ($action === 'submit')) {
+						$finished = TRUE;
+					} else {
+						if ($action === 'previous_page') {
+							$current_page--;
+						} else if ($action === 'submit') {
+							$current_page++;
+						}
+
+						$current_page = max($current_page, 1);
+					}
+				}
+			}
+		} else {
+			// just change it to first page as we haven't been to any page yet
+			$latest_page = $current_page = 1;
+		}
+
+		// We have to do this here, because we cannot break the old behaviour
+		// where even the summary/thank you page is surrounded by form tags
+
+		if ($action === 'save_and_exit') {
+			echo $this->getExitPage();
+		} else {
+			if (!$finished) {
+				// If the submission hasn't been created yet, don't bother storing
+				// current page or anything like
+				if (isset($submission)) {
+					$submission->setAttrValue('current_page', $current_page);
+					if ($current_page > $latest_page) {
+						$submission->setAttrValue('latest_page', $current_page);
+					}
+					$submission->saveAttributes();
+				} else if (isset($submission_var)) {
+					$_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']['current_page'] = $current_page;
+					if ($current_page > $latest_page) {
+						$_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']['latest_page'] = $current_page;
+					}
+				}
+			}
+
+
+
+			echo $this->getFormHeader();
+
+			if (!$finished) {
+				// print the current page
+				$this->printPageContentsBodycopy();
+			} else {
+				$ok = $this->completeSubmission();
+				if ($ok) {
+					// On-submit actions went through okay, so we can finish
+					// the form
+					$this->finishForm();
+				} else {
+					// We had problems, so re-print the last page
+					$this->printPageContentsBodycopy();
+				}
+			}
+
+			echo $this->getFormFooter();
+		}
+
+	}//end printBody()
+
+
+	/**
+	* Returns the header of the form, ie. the start form tags and anything else
+	* needed by them
+	*
+	* @return string
+	*/
+	public function getFormHeader()
+	{
+		$form_prefix = $this->getPrefix();
+		$form_action = $this->getFormAction();
+
+		if ($this->attr('use_client_side')) {
+			$on_submit = 'onsubmit="return beforeSubmit_'.$prefix.'(this);"';
+			$header = '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.'>';
+			$header .= $this->getClientSideFunction();
+		} else {
+			$header = '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post">';
+		}
+
+		$current_submission = $this->getSubmissionAsset();
+		$submission_var = array_get_index($_SESSION, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
+		if ($current_submission) {
+			ob_start();
+				hidden_field('SQ_FORM_'.$this->id.'_SUBMISSION', $current_submission->id);
+				hidden_field('SQ_FORM_'.$this->id.'_PAGE', $current_submission->attr('current_page'));
+			$header .= ob_get_clean();
+		} else if ($submission_var) {
+			ob_start();
+				hidden_field('SQ_FORM_'.$this->id.'_PAGE', $submission_var['current_page']);
+			$header .= ob_get_clean();
+		} else {
+			ob_start();
+				hidden_field('SQ_FORM_'.$this->id.'_PAGE', 1);
+			$header .= ob_get_clean();
+		}
+
+		return $header;
+
+	}//end getFormHeader()
+
+
+	/**
+	* Returns the action this form should be using
+	*
+	* @return string
+	*/
+	public function getFormAction()
+	{
+		$form_action = $_SERVER['PHP_SELF'];
+
+		// Add the query string as well if it exists, so asset references with ?a=###
+		// submit back to themselves.
+		// BUT, remove internal page or submission override GET variables, otherwise
+		// we'll be stuck at the one page once a GET var comes in
+		if (!empty($_SERVER['QUERY_STRING'])) {
+			preg_match_all('/([^=&]*)\=([^&]*)/', $_SERVER['QUERY_STRING'], $matches);
+			$matches = array_combine($matches[1], $matches[2]);
+
+			foreach ($matches as $key => $value) {
+				if (($key === 'SQ_FORM_'.$this->id.'_PAGE') || ($key === 'SQ_FORM_'.$this->id.'_SUBMISSION')) {
+					unset($matches[$key]);
+				}
+			}
+
+			$form_action .= '?'.htmlentities(make_raw_post_data($matches));
+		}
+
+		return $form_action;
+
+	}//end getFormAction()
+
+
+	/**
+	* Print a single page of a multiple page form
+	*
+	* Page number is 1-indexed. If there are unattached questions, this will be
+	* page 1, then the first section is page 2. If no unattached questions,
+	* the first section is page 1.
+	*
+	* @param int	$page_number	The current page number
+	*
+	* @return string
+	*/
+	public function getPageContents($page_number)
+	{
+		$page_number = max($page_number, 1);
+		ob_start();
+
+		// Firstly, find out whether we should actually be displaying the
+		// confirmation page: if it is enabled and we are supposedly on the
+		// final page, it MUST be the confirmation page
+		$total_pages = $this->getTotalPages();
+
+		if (($page_number == $total_pages) && $this->attr('use_confirmation_page')) {
+			echo $this->getConfirmationPageContents();
+		} else {
+			// We are on a "normal" form page
+			if ($this->attr('multi_page')) {
+				// do we have any unattached questions?
+				$questions = $this->getQuestions();
+
+				// Get top-level sections and re-base their indices
+				$sections = $this->getSectionLinks();
+
+				// If we have unattached questions, then reduce the page number
+				// internally - so that section 1 will be on page 2
+				if (!empty($questions)) {
+					$page_number--;
+				}
+
+				if ($page_number == 0) {
+					// Printing unattached questions (if any)
+					$bodycopy = $this->getBodycopy('Unattached Questions Format');
+
+					// check to see if the unattached bodycopy exists and has any content
+					if ($this->attr('use_bodycopy_unattached') && $bodycopy && !$bodycopy->isEmpty()) {
+						$keyword_list = $bodycopy->getKeywords();
+
+						if (!empty($keyword_list)) {
+							foreach ($keyword_list as $keyword) {
+								// Question and section-related keywords are found here
+								$replacement = $this->getDisplayKeywordReplacement($keyword);
+
+								if (is_null($replacement)) {
+									// If not picked up by first function, this will pick up
+									// replacements placed in separate functions - CAPTCHA,
+									// errors, for instance
+									$replacement = $this->getKeywordReplacement($keyword);
+								}
+
+								if (!is_null($replacement)) {
+									// We have something from one of the above
+									$replacements[$keyword] = $replacement;
+								}
+							}
+						}
+
+						$bodycopy->setKeywordReplacements($replacements);
+						$bodycopy->printBody();
+
+					} else {
+						// Grab the default "unattached questions" content file (at the moment)
+						require_once $this->data_path.'/content_file_questions.php';
+					}
+				} else {
+					// Printing a section - sections are zero based after they were
+					// re-based by array_values
+					$section_link = reset(array_slice($sections, $page_number - 1, 1));
+					$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+					$section->printBody($this, FALSE);
+				}
+			} else {
+				// Single page form
+				$this->printPageContentsBodycopy();
+			}
+		}
+
+		$contents = ob_get_clean();
+		return $contents;
+
+	}//end printPage()
+
+
+	/**
+	* Returns the form footer and anything else needed by it
+	*
+	* @return string
+	*/
+	public function getFormFooter()
+	{
+		return '</form>';
+
+	}//end getFormFooter()
+
+
+	/**
+	* Print 'Page Contents' Bodycopy context
+	*
+	* @return void
+	* @access public
+	*/
+	function printPageContentsBodycopy()
+	{
+		$this->printForm();
+
+	}//end printPageContentsBodycopy()
+
+
+	/**
+	* Print 'Thank You' Bodycopy context
+	*
+	* @return void
+	* @access public
+	*/
+	function printThankYouBodycopy()
+	{
+		// Make sure that the thank you bodycopy is always able to access the
+		// newly created submission in replicated database instances, by tying
+		// it all to db2
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$this->finishForm();
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	}//end printThankYouBodycopy()
+
+
+	/**
+	* Prints the form to screen
+	*
+	* Parameter $replacements is DEPRECATED; consider placing additional
+	* replacements in a subclassed getDisplayKeywordReplacements(), or their
+	* own function, instead.
+	*
+	* @param array	$replacements	a list of additional replacements that
+	*								subclasses can use to insert additional
+	*								keywords
+	*
+	* @return void
+	* @access public
+	*/
+	function printForm($replacements=Array())
+	{
+		$bodycopy = $this->getBodycopy('Page Contents');
+
+		// check to see if the bodycopy attached to this form has any content
+		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
+			$keyword_list = $bodycopy->getKeywords();
+
+			if (!empty($keyword_list)) {
+				foreach ($keyword_list as $keyword) {
+					// Question and section-related keywords are found here
+					$replacement = $this->getDisplayKeywordReplacement($keyword);
+
+					if (is_null($replacement)) {
+						// If not picked up by first function, this will pick up
+						// replacements placed in separate functions - CAPTCHA,
+						// errors, for instance
+						$replacement = $this->getKeywordReplacement($keyword);
+					}
+
+					if (!is_null($replacement)) {
+						// We have something from one of the above
+						$replacements[$keyword] = $replacement;
+					}
+				}
+			}
+
+			$bodycopy->setKeywordReplacements($replacements);
+			$bodycopy->printBody();
+
+		} else {
+			$multi_page = $this->attr('multi_page');
+			echo $this->printDefaultPageContents($multi_page ? FALSE : TRUE);
+
+		}//end else
+
+	}//end printForm()
+
+
+	/**
+	* Prints the default page contents
+	*
+	* @param boolean	$also_print_sections	Whether to also print the sections
+	*											of this form. If multi-page is turned on,
+	*											this should be FALSE.
+	*
+	* @return string
+	*/
+	public function printDefaultPageContents($also_print_sections=TRUE)
+	{
+		$current_page = $this->getCurrentPageNumber();
+
+		$error = !empty($this->submission_errors);
+
+		$form_width = $this->attr('form_width');
+
+		if (!empty($form_width)) {
+			$form_width = ' width="'.$form_width.'"';
+		}
+
+		$question_width = $this->attr('question_col_width');
+		if (!empty($question_width)) {
+			$question_width = ' width="'.$question_width.'"';
+		}
+
+		$answer_width = $this->attr('answer_col_width');
+		if (!empty($answer_width)) {
+			$answer_width = ' width="'.$answer_width.'"';
+		}
+
+		// note: the HTML section below is using the keywords so that it's easier
+		// to move it to a bodycopy later (as a default value)
+		// that way we will not need 2 paths of processing
+		ob_start();
+		?>
+		%<?php echo $also_print_sections ? 'form' : 'current_page' ?>_contents%<table width="<?php echo $form_width; ?>">
+			<tr>
+			<td width="<?php echo $question_width; ?>">&nbsp;</td>
+			<td width="<?php echo $answer_width; ?>">
+				<?php
+				if ($this->attr('require_captcha') && ($current_page == $this->getTotalPages())) {
+					?>
+					%form_captcha%
+					<?php
+				}
+				?>
+				%submit_button%
+				%reset_button%
+			</td>
+			</tr>
+			<?php
+			if ($error) {
+				?>
+				<tr><td colspan="2">%form_errors%</td></tr>
+				<?php
+			}
+			?>
+			</table>
+		<?php
+		$content = ob_get_clean();
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+		$keyword_list = extract_keywords($content);
+		if (!empty($keyword_list)) {
+			foreach ($keyword_list as $keyword) {
+				if (isset($replacements[$keyword])) continue;
+				$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+			}
+			replace_keywords($content, $replacements);
+		}
+
+		return $content;
+
+	}//end printDefaultPageContents()
+
+
+	/**
+	* Gets the contents of a "resume submission" page
+	*
+	*/
+	public function getResumeSubmissionPageContents()
+	{
+
+
+	}//end getResumeSubmissionPageContents()
+
+
+	/**
+	* Prints the standard form i.e not a wizard
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printStandard()
+	{
+		$prefix = $this->getPrefix();
+
+		$form_processed = FALSE;
+
+		// check to see if the form has been submitted or not
+		if (isset($_POST[$prefix.'_submit'])) {
+			$form_processed = $this->processForm();
+		}
+
+		if ($form_processed) {
+			$this->printThankYouBodycopy();
+		} else {
+			$this->printPageContentsBodycopy();
+		}
+
+		return TRUE;
+
+	}//end printStandard()
+
+
+	/**
+	* Create the "Exit Page", which will be displayed when "Save and Exit" is
+	* selected on a form
+	*
+	* If the Exit Page Contents bodycopy is not customised, then... ???
+	*
+	* @return string
+	*/
+	public function getExitPage()
+	{
+		$contents = '';
+
+			if ($this->attr('use_bodycopy_exit')) {
+			$bodycopy = $this->getBodycopy('Exit Page Contents');
+
+			if ($bodycopy) {
+				ob_start();
+
+				$keyword_list = $bodycopy->getKeywords();
+				$replacements = Array();
+
+				$bodycopy->setKeywordReplacements($replacements);
+				$bodycopy->printBody();
+
+				$contents = ob_get_clean();
+			}
+		}
+
+		return $contents;
+
+	}//end getExitPage()
+
+
+	/**
+	* create a bodycopy and attach to the Bodycopies folder of the form
+	*
+	* The $name attribute will also be used for the Link Value of the link between
+	* the form's Bodycopies folder and the new bodycopy. The name will be lowercased,
+	* spaces replaced with underscores, and assigned to the link value. So if 'Thank
+	* You' is the name of the bodycopy (for instance), it will be linked to the
+	* Bodycopies folder with the link value 'thank_you'.
+	* Returns boolean FALSE if the bodycopy already exists or if the creation
+	* failed for some reason, or TRUE if it was successfully created
+	*
+	* @param string	$name	the name of the bodycopy to create
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createBodycopy($name)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db = MatrixDAL::getDb();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// search for a bodycopies folder and create one if there isn't one there
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
+		if (empty($folder_link)) {
+
+			// create a folder for the bodycopies
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+			$folder = new Folder();
+			$folder->setAttrValue('name', 'Bodycopies');
+
+			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
+
+			if (!$folder->create($folder_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
+		} else {
+			// folder already exists, get the reference
+			$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+		}
+		if (is_null($folder)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		// and see whether this bodycopy already exists
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
+		if (!empty($bodycopy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return TRUE;
+		}
+
+		// bodycopy doesn't exist, so create it
+		// create a link to the folder so we can put the bodycopies in it
+		$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => $name);
+
+		// create the thing
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy = new Bodycopy();
+		$bodycopy->setAttrValue('name', $name);
+
+		// create an appropriate value for this link
+		// to reflect that of the name
+		$name = strtolower(str_replace(' ', '_', $name));
+
+		if (!$bodycopy->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end createBodycopy()
+
+
+	/**
+	* returns a reference to a bodycopy based of the name of the bodycopy
+	*
+	* @param string	$name	the name of the bodycopy
+	*
+	* @return object
+	* @access public
+	*/
+	function &getBodycopy($name='')
+	{
+		$null = NULL;
+
+		if (!$name) return $null;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
+		if (empty($folder_link)) return $null;
+
+		$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+		if (is_null($folder)) return $null;
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
+		if (empty($bodycopy_link)) return $null;
+
+		$bodycopy = $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+
+		return $bodycopy;
+
+	}//end getBodycopy()
+
+
+	/**
+	* includes the content file for this form
+	*
+	* Options available for $type:
+	* - "Standard":  include the whole form, including sections. Useful for single-page form.
+	* - "Questions": only include unattached questions. Useful for a multi-page form.
+	*
+	* @param string	$type	the type of content file to generate
+	*
+	* @return boolean
+	* @access public
+	*/
+	function includeContentFile($type='Standard')
+	{
+		$edit_fns = $this->getEditFns();
+
+		switch($type) {
+			case 'Standard':
+				if (!file_exists($this->data_path.'/content_file.php')) {
+					if (!$edit_fns->generateStandardContentFile($this)) {
+						return FALSE;
+					}
+				}
+				include($this->data_path.'/content_file.php');
+			break;
+
+			case 'Questions':
+				if (!file_exists($this->data_path.'/content_file_questions.php')) {
+					if (!$edit_fns->generateQuestionsContentFile($this)) {
+						return FALSE;
+					}
+				}
+				include($this->data_path.'/content_file_questions.php');
+
+			break;
+		}
+
+		return TRUE;
+
+	}//end includeContentFile()
+
+
+	/**
+	* Returns the total number of pages in this form.
+	*
+	* If multi-page form is DISABLED, then the whole form is one page.
+	* If ENABLED, then each top-level section becomes a page, and any unattached
+	* questions share one extra page, if any.
+	*
+	* In either case, if the confirmation page is enabled, add one page.
+	*
+	* @return int
+	*/
+	public function getTotalPages()
+	{
+		if ($this->attr('multi_page')) {
+			$pages = $this->getSectionCount() + ($this->getQuestionCount() > 0 ? 1 : 0);
+		} else {
+			$pages = 1;
+		}
+
+		// if confirmation page exists, add 1 page
+		if ($this->attr('use_confirmation_page')) {
+			$pages++;
+		}
+
+		return $pages;
+
+	}//end getTotalPages()
+
+
+//--        CONFIRMATION PAGE FUNCTIONS        --//
+
+
+	/**
+	* Get the Confirmation Page, wherever it comes from
+	*
+	* @return string
+	*/
+	public function getConfirmationPageContents()
+	{
+		if ($this->attr('use_bodycopy_confirmation')) {
+			$bodycopy = $this->getBodycopy('Confirmation Page Contents');
+			$keyword_list = $bodycopy->getKeywords();
+		} else {
+			$contents = $this->getDefaultConfirmationPageContents();
+			$keyword_list = extract_keywords($contents);
+		}
+
+		// Replace keywords
+		$replacements = Array();
+
+		if (!empty($keyword_list)) {
+			foreach ($keyword_list as $keyword) {
+				$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+			}
+		}
+
+		if ($this->attr('use_bodycopy_confirmation')) {
+			ob_start();
+				$bodycopy->setKeywordReplacements($replacements);
+				$bodycopy->printBody();
+			$contents = ob_get_clean();
+		} else {
+			replace_keywords($contents, $replacements);
+		}
+
+		return $contents;
+
+	}//end getConfirmationPageContents()
+
+
+	/**
+	* Get the default contents of the Confirmation Page
+	*
+	* @return string
+	*/
+	public function getDefaultConfirmationPageContents()
+	{
+		ob_start();
+		?>
+		%form_summary_html%
+
+		<?php
+		if ($this->attr('require_captcha')) {
+			?>
+			<p>%form_captcha%</p>
+			<?php
+		}
+		?>
+
+		<?php
+		$contents = ob_get_clean();
+
+		return $contents;
+
+	}//end getDefaultConfirmationPageContents()
+
+
+//--        FORM PROCESSING        --//
+
+
+	/**
+	* regenerates the content file for this form
+	*
+	* @return boolean
+	* @access public
+	*/
+	function fileRegeneration()
+	{
+		$edit = $this->getEditFns();
+		return $edit->generateStandardContentFile($this);
+
+	}//end fileRegeneration()
+
+
+	/**
+	* Processes the specified page
+	*
+	* @param int		$page_number	The page number to be processed
+	* @param boolean	$validate_page	If TRUE, the function will return FALSE
+	*									if the question values are invalid or
+	*									the CAPTCHA is incorrectly entered. This
+	*									is usually only set TRUE when moving
+	*									forward in the form
+	*
+	* @return boolean
+	*/
+	public function processPage($page_number, $validate_page=TRUE)
+	{
+		$ok = TRUE;
+
+		// Has a captcha been completed on this page? Error if it is incorrect,
+		// otherwise set the status that we have passed one
+		// Only when we're going forward, though.
+		$submission = $this->getSubmissionAsset();
+
+		if ($validate_page && isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
+			if (validate_security_key()) {
+				$submission = $this->getSubmissionAsset();
+				if (!empty($submission)) {
+					$submission->setAttrValue('captcha_status', TRUE);
+					$submission->saveAttributes();
+				} else if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'])) {
+					$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
+					$submission_var['captcha_status'] = TRUE;
+				}
+			} else {
+				if (is_null($this->submission_errors)) $this->submission_errors = Array();
+				$this->submission_errors = array_merge($this->submission_errors, Array(translate('security_key_incorrect')));
+				$ok = FALSE;
+			}
+		}
+
+		// We have got to the last page (and are moving forward, ie. submitting),
+		// but we need a captcha to pass and we don't have it yet!
+		if (!empty($submission)) {
+			$captcha_status = $submission->attr('captcha_status');
+		} else if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'])) {
+			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
+			$captcha_status = array_get_index($submission_var, 'captcha_status', FALSE);
+		} else {
+			$captcha_status = FALSE;
+		}
+
+		if (($page_number == $this->getTotalPages()) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {
+			if (is_null($this->submission_errors)) $this->submission_errors = Array();
+			$this->submission_errors = array_merge($this->submission_errors, Array('CAPTCHA required, but none has been found in the form.'));
+			$ok = FALSE;
+		}
+
+		$questions = $this->getQuestionAssetsOnPage($page_number);
+
+		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+			$question->populate($this);
+			// Only fail the page if we are moving forward
+			if (!$question->hasValidValue() && $validate_page) {
+				if (is_null($this->submission_errors)) $this->submission_errors = Array();
+				$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
+				$ok = FALSE;
+			}
+
+			$this->current_answers[$question->id] = $question->getValue();
+			$this->extra_data[$question->id]      = $question->getExtraData();
+		}
+
+		return $ok;
+
+	}//end processPage()
+
+
+	/**
+	* re-populates the active submissions of its members
+	*
+	* @return void
+	* @access public
+	*/
+	function repopulate()
+	{
+		if (empty($this->current_answers) && empty($this->extra_data)) return;
+
+		$questions = $this->getAllQuestionAssets();
+		foreach (array_keys($questions) as $key) {
+			if (array_key_exists($key, $this->current_answers)) {
+				$question = $questions[$key];
+				$question->setValue($this->current_answers[$question->id]);
+			}
+
+			if (array_key_exists($key, $this->extra_data)) {
+				$question = $questions[$key];
+				$extra_data = $this->extra_data[$question->id];
+				if (!empty($extra_data)) {
+					$question->setExtraData($this->extra_data[$question->id]);
+				}
+			}
+		}
+
+	}//end repopulate()
+
+
+	/**
+	* prints the errors that occured in a form submission
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printErrors()
+	{
+		if (!empty($this->submission_errors)) {
+			echo '<ul>';
+			foreach ($this->submission_errors as $error) {
+				echo '<li>';
+				echo $error;
+				echo '</li>';
+			}
+			echo '</ul>';
+		}
+		return TRUE;
+
+	}//end printErrors()
+
+
+	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getXML()
+	{
+		$submission = $this->getSubmissionAsset();
+		$submission_ip = $submission->getIP();
+
+		ob_start();
+		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
+		echo ' ip="'.$submission_ip.'"';
+		if (!is_null($cur_user = $GLOBALS['SQ_SYSTEM']->user)) {
+			echo ' user="'.$cur_user->id.'"';
+		}
+		echo '>';
+
+		// unattached questions first
+		$sort_order = $this->attr('sort_order');
+
+		foreach ($sort_order as $sort_order_index => $assetid) {
+
+			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
+			if ($this->id == strtok($assetid, ':')) {
+				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				echo $question->getXML($question->getValue());
+			}
+
+		}
+
+		// now sections
+		$sections = $this->getSections();
+		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
+			$section =& $sections[$k];
+			echo '<section id="'.$section->id.'" name="'.$section->attr('name').'">';
+
+			$sort_order = $section->attr('sort_order');
+
+			foreach ($sort_order as $sort_order_index => $assetid) {
+
+				// check to see whether this belongs to the section
+				if ($section->id == strtok($assetid, ':')) {
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					echo $question->getXML($question->getValue($assetid));
+				}
+
+			}
+
+			echo '</section>';
+
+		}
+
+		echo '</submission>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+
+	}//end getXML()
+
+
+	/**
+	* returns a summary about the answers in the form submission
+	*
+	* @param boolean	$html	return html formatted or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function printSummary($html=FALSE)
+	{
+		echo ($html) ? '<table>' : '';
+
+		// unattached questions first
+		$sort_order = $this->attr('sort_order');
+
+		foreach ($sort_order as $sort_order_index => $assetid) {
+
+			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
+			if ($this->id == strtok($assetid, ':')) {
+				$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				echo ($html) ? '<tr><td><ul><li>' : '';
+				echo $question->attr('name');
+				echo ($html) ? ': </li></ul></td><td>' : ' : ';
+				echo $question->getSummary();
+				echo ($html) ? '</td></tr>' : "\n";
+			}
+
+		}
+
+		// now sections
+		$sections = $this->getAllSections();
+		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
+			$section =& $sections[$k];
+			$section->current_answers =& $this->current_answers;
+			$section->extra_data =& $this->extra_data;
+			echo ($html) ? '<tr><td colspan="2">' : "\n";
+			echo ($html) ? '<strong>'.$section->attr('name').'</strong>' : '** '.$section->attr('name').' **';
+			echo ($html) ? '</td></tr>' : "\n\n";
+
+			$sort_order = $section->attr('sort_order');
+
+			foreach ($sort_order as $sort_order_index => $assetid) {
+
+				// check to see whether this belongs to the section
+				if ($section->id == strtok($assetid, ':')) {
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					echo ($html) ? '<tr><td><ul><li>' : '';
+					echo $question->attr('name');
+					echo ($html) ? ': </li></ul></td><td>' : ' : ';
+					echo $question->getSummary();
+					echo ($html) ? '</td></tr>' : "\n";
+				}
+
+			}
+			echo ($html) ? '' : "\n";
+		}
+
+		echo ($html) ? '</table>' : '';
+
+	}//end printSummary()
+
+
+	/**
+	* returns information about where the form exists
+	*
+	* @return array
+	* @access public
+	*/
+	function getFormInfo()
+	{
+		$info = Array();
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		$lineage = $am->getLineageFromURL();
+		foreach ($lineage as $asset) {
+			$info[$asset['type_code'].'_name'] = $asset['name'];
+			$info[$asset['type_code'].'_id']   = $asset['assetid'];
+		}
+		$info['url'] = current_url(TRUE, TRUE);
+
+		if (!is_null($this->submission_asset)) {
+			$info['submission_id'] = $this->submission_asset->id;
+		}
+
+		return $info;
+
+	}//end getFormInfo()
+
+
+//--        CLIENT-SIDE VALIDATION        --//
+
+
+	/**
+	* writes JavaScript code for client side validation
+	*
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @return string
+	* @access public
+	*/
+	function generateJSCode()
+	{
+		if (!$this->attr('use_client_side')) return '';
+
+		$keywords = Array();
+		$use_bc = ($this->attr('use_bodycopy_main') == 1) ? TRUE : FALSE;
+
+		if ($use_bc) {
+			// Bodycopy is being used, so lets get its keywords
+			$bc = $this->getBodycopy('Page Contents');
+			$keywords = $bc->getKeywords();
+
+			// Form contents is printed, which is just like not using a bodycopy(in this context)
+			// So we will print all questions' js code.
+			if (in_array('form_contents', $keywords)) {
+				$use_bc = FALSE;
+			}
+		}
+
+		ob_start();
+		?>
+			submission_errors = new Array();
+		<?php
+		$code = ob_get_contents();
+		ob_end_clean();
+
+		$questions = $this->getAllQuestionAssets();
+
+		foreach (array_keys($questions) as $key) {
+			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($key);
+			$q_code = '';
+			if ($use_bc) {
+				$keyword_search = 'question_field_'.str_replace(':', '_', $question->id);
+				if (in_array($keyword_search, $keywords)) {
+					// keyword is present in the bodycopy, we can safely print the js code.
+					$q_code = $question->generateJSCode();
+				}
+			} else {
+				$q_code = $question->generateJSCode();
+			}
+			$code .= $q_code.(empty($q_code) ? '' : "\n");
+		}
+
+		return $code;
+
+	}//end generateJSCode()
+
+
+	/**
+	* Builds a JavaScript fn that can be called to initiate client-side validation
+	*
+	* @return string
+	* @access public
+	*/
+	function getClientSideFunction()
+	{
+		$code = $this->generateJSCode();
+		if (empty($code)) return '';
+
+		ob_start();
+			?>
+			<script type="text/javascript">
+			function beforeSubmit_<?php echo $this->getPrefix() ?>(form)
+			{
+				var submission_errors = new Array();
+				i = 0;
+
+				<?php echo $code; ?>
+
+				if (submission_errors.length > 0) {
+					var errors_list = "<?php echo translate('cms_form_submission_errors'); ?>\n";
+					for(x in submission_errors) {
+						errors_list += submission_errors[x] + "\n";
+					}
+					alert(errors_list);
+					return false;
+				} else {
+					return true;
+				}
+			}//end beforeSubmit_<?php echo $this->getPrefix() ?>()
+			</script>
+			<?php
+			$code = ob_get_contents();
+		ob_end_clean();
+
+		return $code;
+
+	}//end getClientSideFunction()
+
+
+//--        POST-SUBMISSION PROCESSING        --//
+
+
+	/**
+	* Complete a submission and clean up
+	*
+	* Does the following actions:<ul>
+	* <li>fill in final information - complete attribute and XML version of
+	*   submission result</li>
+	* <li>On a multi-page form with submissions logged, move the submission from
+	*   incomplete to completed submissions</li>
+	* <li>Or: on a single-page form, create the submission if we are
+	*   logging them</li>
+	* <li>Or: on a multi-page form when submissions are NOT logged, nuke the
+	*   submission now we are done with using it</li></ul>
+	*
+	* @return void
+	*/
+	public function completeSubmission()
+	{
+		$submission_asset = $this->getSubmissionAsset();
+		$all_questions = $this->getAllQuestions();
+
+		$ok = TRUE;
+
+		foreach ($all_questions as $assetid => $question_info) {
+			$type_code = $question_info['question_type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			if (method_exists($type_code, 'onSubmitForm')) {
+				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$question_asset->onSubmitForm($this);
+
+				if (!empty($question_asset->failed_rules)) {
+					if (!is_array($this->submission_errors)) $this->submission_errors = Array();
+					$this->submission_errors = array_merge($this->submission_errors, $question_asset->failed_rules);
+					$ok = FALSE;
+				}
+			}
+		}
+
+		// create the submission asset
+		if ($ok) {
+			if ($this->attr('log_submissions')) {
+				if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+					// Fill new submission asset with current answers
+					$submission_asset = $this->createSubmission(TRUE);
+					$this->submission_asset = $submission_asset;
+					$this->updateSubmission($submission_asset);
+				} else {
+					// It'll exist in Incomplete. Move to completed
+					$incomplete_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'incomplete_submissions');
+					$complete_link   = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
+
+					$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($incomplete_link['minorid'], $submission_asset->id);
+					if ($submission_link) {
+						$GLOBALS['SQ_SYSTEM']->am->moveLink($submission_link['linkid'], $complete_link['minorid'], SQ_LINK_TYPE_3, 0);
+					}
+				}
+
+				// Move any file uploads without a create location to the submission asset
+				// We then need to update the Submission to handle any changed Extra Data
+				$this->_storeOrphanedFileUploads();
+				$this->updateSubmission($submission_asset);
+
+				$submission_asset->setIP($_SERVER['REMOTE_ADDR']);
+				$submission_asset->setAttrValue('complete', TRUE);
+				$submission_asset->setAttrValue('xml', $this->getXML());
+				$submission_asset->saveAttributes();
+			} else {
+				// Trash it if it exists
+				if ($submission_asset) {
+					$GLOBALS['SQ_SYSTEM']->am->trashAsset($submission_asset->id);
+					$submission_asset->delete();
+				}
+			}
+
+		}//end if
+
+		return $ok;
+
+	}//end completeSubmission()
+
+
+	/**
+	* Move any file uploads without a create location to the submission asset
+	*
+	*
+	*
+	* @return void
+	*/
+	protected function _storeOrphanedFileUploads()
+	{
+		$submission_asset = $this->getSubmissionAsset();
+		$file_uploads     = $this->getAllQuestionAssets('form_question_type_file_upload');
+
+		foreach (array_keys($file_uploads) as $assetid) {
+			$file_upload = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			$create_location = $file_upload->attr('create_location');
+			if (empty($create_location)) {
+				$extra_data = $file_upload->getExtraData();
+				if (!empty($extra_data['temp_filesystem_path'])) {
+					$filename   = $file_upload->getValue();
+					$perm_path  = $submission_asset->data_path.'/attachments/'.str_replace(':', '_', $file_upload->id);
+
+					// Move it using Fudge file_system function
+					create_directory($perm_path);
+					move_file($extra_data['temp_filesystem_path'], $perm_path.'/'.$filename);
+
+					$extra_data = Array(
+									'filesystem_path'	=> $perm_path.'/'.$filename,
+								  );
+
+					$file_upload->setExtraData($extra_data);
+					$submission_asset->setExtraData($assetid, $extra_data);
+				}
+			}
+		}
+
+	}//end _storeOrphanedFileUploads()
+
+
+	/**
+	* function to finish off form and print thank you bodycopy
+	*
+	* @return boolean
+	* @access public
+	*/
+	function finishForm()
+	{
+		$tyb = $this->getBodycopy('Thank You');
+
+		ob_start();
+		$this->printSummary(TRUE);
+		$summary_info = ob_get_contents();
+		ob_end_clean();
+
+		// check to see if the bodycopy attached to this form has any content
+		if ($this->attr('use_bodycopy_thank_you') && $tyb && !$tyb->isEmpty()) {
+
+			if ($this->attr('show_results')) {
+				$keyword_list = $tyb->getKeywords();
+				$replacements = Array();
+
+				foreach ($keyword_list as $keyword) {
+					$lookup_keyword = $keyword;
+
+					// If form_info or form_summary, we need to make sure the
+					// HTML version gets printed
+					if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
+						$lookup_keyword = $keyword.'_html';
+					}
+
+					$replacement = $this->_getThankYouKeywordReplacement($lookup_keyword);
+					$replacements[$keyword] = $replacement;
+				}
+
+				$tyb->setKeywordReplacements($replacements);
+
+			}//end if
+
+			$tyb->printBody();
+
+		} else {
+			// no bodycopy
+			// print the results if we need to
+			if ($this->attr('show_results')) echo $summary_info;
+
+		}
+
+		// Clean-up questions
+		$all_questions = $this->getAllQuestions();
+
+		foreach ($all_questions as $assetid => $question_info) {
+			$type_code = $question_info['question_type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			if (method_exists($type_code, 'onSubmitForm')) {
+				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$question_asset->cleanUp($this);
+			}
+		}
+
+		// Clean-up submission session variable
+		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
+
+	}//end finishForm()
+
+
+//--        SUBMISSIONS        --//
+
+
+	/**
+	* Get the submissions folder specified by the link value
+	*
+	* If called with zero arguments, points to the "Completed Submissions"
+	* folder, as per previous behaviour. This SHOULD be called with an attribute
+	* as much as possible, though, to avoid ambiguity.
+	*
+	* @param string	$link_value	The value of the link of the submissions folder to get
+	*
+	* @return mixed Folder|null
+	* @access public
+	*/
+	function getSubmissionsFolder($link_value='submissions_folder')
+	{
+		$res = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $link_value);
+		if (!empty($link)) {
+			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'folder');
+		}
+		return $res;
+
+	}//end getSubmissionsFolder()
+
+
+	/**
+	* Create a submissions folder
+	*
+	* @param string	$folder_name	The name of the folder
+	* @param string	$link_value		The value of the link between the form and the folder
+	*
+	* @return mixed Folder|null
+	* @access public
+	*/
+	function createSubmissionsFolder($folder_name, $link_value)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$ok = TRUE;
+
+		// Find an existing folder - if it exists, just return that
+		$existing_folder = $this->getSubmissionsFolder($link_value);
+		if ($existing_folder) {
+			return $existing_folder;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+		$folder = new Folder();
+		$create_info = Array(
+						'asset'			=> $this,
+						'link_type'		=> SQ_LINK_TYPE_2,
+						'value'			=> $link_value,
+						'is_dependant'	=> 1,
+						'is_exclusive'	=> 1,
+					   );
+
+		$folder->setAttrValue('name', $folder_name);
+		if (!$folder->create($create_info)) {
+			// Cannot create it.
+			$ok = FALSE;
+		}
+
+		if ($ok) {
+			// deny public read access by default - but may need to force it
+			// because usually setting permissions requires admin access
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+			if (!$am->setPermission($folder->id, $public_userid, SQ_PERMISSION_WRITE, 0, TRUE, TRUE)) {
+				// couldn't deny it - we can't just return the
+				$ok = FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		}
+
+		// End of transaction. If things didn't work out, null the folder out
+		// and rollback the transaction, otherwise push it through
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$folder = NULL;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $folder;
+
+	}//end createSubmissionsFolder()
+
+
+	/**
+	* creates a new submission object
+	*
+	* @param boolean	$create_in_completed	If true, it will be created in
+	*											Completed Submissions folder - otherwise,
+	*											place in Incomplete Submissions.
+	*
+	* @return object
+	* @access public
+	*/
+	function &createSubmission($create_in_completed=FALSE)
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
+
+		if ($create_in_completed) {
+			$link_value = 'submissions_folder';
+		} else {
+			$link_value = 'incomplete_submissions';
+		}
+
+		// create the form submission asset
+		$submission_asset = new Form_Submission();
+		$submissions_folder = $this->getSubmissionsFolder($link_value);
+		if (is_null($submissions_folder)) {
+			// If we need to create the Incomplete Submissions folder, do so now.
+			// We shall not do this with the Completed Submissions folder, because
+			// this should have been created when the form was created
+			if (!$create_in_completed) {
+				$submissions_folder = $this->createSubmissionsFolder(translate('cms_form_incomplete_submissions'), 'incomplete_submissions');
+			}
+
+			if (is_null($submissions_folder)) {
+				trigger_localised_error('CMS0069', E_USER_WARNING);
+				$null = NULL;
+				return $null;
+			}
+		}
+		$copy_link  = Array(
+						'asset'			=> $submissions_folder,
+						'link_type'		=> SQ_LINK_TYPE_3,
+						'is_dependant'	=> 0,
+						'is_exclusive'	=> 0,
+					  );
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+		if (!$submission_asset->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		$submission_asset->setAttrValue('complete', FALSE);
+		$submission_asset->saveAttributes();
+
+		// The current user will receive write access to this submission
+		// (as long as one is actually logged in, ie. we are not public)
+		$public_userid  = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserid();
+		if ((string)$current_userid !== (string)$public_userid) {
+			if (!$am->setPermission($submission_asset->id, $current_userid, SQ_PERMISSION_WRITE, 1, TRUE, TRUE)) {
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				return FALSE;
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $submission_asset;
+
+	}//end createSubmission()
+
+
+	/**
+	* Returns the current submission asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &getSubmissionAsset()
+	{
+		if (!$this->submission_asset) {
+			// Find the submission asset, but ensure we are getting it from _POST first
+			$submission_assetid = array_get_index($_POST, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
+			if (is_null($submission_assetid)) {
+				$submission_assetid = array_get_index($_GET, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
+
+			}
+
+			if (!is_null($submission_assetid)) {
+				$this->submission_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_assetid, 'form_submission');
+
+				if (!$this->submission_asset || !$this->submission_asset->writeAccess()) {
+					$this->submission_asset = NULL;
+				}
+			}
+
+			if (!$this->submission_asset) {
+				$this->submission_asset = NULL;
+			}
+
+			// Fill up the current answers from previous parts of the submission
+			if ($this->submission_asset) {
+				$answers = $this->submission_asset->getAnswers();
+				foreach ($answers as $assetid => $response) {
+					$this->current_answers[$assetid] = $response['answer'];
+					$this->extra_data[$assetid]      = array_get_index($response, 'extra_data', '');
+				}
+				$this->repopulate();
+			}
+		}
+
+		return $this->submission_asset;
+
+	}//end getSubmissionAsset()
+
+
+	/**
+	* Updates the submission with the current page's processed data
+	*
+	* @param Form_Submission	$submission_asset	The submission asset to update
+	*
+	* @return void
+	*/
+	public function updateSubmission(Form_Submission $submission_asset)
+	{
+		foreach ($this->current_answers as $assetid => $response) {
+			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			// Save and stick the value
+			$question->saveValue($this);
+
+			// If the question is sticky, stick the value then
+			if ($question->attr('sticky')) {
+				$question->stickValue($question->getValue());
+			}
+
+			// only re-set the answer if it has changed
+			if ($question->getValue() !== $submission_asset->getAnswer($assetid)) {
+				$submission_asset->setAnswer($assetid, $question->getValue());
+			}
+
+			// same with Extra Data
+			if ($question->getExtraData() !== $submission_asset->getExtraData($assetid)) {
+				$submission_asset->setExtraData($assetid, $question->getExtraData());
+			}
+
+			$submission_asset->setSummary($assetid, $question->attr('name'), $question->getSummary());
+		}
+
+		$submission_asset->saveAttributes();
+
+	}//end updateSubmission()
+
+
+	/**
+	* Returns an array of asset IDs representing submissions sitting in the
+	* incomplete submissions folder
+	*
+	* @return array
+	*/
+	public function getIncompleteSubmissions()
+	{
+		// If we are not a
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+			return Array();
+		}
+
+		$incomplete_folder = $this->getSubmissionsFolder('incomplete_submissions');
+		if (!$incomplete_folder) {
+			return Array();
+		}
+
+		$sql_parts = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($incomplete_folder, 'form_submission', FALSE);
+		$sql_parts['sql_array']['where'] .= ' AND (a.assetid IN (SELECT assetid FROM sq_vw_ast_perm WHERE userid = :is_userid AND permission >= :is_min_perm AND granted = :is_granted))';
+		$sql_parts['bind_vars']['is_userid'] = $GLOBALS['SQ_SYSTEM']->currentUserid();
+		$sql_parts['bind_vars']['is_min_perm'] = SQ_PERMISSION_WRITE;
+		$sql_parts['bind_vars']['is_granted'] = '1';
+
+		$sql = implode(' ', $sql_parts['sql_array']);
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach ($sql_parts['bind_vars'] as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+			$results = array_keys(MatrixDAL::executePdoGroupedAssoc($query));
+		} catch (DALException $e) {
+			throw new Exception($e->getMessage());
+		}
+
+		return $results;
+
+	}//end getIncompleteSubmissions()
+
+
+	/**
+	* Return the current page number
+	*
+	* @return string
+	*/
+	public function getCurrentPageNumber()
+	{
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
+			$current_page = array_get_index($submission_var, 'current_page', 1);
+		} else {
+			$submission_asset = $this->getSubmissionAsset();
+			if ($submission_asset) {
+				$current_page = $submission_asset->attr('current_page');
+			} else {
+				$current_page = 1;
+			}
+		}
+
+		return $current_page;
+
+	}//end getCurrentPageNumber()
+
+
+	/**
+	* Return the latest page number
+	*
+	* @return string
+	*/
+	public function getLatestPageNumber()
+	{
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
+			$latest_page = array_get_index($submission_var, 'latest_page', '1');
+		} else {
+			$submission_asset = $this->getSubmissionAsset();
+			if ($submission_asset) {
+				$latest_page = $submission_asset->attr('latest_page');
+			} else {
+				$latest_page = '1';
+			}
+		}
+
+		return $latest_page;
+
+	}//end getLatestPageNumber()
+
+
+	/**
+	* Callback function to inform File Upload-type questions where to upload
+	* their incomplete submissions to
+	*
+	* In our case, it is:
+	* - incomplete_attachments/[session_id] when no incomplete submission asset exists
+	*   (ie. one-page form, or anonymous submission)
+	* - incomplete_attachments/s[subm. assetid] when an incomplete submission is represented
+	*   by an asset
+	*
+	* @return string
+	*/
+	public function getTempFileUploadPath()
+	{
+		$submission_asset = $this->getSubmissionAsset();
+
+		if ($submission_asset) {
+			$path = $this->data_path.'/incomplete_attachments/s'.$submission_asset->id;
+		} else {
+			$path = $this->data_path.'/incomplete_attachments/'.session_id();
+		}
+
+		return $path;
+
+	}//end getTempFileUploadPath()
+
+
+//--        SUBMISSION VIA SESSION VARIABLE        --//
+
+
+	/**
+	* Restore an anonymous submission from a session variable
+	*
+	* @return void
+	*/
+	public function restoreFromSubmissionCookie()
+	{
+		$session_var_name = 'SQ_FORM_'.$this->id.'_SUBMISSION';
+
+		if (!isset($_SESSION[$session_var_name])) {
+			$_SESSION[$session_var_name] = Array();
+		}
+
+		$session_var =& $_SESSION[$session_var_name];
+
+		foreach ($this->getAllQuestionAssets() as $question) {
+			if (isset($session_var[$question->id])) {
+				//$question->setValue($session_var[$question->id]['answer']);
+				//$question->setExtraData($session_var[$question->id]['extra_data']);
+
+				$this->current_answers[$question->id] = $session_var[$question->id]['answer'];
+				$this->extra_data[$question->id]      = array_get_index($session_var[$question->id], 'extra_data', Array());
+
+				$question->setValue($this->current_answers[$question->id]);
+				$question->setExtraData($this->extra_data[$question->id]);
+			}
+		}
+
+	}//end restoreFromSubmissionCookie()
+
+
+	/**
+	* Updates an anonymous submission being tracked through a session variable
+	* with the current page's processed data
+	*
+	* @return void
+	*/
+	public function updateSubmissionCookie()
+	{
+		$session_var_name = 'SQ_FORM_'.$this->id.'_SUBMISSION';
+
+		if (!isset($_SESSION[$session_var_name])) {
+			$_SESSION[$session_var_name] = Array();
+		}
+
+		foreach ($this->current_answers as $assetid => $response) {
+			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			// Save and stick the value
+			$question->saveValue($this);
+
+			// If the question is sticky, stick the value then
+			if ($question->attr('sticky')) {
+				$question->stickValue($question->getValue());
+			}
+
+			if (isset($_SESSION[$session_var_name][$assetid])) {
+				$current_answer = $_SESSION[$session_var_name][$assetid]['answer'];
+			} else {
+				$current_answer = NULL;
+			}
+
+			// only re-set the answer if it has changed
+			if ($question->getValue() !== $current_answer) {
+				$_SESSION[$session_var_name][$assetid]['answer'] = $question->getValue();
+			}
+
+			$_SESSION[$session_var_name][$assetid]['name']    = $question->attr('name');
+			$_SESSION[$session_var_name][$assetid]['summary'] = $question->getSummary();
+			$_SESSION[$session_var_name][$assetid]['extra_data'] = $question->getExtraData();
+		}
+
+
+	}//end updateSubmissionCookie()
+
+
+	/**
+	* Convert a submission stored in a session variable to an asset
+	*/
+	public function convertSubmissionCookieToAsset() {
+		$submission_asset =& $this->createSubmission(TRUE);
+		$this->updateSubmission($submission_asset);
+
+	}//end convertSubmissionCookieToAsset()
+
+
+//--        KEYWORDS AVAILABLE        --//
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		if (!isset($vars['keywords'])) return;
+
+		// Find out whether we've actually been sent a form section's keyword
+		// request; go silent on it if it is
+		$bc_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id);
+		if (!in_array('form_section', $bc_parents)) {
+
+			$keywords = Array();
+			// search for a bodycopies folder
+			$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
+
+			$folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+
+			if (is_null($folder)) return FALSE;
+
+			// lets work out which bodycopy the WYSIWYG cell that wants our keywords
+			// is in so we can return the correct keywords for the screen
+			$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', TRUE);
+
+			$bodycopy_code = NULL;
+			foreach ($bodycopy_links as $link_info) {
+				if (isset($parents[$link_info['minorid']])) {
+					$bodycopy_code = $link_info['value'];
+					break;
+				}
+			}
+
+			if (is_null($bodycopy_code)) return;
+
+			$keywords = @$this->_tmp['keywords'][$bodycopy_code];
+			if (is_null($keywords) || !is_array($keywords)) {
+				$keywords = Array();
+				// note: if the value on the link is "Thank You", the method providing the keywords should be _getThankYouBodycopyKeywords
+				$keyword_provider_method = '_get'.str_replace(' ','',ucfirst($bodycopy_code)).'BodycopyKeywords';
+
+				if (method_exists($this, $keyword_provider_method)) {
+					$keywords = $this->$keyword_provider_method();
+					$this->_tmp['keywords'][$bodycopy_code] = $keywords;
+				}
+			}
+
+			$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+		}
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Get an array of keywords for Page Contents Bodycopy
+	*
+	* @return array
+	* @access private
+	*/
+	function _getPageContentsBodycopyKeywords()
+	{
+		$questions = $this->getQuestionAssets();
+		$sections = $this->getSections();
+
+		$keywords['form_contents']         = translate('cms_form_contents');
+		$keywords['current_page_contents'] = translate('cms_current_page_contents');
+		$keywords['form_errors']           = translate('cms_form_errors');
+		$keywords['form_errors_message']   = translate('cms_form_errors_message');
+
+		foreach ($questions as $question) {
+			$keywords['question_name_' .$question->id] = translate('cms_form_question_name',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords += $this->_getCommonQuestionKeywords($question, $this);
+		}
+
+		foreach ($sections as $section) {
+			$keywords['section_title_'.$section->id] = 'Section Name: '.$section->attr('name').' ('.$section->id.')';
+			$keywords['section_contents_'.$section->id] = 'Section Contents: '.$section->attr('name').' ('.$section->id.')';
+			$keywords += $section->getDisplayKeywords(FALSE);
+		}
+
+		// These are best at the end
+		$keywords['reset_button']         = translate('cms_form_reset_button');
+		$keywords['submit_button']        = translate('cms_form_submit_button');
+
+		if ($this->getTotalPages() > 1) {
+			$keywords['previous_page_button'] = translate('cms_form_previous_page_button');
+		}
+
+		$keywords += $this->_getCaptchaDisplayKeywords();
+
+		return $keywords;
+
+	}//end _getPageContentsBodycopyKeywords()
+
+
+	/**
+	* Get an array of keywords for Thank You Context (bodycopy)
+	*
+	* @return array
+	* @access private
+	*/
+	function _getThankYouBodycopyKeywords()
+	{
+		$questions = $this->getQuestions();
+		$sections = $this->getSections();
+
+		$keywords['form_summary']               = translate('cms_form_submission_summary');
+		$keywords['form_summary_html']          = translate('cms_form_submission_summary').' (html)';
+		$keywords['form_info']                  = translate('cms_form_submission_info');
+		$keywords['form_info_html']             = translate('cms_form_submission_info').' (html)';
+		$keywords['form_submission_id']         = translate('cms_form_submission_id');
+		$keywords['form_submission_ip_address'] = translate('cms_form_submission_ip_address');
+		$keywords['form_submission_time']       = translate('cms_form_submission_time_format', translate('date_format_default'));
+
+		foreach (get_date_format_names() as $date_name => $date_format) {
+			$keywords['form_submission_time_'.$date_name] = translate('cms_form_submission_time_format', translate('date_format_'.$date_name));
+		}
+
+		foreach ($questions as $q_id => $question) {
+			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_name = $q_asset->attr('name');
+			$keywords['response_'.$this->id.'_q'.$q_id]      = translate('cms_form_question_response', ellipsisize($q_name,30));
+			$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_question_name', ellipsisize($q_name,30));
+			$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
+		}
+
+		foreach ($sections as $section) {
+			$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name'));
+			$keywords += $section->getResponseKeywords();
+		}
+
+		return $keywords;
+
+	}//end _getThankYouBodycopyKeywords()
+
+
+	/**
+	* Get an array of keywords for the Confirmation Page Contents bodycopy
+	*
+	* @return array
+	*/
+	protected function _getConfirmationPageContentsBodycopyKeywords()
+	{
+
+		$questions = $this->getQuestionAssets();
+		$sections = $this->getSections();
+
+		$keywords = Array();
+
+		$keywords['form_summary'] = translate('cms_form_submission_summary');
+		$keywords['form_info']    = translate('cms_form_submission_info');
+
+		foreach ($questions as $question) {
+			$keywords += $this->_getCommonQuestionKeywords($question, $this);
+		}
+
+		foreach ($sections as $section) {
+			$keywords['section_title_'.$section->id] = 'Section Name: '.$section->attr('name').' ('.$section->id.')';
+			$keywords += $section->getResponseKeywords();
+		}
+
+		// These are best at the end
+		$keywords['reset_button']         = translate('cms_form_reset_button');
+		$keywords['submit_button']        = translate('cms_form_submit_button');
+		$keywords['previous_page_button'] = translate('cms_form_previous_page_button');
+
+		$keywords += $this->_getCaptchaDisplayKeywords();
+
+		return $keywords;
+
+	}//end _getConfirmationPageBodycopyKeywords()
+
+
+	/**
+	* Get an array of question-related keywords applicable to all contexts
+	*
+	* @param Form_Question	$question	The form question we getting keywords for
+	* @param Asset			$parent		(Form|Form_Section) parent asset
+	*
+	* @return array
+	*/
+	protected function _getCommonQuestionKeywords(Form_Question $question, Asset $parent)
+	{
+		// Since we cannot assert a mixed asset argument in the formal parameter list
+		// (further than "instanceof Asset"), double-check that we are being sent
+		// a Form or Form Section
+		assert_true(($parent instanceof Form) || ($parent instanceof Form_Section), 'Argument 2 must be a Form or Form Section asset');
+
+		$keywords = Array();
+
+		// Replace the shadow asset colon with an underscore
+		$keyword_assetid = str_replace(':', '_', $question->id);
+
+		if ($parent instanceof Form_Section) {
+			$keywords['question_name_' .$keyword_assetid] = translate('cms_form_section_q_name',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_id_'   .$keyword_assetid] = translate('cms_form_section_q_id',    $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_section_q_note',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_label_'.$keyword_assetid] = translate('cms_form_section_q_label', $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+		} else {
+			$keywords['question_name_' .$keyword_assetid] = translate('cms_form_question_name',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_id_'   .$keyword_assetid] = translate('cms_form_question_id',    ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_question_note',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_label_'.$keyword_assetid] = translate('cms_form_question_label', ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+		}
+
+		return $keywords;
+
+	}//end _getCommonQuestionKeywords()
+
+
+	/**
+	* Get an array of section-related keywords applicable to all contexts
+	*
+	* @param Form_Section	$section	The form section we are gathering keywords for
+	*
+	* @return array
+	*/
+	protected function _getCommonSectionKeywords(Form_Section $section)
+	{
+		$keywords = Array();
+
+		$keywords['section_title_'.$section->id] = translate('cms_form_section_title', $section->attr('name')).' ('.$section->id.')';
+
+		return $keywords;
+
+	}//end _getCommonSectionKeywords()
+
+
+	/**
+	* Get an array of question-related keywords applicable to response contexts
+	*
+	* "Response contexts" include: Thank You summary pages, Confirmation page,
+	*
+	*
+	* @param Form_Question	$question	The form question we getting keywords for
+	* @param Asset			$parent		(Form|Form_Section) parent asset
+	*
+	* @return array
+	*/
+	protected function _getQuestionResponseKeywords(Form_Question $question, Asset $parent)
+	{
+		// Since we cannot assert a mixed asset argument in the formal parameter list
+		// (further than "instanceof Asset"), double-check that we are being sent
+		// a Form or Form Section
+		assert_true(($parent instanceof Form) || ($parent instanceof Form_Section), 'Argument 2 must be a Form or Form Section asset');
+
+		$keywords = Array();
+
+		// Replace the shadow asset colon with an underscore
+		$keyword_assetid = str_replace(':', '_', $question->id);
+
+		if ($parent instanceof Form_Section) {
+			$keywords['response_' .$keyword_assetid] = translate('cms_form_section_response',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+		} else {
+			$keywords['response_' .$keyword_assetid] = translate('cms_form_question_response',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+		}
+
+		return $keywords;
+
+	}//end _getQuestionResponseKeywords()
+
+
+	/**
+	* Return CAPTCHA display keywords so they can be injected where necessary
+	*
+	* @return array
+	*/
+	protected function _getCaptchaDisplayKeywords()
+	{
+		$keywords = Array();
+
+		$keywords['form_captcha']       = translate('cms_form_captcha');
+		$keywords['form_captcha_image'] = translate('cms_form_captcha_image');
+		$keywords['form_captcha_field'] = translate('cms_form_captcha_field');
+		$keywords['form_captcha_link']  = translate('cms_form_captcha_link');
+
+		return $keywords;
+
+	}//end _getCaptchaDisplayKeywords()
+
+
+//--        KEYWORD REPLACEMENTS        --//
+
+
+	/**
+	* Get a replacement for a keyword used during the display of the form
+	*
+	* If no suitable replacement exists, the function will return NULL instead.
+	*
+	* @param string	$keyword	The keyword to replace
+	*
+	* @return mixed string|NULL
+	*/
+	public function getDisplayKeywordReplacement($keyword)
+	{
+		$replacement = NULL;
+		$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
+		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
+		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
+
+		if ($is_question_keyword) {
+			// Sub keyword in $matches[1] - eg. 'field', 'id', 'note', 'label'
+			// Question assetid in $matches[2] - but need to replace underscore
+			// with colon
+			list(, $sub_keyword, $assetid) = $question_matches;
+			$assetid = str_replace('_', ':', $assetid);
+
+			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			switch ($sub_keyword) {
+				case 'field' :
+					$replacement = $question_asset->getHtmlField();
+				break;
+
+				case 'id' :
+					$replacement = 'q'.str_replace(':', '_', $assetid);
+				break;
+
+				case 'note' :
+					$replacement = $question_asset->attr('note');
+				break;
+
+				case 'label' :
+					$replacement = $question_asset->getHtmlLabel();
+				break;
+
+			}//end switch
+
+		} else if ($is_section_keyword) {
+			// Sub keyword in $matches[1] - eg. 'title' or 'contents'
+			// Section assetid in $matches[2]
+			list(, $sub_keyword, $assetid) = $section_matches;
+
+			$section_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+			switch ($sub_keyword) {
+				case 'title' :
+					$replacement = $section_asset->attr('name');
+				break;
+
+				case 'contents' :
+					ob_start();
+						include_once($section_asset->data_path.'/content_file.php');
+					$replacement = ob_get_clean();
+				break;
+
+			}//end switch
+
+		} else if ($is_response_keyword) {
+			$raw_response = (count($response_matches) == 3);
+			list(, $assetid) = $response_matches;
+			$assetid = str_replace('_', ':', $assetid);
+
+			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (!empty($question_asset)) {
+				if ($raw_response) {
+					$replacement = $question_asset->getValue();
+				} else {
+					$replacement = $question_asset->getSummary();
+				}
+			}
+
+		} else {
+			if ($keyword === 'form_submission_id') {
+				$submission = $this->getSubmissionAsset();
+				if ($submission) {
+					$replacement = $submission->id;
+				}
+			}
+		}//end if
+
+		return $replacement;
+
+	}//end getDisplayKeywordReplacement()
+
+
+	/**
+	* Current Page Contents keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getCurrentPageContentsKeywordReplacement()
+	{
+		$current_page = $this->getCurrentPageNumber();
+		return $this->getPageContents($current_page);
+
+	}//end getCurrentPageContentsKeywordReplacement()
+
+
+	/**
+	* Current Page Contents keyword replacement
+	*
+	* @param int	$current_page	Specify a page number to get the name of.
+	*								If NULL, return current page.
+	*
+	* @return string
+	* @access public
+	*/
+	function getCurrentPageNameKeywordReplacement($current_page=NULL)
+	{
+		if (is_null($current_page)) {
+			$current_page = $this->getCurrentPageNumber();
+		}
+		$replacement = NULL;
+
+		if (($current_page == $this->getTotalPages()) && $this->attr('use_confirmation_page')) {
+			$replacement = $this->attr('confirmation_page_name');
+		} else {
+			$question_count = $this->getQuestionCount();
+			if ($question_count > 0) $current_page--;
+
+			if ($current_page == 0) {
+				$replacement = $this->attr('unattached_page_name');
+			} else {
+				$sections = $this->getSectionLinks();
+				$current_section_link = reset(array_slice($sections, $current_page - 1, 1));
+				$current_section_id   = $current_section_link['minorid'];
+				$current_section_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($current_section_id);
+
+				$replacement = $current_section_info[$current_section_id]['name'];
+			}
+		}
+
+		return $replacement;
+
+	}//end getCurrentPageContentsKeywordReplacement()
+
+
+	/**
+	* Page Number keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getPageNumberKeywordReplacement()
+	{
+		return $this->getCurrentPageNumber();
+
+	}//end getPageNumberKeywordReplacement()
+
+
+	/**
+	* Total Pages keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getTotalPagesKeywordReplacement()
+	{
+		return $this->getTotalPages();
+
+	}//end getTotalPagesKeywordReplacement()
+
+
+	/**
+	* Form Contents keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormContentsKeywordReplacement()
+	{
+		ob_start();
+			$this->includeContentFile('Standard');
+		return ob_get_clean();
+
+	}//end getFormContentsKeywordReplacement()
+
+
+	/**
+	* Form Contents keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormContentsNoSectionsKeywordReplacement()
+	{
+		ob_start();
+			$this->includeContentFile('Questions');
+		return ob_get_clean();
+
+	}//end getFormContentsKeywordReplacement()
+
+	/**
+	* Form Captcha keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaKeywordReplacement()
+	{
+		ob_start();
+			security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaKeywordReplacement()
+
+
+	/**
+	* Form Captcha Image keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaImageKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaImageKeywordReplacement()
+
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaFieldKeywordReplacement()
+	{
+		ob_start();
+			security_key_field($this->attr('captcha_length'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaFieldKeywordReplacement()
+
+
+	/**
+	* Form Captcha Link keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLinkKeywordReplacement()
+	{
+		ob_start();
+			security_key_image_link($this->attr('captcha_link_text'));
+		return ob_get_clean();
+
+	}//end getFormCaptchaLinkKeywordReplacement()
+
+
+	/**
+	* Form Errors keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormErrorsKeywordReplacement()
+	{
+		if (empty($this->submission_errors)) return '';
+
+		ob_start();
+			$this->printErrors();
+		return ob_get_clean();
+
+	}//end getFormErrorsKeywordReplacement()
+
+
+	/**
+	* Form Errors Message keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormErrorsMessageKeywordReplacement()
+	{
+		if (empty($this->submission_errors)) return '';
+
+		return $this->attr('submission_errors_msg');
+
+	}//end getFormErrorsMessageKeywordReplacement()
+
+
+	/**
+	* Submit Button keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmitButtonKeywordReplacement()
+	{
+		$current_page = $this->getCurrentPageNumber();
+		$total_pages  = $this->getTotalPages();
+
+		if ($current_page >= $total_pages) {
+			$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : translate('submit');
+		} else {
+			$button_name = ($this->attr('next_button')) ? $this->attr('next_button') : translate('next');
+		}
+
+		ob_start();
+			submit_button($this->getPrefix().'_submit', $button_name);
+		return ob_get_clean();
+
+	}//end getSubmitButtonKeywordReplacement()
+
+
+	/**
+	* Save Button keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getSaveButtonKeywordReplacement()
+	{
+		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('save');
+
+		ob_start();
+			submit_button($this->getPrefix().'_save', $button_name);
+		return ob_get_clean();
+
+	}//end getSaveButtonKeywordReplacement()
+
+
+	/**
+	* "Save and Exit" Button keyword replacement
+	*
+	* Only display if the "Exit Page Contents" bodycopy has been enabled.
+	*
+	* @return string
+	* @access public
+	*/
+	function getSaveAndExitButtonKeywordReplacement()
+	{
+		$bodycopy = $this->getBodycopy('Exit Page Contents');
+
+		if ($bodycopy) {
+			$button_name = ($this->attr('save_and_exit_button')) ? $this->attr('save_and_exit_button') : translate('save_and_exit');
+
+			ob_start();
+				submit_button($this->getPrefix().'_save_and_exit', $button_name);
+			$replacement = ob_get_clean();
+		} else {
+			$replacement = NULL;
+		}
+
+		return $replacement;
+
+	}//end getSaveAndExitButtonKeywordReplacement()
+
+
+	/**
+	* Reset Button keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getResetButtonKeywordReplacement()
+	{
+		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
+
+		ob_start();
+			submit_button($this->getPrefix().'_reset', $button_name);
+		return ob_get_clean();
+
+	}//end getResetButtonKeywordReplacement()
+
+
+	/**
+	* Previous Page Button keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getPreviousPageButtonKeywordReplacement()
+	{
+		// Only display the previous page keyword if we are beyond the first page
+		$current_page = $this->getCurrentPageNumber();
+
+		if ($current_page > 1) {
+			$button_name = ($this->attr('previous_button')) ? $this->attr('previous_button') : translate('previous_page');
+			ob_start();
+				submit_button($this->getPrefix().'_previous_page', $button_name);
+			$replacement = ob_get_clean();
+		} else {
+			$replacement = '';
+		}
+
+		return $replacement;
+
+	}//end getPreviousPageButtonKeywordReplacement()
+
+
+	/**
+	* Get a keyword replacement for Page List
+	*
+	* @return string
+	*/
+	public function getPageListKeywordReplacement()
+	{
+		ob_start();
+
+		$submission_asset = $this->getSubmissionAsset();
+		$current_page = $this->getCurrentPageNumber();
+		$latest_page = $this->getLatestPageNumber();
+
+		$total_pages = $this->getTotalPages();
+
+		$page_list_format = $this->attr('page_list_format');
+		$keywords = extract_keywords($page_list_format);
+
+		?>
+		<ul class="sq-form-page-list">
+			<?php
+			for ($page_number = 1; $page_number <= $total_pages; $page_number++) {
+				// Get this page's very own keyword replacements
+				$page_entry = $page_list_format;
+				$replacements = Array();
+
+				$replacements['page_number'] = htmlentities($page_number);
+				$replacements['total_pages'] = htmlentities($total_pages);
+				$replacements['page_name'] = htmlentities($this->getCurrentPageNameKeywordReplacement($page_number));
+
+				replace_keywords($page_entry, $replacements);
+
+				$page_has_link = ($page_number <= $latest_page) && ($page_number != $current_page);
+
+				$style_classes = Array();
+				if ($page_number == $current_page) {
+					$style_classes[] = 'sq-form-current-page-number';
+				} else if ($page_number > $latest_page) {
+					$style_classes[] = 'sq-form-unseen-page-number';
+				} else if ($page_number > $current_page) {
+					$style_classes[] = 'sq-form-later-page-number';
+				} else {
+					$style_classes[] = 'sq-form-prior-page-number';
+				}
+
+				if ($page_number == $latest_page) {
+					$style_classes[] = 'sq-form-last-seen-page-number';
+				}
+			?>
+				<li<?php echo !empty($style_classes) ? ' class="'.implode(' ', $style_classes).'"' : '' ?>><?php
+					if ($page_has_link) {
+						?><a href="<?php echo $this->getURL() ?>?SQ_FORM_<?php echo $this->id ?>_PAGE=<?php echo $page_number ?><?php
+						if ($submission_asset) {
+							echo '&SQ_FORM_'.$this->id.'_SUBMISSION='.$submission_asset->id;
+						}
+						?>"><?php
+					}
+
+					echo $page_entry;
+
+					if ($page_has_link) {
+						?></a><?php
+					}
+				?></li>
+			<?php }//end for
+		?></ul>
+		<?php
+		return ob_get_clean();
+
+	}//end getPageListKeywordReplacement()
+
+
 	/**
 	* Get appropriate keywords for Thank You bodycopy and emails
+	*
+	* This can be extended further down the line. For instance, Form_Email (the
+	* "standard" custom form asset in Matrix) adds referrer-related keywords.
 	*
 	* @param string	$keyword	keyword to replace
 	*
 	* @return string
-	* @access protected
 	*/
-	function _getThankYouKeywordReplacement($keyword)
+	public function _getThankYouKeywordReplacement($keyword)
 	{
 		$replacement = '%'.$keyword.'%';
 		$prefix = $this->getPrefix();
-
-		// referrer gets referred to (!) in multiple keywords, so get it up here
-		$referrer = (isset($_POST[$prefix.'_referral_url'])) ? $_POST[$prefix.'_referral_url'] : '';
 
 		// Easier to use if-else if rather than switch, because some of these
 		// will be regex matches
@@ -2786,38 +4364,6 @@ class Form extends Asset implements Bridge
 			if ($asset_replacement !== "%$form_keyword%") {
 				$replacement = $asset_replacement;
 			}
-
-		} else if ($keyword === 'referral_url') {
-			// URL of the referring page/asset
-			// %referral_url%
-
-			$replacement = $referrer;
-
-		} else if (preg_match('|^referring_asset_(.*)|', $keyword, $matches)) {
-			// referring asset keyword, if we have been referred from an
-			// asset within MySource Matrix
-			// eg. %referring_asset_assetid%
-
-			if (!empty($referrer)) {
-				// use the url to work out the referring asset
-				$referrer = clean_url($referrer);
-
-				$url_parts = parse_url($referrer);
-				$protocol = array_get_index($url_parts, 'scheme');
-				$path = array_get_index($url_parts, 'host').array_get_index($url_parts, 'path');
-
-				$referrer_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $path, TRUE, TRUE);
-				if (!is_null($referrer_asset)) {
-					$referrer_keyword = 'asset_'.$matches[1];
-
-					$referrer_replacement = $referrer_asset->getKeywordReplacement($referrer_keyword);
-					if ($referrer_replacement !== "%$referrer_keyword%") {
-						$replacement = $referrer_replacement;
-					} else {
-						$replacement = '';
-					}
-				}
-			}//end if referrer is not empty
 
 		} else {
 			// questions that depend on knowing what questions and sections we have

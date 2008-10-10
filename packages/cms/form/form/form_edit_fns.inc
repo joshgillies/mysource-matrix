@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.81 2007/12/13 00:41:48 bshkara Exp $
+* $Id: form_edit_fns.inc,v 1.82 2008/10/10 04:25:25 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -348,38 +348,44 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintUseBodycopy(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) {
+		// Bodycopies by suffix and name. Note that these are not localised,
+		// because they are used for
+		$bodycopies = $this->_getBodycopiesList();
+
+		$write_access = $asset->writeAccess('links');
+
+		if (!$write_access) {
 			$num_bodycopies = 0;
 
-			if ($asset->attr('use_bodycopy_main')) {
-				$bodycopy = $asset->getBodycopy('Page Contents');
-				echo get_asset_tag_line($bodycopy->id, 'contents').'<br />';
-				$num_bodycopies++;
-			}
-
-			if ($asset->attr('use_bodycopy_thank_you')) {
-				$bodycopy = $asset->getBodycopy('Thank You');
-				echo get_asset_tag_line($bodycopy->id, 'contents').'<br />';
-				$num_bodycopies++;
+			foreach ($bodycopies as $bc_code => $bc_name) {
+				if ($asset->attr('use_bodycopy_'.$bc_code)) {
+					$bodycopy = $asset->getBodycopy($bc_name);
+					echo get_asset_tag_line($bodycopy->id, 'contents').'<br />';
+					$num_bodycopies++;
+				}
 			}
 
 			if ($num_bodycopies == 0) {
 				echo translate('cms_form_none_customised').'<br />';
 			}
-			return FALSE;
 		} else {
-			check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
-			echo label(translate('cms_page_contents'), 'use_bodycopy_main').'<br />';
-			check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
-			echo label(translate('cms_form_thank_you'), 'use_bodycopy_thank_you').'<br />';
-			return TRUE;
+			foreach ($bodycopies as $bc_code => $bc_name) {
+				check_box('use_bodycopy_'.$bc_code, '1', $asset->attr('use_bodycopy_'.$bc_code));
+				echo label(translate('cms_form_bodycopy_'.$bc_code), 'use_bodycopy_'.$bc_code).'<br />';
+			}
 		}
+
+		return $write_access;
 
 	}//end paintUseBodycopy()
 
 
 	/**
-	* creates a new section if one was selected to be added
+	* Processes the using of, and possible creation of form-level bodycopies
+	*
+	* This can be extended to add more bodycopies as required, by extending the
+	* $bodycopies array. However, one needs to add an attribute for it
+	*  ("use_bodycopy_[suffix]") and an interface in paintUseBodycopy().
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
@@ -390,24 +396,47 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processUseBodycopy(&$asset, &$o, $prefix)
 	{
+		$bodycopies = $this->_getBodycopiesList();
+
 		// Page Contents
-		if (isset($_POST['use_bodycopy_main']) && !$asset->getBodycopy('Page Contents')) {
-			$asset->createBodycopy('Page Contents');
+		foreach ($bodycopies as $bc_suffix => $bc_name) {
+			if (isset($_POST['use_bodycopy_'.$bc_suffix]) && !$asset->getBodycopy($bc_name)) {
+				$asset->createBodycopy($bc_name);
+			}
+			$asset->setAttrValue('use_bodycopy_'.$bc_suffix, isset($_POST['use_bodycopy_'.$bc_suffix]));
 		}
-		$asset->setAttrValue('use_bodycopy_main', isset($_POST['use_bodycopy_main']));
-
-		// Thank You!
-		if (isset($_POST['use_bodycopy_thank_you']) && !$asset->getBodycopy('Thank You')) {
-			$asset->createBodycopy('Thank You');
-		}
-		$asset->setAttrValue('use_bodycopy_thank_you', isset($_POST['use_bodycopy_thank_you']));
-
 		$asset->saveAttributes();
 		$asset->_updated();
 
 		return TRUE;
 
 	}//end processUseBodycopy()
+
+
+	/**
+	* Returns a list of bodycopies recognised, by POST data suffix => bodycopy name
+	*
+	* The bodycopy names are not localised here; the bodycopy name is used as a
+	* link value between it and the Bodycopies folder so we prefer predictability.
+	* The "use bodycopy" functions use the localisation "cms_form_bodycopy_*"
+	* (where * is the suffix of the form element - ie. the key of this function's
+	* array return) for the localised names of the bodycopies.
+	*
+	* @return array
+	*/
+	protected function _getBodycopiesList()
+	{
+		$bodycopies = Array(
+						'main'			=> 'Page Contents',
+						'confirmation'	=> 'Confirmation Page Contents',
+						'thank_you'		=> 'Thank You',
+						'unattached'	=> 'Unattached Questions Format',
+						'exit'			=> 'Exit Page Contents',
+					  );
+
+		return $bodycopies;
+
+	}//end _getBodycopiesList()
 
 
 	/**
@@ -604,183 +633,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* generates a php file for this form to be used on the frontend for a standard Form
-	*
-	* @param object	&$asset	the form asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function generateStandardContentFile(&$asset)
-	{
-		// if there is no bodycopy contents, then just ask
-		// all the sections to print themselves
-		$output = '<'.'?php $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?'.'>'."\n";
-
-		$sections = $asset->getSections();
-		$output .= $this->generateGenericSection($asset);
-		$i = 1; // used for indexing
-
-		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
-			$section =& $sections[$k];
-
-			// let the section know what its column widths are
-			$section->question_col_width = $asset->attr('question_col_width');
-			$section->answer_col_width = $asset->attr('answer_col_width');
-
-			// let the section know what the current answers are
-			$section->current_answers =& $asset->current_answers;
-
-			$output .= '<'.'?php $active_form = $this; ?'.'>';
-
-			// get the section to regen
-			$section->fileRegeneration(FALSE);
-
-			// output an include BUT we want to make what's printed relative to SQ_DATA_PATH
-			$output .= '<'.'?php include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $section->data_path).'/content_file.php'.'"); ?'.'>';
-		}
-
-		// if there are any tags left that haven't been replaced,
-		// we want to strip them out
-		$output = preg_replace('/%[^<>%]+%/', '', $output);
-
-		create_directory($asset->data_path);
-		return string_to_file($output, $asset->data_path.'/content_file.php');
-
-	}//end generateStandardContentFile()
-
-
-	/**
-	* replaces section keywords with their appropriate content
-	*
-	* @param object	&$asset	the form asset
-	* @param string	$output	the html output to search for replacements
-	*
-	* @return string
-	* @access public
-	*/
-	function processSectionReplacements(&$asset, $output)
-	{
-		// process section replacements
-		if (preg_match_all('/%section_(\d+)%/', $output, $matches)) {
-			$section_keywords = $matches[1];
-			foreach ($section_keywords as $section) {
-				$search = '%section_'.$section.'%';
-
-				// get this section's body and plug it into the output
-				// if there is no section for the keyword replacement,
-				// just strip out the keyword
-
-				if ($s = $asset->getSectionByOrder($section)) {
-
-					// let the section know what its column widths are
-					$section->question_col_width = $asset->attr('question_col_width');
-					$section->answer_col_width = $asset->attr('answer_col_width');
-
-					ob_start();
-					$s->printBody();
-					$replacement = ob_get_contents();
-					ob_end_clean();
-
-				} else {
-					$replacement = '';
-					trigger_localised_error('CMS0001', E_USER_NOTICE, $section);
-				}
-				$output = str_replace($search, $replacement, $output);
-			}//end foreach
-			return $output;
-		}
-		return FALSE;
-
-	}//end processSectionReplacements()
-
-
-	/**
-	* replaces question keywords with their appropriate content
-	*
-	* @param object	&$asset	the form asset
-	* @param string	$output	the html output to search for replacements
-	*
-	* @return string
-	* @access public
-	*/
-	function processQuestionReplacements(&$asset, $output)
-	{
-		// process question replacements
-		if (preg_match_all('/%section_(\d+)_question_(\d+)_(\w+)%/', $output, $matches)) {
-			for ($i = 0; $i < count($matches[1]); $i++) {
-				$s = $matches[1][$i]; // section
-				$q = $matches[2][$i]; // question
-				$t = $matches[3][$i]; // type
-
-				$search = '%section_'.$s.'_question_'.$q.'_'.$t.'%';
-
-				// get the question asset based on the order. if there
-				// is no replacement for it, then just strip out the tag
-				// for that keyword
-
-				if ($question = $asset->getQuestionByOrder($asset, $s, $q)) {
-					if (!empty($this->current_answers)) {
-						$question->setValue($this->current_answers[$question->id]);
-					}
-					$replacement = $question->getVal($t);
-				} else {
-					$replacement = '';
-				}
-				$output = str_replace($search, $replacement, $output);
-			}//end for
-			return $output;
-		}//end if
-		return FALSE;
-
-	}//end processQuestionReplacements()
-
-
-	/**
-	* generates a generic section where there is no main or looping bodycopy
-	*
-	* @param object	&$asset	the section asset
-	*
-	* @return string
-	* @access public
-	*/
-	function generateGenericSection(&$asset)
-	{
-		$output = '<table';
-		if ((int)$asset->attr('form_width')) {
-			$output .= ' width="'.$asset->attr('form_width').'"';
-		}
-		$output .= '>';
-		$sort_order = $asset->attr('sort_order');
-		if (empty($sort_order)) return;
-
-		foreach ($sort_order as $i => $assetid) {
-			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (is_null($q)) continue;
-
-			$output .= '<tr>';
-			$output .= '<td valign="top"';
-			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$label   = $q->getHtmlLabel();
-			escape_php($label);
-			$output .= $label;
-			if ($q->getVal('note')) {
-				$output .= '<br /><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
-			}
-			$output .= '</td><td';
-			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= '<'.'?php $q = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
-			echo $q->getHtmlField(); ?'.'>'."\n";
-			$output .= '</td></tr>';
-		}
-		$output .= '</table>';
-
-		return $output;
-
-	}//end generateGenericSection()
-
-
-	/**
 	* Paint a note explaining the restrictions of simple formatting
 	*
 	* @param object	&$asset	the asset whose interface we are painting
@@ -859,6 +711,110 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end processComplexFormatting()
+
+
+	/**
+	* Generates a content file for the entire form in default, single-page contents mode
+	*
+	* @param object	&$asset	the form asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function generateStandardContentFile(&$asset)
+	{
+		// Generate unattached questions if we haven't already
+		if (!$this->generateQuestionsContentFile($asset)) {
+			return FALSE;
+		}
+
+		// Now create the full default file, including the unattached questions
+		$output = '<'.'?php'."\n";
+		$output .= '$form_asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');'."\n";
+		$output .= 'include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $asset->data_path).'/content_file_questions.php'.'");'."\n";
+		$sections = $asset->getSections();
+		foreach ($sections as $section) {
+			// output an include BUT we want to make what's printed relative to SQ_DATA_PATH
+			$output .= 'include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $section->data_path).'/content_file.php'.'");'."\n";
+		}
+		$output .= '?'.'>';
+
+		// if there are any tags left that haven't been replaced,
+		// we want to strip them out
+		$output = preg_replace('/%[^<>%]+%/', '', $output);
+
+		create_directory($asset->data_path);
+		return string_to_file($output, $asset->data_path.'/content_file.php');
+
+	}//end generateStandardContentFile()
+
+
+	/**
+	* Generates a content file for the unattached questions part of the form
+	*
+	* @param object	&$asset	the form asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function generateQuestionsContentFile(&$asset)
+	{
+		// Get the unattached questions into one file
+		$output = '<'.'?php $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?'.'>'."\n";
+		$output .= $this->generateGenericSection($asset);
+
+		// if there are any tags left that haven't been replaced,
+		// we want to strip them out
+		$output = preg_replace('/%[^<>%]+%/', '', $output);
+
+		create_directory($asset->data_path);
+		return string_to_file($output, $asset->data_path.'/content_file_questions.php');
+
+	}//end generateQuestionsContentFile()
+
+
+	/**
+	* generates a generic section where there is no main or looping bodycopy
+	*
+	* @param object	&$asset	the section asset
+	*
+	* @return string
+	* @access public
+	*/
+	function generateGenericSection(&$asset)
+	{
+		$output = '<table';
+		if ((int)$asset->attr('form_width')) {
+			$output .= ' width="'.$asset->attr('form_width').'"';
+		}
+		$output .= '>';
+		$sort_order = $asset->attr('sort_order');
+		if (empty($sort_order)) return;
+
+		foreach ($sort_order as $i => $assetid) {
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($q)) continue;
+
+			$output .= '<tr>';
+			$output .= '<td valign="top"';
+			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
+			$label   = $q->getHtmlLabel();
+			escape_php($label);
+			$output .= $label;
+			if ($q->getVal('note')) {
+				$output .= '<br /><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
+			}
+			$output .= '</td><td';
+			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
+			$output .= '<'.'?php $q = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
+			echo $q->getHtmlField(); ?'.'>'."\n";
+			$output .= '</td></tr>';
+		}
+		$output .= '</table>';
+
+		return $output;
+
+	}//end generateGenericSection()
 
 
 }//end class
