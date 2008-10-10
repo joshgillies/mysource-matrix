@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_cms.inc,v 1.8 2007/12/03 05:44:21 bshkara Exp $
+* $Id: package_manager_cms.inc,v 1.9 2008/10/10 03:41:32 lwright Exp $
 *
 */
 
@@ -21,10 +21,10 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *
 * Purpose
 *    Manages the install and upgrade of the CMS package and CMS assets,
-*    uses info gleened from the package.xml and asset.xml files
+*    uses info gleaned from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,11 +53,19 @@ class Package_Manager_CMS extends Package_Manager
 	*/
 	function getSystemAssetTypes()
 	{
-		if ($GLOBALS['SQ_SYSTEM']->am->installed('cron_job_manage_pending_accounts')) {
-			return Array('cron_job_manage_pending_accounts');
-		} else {
-			return Array();
+		$system_assets = Array(
+							'cron_job_manage_pending_accounts',
+							'cron_job_manage_incomplete_submissions',
+						 );
+		$installed_assets = Array();
+
+		foreach ($system_assets as $type_code) {
+			if ($GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+				$installed_assets[] = $type_code;
+			}
 		}
+
+		return $installed_assets;
 
 	}//end getSystemAssetTypes()
 
@@ -87,6 +95,37 @@ class Package_Manager_CMS extends Package_Manager
 		pre_echo('Manage Pending Accounts Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_manage_pending_accounts', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobManagePendingAccounts()
+
+
+	/**
+	* Create the generate log report cron job
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobManageIncompleteSubmissions()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_error('Couldn\'t get cron manager, couldn\'t create Manage Pending Accounts cron job', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_manage_incomplete_submissions');
+
+		$cron_job = new Cron_Job_Manage_Incomplete_Submissions();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_error('Manage Incomplete Submissions Cron Job NOT CREATED', E_USER_ERROR);
+		}
+		pre_echo('Manage Incomplete Submissions Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_manage_incomplete_submissions', $cron_job->id);
 
 		return $cron_job;
 
