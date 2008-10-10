@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.65 2008/03/18 22:23:48 lwright Exp $
+* $Id: form_section.inc,v 1.66 2008/10/10 04:30:14 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -57,6 +57,13 @@ class Form_Section extends Asset implements Bridge
 
 
 	/**
+	* the active submission extra-data array
+	* @var Array
+	*/
+	var $extra_data = Array();
+
+
+	/**
 	* the active submission array
 	* @var Array
 	*/
@@ -75,6 +82,168 @@ class Form_Section extends Asset implements Bridge
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+//--        GENERIC ASSET FUNCTIONS        --//
+
+
+	/**
+	* Set the last updated info for this asset
+	*
+	* Call this function when the asset has been changed in some way so we can indicated in the
+	* asset table when the asset was last changed and who by. This function will also increment the micro
+	* version number for the asset.
+	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updated($update_parents=TRUE)
+	{
+		if (!parent::_updated($update_parents)) return FALSE;
+		if (SQ_IN_BACKEND) return $this->fileRegeneration();
+		return TRUE;
+
+	}//end _updated()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(
+					SQ_LINK_TYPE_2	=> Array(
+										'form_section'	=> Array(
+															'card'		=> 'M',
+															'exclusive'	=> FALSE,
+														   ),
+										'bodycopy'		=> Array(
+															'card'		=> '1',
+															'exclusive'	=> FALSE,
+														   ),
+									   ),
+					SQ_LINK_TYPE_3	=> Array(
+										'bodycopy'		=> Array(
+															'card'		=> '1',
+															'exclusive'	=> FALSE,
+														   ),
+									   ),
+			   );
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Clones certain specified components of the asset
+	*
+	* @param object		&$clone		the clone shell
+	* @param array		$components	the wanted components to clone eg.
+	* <pre>
+	* 								Array(
+	* 									'attributes',
+	* 									'metadata_schemas',
+	* 									'metadata',
+	* 									'workflow',
+	* 									'permissions',
+	* 									'data',
+	* 									'content_tags',
+	* 									'roles',
+	* 								);
+	* 								or alternately
+	* 								Array('all');
+	* </pre>
+	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components, $override=FALSE)
+	{
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::cloneComponents($clone, $components, $override)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			$sort_order = $this->attr('sort_order');
+			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
+
+			// save the information
+			$clone->setAttrValue('sort_order', $sort_order);
+			$clone->saveAttributes();
+
+			// Now remap any parent forms, but only if we are being cloned along with a form clone:
+			// remap to the cloned form. If we are being clone within a form, we will not remap.
+			$form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, 'form_email', FALSE);
+			$clone_form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($clone->id, 'form_email', FALSE);
+
+			$clone_form_parents = array_diff($clone_form_parents, $form_parents);
+
+			foreach ($clone_form_parents as $parent_assetid) {
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+
+				$recip = unserialize($form->attr('recipient_emails_format'));
+				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
+				$rec = unserialize($form->attr('receipt_emails_format'));
+				$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
+				$staf = unserialize($form->attr('staf_format'));
+				$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
+				$sel = $form->attr('selective_emails');
+				foreach ($sel as $key => $null) {
+					$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
+					$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
+				}
+
+				// field selections for STAF and receipt
+				$staf_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('staf_field'));
+				$receipt_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('receipt_field'));
+
+				// save the information
+				$form->setAttrValue('recipient_emails_format', serialize($recip));
+				$form->setAttrValue('receipt_emails_format', serialize($rec));
+				$form->setAttrValue('staf_format', serialize($staf));
+				$form->setAttrValue('selective_emails', $sel);
+
+				$form->setAttrValue('staf_field', $staf_field);
+				$form->setAttrValue('receipt_field', $receipt_field);
+
+				$form->saveAttributes();
+			}
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return TRUE;
+
+	}//end cloneComponents()
+
+
+	/**
+	* returns the name of this section
+	*
+	* @param boolean	$short_name	if TRUE, returns the short name
+	*
+	* @return string
+	* @access private
+	*/
+	function _getName($short_name=FALSE)
+	{
+		return $this->attr('name');
+
+	}//end _getName()
 
 
 //--        BRIDGE FUNCTIONS        --//
@@ -558,6 +727,75 @@ class Form_Section extends Asset implements Bridge
 	}//end getAssetMapAssetInfo()
 
 
+//--        CONTENT FILE GENERATION        --//
+
+
+	/**
+	* regenerates the content file for this section
+	*
+	* @param boolean	$form_regen	if TRUE the section will get all its forms to regen as well
+	*
+	* @return boolean
+	* @access public
+	*/
+	function fileRegeneration($form_regen=TRUE)
+	{
+		// we want to regen this section
+		$edit = $this->getEditFns();
+		$edit->generateContentFile($this);
+
+		// sometimes, we might not want to regen the form (eg. if the form is calling this function!)
+		if ($form_regen) {
+			// then, get all the links of this guy's form parents
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', FALSE, 'minor');
+
+			foreach ($links as $l) {
+				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
+				if (is_null($form)) continue;
+				if (!$form->_updated()) {
+					unset($form);
+					return FALSE;
+				}
+				unset($form);
+			}
+		}//end if
+
+		return TRUE;
+
+	}//end fileRegeneration()
+
+
+
+
+	/**
+	* writes JavaScript code for client side validation
+	*
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @return string
+	* @access public
+	*/
+	function generateJSCode()
+	{
+		$questions = $this->getQuestions();
+		$code = '';						// blank sheet of code to start with
+
+		foreach ($questions as $q_id => $question) {
+			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_code = $q_asset->generateJSCode();
+
+			$code .= $q_code.(empty($q_code) ? '' : "\n");
+		}
+
+		return $code;
+
+	}//end generateJSCode()
+
+
+//--        QUESTION MANAGEMENT        --//
+
+
 	/**
 	* get the section links attached to this form
 	*
@@ -574,12 +812,14 @@ class Form_Section extends Asset implements Bridge
 
 
 	/**
-	* get the question assets attached to this section
+	* Get the question assets directly attached to this section
+	*
+	* @param string	$type_code	When specified, only return assets of this exact type
 	*
 	* @return array
 	* @access public
 	*/
-	function &getQuestionAssets()
+	function getQuestionAssets($type_code=NULL)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
@@ -587,8 +827,10 @@ class Form_Section extends Asset implements Bridge
 		$questions = $this->attr('questions');
 		if (!empty($questions)) {
 			foreach ($questions as $q_id => $question) {
-				$id           =  $this->id.':q'.$q_id;
-				$result[$id]  = $am->getAsset($id);
+				if (empty($type_code) || ($question['question_type_code'] === $type_code)) {
+					$id           =  $this->id.':q'.$q_id;
+					$result[$id]  = $am->getAsset($id);
+				}
 			}
 		}
 
@@ -596,6 +838,29 @@ class Form_Section extends Asset implements Bridge
 
 	}//end getQuestionAssets()
 
+
+	/**
+	* Get all question assets attached to this section, including nested sections
+	*
+	* @param string	$type_code	When specified, only return assets of this exact type
+	*
+	* @return array
+	* @access public
+	*/
+	function getAllQuestionAssets($type_code=NULL)
+	{
+		$questions = $this->getQuestionAssets($type_code);
+
+		// Get questions within nested sections
+		$nested_sections = $this->getSectionLinks();
+		foreach ($nested_sections as $section_link) {
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+			$questions += $section->getAllQuestionAssets($type_code);
+		}
+
+		return $questions;
+
+	}//end getQuestionAssets()
 
 	/**
 	* get a specific question
@@ -736,168 +1001,6 @@ class Form_Section extends Asset implements Bridge
 
 
 	/**
-	* Set the last updated info for this asset
-	*
-	* Call this function when the asset has been changed in some way so we can indicated in the
-	* asset table when the asset was last changed and who by. This function will also increment the micro
-	* version number for the asset.
-	*
-	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
-	*									NOTE: this is passed to incrementVersion to let it know that the parents
-	*									should have their versions updated as well.
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _updated($update_parents=TRUE)
-	{
-		if (!parent::_updated($update_parents)) return FALSE;
-		if (SQ_IN_BACKEND) return $this->fileRegeneration();
-		return TRUE;
-
-	}//end _updated()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		return Array();
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* regenerates the content file for this section
-	*
-	* @param boolean	$form_regen	if TRUE the section will get all its forms to regen as well
-	*
-	* @return boolean
-	* @access public
-	*/
-	function fileRegeneration($form_regen=TRUE)
-	{
-		// we want to regen this section
-		$edit = $this->getEditFns();
-		$edit->generateContentFile($this);
-
-		// sometimes, we might not want to regen the form (eg. if the form is calling this function!)
-		if ($form_regen) {
-			// then, get all the links of this guy's form parents
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', FALSE, 'minor');
-
-			foreach ($links as $l) {
-				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
-				if (is_null($form)) continue;
-				if (!$form->_updated()) {
-					unset($form);
-					return FALSE;
-				}
-				unset($form);
-			}
-		}//end if
-
-		return TRUE;
-
-	}//end fileRegeneration()
-
-
-	/**
-	* Clones certain specified components of the asset
-	*
-	* @param object		&$clone		the clone shell
-	* @param array		$components	the wanted components to clone eg.
-	* <pre>
-	* 								Array(
-	* 									'attributes',
-	* 									'metadata_schemas',
-	* 									'metadata',
-	* 									'workflow',
-	* 									'permissions',
-	* 									'data',
-	* 									'content_tags',
-	* 									'roles',
-	* 								);
-	* 								or alternately
-	* 								Array('all');
-	* </pre>
-	* @param boolean	$override	whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
-	*
-	* @return boolean
-	* @access public
-	* @see asset::cloneComponents()
-	*/
-	function cloneComponents(&$clone, $components, $override=FALSE)
-	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		if (!parent::cloneComponents($clone, $components, $override)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-		if (in_array('attributes', $components) || in_array('all', $components)) {
-			$sort_order = $this->attr('sort_order');
-			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-
-			// save the information
-			$clone->setAttrValue('sort_order', $sort_order);
-			$clone->saveAttributes();
-
-			// Now remap any parent forms, but only if we are being cloned along with a form clone:
-			// remap to the cloned form. If we are being clone within a form, we will not remap.
-			$form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, 'form_email', FALSE);
-			$clone_form_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($clone->id, 'form_email', FALSE);
-
-			$clone_form_parents = array_diff($clone_form_parents, $form_parents);
-
-			foreach ($clone_form_parents as $parent_assetid) {
-				$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
-
-				$recip = unserialize($form->attr('recipient_emails_format'));
-				$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
-				$rec = unserialize($form->attr('receipt_emails_format'));
-				$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
-				$staf = unserialize($form->attr('staf_format'));
-				$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
-				$sel = $form->attr('selective_emails');
-				foreach ($sel as $key => $null) {
-					$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
-					$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
-				}
-
-				// field selections for STAF and receipt
-				$staf_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('staf_field'));
-				$receipt_field = str_replace($this->id.':q', $clone->id.':q', $form->attr('receipt_field'));
-
-				// save the information
-				$form->setAttrValue('recipient_emails_format', serialize($recip));
-				$form->setAttrValue('receipt_emails_format', serialize($rec));
-				$form->setAttrValue('staf_format', serialize($staf));
-				$form->setAttrValue('selective_emails', $sel);
-
-				$form->setAttrValue('staf_field', $staf_field);
-				$form->setAttrValue('receipt_field', $receipt_field);
-
-				$form->saveAttributes();
-			}
-		}//end if
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return TRUE;
-
-	}//end cloneComponents()
-
-
-	/**
 	* returns the count of questions linked to this section
 	*
 	* @return int
@@ -911,45 +1014,498 @@ class Form_Section extends Asset implements Bridge
 	}//end getQuestionCount()
 
 
-	/**
-	* returns the name of this section
-	*
-	* @param boolean	$short_name	if TRUE, returns the short name
-	*
-	* @return string
-	* @access private
-	*/
-	function _getName($short_name=FALSE)
-	{
-		return $this->attr('name');
-
-	}//end _getName()
+//--        SECTION MANAGEMENT        --//
 
 
 	/**
-	* writes JavaScript code for client side validation
+	* get the links to any form sections that are nested within this form section
 	*
-	* This function assumes the skeleton of a JS validation function has been created around this code
-	* with a form variable named 'form' passed (this is done when generating the content file).
-	*
-	* @return string
+	* @return array
 	* @access public
 	*/
-	function generateJSCode()
+	function getSectionLinks()
 	{
-		$questions = $this->getQuestions();
-		$code = '';						// blank sheet of code to start with
+		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
+		// lest we spin off into an infinite loop involving OUR &getAsset().
 
-		foreach ($questions as $q_id => $question) {
-			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
-			$q_code = $q_asset->generateJSCode();
+		$sql_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($this->id, SQ_LINK_TYPE_2, 'form_section', TRUE, 'major', '', '1', '0');
+		if (empty($sql_query)) return Array();
+		$sql_query['sql_array']['select'] .= ', l.majorid';		// we need the major id too
+		$db = MatrixDAL::getDb();
 
-			$code .= $q_code.(empty($q_code) ? '' : "\n");
+		try {
+			$sql = implode(' ', $sql_query['sql_array']);
+			$query = MatrixDAL::preparePdoQuery($sql);
+			foreach ($sql_query['bind_vars'] as $bind_var => $bind_value) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+			}
+			$result = MatrixDAL::executePdoAssoc($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get section links attached to form_section: '.$this->id.' due to database error: '.$e->getMessage());
+		}
+		return $result;
+
+	}//end getSectionLinks()
+
+
+//--        PAINTING FUNCTIONS        --//
+
+
+	/**
+	* Paint the section contents.
+	*
+	* @param Form		$form				The form we are printing from. We need to know this,
+	*										since the section can be shared amongst other forms,
+	*										but some settings are made at a Form level, such as
+	*										client side validation.
+	* @param boolean	$submit_buttons		Whether to paint the submit and cancel buttons. If
+	*										FALSE, these buttons will be blanked out upon painting.
+	*										Will be set to TRUE in a multi-page form.
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody(Form $form, $submit_buttons=FALSE)
+	{
+		// if format bodycopy enabled, print with that, otherwise print default
+		if ($this->isFormatBodycopyEnabled()) {
+			$this->printCustomFormat($form, $submit_buttons);
+		} else {
+			$this->printDefaultFormat($form, $submit_buttons);
 		}
 
-		return $code;
+	}//end printBody()
 
-	}//end generateJSCode()
+
+	/**
+	* Paints the form section using a default bodycopy
+	*
+	* @param Form		$form				The form we are printing from
+	* @param boolean	$submit_buttons		Whether to paint the submit and cancel buttons.
+	*
+	* @return void
+	* @access private
+	*/
+	function printDefaultFormat(Form $form, $submit_buttons=FALSE)
+	{
+		// Default format definitions to keep the section looking in line with
+		// its current parent form
+		$form_width     = $form->attr('form_width');
+		$question_width = $form->attr('question_col_width');
+		$response_width = $form->attr('answer_col_width');
+
+		ob_start();
+		include $this->data_path.'/content_file.php';
+
+		if ($submit_buttons) {
+			?>
+			<table width="<?php echo $form_width; ?>">
+				<tr>
+				<td width="<?php echo $question_width; ?>">&nbsp;</td>
+				<td width="<?php echo $response_width; ?>">
+					%submit_button%
+					%reset_button%
+				</td>
+				</tr>
+				</table>
+			<?php
+			$content = ob_get_clean();
+
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+			$keyword_list = extract_keywords($content);
+			if (!empty($keyword_list)) {
+				foreach ($keyword_list as $keyword) {
+					if (isset($replacements[$keyword])) continue;
+					$replacements[$keyword] = $form->getKeywordReplacement($keyword);
+				}
+				replace_keywords($content, $replacements);
+			}
+			echo $content;
+		}
+
+	}//end printCustomFormat()
+
+
+	/**
+	* Paints the form section using a custom format bodycopy
+	*
+	* @param Form		$form				The form we are printing from
+	* @param boolean	$submit_buttons		Whether to paint the submit and cancel buttons.
+	*
+	* @return void
+	* @access private
+	*/
+	function printCustomFormat(Form $form, $submit_buttons=FALSE)
+	{
+		// return custom bodycopy but ONLY if enabled
+		$format_bodycopy = $this->getFormatBodycopy(TRUE);
+		if (!$format_bodycopy) {
+			// Halt the display if the custom format is being asked for, but does
+			// not exist
+			trigger_error('Form Section asked for a custom format when it has no format bodycopy enabled. This should not happen.', E_USER_ERROR);
+		}
+
+		$keywords = $format_bodycopy->getKeywords();
+		$replacements = Array();
+
+		foreach ($keywords as $keyword) {
+			// Try to get a specific display keyword replacement, to handle
+			// %question_*% and nested %section_*% keywords
+			$replacement = $form->getDisplayKeywordReplacement($keyword);
+
+			if (is_null($replacement)) {
+				// If we couldn't get a keyword from there, use the generic
+				// keyword replacement form - this will pick up CAPTCHA, errors,
+				// submit/reset replacements
+				$replacement = $form->getKeywordReplacement($keyword);
+			}
+
+			if (!is_null($replacement)) {
+				$replacements[$keyword] = $replacement;
+			}
+
+		}//end foreach
+
+		$format_bodycopy->setKeywordReplacements($replacements);
+		$format_bodycopy->printBody();
+
+	}//end printCustomFormat()
+
+
+//--        CUSTOM FORMAT BODYCOPY FUNCTIONS        --//
+
+
+	/**
+	* Creates the format bodycopy
+	*
+	* Returns false if bodycopy already exists
+	*
+	* @param boolean	$enable_on_create	if true, will set the bodycopy to be enabled
+	*										(TYPE_2 link) when it is created. If false,
+	*										creates it disabled (TYPE_3 link).
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createFormatBodycopy($enable_on_create=TRUE)
+	{
+		$_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', 'format');
+		$bodycopy_link = reset($_bodycopy_link);
+
+		// we already have a bodycopy link?!
+		if ($bodycopy_link) {
+			return FALSE;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+
+			$link_type = ($enable_on_create ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3);
+
+			$asset = new Bodycopy();
+			$copy_link = Array(
+							'asset'			=> &$this,
+							'value'			=> 'format',
+							'link_type'		=> $link_type,
+							'is_dependant'	=> 1,
+							'is_exclusive'	=> 1,
+						 );
+
+			$asset->setAttrValue('name', 'Format Bodycopy');
+			if (!$asset->create($copy_link)) return FALSE;
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		}
+
+		return TRUE;
+
+	}//end createFormatBodycopy()
+
+
+	/**
+	* Returns the format bodycopy or NULL
+	*
+	* @param boolean	$only_if_enabled	if true, will return NULL if the bodycopy is
+	*										disabled. If false, will only return NULL if
+	*										never created.
+	*
+	* @return object
+	* @access public
+	*/
+	function &getFormatBodycopy($only_if_enabled=TRUE)
+	{
+		$asset = NULL;
+
+		if ($only_if_enabled) {
+			$link_types = SQ_LINK_TYPE_2;
+		} else {
+			$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
+		}
+
+		$tmp_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format');
+		$bodycopy_link = reset($tmp_bodycopy);
+
+		if ($bodycopy_link) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], 'bodycopy');
+		}
+
+		return $asset;
+
+	}//end getFormatBodycopy()
+
+
+	/**
+	* Returns whether the format bodycopy is enabled
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isFormatBodycopyEnabled()
+	{
+		$link_types = SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3;
+
+		$_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, $link_types, 'bodycopy', 'format');
+		$bodycopy_link = reset($_bodycopy_link);
+
+		if ($bodycopy_link) {
+			return ($bodycopy_link['link_type'] == SQ_LINK_TYPE_2);
+		} else {
+			return FALSE;
+		}
+
+
+	}//end isFormatBodycopyEnabled()
+
+
+	/**
+	* Handles the enabling or disabling of the format bodycopy
+	*
+	* @param boolean	$enabled	set to true to enable the format bodycopy,
+	*								set to false to disable it
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setUseFormatBodycopy($enabled)
+	{
+		$tmp_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', 'format');
+		$bodycopy_link = reset($tmp_bodycopy);
+
+		if (!$bodycopy_link) {
+			// no bodycopy yet? If we're trying to set to disabled, then we don't
+			// need to do anything - if not then we need to create it
+			if ($enabled) {
+				if (!$this->createFormatBodycopy()) return FALSE;
+			}
+		} else {
+			// set link type to either TYPE_2 if enabled or TYPE_3 if disabled
+			$new_link_type = ($enabled) ? SQ_LINK_TYPE_2 : SQ_LINK_TYPE_3;
+			if ($bodycopy_link['link_type'] != $new_link_type) {
+				$GLOBALS['SQ_SYSTEM']->am->updateLink($bodycopy_link['linkid'], $new_link_type);
+			}
+		}
+
+		return TRUE;
+
+	}//end setUseFormatBodycopy()
+
+
+//--        KEYWORD PROVISION        --//
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
+		$keywords = Array();
+
+		if ($this->isFormatBodycopyEnabled()) {
+			$keywords = $this->getDisplayKeywords();
+		}
+
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+
+
+	/**
+	* Returns a list of display keywords for the questions handled by this section
+	*
+	* return format is (string => string)	keyword => description
+	*
+	* @param boolean	$include_submit_keywords	If TRUE, keywords for submit/reset/errors will
+	*												be made available. If calling from a single-page
+	*												form, this will probably be FALSE since the form
+	*												provides its own.
+	*
+	* @return array
+	* @access public
+	*/
+	function getDisplayKeywords($include_submit_keywords=TRUE)
+	{
+		$questions = $this->attr('questions');
+		$keywords = Array();
+
+		foreach ($questions as $shadowid => $question) {
+			$keywords['question_field_'.$this->id.'_q'.$shadowid] = 'Question Field: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_id_'.$this->id.'_q'.$shadowid]    = 'Question ID: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = 'Question Note: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_label_'.$this->id.'_q'.$shadowid] = 'Question Label: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+		}
+
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE) as $link) {
+			// get the section
+			$sectionid = $link['minorid'];
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+
+			$keywords += $s->getDisplayKeywords();
+			$keywords['section_title_'.$s->id] = 'Nested Section Name: '.$s->name.' ('.$s->id.')';
+			$keywords['section_contents_'.$s->id] = 'Nested Section Contents: '.$s->name.' ('.$s->id.')';
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($s);
+			unset($s);
+		}
+
+		if ($include_submit_keywords) {
+			$keywords['submit_button'] = 'Submit Button';
+			$keywords['reset_button'] = 'Reset Button';
+			$keywords['form_errors'] = 'Form Errors';
+		}
+
+		return $keywords;
+
+	}//end getDisplayKeywords()
+
+
+	/**
+	* Returns a list of response keywords for the questions handled by this section
+	*
+	* Return format is (string => string)	keyword => description
+	*
+	* @return array
+	* @access public
+	*/
+	function getResponseKeywords()
+	{
+		$questions = $this->attr('questions');
+		$keywords = Array();
+
+		foreach ($questions as $shadowid => $question) {
+			$keywords['response_'.$this->id.'_q'.$shadowid]       = translate('cms_form_section_response', $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_name_'.$this->id.'_q'.$shadowid]  = translate('cms_form_section_q_name', $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = translate('cms_form_section_q_note', $this->name, ellipsisize($question['attributes']['name'], 30)).' ('.$this->id.':q'.$shadowid.')';
+		}
+
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE) as $link) {
+			// get the nested form
+			$sectionid = $link['minorid'];
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+
+			$keywords += $s->getResponseKeywords();
+			$keywords['section_title_'.$s->id] = 'Nested Section Name: '.$s->name.' ('.$s->id.')';
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($s);
+			unset($s);
+		}
+
+		return $keywords;
+
+	}//end getResponseKeywords()
+
+
+//--        KEYWORD REPLACEMENTS        --//
+
+
+	/**
+	* Returns a list of display keywords for the questions handled by this section
+	*
+	* Return format is (string => string)	keyword => description
+	*
+	* @return array
+	* @access public
+	*/
+	function getDisplayKeywordReplacements($generating=FALSE, $include_submit_keywords=TRUE)
+	{
+		$questions = $this->attr('questions');
+		$keywords = Array();
+
+		foreach ($questions as $shadowid => $question) {
+			// get the question
+			$assetid = $this->id.':q'.$shadowid;
+			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if ($generating) {
+				$keywords['question_field_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlField(); ?'.'>';
+				$keywords['question_note_'.$this->id.'_q'.$shadowid]  = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->attr(\'note\'); ?'.'>';
+				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
+				$keywords['question_label_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlLabel(); ?'.'>';
+			} else {
+				$keywords['question_field_'.$this->id.'_q'.$shadowid] = $q->getHtmlField();
+				$keywords['question_note_'.$this->id.'_q'.$shadowid]  = $q->attr('note');
+				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
+				$keywords['question_label_'.$this->id.'_q'.$shadowid] = $q->getHtmlLabel();
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
+			unset($q);
+		}
+
+		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE) as $link) {
+			// get the nested form section
+			$sectionid = $link['minorid'];
+			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
+			$keywords += $s->getDisplayKeywordReplacements();
+
+			if ($generating) {
+				$keywords['section_title_'.$s->id] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$sectionid.'\')->name; ?'.'>';;
+
+				$keywords['section_contents_'.$s->id] = '<'.'?php include_once $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$sectionid.'\')->data_path.\'/content_file.php\'; ?'.'>';;
+				} else {
+				$keywords['section_title_'.$s->id] = $s->name;
+				ob_start();
+					$s->printBody();
+				$keywords['section_contents_'.$s->id] = ob_get_clean();
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($s);
+			unset($s);
+		}
+
+		if ($include_submit_keywords) {
+			// Submit Button, Reset Button, Form Errors
+			// TODO:
+			ob_start();
+				//submit_button('submit_button', );
+				$submit_button = ob_get_contents();
+			ob_end_clean();
+
+			ob_start();
+				//reset_button('reset_button', 'Reset');
+				$reset_button = ob_get_contents();
+			ob_end_clean();
+
+			$keywords['submit_button'] = $submit_button;
+			$keywords['reset_button']  = $reset_button;
+
+			// TODO:
+			$keywords['form_errors']   = implode('\n', $this->submission_errors);
+		} else {
+			// suppress them
+			$keywords['submit_button'] = '';
+			$keywords['reset_button']  = '';
+			$keywords['form_errors']   = '';
+		}
+
+		return $keywords;
+
+	}//end getDisplayKeywordReplacements()
 
 
 }//end class
