@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.34 2008/03/20 00:31:14 lwright Exp $
+* $Id: simple_form.inc,v 1.35 2008/10/10 03:34:01 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,7 @@ class Simple_Form extends Asset implements Bridge
 
 
 	/**
-	* A list of submission errors
+	* A list of submission answers
 	*
 	* @var Array(string)
 	* @access private
@@ -668,7 +668,7 @@ class Simple_Form extends Asset implements Bridge
 				$assetid = $this->id.':q'.$shadowid;
 				$name = 'q'.$assetid;
 				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$q->populate();
+				$q->populate($this);
 
 				// set the value and check whether it's valid
 				if (isset($_POST[$name])) $q->setValue($_POST[$name]);
@@ -677,11 +677,12 @@ class Simple_Form extends Asset implements Bridge
 				if (!$valid) $this->_errors += $q->getErrors();
 
 				$this->_answers[$assetid] = Array(
-												'name'		=> $data['name'],
-												'type_code'	=> $data['type_code'],
-												'value'		=> $q->getValue(),
-												'summary'	=> $q->getSummary(),
-												'is_error'	=> !$valid,
+												'name'			=> $data['name'],
+												'type_code'		=> $data['type_code'],
+												'value'			=> $q->getValue(),
+												'summary'		=> $q->getSummary(),
+												'extra_data'	=> $q->getExtraData(),
+												'is_error'		=> !$valid,
 											);
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
@@ -782,11 +783,12 @@ class Simple_Form extends Asset implements Bridge
 	* <pre>
 	* Array(
 	* 	assetid => Array(
-	*				'name'		=> string,		// name of question
-	*				'type_code'	=> string,		// type code of question
-	*				'value'		=> mixed,		// raw value
-	*				'summary'	=> string,		// question summary text
-	*				'is_error'	=> boolean,		// did this error out?
+	*				'name'			=> string,		// name of question
+	*				'type_code'		=> string,		// type code of question
+	*				'value'			=> mixed,		// raw value
+	*				'summary'		=> string,		// question summary text
+	*				'extra_data'	=> mixed,		// free-form metadata for result
+	*				'is_error'		=> boolean,		// did this error out?
 	*			   ),
 	* )
 	* </pre>
@@ -833,6 +835,23 @@ class Simple_Form extends Asset implements Bridge
 		return $answer_values;
 
 	}//end getAnswerSummaries()
+
+
+	/**
+	* Return a list of answer extra data recorded from processed questions
+	*
+	* @return array
+	* @access public
+	*/
+	function getAnswerExtraData()
+	{
+		$answer_values = Array();
+		foreach ($this->_answers as $assetid => $data) {
+			$answer_values[$assetid] = $data['extra_data'];
+		}
+		return $answer_values;
+
+	}//end getAnswerExtraData()
 
 
 //--        CLIENT-SIDE VALIDATION        --//
