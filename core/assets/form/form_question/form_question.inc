@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.31 2008/05/02 01:57:09 bpearson Exp $
+* $Id: form_question.inc,v 1.32 2008/10/10 03:06:16 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,14 @@ class Form_Question extends Asset
 	* @var string
 	*/
 	var $value = NULL;
+
+
+	/**
+	* Extra (meta)data stored for a particular instance of a form question
+	* in a form or submission
+	* @var Array
+	*/
+	var $extra_data = Array();
 
 
 	/**
@@ -637,6 +645,21 @@ class Form_Question extends Asset
 
 
 	/**
+	* Set the current Extra Data of this question
+	*
+	* @param mixed	$value	The value to set for this question
+	*
+	* @return void
+	* @access public
+	*/
+	function setExtraData(Array $data=NULL)
+	{
+		$this->extra_data = $data;
+
+	}//end setExtraData()
+
+
+	/**
 	* Look at user-specified and internal rules to see if this question
 	* currently has a valid value
 	*
@@ -779,6 +802,19 @@ class Form_Question extends Asset
 	function getSummary()
 	{
 		return $this->getValue();
+
+	}//end getSummary()
+
+
+	/**
+	* Get the current answer for this question, in a sensible format
+	*
+	* @return string
+	* @access public
+	*/
+	function getExtraData()
+	{
+		return $this->extra_data;
 
 	}//end getSummary()
 
