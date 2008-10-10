@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.43 2008/07/21 23:53:00 mbrydon Exp $
+* $Id: email_format.inc,v 1.44 2008/10/10 04:32:41 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -348,12 +348,14 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 	/**
 	* Use the values stored in this attribute to send an email
 	*
-	* @param array	$replacements	an array of keyword replacements
+	* @param array	$replacements			an array of keyword replacements
+	* @param array	$additional_attachments	additional filepaths to attach to the email
+	*										(must be inside data directory)
 	*
 	* @return void
 	* @access public
 	*/
-	function sendMail($replacements=Array())
+	function sendMail($replacements=Array(), $additional_attachments=Array())
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		require_once SQ_FUDGE_PATH.'/general/www.inc';
@@ -461,6 +463,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				}
 			}
 
+			// ADditional attachments.
+			foreach ($additional_attachments as $file_path) {
+				if (file_exists($file_path) && (strpos(realpath($file_path), SQ_DATA_PATH) === 0)) {
+					@$mime->addAttachment($file_path); // throws PHP5 strict warning
+				}
+			}
+
 			$mime->setTXTBody($text_body);
 			$mime->setHTMLBody($html_body);
 
@@ -474,6 +483,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			$body = $mime->get($params);
 
 			$hdrs = $mime->headers($hdrs);
+
 			$msg = @$mail->send($to_email, $hdrs, $body);
 
 		}//end foreach
