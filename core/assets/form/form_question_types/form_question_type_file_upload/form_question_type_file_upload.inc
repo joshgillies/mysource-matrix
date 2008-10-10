@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.24 2008/10/10 03:33:09 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.25 2008/10/10 04:48:21 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -344,7 +344,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$this->createTempFileUpload($parent);
 			$this->extra_data = Array(
 										'temp_filesystem_path'	=> $temp_path,
-										'mime_type'				=> $file_info['type'];
+										'mime_type'				=> $file_info['type'],
 									);
 
 			// We only have to upload this once, so remove file info
