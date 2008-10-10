@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.593.2.12 2008/10/01 23:17:11 akarelia Exp $
+* $Id: asset.inc,v 1.593.2.13 2008/10/10 05:57:45 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.593.2.12 $
+* @version $Revision: 1.593.2.13 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3774,7 +3774,7 @@ class Asset extends MySource_Object
 		} else {
 			// effective access is only valid for the current user
 			if (!empty($assetids)) return FALSE;
-
+	
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
 			// if there is no lock or
 			if (empty($locks)) return FALSE;
@@ -4848,7 +4848,7 @@ class Asset extends MySource_Object
 						if (!empty($existing_asset_with_url_id)) {
 							// if an existing asset has the same url as new URL. Thrown an error and Rollback
 							$existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);
-							trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id[0]]['name'], $existing_asset_with_url_id[0]);
+							trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id]['name'], $existing_asset_with_url_id);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							return FALSE;
