@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.20 2008/09/22 01:57:47 ata Exp $
+* $Id: lang_errors.xml,v 1.21 2008/10/10 03:48:51 lwright Exp $
 *
 */
 -->
@@ -214,5 +214,8 @@
 	<error code="CMS0105">Cannot complete the export. An error occured making the archive.</error>
 	<error code="CMS0106">Cannot cleanup. An error occured cleaning up.</error>
 	<error code="CMS0107">Markdown tool has not been configured correctly. Markdown content type could not be saved</error>
+
+	<!-- Custom Form -->
+	<error code="CMS0108">Unable to create nested section "%1$s" underneath "%2$s"</error>
 
 </errors>
