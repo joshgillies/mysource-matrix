@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.10 2008/08/21 00:29:27 bpearson Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.11 2008/10/10 05:20:13 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.10 $
+* @version $Revision: 1.122.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -689,7 +689,19 @@ class Page_Asset_Builder extends Page
 							$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 							$vars = Array('assetids' => Array($new_asset->id));
 							$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
-							$this->_errors = array_merge($this->_errors, $lookup_errors);
+							
+							//make sure the HIPO error message is in right format for asset builder
+							$message = Array();
+							foreach ($lookup_errors as $error) {
+								if(is_array($error) && array_key_exists('message',$error)) {
+									$message []= $error['message'];
+								}
+								else {
+									$message = $error;
+								}
+							}
+							
+							$this->_errors = array_merge($this->_errors, $message);
 						}
 
 						if (empty($this->_errors)) {
@@ -1072,7 +1084,20 @@ class Page_Asset_Builder extends Page
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
 				$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-				$this->_errors = array_merge($this->_errors, $status_errors);
+				
+				//make sure the HIPO error message is in right format for asset builder
+				$message = Array();
+				foreach ($status_errors as $error) {
+					if(is_array($error) && array_key_exists('message',$error)) {
+						$message []= $error['message'];
+					}
+					else {
+						$message = $error;
+					}
+				}				
+				
+				
+				$this->_errors = array_merge($this->_errors, $message);
 				return empty($this->_errors);
 			}
 		}
