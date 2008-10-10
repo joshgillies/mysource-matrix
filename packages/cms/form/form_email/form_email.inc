@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.68 2008/09/09 04:21:43 akarelia Exp $
+* $Id: form_email.inc,v 1.69 2008/10/10 04:27:15 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,43 +64,39 @@ class Form_Email extends Form
 
 
 	/**
-	* Prints the standard form i.e not a wizard
+	* Returns the header of the form, ie. the start form tags and anything else
+	* needed by them
+	*
+	* Form Email adds a hidden URL field specifying the referral URL, which can
+	* be used by emails (in particular, generic send-to-a-friend type emails).
 	*
 	* @return boolean
 	* @access public
 	*/
-	function printStandard()
+	function getFormHeader()
 	{
+		$header = parent::getFormHeader();
+
 		$prefix = $this->getPrefix();
-		$referer = (isset($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : '';
-		?><div><input type="hidden" name="<?php echo $prefix; ?>_referral_url" value="<?php echo htmlentities($referer); ?>" /></div><?php
-		return parent::printStandard();
 
-	}//end printStandard()
+		// If we have a multi-page form, we would only need to know how we got
+		// here originally. Therefore, if we have been sent a referral URL from
+		// a previous page, use that instead.
+		// Otherwise, generate the referrer using what we have been sent by the
+		// HTTP request (with all the caveats that implies).
+		if (array_key_exists($prefix.'_referral_url', $_POST)) {
+			$referer = $_POST[$prefix.'_referral_url'];
+		} else {
+			$referer = (isset($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : '';
+		}
 
+		ob_start();
+			?><input type="hidden" name="<?php echo $prefix; ?>_referral_url" value="<?php echo htmlentities($referer); ?>" /><?php
+		$header .= ob_get_clean();
 
-	/**
-	* Send all the emails when the form is completed
-	*
-	* @return boolean
-	* @access public
-	*/
-	function finishForm()
-	{
-		parent::finishForm();
-		$this->mailRecipients();
-		$this->mailReceipt();
-		$this->sendToFriends();
+		return $header;
 
-		// Perform other submission actions that are active
-		$this->performSubmissionActions();
-
-		// Perform selective actions
-		$this->runSelectiveEmails();
-
-		return TRUE;
-
-	}//end finishForm()
+	}//end getFormHeader()
 
 
 	/**
@@ -277,6 +273,33 @@ class Form_Email extends Form
 		return TRUE;
 
 	}//end deleteQuestion()
+
+
+//--        POST-SUBMISSION ACTIONS        --//
+
+
+	/**
+	* Send all the emails when the form is completed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function finishForm()
+	{
+		parent::finishForm();
+		$this->mailRecipients();
+		$this->mailReceipt();
+		$this->sendToFriends();
+
+		// Perform other submission actions that are active
+		$this->performSubmissionActions();
+
+		// Perform selective actions
+		$this->runSelectiveEmails();
+
+		return TRUE;
+
+	}//end finishForm()
 
 
 	/**
@@ -613,6 +636,58 @@ class Form_Email extends Form
 
 	}//end performSubmissionActions()
 
+
+	/**
+	* Get appropriate keywords for Thank You bodycopy and emails
+	*
+	* Since referral assets have always been added at the Form_Email level,
+	* additional keywords should be added here instead
+	*
+	* @param string	$keyword	keyword to replace
+	*
+	* @return string
+	*/
+	public function _getThankYouKeywordReplacement($keyword)
+	{
+		$prefix = $this->getPrefix();
+		$replacement = NULL;
+
+		// Referrer is used by several keywords below
+		$referrer = (isset($_POST[$prefix.'_referral_url'])) ? $_POST[$prefix.'_referral_url'] : '';
+
+		if ($keyword == 'referral_url') {
+			$replacement = $referrer;
+		} else if (preg_match('|^referring_asset_(.*)|', $keyword, $matches)) {
+			// referring asset keyword, if we have a Matrix asset URL
+			// eg. %referring_asset_assetid%
+			if (!empty($referrer)) {
+				// use the url to work out the referring asset
+				$referrer = clean_url($referrer);
+
+				$url_parts = parse_url($referrer);
+				$protocol = array_get_index($url_parts, 'scheme');
+				$path = array_get_index($url_parts, 'host').array_get_index($url_parts, 'path');
+
+				$referrer_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $path, TRUE, TRUE);
+				if (!is_null($referrer_asset)) {
+					$referrer_keyword = 'asset_'.$matches[1];
+
+					$referrer_replacement = $referrer_asset->getKeywordReplacement($referrer_keyword);
+					if ($referrer_replacement !== "%$referrer_keyword%") {
+						$replacement = $referrer_replacement;
+					} else {
+						$replacement = '';
+					}
+				}
+			}//end if referrer is not empty
+
+		} else {
+			$replacement = parent::_getThankYouKeywordReplacement($keyword);
+		}
+
+		return $replacement;
+
+	}//end _getThankYouKeywordReplacement()
 
 }//end class
 

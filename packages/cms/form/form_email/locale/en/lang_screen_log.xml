@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_log.xml,v 1.7 2007/01/19 04:46:13 arailean Exp $
+* $Id: lang_screen_log.xml,v 1.8 2008/10/10 04:27:15 lwright Exp $
 *
 */
 -->
@@ -63,6 +63,6 @@
 				<process_function   name="processSubmissionList"   />
 			</function_call>
 		</field>
-		<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
+		<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit. <![CDATA[<strong>Only completed submissions will be listed here.</strong>]]></note>
 	</section>
 </contents>

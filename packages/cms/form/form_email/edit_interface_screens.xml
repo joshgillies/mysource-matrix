@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.15 2008/04/17 06:56:00 lwright Exp $
+* $Id: edit_interface_screens.xml,v 1.16 2008/10/10 04:27:15 lwright Exp $
 *
 */
 -->
@@ -21,4 +21,5 @@
 	<screen code_name="recipient"			display_name="Email Options"		icon="web" />
 	<screen code_name="selective_emails" 	display_name="Selective Emails"		icon="web"	force_unlock="0" />
 	<screen code_name="log" 				display_name="Submission Logs"		icon="web"	force_unlock="0" />
+	<screen code_name="incomplete"			display_name="Incomplete Submissions"	icon="web"	force_unlock="0" />
 </screens>
