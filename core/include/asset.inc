@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.20 2008/10/09 03:43:55 akarelia Exp $
+* $Id: asset.inc,v 1.633.2.21 2008/10/12 22:15:21 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.20 $
+* @version $Revision: 1.633.2.21 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4702,7 +4702,7 @@ class Asset extends MySource_Object
 
 			$sql = 'SELECT l.url, lv.name, lv.value as designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((lv.url LIKE l.url || \'/%\')
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON ((l.url LIKE lv.url || \'/%\')
 							OR (l.url = lv.url)
 							OR (l.url || \'/\' = lv.url))
 					';
