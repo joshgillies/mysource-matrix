@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_rollback.inc,v 1.3 2008/10/02 07:02:50 mbrydon Exp $
+* $Id: report_rollback.inc,v 1.4 2008/10/12 21:41:03 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/simple_report/simple_report.inc
 * 	Provides a report of assets with rollback data
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,14 +76,14 @@ class Report_Rollback extends Simple_Report
 				</td>
 				</tr>';
 
-		$current_asset_rollback_table = '<br><table class="sq-backend-table">
+		$current_asset_rollback_table = '<br /><table class="sq-backend-table">
 						<tr>
 							<th class="sq-backend-table-header" width="45%%">Rollback asset entries currently in the system</th>
 							<td align="right">'.$report['num_asset_rb_entries_today'].'</td>
 						</tr>
 						</table>';
 
-		$current_link_rollback_table = '<br><table class="sq-backend-table">
+		$current_link_rollback_table = '<br /><table class="sq-backend-table">
 						<tr>
 							<th class="sq-backend-table-header" width="45%%">Rollback link entries currently in the system</th>
 							<td align="right">'.$report['num_link_rb_entries_today'].'</td>
@@ -161,15 +161,16 @@ class Report_Rollback extends Simple_Report
 		$most_asset_rollback_entries_table = sprintf($table_format, $row_string);
 
 		Report_Rollback::paintLastGeneratedDate($type_code, date('d M Y, H:i:s', $generated));
+		Report_Rollback::paintRecommendedTasks($o, $type_code, Array('tool_rollback_management'));
 
-		echo '<br>'.$current_asset_rollback_table;
+		echo '<br />'.$current_asset_rollback_table;
 		echo $asset_report_table;
 
 		if (!empty($rows_string)) {
 			echo $most_asset_rollback_entries_table;
 		}
 
-		echo '<br>'.$current_link_rollback_table;
+		echo '<br />'.$current_link_rollback_table;
 		echo $link_report_table;
 
 	}//end paintReport()
