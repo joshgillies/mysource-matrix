@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_management.inc,v 1.6 2008/10/09 03:52:21 ewang Exp $
+* $Id: trigger_management.inc,v 1.7 2008/10/13 02:28:24 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * Trigger_Management
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,7 +53,7 @@ class Trigger_Management extends Asset_Management
 															   ),
 										   ),
 						'category'	=> Array(
-											'added'			=> '0.1',
+											'added'			=> '0.2',
 											'type'			=> 'text',
 											'default'		=> '',
 											'description'	=> 'Category of the trigger',
