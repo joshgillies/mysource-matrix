@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.127 2008/10/13 04:11:37 bshkara Exp $
+* $Id: page_asset_listing.inc,v 1.128 2008/10/13 23:40:58 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -408,29 +408,20 @@ class Page_Asset_Listing extends Listing_Engine
 							throw new Exception($e->getMessage());
 						}
 
-						// resort to calling getGroupableParentAssetids() only if there is more than one parent
-						$direct_parent_count = 0;
-						$childid = key($links);
+						$childids = array_keys($links);
 						$direct_parents = Array();
-						foreach ($links as $rows) {
-							foreach ($rows as $key => $direct_parent) {
-								if (isset($direct_parent[0])) {
-									$direct_parents[$childid][] = $direct_parent[0];
-									$direct_parent_count++;
-								} else {
+						$restrict_types = array_get_index($group, 'restrict_types', Array());
+						$direct_parent_only = array_get_index($group, 'direct_parent_only', FALSE);
+						foreach ($childids as $childid) {
+							foreach ($links[$childid] as $key => $direct_parent) {
+								if (count($links[$childid]) > 1) {
+									// resort to calling getGroupableParentAssetids() only if there is more than one parent
+									// otherwise the resulting direct parents may lie outside the root node
+									$direct_parents[$childid] = $this->getGroupableParentAssetids($childid, $restrict_types, $direct_parent_only);
 									continue;
+								} else {
+									$direct_parents[$childid][] = $direct_parent[0];
 								}
-							}
-						}
-
-						// the result could potentially contain assets outside of the root node if there was more than one parent
-						// check for this
-						if ($direct_parent_count > 1) {
-							$restrict_types = array_get_index($group, 'restrict_types', Array());
-							$direct_parent_only = array_get_index($group, 'direct_parent_only', FALSE);
-
-							foreach ($direct_parents[$childid] as $key => $child) {
-								$direct_parents[$childid] = $this->getGroupableParentAssetids($childid, $restrict_types, $direct_parent_only);
 							}
 						}
 
