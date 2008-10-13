@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.51.2.6 2008/10/09 03:39:24 ewang Exp $
+* $Id: trigger_manager.inc,v 1.51.2.7 2008/10/13 15:41:18 gnoel Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.51.2.6 $
+* @version $Revision: 1.51.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -435,8 +435,6 @@ class Trigger_Manager extends Asset implements Bridge
 	
 		$links = Array();
 		if(!isset($linked_triggers)) return NULL;
-		
-		
 
 		// if trigger tree is not created, create it.
 		if(!isset($this->_trigger_tree)){
@@ -444,8 +442,7 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 				
 		//get top level links from trigger tree
-		$this->_getTopTriggerAssetMapLink ($this->id, $this->_trigger_tree, &$links);
-		
+		$this->_getTopTriggerAssetMapLink ($this->id, $this->_trigger_tree, $links);
 	
 		return $links;
 
@@ -544,7 +541,7 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 		
 		//get links in current level  in trigger tree
-		$this->_getTopTriggerAssetMapLink ($assetid, $this->_findCategoryTriggerTree($assetid,$this->_trigger_tree), &$links);
+		$this->_getTopTriggerAssetMapLink ($assetid, $this->_findCategoryTriggerTree($assetid,$this->_trigger_tree), $links);
 		
 		return $links;
 
