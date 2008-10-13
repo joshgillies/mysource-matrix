@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.71 2008/10/09 21:46:21 csmith Exp $
+* $Id: messaging_service.inc,v 1.72 2008/10/13 23:43:07 csmith Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -457,19 +457,19 @@ class Messaging_Service extends MySource_Object
 			$get_user_name = 'short_name';
 		}
 
-		$select_clause = 'm.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
-		if (is_string($get_user_name)) {
-			$select_clause .= ',
-					CASE
-						WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN :system_name
-						ELSE a.'.$get_user_name.'
-					END as from_name';
-			$select_clause .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN \'root_user\''.
-					' ELSE a.type_code END as type_code';
-			$bind_vars['system_name'] = SQ_SYSTEM_SHORT_NAME.' System';
-		}
-
-		if ($count_only) {
+		if (!$count_only) {
+			$select_clause = 'm.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
+			if (is_string($get_user_name)) {
+				$select_clause .= ',
+						CASE
+							WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN :system_name
+							ELSE a.'.$get_user_name.'
+						END as from_name';
+				$select_clause .=	', CASE WHEN a.'.$get_user_name.' IS NULL AND m.userfrom = \'0\' THEN \'root_user\''.
+						' ELSE a.type_code END as type_code';
+				$bind_vars['system_name'] = SQ_SYSTEM_SHORT_NAME.' System';
+			}
+		} else {
 			$select_clause = 'COUNT(msgid) AS message_count';
 		}
 
