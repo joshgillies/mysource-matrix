@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.26 2008/09/04 06:46:51 ewang Exp $
+* $Id: trigger_action_create_link.inc,v 1.27 2008/10/13 04:53:04 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,12 +41,13 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*       'assetid'      => int,    // the assetid to link to
-	*       'is_major'     => string, // '1' or '0',
-	*       'link_type'    => int,    // the type of link,
-	*       'value'        => string, // the value associated with a link (optional)
-	*       'is_dependant' => int,    // whether the link is dependant (optional)
-	*       'is_exclusive' => int     // whether the link is exclusive (optional)
+	*       'assetid'          => int,    // the assetid to link to
+	*       'is_major'         => int,    // 0 = firing asset on minor side, 1 = ..on major side
+	*       'link_type'        => int,    // the type of link,
+	*       'value'            => string, // the value associated with a link (optional)
+	*       'is_dependant'     => int,    // whether the link is dependant (optional)
+	*       'is_exclusive'     => int,    // whether the link is exclusive (optional)
+	*       'link_exclusively' => int,    // 1 = unlink firing asset from all other existing parents (optional)
 	*       );
 	* </PRE>
 	*
