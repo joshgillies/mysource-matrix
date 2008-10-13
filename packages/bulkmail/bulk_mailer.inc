@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.3 2008/09/29 04:48:41 ata Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.4 2008/10/13 22:40:38 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.3 $
+* @version $Revision: 1.71.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -212,7 +212,7 @@ class Bulk_Mailer
 						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
 						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
 					  );
-		
+
 		$this->_reconnectDB();
 		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
@@ -502,15 +502,35 @@ class Bulk_Mailer
 			} else {
 				// Otherwise it should be an asset id
 				$recipient = $am->getAsset($recipient_id);
-				if ($am->isTypeDecendant($recipient->type(), 'user_group')) {
-					// expand user group
-					$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
-					$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
+
+				// If the asset is not a user, we should check for children
+				if (!in_array($recipient->type(), Array('user', 'bulkmail_user'))) {
+					// It is no longer just user group
+					// If it is a search folder, do something, otherwise just try to get children
+					if ($recipient->type() == 'search_folder') {
+						$map_links	= $recipient->getAssetMapLinks();
+						foreach ($map_links as $map_link) {
+							// We only add this asset if it is a user or bulkmail user
+							if (in_array($map_link['type_code'], Array('user', 'bulkmail_user'))) {
+								$id_parts		= explode(':', $map_link['assetid']);
+								// We are so sure that it has shadow id, but just incase
+								if (isset($id_parts[1])) {
+									$link_assetid	= $id_parts[1];
+									$recipients_expanded[$link_assetid]	= $map_link['type_code'];
+								}//end if
+							}//end if
+						}//end foreach
+					} else {
+						$recipients_expanded += $am->getChildren($recipient->id, 'user', FALSE, FALSE);
+						$recipients_expanded += $am->getChildren($recipient->id, 'bulkmail_user', FALSE, FALSE);
+					}//end else
 				} else {
-					// add single recipient
+					// Else it is a user, add single recipient
 					$recipients_expanded[$recipient->id] = $recipient->type();
 				}
+
 				$am->forgetAsset($recipient);
+
 			}//end if
 		}//end foreach
 
@@ -566,6 +586,7 @@ class Bulk_Mailer
 		$recipients += $query_result;
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
+
 		return $result;
 
 	}//end getAllRecipients()

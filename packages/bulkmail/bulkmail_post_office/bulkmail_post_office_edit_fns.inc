@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_edit_fns.inc,v 1.34 2007/12/05 03:31:41 rong Exp $
+* $Id: bulkmail_post_office_edit_fns.inc,v 1.34.2.1 2008/10/13 22:40:28 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -65,13 +65,7 @@ class Bulkmail_Post_Office_Edit_Fns extends Asset_Edit_Fns
 		$recipients = $asset->attr('recipients');
 
 		if ($write_access) {
-			$restriction = Array(
-							'user_group'		=> 'D',
-							'user'				=> 'D',
-							'bulkmail_user'		=> 'I',
-							'web_folder_users'	=> 'I',
-						   );
-			multiple_asset_finder($prefix.'_groups', $recipients, $restriction);
+			multiple_asset_finder($prefix.'_groups', $recipients);
 		} else {
 			?><ul><?php
 				foreach ($recipients as $assetid) {
