@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.116.2.5 2008/09/29 23:15:35 ewang Exp $
+* $Id: page_asset_listing.inc,v 1.116.2.6 2008/10/13 04:05:41 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116.2.5 $
+* @version $Revision: 1.116.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -404,13 +404,34 @@ class Page_Asset_Listing extends Listing_Engine
 						} catch (Exception $e) {
 							throw new Exception($e->getMessage());
 						}
-						// let's reformat the result
-						// in the new query format there is an extra array which was causing problem
-						// we are now removing it
-						foreach ($links as $k => $v) {
-							$links[$k] = $v[0];
+
+						// resort to calling getGroupableParentAssetids() only if there is more than one parent
+						$direct_parent_count = 0;
+						$childid = key($links);
+						$direct_parents = Array();
+						foreach ($links as $rows) {
+							foreach ($rows as $key => $direct_parent) {
+								if (isset($direct_parent[0])) {
+									$direct_parents[$childid][] = $direct_parent[0];
+									$direct_parent_count++;
+								} else {
+									continue;
+								}
+							}
 						}
-						$this->_tmp['direct_parent_grouping'] = $links;
+
+						// the result could potentially contain assets outside of the root node if there was more than one parent
+						// check for this
+						if ($direct_parent_count > 1) {
+							$restrict_types = array_get_index($group, 'restrict_types', Array());
+							$direct_parent_only = array_get_index($group, 'direct_parent_only', FALSE);
+
+							foreach ($direct_parents[$childid] as $key => $child) {
+								$direct_parents[$childid] = $this->getGroupableParentAssetids($childid, $restrict_types, $direct_parent_only);
+							}
+						}
+
+						$this->_tmp['direct_parent_grouping'] = $direct_parents;
 					}//end if
 
 				// Intentionally fall through; we still need to do the query
