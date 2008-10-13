@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.59 2008/10/09 03:52:59 ewang Exp $
+* $Id: trigger_manager.inc,v 1.60 2008/10/13 11:45:22 gnoel Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -247,10 +247,6 @@ class Trigger_Manager extends Asset implements Bridge
 		return $asset;
 
 	}//end getAsset()
-
-	
-	
-	
 	
 
 	/**
@@ -286,8 +282,7 @@ class Trigger_Manager extends Asset implements Bridge
 		
 		return $results;
 	}// end _createCategoryTriggerTree ()
-	
-	
+
 	
 	/**
 	* Locates the  branch in trigger tree for the specified category. 
@@ -302,11 +297,8 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function _findCategoryTriggerTree($assetid,$trigger_tree)
 	{
-
 		$id_parts = explode(':', $assetid);
 		array_shift($id_parts);
-		
-			
 		
 		// For  every recursion, go deeper.
 		$new_assetid = implode(':', $id_parts);
@@ -332,7 +324,7 @@ class Trigger_Manager extends Asset implements Bridge
 	* @return mixed Array|NULL
 	* @access private
 	*/
-	function _getTopTriggerAssetMapLink ($parentid, $trigger_tree, &$links)
+	function _getTopTriggerAssetMapLink($parentid, $trigger_tree, &$links)
 	{	
 		// temp array for links before sorting
 		$links_unsorted = Array();
@@ -340,11 +332,8 @@ class Trigger_Manager extends Asset implements Bridge
 		$sort_index = Array();	
 			
 		if (!isset($trigger_tree) || !is_array($trigger_tree)) return NULL;
-
-
 			foreach ($trigger_tree as $cate => $trigger) {
 				$link = Array();
-
 				
 				//if it's a trigger, create a trigger link
 				if(is_numeric($cate)){
@@ -401,12 +390,9 @@ class Trigger_Manager extends Asset implements Bridge
 				}//end else if
 			}// end foreach
 			
-
-
 			/*
 			 * Sort links, folders come first, and then order by alphabet
 			 */
-
 
 			// make sure folder comes first
 			if(!empty($sort_index)){
@@ -422,7 +408,6 @@ class Trigger_Manager extends Asset implements Bridge
 					$links[] = $links_unsorted[$type][$index];	
 				}
 			}
-			
 		
 	}// end _getTopTriggerAssetMapLink()
 	
@@ -437,14 +422,11 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function getAssetMapLinks()
 	{
-	
 		// use existing trigger manager functions to get our triggers
 		$linked_triggers = $this->getTriggerList();
 	
 		$links = Array();
 		if(!isset($linked_triggers)) return NULL;
-		
-		
 
 		// if trigger tree is not created, create it.
 		if(!isset($this->_trigger_tree)){
@@ -452,8 +434,7 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 				
 		//get top level links from trigger tree
-		$this->_getTopTriggerAssetMapLink ($this->id, $this->_trigger_tree, &$links);
-		
+		$this->_getTopTriggerAssetMapLink($this->id, $this->_trigger_tree, $links);
 	
 		return $links;
 
@@ -551,7 +532,7 @@ class Trigger_Manager extends Asset implements Bridge
 		}
 		
 		//get links in current level  in trigger tree
-		$this->_getTopTriggerAssetMapLink ($assetid, $this->_findCategoryTriggerTree($assetid,$this->_trigger_tree), &$links);
+		$this->_getTopTriggerAssetMapLink($assetid, $this->_findCategoryTriggerTree($assetid,$this->_trigger_tree), $links);
 		
 		return $links;
 
