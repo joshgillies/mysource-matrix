@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.111.2.3 2008/04/30 04:39:45 lwright Exp $
+* $Id: page_asset_listing.inc,v 1.111.2.4 2008/10/14 00:05:01 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111.2.3 $
+* @version $Revision: 1.111.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -373,7 +373,25 @@ class Page_Asset_Listing extends Listing_Engine
 
 						// The fifth param to getAssoc() lets us get this
 						$links = $db->getAssoc($sql, FALSE, Array(), DB_FETCHMODE_ASSOC, TRUE);
-						$this->_tmp['direct_parent_grouping'] = $links;
+						assert_valid_db_result($links);
+
+						$parents = Array();
+						$restrict_types = array_get_index($group, 'restrict_types', Array());
+						$direct_parent_only = array_get_index($group, 'direct_parent_only', FALSE);
+						foreach ($links as $childid => $direct_parents) {
+							foreach ($direct_parents as $row => $parentid) {
+								if (count($direct_parents) > 1) {
+									// resort to calling getGroupableParentAssetids() only if there is more than one parent
+									// otherwise the resulting direct parents may lie outside the root node
+									$parents[$childid] = $this->getGroupableParentAssetids($childid, $restrict_types, $direct_parent_only);
+									continue;
+								} else {
+									$parents[$childid][] = $direct_parent;
+								}
+							}
+						}
+
+						$this->_tmp['direct_parent_grouping'] = $parents;
 					}//end if
 
 				// Intentionally fall through; we still need to do the query
