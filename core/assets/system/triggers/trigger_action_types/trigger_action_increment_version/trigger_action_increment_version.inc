@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_increment_version.inc,v 1.7 2008/10/14 03:33:22 lwright Exp $
+* $Id: trigger_action_increment_version.inc,v 1.8 2008/10/14 03:38:58 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,9 @@ class Trigger_Action_Increment_Version extends Trigger_Action
 			}
 		}
 
-		$state['asset']->incrementVersion($settings['version']);
+		if (!$state['asset']->incrementVersion($settings['version'])) {
+			return FALSE;
+		}
 
 		return Array(
 				'assetid'		=> $state['asset']->id,
