@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.21 2007/12/06 23:06:23 lwright Exp $
+* $Id: metadata_section.inc,v 1.22 2008/10/15 03:09:09 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,6 +39,7 @@ class Metadata_Section extends Folder
 	*/
 	function __construct($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
 	}//end constructor

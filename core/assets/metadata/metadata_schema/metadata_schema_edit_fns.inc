@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.54 2008/01/25 03:48:19 mbrydon Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.55 2008/10/15 03:09:09 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -234,11 +234,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @param boolean			$write_access	does the current user have write access to the asset
 	*											that we are setting metadata for (NOT THE SAME AS $asset)
 	* @param boolean		$print_cascade_values_option	print the Metadata Field checkbox option to 'Cascade Values'
+	* @param string				$type_code		The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintInlineValueInterface(Metadata_Schema $asset, Backend_Outputter $o, $values, $write_access, $print_cascade_values_option = TRUE)
+	public function paintInlineValueInterface(Metadata_Schema $asset, Backend_Outputter $o, $values, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL)
 	{
 		$o->openSection($asset->name);
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
@@ -247,7 +248,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if ($edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option)) {
+			if ($edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option, $type_code)) {
 				$res = TRUE;
 			}
 		}
@@ -295,20 +296,21 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Check if all required fields have been completed in the values supplied
 	*
-	* @param Metadata_Schema	$asset	the asset whose metadata we are checking
-	* @param array				$values	the current metadata values
+	* @param Metadata_Schema	$asset		the asset whose metadata we are checking
+	* @param array				$values		the current metadata values
+	* @param string				$type_code	The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function requiredFieldsComplete(Metadata_Schema $asset, Array $values)
+	public function requiredFieldsComplete(Metadata_Schema $asset, Array $values, $type_code=NULL)
 	{
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
 		foreach ($current_links as $link) {
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if (!$edit_fns->requiredFieldsComplete($section, $values)) {
+			if (!$edit_fns->requiredFieldsComplete($section, $values, $type_code)) {
 				return FALSE;
 			}
 		}
@@ -325,11 +327,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @param array				&$values		the current metadata values
 	* @param array				&$tag_values	the metadata tag values
 	* @param array				&$keywords		an array we can put keywords in that need replacing
+	* @param string				$type_code		The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateMetadata(Metadata_Schema $asset, Array &$values, Array &$tag_values, Array &$keywords)
+	public function generateMetadata(Metadata_Schema $asset, Array &$values, Array &$tag_values, Array &$keywords, $type_code=NULL)
 	{
 		$frontend_option = $asset->attr('frontend');
 
@@ -349,7 +352,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 			$edit_fns = $section->getEditFns();
 
-			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords)) {
+			if (!$edit_fns->generateMetadata($section, $values, $tag_values, $keywords, $type_code)) {
 				ob_end_clean();
 				return FALSE;
 			}
