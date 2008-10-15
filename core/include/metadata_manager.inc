@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168.2.9 2008/07/02 06:18:36 lwright Exp $
+* $Id: metadata_manager.inc,v 1.168.2.10 2008/10/15 05:39:06 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168.2.9 $
+* @version $Revision: 1.168.2.10 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -70,7 +70,7 @@ class Metadata_Manager extends MySource_Object
 			if (is_null($schema)) continue;
 			if (!($schema instanceof Metadata_Schema)) continue;
 			$edit_fns = $schema->getEditFns();
-			if (!$edit_fns->requiredFieldsComplete($schema, $values)) {
+			if (!$edit_fns->requiredFieldsComplete($schema, $values, $asset->type())) {
 				return FALSE;
 			}
 		}
@@ -803,6 +803,18 @@ class Metadata_Manager extends MySource_Object
 			if (is_null($field) || !$field->attr('editable')) {
 				unset($metadata[$fieldid]);
 				continue;
+			} else {
+				// Check for metadata section restrictions
+				$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($field->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
+				foreach ($current_links as $link) {
+					$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+					if (is_null($section)) continue;
+					$restrictions = $section->attr('restrict');
+					if (!empty($restrictions) && !array_key_exists($asset->type(), $restrictions)) {
+						unset($metadata[$fieldid]);
+					}
+				}//end foreach
+				continue;
 			}
 
 		}//end foreach
@@ -942,7 +954,7 @@ class Metadata_Manager extends MySource_Object
 			}
 
 			$edit_fns = $schema->getEditFns();
-			$edit_fns->generateMetadata($schema, $metadata, $tag_values, $keywords);
+			$edit_fns->generateMetadata($schema, $metadata, $tag_values, $keywords, $asset->type());
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
 		}
@@ -1543,6 +1555,11 @@ class Metadata_Manager extends MySource_Object
 		} catch (Exception $e) {
 			throw new Exception('Unable to get metadata interface value for assetid #'.$assetid.' due to the following database error'.$e->getMessage());
 		}//end try catch
+
+		// Matrix DAL returns FALSE when no rows found, for consistancy we should return NULL
+		if ($value === FALSE) {
+			$value = NULL;
+		}
 
 		return $value;
 
