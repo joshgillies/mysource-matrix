@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.26 2008/10/10 05:00:57 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.27 2008/10/15 03:39:56 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -553,9 +553,14 @@ class Form_Question_Type_File_Upload extends Form_Question
 									'non_uploaded_file'	=> TRUE,
 								 );
 
+					// We need to be able to create a file within the set
+					// create location, no matter who we are. To avoid errors
+					// regarding write permissions, we'll force this through
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					if ($file_asset->create($link, $file_info)) {
 						$ok = FALSE;
 					}
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 					unset($file_asset->_tmp['uploading_file']);
 
