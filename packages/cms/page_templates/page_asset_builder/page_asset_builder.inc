@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.11 2008/10/10 05:20:13 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.12 2008/10/15 05:38:19 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.11 $
+* @version $Revision: 1.122.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1094,8 +1094,7 @@ class Page_Asset_Builder extends Page
 					else {
 						$message = $error;
 					}
-				}				
-				
+				}
 				
 				$this->_errors = array_merge($this->_errors, $message);
 				return empty($this->_errors);
@@ -1727,7 +1726,7 @@ class Page_Asset_Builder extends Page
 						if (is_null($metadata_edit_fns)) {
 							$metadata_edit_fns = $schema->getEditFns();
 						}
-						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE, FALSE);
+						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE, FALSE, $create_type);
 					}
 					$asset->paintBackend($o);
 					$o->addHiddenField('asset_action', 'create');
@@ -1861,6 +1860,7 @@ class Page_Asset_Builder extends Page
 		if (!empty($link)) {
 			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'layout');
 		}
+
 		return $res;
 
 	}//end _getCreateFormLayout()
