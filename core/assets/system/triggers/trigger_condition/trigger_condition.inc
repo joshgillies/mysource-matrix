@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition.inc,v 1.8 2007/11/28 03:50:05 colivar Exp $
+* $Id: trigger_condition.inc,v 1.9 2008/10/15 04:49:34 ewang Exp $
 *
 */
 
-
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 /**
 * Trigger Condition
 *
@@ -23,7 +23,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
