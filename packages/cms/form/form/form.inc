@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.195 2008/10/15 04:00:02 lwright Exp $
+* $Id: form.inc,v 1.196 2008/10/15 04:01:39 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.196 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2966,7 +2966,7 @@ class Form extends Asset implements Bridge
 				}
 			} else {
 				$extra_data = $file_upload->getExtraData();
-				$uploaded_assetid = array_get_index($extra_data, 'existing_file_assetid', array_get_index($extra_data, 'new_file_assetid', NULL);
+				$uploaded_assetid = array_get_index($extra_data, 'existing_file_assetid', array_get_index($extra_data, 'new_file_assetid', NULL));
 
 				$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
 
