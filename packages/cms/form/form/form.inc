@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.194 2008/10/10 04:25:25 lwright Exp $
+* $Id: form.inc,v 1.195 2008/10/15 04:00:02 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.194 $
+* @version $Revision: 1.195 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1803,7 +1803,9 @@ class Form extends Asset implements Bridge
 		}
 
 		$current_submission = $this->getSubmissionAsset();
+
 		$submission_var = array_get_index($_SESSION, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
+
 		if ($current_submission) {
 			ob_start();
 				hidden_field('SQ_FORM_'.$this->id.'_SUBMISSION', $current_submission->id);
@@ -1811,7 +1813,7 @@ class Form extends Asset implements Bridge
 			$header .= ob_get_clean();
 		} else if ($submission_var) {
 			ob_start();
-				hidden_field('SQ_FORM_'.$this->id.'_PAGE', $submission_var['current_page']);
+				hidden_field('SQ_FORM_'.$this->id.'_PAGE', array_get_index($submission_var, 'current_page', 1));
 			$header .= ob_get_clean();
 		} else {
 			ob_start();
@@ -2903,9 +2905,9 @@ class Form extends Asset implements Bridge
 					}
 				}
 
-				// Move any file uploads without a create location to the submission asset
+				// Handle file uploads depending on whether create location is set
 				// We then need to update the Submission to handle any changed Extra Data
-				$this->_storeOrphanedFileUploads();
+				$this->_handleCompletedFileUploads();
 				$this->updateSubmission($submission_asset);
 
 				$submission_asset->setIP($_SERVER['REMOTE_ADDR']);
@@ -2928,13 +2930,15 @@ class Form extends Asset implements Bridge
 
 
 	/**
-	* Move any file uploads without a create location to the submission asset
+	* Handle file uploads for a complete submission
 	*
-	*
+	* Does two things, depending on whether a create location is set:
+	* - Create Location: create a NOTICE link between the File asset and the submission.
+	* - No Create Location: Move file upload to the submission asset's data directory.
 	*
 	* @return void
 	*/
-	protected function _storeOrphanedFileUploads()
+	protected function _handleCompletedFileUploads()
 	{
 		$submission_asset = $this->getSubmissionAsset();
 		$file_uploads     = $this->getAllQuestionAssets('form_question_type_file_upload');
@@ -2960,6 +2964,15 @@ class Form extends Asset implements Bridge
 					$file_upload->setExtraData($extra_data);
 					$submission_asset->setExtraData($assetid, $extra_data);
 				}
+			} else {
+				$extra_data = $file_upload->getExtraData();
+				$uploaded_assetid = array_get_index($extra_data, 'existing_file_assetid', array_get_index($extra_data, 'new_file_assetid', NULL);
+
+				$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
+
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$this->submission_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			}
 		}
 
