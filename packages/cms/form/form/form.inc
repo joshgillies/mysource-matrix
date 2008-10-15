@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.196 2008/10/15 04:01:39 lwright Exp $
+* $Id: form.inc,v 1.197 2008/10/15 05:47:41 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2181,6 +2181,17 @@ class Form extends Asset implements Bridge
 
 				$keyword_list = $bodycopy->getKeywords();
 				$replacements = Array();
+
+				foreach ($keyword_list as $keyword) {
+					// Allow all other display keywords, but explicitly prohibit
+					// HTML field keywords
+					if (strpos($keyword, 'question_field_') !== 0) {
+						$keyword_value = $this->getDisplayKeywordReplacement($keyword);
+						if (!empty($keyword_value)) {
+							$replacements[$keyword] = $keyword_value;
+						}
+					}
+				}
 
 				$bodycopy->setKeywordReplacements($replacements);
 				$bodycopy->printBody();
