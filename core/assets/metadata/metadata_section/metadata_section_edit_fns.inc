@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.48.2.1 2008/03/12 04:03:50 lwright Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.48.2.2 2008/10/15 05:37:28 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48.2.1 $
+* @version $Revision: 1.48.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,58 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			}
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 			$asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($assetids);
+
+			// Current Restrictions
+			// Show the dialog for restricting a section by asset type
+			$o->openField(translate('current_restrict'));
+				$restrictions = $asset->attr('restrict');
+				if (!empty($restrictions)) {
+					?>
+					<table class="sq-backend-table">
+						<tr>
+							<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
+							<?php
+							if ($write_access) {
+							?>
+							<td align="center" class="sq-backend-table-header" width="70"><?php echo translate('remove'); ?></td>
+							<?php
+							}	
+							?>
+						</tr>
+						<?php
+						foreach ($restrictions as $asset_type => $inheritance) {
+							?>
+							<tr>
+								<td class="sq-backend-table-cell">
+									<?php echo ucfirst(str_replace('_', ' ', $asset_type)) ?>
+								</td>
+								<?php
+								if ($write_access) {
+								?>
+								<td align="center" class="sq-backend-table-cell">
+									<?php check_box($prefix.'_remove_asset_type['.$asset_type.']'); ?>
+								</td>
+								<?php
+								}
+								?>
+							</tr>
+							<?php
+						}//end foreach()
+					?>
+					</table>
+
+					<?php
+				} else {
+					echo translate('no_restriction');
+				}
+			$o->closeField();
+
+			if ($write_access) {
+				// New Restrictions
+				$o->openField(translate('new_restriction'));
+					asset_type_chooser($prefix.'_add_restriction', TRUE, Array(), NULL, FALSE, TRUE);
+				$o->closeField();
+			}
 
 			$o->openField(translate('fields'));
 				?>
@@ -142,12 +194,56 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('links')) return FALSE;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$prefix = $asset->getPrefix();
 		$updated = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// handle restrictions
+		// delete
+		$current_restrictions = $asset->attr('restrict');
+		$changes_made = FALSE;
+		if (isset($_POST[$prefix.'_remove_asset_type'])) {
+			foreach($_POST[$prefix.'_remove_asset_type'] as $remove_type => $ahfortheheckofit) {
+				if (array_key_exists($remove_type, $current_restrictions)) {
+					unset($current_restrictions[$remove_type]);
+					$changes_made = TRUE;
+				}
+			}
+
+			// If something to save, save it, dammit!
+			if ($changes_made) {
+				$asset->setAttrValue('restrict', $current_restrictions);
+				$asset->saveAttributes();
+			}
+		}
+
+		// add
+		$current_restrictions = $asset->attr('restrict');
+		$changes_made = FALSE;
+		if (isset($_POST[$prefix.'_add_restriction']) && (isset($_POST[$prefix.'_add_restriction']['type_code']))) {
+			foreach($_POST[$prefix.'_add_restriction']['type_code'] as $field => $type_code) {
+				if (!empty($type_code)) {
+					$inheritance = $_POST[$prefix.'_add_restriction']['inherit'][$field];
+					if (!isset($current_restrictions[$type_code])) {
+						$current_restrictions[$type_code] = $inheritance;
+						$changes_made = TRUE;
+					} else if ($current_restrictions[$type_code] !== $inheritance) {
+						$current_restrictions[$type_code] = $inheritance;
+						$changes_made = TRUE;
+					}
+				}
+			}
+
+			// If something to save, save it, dammit!
+			if ($changes_made) {
+				$asset->setAttrValue('restrict', $current_restrictions);
+				$asset->saveAttributes();
+			}
+		}
 
 		// delete any fields that need deleting
 		if (isset($_POST[$prefix.'_delete_fields'])) {
@@ -183,42 +279,47 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Paint the interface for filling in metadata values
 	*
-	* @param Metadata_Section	$asset			the asset whose interface we are painting
-	* @param Backend_Outputter	$o				the outputter class
-	* @param array				$values			current metadata values set for this asset
-	* @param boolean			$write_access	does the current user have write access to the asset
-	*											that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param Metadata_Section	$asset							the asset whose interface we are painting
+	* @param Backend_Outputter	$o								the outputter class
+	* @param array				$values							current metadata values set for this asset
+	* @param boolean			$write_access					does the current user have write access to the asset
+	*															that we are setting metadata for (NOT THE SAME AS $asset)
+	* @param boolean			$print_cascade_values_option	Show the cascade value option
+	* @param string				$type_code						The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(Metadata_Section $asset, Backend_Outputter $o, Array $values, $write_access, $print_cascade_values_option = TRUE)
+	function paintInlineValueInterface(Metadata_Section $asset, Backend_Outputter $o, Array $values, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL)
 	{
-		$o->openSection($asset->name);
-		if ($write_access) {
-			if (isset($GLOBALS['painted_inline_value_interface'][$asset->id])) {
-				// this is the second time we have painted this interface
-				$o->openField(translate('please_note'));
-					echo '<span class="sq-backend-warning"><b>'.translate('metadata_use_editing_interface').'</b></span>';
-				$o->closeField();
-				$write_access = FALSE;
-			} else {
-				// make sure we dont try and paint the same interface twice
-				$GLOBALS['painted_inline_value_interface'][$asset->id] = TRUE;
-			}
-		}
-
+		$restrictions = $asset->attr('restrict');
 		$res = FALSE;
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
-		foreach ($current_links as $link) {
-			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($field)) continue;
-			$edit_fns = $field->getEditFns();
-			if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option)) {
-				$res = TRUE;
+		if (empty($restrictions) || (!is_null($type_code) && array_key_exists($type_code, $restrictions))) {
+			$o->openSection($asset->name);
+			if ($write_access) {
+				if (isset($GLOBALS['painted_inline_value_interface'][$asset->id])) {
+					// this is the second time we have painted this interface
+					$o->openField(translate('please_note'));
+						echo '<span class="sq-backend-warning"><b>'.translate('metadata_use_editing_interface').'</b></span>';
+					$o->closeField();
+					$write_access = FALSE;
+				} else {
+					// make sure we dont try and paint the same interface twice
+					$GLOBALS['painted_inline_value_interface'][$asset->id] = TRUE;
+				}
 			}
-		}
-		$o->closeSection();
+
+			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
+			foreach ($current_links as $link) {
+				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($field)) continue;
+				$edit_fns = $field->getEditFns();
+				if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option)) {
+					$res = TRUE;
+				}
+			}
+			$o->closeSection();
+		}//end if
 
 		return $res;
 
@@ -273,19 +374,23 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	*
 	* @param Metadata_Section	$asset	the asset whose interface we are painting
 	* @param array				$values	the current metadata values
+	* @param string				$type_code	The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	function requiredFieldsComplete(Metadata_Section $asset, $values)
+	function requiredFieldsComplete(Metadata_Section $asset, $values, $type_code=NULL)
 	{
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
-		foreach ($current_links as $link) {
-			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($field)) continue;
-			$edit_fns = $field->getEditFns();
-			if (!$edit_fns->requiredFieldsComplete($field, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL)) {
-				return FALSE;
+		$restrictions = $asset->attr('restrict');
+		if (empty($restrictions) || (!is_null($type_code) && array_key_exists($type_code, $restrictions))) {
+			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
+			foreach ($current_links as $link) {
+				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($field)) continue;
+				$edit_fns = $field->getEditFns();
+				if (!$edit_fns->requiredFieldsComplete($field, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL)) {
+					return FALSE;
+				}
 			}
 		}
 
@@ -301,45 +406,49 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	* @param array				&$values		the current metadata values
 	* @param array				&$tag_values	the metadata tag values
 	* @param array				&$keywords		an array we can put keywords in that need replacing
+	* @param string				$type_code		The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(Metadata_Section $asset, Array &$values, Array &$tag_values, Array &$keywords)
+	function generateMetadata(Metadata_Section $asset, Array &$values, Array &$tag_values, Array &$keywords, $type_code=NULL)
 	{
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-		// Buffer the contents of any META tags
-		ob_start();
+		$restrictions = $asset->attr('restrict');
+		if (empty($restrictions) || (!is_null($type_code) && array_key_exists($type_code, $restrictions))) {
+			// Buffer the contents of any META tags
+			ob_start();
 
-		echo '<!-- '.$mm->escapeMetadata($asset->name).' //-->'."\n";
+			echo '<!-- '.$mm->escapeMetadata($asset->name).' //-->'."\n";
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
-		$valid_fields = Array();
-		foreach ($current_links as $link) {
-			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (is_null($field)) continue;
-			$valid_fields[] = $field->name;
+			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
+			$valid_fields = Array();
+			foreach ($current_links as $link) {
+				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($field)) continue;
+				$valid_fields[] = $field->name;
 
-			$edit_fns = $field->getEditFns();
-			$tag_values[$field->name] = '';
+				$edit_fns = $field->getEditFns();
+				$tag_values[$field->name] = '';
 
 
-				if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL), $tag_values[$field->name], $keywords)) {
-					ob_end_clean();
-					return FALSE;
-				}
+					if (!$edit_fns->generateMetadata($field, ((isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL), $tag_values[$field->name], $keywords)) {
+						ob_end_clean();
+						return FALSE;
+					}
 
-		}
+			}
 
-		echo "\n";
+			echo "\n";
 
-		// If printing on front-end, print the META tags, otherwise discard them
-		$contents = ob_get_clean();
-		if ($frontend_option) echo $contents;
+			// If printing on front-end, print the META tags, otherwise discard them
+			$contents = ob_get_clean();
+			if ($frontend_option) echo $contents;
+		}//end if
 
 		return TRUE;
 
