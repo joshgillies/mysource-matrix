@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.42 2008/04/09 03:59:47 lwright Exp $
+* $Id: metadata.inc,v 1.43 2008/10/15 03:11:46 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 
@@ -178,7 +178,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
 							$edit_fns = $schema->getEditFns();
-							if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access)) {
+							if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, TRUE, $owner->type())) {
 								$print_commit_button = TRUE;
 							}
 						}
