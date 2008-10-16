@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.76.2.2 2008/05/09 04:28:49 lwright Exp $
+* $Id: general_occasional.inc,v 1.76.2.3 2008/10/16 05:50:08 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76.2.2 $
+* @version $Revision: 1.76.2.3 $
 * @package MySource_Matrix
 */
 
@@ -423,22 +423,20 @@ function implode_sql($query_components)
 *
 * @param array	&$request_parameters	Extra Request parameters array which is the first argument of HTTP_Client
 * @param array	&$default_headers		Default Headers for HTTP_Client
+* @param array  $page_url				The URL being sought
 *
 * @return void
 * @access private
 */
-function addProxyInfo(&$request_parameters, &$default_headers)
+function addProxyInfo(&$request_parameters, &$default_headers, $page_url)
 {
 	require_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
 	if (SQ_PA_ENABLED) {
-		$proxy_host = SQ_PA_HOSTNAME;
-		$proxy_port = SQ_PA_PORT;
-		$proxy_user = SQ_PA_USERNAME;
-		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+		$proxy = get_proxy_info_for_url($page_url);
 
-		$request_parameters['proxy_host'] = $proxy_host;
-		$request_parameters['proxy_port'] = $proxy_port;
-		$default_headers['Proxy-Authorization'] = 'Basic '.base64_encode("$proxy_user:$proxy_pass");
+		$request_parameters['proxy_host'] = $proxy['host'];
+		$request_parameters['proxy_port'] = $proxy['port'];
+		$default_headers['Proxy-Authorization'] = 'Basic '.base64_encode($proxy['user'].':'.$proxy['password']);
 	}
 
 }//end addProxyInfo()
@@ -490,69 +488,13 @@ function open_socket_connection($url_parts, &$errno, &$errstr)
 	}
 
 	if (SQ_PA_ENABLED) {
-		$alternatives = SQ_PA_ALTERNATIVES;
-		if (trim($alternatives) !== '') {
-			$alternatives = unserialize($alternatives);
-		} else {
-			$alternatives = Array();
-		}
+		$proxy = get_proxy_info_for_url($page_url);
 
-		// Back-up for if we don't have any alternatives
-		$match = FALSE;
-
-		foreach ($alternatives as $alternative) {
-			$pattern_url = $alternative['pattern_url'];
-
-			switch ($alternative['pattern_type']) {
-				case 'equals':
-					$match = ($page_url == $pattern_url);
-				break;
-
-				case 'begins':
-					// See if the pattern starts in exactly character 0
-					$match = (strpos($page_url, $pattern_url) === 0);
-				break;
-
-				case 'ends':
-					// See if the pattern starts at exactly the point where
-					// it would fill up the end of the string
-					$match = (strpos($page_url, $pattern_url) === (strlen($page_url) - strlen($pattern_url)));
-				break;
-
-				case 'contains':
-					// All we need to see is if the pattern is included in the URL
-					$match = (strpos($page_url, $pattern_url) !== FALSE);
-				break;
-
-			}//end switch
-
-			// Invert if necessary
-			if ($alternative['pattern_not']) $match = !$match;
-
-			if ($match) {
-				// We have a match; we'll use this and break out
-				$proxy_host = $alternative['proxy_url'];
-				$proxy_port = $alternative['proxy_port'];
-				$proxy_user = $alternative['username'];
-				$proxy_pass = base64_decode($alternative['password']);
-				break;
-			}
-
-		}//end foreach
-
-		if (!$match) {
-			// Use the primary proxy if we can't find a match
-			$proxy_host = SQ_PA_HOSTNAME;
-			$proxy_port = SQ_PA_PORT;
-			$proxy_user = SQ_PA_USERNAME;
-			$proxy_pass = base64_decode(SQ_PA_PASSWORD);
-		}
-
-		$con = @fsockopen($proxy_host, $proxy_port, $errno, $errstr);
+		$con = @fsockopen($proxy['host'], $proxy['port'], $errno, $errstr);
 		if (!$con) return FALSE;
 		fputs($con, "GET $page_url HTTP/1.0\r\n");
-		fputs($con, "Host: $proxy_host\r\n");
-		fputs($con, 'Proxy-Authorization: Basic '.base64_encode("$proxy_user:$proxy_pass")."\r\n\r\n");
+		fputs($con, "Host: ".$proxy['host']."\r\n");
+		fputs($con, 'Proxy-Authorization: Basic '.base64_encode($proxy['user'].':'.$proxy['password'])."\r\n\r\n");
 	} else {
 		$con = @fopen($page_url, 'r');
 	}
@@ -561,5 +503,86 @@ function open_socket_connection($url_parts, &$errno, &$errstr)
 
 }//end open_socket_connection()
 
+
+/**
+* Get the appropriate proxy (or alternative) for a certain URL
+*
+* Returns a four-element array, providing host, port, user name and password.
+* Should only use if SQ_PA_ENABLED is set to TRUE (1).
+*
+* @param string	$page_url	The target URL that is being retrieved through a proxy
+*
+* @return array
+* @access public
+*/
+function get_proxy_info_for_url($page_url)
+{
+	$alternatives = SQ_PA_ALTERNATIVES;
+
+	if (trim($alternatives) !== '') {
+		$alternatives = unserialize($alternatives);
+	} else {
+		$alternatives = Array();
+	}
+
+	// Back-up for if we don't have any alternatives
+	$match = FALSE;
+
+	foreach ($alternatives as $alternative) {
+		$pattern_url = $alternative['pattern_url'];
+
+		switch ($alternative['pattern_type']) {
+			case 'equals':
+				$match = ($page_url == $pattern_url);
+			break;
+
+			case 'begins':
+				// See if the pattern starts in exactly character 0
+				$match = (strpos($page_url, $pattern_url) === 0);
+			break;
+
+			case 'ends':
+				// See if the pattern starts at exactly the point where
+				// it would fill up the end of the string
+				$match = (strpos($page_url, $pattern_url) === (strlen($page_url) - strlen($pattern_url)));
+			break;
+
+			case 'contains':
+				// All we need to see is if the pattern is included in the URL
+				$match = (strpos($page_url, $pattern_url) !== FALSE);
+			break;
+
+		}//end switch
+
+		// Invert if necessary
+		if ($alternative['pattern_not']) $match = !$match;
+
+		if ($match) {
+			// We have a match; we'll use this and break out
+			$proxy_host = $alternative['proxy_url'];
+			$proxy_port = $alternative['proxy_port'];
+			$proxy_user = $alternative['username'];
+			$proxy_pass = base64_decode($alternative['password']);
+			break;
+		}
+
+	}//end foreach
+
+	if (!$match) {
+		// Use the primary proxy if we can't find a match
+		$proxy_host = SQ_PA_HOSTNAME;
+		$proxy_port = SQ_PA_PORT;
+		$proxy_user = SQ_PA_USERNAME;
+		$proxy_pass = base64_decode(SQ_PA_PASSWORD);
+	}
+
+	return Array(
+			'host'		=> $proxy_host,
+			'port'		=> $proxy_port,
+			'user'		=> $proxy_user,
+			'password'	=> $proxy_pass,
+		   );
+
+}//end get_proxy_info_for_url()
 
 ?>
