@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.197 2008/10/15 05:47:41 lwright Exp $
+* $Id: form.inc,v 1.198 2008/10/16 04:13:30 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.197 $
+* @version $Revision: 1.198 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2108,12 +2108,17 @@ class Form extends Asset implements Bridge
 
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
+		if ($also_print_sections && $this->attr('use_confirmation_page') && ($this->getCurrentPageNumber() == 2)) {
+			$content = str_replace('%form_contents%', $this->getConfirmationPageContents(), $content);
+		}
+
 		$keyword_list = extract_keywords($content);
 		if (!empty($keyword_list)) {
 			foreach ($keyword_list as $keyword) {
 				if (isset($replacements[$keyword])) continue;
 				$replacements[$keyword] = $this->getKeywordReplacement($keyword);
 			}
+
 			replace_keywords($content, $replacements);
 		}
 
