@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.80.2.4 2008/10/16 05:44:52 lwright Exp $
+* $Id: general_occasional.inc,v 1.80.2.5 2008/10/16 05:50:36 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80.2.4 $
+* @version $Revision: 1.80.2.5 $
 * @package MySource_Matrix
 */
 
@@ -626,6 +626,6 @@ function get_proxy_info_for_url($page_url)
 			'password'	=> $proxy_pass,
 		   );
 
-}//end _get_proxy_info_for_url()
+}//end get_proxy_info_for_url()
 
 ?>
