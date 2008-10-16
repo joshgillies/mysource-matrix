@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.25 2008/10/08 00:50:48 ata Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.26 2008/10/16 06:49:03 ata Exp $
 *
 */
 
@@ -22,13 +22,41 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
 class Search_Manager_Plugin_PgSQL
 {
 
+	//list of silent characters that are not going to be indexed
+	private $_silent_chars_to_space; //the list of silent characters that will be converted to space character (' ')
+	private $_silent_chars_to_empty; //the list of silent characters that will be converted to empty string ('')
+	
+	/**
+	 * Constructor
+	 *
+	 */
+	function __construct() {
+		//These are lists of silent characters that are not going to be indexed. They are listed here instead of remove_silent_chars()
+		//function in text.inc because they are common characters but are not ASCII characters. Therefore, they will be encoded
+		//differently in different character encodings. That makes the str_replace() function used in remove_silent_chars()
+		//function not working properly if static strings are used.
+		$silent_chars_to_space = Array('&cent;', '&pound;', '&curren;', '&yen;', '&brvbar;', '&sect;', '&laquo;', '&raquo;', '&plusmn;', '&lsquo;', '&ldquo;', '&rdquo;', '&euro;', '&sbquo;', '&ndash;', '&mdash;', '&bull;');
+		foreach ($silent_chars_to_space as $key => $value) {
+			$silent_chars_to_space[$key] = html_entity_decode($value, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+		$this->_silent_chars_to_space = $silent_chars_to_space;
+		
+		//Just like the apostrophe (') in remove_silent_chars() function in text.inc, "you've" will become "youve"
+		$silent_chars_to_empty = Array('&rsquo;');
+		foreach ($silent_chars_to_empty as $key => $value) {
+			$silent_chars_to_empty[$key] = html_entity_decode($value, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+		$this->_silent_chars_to_empty = $silent_chars_to_empty;
+		
+	}//end constructor
+	
 
 	/**
 	* Processes a search for a particular word in a particular data source
@@ -550,7 +578,8 @@ class Search_Manager_Plugin_PgSQL
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// force lowercase keys (= keywords) - CASE_LOWER is default for this function
-		$result = array_change_key_case($result);
+// ALL THE KEYS ARE IN LOWERCASE ALREADY. THIS FUNCTION CHANGE THE STRING WHEN THE STRING CONTAINS SPECIAL CHARACTERS LIKE &ouml;		
+//		$result = array_change_key_case($result);
 
 		if ($include_scores) {
 			// return result with scores, change code to work with 3.18 result format
@@ -577,18 +606,16 @@ class Search_Manager_Plugin_PgSQL
 	function generateWordList($words)
 	{
 		if (!is_array($words)) {
-			$words = split("([ \n\r])+", strtolower($words));
-			foreach (array_keys($words) as $i) {
-				// convert wildcard symbols to corresponding SQL wildcards
-				$words[$i] = strtr($words[$i], '*?', '%_');
-
-				// if this is an email, skip the following check...
-				$at_pos  = strpos($words[$i], '@');
-				$dot_pos = strpos($words[$i], '.');
-				if ($at_pos === FALSE && $dot_pos === FALSE) {
-					$words[$i] = addslashes($words[$i]);
-				}
-			}
+			//convert wildcard symbols to corresponding SQL wildcards
+//DO NOT NEED TO CONVERT THOSE CHARACTERS BECAUSE THEY WILL BE REMOVED IN remove_silent_chars FUNCTION IN text.inc
+//			$words = strtr($words, '*?', '%_');
+			//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
+			$words = str_replace($this->_silent_chars_to_empty, '', $words);
+			$words = str_replace($this->_silent_chars_to_space, ' ', $words);
+			//invoke remove_silent_chars in text.inc
+			$words = remove_silent_chars($words);
+			
+			$words = preg_split('/\s+/', $words, -1, PREG_SPLIT_NO_EMPTY);
 		}
 
 		return $words;
@@ -611,8 +638,20 @@ class Search_Manager_Plugin_PgSQL
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
 	{
 		$index_content = Array();
-		$contents = strtolower($contents);
+		
+		//use mbstring function because the input contents can be different from ASCII characters
+		$contents = mb_strtolower($contents, SQ_CONF_DEFAULT_CHARACTER_SET);
 		$contents = str_replace('&nbsp;', ' ', $contents);
+		$contents = trim($contents);
+		
+		if (($data_type == 'text') || ($data_type == 'wysiwyg')) {
+			//the wysiwyg tool converts special characters to html entities in the HTML editor so they need to be converted back
+			$contents = html_entity_decode($contents, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+		
+		//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
+		$contents = str_replace($this->_silent_chars_to_empty, '', $contents);
+		$contents = str_replace($this->_silent_chars_to_space, ' ', $contents);
 
 		if (trim($contents) != '') {
 			foreach (get_word_counts($contents) as $word => $count) {
