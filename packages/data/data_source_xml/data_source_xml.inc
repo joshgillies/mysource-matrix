@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.1.2.3 2007/10/31 23:44:20 bshkara Exp $
+* $Id: data_source_xml.inc,v 1.1.2.4 2008/10/16 05:48:01 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -172,7 +172,7 @@ class Data_Source_Xml extends Data_Source
 			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
 
 			// Add the Proxy authentication details if enabled
-			addProxyInfo($request_parameters, $default_headers);
+			addProxyInfo($request_parameters, $default_headers, $url);
 
 			$HTTP_Client =& new HTTP_Client($request_parameters, $default_headers);
 
