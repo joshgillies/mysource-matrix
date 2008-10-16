@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.74.2.3 2008/06/30 05:40:01 lwright Exp $
+* $Id: page_remote_content.inc,v 1.74.2.4 2008/10/16 05:46:25 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.74.2.3 $
+* @version $Revision: 1.74.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -336,7 +336,7 @@ class Page_Remote_Content extends Page
 			$default_headers['User-Agent'] = SQ_SYSTEM_LONG_NAME;
 
 			// Add the Proxy authentication details if enabled
-			addProxyInfo($request_parameters, $default_headers);
+			addProxyInfo($request_parameters, $default_headers, $url);
 
 			// we need a persistent cookie manager for this
 			$cookie_man = $this->_getNewCookieManager();
