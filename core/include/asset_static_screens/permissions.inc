@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.38 2008/09/16 00:21:38 ata Exp $
+* $Id: permissions.inc,v 1.39 2008/10/16 02:22:53 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -563,7 +563,7 @@ function processPermissions(&$owner, &$o, &$ei)
 		$perm_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm);
 		foreach ($perm_infos as $perm_info) {
 			$userid   = $perm_info['userid'];
-			$cascades = isset($post_data['cascades'][$userid]);
+			$cascades = isset($post_data['cascades'][rawurlencode($userid)]);
 			if ((boolean)$cascades != (boolean)$perm_info['cascades']) {
 				// Cascade changes are only made to dependants
 				$permission_vars[] = Array(
