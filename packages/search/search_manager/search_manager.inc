@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.178 2008/10/09 04:57:54 ata Exp $
+* $Id: search_manager.inc,v 1.179 2008/10/16 06:30:50 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -448,7 +448,7 @@ class Search_Manager extends Asset
 			// if there are no weightings, we dont want to index this name
 			if (!isset($weightings[$name_index])) continue;
 
-			$name = ($name_type == 'name') ? strtolower($asset->name) : strtolower($asset->short_name);
+			$name = ($name_type == 'name') ? $asset->name : $asset->short_name;
 			$index_content = array_merge($index_content, $plugin->splitIndexableContent($name, $type_code, 'text', $name_index, $weightings[$name_index]));
 		}
 
@@ -539,7 +539,10 @@ class Search_Manager extends Asset
 			}
 
 			$attribute = $asset->getAttribute($var_name);
-			$value = strtolower($attribute->getContent());
+			$value = $attribute->getContent();
+			//strip the formatting tags first because they should not be replace with space (' '), e.g. <b>H</b>ello => Hello
+			$formatting_tags = Array('span', 'b', 'big', 'em', 'i', 'small', 'strong', 'sub', 'sup', 'ins', 'del');
+			$value = $this->_strip_tags($formatting_tags, $value);
 			// strip tags and replace with whitespace so as to preserve word boundaries
 			$value = preg_replace('/<\/?[^>]+>/i', ' ', $value);
 			if (empty($value)) continue;
@@ -595,7 +598,10 @@ class Search_Manager extends Asset
 			// ask the asset for its content, and store it under a contents component
 			// we don't want to index any tags so strip them
 
-			$contents = strtolower($asset->getContent());
+			$contents = $asset->getContent();
+			//strip the formatting tags first because they should not be replace with space (' '), e.g. <b>H</b>ello => Hello
+			$formatting_tags = Array('span', 'b', 'big', 'em', 'i', 'small', 'strong', 'sub', 'sup', 'ins', 'del');
+			$contents = $this->_strip_tags($formatting_tags, $contents);
 			// strip tags and replace with whitespace so as to preserve word boundaries
 			$contents = preg_replace('/<\/?[^>]+>/i', ' ', $contents);
 
@@ -660,24 +666,23 @@ class Search_Manager extends Asset
 					if (!is_iso8601($value)) {
 						$value = ts_iso8601(strtotime($value));
 					}
-				break;
+					break;
 
 				//wysiwyg type would have the same characteristics to text type, e.g. a value which is longer than 255 characters will not be indexed
 				case 'wysiwyg':
 				case 'text':
-
 					$value = $this->_getRawNumberInText($value);
 					// filter noise words
 					if (!$this->isWordIndexable($value)) continue 2; // continue the foreach loop
+					break;
+//DON'T NEED TO CHANGE INDEX WORDS TO LOWERCASE BECAUSE THEY ARE LOWERCASE ALREADY BY mb_strtolower() FUNCTION IN splitIndexableContent() FUNCTION IN DB PLUGIN
+//				case 'thesaurus':
+//				case 'selection':
+//				case 'select':
+//					$value = strtolower($value);
+//				break;
 
-				// NOTE: break is omitted on purpose
-				case 'thesaurus':
-				case 'selection':
-				case 'select':
-					$value = strtolower($value);
-				break;
-
-				default:
+//				default:
 					// nothing yet
 			}
 
@@ -1663,6 +1668,35 @@ class Search_Manager extends Asset
 	}//end extractKeywords()
 
 
+//--        TAG STRIP        --//	
+	
+	/**
+	 * Strip tags by tag name
+	 *
+	 * @param array 	$tags		the array of tag names, e.g. Array('span', 'b', 'i')
+	 * @param string 	$contents	the string that contains tags
+	 * 
+	 * @return string	the result string that has tags removed
+	 * @access private
+	 */
+	function _strip_tags($tags, $contents) {
+		if (!is_array($tags)) {
+			$tags = Array($tags);
+		}
+		
+		foreach ($tags as $tag) {
+			//a tag will start with <, there can be one / if it is close tag, and then the tag name,
+			//to make sure that the tags with tag name are removed, not the tags start with that tag name,
+			//e.g. remove <b> tag, not <br> tag. The tag must end with >, but before that, it can have / (e.g. <br/> ) or space followed by
+			//other characters (to form attributes <h1 align="center">, or the / itself (<br />) )
+			$contents = preg_replace('/<\/?'.$tag.'(\/|(\s+[^>]*))?>/i', '', $contents);
+		}
+		
+		return $contents;
+		
+	}//end _strip_tags() function
+	
+	
 //--        SEARCH PROCESSING        --//
 
 
@@ -1837,8 +1871,9 @@ class Search_Manager extends Asset
 				} else {
 					$data_source_results = NULL;
 					foreach ($field_details['words'] as $search_term) {
-						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
-						$term_results = $this->_processWordSearch($info, $data_source, $base_query, $word_logic);
+//THE SILENT CHARACTERS WERE REMOVED BEFORE IN _prepareSearchField() FUNCTION
+//						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
+						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query, $word_logic);
 						if (!isset($all_source_results[$search_term])) {
 							$all_source_results[$search_term] = Array();
 						}
@@ -2011,9 +2046,9 @@ class Search_Manager extends Asset
 		} else {
 			// DONT remove unindexable words (then you cannot search for part of it)
 			$words = Array();
-
+			
 			foreach ($this->generateWordList($field_details['words']) as $word) {
-				$words[] = strtolower($word);
+				$words[] = mb_strtolower($word, SQ_CONF_DEFAULT_CHARACTER_SET);
 			}
 			$field_details['words'] = $words;
 		}
