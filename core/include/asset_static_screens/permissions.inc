@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.33.2.4 2008/10/16 02:20:19 bpearson Exp $
+* $Id: permissions.inc,v 1.33.2.5 2008/10/16 02:22:03 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33.2.4 $
+* @version $Revision: 1.33.2.5 $
 * @package MySource_Matrix
 */
 
@@ -559,7 +559,7 @@ function processPermissions(&$owner, &$o, &$ei)
 			}
 		}
 
-		// Change of cascade status
+		// Change of cascade status.
 		$perm_infos = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($owner->id, $perm);
 		foreach ($perm_infos as $perm_info) {
 			$userid   = $perm_info['userid'];
