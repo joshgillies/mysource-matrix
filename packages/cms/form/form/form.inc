@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.199 2008/10/16 04:45:05 lwright Exp $
+* $Id: form.inc,v 1.200 2008/10/16 05:02:26 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.199 $
+* @version $Revision: 1.200 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3998,7 +3998,7 @@ class Form extends Asset implements Bridge
 	{
 		ob_start();
 			if ($this->attr('use_confirmation_page') && ($this->getCurrentPageNumber() == $this->getTotalPages())) {
-				$content = str_replace('%form_contents%', $this->getConfirmationPageContents(), $content);
+				echo $this->getConfirmationPageContents();
 			} else {
 				$this->includeContentFile('Standard');
 			}
