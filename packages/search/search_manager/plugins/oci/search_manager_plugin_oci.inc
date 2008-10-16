@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.10 2008/09/25 06:47:57 bpearson Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.11 2008/10/16 06:43:34 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -569,6 +569,11 @@ class Search_Manager_Plugin_OCI
 		if (is_array($words)) {
 			return $words;
 		} else if (is_string($words)) {
+			//convert wildcard symbols to corresponding SQL wildcards
+			$words = strtr($words, '*?', '%_');
+			//invoke remove_silent_chars in text.inc
+			$words = remove_silent_chars($words, TRUE);
+			
 			return Array($words);
 		}
 
@@ -594,7 +599,17 @@ class Search_Manager_Plugin_OCI
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
 	{
 		$index_content = Array();
-
+		
+		//use mbstring function because the input contents can be different from ASCII characters
+		$contents = mb_strtolower($contents, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$contents = str_replace('&nbsp;', ' ', $contents);
+		$contents = trim($contents);
+		
+		if (($data_type == 'text') || ($data_type == 'wysiwyg')) {
+			//the wysiwyg tool converts special characters to html entities in the HTML editor so they need to be converted back
+			$contents = html_entity_decode($contents, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+		
 		$index_content[] = Array(
 							'value'		=> $contents,
 							'type_code'	=> $type_code,
