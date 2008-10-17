@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.3 2008/04/09 05:54:04 bpearson Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.4 2008/10/17 06:05:12 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(dirname(__FILE__)).'/trigger_condition_asset_type/trigger_c
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,6 +61,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 		$metadata_value = $settings['value'];
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		
 		$object_value = $mm->getMetadataFieldValues($state['assetid']);
 
 		if (array_key_exists($metadata_asset->name, $object_value)) {
@@ -120,6 +121,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition_Asset_Type
 			if ($write_access) {
 				$restricted_types['metadata_field_text'] = 'I';
 				$restricted_types['metadata_field_thesaurus'] = 'I';
+				$restricted_types['metadata_field_select'] = 'I';
 				asset_finder($prefix.'[asset_id]', $selected_asset_id, $restricted_types);
 			} else {
 				if (!empty($selected_asset_id)) {
