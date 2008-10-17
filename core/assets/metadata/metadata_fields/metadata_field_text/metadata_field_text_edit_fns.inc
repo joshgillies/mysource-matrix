@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.28.2.3 2008/07/11 05:49:36 bpearson Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.28.2.4 2008/10/17 00:58:37 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.28.2.3 $
+* @version $Revision: 1.28.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -107,7 +107,8 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				?> <br/>Character Limit: <?php echo $asset->attr('char_limit'); ?> <span style="color:red" id="<?php echo $prefix.'_value'; ?>_note"></span> <?php
 			}
 		} else {
-			echo $value;
+			// ensure JS is not executed in read only mode
+			echo str_replace('<', '&lt;', $value);
 			if ($is_default) {
 				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 			}
