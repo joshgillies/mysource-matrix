@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.179 2008/10/16 06:30:50 ata Exp $
+* $Id: search_manager.inc,v 1.180 2008/10/19 23:10:33 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -675,7 +675,7 @@ class Search_Manager extends Asset
 					// filter noise words
 					if (!$this->isWordIndexable($value)) continue 2; // continue the foreach loop
 					break;
-//DON'T NEED TO CHANGE INDEX WORDS TO LOWERCASE BECAUSE THEY ARE LOWERCASE ALREADY BY mb_strtolower() FUNCTION IN splitIndexableContent() FUNCTION IN DB PLUGIN
+//DON'T NEED TO CHANGE INDEX WORDS TO LOWERCASE BECAUSE THEY ARE LOWERCASE ALREADY BY strtolower() OR mb_strtolower() FUNCTION IN splitIndexableContent() FUNCTION IN DB PLUGIN
 //				case 'thesaurus':
 //				case 'selection':
 //				case 'select':
@@ -2047,8 +2047,18 @@ class Search_Manager extends Asset
 			// DONT remove unindexable words (then you cannot search for part of it)
 			$words = Array();
 			
+			//only use mb_strtolower() function if it is supported
+			$mb_support = FALSE;
+			if (function_exists('mb_strtolower')) {
+				$mb_support = TRUE;
+			}
+			
 			foreach ($this->generateWordList($field_details['words']) as $word) {
-				$words[] = mb_strtolower($word, SQ_CONF_DEFAULT_CHARACTER_SET);
+				if ($mb_support) {
+					$words[] = mb_strtolower($word, SQ_CONF_DEFAULT_CHARACTER_SET);
+				} else {
+					$words[] = strtolower($word);
+				}
 			}
 			$field_details['words'] = $words;
 		}
