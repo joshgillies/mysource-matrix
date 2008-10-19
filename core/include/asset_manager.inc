@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.709 2008/09/29 23:03:16 csmith Exp $
+* $Id: asset_manager.inc,v 1.710 2008/10/19 22:17:16 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.709 $
+* @version $Revision: 1.710 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -980,14 +980,13 @@ class Asset_Manager extends MySource_Object
 			throw new Exception('Unable to get customised attribute values for attr "'.$attr_name.'" and type "'.$asset_type.'" due to database error: '.$e->getMessage());
 		}
 
-		// Combine the two
+		// Traverse through the custom val array, if it these assets have custom val for theirs attribute, return it
+		// If the assets do not have custom val, the array is probably empty and thus it wont go into the loop
 		foreach ($custom_vals as $assetid => $rowinfo) {
-			if (isset($rowinfo[0]['default_val'])) {
-				$res[$assetid] = $rowinfo[0]['default_val'];
-			} else {
+			if (isset($rowinfo[0]['custom_val'])) {
 				$res[$assetid] = $rowinfo[0]['custom_val'];
-			}
-		}
+			}//end if
+		}//end foreach
 
 		return $res;
 
