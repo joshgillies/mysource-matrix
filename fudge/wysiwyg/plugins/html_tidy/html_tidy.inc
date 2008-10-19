@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.57.2.6 2008/09/24 04:36:30 bpearson Exp $
+* $Id: html_tidy.inc,v 1.57.2.7 2008/10/19 21:32:26 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.57.2.6 $
+* @version $Revision: 1.57.2.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -106,7 +106,10 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	{
 		$this->htmltidy_status = 'pass';
 
-		if (empty($html)) {
+		if (!file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
+			// Disable HTML Tidy if path doesn't exist (of course!)
+			$this->htmltidy_status = 'disabled';
+		} else if (empty($html)) {
 			// skip as we cannot do tidy on empty content
 			return;
 
@@ -242,7 +245,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	*/
 	public static function check_usable()
 	{
-		if (SQ_TOOL_HTML_TIDY_ENABLED && class_exists('tidy')) {
+		if (SQ_TOOL_HTML_TIDY_ENABLED && file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
 			return TRUE;
 		}
 		return translate('wysiwyg_htmltidy_status_disabled');
