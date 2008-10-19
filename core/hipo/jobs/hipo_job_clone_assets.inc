@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.32 2008/06/13 07:03:19 bpearson Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.33 2008/10/19 22:19:26 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -396,6 +396,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$o->openSection(translate('cloning_confirmation'));
 			$o->openField(translate('confirm'));
+				$o->addHiddenField('form_submitted', 1);
 				?>
 				<p><?php echo translate('hipo_cloning_confirm', htmlentities($to_parent->name)); ?></p>
 				<ul>
@@ -407,7 +408,47 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					}
 					?>
 				</ul>
-				</p><p><?php echo translate('hipo_confirm_abort');?></p>
+				</p>
+				<p><!-- Show the change name dialog -->
+				<script type="text/javascript">
+				<!--
+					function toggleChangeName() {
+						toggleBox = document.getElementById('<?php echo $prefix; ?>_change_name');
+						renamedialog = document.getElementById('<?php echo $prefix; ?>_rename_assets');
+						if (toggleBox.checked == true) {
+							renamedialog.style.visibility = "visible";
+							renamedialog.style.display = "block";
+						} else {
+							renamedialog.style.visibility = "hidden";
+							renamedialog.style.display = "none";
+						}
+					}
+				-->
+				</script>
+				<input type="checkbox" id="<?php echo $prefix; ?>_change_name" name="<?php echo $prefix; ?>_change_name" onclick="toggleChangeName();">
+				<label for="<?php echo $prefix; ?>_change_name">(Optionally) Change the name of the cloned assets</label>
+				<div id="<?php echo $prefix; ?>_rename_assets" style="display:none;visibility:hidden;">
+				<ul><table>
+					<?php
+					require_once(SQ_LIB_PATH.'/html_form/html_form.inc');
+					$assets = $this->_running_vars['assets'];
+					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
+						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+					?>
+					<tr>
+						<td><li>Change from</li></td>
+						<td>"<?php echo htmlentities($asset_info[$assetid]['short_name']); ?>"</td>
+						<td> to </td>
+						<td><?php text_box($prefix.'_new_names['.$assetid.']', $asset_info[$assetid]['short_name'], '25'); ?></td>
+					</tr>
+					<?php
+					}//end for
+					?>
+				</table>
+				</ul>
+				</div>
+				</p>
+				<p><?php echo translate('hipo_confirm_abort');?></p>
 				<?php
 			$o->closeField();
 		$o->closeSection();
@@ -416,7 +457,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 
 	/**
-	* Does nothing
+	* Processes the name changes if requested
 	*
 	* @param array	&$step_data	a reference to the step data for this step
 	* @param string	$prefix		a string for prefixing form variables
@@ -426,6 +467,17 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function processCloneOptions(&$step_data, $prefix)
 	{
+		if (isset($_POST['form_submitted'])) {
+			// Shortcut, if name change ticked change the names
+			if (isset($_POST[$prefix.'_change_name']) && $_POST[$prefix.'_change_name']) {
+				foreach ($_POST[$prefix.'_new_names'] as $assetid => $name) {
+					if (!empty($name)) {
+						$this->_running_vars['assets'][$assetid]['new_name'] = $name;
+					}
+				}
+			}//end if
+		}//end if
+
 		if ($step_data['percent_done'] == 0) {
 			$step_data['percent_done'] = 50;
 		} else {
@@ -519,12 +571,27 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 			return FALSE;
 		}
 
+		// Rename the cloned asset if specified
+		if (isset($this->_running_vars['clone_assets'][$assetid]['new_name']) && !empty($this->_running_vars['clone_assets'][$assetid]['new_name'])) {
+			$clone->setAttrValue('name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
+			$clone->setAttrValue('short_name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
+			if (!$clone->saveAttributes()) {
+				trigger_localised_error('HIPO0028', E_USER_WARNING);
+				return FALSE;
+			}
+		}
+
 		// the web path of this asset may confict with the children
 		// of the parent asset that we are linking to, so check the integrity
 		// of the path before using it
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_paths = make_valid_web_paths($orig->getWebPaths());
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
+		if (isset($this->_running_vars['clone_assets'][$assetid]['new_name']) && !empty($this->_running_vars['clone_assets'][$assetid]['new_name'])) {
+			$valid_paths = make_valid_web_paths(Array(strtolower($clone->attr('name'))));
+			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
+		} else {
+			$valid_paths = make_valid_web_paths($orig->getWebPaths());
+			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $clone->id, TRUE);
+		}
 
 		$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($clone->id, $this->_running_vars['to_parent_assetid'], $link['link_type'], '', 'minor');
 
