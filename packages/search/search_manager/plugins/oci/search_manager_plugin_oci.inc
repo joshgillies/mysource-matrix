@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.11 2008/10/16 06:43:34 ata Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.12 2008/10/19 23:21:42 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -571,6 +571,12 @@ class Search_Manager_Plugin_OCI
 		} else if (is_string($words)) {
 			//convert wildcard symbols to corresponding SQL wildcards
 			$words = strtr($words, '*?', '%_');
+			
+			//if mb_strtolower() is not supported, encode special characters to HTML entities and lowercase them using strtolower() function
+			if (!function_exists('mb_strtolower')) {
+				$words = $this->_strtolower($words);
+			}
+			
 			//invoke remove_silent_chars in text.inc
 			$words = remove_silent_chars($words, TRUE);
 			
@@ -600,14 +606,29 @@ class Search_Manager_Plugin_OCI
 	{
 		$index_content = Array();
 		
-		//use mbstring function because the input contents can be different from ASCII characters
-		$contents = mb_strtolower($contents, SQ_CONF_DEFAULT_CHARACTER_SET);
+		//only use mb_strtolower() function if it is supported
+		$mb_support = FALSE;
+		if (function_exists('mb_strtolower')) {
+			$mb_support = TRUE;
+		}
+		
+		if ($mb_support) {
+			//use mbstring function because the input contents can be different from ASCII characters
+			$contents = mb_strtolower($contents, SQ_CONF_DEFAULT_CHARACTER_SET);
+		} else {
+			$contents = strtolower($contents);
+		}
 		$contents = str_replace('&nbsp;', ' ', $contents);
 		$contents = trim($contents);
 		
 		if (($data_type == 'text') || ($data_type == 'wysiwyg')) {
 			//the wysiwyg tool converts special characters to html entities in the HTML editor so they need to be converted back
 			$contents = html_entity_decode($contents, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+		
+		//if mb_strtolower() is not supported, encode special characters to HTML entities and lowercase them using strtolower() function
+		if (!$mb_support) {
+			$contents = $this->_strtolower($contents);
 		}
 		
 		$index_content[] = Array(
@@ -1335,4 +1356,21 @@ class Search_Manager_Plugin_OCI
 	}//end getSearchListAssets()
 
 
+	/**
+	 * Lowercase the string which has non-ASCII characters
+	 *
+	 * @param string $contents	the string that contains non-ASCII characters
+	 * @return string	the result lowercased string that has non-ASCII characters converted to HTML entities
+	 */
+	function _strtolower($contents) {
+		$contents = htmlentities($contents, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+		$contents = strtolower($contents);
+		//remove & and ; here to make the word the complete word, e.g. c&ouml; => couml
+		$contents = strtr($contents, Array('&' => '', ';' => ''));
+		
+		return $contents;
+		
+	}
+	
+	
 }//end class
