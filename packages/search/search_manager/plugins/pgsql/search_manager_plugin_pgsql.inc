@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.27 2008/10/19 23:19:55 ata Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.28 2008/10/20 00:32:21 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -609,15 +609,11 @@ class Search_Manager_Plugin_PgSQL
 			//convert wildcard symbols to corresponding SQL wildcards
 //DO NOT NEED TO CONVERT THOSE CHARACTERS BECAUSE THEY WILL BE REMOVED IN remove_silent_chars FUNCTION IN text.inc
 //			$words = strtr($words, '*?', '%_');
+			
 			//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
 			$words = str_replace($this->_silent_chars_to_empty, '', $words);
 			$words = str_replace($this->_silent_chars_to_space, ' ', $words);
 
-			//if mb_strtolower() is not supported, encode special characters to HTML entities and lowercase them using strtolower() function
-			if (!function_exists('mb_strtolower')) {
-				$words = $this->_strtolower($words);
-			}
-			
 			//invoke remove_silent_chars in text.inc
 			$words = remove_silent_chars($words);
 			
@@ -646,16 +642,14 @@ class Search_Manager_Plugin_PgSQL
 		$index_content = Array();
 		
 		//only use mb_strtolower() function if it is supported
-		$mb_support = FALSE;
 		if (function_exists('mb_strtolower')) {
-			$mb_support = TRUE;
-		}
-		
-		if ($mb_support) {
 			//use mbstring function because the input contents can be different from ASCII characters
 			$contents = mb_strtolower($contents, SQ_CONF_DEFAULT_CHARACTER_SET);
 		} else {
+			//lowercase the string which has non-ASCII characters by encoding them to HTML entities
+			$contents = htmlentities($contents, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 			$contents = strtolower($contents);
+			$contents = html_entity_decode($contents, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 		$contents = str_replace('&nbsp;', ' ', $contents);
 		$contents = trim($contents);
@@ -668,11 +662,6 @@ class Search_Manager_Plugin_PgSQL
 		//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
 		$contents = str_replace($this->_silent_chars_to_empty, '', $contents);
 		$contents = str_replace($this->_silent_chars_to_space, ' ', $contents);
-		
-		//if mb_strtolower() is not supported, encode special characters to HTML entities and lowercase them using strtolower() function
-		if (!$mb_support) {
-			$contents = $this->_strtolower($contents);
-		}
 
 		if (trim($contents) != '') {
 			foreach (get_word_counts($contents) as $word => $count) {
@@ -867,21 +856,4 @@ class Search_Manager_Plugin_PgSQL
 	}//end getSearchListAssets()
 
 
-	/**
-	 * Lowercase the string which has non-ASCII characters
-	 *
-	 * @param string $contents	the string that contains non-ASCII characters
-	 * @return string	the result lowercased string that has non-ASCII characters converted to HTML entities
-	 */
-	function _strtolower($contents) {
-		$contents = htmlentities($contents, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
-		$contents = strtolower($contents);
-		//remove & and ; here, otherwise they will be replace with space (' ') in remove_silent_chars() function in text.inc
-		$contents = strtr($contents, Array('&' => '', ';' => ''));
-		
-		return $contents;
-		
-	}
-	
-	
 }//end class
