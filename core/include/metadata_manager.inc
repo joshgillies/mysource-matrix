@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.145.2.3 2008/05/28 01:07:10 bpearson Exp $
+* $Id: metadata_manager.inc,v 1.145.2.4 2008/10/20 07:01:13 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.145.2.3 $
+* @version $Revision: 1.145.2.4 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1659,7 +1659,10 @@ class Metadata_Manager extends MySource_Object
 		$result = '';
 		for ($i = 0; $i < strlen($value); ++$i) {
 			$ord = ord($value[$i]);
-			if ($ord > 126) {
+			// if default character set is utf-8 we dont wanna mess around the characters
+            // we are for now just checking for it not to be utf-8 but can append other encoding
+            // we might want to skip later on
+            if ($ord > 126 && strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
 				$result .= '&#'.$ord.';';
 			} else {
 				$result .= $value[$i];
