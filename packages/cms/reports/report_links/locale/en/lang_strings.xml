@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.11 2006/12/29 01:55:24 tbarrett Exp $
+* $Id: lang_strings.xml,v 1.11.6.1 2008/10/20 03:48:54 ewang Exp $
 *
 *
 * CMS Package: Report Links Asset Localised Strings File
@@ -18,6 +18,8 @@
 -->
 <strings>
 <string source="cms_report_links_skipping_nest_content">Skipping nest content container %s</string>
+<string source="cms_report_links_no_status_selected">No status selected</string>
+<string source="cms_report_links_skipping_unwanted_status">Skipping asset %s with unwanted status</string>
 <string source="cms_report_links_generating">Generating links report...</string>
 <string source="cms_report_links_skipping_asset">Skipping asset %s</string>
 <string source="cms_report_links_asset_not_exist">Could not generate links report for assetd #%s, asset does not exist</string>
