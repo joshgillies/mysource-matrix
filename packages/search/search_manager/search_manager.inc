@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.180 2008/10/19 23:10:33 ata Exp $
+* $Id: search_manager.inc,v 1.181 2008/10/20 00:28:47 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2057,7 +2057,11 @@ class Search_Manager extends Asset
 				if ($mb_support) {
 					$words[] = mb_strtolower($word, SQ_CONF_DEFAULT_CHARACTER_SET);
 				} else {
-					$words[] = strtolower($word);
+					//lowercase the string which has non-ASCII characters by encoding them to HTML entities
+					$word = htmlentities($word, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$word = strtolower($word);
+					$word = html_entity_decode($word, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$words[] = $word;
 				}
 			}
 			$field_details['words'] = $words;
