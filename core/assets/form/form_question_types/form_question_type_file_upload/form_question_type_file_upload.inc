@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.28 2008/10/17 05:33:07 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.29 2008/10/20 04:21:45 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,7 +170,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function populate(Asset $parent=NULL)
 	{
-		$this->_tmp['file_info'] = get_file_upload_info('q'.str_replace(':', '_', $this->id));
+		$this->_tmp['file_info'] = get_file_upload_info('q'.$this->id);
 
 		if (isset($this->_tmp['file_info']['name'])) {
 			$this->setValue(array_get_index($this->_tmp['file_info'], 'name', translate('core_form_file_upload_none')));
