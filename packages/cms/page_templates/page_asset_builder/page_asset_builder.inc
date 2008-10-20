@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.136 2008/10/15 03:10:34 bpearson Exp $
+* $Id: page_asset_builder.inc,v 1.137 2008/10/20 00:06:41 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -682,26 +682,18 @@ class Page_Asset_Builder extends Page
 									trigger_localised_error('CMS0035', E_USER_WARNING, $link_parent->id);
 									continue;
 								}
-							}
 
-							// we need to update lookups to make sure the URLs for the
-							// new create locations are set correctly
-							$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-							$vars = Array('assetids' => Array($new_asset->id));
-							$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
-							
-							//make sure the HIPO error message is in right format for asset builder
-							$message = Array();
-							foreach ($lookup_errors as $error) {
-								if(is_array($error) && array_key_exists('message',$error)) {
-									$message []= $error['message'];
-								}
-								else {
-									$message = $error;
+								$current_paths = $new_asset->getWebPaths();
+
+								// ensure we always have valid web paths if more than one create location
+								require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+								$valid_paths = make_valid_web_paths($current_paths, $new_asset->id);
+								$valid_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link_parent, $valid_paths, $new_asset->id, TRUE);
+
+								if (!$new_asset->saveWebPaths($valid_paths, FALSE)) {
+									$this->_errors[] = translate('cms_asset_builder_cannot_save_web_path', $new_asset->name, $link_parent->name);
 								}
 							}
-							
-							$this->_errors = array_merge($this->_errors, $message);
 						}
 
 						if (empty($this->_errors)) {

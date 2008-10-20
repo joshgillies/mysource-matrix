@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.12 2008/08/21 00:33:19 bpearson Exp $
+* $Id: lang_strings.xml,v 1.13 2008/10/20 00:06:42 bshkara Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -63,6 +63,7 @@
 <string source="cms_asset_builder_keyword_form_captcha_image">Display Captcha Image</string>
 <string source="cms_asset_builder_keyword_form_captcha_field">Display Captcha Field</string>
 <string source="cms_asset_builder_keyword_form_captcha_link">Display Captcha Link</string>
+<string source="cms_asset_builder_cannot_save_web_path">Unable to save web path of asset: "%1$s" under parent: "%2$s"</string>
 
 <string source="unknown_metadata_field">Unknown Metadata Field</string>
 
