@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.28.2.4 2008/10/17 00:58:37 bshkara Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.28.2.5 2008/10/20 03:21:42 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.28.2.4 $
+* @version $Revision: 1.28.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,7 +108,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			}
 		} else {
 			// ensure JS is not executed in read only mode
-			echo str_replace('<', '&lt;', $value);
+			echo htmlspecialchars($value);
 			if ($is_default) {
 				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
 			}
