@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.36.2.4 2008/03/17 03:06:46 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.36.2.5 2008/10/20 03:44:30 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.2.4 $
+* @version $Revision: 1.36.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -93,9 +93,16 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$assetid = array_shift(array_keys($job->_running_vars['todo']));
 			$asset_type = $job->_running_vars['todo'][$assetid];
 			unset($job->_running_vars['todo'][$assetid]);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
+			
 			if ($asset_type == 'content_type_nest_content') {
 				$step_data['message'] = translate('cms_report_links_skipping_nest_content', $assetid);
-			} else {
+			}
+			// skip thoese with unwanted status
+			else if (isset($asset->status) && !in_array($asset->status,$owner->attr('statuses'))) {
+				 $step_data['message'] = translate('cms_report_links_skipping_unwanted_status', $assetid);
+			} 
+			else {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
 				if (!is_null($asset)) {
@@ -1127,7 +1134,78 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 	}//end processDisplayOptions()
 
+/**
+	* Paint the interface for selecting  statuses
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStatusSelection(&$asset, &$o, $prefix)
+    {
+    	require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$write_access = $asset->writeAccess('attributes');
 
+		$current = $asset->attr('statuses');
+
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+			$statuses = get_constant_values('SQ_STATUS');
+
+			$options = Array();
+			foreach ($statuses as $constant => $value) {
+				$options[$value] = get_status_description($value);
+			}
+
+			combo_box($prefix.'_statuses', $options, TRUE, $current);
+		} else {
+			if (empty($current)) {
+				echo translate('cms_report_links_no_status_selected');
+			} else {
+				?><ul style="margin: 1px 15px;"><?php
+				foreach ($current as $status) {
+					echo '<li>';
+					echo get_asset_status_icon($status);
+					echo get_status_description($status);
+					echo '</li>';
+				}
+				?></ul><?php
+			}
+		}
+		return $write_access;
+    }//end paintStatusSelection()
+    
+    
+	/**
+	* Processes the interface for selecting  statuses
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+    function processStatusSelection(&$asset, &$o, $prefix)
+    {
+    	// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
+		$statuses = Array();
+		if (isset($_POST[$prefix.'_statuses'])) {
+			foreach ($_POST[$prefix.'_statuses'] as $status) {
+				$statuses[] = $status;
+			}
+			$statuses = array_unique($statuses);
+		}
+
+		return $asset->setAttrValue('statuses', $statuses);
+    }//end processStatusSelection()
+    
+    
 	/**
 	* Paints the export block
 	*

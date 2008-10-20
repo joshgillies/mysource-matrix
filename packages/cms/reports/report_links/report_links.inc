@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.10 2007/03/16 06:23:54 tbarrett Exp $
+* $Id: report_links.inc,v 1.10.4.1 2008/10/20 03:44:58 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -280,8 +280,12 @@ class Report_Links extends Report
 						  );
 
 		$display_options = $this->attr('display_options');
-
+		$status_options = $this->attr('statuses');
+		
 		foreach ($root->children as $asset_element) {
+			// only list links of assets which are of status required
+			if (!in_array($asset_element->attributes['status'],$status_options)) continue;
+			
 			if ($asset_element->name != 'asset') continue;
 			foreach ($asset_element->children as $link) {
 				if ($link->name != 'link') continue;
