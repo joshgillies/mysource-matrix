@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.200 2008/10/16 05:02:26 lwright Exp $
+* $Id: form.inc,v 1.201 2008/10/20 04:25:57 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.200 $
+* @version $Revision: 1.201 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1795,7 +1795,7 @@ class Form extends Asset implements Bridge
 		$form_action = $this->getFormAction();
 
 		if ($this->attr('use_client_side')) {
-			$on_submit = 'onsubmit="return beforeSubmit_'.$prefix.'(this);"';
+			$on_submit = 'onsubmit="return beforeSubmit_'.$form_prefix.'(this);"';
 			$header = '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.'>';
 			$header .= $this->getClientSideFunction();
 		} else {
