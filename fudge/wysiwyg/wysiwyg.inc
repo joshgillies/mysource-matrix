@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.74 2007/09/12 03:38:51 rong Exp $
+* $Id: wysiwyg.inc,v 1.75 2008/10/20 04:46:07 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1046,7 +1046,13 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								retVal = this._docContent.innerHTML;
 							}
 
-							retVal = this.replace_entities(retVal);
+<?php
+// Don't replace entities on UTF8 systems
+if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
+    echo 'retVal = this.replace_entities(retVal);';
+}
+?>
+
 						break;
 						default:
 							alert(js_translate('undefined_mode', '<' + this._editMode + '>'));
