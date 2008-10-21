@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.37 2008/10/16 06:51:04 ata Exp $
+* $Id: text.inc,v 1.38 2008/10/21 02:38:23 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package Fudge
 * @subpackage Text
 */
@@ -151,10 +151,16 @@ function get_word_counts($text, $split_regexp="/\s+/", $word_match_regexp="/\S+/
 		return Array();
 	}
 
-	//Remove silent characters
+	// Remove silent characters
 	$text = remove_silent_chars($text);
-	
+
 	$words = preg_split($split_regexp, $text, -1, PREG_SPLIT_NO_EMPTY);
+
+	// Get rid of the leading and trailing white space
+	// Dont have good enough reason to save them
+	foreach ($words as $key => $word) {
+		$words[$key] = trim($word);
+	}
 
 	$word_counts = array_count_values($words);
 	foreach ($word_counts as $word => $count) {
@@ -179,27 +185,27 @@ function get_word_counts($text, $split_regexp="/\s+/", $word_match_regexp="/\S+/
 */
 function remove_silent_chars($text, $not_indexing=FALSE)
 {
-	//Replace period (.) and comma (,) in number, e.g. 1,234.5 => 12345
-	$number_pattern = '/(\d{1})[,.](\d{1})/'; //use that pattern instead of /(\d+)[,.](\d+)/ because this pattern can not replace both period and comma in one number. For example, 1,234.5 => 1234.5
+	// Replace period (.) and comma (,) in number, e.g. 1,234.5 => 12345
+	$number_pattern = '/(\d{1})[,.](\d{1})/'; // use that pattern instead of /(\d+)[,.](\d+)/ because this pattern can not replace both period and comma in one number. For example, 1,234.5 => 1234.5
 	$text = preg_replace($number_pattern, '$1$2', $text);
-	
-	//Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
-	//The following pattern matches most email addresses, but it will need to be review to match all email addresses
+
+	// Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
+	// The following pattern matches most email addresses, but it will need to be review to match all email addresses
 	$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/e';
 	$text = preg_replace($email_pattern, '"$1".str_replace(".", "", "$2")', $text);
-	
-	//Remove apostrophe ('), e.g. you've => youve
+
+	// Remove apostrophe ('), e.g. you've => youve
 	$text = str_replace('\'', '', $text);
-	
+
 	$silent_chars = Array('.', ':', ';', ',', '!', '?', '"', '`', '!', '@', '#', '$', '^', '*', '-', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
-	$oracle_search_operators = Array('(',')','~','&','|','%', '_'); //just move underscore ('_') from the above line to this line so that it won't be removed when search in oracle
+	$oracle_search_operators = Array('(',')','~','&','|','%', '_'); // just move underscore ('_') from the above line to this line so that it won't be removed when search in oracle
 	if ($not_indexing == FALSE) {
 		$silent_chars = array_merge($silent_chars, $oracle_search_operators);
 	}
 
-	//Replace the rest of silent characters with space (' '). This will create more indexed words but it is safer, e.g. Hello,world => Hello world
+	// Replace the rest of silent characters with space (' '). This will create more indexed words but it is safer, e.g. Hello,world => Hello world
 	$text = str_replace($silent_chars, ' ', $text);
-	
+
 	return $text;
 
 }//end remove_silent_chars()
