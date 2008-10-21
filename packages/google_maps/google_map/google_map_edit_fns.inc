@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_edit_fns.inc,v 1.2.2.1 2008/08/29 01:50:56 hnguyen Exp $
+* $Id: google_map_edit_fns.inc,v 1.2.2.2 2008/10/21 21:47:20 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -116,7 +116,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
         $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'major', 'page_contents', '1', '1');
         $bodycopy = NULL;
         if (!empty($bodycopy_link)) {
-            $bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+            $bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
         }
         if (is_null($bodycopy)) {
             trigger_localised_error('CORE0016', E_USER_ERROR, $asset->name);
@@ -735,7 +735,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
     function paintAssetTypes(&$asset, &$o, $prefix)
     {
     	$wa = $asset->writeAccess('attributes');
-		parent::paintAssetTypes(&$asset, &$o, $prefix);
+		parent::paintAssetTypes($asset, $o, $prefix);
 		$types = $asset->attr('types');
 		$keywords_list	= $asset->attr('asset_types_keywords');
 
@@ -835,7 +835,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
     */
     function processAssetTypes(&$asset, &$o, $prefix)
     {
-		parent::processAssetTypes(&$asset, &$o, $prefix);
+		parent::processAssetTypes($asset, $o, $prefix);
 
 		// In this process function we have to capture all the values given to each of the asset types.
 		$types = $asset->attr('types');
