@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.9 2008/08/29 05:54:07 hnguyen Exp $
+* $Id: google_map.inc,v 1.10 2008/10/21 21:53:07 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -91,7 +91,7 @@ class Google_Map extends Page_Asset_Listing
 				   );
 
 		$copy_link	= Array (
-						'asset'			=> &$this,
+						'asset'			=> $this,
 						'link_type'		=> SQ_LINK_TYPE_2,
 						'is_dependant'	=> 1,
 						'is_exclusive'	=> 1,
@@ -192,7 +192,6 @@ class Google_Map extends Page_Asset_Listing
     */
     public function printBody()
     {
-
     	$api_key			= $this->attr('api_key');
     	$this->api_key		= $api_key;
 		$lat				= $this->attr('default_latitude');
@@ -234,14 +233,14 @@ class Google_Map extends Page_Asset_Listing
     	$cache_key				= $this->getCacheKey();
     	$cached_result			= $this->getCachedResultSet($cache_key);
 
-    	$bodycopy_popup_window	=& $this->getBodycopy('Popup Window');
+    	$bodycopy_popup_window	= $this->getBodycopy('Popup Window');
         $keywords				= $bodycopy_popup_window->getKeywords();
 
 		$root_node_id			= $this->attr('root_assetid');
 		$listing_root_nodes		= ($this->attr('listing_root_nodes'));
 
 		$res					= $this->getAssetList();
-		$children =& $this->convertProxyAssetTypes($children);
+		$children = $this->convertProxyAssetTypes($children);
 		$this->filterAssetList($res);
 
 		$root_nodes				= $this->getRootNodes();
@@ -585,12 +584,12 @@ class Google_Map extends Page_Asset_Listing
 	* @return object
 	* @access public
 	*/
-	function &getBodycopy($name)
+	function getBodycopy($name)
 	{
 		$null = NULL;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major');
 		if (empty($link)) return $null;
-		$bodycopy =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		return $bodycopy;
 
 	}//end getBodycopy()
