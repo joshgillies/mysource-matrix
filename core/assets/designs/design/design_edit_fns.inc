@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.129 2008/09/12 01:02:55 ewang Exp $
+* $Id: design_edit_fns.inc,v 1.130 2008/10/22 00:10:40 bpearson Exp $
 *
 */
 
-
+require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -218,7 +218,83 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre; width: 99%; height: 480px"');
 			return TRUE;
 		} else {
-			echo '<pre>', htmlspecialchars($str), '</pre>';
+			// FR #2381 - Colour coding the parse file
+			$str = htmlspecialchars($str);
+			$plain_str = $str;
+
+			// Mysource codes
+			$my_style	= 'style="color:#FF0517;font-weight:bold;"';
+			$mysrc_search	= Array(
+								'/&lt;MySource_(.*?(&gt;))/ims',
+								'/&lt;\/MySource_(.*?(&gt;))/ims',
+							  );
+			$mysrc_replace	= Array(
+								'<span '.$my_style.'>&lt;MySource_${1}</span>',
+								'<span '.$my_style.'>&lt;/MySource_${1}</span>',
+							  );
+			$str = preg_replace($mysrc_search, $mysrc_replace, $str);
+
+			// CSS codes
+			function wrap_css($matches)
+			{
+				$css_style	= 'style="color:#6A287E;font-style:italic;"';
+				$return_string  = '';
+				$return_string .= '<span '.$css_style.'>&lt;style'.$matches[1];
+				$white_space = Array("\r\n", "\n", "\r");
+				$return_string .= str_replace($white_space, "</span>\n<span ".$css_style.'>', $matches[3]);
+				$return_string .= '</span>';
+				return $return_string;
+			}
+			$css_search		= Array(
+								'/&lt;style(.*?(&gt;))(.*?(&lt;\/style&gt;))/ims',
+							  );
+			$str = preg_replace_callback($css_search, "wrap_css", $str);
+
+			// HTML codes
+			$html_style	= 'style="color:#0000A0;"';
+			$html_keywords = '!DOCTYPE|a|html|head|title|meta|link|body|script|div|span|h1|h2|h3|h4|h5|h6|ul|li|ol|table|tr|td|th|p|br|strong|pre';
+			$html_search	= Array(
+								'/&lt;('.$html_keywords.')&gt;/i',
+								'/&lt;('.$html_keywords.')(.*?(\/&gt;))/ims',
+								'/&lt;('.$html_keywords.')(.*?(&gt;))/ims',
+								'/&lt;\/('.$html_keywords.')&gt;/ims',
+							  );
+			$html_replace	= Array(
+								'<span '.$html_style.'>&lt;${1}&gt;</span>',
+								'<span '.$html_style.'>&lt;${1}${2}</span>',
+								'<span '.$html_style.'>&lt;${1}${2}</span>',
+								'<span '.$html_style.'>&lt;/${1}&gt;</span>',
+							  );
+			$str = preg_replace($html_search, $html_replace, $str);
+
+			// Comments
+			function wrap_comment($matches)
+			{
+				$cmmt_style	= 'style="color:#347C17;"';
+				$return_string  = '';
+				$return_string .= '<span '.$cmmt_style.'>&lt;!-- ';
+				$white_space = Array("\r\n", "\n", "\r");
+				$return_string .= str_replace($white_space, "</span>\n<span ".$cmmt_style.'>', $matches[1]);
+				$return_string .= '</span>';log_dump($matches);
+				return $return_string;
+			}
+			$cmmt_search	= Array(
+								'/&lt;!--(.*?(--&gt;))/ims',
+							  );
+			$str = preg_replace_callback($cmmt_search, "wrap_comment", $str);
+
+			// Line Numbering and cleanup
+			$pre_style	= 'style="size:10px;font-family:helvetica,verdana,sans-serif;"';
+			$line_style	= 'style="color:black;list-style-type:decimal;border-left: thin solid #000000;"';
+			$lines = explode("\n", $str);
+			$number_of_lines = count($lines);
+			$padding = strlen($number_of_lines);
+			foreach ($lines as $line_number => $line) {
+				// Format each line
+				$lines[$line_number] = '<li '.$line_style.' value="'.($line_number+1).'">&nbsp;&nbsp;'.$line.'</li>';
+			}
+			$formatted = implode('', $lines);
+			echo '<pre ', $pre_style, '><ol>', $formatted, '</ol></pre>';
 		}
 		return FALSE;
 
