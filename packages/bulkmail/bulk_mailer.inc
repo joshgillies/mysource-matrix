@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.76 2008/10/13 22:36:57 hnguyen Exp $
+* $Id: bulk_mailer.inc,v 1.77 2008/10/22 00:49:57 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -275,11 +275,14 @@ class Bulk_Mailer
 
 			// load the current recipient chunk
 			include($recipient_path.'/recipient_'.$progress_info['current_chunk']);
+			$am = $GLOBALS['SQ_SYSTEM']->am;
 
 			$pid = $this->fork();
 			if (!$pid) {
 				$mime = new Mail_mime("\n");
 				$mail_queue = new Mail_Queue($details['queue_details'], $details['server_details']);
+				$job = $am->getAsset($job_id);
+				$current_post_office = $job->getPostOffice();
 
 				foreach ($recipient_chunk as $r_info) {
 					$user_id = $r_info['assetid'];
@@ -310,8 +313,25 @@ class Bulk_Mailer
 								// pass in custom_id as extra header details, for queue file naming
 								$header_details['custom_id'] = $user_id;
 								$header_details['To'] = $email; // FR: 2515
-								$headers = @$mime->headers($header_details);
-								$mail_id = $mail_queue->put('', $email, $headers, $body);
+								// Check for Test Mode
+								if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
+									// Log the emails
+									$message_type = 'bulkmail.job.testmode';
+									$msg_reps = Array(
+													'from'		=> $header_details['from'],
+													'to'		=> $header_details['To'],
+													'subject'	=> $header_details['subject'],
+												);
+									$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+									$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+									$message->parameters['assetid'] = $job_id;
+									$message->send();
+									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($message);
+									$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ms);
+								} else {
+									$headers = @$mime->headers($header_details);
+									$mail_id = $mail_queue->put('', $email, $headers, $body);
+								}
 							}
 							$this->updateProgress($progress_path, $user_id, $problematic);
 							$this->enforceSendRate($details['threshold'], $progress_path);
@@ -320,6 +340,9 @@ class Bulk_Mailer
 					}//end if
 
 				}//end foreach
+
+				$am->forgetAsset($job);
+				$am->forgetAsset($current_post_office);
 
 				$status = $mail_queue->sendMailsInQueue();
 				if ($status instanceof PEAR_Error) {
@@ -343,6 +366,8 @@ class Bulk_Mailer
 		$this->_reconnectDB();
 		$progress_info = $bm->getJobProgress($job_id);
 		if ($progress_info['current_count'] >= $progress_info['total_count']) {
+			$job = $am->getAsset($job_id);
+			$current_post_office = $job->getPostOffice();
 
 			// remove job entry from the db queue table
 			$bm->deleteJob($job_id);
@@ -351,18 +376,28 @@ class Bulk_Mailer
 			$job_id_parts = explode(':', $job_id);
 			if (!isset($job_id_parts[1])) {
 
-				if (count($progress_info['problematic']) > 0) {
-					trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $progress_info['problematic']));
-					$message_type = 'bulkmail.job.completed.error';
+				if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
+					$message_type = 'bulkmail.job.testmode.completed';
+					$msg_reps = Array(
+									'num_recip'		=> number_format($progress_info['total_count']),
+									'num_problem'	=> number_format(count($progress_info['problematic'])),
+								);
 				} else {
-					$message_type = 'bulkmail.job.completed';
-				}
+					if (count($progress_info['problematic']) > 0) {
+						trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $progress_info['problematic']));
+						$message_type = 'bulkmail.job.completed.error';
+					} else {
+						$message_type = 'bulkmail.job.completed';
+					}
 
-				// format recipient count with grouped thousands
-				$msg_reps = Array(
-								'num_recip'		=> number_format($progress_info['total_count']),
-								'num_problem'	=> number_format(count($progress_info['problematic'])),
-							);
+					// format recipient count with grouped thousands
+					$msg_reps = Array(
+									'num_recip'		=> number_format($progress_info['total_count']),
+									'num_problem'	=> number_format(count($progress_info['problematic'])),
+								);
+				}//end if
+
+				// Send the message
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$message = $ms->newMessage(Array(), $message_type, $msg_reps);
 				$message->parameters['assetid'] = $job_id;
@@ -370,6 +405,8 @@ class Bulk_Mailer
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($message);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ms);
 			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($job);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_post_office);
 
 		}
 		return TRUE;

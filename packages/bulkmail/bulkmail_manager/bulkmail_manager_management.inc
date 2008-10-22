@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager_management.inc,v 1.6 2007/12/05 03:31:41 rong Exp $
+* $Id: bulkmail_manager_management.inc,v 1.7 2008/10/22 00:49:57 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.7 2007/03/21 03:21:16 rong Exp $
+* $Id: lang_messages.xml,v 1.8 2008/10/22 00:49:58 bpearson Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -33,5 +33,13 @@
 	<message type="bulkmail.job.cancelled">
 		<subject>Bulkmail Job Cancelled</subject>
 		<body>Job was cancelled by <![CDATA[<SQ_MSG_TAGLINE>%user_id%</SQ_MSG_TAGLINE>]]></body>
+	</message>
+	<message type="bulkmail.job.testmode">
+		<subject>Bulkmail Test Mode</subject>
+		<body>Mail request for %to% with a subject of '%subject%'</body>
+	</message>
+	<message type="bulkmail.job.testmode.completed">
+		<subject>Bulkmail Test Mode Completed</subject>
+		<body>Bulkmail Test mode was completed. Mail was requested for %num_recip% recipients.</body>
 	</message>
 </messages>

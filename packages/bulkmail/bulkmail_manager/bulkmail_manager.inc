@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.51 2008/09/19 06:37:52 ewang Exp $
+* $Id: bulkmail_manager.inc,v 1.52 2008/10/22 00:49:57 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -610,6 +610,15 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 						$details_info[$var_name] = $this->attr($var_name);
 					} else {
 						$details_info[$var_name] = $post_office->attr($var_name);
+					}
+				break;
+				case 'bulkmail_mode':
+					// Select the bulkmail mode
+					$mode = $post_office->attr('bulkmail_mode');
+					if (!empty($mode)) {
+						$details_info[$var_name] = $mode;
+					} else {
+						$details_info[$var_name] = $this->attr($var_name);
 					}
 				break;
 				default:

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_post_office_management.inc,v 1.21 2007/12/05 03:31:41 rong Exp $
+* $Id: bulkmail_post_office_management.inc,v 1.22 2008/10/22 00:49:58 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -148,6 +148,19 @@ class Bulkmail_Post_Office_Management extends Asset_Management
 																		   ),
 																   ),
 												'description'	=> 'Threshold rule types and their default values',
+											   ),
+						'bulkmail_mode'		=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'selection',
+												'default'		=> 'live',
+												'parameters'	=> Array(
+																	'multiple'		=> FALSE,
+																	'allow_empty'	=> FALSE,
+																	'options'		=> Array(
+																						'live'	=> 'Live Mode',
+																						'test'	=> 'Test Mode',
+																					   ),
+																   ),
 											   ),
 					  );
 
