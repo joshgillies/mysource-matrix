@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -166,6 +166,14 @@ Make sure you have all you information you need before Proceeding\n");
 			$asset_types_list[] = 'file';
 			$children = Array();
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $asset_types_list, TRUE);
+			
+			
+			// Remove shadow assets, they are not required  for this purpose
+			foreach ($children as $id => $content) {
+				if(strpos($id,':')){
+					unset($children[$id]);	
+				}
+			}
 
 			$children = array_keys($children);	// We just need the asset id
 			$public_user_id = 7;
@@ -386,10 +394,18 @@ Make sure you have all you information you need before Proceeding\n");
 		$asset_types_list[] = 'file';
 		$children = Array();
 		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($remove_assetid, $asset_types_list, TRUE);
-
+		
+		// Remove shadow assets, they are not required  for this purpose
+		foreach ($children as $id => $content) {
+			if(strpos($id,':')){
+				unset($children[$id]);	
+			}
+		}
+	 
 		$children = array_keys($children);	// We just need the asset id
 		$public_user_id = 7;
 		$children_to_update = Array();
+		
 		foreach ($children as $child_id) {
 			$child_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
 			if ($child_asset->usePublicPath()) {
