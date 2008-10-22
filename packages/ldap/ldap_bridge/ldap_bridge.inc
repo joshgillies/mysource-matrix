@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.71 2008/06/12 04:05:59 bpearson Exp $
+* $Id: ldap_bridge.inc,v 1.72 2008/10/22 04:14:53 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -171,12 +171,13 @@ class LDAP_Bridge extends Asset implements Bridge
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
+	* @param boolean	$return_null	returns NULL if no user found
 	*
 	* @return mixed object|NULL
 	* @access public
 	* @see Asset_Manager::getAsset()
 	*/
-	function getAsset($assetid, $type_code='', $mute_errors=FALSE)
+	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $assetid);
@@ -203,13 +204,18 @@ class LDAP_Bridge extends Asset implements Bridge
 			$shadowid = $this->decodeString($shadowid);
 			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
 			if (!$result) {
-				// return 'unknown ldap user' when we cannot find a match
-				$data['objectclass'] = Array();
-				$data['dn'] = $shadowid;
-				$user_type = $this->attr('user_type');
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
-				$asset = new $user_type($this->id, $data);
-				return $asset; // this should return a dummy
+				if ($return_null) {
+					// No user found so return NULL cos I was asked too ;)
+					return NULL;
+				} else {
+					// return 'unknown ldap user' when we cannot find a match
+					$data['objectclass'] = Array();
+					$data['dn'] = $shadowid;
+					$user_type = $this->attr('user_type');
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
+					$asset = new $user_type($this->id, $data);
+					return $asset; // this should return a dummy
+				}
 			}
 			$data = $ldap->getEntries($result);
 			if (!$data['count']) return $asset;
