@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.6.10 $
+* @version $Revision: 1.1.6.11 $
 * @package MySource_Matrix
 */
 
@@ -183,6 +183,13 @@ Make sure you have all you information you need before Proceeding\n");
 			$asset_types_list[] = 'file';
 			$children = Array();
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $asset_types_list, TRUE);
+			
+			// Remove shadow assets, they are not required  for this purpose
+			foreach ($children as $id => $content) {
+				if(strpos($id,':')){
+					unset($children[$id]);	
+				}
+			}
 
 			$children = array_keys($children);	// We just need the asset id
 			$public_user_id = 7;
@@ -333,6 +340,13 @@ Make sure you have all you information you need before Proceeding\n");
 		$asset_types_list[] = 'file';
 		$children = Array();
 		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($remove_assetid, $asset_types_list, TRUE);
+			
+		// Remove shadow assets, they are not required  for this purpose
+		foreach ($children as $id => $content) {
+			if(strpos($id,':')){
+				unset($children[$id]);	
+			}
+		}
 
 		$children = array_keys($children);	// We just need the asset id
 		$public_user_id = 7;
@@ -438,6 +452,9 @@ Make sure you have all you information you need before Proceeding\n");
 		bam($sql_update_sq_ast_url);
 		bam($sql_update_sq_ast_lookup_value);
 		bam($sql_update_sq_ast_lookup);
+		if(isset($sql_update_sq_ast_lookup_public)) {
+			bam($sql_update_sq_ast_lookup_public);
+		}
 
 	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 	$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
