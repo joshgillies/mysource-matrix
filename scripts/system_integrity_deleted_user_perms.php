@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.11 2008/02/18 05:28:41 lwright Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.12 2008/10/22 04:18:15 bpearson Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * exist)
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -68,7 +68,21 @@ $user_ids = MatrixDAL::executeSqlAssoc($sql, 0);
 
 foreach ($user_ids as $user_id) {
 
-	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id, '', TRUE);
+	$id_parts = explode(':', $user_id);
+	if (isset($id_parts[1])) {
+		$real_assetid = $id_parts[0];
+		$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($real_assetid, '', TRUE);
+		if (is_null($bridge)) {
+			// bridge is unknown, we cannot return anything from it
+			$asset = NULL;
+		} else {
+			$asset = $bridge->getAsset($user_id, '', TRUE, TRUE);
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
+
+	} else {
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id, '', TRUE);
+	}
 	if (!is_null($asset)) {
 		// print info the asset, as it exists
 		printAssetName($asset);
@@ -119,7 +133,21 @@ $user_ids = MatrixDAL::executeSqlAssoc($sql, 0);
 
 foreach ($user_ids as $user_id) {
 
-	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id, '', TRUE);
+	$id_parts = explode(':', $user_id);
+	if (isset($id_parts[1])) {
+		$real_assetid = $id_parts[0];
+		$bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($real_assetid, '', TRUE);
+		if (is_null($bridge)) {
+			// bridge is unknown, we cannot return anything from it
+			$asset = NULL;
+		} else {
+			$asset = $bridge->getAsset($user_id, '', TRUE, TRUE);
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bridge);
+
+	} else {
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($user_id, '', TRUE);
+	}
 	if (!is_null($asset)) {
 		// print info the asset, as it exists
 		printAssetName($asset);
