@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb_bridge.inc,v 1.12 2007/01/11 05:37:25 amiller Exp $
+* $Id: ipb_bridge.inc,v 1.12.6.1 2008/10/22 04:18:49 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/ipb/ipb.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ipb
 */
@@ -171,12 +171,13 @@ class IPB_Bridge extends Asset
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
+	* @param boolean	$return_null	Return null over an empty asset
 	*
 	* @return object
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	function &getAsset($shadowid, $type_code='', $mute_errors=FALSE, $return_null=FALSE)
 	{
 		$asset = NULL;
 
@@ -247,6 +248,9 @@ class IPB_Bridge extends Asset
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$ipb =& $this->getIpbConn();
 				eval('$data = $ipb->'.$method.'($this->id.\':\'.$shadowid);');
+			// Return if empty
+			if ($return_null && empty($data)) return $asset;
+
 			$data['id'] = $shadowid;
 
 			$asset =& new $class_name($this->id, $data);
