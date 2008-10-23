@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.84.2.5 2008/10/08 02:38:37 mbrydon Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.84.2.6 2008/10/23 06:01:31 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.84.2.5 $
+* @version $Revision: 1.84.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4157,6 +4157,69 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 	}//end processAssetExclusion()
 
+
+
+
+	/**
+	* Paint the interface for selecting root nodes to exclude. All children of root nodes will be excluded
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRootNodeExclusion(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$exclude_assets = $asset->attr('exclude_root_nodes');
+
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+			multiple_asset_finder($prefix.'_exclude_root_node', $exclude_assets);
+		} else {
+				echo '<ul>';
+				foreach ($exclude_assets as $index => $assetid) {
+						echo '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+				echo '</ul>';
+		}
+
+		return $write_access;
+
+	}//end paintRootNodeExclusion()
+
+
+	/**
+	* Processes the interface for selecting root nodes to exclude. All children of root nodes will be excluded
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRootNodeExclusion(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (empty($_POST[$prefix.'_exclude_root_node'])) return FALSE;
+
+		$exclude_assets = $_POST[$prefix.'_exclude_root_node'];
+		$save_exclude_assets = Array();
+		foreach ($exclude_assets as $index => $asset_info) {
+			if (!empty($asset_info['assetid'])) {
+				$save_exclude_assets[] = $asset_info['assetid'];
+			}//end if
+		}//end foreach
+
+		return $asset->setAttrValue('exclude_root_nodes', $save_exclude_assets);
+
+	}//end processRootNodeExclusion()
 
 }//end class
 

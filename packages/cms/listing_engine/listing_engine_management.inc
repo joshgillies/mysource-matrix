@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.70.2.3 2008/08/29 00:14:16 mbrydon Exp $
+* $Id: listing_engine_management.inc,v 1.70.2.4 2008/10/23 06:01:43 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70.2.3 $
+* @version $Revision: 1.70.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,7 +48,12 @@ class Listing_Engine_Management extends Asset_Management
 											'added'			=> '0.1',
 											'type'			=> 'serialise',
 											'default'		=> Array(),
-										  );
+										);
+		$this->vars['exclude_root_nodes']	= Array (
+											'added'			=> '0.17',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											  );
 		$this->vars['statuses'] = Array(
 									'added'			=> '0.8',
 									'type'			=> 'serialise',

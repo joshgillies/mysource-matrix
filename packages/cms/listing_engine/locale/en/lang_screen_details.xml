@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.16.2.1 2008/03/12 04:04:22 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.16.2.2 2008/10/23 06:02:47 ewang Exp $
 *
 */
 -->
@@ -41,6 +41,14 @@
 			<function_call>
 				<paint_function   name="paintAssetExclusion"  />
 				<process_function name="processAssetExclusion" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Exclude Root Node</display_name>
+			<note>If specified, all children of selected nodes will be excluded</note>
+			<function_call>
+				<paint_function   name="paintRootNodeExclusion"  />
+				<process_function name="processRootNodeExclusion" />
 			</function_call>
 		</field>
 		<field>
