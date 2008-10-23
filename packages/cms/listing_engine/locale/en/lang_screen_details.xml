@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.16.2.2 2008/10/23 06:02:47 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.16.2.3 2008/10/23 06:13:38 ewang Exp $
 *
 */
 -->
@@ -43,14 +43,7 @@
 				<process_function name="processAssetExclusion" />
 			</function_call>
 		</field>
-		<field>
-			<display_name>Exclude Root Node</display_name>
-			<note>If specified, all children of selected nodes will be excluded</note>
-			<function_call>
-				<paint_function   name="paintRootNodeExclusion"  />
-				<process_function name="processRootNodeExclusion" />
-			</function_call>
-		</field>
+	
 		<field>
 			<display_name>Asset Statuses to List</display_name>
 			<note>If selected, only assets in the statuses chosen will be listed. If no statuses are selected, assets to which the current user has effective read permission will be listed.</note>
