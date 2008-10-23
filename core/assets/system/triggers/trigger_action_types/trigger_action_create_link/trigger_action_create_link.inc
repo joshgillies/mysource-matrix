@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.27 2008/10/13 04:53:04 lwright Exp $
+* $Id: trigger_action_create_link.inc,v 1.28 2008/10/23 01:10:59 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,6 +48,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	*       'is_dependant'     => int,    // whether the link is dependant (optional)
 	*       'is_exclusive'     => int,    // whether the link is exclusive (optional)
 	*       'link_exclusively' => int,    // 1 = unlink firing asset from all other existing parents (optional)
+	*       'parameter_map_target_asset' => string, // serialisation of parameter map settings (trigger view only)
 	*       );
 	* </PRE>
 	*
