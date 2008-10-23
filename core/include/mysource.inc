@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.274 2008/09/16 01:48:04 bpearson Exp $
+* $Id: mysource.inc,v 1.275 2008/10/23 22:57:57 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.274 $
+* @version $Revision: 1.275 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1222,6 +1222,9 @@ class MySource
 					require_once dirname(__FILE__).'/hipo_reminder.inc';
 					exit();
 				}
+				if ($for_real) {
+					$this->broadcastTriggerEvent('trigger_event_before_user_logout', $old_user, NULL);
+				}
 
 				// clear PHP authentication
 				if (isset($_SERVER['PHP_AUTH_USER'])) { unset($_SERVER['PHP_AUTH_USER']); }
@@ -1237,6 +1240,9 @@ class MySource
 			case 'real_logout' :
 				$for_real = ($this->user && !($this->user instanceof Public_User));
 				$old_user = &$this->user;
+				if ($for_real) {
+					$this->broadcastTriggerEvent('trigger_event_before_user_logout', $old_user, NULL);
+				}
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$this->_clearSession();
 				$this->loginPublicUser();
