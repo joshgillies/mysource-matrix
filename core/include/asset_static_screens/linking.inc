@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.38 2008/04/30 06:55:29 mbrydon Exp $
+* $Id: linking.inc,v 1.39 2008/10/24 03:03:55 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -55,11 +55,6 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 	$db = MatrixDAL::getDb();
 	$assetids = Array();
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
-
-	$editable_link_types = Array(
-							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
-							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
-						   );
 
 	foreach ($asset_links as $link) {
 		$assetids[$link['majorid']] = Array();
@@ -107,6 +102,7 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
 		}
+
 	}//end else
 
 	foreach ($asset_links as $link_data) {
@@ -122,76 +118,22 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 		$majorid = $parent_data['assetid'];
 
 		foreach ($link_info[$majorid] as $link_data) {
-
-			$link_type = $link_data['link_type'];
-			$linkid = $link_data['linkid'];
-			$link_value = $link_data['value'];
-
-			// work out if the user can change the link types
-			$can_edit = ($write_access && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids));
-
-			$asset_lineage = '';
-			$asset_lineage_ids = Array();
-			foreach ($link_tree as $tree_data) {
-				$asset_lineage_ids[] = $tree_data['assetid'];
-				if ($tree_data['assetid'] == $majorid) continue;
-				$asset_lineage .= $tree_data['name'].' &gt; ';
+			if ($link_data['link_type'] != SQ_LINK_NOTICE) {
+				$output = _printLine($owner, $majorid, $link_data, $parent_data, $link_tree, $editing_linkids);
+				if (!empty($output)) $output_lineages[] = $output;
 			}
-			$asset_lineage_ids[] = $owner->id;
-
-			$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
-			if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
-				continue;
-			}
-
-			ob_start();
-				?>
-				<tr>
-					<td class="sq-backend-table-cell" style="text-align: center;">
-						<?php
-						if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
-							?>
-							<a href="#">
-							<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0; cursor: pointer"  onclick="'.asset_locator_js($asset_lineage_ids).'"');
-							?>
-							</a>
-							<?php
-						}
-						?>
-					</td>
-					<td style="text-align: center;">
-						<?php echo $linkid; ?>
-					</td>
-					<td style="text-align: center;">
-						<?php
-						if (!$can_edit) {
-							echo link_type_name($link_type);
-						} else {
-							combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, FALSE, $link_type);
-							$editing_linkids[] = $linkid;
-						}
-						?>
-					</td>
-					<td style="text-align: center;">
-						<?php echo $majorid; ?>
-					</td>
-					<td style="text-align: center;">
-						<?php
-						if (!$can_edit) {
-							echo $link_value;
-						} else {
-							text_box($prefix.'_link_value['.$linkid.']', html_entity_decode($link_value), 15, FALSE);
-						}
-						?>
-					</td>
-					<td><?php echo $asset_lineage; ?></td>
-				</tr>
-				<?php
-				$output_lineages[] = ob_get_contents();
-			ob_end_clean();
 		}//end foreach
 
 	}//end foreach result
+
+	// For NOTICE Links
+	foreach ($asset_links as $link_data) {
+		$majorid = $link_data['majorid'];
+		if ($link_data['link_type'] == SQ_LINK_NOTICE) {
+			$output = _printLine($owner, $majorid, $link_data, Array(), Array(), $editing_linkids);
+			if (!empty($output)) $output_lineages[] = $output;
+		}
+	}
 
 	if (!count($output_lineages)) {
 		echo 'None';
@@ -420,31 +362,70 @@ function processLinking(&$owner, &$o, &$ei)
 
 	// process link_type changes
 	foreach ($asset_links as $link) {
+		// Find out the type
 		if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) {
-			continue;
+			$new_type = NULL;
 		}
 		$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
-		if ($link['link_type'] == $new_type) continue;
-		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type)) {
-			continue;
+		if ($link['link_type'] == $new_type) {
+			$new_type = NULL;
 		}
-		$done_something = TRUE;
-	}
 
-	// process link_value changes
-	foreach ($asset_links as $link) {
+		// Find out the value
 		if (!isset($_POST[$prefix.'_link_value'][$link['linkid']])) {
-			continue;
+			$new_value = NULL;
 		}
-		$new_value = $_POST[$prefix.'_link_value'][$link['linkid']];
+		$new_value = $_POST[$prefix.'_link_value'][$link['linkid']]; // Set the value for testing
 		if (html_entity_decode($link['value']) == $new_value) {
+			$new_value = NULL;
+		}
+
+		// Nothing to do let's continue
+		if (is_null($new_type) && is_null($new_value)) {
 			continue;
 		}
-		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], NULL, htmlentities($new_value))) {
+
+		// Actually set the value
+		$new_value = $_POST[$prefix.'_link_value'][$link['linkid']];
+
+		// Cleanup any html
+		$new_value = (is_null($new_value)) ? NULL : htmlentities($new_value);
+
+		// Change LINK 1 or 2 to a NOTICE link
+		$link_to_notice = (($link['link_type'] == SQ_LINK_TYPE_1|SQ_LINK_TYPE_2) && $new_type == SQ_LINK_NOTICE);
+		$notice_to_link = (($new_type == SQ_LINK_TYPE_1|SQ_LINK_TYPE_2) && $link['link_type'] == SQ_LINK_NOTICE);
+		if (!is_null($new_type) && ($link_to_notice || $notice_to_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			if (isset($link['majorid']) && !empty($link['majorid'])) {
+				$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
+				if (!is_null($major)) {
+					$value = (isset($link['value'])) ? $link['value'] : '';
+					// Create the new link
+					if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($major, $owner, $new_type, $new_value)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						continue;
+					}
+					// Delete the original link
+					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						continue;
+					}
+					// All done commit changes and leave nice
+					$done_something = TRUE;
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					continue;
+				}
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			continue;
+		}
+
+		// Change from LINK 1 to a LINK 2 (or changing a value only)
+		if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($link['linkid'], $new_type, $new_value)) {
 			continue;
 		}
 		$done_something = TRUE;
-	}
+	}//end foreach
 
 	// Refresh the Asset Map to show linking changes
 	if ($done_something) {
@@ -531,6 +512,105 @@ function processLinking(&$owner, &$o, &$ei)
 	return $done_something;
 
 }//end processLinking()
+
+
+/**
+* Prints each line in the linking screen
+*
+* @param object	&$owner				the asset whose interface we are painting
+* @param array	$parent_data		Parent Information (for asset lineage)
+* @param array	$link_tree			The link tree information
+* @param string	$majorid			The assetid of the parent
+* @param array	$link_data			The link information
+* @param array	&$editing_linkids	The array of allowable edit links
+*
+* @return string
+* @access private
+*/
+function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_tree=Array(), &$editing_linkids=Array())
+{
+	$write_access = $owner->writeAccess('links');
+
+	$editable_link_types = Array(
+							SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
+							SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
+							SQ_LINK_NOTICE	=> link_type_name(SQ_LINK_NOTICE),
+						   );
+
+	// prefix for all the form vars
+	$prefix = $owner->getPrefix();
+			$link_type = $link_data['link_type'];
+			$linkid = $link_data['linkid'];
+			$link_value = $link_data['value'];
+
+			// work out if the user can change the link types
+			$can_edit = ($write_access && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids));
+
+			$asset_lineage = '';
+			$asset_lineage_ids = Array();
+			foreach ($link_tree as $tree_data) {
+				$asset_lineage_ids[] = $tree_data['assetid'];
+				if ($tree_data['assetid'] == $majorid) continue;
+				$asset_lineage .= $tree_data['name'].' &gt; ';
+			}
+			$asset_lineage_ids[] = $owner->id;
+
+			if (!empty($parent_data)) {
+				$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
+			}
+			if (isset($output_lineages[$asset_lineage]) && !$can_edit) {
+				return '';
+			}
+
+			ob_start();
+				?>
+				<tr>
+					<td class="sq-backend-table-cell" style="text-align: center;">
+						<?php
+						if ($link_type & SQ_SC_LINK_BACKEND_NAV) {
+							?>
+							<a href="#">
+							<?php echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, translate('show_in_asset_map'), translate('show_in_asset_map'),' style="border: 0; cursor: pointer"  onclick="'.asset_locator_js($asset_lineage_ids).'"');
+							?>
+							</a>
+							<?php
+						}
+						?>
+					</td>
+					<td style="text-align: center;">
+						<?php echo $linkid; ?>
+					</td>
+					<td style="text-align: center;">
+						<?php
+						if (!$can_edit) {
+							echo link_type_name($link_type);
+						} else {
+							combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, FALSE, $link_type);
+							$editing_linkids[] = $linkid;
+						}
+						?>
+					</td>
+					<td style="text-align: center;">
+						<?php echo $majorid; ?>
+					</td>
+					<td style="text-align: center;">
+						<?php
+						if (!$can_edit) {
+							echo $link_value;
+						} else {
+							text_box($prefix.'_link_value['.$linkid.']', html_entity_decode($link_value), 15, FALSE);
+						}
+						?>
+					</td>
+					<td><?php echo $asset_lineage; ?></td>
+				</tr>
+				<?php
+				$output = ob_get_contents();
+			ob_end_clean();
+
+	return $output;
+
+}//end _printLine()
 
 
 ?>
