@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.69 2008/10/10 04:27:15 lwright Exp $
+* $Id: form_email.inc,v 1.70 2008/10/24 03:26:18 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -362,6 +362,8 @@ class Form_Email extends Form
 		$db = MatrixDAL::getDb();
 
 		$file_assets = Array();
+		$filenames = Array();
+
 		foreach ($questions as $q_assetid => $question) {
 			if ($question['question_type_code'] == 'form_question_type_file_upload') {
 				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_assetid);
@@ -369,12 +371,20 @@ class Form_Email extends Form
 					$file_asset_id = $q_asset->getUploadedFileId();
 					if (!empty($file_asset_id)) {
 						$file_assets[] = $file_asset_id;
+					} else {
+						// We have a permanent storage
+						if (isset($q_asset->extra_data['filesystem_path']) && is_file($q_asset->extra_data['filesystem_path'])) {
+							$filenames[] = $q_asset->extra_data['filesystem_path'];
+						}
 					}
 				}
 			}
 		}
 
-		return $file_assets;
+		return Array(
+				'assets'	=> $file_assets,
+				'filenames'	=> $filenames,
+			   );
 
 	}//end _getAttachments()
 
@@ -578,6 +588,7 @@ class Form_Email extends Form
 	function sendEmail(&$email_format_attr, $replacements=Array())
 	{
 		$current_value = @unserialize($email_format_attr->value);
+		$filenames = Array();
 
 		// return false if there is no-one to send to
 		if (empty($current_value['to']) && empty($current_value['to_assetids'])) {
@@ -594,7 +605,9 @@ class Form_Email extends Form
 
 		// add attachments to emails
 		$current_value['attachments'] = Array();
-		$current_value['attachments'] = $this->_getAttachments();
+		$attachments = $this->_getAttachments();
+		$current_value['attachments'] = $attachments['assets'];
+		$filenames = $attachments['filenames'];
 
 		$all_text = $current_value['html_format']
 					.' '.$current_value['text_format']
@@ -612,7 +625,7 @@ class Form_Email extends Form
 		}
 
 		$email_format_attr->value = serialize($current_value);
-		$email_format_attr->sendMail($replacements);
+		$email_format_attr->sendMail($replacements, $filenames);
 
 	}//end sendEmail()
 
