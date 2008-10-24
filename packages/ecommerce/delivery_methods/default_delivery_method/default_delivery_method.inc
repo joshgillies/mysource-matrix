@@ -567,21 +567,6 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 
 
 	/**
-	* return the internal receipt
-	*
-	* @param boolean	$html	true if it is a html format
-	*
-	* @return string
-	* @access public
-	*/
-	function getInternalReceipt($html=FALSE)
-	{
-		return '';
-
-	}//end getInternalReceipt()
-
-
-	/**
 	* get the bodycopy
 	*
 	* @param string	$name	name of the bodycopy
@@ -759,7 +744,7 @@ class Default_Delivery_Method extends Ecommerce_Delivery_Method
 		$checkout_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_link['majorid']);
 		$checkout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_link['majorid']);
 
-		$_SESSION['SQ_ECOM_SUCCESS_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=confirm_order';
+		$_SESSION['SQ_ECOM_SUCCESS_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=payment_gateway_successful';
 		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
 		$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
 

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.61 2008/07/29 06:42:13 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.62 2008/10/24 05:21:45 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -175,6 +175,62 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
+	* Retrieve the order from the current session data
+	*
+	* @return object
+	* @access private
+	*/
+	function _retrieveOrder()
+	{
+		$order_id = array_get_index($_SESSION['sq_local_cart_contents'], 'pending_order_id', FALSE);
+		if (!$order_id && isset($_SESSION['sq_local_cart_contents']['editing_order']) && $_SESSION['sq_local_cart_contents']['editing_order']) {
+			// ok are we editing an existing order
+			$order_id = array_get_index($_SESSION['sq_local_cart_contents'], 'order_id', FALSE);
+		}
+
+		if (isset($order_id) && $order_id) {
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
+		} else {
+			return NULL;
+		}
+
+	}//_retrieveOrder()
+
+
+	/**
+	* Log the current ecommerce order's actions
+	*
+	* @param string		$action	Description of the activity to log
+	* @param object		$order	Order being logged
+	*
+	* @return void
+	* @access private
+	*/
+	function _logOrderAction($action, &$order=NULL)
+	{
+		if (is_null($order)) {
+			$order = $this->_retrieveOrder();
+			if (is_null($order)) {
+				return;
+			}
+		}
+
+		$order_history = $order->attr('order_history');
+		$index = date('r');
+		while (isset($order_history[$index])) {
+			$index .= ' ';
+		}
+		$order_history[$index] = $action;
+		$order->setAttrValue('order_history', $order_history);
+
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$order->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+	}//_logOrderAction()
+
+
+	/**
 	* Process the interface
 	*
 	* This is the main controller function. It determines the context asset is in based on the request
@@ -192,7 +248,9 @@ class Ecommerce_Checkout extends Page
 		$order_id = array_get_index($_REQUEST, 'edit_order_id', 0);
 
 		if (!empty($order_id)) {
-			$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
+			$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($order_id);
+
+			$this->_logOrderAction(translate('ecom_order_history_existing_order_provided'), $order);
 
 			// order exists, and has write access
 			if (!empty($order) && $order->writeAccess()) {
@@ -228,7 +286,7 @@ class Ecommerce_Checkout extends Page
 		// if context is checkout, compare the global and local carts,
 		// if they are different, update the local cart
 		if (empty($request_action)) {
-			if (strcmp($this->print_context, 'checkout') == 0) {
+			if ($this->print_context === 'checkout') {
 				$global_cart = new Ecommerce_Cart_Processor();
 
 				// unset previous order id and delivery information
@@ -262,8 +320,7 @@ class Ecommerce_Checkout extends Page
 
 			}//end if
 			return;
-
-		}//end if
+		}
 
 		if (is_array($request_action)) {
 			$action = key($request_action);
@@ -273,6 +330,9 @@ class Ecommerce_Checkout extends Page
 		}
 
 		$success = TRUE;
+
+		$this->_logOrderAction(translate('ecom_order_history_action', ucwords(str_replace('_',' ', $action))));
+
 		switch ($action) {
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
@@ -415,7 +475,7 @@ class Ecommerce_Checkout extends Page
 				// determine if taxable by comparing the default value of the question with taxable countries
 				$country_question = $this->attr('country_question');
 				if (!empty($country_question)) {
-					$question =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('country_question'));
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('country_question'));
 					$default_value = $question->attr('default');
 					if (isset($default_value[0]) && in_array($default_value[0], $this->attr('taxable_countries'))) {
 						$_SESSION['sq_region_specific']['remove_tax'] = FALSE;
@@ -429,14 +489,26 @@ class Ecommerce_Checkout extends Page
 				$this->print_context = 'checkout';
 			break;
 
+			case 'payment_gateway_successful':
 			case 'confirm_order':
 				// components should be processed here
 				// delivery processing
-				$delivery_method =& $this->_getActiveDeliveryMethod();
+				$delivery_method = $this->_getActiveDeliveryMethod();
 				if (empty($delivery_method)) {
 					$this->_tmp['delivery_method_errors'][] = 'Delivery method not found during the confirmation';
 					$this->print_context = 'failure';
 					break;
+				}
+
+				// create an order if there are none pending, or the pending order does not exist
+				if ((!isset($_SESSION['sq_local_cart_contents']['pending_order_id']) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($_SESSION['sq_local_cart_contents']['pending_order_id']))) {
+					// also check if we are editing an existing order
+					if (!(isset($_SESSION['sq_local_cart_contents']['editing_order']) && $_SESSION['sq_local_cart_contents']['editing_order'])) {
+						// create the pending order
+						$order_asset = $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
+						// so everyone knows that there is an existing pending order and to ensure that we do not create new ones unnecessarily
+						$_SESSION['sq_local_cart_contents']['pending_order_id'] = $order_asset->id;
+					}
 				}
 
 				// let the delivery method do its thing
@@ -467,19 +539,24 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _processOrder(&$delivery_method)
 	{
-		// check whether we're editing an order or creating a new one
+		// check whether we're editing an old order or completing an existing one
 		if (isset($_SESSION['sq_local_cart_contents']['order_id'])) {
-			$order_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
+			$order_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
+
+			$this->_logOrderAction(translate('ecom_order_history_commence_process_existing'), $order_asset);
 		}
+
+		// does this order need to be reviewed, i.e. placed in the Orders To Review folder
+		$review_order = FALSE;
 
 		if (empty($order_asset)) {
 			// have we processed this order with a payment gateway yet?
 			$payment_response = array_get_index($_SESSION, 'SQ_ECOM_RESPONSE', FALSE);
 
-			// check quantities before creating a new order
+			// check quantities before completing this order
 			// don't check here if we have just paid
 			if (!$payment_response && $this->attr('enforce_quantities')) {
-				// do we have enough products to create an order?
+				// do we have enough products to complete an order?
 				if (!$this->_updateQuantities(FALSE)) {
 					$this->print_context = 'failure';
 					return;
@@ -499,12 +576,16 @@ class Ecommerce_Checkout extends Page
 					$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 					$total_cost = $cart->getGrandTotalExDelivery($this->attr('taxation_rate')/100, $remove_tax, $this->getFlatCharges());
 					$delivery_cost = $cart->getTotalDeliveryCosts($total_cost);
+
+					// customer pays here!
+					$this->_logOrderAction(translate('ecom_order_history_payment_gateway'));
 					$delivery_method->processPaymentGateway($total_cost + $delivery_cost);
+
 					return;
 				}
 			} else if ($payment_response) {
 				// customer has just paid for this order
-				// create the order whatever happens and flag if quantity was incorrect in the end
+				// complete the order whatever happens and flag if quantity was incorrect in the end
 				// e.g. customer pays for order, in the meantime quantity changes, by the time payment goes through, the quantity may be incorrect
 				// but we don't want the order to fail because the customer has already paid
 
@@ -521,19 +602,44 @@ class Ecommerce_Checkout extends Page
 							echo $asset_name.":\t -> \t".abs($quantity)."\n";
 						}
 						$neg_quantity_list = ob_get_clean();
+						$review_order = TRUE;
 						// the order has to go through because it has been paid for
 						$this->print_context = 'receipt';
+
+						$this->_logOrderAction(translate('ecom_order_history_review_insufficient_quantities'));
 					}
 				}
 			}
 
-			$order_asset =& $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
-			if (is_null($order_asset)) {
-				$this->_tmp['delivery_method_errors'][] = 'Unable to create Ecommerce Order';
+			// the order is completed so move it into the correct folder
+			$pending_order_id = array_get_index($_SESSION['sq_local_cart_contents'], 'pending_order_id', NULL);
+			$dest_folder_name = $review_order ? 'Orders To Review' : 'Completed Orders';
+			if (!is_null($pending_order_id)) {
+				$order_asset = $this->_moveOrder($pending_order_id, $review_order);
+
+				$this->_logOrderAction(translate('ecom_order_history_order_moved', $dest_folder_name), $order_asset);
+
+				if (isset($_SESSION['SQ_ECOM_REF_NO']) && !empty($_SESSION['SQ_ECOM_REF_NO'])) {
+					$order_asset->setAttrValue('ecom_ref_no', $_SESSION['SQ_ECOM_REF_NO']);
+					$this->_logOrderAction(translate('ecom_order_history_ecom_ref_recorded'), $order_asset);
+				} else {
+					$this->_logOrderAction(translate('ecom_order_history_ecom_ref_not_recorded'), $order_asset);
+				}
+			}
+
+			if (!isset($order_asset) || is_null($order_asset)) {
+				$this->_tmp['delivery_method_errors'][] = translate('ecom_checkout_error_unable_to_move_order', $dest_folder_name);
 				$this->print_context = 'failure';
 				return;
+			} else {
+				// order moved and the pending order is no more
+				unset($_SESSION['sq_local_cart_contents']['pending_order_id']);
 			}
-		}//end if
+
+		} else if ($_SESSION['sq_local_cart_contents']['editing_order']) {
+			// editing an existing order, so we do not process it via the payment gateway
+			$this->_logOrderAction(translate('ecom_order_history_skip_payment_gateway'), $order_asset);
+		}
 
 		$delivery_method->setState($_SESSION['sq_local_cart_contents']['delivery_state']);
 
@@ -543,13 +649,18 @@ class Ecommerce_Checkout extends Page
 		$currency_symbol = '$';
 		$float_precision = 2;
 		if ($this->attr('customise_receipt')) {
-			$format_bodycopy =& $this->getBodycopy('receipt_format', TRUE);
-			$contents_bodycopy =& $this->getBodycopy('receipt_contents', TRUE);
+			$format_bodycopy = $this->getBodycopy('receipt_format', TRUE);
+			$contents_bodycopy = $this->getBodycopy('receipt_contents', TRUE);
 			$currency_symbol = $this->attr('currency_symbol');
 			$float_precision = $this->attr('float_precision');
 		}
+
+		$this->_logOrderAction(translate('ecom_order_history_commence_delivery_method'), $order_asset);
+
 		// process the delivery and provide the tax name and tax rate
 		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $contents_bodycopy, $format_bodycopy, $currency_symbol, $float_precision, $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '');
+
+		$this->_logOrderAction(translate('ecom_order_history_end_delivery_method'), $order_asset);
 
 		$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
@@ -557,7 +668,6 @@ class Ecommerce_Checkout extends Page
 		$order_summary = 'Order ID: '.$order_asset->id;
 		$order_summary .= $this->_getCartSummary();
 		$order_summary .= $delivery_method->getReceipt();
-		$internal_summary = $delivery_method->getInternalReceipt();
 
 		// if there has been a negative quantity order placed (can only happen if payment gateway is used), append the message
 		if (isset($neg_quantity_list)) {
@@ -566,7 +676,6 @@ class Ecommerce_Checkout extends Page
 		}
 
 		$order_asset->setAttrValue('summary',			$order_summary);
-		$order_asset->setAttrValue('internal_summary',	$internal_summary);
 		$order_asset->setAttrValue('delivery_id',		$_SESSION['sq_local_cart_contents']['delivery_id']);
 		$order_asset->setAttrValue('delivery_state',	$_SESSION['sq_local_cart_contents']['delivery_state']);
 
@@ -581,6 +690,8 @@ class Ecommerce_Checkout extends Page
 			// delivery succeeded and we can update product quantities
 			if ($this->attr('enforce_quantities')) {
 				$this->_updateQuantities();
+
+				$this->_logOrderAction(translate('ecom_order_history_quantities_updated'), $order_asset);
 			}
 		}
 
@@ -621,7 +732,7 @@ class Ecommerce_Checkout extends Page
 					case 'metadata':
 						$quantity_field = $this->attr('quantity_field');
 						if (!empty($quantity_field)) {
-							$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 							$current_quantity = $mm->getMetadataValueByAssetid($assetid, $quantity_field);
 							$new_quantity = $current_quantity - $info['quantity'];
 							if ($new_quantity < 0) {
@@ -629,7 +740,7 @@ class Ecommerce_Checkout extends Page
 								$this->insufficient_quantities = TRUE;
 								$ok = FALSE;
 								// add name of asset to error list for displaying on frontend
-								$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								$this->insufficient_quantity_assets[$new_quantity] = $asset->name;
 							}
 							if ($update) {
@@ -653,7 +764,7 @@ class Ecommerce_Checkout extends Page
 					case 'attribute':
 						$quantity_attribute = $this->attr('quantity_attribute');
 						if (!empty($quantity_attribute)) {
-							$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 							$current_quantity = $asset->attr($quantity_attribute);
 							$new_quantity = $current_quantity - $info['quantity'];
 							if ($new_quantity < 0) {
@@ -746,8 +857,10 @@ class Ecommerce_Checkout extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
 		$sub_assets = Array(
-						'bodycopies'	=> 'folder',
-						'orders'		=> 'folder',
+						'bodycopies'		=> 'folder',
+						'pending_orders'	=> 'folder',
+						'completed_orders'	=> 'folder',
+						'orders_to_review'	=> 'folder',
 					  );
 
 		$bodycopy_folder = NULL;
@@ -802,25 +915,22 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* Perform any additional processing required during the creation of this asset
-	* will return a ecommerce order
+	* Create a pending ecommerce order
 	*
-	* Create bopycopy and folder assets when they are created
-	*
-	* @param array	$cart_items	information used to create the initial link
+	* @param array	$cart_items	Information used to create the initial link
 	*
 	* @return object
 	* @access private
 	*/
-	function &_createOrder($cart_items)
+	function _createOrder($cart_items)
 	{
 		// error flag
 		$success = TRUE;
 
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		// create ecommerce order under orders folder
-		$order_folder_link  = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'orders');
+		// create ecommerce order
+		$order_folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'pending_orders');
 		if (empty($order_folder_link)) return NULL;
 		$order_folder_id = $order_folder_link['minorid'];
 
@@ -842,22 +952,26 @@ class Ecommerce_Checkout extends Page
 			$success = FALSE;
 		}
 
-		// add products from the session(cart) to ecommerce order
+		// add products from the session (cart) to ecommerce order
 		if ($success && !empty($cart_items)) {
 			$ecommerce_order->setAttrValue('products', $cart_items);
+
+			$this->_logOrderAction(translate('ecom_order_history_order_created'), $ecommerce_order);
+
 		} else {
 			$success = FALSE;
 		}
 
-		// notice link from Checkout_Form to Ecommerce_Order
+		// notice link from Checkout to Ecommerce_Order
 		if ($success && ($am->createAssetLink($this, $ecommerce_order, SQ_LINK_NOTICE, 'checkout') == 0)) {
 			$success = FALSE;
 		}
 
-		// set order status
+		// set order status and delivery id
 		if ($success) {
 			$ecommerce_order->setAttrValue('status', SQ_ECOM_ORDER_STATUS_PROCESSING);
 			$ecommerce_order->setAttrValue('status_message', translate('ecom_order_status_processing'));
+			$ecommerce_order->setAttrValue('delivery_id', $this->_getActiveDeliveryMethodId());
 		}
 
 		// save attributes
@@ -885,6 +999,61 @@ class Ecommerce_Checkout extends Page
 		return $ecommerce_order;
 
 	}//end _createOrder()
+
+
+	/**
+	* Move and complete a pending ecommerce order
+	*
+	* @param int		$order_id	The assetid of the existing pending ecommerce order
+	* @param boolean	$review		Whether this ecommerce order is to be placed in the review folder
+	*
+	* @return object
+	* @access private
+	*/
+	function _moveOrder($order_id, $review)
+	{
+		// error flag
+		$success = TRUE;
+
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		if (empty($order_id)) return NULL;
+		$ecommerce_order = $am->getAsset($order_id);
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// set runlevel
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+		// get linkid of the ecommerce order to move
+		$pending_orders_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'pending_orders');
+		$order_link_info = $am->getLinkByAsset($pending_orders_link['minorid'], $order_id);
+
+		// get destination folder assetid
+		$dest_link_value = $review ? 'orders_to_review' : 'completed_orders';
+		$order_folder_link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, $dest_link_value);
+
+		// now move the ecommerce order to its final resting place
+		if (!$am->moveLink($order_link_info['linkid'], $order_folder_link['minorid'], SQ_LINK_TYPE_2, 0)) {
+			$success = FALSE;
+		}
+
+		// restore runlevel
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+		if (!$success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return NULL;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $ecommerce_order;
+
+	}//end _moveOrder()
 
 
 	/**
@@ -961,14 +1130,14 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
-	* Get The currently active delivery method asset by reference
+	* Get The currently active delivery method asset
 	*
 	* Looks at the current state of the asset to determine the active delivery method asset
 	*
 	* @return object
 	* @access public
 	*/
-	function &_getActiveDeliveryMethod()
+	function _getActiveDeliveryMethod()
 	{
 		$delivery_method = NULL;
 
@@ -994,9 +1163,6 @@ class Ecommerce_Checkout extends Page
 	*/
 	function _getActiveDeliveryMethodId()
 	{
-		$delivery_method_id = NULL;
-
-		// TODO: this does not seem to be coming through...
 		return array_get_index($_SESSION['sq_local_cart_contents'], 'delivery_id');
 
 	}//end _getActiveDeliveryMethodId()
@@ -1102,7 +1268,7 @@ class Ecommerce_Checkout extends Page
 
 			if (isset($_SESSION['sq_local_cart_contents']['editing_order']) && !empty($_SESSION['sq_local_cart_contents']['editing_order'])) {
 				$orderid = $_SESSION['sq_local_cart_contents']['order_id'];
-				$order =& $GLOBALS['SQ_SYSTEM']->am->getAsset($orderid);
+				$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($orderid);
 
 				if (!empty($order)) {
 					if (strcmp('asset_assetid', $keyword) == 0) {
@@ -1110,13 +1276,13 @@ class Ecommerce_Checkout extends Page
 					} else if (0 === strpos($keyword, 'asset_attribute_')) {
 						$attr_name = substr($keyword, strlen('asset_attribute_'));
 						if (array_key_exists($attr_name, $order->vars)) {
-							$attr =& $order->getAttribute($attr_name);
+							$attr = $order->getAttribute($attr_name);
 							if (!$attr->is_admin) {
 								$replacement = $this->attr($attr_name);
 							}
 						}
 					} else {
-						$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$dummy_array = Array($keyword);
 						$mm_keyword = $mm->generateKeywordReplacements($order, $dummy_array, FALSE);
 						if (isset($mm_keyword[$keyword])) {
@@ -1351,7 +1517,6 @@ class Ecommerce_Checkout extends Page
 		$delivery_ids = $this->_getDeliveryAssetIds();
 		$multiple_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($delivery_ids);
 
-
 		$selection_contents = Array(); // Array('' => '-- '.translate('ecom_checkout_select_delivery_method').' --');
 		foreach ($multiple_asset_info as $assetid => $asset_info) {
 			$selection_contents[$assetid] = $asset_info['name'];
@@ -1401,7 +1566,7 @@ class Ecommerce_Checkout extends Page
 	{
 
 		$delivery_ids = $this->_getDeliveryAssetIds();
-		$active_delivery_method =& $this->_getActiveDeliveryMethod();
+		$active_delivery_method = $this->_getActiveDeliveryMethod();
 
 		if (is_null($active_delivery_method )) {
 			$active_delivery_method_id = array_shift($delivery_ids);
@@ -1496,7 +1661,7 @@ class Ecommerce_Checkout extends Page
 	function getConfirmationSummaryKeywordReplacement()
 	{
 		ob_start();
-			$delivery_method =& $this->_getActiveDeliveryMethod();
+			$delivery_method = $this->_getActiveDeliveryMethod();
 			if (!is_null($delivery_method)) {
 				echo $delivery_method->getConfirmationSummary();
 			}
@@ -1514,7 +1679,7 @@ class Ecommerce_Checkout extends Page
 	function getReceiptSummaryKeywordReplacement()
 	{
 		ob_start();
-			$delivery_method =& $this->_getActiveDeliveryMethod();
+			$delivery_method = $this->_getActiveDeliveryMethod();
 			if (!is_null($delivery_method)) {
 				echo $delivery_method->getReceiptSummary();
 			}
@@ -1567,7 +1732,7 @@ class Ecommerce_Checkout extends Page
 	function getFailureSummaryKeywordReplacement()
 	{
 		ob_start();
-			$delivery_method =& $this->_getActiveDeliveryMethod();
+			$delivery_method = $this->_getActiveDeliveryMethod();
 			if (!is_null($delivery_method)) {
 				echo $delivery_method->getFailureSummary();
 			}
@@ -1639,7 +1804,7 @@ class Ecommerce_Checkout extends Page
 	function getCustomisedReceiptKeywordReplacement()
 	{
 		if ($this->attr('customise_receipt')) {
-			$cart =& new Ecommerce_Cart_Processor();
+			$cart = new Ecommerce_Cart_Processor();
 			$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
 
 			ob_start();
@@ -1647,8 +1812,8 @@ class Ecommerce_Checkout extends Page
 				// if products are taxed, remove tax from final amount
 				$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 				// get the customised receipt bodycopies
-				$contents_bodycopy =& $this->getBodycopy('receipt_contents', TRUE);
-				$format_bodycopy =& $this->getBodycopy('receipt_format', TRUE);
+				$contents_bodycopy = $this->getBodycopy('receipt_contents', TRUE);
+				$format_bodycopy = $this->getBodycopy('receipt_format', TRUE);
 				echo $cart->printCustomisedReceipt($contents_bodycopy, $format_bodycopy, $this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'));
 
 			$customised_receipt = ob_get_clean();
@@ -1669,30 +1834,30 @@ class Ecommerce_Checkout extends Page
 	* @return object
 	* @access public
 	*/
-	function &getBodycopy($name='', $receipt_folder=FALSE)
+	function getBodycopy($name='', $receipt_folder=FALSE)
 	{
 		$null = NULL;
 
 		if (!$name) return $null;
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies');
 		if (empty($folder_link)) return $null;
 
-		$folder =& $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+		$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 		if (is_null($folder)) return $null;
 
 		if ($receipt_folder) {
 			$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'customised_receipt_folder');
 			if (empty($folder_link)) return $null;
-			$folder =& $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+			$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
 			if (is_null($folder)) return $null;
 		}
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name);
 		if (empty($bodycopy_link)) return $null;
 
-		$bodycopy =& $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		$bodycopy = $am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 
 		return $bodycopy;
 
@@ -1726,16 +1891,16 @@ class Ecommerce_Checkout extends Page
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-					$db =& $GLOBALS['SQ_SYSTEM']->db;
+					$db = $GLOBALS['SQ_SYSTEM']->db;
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 					// create a folder for the bodycopies
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-					$folder =& new Folder();
+					$folder = new Folder();
 					$folder->setAttrValue('name', 'Customised Receipt Bodycopies');
 
-					$bodycopies_folder =& $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopies_folder_link['minorid']);
+					$bodycopies_folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopies_folder_link['minorid']);
 
 					$folder_link = Array('asset' => &$bodycopies_folder, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'customised_receipt_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
 
@@ -1754,7 +1919,7 @@ class Ecommerce_Checkout extends Page
 						$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => strtolower(str_replace(' ', '_', $name)));
 
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-						$bodycopy =& new Bodycopy();
+						$bodycopy = new Bodycopy();
 						$bodycopy->setAttrValue('name', $name);
 
 						if (!$bodycopy->create($copy_link)) {

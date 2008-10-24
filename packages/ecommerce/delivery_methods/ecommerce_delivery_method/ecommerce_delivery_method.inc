@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_delivery_method.inc,v 1.10 2008/04/22 01:04:06 bshkara Exp $
+* $Id: ecommerce_delivery_method.inc,v 1.11 2008/10/24 05:21:45 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *	by allowing the get/set operations on the state information
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -208,21 +208,6 @@ class Ecommerce_Delivery_Method extends Asset
 		return '';
 
 	}//end getReceipt()
-
-
-	/**
-	* Returns a receipt that can be used by the checkout to be printed on the frontend
-	*
-	* @param string	$html	set to true for HTML format, set to false for text format
-	*
-	* @return string
-	* @access public
-	*/
-	function getInternalReceipt($html=false)
-	{
-		return '';
-
-	}//end getInternalReceipt()
 
 
 	/**

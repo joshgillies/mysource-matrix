@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_order_management.inc,v 1.9 2007/05/18 06:05:14 colivar Exp $
+* $Id: ecommerce_order_management.inc,v 1.10 2008/10/24 05:21:45 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -45,10 +45,10 @@ class Ecommerce_Order_Management extends Asset_Management
 												'type'		=> 'text',
 												'default'	=> '',
 											   ),
-						'internal_summary'	=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
+						'order_history'		=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
 											   ),
 						'status'			=> Array(
 												'added'		=> '0.1',
@@ -79,6 +79,12 @@ class Ecommerce_Order_Management extends Asset_Management
 												'added'		=> '0.2',
 												'type'		=> 'serialise',
 												'default'	=> Array(),
+											   ),
+						'ecom_ref_no'		=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'text',
+												'default'	=> '',
+												'is_admin'	=> FALSE,
 											   ),
 					  );
 
