@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.58.2.1 2008/07/02 06:18:36 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.58.2.2 2008/10/24 03:11:33 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.58.2.1 $
+* @version $Revision: 1.58.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -970,8 +970,14 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 
 			$step_data['message'] = 'Creating a link between "'.htmlentities($asset->name).'" and "'.htmlentities($new_parent->name).'".';
+			// Define the value
+			if (isset($this->_running_vars['link_value']) && !empty($this->_running_vars['link_value'])) {
+				$value['value'] = $this->_running_vars['link_value'];
+			} else {
+				$value['value'] = '';
+			}
 
-			$linkid = $new_parent->createLink($asset, $value['link_type'], '', $this->_running_vars['to_parent_pos']);
+			$linkid = $new_parent->createLink($asset, $value['link_type'], $value['value'], $this->_running_vars['to_parent_pos']);
 
 			if (!$linkid) {
 				trigger_localised_error('HIPO0021', E_USER_WARNING, htmlentities($asset->name), htmlentities($new_parent->name));

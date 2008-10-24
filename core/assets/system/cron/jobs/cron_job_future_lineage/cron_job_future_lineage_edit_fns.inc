@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.23 2007/11/28 21:53:59 lwright Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.23.2.1 2008/10/24 03:11:32 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,6 +89,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			$editable_link_types = Array(
 									SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 									SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
+									SQ_LINK_NOTICE	=> link_type_name(SQ_LINK_NOTICE),
 								   );
 			$link_type = (isset($link_info['link_type'])) ? $link_info['link_type'] : '';
 			combo_box($prefix.'_link_type', $editable_link_types, FALSE, $link_type);
@@ -206,10 +207,15 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$editable_link_types = Array(
 								SQ_LINK_TYPE_1	=> link_type_name(SQ_LINK_TYPE_1),
 								SQ_LINK_TYPE_2	=> link_type_name(SQ_LINK_TYPE_2),
+								SQ_LINK_NOTICE	=> link_type_name(SQ_LINK_NOTICE),
 							   );
 		combo_box($prefix.'_link_type', $editable_link_types, FALSE, SQ_LINK_TYPE_1);
 		$o->closeField();
 
+		// value of the link
+		$o->openField(translate('use_link_value'));
+		text_box($prefix.'_link_value', '', 20, 20);
+		$o->closeField();
 
 		// if the minor asset is a shadow asset we will not allow the backend user to create a new link in the future
 		$minor_asset = $asset->getAssetInLink('minor');
@@ -263,6 +269,9 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			// get the link type
 			$link_type = array_get_index($_POST, $prefix.'_link_type', SQ_LINK_TYPE_1);
 
+			// get the link value
+			$link_value = array_get_index($_POST, $prefix.'_link_value', '');
+
 			// get the future time
 			$future_time = Array();
 			$future_time['day'] = array_get_index($_REQUEST, $prefix.'_when_day', '');
@@ -280,7 +289,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			if ($link_now) {
 				// we create the link immediately
 				$new_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($major_id);
-				$value = '';
+				$value = $link_value;
 				$dependant = FALSE;
 				$exclusive = FALSE;
 				$sort_order = '';
@@ -330,7 +339,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 				// check if we can create a link under the new parent
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($minor_asset->id);
-				$value = '';
+				$value = $link_value;
 				$dependant = FALSE;
 				$exclusive = FALSE;
 				$sort_order = 1;
@@ -346,6 +355,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 								'to_parent_assetid'	=> $major_id,
 								'to_parent_pos'		=> 1,
 								'assets'			=> $_assets,
+								'link_value'		=> $value,
 							);
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->queueHipo('hipo_job_create_links', $hipo_var);
@@ -371,6 +381,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				}
 				$link_info = $asset->attr('link_info');
 				$link_info['link_type'] = $link_type;
+				$link_info['value'] = $link_value;
 				if (!$asset->setAttrValue('link_info', $link_info) || !$asset->setAssetInLink($major, 'major')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -411,9 +422,10 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$o->openSection(translate('delete_link'));
 
 		$o->openField(translate('delete_link'));
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, 'minor');
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT|SQ_LINK_NOTICE, '', TRUE, 'minor');
 		$link_options = Array(0 => '', 'SQ_CRON_JOB_FUTURE_LINEAGE_DELETE_ALL_LINKS' => translate('cron_fl_delete_all_existing_links'));
 		foreach ($links as $link) {
+			$print_link_type = $this->_printLinkType($link);
 			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			if (is_null($parent)) continue;
 
@@ -428,7 +440,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 					$id_parts = explode(':', $minor->id);
 					if (isset($id_parts[1])) {
 						// it is a shadow asset the link id is the bridge id following with the minor id
-						$link_options[$id_parts[0].':'.$minor->id] = translate('link').' #'.$id_parts[0].':'.$minor->id.' - '.translate('parent').' : '.$parent->name.' (#'.$id_parts[0].')';
+						$link_options[$id_parts[0].':'.$minor->id] = translate('link').' #'.$id_parts[0].':'.$minor->id.' ('.$print_link_type.') - '.translate('parent').' : '.$parent->name.' (#'.$id_parts[0].')';
 						continue;
 					} else {
 						// the minor asset is not a shadow asset but the link is equal to zero
@@ -442,8 +454,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			}
 
 
-			$link_options[$link['linkid']] = translate('link').' #'.$link['linkid'].' - '.translate('parent').' : '.$parent->name.' (#'.$parent->id.')';
-		}
+			$link_options[$link['linkid']] = translate('link').' #'.$link['linkid'].' ('.$print_link_type.') - '.translate('parent').' : '.$parent->name.' (#'.$parent->id.')';
+		}//end foreach
 
 		$default_delete_linkid = $asset->attr('delete_linkid');
 		if ($asset->attr('delete_link_all')) {
@@ -592,6 +604,13 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 				// get the information about the link we want to move to the trash
 				$link_info = $am->getLinkById($delete_linkid, $minor_asset->id, 'minor');
 
+				// Delete notice links first
+				if ($link_info['link_type'] == SQ_LINK_NOTICE) {
+					$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link_info['linkid']);
+					// I'm OK! FALSE is needed not to throw an error
+					return FALSE;
+				}
+
 				// if the link is already in the trash then skip it
 				if ($link_info['majorid'] == $trash_folder->id) {
 					return FALSE;
@@ -656,6 +675,40 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		}
 
 	}//end processInLineBackendDelete()
+
+
+	/**
+	* Prints link type
+	*
+	* @param array	$link_info	The link information array
+	*
+	* @return boolean
+	* @access public
+	*/
+	private function _printLinkType($link_info)
+	{
+		$type_return = '';
+		if (!isset($link_info['link_type'])) {
+			return $type_return;
+		}
+
+		switch ($link_info['link_type']) {
+			case SQ_LINK_TYPE_1:
+				$type_return = 'TYPE 1';
+			break;
+			case SQ_LINK_TYPE_2:
+				$type_return = 'TYPE 2';
+			break;
+			case SQ_LINK_NOTICE:
+				$type_return = 'NOTICE';
+			break;
+			default:
+				$type_return = '';
+		}//end switch
+
+		return $type_return;
+
+	}//end _printLinkType()
 
 
 }//end class
