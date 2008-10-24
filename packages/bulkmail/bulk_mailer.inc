@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.78 2008/10/24 00:29:08 lwright Exp $
+* $Id: bulk_mailer.inc,v 1.79 2008/10/24 01:30:51 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -91,7 +91,6 @@ class Bulk_Mailer
 		foreach ($results as $job_id => $info) {
 			if ($info['status'] == BML_JOB_STATE_RUNNING) {
 				$progress_info = $bm->getJobProgress($job_id);
-				bam($progress_info);
 				// check timeout and excluded time, make sure we take over this job if timeout_threshold is reached
 				if ($this->checkThreshold('time_out', Array(), $progress_info)) {
 					if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
