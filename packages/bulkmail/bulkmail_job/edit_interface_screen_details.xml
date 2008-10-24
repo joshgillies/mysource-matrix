@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2007/02/27 03:08:25 colivar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15.6.1 2008/10/24 01:36:21 lwright Exp $
 *
 */
 -->
@@ -55,6 +55,9 @@
 		</field>
 		<field attribute="content_gen">
 			<selection />
+		</field>
+		<field attribute="content_text_only">
+			<boolean true_text="bulkmail_job_context_text_only_true" false_text="bulkmail_job_context_text_only_false" />
 		</field>
 		<field attribute="content_gen_as">
 			<assetid type_codes="user:D" />

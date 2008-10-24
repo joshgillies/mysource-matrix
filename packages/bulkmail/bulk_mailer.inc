@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.4 2008/10/13 22:40:38 hnguyen Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.5 2008/10/24 01:36:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.4 $
+* @version $Revision: 1.71.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -207,12 +207,6 @@ class Bulk_Mailer
 	*/
 	function processJob($job_id)
 	{
-		$mime_param = Array(
-						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
-						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
-						'html_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
-					  );
-
 		$this->_reconnectDB();
 		$bm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
@@ -230,6 +224,21 @@ class Bulk_Mailer
 		$keywords = retrieve_keywords_replacements($details['subject']);
 		$replacements = Array();
 		$content_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($details['content_id']);
+
+		// If the content asset has a different character set to the default,
+		// then use that instead, otherwise use the default set in System Config
+		if (!empty($content_asset->charset)) {
+			$content_charset = $content_asset->charset;
+		} else {
+			$content_charset = SQ_CONF_DEFAULT_CHARACTER_SET;
+		}
+
+		$mime_param = Array(
+						'head_charset'	=> $content_charset,
+						'text_charset'	=> $content_charset,
+						'html_charset'	=> $content_charset,
+					  );
+
 		foreach ($keywords as $word) {
 			if (0 === strpos($word, 'recipient_')) {
 				// keep recipient keyword until later
@@ -281,6 +290,11 @@ class Bulk_Mailer
 				$mime = new Mail_mime("\n");
 				$mail_queue = new Mail_Queue($details['queue_details'], $details['server_details']);
 
+				if ($details['content_text_only']) {
+					unset($details['content_design']);
+					unset($details['content_layout']);
+				}
+
 				foreach ($recipient_chunk as $r_info) {
 					$user_id = $r_info['assetid'];
 					$email = $r_info['custom_val'];
@@ -305,7 +319,14 @@ class Bulk_Mailer
 							if (!$problematic) {
 								// Check that the email is not the email address array
 								if (is_array($email)) $email = $email['email'];
-								$mime->setHTMLBody($content);
+
+								// Always set text version, and set html version
+								// if turned on.
+								$mime->setTxtBody(html_entity_decode(strip_tags($content)));
+								if (!$details['content_text_only']) {
+									$mime->setHTMLBody($content);
+								}
+
 								$body = @$mime->get($mime_param);
 								// pass in custom_id as extra header details, for queue file naming
 								$header_details['custom_id'] = $user_id;

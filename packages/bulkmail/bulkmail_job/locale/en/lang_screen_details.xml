@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2007/12/04 23:49:48 rong Exp $
+* $Id: lang_screen_details.xml,v 1.14.2.1 2008/10/24 01:36:21 lwright Exp $
 *
 */
 -->
@@ -63,6 +63,10 @@
 		<field attribute="content_gen">
 			<display_name>Generation Method</display_name>
 			<note>Unique content per user, or generic content for all users (with keyword replacements). Generating unique content for thousands of users will be quite slow</note>
+		</field>
+		<field attribute="content_text_only">
+			<display_name>Email Type</display_name>
+			<note>If this option is set to "Text Only", the design and paint layout specified below will be ignored. The asset contents will be sent in a text-only email, with tags stripped.</note>
 		</field>
 		<field attribute="content_gen_as">
 			<display_name>Generate As</display_name>

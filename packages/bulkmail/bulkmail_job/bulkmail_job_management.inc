@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -51,6 +51,15 @@ class Bulkmail_Job_Management extends Asset_Management
 														'type'			=> 'boolean',
 														'default'		=> TRUE,
 														'description'	=> 'Whether to use the post office header details.',
+													   ),
+						'content_text_only'			=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'description'	=> 'When TRUE, the bulkmail will be text only.',
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
 													   ),
 					  );
 
