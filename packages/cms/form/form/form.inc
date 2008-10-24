@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.201 2008/10/20 04:25:57 lwright Exp $
+* $Id: form.inc,v 1.202 2008/10/24 03:25:38 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2907,13 +2907,16 @@ class Form extends Asset implements Bridge
 					$this->submission_asset = $submission_asset;
 					$this->updateSubmission($submission_asset);
 				} else {
-					// It'll exist in Incomplete. Move to completed
+					// It'll exist in Incomplete. Move to completed (as long
+					// as the Incomplete folder actually exists...)
 					$incomplete_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'incomplete_submissions');
-					$complete_link   = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
+					if ($incomplete_link) {
+						$complete_link   = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'submissions_folder');
 
-					$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($incomplete_link['minorid'], $submission_asset->id);
-					if ($submission_link) {
-						$GLOBALS['SQ_SYSTEM']->am->moveLink($submission_link['linkid'], $complete_link['minorid'], SQ_LINK_TYPE_3, 0);
+						$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($incomplete_link['minorid'], $submission_asset->id);
+						if ($submission_link) {
+							$GLOBALS['SQ_SYSTEM']->am->moveLink($submission_link['linkid'], $complete_link['minorid'], SQ_LINK_TYPE_3, 0);
+						}
 					}
 				}
 
