@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.33 2008/10/19 22:19:26 bpearson Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.34 2008/10/24 03:48:40 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -574,7 +574,9 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		// Rename the cloned asset if specified
 		if (isset($this->_running_vars['clone_assets'][$assetid]['new_name']) && !empty($this->_running_vars['clone_assets'][$assetid]['new_name'])) {
 			$clone->setAttrValue('name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
-			$clone->setAttrValue('short_name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
+			if (isset($clone->vars['short_name'])) {
+				$clone->setAttrValue('short_name', $this->_running_vars['clone_assets'][$assetid]['new_name']);
+			}
 			if (!$clone->saveAttributes()) {
 				trigger_localised_error('HIPO0028', E_USER_WARNING);
 				return FALSE;
