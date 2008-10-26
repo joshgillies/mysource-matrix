@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.85 2008/02/18 04:10:09 lwright Exp $
+* $Id: asset_management.inc,v 1.86 2008/10/26 21:55:15 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -389,13 +389,14 @@ class Asset_Management extends MySource_Object
 		$type_code = $this->getAssetType();
 		$sql = 'SELECT DISTINCT atr.name
 				FROM sq_ast_typ_inhd i, sq_ast_attr atr
-				WHERE i.type_code = :type_code
-				  AND i.inhd_type_code <> :type_code
+				WHERE i.type_code = :type_code_1
+				  AND i.inhd_type_code <> :type_code_2
 				  AND i.inhd_type_code = atr.type_code';
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'type_code_1', $type_code, PDO::PARAM_STR);
+			MatrixDAL::bindValueToPdo($query, 'type_code_2', $type_code, PDO::PARAM_STR);
 			$parent_vars = MatrixDAL::executePdoAssoc($query, 0);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get attribute list for asset type "'.$asset_type.'" due to database error: '.$e->getMessage());
