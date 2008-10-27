@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.11 2008/09/03 23:43:32 mbrydon Exp $
+* $Id: mysource.inc,v 1.258.2.12 2008/10/27 22:21:23 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.11 $
+* @version $Revision: 1.258.2.12 $
 * @package MySource_Matrix
 */
 class MySource
@@ -548,7 +548,15 @@ class MySource
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 						}//end if
+
+						// Finally recache
+						if (SQ_CONF_SEND_CACHEABLE_HEADER) {
+							$this->_sendHTTPHeaders($asset);
+						} else {
+							$asset->printFrontend();
+						}
 					} else {
 						trigger_localised_error('CORE0279', E_USER_NOTICE);
 					}//end else
@@ -2152,7 +2160,7 @@ class MySource
 	* @access public
 	*/
 	function setRunLevel($run_level)
-	{	
+	{
 		$this->_run_level_stack[] = $run_level;
 
 	}//end setRunLevel()
@@ -2213,7 +2221,7 @@ class MySource
 			// there is no run level to check
 			trigger_localised_error('SYS0102', E_USER_ERROR);
 		}
-		
+
 		return ($security_system & $current_run_level);
 
 	}//end runLevelEnables()
