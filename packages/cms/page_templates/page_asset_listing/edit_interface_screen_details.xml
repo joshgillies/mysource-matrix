@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.35 2008/01/24 05:22:53 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.36 2008/10/27 04:30:35 ewang Exp $
 *
 */
 -->
@@ -47,6 +47,12 @@
 			<function_call>
 				<paint_function   name="paintAssetExclusion"   />
 				<process_function name="processAssetExclusion" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintRootNodeExclusion"   />
+				<process_function name="processRootNodeExclusion" />
 			</function_call>
 		</field>
 	</section>
