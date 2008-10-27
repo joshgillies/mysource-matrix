@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.291 2008/10/13 11:22:21 gnoel Exp $
+* $Id: lang_strings.xml,v 1.292 2008/10/27 04:47:44 akarelia Exp $
 *
 */
 
@@ -193,6 +193,7 @@
 	<string source="links">Links</string>
 	<string source="lineage">Lineage</string>
 	<string source="lineages">Lineages</string>
+	<string source="linked_to_assets">Multi-linked DIV</string>
 	<string source="lock_length">Lock Length</string>
 	<string source="locking_/_editing">Locking / Editing</string>
 	<string source="login_key_incorrect">Login Key incorrect</string>

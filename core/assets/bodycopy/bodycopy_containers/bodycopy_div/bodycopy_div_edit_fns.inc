@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.40 2007/12/14 05:38:14 rong Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.41 2008/10/27 04:47:49 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,7 +39,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	{
 		parent::__construct();
 
-	}//end constructor
+	}//end __constructor
 
 
 	/**
@@ -111,6 +111,12 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		function get_bodycopy_current_div_data(bodycopy_name, divid) {
 			if (divid == null) divid = -1;
 			return bodycopy_current_data[bodycopy_name].get_div_data(divid);
+		}
+
+		// general function that the generic include fns can use to get data to use ()
+		// used in getting numebr of assets the DIV is linked to
+		function get_bodycopy_current_div_count(bodycopy_name, asset_linked) {
+			return bodycopy_current_data[bodycopy_name].get_div_data(linked);
 		}
 
 		function get_bodycopy_<?php echo $prefix?>_current_div_data(divid) {
@@ -295,14 +301,55 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					$content_edit = $content_type->getEditFns();
 					$content_edit->paintBackendIcons($content_type, $content_prefix);
 				}
+
+				$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+				$count_linked_to = count($asset_links);
+				$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($asset->id));
+
+				$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 5);
 				?>
 				</span>
+				
+				<div id="asset-tag-line-<?php echo $asset->id ?>-lineages-linked" style="display:none">
+				<table style="sq-backend-table"><tr><td>
+				<?php
+				echo 'This DIV is linked to <strong><i>'.$count_linked_to.'</i></strong> assets'; ?></td></tr><?php
+				foreach ($lineages as $lineage_key => $lineage) {
+					if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+						$lineage_assetids = array_keys($lineage['lineage']);
+						$lineage_assetids[] = $asset->id;
+						$lineage_names = $lineage['lineage'];
+
+						if (count($lineage['lineage']) > 3) {
+							$lineage_names = $lineage['lineage'];
+							array_splice($lineage_names, 2, -1, Array('...'));
+						}
+					$lineage_names[$asset->id] = $asset_info[$asset->id]['name'];
+					require_once SQ_INCLUDE_PATH.'/general.inc';
+					?><tr><td class="sq-backend-table-cell" ><a href="#" onclick="if (self.name == 'sq_wysiwyg_popup_main') {am = self;} else if (self.name == 'hipo_job') {am = opener;} else if ((typeof sq_wysiwyg_dialog != 'undefined') && (sq_wysiwyg_dialog != null) && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+					</tr>
+					<?php ;
+					} else {
+						unset($lineages[$lineage_key]);
+					}
+				}// end foreach
+				?>
+				</table>
+				</div>
 				<span style="float: right;">
 				<?php
+				if (count($lineages) > 1) {
+					?><div id="asset-tag-line-<?php echo $asset->id ?>-cancel-icon" style="display:none"><?php
+					sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
+					?></div><?php
+					$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.$asset->id.'-lineages-linked\').innerHTML, \''.translate('linked_to_assets').'\', document.getElementById(\'asset-tag-line-'.$asset->id.'-cancel-icon\').innerHTML)';
+					$lineages_name = translate('linked_to_assets');
+					require_once SQ_INCLUDE_PATH.'/general.inc';
+					echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle" onclick="'.$lineages_onclick.'"');
+				}
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();
 					$content_edit->paintBackendStatusIcons($content_type, $content_prefix);
-					//echo get_asset_status_icon($content_type->status, 'top');
 				}
 				?>
 				</span>
