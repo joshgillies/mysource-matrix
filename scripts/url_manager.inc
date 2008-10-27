@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.5 $
+* @version $Revision: 1.1.2.6 $
 * @package MySource_Matrix
 */
 
@@ -149,7 +149,9 @@ Make sure you have all you information you need before Proceeding\n");
 	*/
 	public static function addUrl($http, $https, $new_url, $existing_url, $assetid, $update_file_public_live_assets, $existing_urlid, $SYSTEM_ROOT, $quiet=FALSE)
 	{
-
+	
+		// strip trailing slash
+		$new_url = strip_url($new_url);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// Lets check if the system is using static URL, if they use static URL, there's no point updating FILE PUBLIC LIVE assets.
@@ -191,10 +193,23 @@ Make sure you have all you information you need before Proceeding\n");
 		$sql_update_sq_ast_url 				= 'INSERT INTO sq_ast_url (http, https, assetid, url, urlid) values (
 									:http, :https, :assetid, :new_url, :new_urlid)';
 
-		$sql_update_sq_ast_lookup_value 	= 'INSERT INTO sq_ast_lookup_value (url, name, value, depth)
+	// Copy lookup value from existing url for new url. 
+		//These urls have to be restricted to  1. both paint_layout and override paint layout which are asset based (not URL specified).
+		//										2. or Design look up
+		$sql_update_sq_ast_lookup_value 	=
+
+		'INSERT INTO sq_ast_lookup_value (url, name, value, depth)
 										SELECT replace(url, :existing_url, :new_url), name, value, depth
-											FROM sq_ast_lookup_value
-											WHERE url in (SELECT url FROM sq_ast_lookup WHERE root_urlid = :existing_urlid)';
+											FROM sq_ast_lookup_value v
+											WHERE 
+	(v.value IN 
+		(select k. minorid from sq_ast_lnk k where k.value = \'paint_layout::system::frontend\' or k.value = \'override::paint_layout::system::frontend\'
+		and k.majorid in (select kk.majorid from sq_ast_lnk kk
+   			where kk.majorid = (select l.assetid from sq_ast_lookup l where l.url = v.url OR l.url || \'/\' = v.url) and kk.minorid = v.value)) 
+	OR v.name like \'design%\' or v.name like \'override::design%\')
+	AND rtrim(url, \'/\') in (SELECT url FROM sq_ast_lookup WHERE root_urlid = :existing_urlid)';
+
+
 
 		$sql_update_sq_ast_lookup			= 'INSERT INTO sq_ast_lookup (http, https, assetid, url, root_urlid)
 										SELECT :http, :https, assetid, replace(url, :existing_url, :new_url), :new_urlid
@@ -584,10 +599,14 @@ Make sure you have all you information you need before Proceeding\n");
 	*/
 	private static function checkNewUrlExists($new_url)
 	{
+		//Does any asset have same URL?
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL,  strip_url($new_url), TRUE, TRUE);
+		if($asset != NULL) return FALSE;
+
 		$sql_check_new_url = 'SELECT url FROM sq_ast_url WHERE url LIKE :new_url';
 
 		$query = MatrixDAL::preparePdoQuery($sql_check_new_url);
-		MatrixDAL::bindValueToPdo($query, 'new_url', $new_url);
+		MatrixDAL::bindValueToPdo($query, 'new_url', strip_url($new_url));
 		$new_url_check = MatrixDAL::executePdoOne($query);
 		if (!empty($new_url_check)) {
 			return FALSE;
