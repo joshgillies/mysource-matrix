@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.275 2008/10/23 22:57:57 akarelia Exp $
+* $Id: mysource.inc,v 1.276 2008/10/27 22:19:38 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.275 $
+* @version $Revision: 1.276 $
 * @package MySource_Matrix
 */
 class MySource
@@ -549,7 +549,15 @@ class MySource
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
 						}//end if
+
+						// Finally recache
+						if (SQ_CONF_SEND_CACHEABLE_HEADER) {
+							$this->_sendHTTPHeaders($asset);
+						} else {
+							$asset->printFrontend();
+						}
 					} else {
 						trigger_localised_error('CORE0279', E_USER_NOTICE);
 					}//end else
@@ -1275,9 +1283,9 @@ class MySource
 					$then = NULL;
 					try {
 						$bind_vars = Array(
-							'assetid'	=> $assetid,
-							'version'	=> $version,
-						);
+										'assetid'	=> $assetid,
+										'version'	=> $version,
+									 );
 						$then = MatrixDAL::executeOne('core', 'rollbackGetTimeStampFrom', $bind_vars);
 					} catch (Exception $e) {
 						throw new Exception('Could not find version '.$version.' of asset ID #'.$assetid.' in rollback system due to database error: '.$e->getMessage());
