@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.62 2008/09/22 02:09:00 ata Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.63 2008/10/27 04:48:11 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -540,6 +540,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$extra .= ' onmouseover="if (bodycopy_initialised) tooltip.show(this, \''.addslashes(htmlentities($desc)).'\', \''.addslashes(htmlentities($heading)).'\')"';
 		$extra .= ' onmouseout="if (bodycopy_initialised) tooltip.hide()"';
 		$extra .= ' onclick="'.$onclick.'"';
+		$extra .= ' align="absmiddle" ';
 		if (!empty($onclick)) {
 			$extra .= ' style="cursor:pointer;"';
 		}
