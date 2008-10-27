@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.12 2008/07/29 00:34:42 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.13 2008/10/27 04:15:50 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1071,7 +1071,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo '<tr>';
 			echo '<td>'.translate('level').' '.$i.':</td><td>';
 			if ($wa) {
-				echo text_box($prefix.'_level_titles['.$id.']', isset($level_titles[$id]) ? $level_titles[$id] : '').'</td>';
+				echo text_box($prefix.'_level_titles['.$id.']', isset($level_titles[$id]) ? htmlspecialchars_decode($level_titles[$id]) : '').'</td>';
 			} else {
 				echo isset($level_titles[$id]) ? $level_titles[$id] : '';
 			}
@@ -1100,6 +1100,9 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
 			if (isset($_POST[$prefix.'_level_titles'])) {
+				foreach ($_POST[$prefix.'_level_titles'] as $key => $value) {
+					$_POST[$prefix.'_level_titles'][$key] = htmlspecialchars($value);
+				}
 				$asset->setAttrValue('level_titles', $_POST[$prefix.'_level_titles']);
 			}
 		}
