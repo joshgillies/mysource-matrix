@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.20 2007/12/21 05:11:55 colivar Exp $
+* $Id: payment_gateway_esec.inc,v 1.21 2008/10/27 00:26:40 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -411,7 +411,9 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 		// process response
 		$response = $Esec->getResponse();
-		$_SESSION['SQ_ECOM_REF_NO'] = $response['REFERENCE'];
+		if (!empty($response['REFERENCE'])) {
+			$_SESSION['SQ_ECOM_REF_NO'] = $response['REFERENCE'];
+		}
 
 		if (!$success) {
 			$this->_tmp['is_error']         = TRUE;
