@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.196 2008/10/08 10:06:53 gnoel Exp $
+* $Id: general.inc,v 1.197 2008/10/27 04:48:04 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix
 */
 
@@ -1216,6 +1216,8 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 	<img src="'.$path.'"
 		 alt="'.$alt.'"
 		 title="'.$title.'"
+		 height="'.$height.'"
+		 width="'.$width.'"
 		 '.$extras.' />
 	';
 
@@ -1339,7 +1341,7 @@ function get_asset_tag_line($assetid, $screen='')
 		ob_start();
 		?>
 		<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-		<table style="sq-backend-table"><?php
+		<table style="sq-backend-table"><?php 
 		foreach ($lineages as $lineage_key => $lineage) {
 			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
 				$lineage_assetids = array_keys($lineage['lineage']);
