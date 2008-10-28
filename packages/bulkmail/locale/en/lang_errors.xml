@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.13.4.1 2008/09/29 04:46:48 ata Exp $
+* $Id: lang_errors.xml,v 1.13.4.2 2008/10/28 04:57:21 lwright Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -39,4 +39,6 @@
 
 	<error code="BML0017">Could not change to the correct user for content generation</error>
 	<error code="BML0018">Unable to send verification email. Please contact your administrator.</error>
+
+	<error code="BML0019">Recipient id skipped due to body filter failing to match: %s.</error>
 </errors>
