@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14.2.2 2008/10/28 04:54:48 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.14.2.3 2008/10/28 04:55:54 lwright Exp $
 *
 */
 -->
@@ -82,7 +82,7 @@
 		</field>
 		<field>
 			<display_name>Body Text Filter</display_name>
-			<note>If this filter is enabled, only those bulkmails where the body meets the criteria below will be sent. The text version of the email will be compared, to remove the possibility of tags matching. This is typically most useful when the <![CDATA[<strong>Generation Method</strong>]]> setting is set to <![CDATA[<em>Generate as Recipient</em>]]>, where each user's content may differ depending on the type of page being used.</note>
+			<note>If this filter is enabled, only those bulkmails where the body meets the criteria below will be sent. The version of the bulkmail used (text-only or HTML) will depend on the email type set above - HTML emails will enable matching on a tag. This is typically most useful when the <![CDATA[<strong>Generation Method</strong>]]> setting is set to <![CDATA[<em>Generate as Recipient</em>]]>, where each user's content may differ depending on the type of page being used.</note>
 			<function_call>
 				<paint_function		name="paintContentBodyFilter" />
 				<process_function	name="processContentBodyFilter" />
