@@ -11,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2008/10/24 00:29:08 lwright Exp $
+* $Id: lang_strings.xml,v 1.2 2008/10/28 00:15:35 lwright Exp $
 *
 */
 -->
@@ -19,4 +19,12 @@
 <strings>
 	<string source="bulkmail_job_context_text_only_true">Text Only</string>
 	<string source="bulkmail_job_context_text_only_false">HTML</string>
+
+	<string source="bulkmail_job_filter_explanation">Emails will be sent if the filter is enabled, and the body text of each bulkmail:</string>
+
+	<string source="bulkmail_job_filter_enabled_format_true">Matches: %s</string>
+	<string source="bulkmail_job_filter_enabled_format_false">Does Not Match: %s</string>
+
+	<string source="bulkmail_job_enabled_but_not_valid">Enabled, but not valid</string>
+	<string source="bulkmail_job_enabled_but_not_valid_explanation">The body filter is set to be enabled, however it cannot run without text to match against.</string>
 </strings>

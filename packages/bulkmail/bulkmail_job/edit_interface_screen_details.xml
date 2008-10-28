@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.16 2008/10/24 00:29:08 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17 2008/10/28 00:15:35 lwright Exp $
 *
 */
 -->
@@ -67,6 +67,12 @@
 		</field>
 		<field attribute="content_layout">
 			<assetid type_codes="paint_layout_page:D" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function		name="paintContentBodyFilter" />
+				<process_function	name="processContentBodyFilter" />
+			</function_call>
 		</field>
 	</section>
 

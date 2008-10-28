@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.32 2007/12/05 03:31:41 rong Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.33 2008/10/28 00:15:35 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -502,6 +502,98 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 		return TRUE;
 
 	}//end processPreviewLog()
+
+
+	/**
+	* Processes the log of preview records
+	*
+	* @param Bulkmail_Job		&$asset	the asset to which we belong
+	* @param Backend_Outputter	&$o		the outputter class
+	* @param string				$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintContentBodyFilter(Bulkmail_Job $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$field_prefix = $prefix.'_content_body_filter';
+
+		$enabled     = $asset->attr('content_body_filter');
+		$match       = $asset->attr('content_body_filter_match');
+		$filter_text = $asset->attr('content_body_filter_text');
+
+		if ($write_access) {
+			// Enable/disable drop-down
+			// Match (drop-down) \ disable when "disable" selected
+			// Text  (text)      /
+			$contents = Array(
+							1	=> translate('enabled'),
+							0	=> translate('disabled'),
+						);
+
+			combo_box($field_prefix.'_enabled', $contents, FALSE, $enabled, FALSE);
+
+			echo '<div id="'.$field_prefix.'_settings" style="padding: 1em 0em;">';
+				$contents = Array(
+								1	=> translate('matches'),
+								0	=> translate('does_not_match'),
+							);
+				echo translate('bulkmail_job_filter_explanation').'<br/>';
+				combo_box($field_prefix.'_match', $contents, FALSE, $match, FALSE);
+				echo ' ';
+				text_box($field_prefix.'_text', $filter_text, 30);
+			echo '</div>';
+
+		} else {
+			if ($enabled) {
+				if (!empty($filter_text)) {
+					echo translate('enabled').'<br/>';
+					echo translate('bulkmail_job_filter_explanation').'<br/>';
+					if ($match) {
+						echo translate('bulkmail_job_filter_enabled_format_true', $filter_text);
+					} else {
+						echo translate('bulkmail_job_filter_enabled_format_false', $filter_text);
+					}
+				} else {
+					echo '<span class="sq-backend-warning">';
+					echo translate('bulkmail_job_enabled_but_not_valid');
+					echo '</span><br/>';
+					echo translate('bulkmail_job_enabled_but_not_valid_explanation');
+				}
+			} else {
+				echo translate('disabled');
+			}
+		}
+
+		return TRUE;
+
+	}//end paintContentBodyFilter()
+
+
+	/**
+	* Processes the log of preview records
+	*
+	* @param Bulkmail_Job		&$asset	the asset to which we belong
+	* @param Backend_Outputter	&$o		the outputter class
+	* @param string				$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processContentBodyFilter(Bulkmail_Job $asset, Backend_Outputter $o, $prefix)
+	{
+		// If no access to attributes then rack off
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
+		$field_prefix = $prefix.'_content_body_filter';
+		$asset->setAttrValue('content_body_filter',       (bool)$_POST[$field_prefix.'_enabled']);
+		$asset->setAttrValue('content_body_filter_match', (bool)$_POST[$field_prefix.'_match']);
+		$asset->setAttrValue('content_body_filter_text',  $_POST[$field_prefix.'_text']);
+
+		return $asset->saveAttributes();
+
+	}//end processContentBodyFilter()
 
 
 }//end class

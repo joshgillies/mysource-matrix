@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.15 2008/10/24 00:29:08 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.16 2008/10/28 00:15:35 lwright Exp $
 *
 */
 -->
@@ -79,6 +79,14 @@
 		<field attribute="content_layout">
 			<display_name>Paint Layout</display_name>
 			<note>Paint layout to apply to the content</note>
+		</field>
+		<field>
+			<display_name>Body Text Filter</display_name>
+			<note>If this filter is enabled, only those bulkmails where the body meets the criteria below will be sent. The text version of the email will be compared, to remove the possibility of tags matching. This is typically most useful when the <![CDATA[<strong>Generation Method</strong>]]> setting is set to <![CDATA[<em>Generate as Recipient</em>]]>, where each user's content may differ depending on the type of page being used.</note>
+			<function_call>
+				<paint_function		name="paintContentBodyFilter" />
+				<process_function	name="processContentBodyFilter" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Header Details" write_access="write:attributes">
