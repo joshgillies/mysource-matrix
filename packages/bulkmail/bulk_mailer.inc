@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.80 2008/10/28 00:16:29 lwright Exp $
+* $Id: bulk_mailer.inc,v 1.81 2008/10/28 04:29:59 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -323,7 +323,8 @@ class Bulk_Mailer
 								$filter_text = array_get_index($details, 'content_body_filter_text', '');
 
 								if (!empty($filter_text)) {
-									$ok = (strpos($text_only_content, $filter_text) !== FALSE);
+									$target_content = ($details['content_text_only'] ? $text_only_content : $content);
+									$ok = (strpos($target_content, $filter_text) !== FALSE);
 									if ($ok != $match) $filtered = TRUE;
 								}
 							}
