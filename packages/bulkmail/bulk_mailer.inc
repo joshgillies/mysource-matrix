@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.79 2008/10/24 01:30:51 lwright Exp $
+* $Id: bulk_mailer.inc,v 1.80 2008/10/28 00:16:29 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -309,7 +309,25 @@ class Bulk_Mailer
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
 						if (!$pid) {
+							$problematic = NULL;
+							$filtered = NULL;
+
 							$content = $this->generateContent($details, $job_path, $user_id, $email);
+							$text_only_content = html_entity_decode(strip_tags($content));
+
+							// If there is a filter set, only continue if the
+							// filter matches (or is ineffective due to empty
+							// text field).
+							if (array_get_index($details, 'content_body_filter')) {
+								$match       = array_get_index($details, 'content_body_filter_match', TRUE);
+								$filter_text = array_get_index($details, 'content_body_filter_text', '');
+
+								if (!empty($filter_text)) {
+									$ok = (strpos($text_only_content, $filter_text) !== FALSE);
+									if ($ok != $match) $filtered = TRUE;
+								}
+							}
+
 							if (is_array($email)) {
 								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $email);
 							} else {
@@ -319,13 +337,14 @@ class Bulk_Mailer
 
 							// only queue the mail if we can generate content
 							$problematic = (empty($content)) ? TRUE : FALSE;
-							if (!$problematic) {
+
+							if (!$problematic && !$filtered) {
 								// Check that the email is not the email address array
 								if (is_array($email)) $email = $email['email'];
 
 								// Always set text version, and set html version
 								// if turned on.
-								$mime->setTxtBody(html_entity_decode(strip_tags($content)));
+								$mime->setTxtBody($text_only_content);
 								if (!$details['content_text_only']) {
 									$mime->setHTMLBody($content);
 								}
@@ -354,7 +373,7 @@ class Bulk_Mailer
 									$mail_id = $mail_queue->put('', $email, $headers, $body);
 								}
 							}
-							$this->updateProgress($progress_path, $user_id, $problematic);
+							$this->updateProgress($progress_path, $user_id, $problematic, $filtered);
 							$this->enforceSendRate($details['threshold'], $progress_path);
 							exit;
 						}//end if
@@ -402,19 +421,31 @@ class Bulk_Mailer
 					$msg_reps = Array(
 									'num_recip'		=> number_format($progress_info['total_count']),
 									'num_problem'	=> number_format(count($progress_info['problematic'])),
+									'num_filtered'	=> number_format(count($progress_info['filtered'])),
 								);
 				} else {
+					$subtype = '';
 					if (count($progress_info['problematic']) > 0) {
 						trigger_localised_error('BML0010', E_USER_WARNING, implode(',', $progress_info['problematic']));
-						$message_type = 'bulkmail.job.completed.error';
-					} else {
-						$message_type = 'bulkmail.job.completed';
+						$subtype = '.error';
 					}
+
+					if (count($progress_info['filtered']) > 0) {
+						trigger_localised_error('BML0019', E_USER_WARNING, implode(',', $progress_info['filtered']));
+						if (empty($subtype)) {
+							$subtype = '.filtered';
+						} else {
+							$subtype = '+filtered';
+						}
+					}
+
+					$message_type = 'bulkmail.job.completed'.$subtype;
 
 					// format recipient count with grouped thousands
 					$msg_reps = Array(
 									'num_recip'		=> number_format($progress_info['total_count']),
 									'num_problem'	=> number_format(count($progress_info['problematic'])),
+									'num_filtered'	=> number_format(count($progress_info['filtered'])),
 								);
 				}//end if
 
@@ -455,14 +486,18 @@ class Bulk_Mailer
 	/**
 	* Writes the progress info to a file after a mail has been added to the queue
 	*
+	* If a user was both problematic AND filtered (probable if enabled), it will
+	* be marked as the former.
+	*
 	* @param string		$progress_path	path to the progress info file
 	* @param int		$user_id		current recipient assetid
-	* @param boolean	$problematic	whether current user is a problematic one or not
+	* @param boolean	$problematic	TRUE means we couldn't generate bmail for this user
+	* @param boolean	$filtered		TRUE means user's bmail was filtered out
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateProgress($progress_path, $user_id, $problematic)
+	function updateProgress($progress_path, $user_id, $problematic, $filtered)
 	{
 		$progress_info = Array();
 		if (file_exists($progress_path)) {
@@ -475,6 +510,9 @@ class Bulk_Mailer
 		if ($problematic) {
 			$progress_info['total_count']--;
 			$progress_info['problematic'][] = $user_id;
+		} else if ($filtered) {
+			$progress_info['total_count']--;
+			$progress_info['filtered'][] = $user_id;
 		} else {
 			$progress_info['current_count']++;
 		}

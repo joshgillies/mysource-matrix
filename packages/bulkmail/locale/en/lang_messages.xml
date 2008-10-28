@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.8 2008/10/22 00:49:58 bpearson Exp $
+* $Id: lang_messages.xml,v 1.9 2008/10/28 00:16:29 lwright Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -24,11 +24,19 @@
 	</message>
 	<message type="bulkmail.job.completed">
 		<subject>Bulkmail Job Completed</subject>
-		<body>Mail successfully sent to %num_recip% recipients</body>
+		<body><![CDATA[<strong>Mail successfully sent to %num_recip% recipients.</strong>]]></body>
 	</message>
 	<message type="bulkmail.job.completed.error">
 		<subject>Bulkmail Job Completed with Error</subject>
-		<body>Mail successfully sent to %num_recip% recipients. %num_problem% recipients could not be mailed, please check the bmail error log for details</body>
+		<body><![CDATA[<strong>Mail successfully sent to %num_recip% recipients.</strong><br/>]]>%num_problem% recipients were skipped due to problems in generation. Please check the Bulkmail Error log for details.</body>
+	</message>
+	<message type="bulkmail.job.completed.filtered">
+		<subject>Bulkmail Job Completed, some Filtered</subject>
+		<body><![CDATA[<strong>Mail successfully sent to %num_recip% recipients.</strong><br/>]]>%num_filtered% recipients were skipped as their bulkmail's contents failed to match the enabled Body filter. Please check the Bulkmail Error log for details.</body>
+	</message>
+	<message type="bulkmail.job.completed.error+filtered">
+		<subject>Bulkmail Job Completed with Error</subject>
+		<body><![CDATA[<strong>Mail successfully sent to %num_recip% recipients.</strong><br/>]]>%num_problem% recipients were skipped due to problems in generation.<![CDATA[<br/>]]>%num_filtered% recipients were also skipped as their bulkmail's contents failed to match the enabled Body filter Please check the Bulkmail Error log for details.</body>
 	</message>
 	<message type="bulkmail.job.cancelled">
 		<subject>Bulkmail Job Cancelled</subject>
