@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.143.2.2 2008/09/12 01:06:09 ewang Exp $
+* $Id: design.inc,v 1.143.2.3 2008/10/28 00:38:07 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143.2.2 $
+* @version $Revision: 1.143.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -171,12 +171,14 @@ class Design extends Design_Area
 		foreach ($components as $componentid => $component) {
 			// set web path for components
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($componentid);
+
 			$initial_path = strtolower($asset->name);
 			$valid_paths = make_valid_web_paths(Array($initial_path));
 			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($clone, $valid_paths, $asset->id, TRUE);
 			$GLOBALS['SQ_SYSTEM']->acquireLock($asset->id, 'all');
 			$return_value = $asset->saveWebPaths($good_paths);
 			$value = (!$return_value) ? FALSE : TRUE;
+
 			$return_value = $asset->updateLookups(FALSE);
 			$value = (!$return_value) ? FALSE : TRUE;
 			$GLOBALS['SQ_SYSTEM']->releaseLock($asset->id, 'all');
@@ -906,6 +908,18 @@ echo '/*
 					echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->getUrl()', $args).');'."\n";
 					echo '}'."\n";
+					echo '?', '>';
+			break;
+
+			case (preg_match('/^asset_/i', $var) ? $var : !$var):
+					echo '<', '?php ';
+					echo '$keyword = \'',$var, '\';';
+					echo '$replacement = '.$this->_escapeVar('$ASSET->getKeywordReplacement($keyword)', $args).';';
+					echo 'if ($replacement == $keyword) {';
+					echo '	echo \'\';';
+					echo '} else {';
+					echo '	echo $replacement;';
+					echo '}';
 					echo '?', '>';
 			break;
 

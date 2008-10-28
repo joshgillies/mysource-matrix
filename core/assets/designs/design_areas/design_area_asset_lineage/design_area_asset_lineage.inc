@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.19.2.3 2008/05/12 06:47:27 hnguyen Exp $
+* $Id: design_area_asset_lineage.inc,v 1.19.2.4 2008/10/28 00:38:07 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19.2.3 $
+* @version $Revision: 1.19.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,6 +72,24 @@ class Design_Area_Asset_Lineage extends Design_Area
 				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'htmlspecialchars($ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), TRUE).'])'.$value_suffix, $args), '; ?', '>';
 			break;
 
+			case (preg_match('/^asset_/i', $var) ? $var : !$var):
+					echo '<', '?php ';
+					echo '$keyword = \'',$var, '\';';
+					echo '$ASSET1 = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']);';
+					echo 'if (!is_null($ASSET1)) {';
+					echo '$replacement = '.$this->_escapeVar('$ASSET1->getKeywordReplacement($keyword)', $args).';';
+					echo 'if ($replacement == $keyword) {';
+					echo '	echo \'\';';
+					echo '} else {';
+					echo '	echo $replacement;';
+					echo '}';
+					echo '$GLOBALS[\'SQ_SYSTEM\']->am->forgetAsset($ASSET1);';
+					echo '} else {';
+					echo '  echo \'\';';
+					echo '}';
+					echo '?', '>';
+			break;
+
 			default :
 				parent::printVar($var, $args);
 
@@ -115,7 +133,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 				$start_at_level = $this->attr('start_at_level');
 				if (!is_null($start_at_level) && $start_at_level !== '') {
 					$start_index = $start_at_level;
-				}
+				}//end if
 
 				$total = 'count($ASSET_LINEAGE)';
 				// because the page lineage array contains the current page, all we need to do to have or not have
