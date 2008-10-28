@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_management.inc
+* $Id: bulkmail_job_management.inc,v 1.8.2.2 2008/10/28 04:54:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -60,6 +60,27 @@ class Bulkmail_Job_Management extends Asset_Management
 														'parameters'	=> Array(
 																			'allow_empty'	=> FALSE,
 																		   ),
+													   ),
+						'content_body_filter'		=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'content_body_filter_match'	=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> TRUE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'content_body_filter_text'	=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'text',
+														'default'		=> '',
 													   ),
 					  );
 

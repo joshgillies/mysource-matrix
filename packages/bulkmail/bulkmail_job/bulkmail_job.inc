@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.36.2.2 2008/09/29 04:47:43 ata Exp $
+* $Id: bulkmail_job.inc,v 1.36.2.3 2008/10/28 04:54:48 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.36.2.2 $
+* @version $Revision: 1.36.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -144,9 +144,14 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 			$header_details['subject'] .= ' (Preview)';
 		}
 
+		$text_only_content = html_entity_decode(strip_tags($content));
+
 		// set $crlf to "\n" since we are sending the content using PEAR Mail
 		$mime = new Mail_mime("\n");
-		$mime->setHTMLBody($content);
+		if ($this->attr('content_text_only')) {
+			$mime->setHTMLBody($content);
+		}
+		$mime->setTxtBody($text_only_content);
 		$param = Array(
 						'head_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
 						'text_charset'	=> SQ_CONF_DEFAULT_CHARACTER_SET,
