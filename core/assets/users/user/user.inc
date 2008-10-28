@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.127 2008/10/01 15:10:40 gnoel Exp $
+* $Id: user.inc,v 1.128 2008/10/28 22:21:08 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,6 +154,13 @@ class User extends Asset
 	public function _getAllowedLinks()
 	{
 		$allowed = parent::_getAllowedLinks();
+		// Allow any type of asset to be linked underneath
+		$allowed[SQ_LINK_TYPE_1]['asset']     = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_2]['asset']     = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_TYPE_3]['asset']     = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed[SQ_LINK_NOTICE]['asset']     = Array('card' => 'M', 'exclusive' => FALSE);
+
+		// Restrict the inbox and workspace to exclusive links
 		$allowed[SQ_LINK_TYPE_2]['inbox']     = Array('card' => 1, 'exclusive' => TRUE);
 		$allowed[SQ_LINK_TYPE_2]['workspace'] = Array('card' => 1, 'exclusive' => TRUE);
 		return $allowed;
