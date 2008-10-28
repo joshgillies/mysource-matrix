@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.137 2008/10/20 00:06:41 bshkara Exp $
+* $Id: page_asset_builder.inc,v 1.138 2008/10/28 02:31:35 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1260,8 +1260,14 @@ class Page_Asset_Builder extends Page
 		if (empty($bodycopy_data)) return;
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
+		$keywords = $bodycopy->getKeywords();
 
+		$replacements = Array();
+		foreach ($keywords as $word) {
+			$replacements[$word] = $this->getKeywordReplacement($word);
+		}
 		$bodycopy->setKeywordReplacements($this->_replacements);
+		$bodycopy->setKeywordReplacements($replacements);
 		$bodycopy->printBody();
 
 	}//end _printContents()
