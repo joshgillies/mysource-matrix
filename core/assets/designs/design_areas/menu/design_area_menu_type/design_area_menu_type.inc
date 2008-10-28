@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.98 2008/07/04 06:25:44 hnguyen Exp $
+* $Id: design_area_menu_type.inc,v 1.99 2008/10/28 00:39:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.99 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -645,6 +645,24 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '}'."\n";
 						echo '?', '>';
 					}
+				break;
+
+				case (preg_match('/^asset_/i', $var) ? $var : !$var):
+						echo '<', '?php ';
+						echo '$keyword = \'',$var, '\';';
+						echo '$ROW_ASSET = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$id_name.'_row[\'assetid\']);';
+						echo 'if (!is_null($ROW_ASSET)) {';
+						echo '$replacement = '.$this->_escapeVar('$ROW_ASSET->getKeywordReplacement($keyword)', $args).';';
+						echo 'if ($replacement == $keyword) {';
+						echo '	echo \'\';';
+						echo '} else {';
+						echo '	echo $replacement;';
+						echo '}';
+						echo '$GLOBALS[\'SQ_SYSTEM\']->am->forgetAsset($ROW_ASSET);';
+						echo '} else {';
+						echo '  echo \'\';';
+						echo '}';
+						echo '?', '>';
 				break;
 
 				default :

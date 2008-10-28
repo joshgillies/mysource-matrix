@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.146 2008/09/12 01:02:18 ewang Exp $
+* $Id: design.inc,v 1.147 2008/10/28 00:39:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -903,6 +903,18 @@ echo '/*
 					echo '$thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->getUrl()', $args).');'."\n";
 					echo '}'."\n";
+					echo '?', '>';
+			break;
+
+			case (preg_match('/^asset_/i', $var) ? $var : !$var):
+					echo '<', '?php ';
+					echo '$keyword = \'',$var, '\';';
+					echo '$replacement = '.$this->_escapeVar('$ASSET->getKeywordReplacement($keyword)', $args).';';
+					echo 'if ($replacement == $keyword) {';
+					echo '	echo \'\';';
+					echo '} else {';
+					echo '	echo $replacement;';
+					echo '}';
 					echo '?', '>';
 			break;
 
