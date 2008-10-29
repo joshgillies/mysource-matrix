@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.11 2008/10/21 21:55:42 hnguyen Exp $
+* $Id: google_map.inc,v 1.12 2008/10/29 21:51:08 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -237,7 +237,6 @@ class Google_Map extends Page_Asset_Listing
         $keywords				= $bodycopy_popup_window->getKeywords();
 
 		$root_node_id			= $this->attr('root_assetid');
-		$listing_root_nodes		= ($this->attr('listing_root_nodes'));
 
 		$res					= $this->getAssetList();
 		$children = $this->convertProxyAssetTypes($children);
