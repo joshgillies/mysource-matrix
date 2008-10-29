@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.21 2008/01/04 04:24:50 hnguyen Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.21.2.1 2008/10/29 21:54:07 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -316,7 +316,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 				}
 			}
 			if ($success) {
-				if (class_exists('tidy')) {
+				if (file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
 					// tidy the HTML produced using the PHP5 Tidy
 					$tidy = new tidy;
 
