@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views.xml,v 1.7.8.2 2008/07/02 06:18:37 lwright Exp $
+* $Id: common_views.xml,v 1.7.8.3 2008/10/29 22:57:38 csmith Exp $
 *
 */
 -->
@@ -134,28 +134,14 @@
 		<![CDATA[
 			CREATE OR REPLACE VIEW sq_vw_ast_perm AS
 				SELECT
-					r.assetid, r.userid, p.permission, p.granted, p.cascades
+					case when r.assetid is null then p.assetid else r.assetid end as assetid,
+					case when r.userid is null then p.userid else r.userid end as userid,
+					p.permission,
+					p.granted,
+					p.cascades 
 				FROM
-					(
-					SELECT DISTINCT
-						assetid, userid, roleid
-					FROM
-						sq_vw_ast_role
-					) r
-					JOIN
-					(
-					SELECT DISTINCT
-						userid, permission, granted, assetid, cascades
-					FROM
-						sq_ast_perm
-					) p
-					ON r.roleid = p.userid
-					AND r.assetid = p.assetid
-				UNION
-				SELECT
-					p.assetid, p.userid, p.permission, p.granted, p.cascades
-				FROM
-					sq_ast_perm p
+					sq_ast_perm p LEFT JOIN sq_vw_ast_role r on (r.roleid=p.userid AND r.assetid=p.assetid)
+
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_vw_ast_role Rollback View">
@@ -181,32 +167,18 @@
 	<sql_element display_name="sq_vw_ast_perm Rollback View">
 		<![CDATA[
 			CREATE OR REPLACE VIEW sq_rb_vw_ast_perm AS
-				SELECT
-					r.sq_eff_from, r.sq_eff_to,
-					r.assetid, r.userid, p.permission, p.granted, p.cascades
-				FROM
-					(
-					SELECT DISTINCT
-						sq_eff_from, sq_eff_to,
-						assetid, userid, roleid
-					FROM
-						sq_rb_vw_ast_role
-					) r
-					JOIN
-					(
-					SELECT DISTINCT
-						userid, permission, granted, assetid, cascades
-					FROM
-						sq_rb_ast_perm
-					) p
-					ON r.roleid = p.userid
-					AND r.assetid = p.assetid
-				UNION
-				SELECT
-					p.sq_eff_from, p.sq_eff_to,
-					p.assetid, p.userid, p.permission, p.granted, p.cascades
-				FROM
-					sq_rb_ast_perm p
+			SELECT
+				CASE WHEN r.sq_eff_from IS NULL THEN p.sq_eff_from ELSE r.sq_eff_from END AS sq_eff_from,
+				CASE WHEN r.sq_eff_to IS NULL THEN p.sq_eff_to ELSE r.sq_eff_to END AS sq_eff_to,
+				CASE WHEN r.assetid IS NULL THEN p.assetid ELSE r.assetid END AS assetid,
+				CASE WHEN r.userid IS NULL THEN p.userid ELSE r.userid END AS userid,
+				p.permission,
+				p.granted,
+				p.cascades
+			FROM
+				sq_rb_vw_ast_role r
+				LEFT JOIN sq_rb_ast_perm p
+				ON (r.roleid = p.userid AND r.assetid = p.assetid)
 		]]>
 	</sql_element>
 </sql>
