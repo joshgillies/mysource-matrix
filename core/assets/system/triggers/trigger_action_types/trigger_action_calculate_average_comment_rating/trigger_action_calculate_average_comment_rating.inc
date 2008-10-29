@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.10 2008/10/07 23:11:57 bpearson Exp $
+* $Id: trigger_action_calculate_average_comment_rating.inc,v 1.1.2.11 2008/10/29 23:07:02 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1.2.10 $
+* @version $Revision: 1.1.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,10 +41,13 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*		'fieldid'		=> int		// the assetid of the metadata field which stores the average rating value
-	*		'parentdata'	=> array	// key contains assetid of parent asset and value contains average rating
+	*		'fieldid'	=> string	// the assetid of the metadata field which stores the average rating value
+	*		'totalid'	=> string	// key contains assetid of parent asset and value contains average rating
 	* );
 	* </PRE>
+	*
+	* The "parentdata" return includes the average ratings of all assets this
+	* action processed. The remaining outputs mirror the inputs.
 	*
 	* @param array	$settings	the stored settings for this action
 	* @param array	&$state		the state that describes the asset the action is executing on
@@ -103,7 +106,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				} else {
 					$avgofratings = 0;
 					$numofratings = 0;
-					$parentdata = 0;
+					$parentdata[$parentid] = 0;
 				}
 
 				// Update the metadata fields
