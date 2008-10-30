@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.139 2008/10/29 05:47:42 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.140 2008/10/30 00:04:50 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1127,7 +1127,6 @@ class Page_Asset_Builder extends Page
 		  ////////////////////////////
 		 // CREATE CAPTCHA KEYWORD //
 		////////////////////////////
-
 		$this->_replacements['form_captcha'] = $this->getFormCaptchaKeywordReplacement();
 		$this->_replacements['form_captcha_image'] = $this->getFormCaptchaImageKeywordReplacement();
 		$this->_replacements['form_captcha_field'] = $this->getFormCaptchaFieldKeywordReplacement();
@@ -1142,7 +1141,8 @@ class Page_Asset_Builder extends Page
 		 // CREATE FORM KEYWORD //
 		////////////////////////
 		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');
-	
+		
+
 		  //////////////////////////////////////////
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
 		//////////////////////////////////////////
@@ -1244,6 +1244,9 @@ class Page_Asset_Builder extends Page
 			ob_end_clean();
 		}//end foreach
 
+		// Replace all available keywords in create_form keyword replacement, not leaving it to mysource.inc to pick it up
+		replace_keywords($this->_replacements['create_form'], $this->_replacements);
+
 	}//end _loadCreateReplacements()
 
 
@@ -1260,6 +1263,7 @@ class Page_Asset_Builder extends Page
 		if (empty($bodycopy_data)) return;
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
+
 
 		$bodycopy->setKeywordReplacements($this->_replacements);
 
