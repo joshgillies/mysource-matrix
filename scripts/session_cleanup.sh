@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.4 2008/10/30 06:55:52 csmith Exp $
+#* $Id: session_cleanup.sh,v 1.5 2008/10/30 07:13:25 csmith Exp $
 #*
 #*/
 
@@ -118,9 +118,9 @@ if [ $SESSION_LIFETIME -gt 0 ]; then
 
 		# Session files can be hashed by md5 (32 chars long) or sha1 (40 chars long)
 		# Instead of checking for both, check for a min of 32 chars
-		`$FIND $SESSION_LOCATION -name 'sess_????????????????????????????????*' $FIND_TIMEARG +$SESSION_LIFETIME > $TMPFILE`
+		`$FIND $SESSION_LOCATION -name 'sess_*' $FIND_TIMEARG +$SESSION_LIFETIME > $TMPFILE`
 		if [ -s $TMPFILE ]; then
-			if [ $DEBUG -ne 0 ]; then echo Removing all sessions matching mask 'sess_????????????????????????????????*' older than $SESSION_MATRIXLIFE seconds from $SESSION_LOCATION; fi;
+			if [ $DEBUG -ne 0 ]; then echo Removing all sessions matching mask 'sess_*' older than $SESSION_MATRIXLIFE seconds from $SESSION_LOCATION; fi;
 			`cat $TMPFILE | $XARGS rm`
 		else
 			if [ $DEBUG -ne 0 ]; then echo Couldn\'t find any session files worth worrying about; fi;
