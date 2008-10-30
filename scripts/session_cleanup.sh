@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+#* $Id: session_cleanup.sh,v 1.3.8.1 2008/10/30 07:14:28 csmith Exp $
 #*
 #*/
 
@@ -116,9 +116,9 @@ if [ $SESSION_LIFETIME -gt 0 ]; then
 			exit 1;
 		fi;
 
-		`$FIND $SESSION_LOCATION -name 'sess_????????????????????????????????' $FIND_TIMEARG +$SESSION_LIFETIME > $TMPFILE`
+		`$FIND $SESSION_LOCATION -name 'sess_*' $FIND_TIMEARG +$SESSION_LIFETIME > $TMPFILE`
 		if [ -s $TMPFILE ]; then
-			if [ $DEBUG -ne 0 ]; then echo Removing all sessions matching mask 'sess_????????????????????????????????' older than $SESSION_MATRIXLIFE seconds from $SESSION_LOCATION; fi;
+			if [ $DEBUG -ne 0 ]; then echo Removing all sessions matching mask 'sess_*' older than $SESSION_MATRIXLIFE seconds from $SESSION_LOCATION; fi;
 			`cat $TMPFILE | $XARGS rm`
 		else
 			if [ $DEBUG -ne 0 ]; then echo Couldn\'t find any session files worth worrying about; fi;
