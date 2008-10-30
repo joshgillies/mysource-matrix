@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2008/08/24 23:23:49 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.2.2.1 2008/10/30 05:44:16 bpearson Exp $
 *
 */
 -->
@@ -66,6 +66,10 @@
 		<field attribute="enable_street_view">
 			<display_name>Enable Street View</display_name>
 			<note>Allow using the Street View capability of Google.</note>
+		</field>
+		<field attribute="enable_google_earth">
+			<display_name>Enable Google Earth</display_name>
+			<note>Allow using the Google Earth capability. This option requires the installation of the Google Earth plugin</note>
 		</field>
 	</section>
 	<section name="Default Settings">

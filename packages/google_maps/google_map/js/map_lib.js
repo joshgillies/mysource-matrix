@@ -10,6 +10,8 @@
 			var location = new GLatLng(centerLatitude, centerLongitude);
 			map.setCenter(location, zoomLevel);
 			map.setMapType(map_type);
+
+			ge = map.getEarthInstance(getEarthInstanceCB);
 	    }//end if
 
 	}//end gmap_init()
@@ -313,6 +315,16 @@
 
 
 	/**
+	* This function is used to get the Earth Instance for Google Earth
+	*
+	*/
+	function getEarthInstanceCB(object)
+	{
+		ge = object;
+	}//end setMapType
+
+
+	/**
 	* This function is used to get the information about a marker
 	*
 	*/
@@ -525,6 +537,7 @@
 	*/
 	function populateAssetBuilderForm(marker, address)
 	{
+
 		document.getElementById('asset_builder').style.display = 'block';
 
 		var	latlng	= marker.getLatLng();

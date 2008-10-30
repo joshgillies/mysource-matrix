@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.2.2.7 2008/10/29 21:51:39 hnguyen Exp $
+* $Id: google_map.inc,v 1.2.2.8 2008/10/30 05:44:16 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.7 $
+* @version $Revision: 1.2.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -397,6 +397,9 @@ class Google_Map extends Page_Asset_Listing
 				var current_listener	= null;
 				var current_listener_name = 'navigate_tool';
 
+				// Google Earh
+				var ge;
+
 			<?php
 				$geocoder	= $this->attr('enable_geocoder');
 				if ($geocoder) {
@@ -404,7 +407,17 @@ class Google_Map extends Page_Asset_Listing
 					geocoder = new GClientGeocoder();
 				<?php
 				}//end if
+
+				if ($this->attr('enable_google_earth')) {
 			?>
+				if (ge != null) {
+					ge.getLayerRoot().enableLayerById(ge.LAYER_BORDERS, true);
+				    ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, true);
+				}
+			<?php
+				}
+			?>
+
 
 			</script>
 			<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
@@ -464,7 +477,6 @@ class Google_Map extends Page_Asset_Listing
 						}//end if
 
 						?>
-
 						var marker = addMarker('<?php echo $title ?>' ,<?php echo $location_lat; ?>, <?php echo $location_lng; ?>, '<?php echo $location_info['icon']; ?>', '<?php echo $html;?>', '<?php echo $street_view ? 'TRUE' : 'FALSE'; ?>');
 						<?php
 							if ($toggle_root_nodes && !$listing_ldap_user) {
@@ -544,6 +556,7 @@ class Google_Map extends Page_Asset_Listing
 		$map_control		= $this->attr('map_control');
 		$map_type_control	= (boolean) $this->attr('map_type_control');
 		$scale_control		= (boolean) $this->attr('scale_control');
+		$google_earth		= (boolean) $this->attr('enable_google_earth');
 
 		?>
 			<script type="text/javascript">
@@ -565,6 +578,11 @@ class Google_Map extends Page_Asset_Listing
 					if ($map_type_control) {
 				?>
 						if (map) map.addControl(new GMapTypeControl());
+				<?php
+					}
+					if ($google_earth) {
+				?>
+						if (map) map.addMapType(G_SATELLITE_3D_MAP);
 				<?php
 					}
 				?>
@@ -689,15 +707,19 @@ class Google_Map extends Page_Asset_Listing
 			return '<div id="new_address_list" class="new_address_list">
 					</div>';
 		} else if ($keyword == 'map_type_menu') {
-			return '
-				<ul id="map_menu" class="map_type_menu" style="list-style:none;">
+			$enable_google_earth = $this->attr('enable_google_earth');
+			$map_menu = '<ul id="map_menu" class="map_type_menu" style="list-style:none;">
 			        <li><button onClick="setMapType(G_NORMAL_MAP);">NORMAL</button></li>
 					<li><button onClick="setMapType(G_PHYSICAL_MAP);">TERRAIN</button></li>
-			        <li><button onClick="setMapType(G_SATELLITE_MAP);">SATTELITE</button></li>
+			        <li><button onClick="setMapType(G_SATELLITE_MAP);">SATELLITE</button></li>
 			        <li><button onClick="setMapType(G_HYBRID_MAP);">HYBRID</button></li>
 			        <li><button onClick="setMapType(G_SKY_VISIBLE_MAP);">SKY VISIBLE</button></li>
-			        <li><button onClick="setMapType(G_MARS_VISIBLE_MAP);">MARS VISIBLE</button></li>
-			    </ul>';
+			        <li><button onClick="setMapType(G_MARS_VISIBLE_MAP);">MARS VISIBLE</button></li>';
+			if ($enable_google_earth) {
+				$map_menu .= '<li><button onClick="setMapType(G_SATELLITE_3D_MAP);">EARTH</button></li>';
+			}
+			$map_menu .= '</ul>';
+			return $map_menu;
 		} else if ($keyword == 'clear_new_markers') {
 			return '<a href="javascript:clearNewMarker(newMarkers);clearNewMarker(newPolylines);">Clear New Markers</a>';
 		} else if ($keyword == 'get_closest_location') {
