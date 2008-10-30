@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.14 2008/10/29 05:46:13 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.15 2008/10/30 00:02:57 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.14 $
+* @version $Revision: 1.122.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1251,6 +1251,10 @@ class Page_Asset_Builder extends Page
 				$this->_replacements[$code_name.'_field'] = ob_get_contents();
 			ob_end_clean();
 		}//end foreach
+
+
+		// Replace all available keywords in create_form keyword replacement, not leaving it to mysource.inc to pick it up
+		replace_keywords($this->_replacements['create_form'], $this->_replacements);
 
 	}//end _loadCreateReplacements()
 
