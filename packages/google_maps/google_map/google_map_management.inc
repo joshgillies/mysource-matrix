@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_management.inc,v 1.4 2008/08/31 22:25:44 hnguyen Exp $
+* $Id: google_map_management.inc,v 1.5 2008/10/30 02:31:52 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -334,6 +334,16 @@ class Google_Map_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
+						'enable_google_earth'		=> Array (
+														'added'			=> '0.1',
+														'type'			=> 'boolean',
+														'default'		=> 'FALSE',
+														'description'	=> 'Enable or Disable Google Earth',
+														'is_admin'		=> FALSE,
+														'parameters'	=> Array (
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
 					  );
 
 	}//end constructor

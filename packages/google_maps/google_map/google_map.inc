@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.12 2008/10/29 21:51:08 hnguyen Exp $
+* $Id: google_map.inc,v 1.13 2008/10/30 02:31:52 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -213,6 +213,7 @@ class Google_Map extends Page_Asset_Listing
 		$description		= 'defaultlocation';
 		$keywords_list		= $this->attr('asset_types_keywords');
 		$street_view		= $this->attr('enable_street_view');
+		$google_earth		= $this->attr('enable_google_earth');
 		$create_location	= $this->attr('enable_create_location');
 
     	$dynamic_lat		= $this->getDynamicVariableValue('latitude');
@@ -544,6 +545,7 @@ class Google_Map extends Page_Asset_Listing
 		$map_control		= $this->attr('map_control');
 		$map_type_control	= (boolean) $this->attr('map_type_control');
 		$scale_control		= (boolean) $this->attr('scale_control');
+		$google_earth		= (boolean) $this->attr('enable_google_earth');
 
 		?>
 			<script type="text/javascript">
@@ -565,6 +567,11 @@ class Google_Map extends Page_Asset_Listing
 					if ($map_type_control) {
 				?>
 						if (map) map.addControl(new GMapTypeControl());
+				<?php
+					}
+					if ($google_earth) {
+				?>
+						if (map) map.addMapType(G_SATELLITE_3D_MAP);
 				<?php
 					}
 				?>
@@ -693,10 +700,11 @@ class Google_Map extends Page_Asset_Listing
 				<ul id="map_menu" class="map_type_menu" style="list-style:none;">
 			        <li><button onClick="setMapType(G_NORMAL_MAP);">NORMAL</button></li>
 					<li><button onClick="setMapType(G_PHYSICAL_MAP);">TERRAIN</button></li>
-			        <li><button onClick="setMapType(G_SATELLITE_MAP);">SATTELITE</button></li>
+			        <li><button onClick="setMapType(G_SATELLITE_MAP);">SATELLITE</button></li>
 			        <li><button onClick="setMapType(G_HYBRID_MAP);">HYBRID</button></li>
 			        <li><button onClick="setMapType(G_SKY_VISIBLE_MAP);">SKY VISIBLE</button></li>
 			        <li><button onClick="setMapType(G_MARS_VISIBLE_MAP);">MARS VISIBLE</button></li>
+			        <li><button onClick="setMapType(G_SATELLITE_3D_MAP);">EARTH</button></li>
 			    </ul>';
 		} else if ($keyword == 'clear_new_markers') {
 			return '<a href="javascript:clearNewMarker(newMarkers);clearNewMarker(newPolylines);">Clear New Markers</a>';
