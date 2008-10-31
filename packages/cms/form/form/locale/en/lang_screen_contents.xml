@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.9 2008/10/10 04:25:25 lwright Exp $
+* $Id: lang_screen_contents.xml,v 1.10 2008/10/31 05:16:40 lwright Exp $
 *
 */
 -->
@@ -163,6 +163,10 @@
 		<field attribute="confirmation_page_name">
 			<display_name>Confirmation Page Name</display_name>
 			<note>The name that &quot;page name&quot; keywords return for the Confirmation page, if enabled.</note>
+		</field>
+		<field attribute="save_confirmation_message">
+			<display_name>Save Confirmation Text</display_name>
+			<note>This text is accessible through the %save_confirmation% keyword, to be used on a Page Contents or page format bodycopy when a user clicks on the "Save" button. If omitted, a default message ("Your progress has been saved") will be used.</note>
 		</field>
 	</section>
 	<section name="Complex Formatting">

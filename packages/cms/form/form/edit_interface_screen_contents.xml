@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.27 2008/10/10 04:25:25 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.28 2008/10/31 05:16:40 lwright Exp $
 *
 */
 -->
@@ -109,6 +109,9 @@
 			<text width="30" height="1" />
 		</field>
 		<field attribute="confirmation_page_name">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="save_confirmation_message">
 			<text width="30" height="1" />
 		</field>
 	</section>

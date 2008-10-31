@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.202 2008/10/24 03:25:38 lwright Exp $
+* $Id: form.inc,v 1.203 2008/10/31 05:16:40 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.202 $
+* @version $Revision: 1.203 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4155,6 +4155,25 @@ class Form extends Asset implements Bridge
 		return ob_get_clean();
 
 	}//end getSaveButtonKeywordReplacement()
+
+
+	/**
+	* Save Confirmation keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getSaveConfirmationKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		if (isset($_POST[$prefix.'_save'])) {
+			$message = ($this->attr('save_confirmation_message')) ? $this->attr('save_confirmation_message') : translate('cms_form_save_confirmation');
+		} else {
+			$message = '';
+		}
+		return $message;
+
+	}//end getSaveConfirmationKeywordReplacement()
 
 
 	/**

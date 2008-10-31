@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.55 2008/10/10 04:25:25 lwright Exp $
+* $Id: form_management.inc,v 1.56 2008/10/31 05:16:40 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -217,8 +217,14 @@ class Form_Management extends Asset_Management
 						'save_button'			=> Array(
 														'added'		=> '0.13',
 														'type'		=> 'text',
-														'default'	=> 'Save',
+														'default'	=> '',
 														'description'	=> 'Text of the Save button for multiple-page forms. The Save button saves the current page\'s contents (without validating), and reloads the same page.'
+													   ),
+						'save_confirmation_message'	=> Array(
+														'added'		=> '0.13',
+														'type'		=> 'text',
+														'default'	=> 'Save',
+														'description'	=> 'The %save_confirmation% keyword will be replaced with this just after the Save button is pressed, otherwise keyword is blank. HTML allowed.'
 													   ),
 						'save_and_exit_button'	=> Array(
 														'added'		=> '0.13',
