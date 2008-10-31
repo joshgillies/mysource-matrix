@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.140 2008/10/30 00:04:50 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.141 2008/10/31 00:19:02 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1264,7 +1264,18 @@ class Page_Asset_Builder extends Page
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		if (is_null($bodycopy)) return;
 
-
+		//pick up any global keywords and replace them
+		$keywords = $bodycopy->getKeywords();
+		foreach($keywords as $word) {
+			if(!isset($this->_replacements[$word]) && (strpos($word, 'globals_') === 0 )){
+				$this->_replacements[$word] = $this->getKeywordReplacement($word);
+				// replace them here, it's not good enough to leave it to mysource.inc for replacement
+				// mysource.inc will only do replacement in frontend, account manager will be used in simple edit mode, 
+				// so for global keywords in account manager we have to replace it here	
+				replace_global_keywords($this->_replacements[$word]);	
+			}
+		}
+ 
 		$bodycopy->setKeywordReplacements($this->_replacements);
 
 		$bodycopy->printBody();
