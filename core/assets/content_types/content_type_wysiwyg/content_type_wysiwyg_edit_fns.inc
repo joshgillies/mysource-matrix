@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.49 2008/10/29 21:47:49 bpearson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.50 2008/10/31 03:50:26 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -161,6 +161,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap)) {
 					$wysiwyg->add_plugin('matrix_insert_link');
 				}
+				if ($iap || in_array('matrix_insert_quick_link', $ap)) {
+					$wysiwyg->add_plugin('matrix_insert_quick_link');
+				}
 				if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap)) {
 					$wysiwyg->add_plugin('matrix_insert_anchor');
 				}
@@ -169,6 +172,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				}
 				if ($iap || in_array('matrix_embed_movie', $ap)) {
 					$wysiwyg->add_plugin('matrix_embed_movie');
+				}
+				if ($iap || in_array('matrix_embed_youtube', $ap)) {
+					$wysiwyg->add_plugin('matrix_embed_youtube');
 				}
 			$wysiwyg->close_group();
 
