@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.292 2008/10/27 04:47:44 akarelia Exp $
+* $Id: lang_strings.xml,v 1.293 2008/11/02 23:14:46 mbrydon Exp $
 *
 */
 
@@ -278,9 +278,11 @@
 	<string source="remove_question">Remove ?</string>
 	<string source="rollback_enabled">Rollback Enabled</string>
 	<string source="rollback_settings">Rollback Settings</string>
-	<string source="must_enable_rollback">Rollback must be enabled and disabled using the "rollback_management.php" script in the MySource "scripts" directory</string>
+	<string source="must_enable_rollback">Rollback must be enabled and disabled using the Rollback Management Tool, or the "rollback_management.php" script in the MySource "scripts" directory</string>
 	<string source="root_node">Root Node</string>
 	<string source="run_on_squiz_server">Run on Squiz Server</string>
+	<string source="save">Save</string>
+	<string source="save_and_exit">Save and Exit</string>
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
@@ -499,7 +501,9 @@
 	<string source="general_reports_not_installed">There are no General Reports installed</string>
 
 	<string source="asset_tree">Asset Tree</string>
+	<string source="login_as">Login As...</string>
 	<string source="logout">Logout</string>
+	<string source="logout_and_resume">Logout and resume as %1$s</string>
 
 	<string source="my_space">My Space</string>
 	<string source="asset_map">Asset Map</string>
