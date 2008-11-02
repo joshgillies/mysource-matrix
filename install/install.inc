@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.83 2008/04/02 23:29:09 lwright Exp $
+* $Id: install.inc,v 1.84 2008/11/02 22:17:53 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -181,10 +181,11 @@ function uninstall_asset_types()
 			try {
 				$sql = 'DELETE FROM sq_ast_typ_inhd
 						WHERE type_code = :type_code
-						  OR inhd_type_code = :type_code';
+						  OR inhd_type_code = :inhd_type_code';
 
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
+				MatrixDAL::bindValueToPdo($query, 'inhd_type_code', $asset_type);
 				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete inherited type code '.$asset_type.' due to the following database error:'.$e->getMessage());
@@ -196,7 +197,7 @@ function uninstall_asset_types()
 
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'type_code', $asset_type);
-				MatrixDAL::executePdoOne($query);
+				MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete attribute with type code '.$asset_type.' due to the following database error:'.$e->getMessage());
 			}//end try catch
