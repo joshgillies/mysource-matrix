@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.262 2008/10/27 04:27:15 ewang Exp $
+* $Id: listing_engine.inc,v 1.263 2008/11/02 22:56:27 ata Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.262 $
+* @version $Revision: 1.263 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3055,8 +3055,20 @@ class Listing_Engine extends Page
 	*/
 	function getGroupableParentAssetids($child_assetid, $restrict_types=Array(), $direct_parent_only=FALSE)
 	{
-
+		// if there are proxy asset types selected and results are grouped by one of those asset types, return the parent
+		// asset ids which are cached in the convertProxyAssetTypes() method.
 		$proxy_settings = $this->attr('proxy_types');
+		if (!empty($proxy_settings)) {
+			if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
+				foreach ($this->_tmp['proxy_grouping'][$child_assetid] as $parent_type_code => $parent_assetids) {
+					// if the type_code of the parent assets is one of the grouped type_code, return those parent ids
+					if (in_array($parent_type_code, $restrict_types['type_code'])) {
+						return array_values(array_unique($parent_assetids));
+					}
+				}
+			}
+		}
+		
 		$parent_link_assetids = Array();
 
 		$root_nodes = $this->getRootNodes(FALSE);
@@ -3073,23 +3085,6 @@ class Listing_Engine extends Page
 		if (empty($parent_link_assetids) && strpos($child_assetid, ':') !== FALSE && $direct_parent_only) {
 			$id_parts = explode(':', $child_assetid);
 			$parent_link_assetids[] = $id_parts[0];
-		}
-
-		$proxy_settings = $this->attr('proxy_types');
-		if (!empty($proxy_settings)) {
-			$grouping_by_proxy_type = FALSE;
-			foreach ($restrict_types['type_code'] as $group_type) {
-				if (isset($proxy_settings[$group_type])) {
-					$grouping_by_proxy_type = TRUE;
-					break;
-				}
-			}
-			if ($grouping_by_proxy_type) {
-				if (!empty($this->_tmp['proxy_grouping'][$child_assetid])) {
-					$valid_parents = array_unique(array_values($this->_tmp['proxy_grouping'][$child_assetid]));
-					$parent_link_assetids = array_intersect($valid_parents, $parent_link_assetids);
-				}
-			}
 		}
 
 		return $parent_link_assetids;
@@ -3151,7 +3146,11 @@ class Listing_Engine extends Page
 					foreach ($links as $link) {
 						// keep the original score
 						$new_results[$link['minorid']] = $results[$orig_assetid];
-						$this->_tmp['proxy_grouping'][$link['minorid']][] = $orig_assetid;
+						// store the temporary array of child => parents for use later in getGroupableParentAssetids() method
+						// if neccessary. The structure of the array is 
+						// Array(childid => Array(parent_type_code => Array(parentid))) - A child asset can have many parents in
+						// different type codes. Grouping parentids like this will make it easier to get them all later
+						$this->_tmp['proxy_grouping'][$link['minorid']][$result_type][] = $orig_assetid;
 					}
 				}
 
