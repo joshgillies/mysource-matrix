@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.185 2008/10/20 07:01:19 akarelia Exp $
+* $Id: metadata_manager.inc,v 1.186 2008/11/02 21:30:22 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.185 $
+* @version $Revision: 1.186 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -179,7 +179,7 @@ class Metadata_Manager extends MySource_Object
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
 			if (!is_null($schemaid)) {
-				MatrixDAL::bindValueToPdo($query, 'schemaid', (int)$schemaid, PDO::PARAM_INT);
+				MatrixDAL::bindValueToPdo($query, 'schemaid', (int)$schemaid, PDO::PARAM_STR);
 			}
 			if (!is_null($cascades)) {
 				MatrixDAL::bindValueToPdo($query, 'cascades', $cascades ? '1' : '0', PDO::PARAM_STR);
