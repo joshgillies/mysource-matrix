@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.47 2007/12/27 00:39:10 gsherwood Exp $
+* $Id: insert_image.php,v 1.48 2008/11/03 21:41:50 bpearson Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix
 */
 
@@ -78,6 +78,15 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			};
 
 			function onOK() {
+				document.getElementById('main-form').action = "";
+				document.getElementById('main-form').method = "get";
+				if (navigator.appName == "Microsoft Internet Explorer") {
+					// Hack for IE, Files don't get uploaded unless this is set a very special way
+					// ie. don't set it here !?!
+				} else {
+					document.getElementById('main-form').enctype = "";
+				}
+				document.getElementById('main-form').target = "";
 				var required = {
 					"f_alt": "Please enter the alternate text"
 				};
@@ -148,33 +157,33 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				//on Image Load
 			}
 
-		function newImg(div, url, width, height) {
-			var limit = 160.0;
-			var scalar = 1.0;
-			// convert width and height into a float format
-			width = parseFloat(width);
-			height = parseFloat(height);
-			var img = document.getElementById('preview_image');
-			img.height = 0;
-			img.width = 0;
-			img.src = url;
+			function newImg(div, url, width, height) {
+				var limit = 160.0;
+				var scalar = 1.0;
+				// convert width and height into a float format
+				width = parseFloat(width);
+				height = parseFloat(height);
+				var img = document.getElementById('preview_image');
+				img.height = 0;
+				img.width = 0;
+				img.src = url;
 
-			img.onload = function() { doStatus()};
+				img.onload = function() { doStatus()};
 
-			if( width > limit || height > limit) {
-				if (width > height) {
-					scalar = limit / width;
-				} else {
-					scalar = limit / height;
+				if( width > limit || height > limit) {
+					if (width > height) {
+						scalar = limit / width;
+					} else {
+						scalar = limit / height;
+					}
 				}
+
+				img.width = parseInt(Math.ceil(width * scalar));
+				img.height = parseInt(Math.ceil(height * scalar));
+
+				div.appendChild(img);
+
 			}
-
-			img.width = parseInt(Math.ceil(width * scalar));
-			img.height = parseInt(Math.ceil(height * scalar));
-
-			div.appendChild(img);
-
-		}
 
 
 			function setImagePreview() {
@@ -182,6 +191,45 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					return;
 				}
 				newImg(document.getElementById('image_container'), '<?php echo sq_web_path('root_url'); ?>' + '/?a=' + document.getElementById("f_imageid[assetid]").value);
+			}
+
+			function toggleCreateImage() {
+				changeButton = document.getElementById('show_create_button');
+				changeDivElements = ["show_create_image_label1", "show_create_image1", "show_create_image_label2", "show_create_image2", "show_create_image_submit"];
+					//document.getElementById('show_create_image');
+				errorDiv = document.getElementById('show_upload_error');
+				if (changeButton.style.display == "block") {
+					for (i in changeDivElements) {
+						var changeDiv = document.getElementById(changeDivElements[i]);
+						changeDiv.style.visibility = "visible";
+						changeDiv.style.display = "block";
+					}
+					changeButton.style.visibility = "hidden";
+					changeButton.style.display = "none";
+				} else {
+					for (i in changeDivElements) {
+						var changeDiv = document.getElementById(changeDivElements[i]);
+						changeDiv.style.visibility = "hidden";
+						changeDiv.style.display = "none";
+					}
+					errorDiv.style.visibility = "hidden";
+					errorDiv.style.display = "none";
+					changeButton.style.visibility = "visible";
+					changeButton.style.display = "block";
+				}
+			}
+
+			function submitCreateImage() {
+				document.getElementById('main-form').action = "upload_image.php";
+				document.getElementById('main-form').method = "post";
+				if (navigator.appName == "Microsoft Internet Explorer") {
+					// Hack for IE, Files don't get uploaded unless this is set a very special way
+					var encType = document.getElementById('main-form').getAttributeNode("enctype");
+					encType.value = "multipart/form-data";
+				} else {
+					document.getElementById('main-form').enctype = "multipart/form-data";
+				}
+				document.getElementById('main-form').target = "create_image_frame";
 			}
 
 		</script>
@@ -454,6 +502,38 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
 												</td>
 											</tr>
+											<tr>
+												<td colspan="2">
+												<div align="center" id="show_create_button" style="display: block; visibility: visible;">
+													<input type="button" name="show" value="Create Image" onclick="toggleCreateImage();" />
+												</div>
+												</td>
+											</tr>
+											<tr>
+												<td colspan="2">
+													<div id="show_upload_error" style="background:#cc0000;color:#ffffff;display:none; visibility:hidden;padding:0.1cm;">
+													</div>
+												</td>
+											</tr>
+											<tr>
+												<td><div id="show_create_image_label1" style="display: none; visibility: hidden;">Create an image:</div></td>
+												<td><div id="show_create_image1" style="display: none; visibility: hidden;"><input name="create_image_upload" id="create_image_upload" type="file" /></div></td>
+											</tr>
+											<tr>
+												<td><div id="show_create_image_label2" style="display: none; visibility: hidden;">Create under:</div></td>
+												<td><div id="show_create_image2" style="display: none; visibility: hidden;"><?php asset_finder('f_create_root_node', '0', Array(), ''); ?></div></td>
+											</tr>
+											<tr>
+												<td align="center" colspan="2"><div id="show_create_image_submit" style="display: none; visibility: hidden;"><input type="submit" name="create_image_submit" value="Create &amp; Use Image" onclick="submitCreateImage();" /><input type="button" name="cancel_create_image" value="Cancel" onclick="toggleCreateImage();" /></div></td>
+											</tr>
+											</div>
+											<tr>
+												<td colspan="2">
+													<div id="create_image_frame_div" style="display:none;visibility:hidden;">
+														<iframe id="create_image_frame" name="create_image_frame" src=""></iframe>
+													</div>
+												</td>
+											</tr>
 										</table>
 									</fieldset>
 								</td>
@@ -485,7 +565,6 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?>
 															<br /><br />or choose a Standard Page asset<br />
 															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
-															<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 														<?php
 														} else {?>
 															Enter URL manually<br />
@@ -493,7 +572,6 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?>
 															<br /><br />or choose a Standard Page asset<br />
 															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
-															<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 														<?php
 														}
 
@@ -504,9 +582,9 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 													<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
 													<br /><br />or choose a Standard Page asset<br />
 													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
-													<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 												<?php
 												}?>
+											<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 											</td>
 										</tr>
 									</table>
