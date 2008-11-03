@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265.2.9 2008/07/17 05:44:58 gsherwood Exp $
+* $Id: asset_map.inc,v 1.265.2.10 2008/11/03 23:49:02 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.9 $
+* @version $Revision: 1.265.2.10 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1232,6 +1232,7 @@ class Asset_Map
 
 						$result[] = Array(
 										'assetid'		=> $link_data['minorid'],
+										'name'			=> $link_asset->name,
 										'short_name'	=> $link_asset->short_name,
 										'accessible'	=> 1,
 										'type_code'		=> $link_data['minor_type_code'],
