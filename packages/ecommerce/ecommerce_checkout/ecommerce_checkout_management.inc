@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.5.4.5 2008/07/29 06:01:01 bshkara Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.5.4.6 2008/11/03 04:04:44 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5.4.5 $
+* @version $Revision: 1.5.4.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -276,6 +276,58 @@ class Ecommerce_Checkout_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
+		// ensure that the correct order submission folders are created underneath all Ecommerce_Checkout assets (introduced in 0.4)
+		// also move all existing orders underneath the Completed Orders folder
+
+		if (version_compare($current_version, '0.3', '<=')) {
+			pre_echo('STARTING ECOMMERCE CHECKOUT UPGRADE - VERSION 0.4');
+
+			// check each Ecommerce_Checkout asset
+			$sql = 'SELECT assetid
+					FROM sq_ast
+					WHERE type_code = '.MatrixDAL::quote('ecommerce_checkout');
+			try {
+				$checkout_assetids = MatrixDAL::executeSqlAssoc($sql);
+			} catch (Exception $e) {
+				throw new Exception('Unable to locate Ecommerce_Checkout assets due to database error: '.$e->getMessage());
+			}
+
+			$sub_assets = Array(
+							'pending_orders'	=> 'folder',
+							'orders_to_review'	=> 'folder',
+						  );
+
+			foreach ($checkout_assetids as $row => $info) {
+				$checkout = $GLOBALS['SQ_SYSTEM']->am->getAsset($info['assetid']);
+
+				// create 2 folders for each asset
+				foreach ($sub_assets as $link_value => $type) {
+					$asset = new $type();
+					$copy_link = Array(
+									'asset'			=> $checkout,
+									'value'			=> $link_value,
+									'link_type'		=> SQ_LINK_TYPE_2,
+									'is_dependant'	=> 1,
+									'is_exclusive'	=> 1,
+								 );
+
+					$asset->setAttrValue('name', ucwords(str_replace('_',' ', $link_value)));
+					if (!$asset->create($copy_link)) return FALSE;
+				}
+
+				// update the existing Orders folder
+				$order_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($checkout->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'orders');
+				if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($order_folder_link['linkid'], SQ_LINK_TYPE_2, 'completed_orders')) return FALSE;
+				// change the name
+				$order_folder = $GLOBALS['SQ_SYSTEM']->am->getAsset($order_folder_link['minorid']);
+				$order_folder->setAttrValue('name', 'Completed Orders');
+				$order_folder->saveAttributes();
+			}
+
+			pre_echo('COMPLETED ECOMMERCE CHECKOUT UPGRADE - VERSION 0.4');
+
+		}
+
 		// first do things as normal
 		$res = parent::_upgrade($current_version);
 
