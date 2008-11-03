@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.60 2008/10/13 11:45:22 gnoel Exp $
+* $Id: trigger_manager.inc,v 1.61 2008/11/03 23:38:04 ewang Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -230,6 +230,7 @@ class Trigger_Manager extends Asset implements Bridge
 				$asset = new Trigger($this->id, $id);
 				//set up status and display name
 				$asset->short_name = $asset->vars['active']['value'] == '1' ? $asset->vars['name']['value'] : $asset->vars['name']['value'].' (disabled)';
+				$asset->name = $asset->vars['active']['value'] == '1' ? $asset->vars['name']['value'] : $asset->vars['name']['value'].' (disabled)';
 				$asset->status = $asset->vars['active']['value'] == '1' ? SQ_STATUS_LIVE : SQ_STATUS_UNDER_CONSTRUCTION;
 
 				// if no id, this trigger is bodge
