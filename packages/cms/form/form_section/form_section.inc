@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.66 2008/10/10 04:30:14 lwright Exp $
+* $Id: form_section.inc,v 1.67 2008/11/03 23:17:29 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1433,8 +1433,12 @@ class Form_Section extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
-	function getDisplayKeywordReplacements($generating=FALSE, $include_submit_keywords=TRUE)
+	function getDisplayKeywordReplacements($generating=FALSE, $include_submit_keywords=TRUE, $form=NULL)
 	{
+		if (!is_null($form)) {
+			assert_is_a($form, 'Form');
+		}
+
 		$questions = $this->attr('questions');
 		$keywords = Array();
 
@@ -1461,16 +1465,16 @@ class Form_Section extends Asset implements Bridge
 			// get the nested form section
 			$sectionid = $link['minorid'];
 			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
-			$keywords += $s->getDisplayKeywordReplacements();
+			$keywords += $s->getDisplayKeywordReplacements($generating);
 
 			if ($generating) {
 				$keywords['section_title_'.$s->id] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$sectionid.'\')->name; ?'.'>';;
 
 				$keywords['section_contents_'.$s->id] = '<'.'?php include_once $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$sectionid.'\')->data_path.\'/content_file.php\'; ?'.'>';;
-				} else {
+			} else {
 				$keywords['section_title_'.$s->id] = $s->name;
 				ob_start();
-					$s->printBody();
+					$s->printBody($form);
 				$keywords['section_contents_'.$s->id] = ob_get_clean();
 			}
 
