@@ -83,6 +83,7 @@ Core
 * Fixed Bug #3301: Trigger_condition asset misses inclusion of its parrent class
 * Fixed Bug #3312: add_remove_url.php script broken if site is tagged
 * Fixed Bug #3324: Using _recache suffix gives a blank screen
+* Fixed Bug #3326: %details-S_details% for file asset doesn't print the titles for the input
 + A new Global Keyword in the format %globals_server_xxx% has been added, to make values from the PHP $_SERVER array available for use
 + Any asset type may now be linked underneath a User asset
 
