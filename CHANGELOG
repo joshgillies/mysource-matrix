@@ -1,5 +1,40 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.14
+
+Featured Changes
+-----------------------------------
+
+Alternative Proxies for Remote Content and XML Data Source assets
+
+	Remote Proxy configuration now applies to Remote Content and XML Data Source assets.
+
+
+Matching on Selection Fields in Metadata Value Trigger Condition
+
+	It is now possible to define a Metadata Value trigger condition for a Metadata Select field. These fields were previously not available for selection from the Asset Map in this condition.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3288: Wrong numeric entity encoding of metadata values on the front end
+* Fixed Bug #3295: Error message if an existing asset has the same url
+* Fixed Bug #3301: Trigger_condition asset misses inclusion of its parrent class
+* Fixed Bug #3312: add_remove_url.php script broken if site is tagged
+
+CMS
+* Fixed Bug #3276: Asset Builder crashes when too many &nbsp; characters are submitted and indexed
+* Fixed Bug #3280: Parent attributes of linked assets
+* Fixed Bug #3316: Global Keywords don't work in Asset Builder Bodycopies
+* Fixed Bug #3319: Asset Builder: Captcha keywords don't work in custom form layout
+
+E-Commerce
+* Fixed Bug #3314: Transaction ID is lost if payment gateway times out
+
+
+
 VERSION 3.16.13
 
 Featured Changes
