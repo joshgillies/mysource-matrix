@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.67 2008/11/03 23:17:29 lwright Exp $
+* $Id: form_section.inc,v 1.68 2008/11/03 23:54:08 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1465,7 +1465,7 @@ class Form_Section extends Asset implements Bridge
 			// get the nested form section
 			$sectionid = $link['minorid'];
 			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
-			$keywords += $s->getDisplayKeywordReplacements($generating);
+			$keywords += $s->getDisplayKeywordReplacements($generating, FALSE);
 
 			if ($generating) {
 				$keywords['section_title_'.$s->id] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$sectionid.'\')->name; ?'.'>';;
