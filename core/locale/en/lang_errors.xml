@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.92.2.7 2008/09/15 06:20:13 ata Exp $
+* $Id: lang_errors.xml,v 1.92.2.8 2008/11/03 03:16:10 lwright Exp $
 *
 */
 
@@ -317,7 +317,7 @@
 	<error code="CRON0026">Unable to run "%1$s" (Id: #%2$s), Unable to find user to run as</error>
 		<!-- core/assets/system/cron/cron_job/cron_job.inc:539: -->
 
-	<error code="CRON0027">Unable to run "%1$s" (Id: #%2$s), Unable to set the current system user to "%1$s" (#%2$s)</error>
+	<error code="CRON0027">Unable to run "%1$s" (Id: #%2$s), Unable to set the current system user to "%3$s" (#%4$s)</error>
 		<!-- core/assets/system/cron/cron_job/cron_job.inc:522: -->
 
 	<error code="CRON0028">Unable to run "%1$s" (Id: #%2$s), _exec() not done</error>
@@ -401,7 +401,7 @@
 
 	<error code="CRON0059">Unable to create future permission cron job, unable to acquire "links" lock</error>
 		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:63: -->
-		
+
 	<error code="CRON0060">Unable to create future permission cron job, Unable to set asset in link</error>
 		<!-- core/assets/system/cron/jobs/cron_job_future_permission/cron_job_future_permission.inc:70: -->
 
