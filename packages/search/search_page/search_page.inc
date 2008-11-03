@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.227 2008/11/03 23:26:55 bpearson Exp $
+* $Id: search_page.inc,v 1.228 2008/11/03 23:30:57 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.227 $
+* @version $Revision: 1.228 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1777,10 +1777,10 @@ class Search_Page extends Listing_Engine
 			$replacement = "%$keyword%";
 			switch ($keyword) {
 				case 'result_list':
-					//the groupAssetsRecursively() method must be called before the getChunk() method because the getChunk()
-					//method expect the data structure returned by the groupAssetsRecursively() method. Otherwise, there will
-					//be PHP errors in _groupChunk() function ($todo is not an array like it is expected) if asset grouping
-					//is used to format the search results
+					// the groupAssetsRecursively() method must be called before the getChunk() method because the getChunk()
+					// method expect the data structure returned by the groupAssetsRecursively() method. Otherwise, there will
+					// be PHP errors in _groupChunk() function ($todo is not an array like it is expected) if asset grouping
+					// is used to format the search results
 					$result_list = $asset_info;
 
 					if ($this->attr('group_by') == 'grouped') {
@@ -1789,7 +1789,7 @@ class Search_Page extends Listing_Engine
 					}
 
 					$result_list = $this->getChunk($result_list, $parent_replaces, $keywords, $current_result_page, $results_per_page);
-					
+
 					// For the 'select all' code
 					$relations = $this->_analyseCheckAllRelations($result_list);
 
