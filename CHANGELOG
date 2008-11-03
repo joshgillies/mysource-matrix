@@ -1,5 +1,112 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.7
+
+Featured Changes
+-----------------------------------
+
+Relative Position Formats in Listing Engine
+
+	Negative Position Formats are now allowed in the "Display Formats" screen of Listing Engine assets such as Asset Listing and Search Page. Numbers relative to the last element can be specified so the Display Format is applied in the same position each time, regardless of the number of elements in the list. For example, -1 represents the last item, -2 the second-last item.
+
+
+Trigger Categorisation
+
+	Triggers can be categorised in Trigger Folders, which can be used to manually group related triggers. Categories are assigned from a text field on the "Details" screen of the Trigger. If a multiple-folder structure is required, then folder names can be separated by a forward slash (/). Triggers can be moved between categories by reassigning this value.
+
+
+Trigger Condition: HTTP Request Method
+
+	This Trigger Condition controls whether or not to continue with trigger execution depending on the type of HTTP request which invoked the trigger. The request types available are GET, POST, PUT and DELETE.
+
+
+Restriction of Metadata Sections by Asset Type
+
+	Metadata Sections can be made available on an asset type-basis. Multiple asset types may be selected per section. Asset type restrictions are configured on the "Details" screen of the Metadata Schema.
+
+
+Alternative Proxies for Remote Content and XML Data Source assets
+
+	Remote Proxy configuration now applies to Remote Content and XML Data Source assets.
+
+
+Matching on Selection Fields in Metadata Value Trigger Condition
+
+	It is now possible to define a Metadata Value trigger condition for a Metadata Select field. These fields were previously not available for selection from the Asset Map in this condition. 
+
+
+Asset Status selection in Broken Links Report
+
+	Asset status selection has been added to the Broken Links Report to filter assets included in this report. The default is to list all Live assets.
+
+
+Text-only Bulkmails option and preservation of encoding
+
+	An "Email Type" option is now available from the "Details" screen of Bulkmail Job assets that allows you to send text-only bulkmails. The character set defined on the "Settings" screen of the asset being sent will be used when sending the bulkmail rather than the system default. 
+
+
+E-Commerce Order auditing and categorisation
+
+	An audit trail is now logged against Order assets to track each important step of an order. For example, the date/time and order was sent to the Payment Gateway and whether or not the order was successfully placed. This audit trail is available from the "Details" screen of each order. A SecurePay Transaction ID is also maintained against each order.
+
+Three order state folders are now available under the Checkout asset: "Pending", "Completed" and "Orders to Review". Orders are placed in the "Pending" folder before being sent to the Payment Gateway. These orders are moved to the "Completed" folder after a successful transaction. Failed orders are kept in the "Pending" folder.
+
+Orders which have been processed but fail due to insufficient product quantity - as defined on the Checkout asset - after the transaction has been processed, are moved into the "Orders to Review" folder. 
+
+
+"Notice Link" and Link Value control
+
+	Notice Links can now be added, modified and deleted from the asset Linking screen. Link values can also be set from this screen. 
+
+
+Metadata Keywords, Menu and Lineage Design Areas in Design Parse Files
+
+	Metadata keywords, menu and asset lineage design areas can be used in the <MySource_PRINT> tag in design parse files. Standard asset keywords (such as "%asset_type%") are also available in this manner. 
+
+
+Bulkmail Conditional Sending Filter
+
+	Bulkmail Jobs can be prevented from sending when the body content of the asset being sent matches specified content. For example. a job which uses an Asset Listing as content could be configured to be ignored if the asset list was empty (ie; matches specified text or HTML in the "No Results" bodycopy).
+
+
+Session Cleanup Script modifications
+
+	The "session_cleanup.sh" script in the "scripts" directory will now remove all session files starting with "sess_". Previously this script removed files based on a specific filename length. This change accommodates systems where PHP 5 has been configured to use an alternate session ID generation hashing scheme.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3278: Incorrect inheritance of lookups (designs/paint layouts)
+* Fixed Bug #3288: Wrong numeric entity encoding of metadata values on the front end
+* Fixed Bug #3301: Trigger_condition asset misses inclusion of its parrent class
+* Fixed Bug #3312: add_remove_url.php script broken if site is tagged
+* Fixed Bug #3324: Using _recache suffix gives a blank screen
++ A new Global Keyword in the format %globals_server_xxx% has been added, to make values from the PHP $_SERVER array available for use
++ Any asset type may now be linked underneath a User asset
+
+CMS
+* Fixed Bug #3276: Asset Builder crashes when too many &nbsp; characters are submitted and indexed
+* Fixed Bug #3280: Parent attributes of linked assets
+* Fixed Bug #3316: Global Keywords don't work in Asset Builder Bodycopies
+* Fixed Bug #3319: Asset Builder: Captcha keywords don't work in custom form layout
+
+Bulkmail
++ Bulkmail Jobs can be sent to a Search Folder to allow sending to Bulkmail and User asset types resulting from a predetermined search query
+
+E-Commerce
+* Fixed Bug #3314: Transaction ID is lost if payment gateway times out
+
+Google Maps
+* Fixed Bug #3310: Error message when using google maps
++ An option to enable a Google Earth map equivalent from the "Details" screen of Google Map asset is now available
+
+Search
+* Fixed Bug #3287: Backend Search issues a PHP notice
+
+
+
 VERSION 3.18.6
 
 Featured Changes
