@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.278 2008/08/15 04:52:00 gsherwood Exp $
+* $Id: asset_map.inc,v 1.279 2008/11/03 23:40:02 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.278 $
+* @version $Revision: 1.279 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1235,6 +1235,7 @@ class Asset_Map
 
 						$result[] = Array(
 										'assetid'		=> $link_data['minorid'],
+										'name'			=> $link_asset->name,
 										'short_name'	=> $link_asset->short_name,
 										'accessible'	=> 1,
 										'type_code'		=> $link_data['minor_type_code'],
@@ -1265,7 +1266,7 @@ class Asset_Map
 				}
 				$asset['num_kids'] = array_get_index($num_kids, $asset['assetid'], $default_kids);
 			}
-
+				
 			if (!isset($asset['accessible'])) {
 				$asset['accessible'] = 0;
 			}
@@ -1284,7 +1285,9 @@ class Asset_Map
 			// then its a shadow asset linked underneath a real asset, so we
 			// will need some information about the asset
 			$id_parts = explode(':', $asset['assetid']);
+						
 			if (isset($id_parts[0]) && !$implements_shadow_assets) {
+				
 				$bridge     = $GLOBALS['SQ_SYSTEM']->am->getAsset($id_parts[0]);
 				$shdw_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset['assetid']);
 
@@ -1839,7 +1842,9 @@ class Asset_Map
 		foreach ($input->asset as $asset_node) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$asset_node->attributes()->assetid);
 			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$asset_node->attributes()->parentid));
+
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$asset_node->attributes()->linkid, $old_parent->id);
+
 
 			if (is_null($old_parent)) {
 				$this->_error('AMAP0031', $input->attributes()->from_parent_assetid);
