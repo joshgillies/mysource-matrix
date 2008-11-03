@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.226 2008/10/30 06:16:53 ata Exp $
+* $Id: search_page.inc,v 1.227 2008/11/03 23:26:55 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.226 $
+* @version $Revision: 1.227 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -106,15 +106,15 @@ class Search_Page extends Listing_Engine
 	*
 	* For example, creating other child assets should be performed in this method
 	*
-	* @param array  &$link  information used to create the initial link<br/>
+	* @param array	&$link	information used to create the initial link<br/>
 	* <pre>
 	* Array (
-	*   'asset'        => [ref major asset to create link under],
-	*   'link_type'    => SQ_LINK_?,
-	*   'value'        => [link value],
-	*   'sort_order'   => [link sort order],
-	*   'is_dependant' => [0|1],
-	*   'is_exclusive' => [0|1],
+	*	'asset'		   => [ref major asset to create link under],
+	*	'link_type'    => SQ_LINK_?,
+	*	'value'		   => [link value],
+	*	'sort_order'   => [link sort order],
+	*	'is_dependant' => [0|1],
+	*	'is_exclusive' => [0|1],
 	* )
 	* </pre>
 	*
@@ -1782,7 +1782,7 @@ class Search_Page extends Listing_Engine
 					//be PHP errors in _groupChunk() function ($todo is not an array like it is expected) if asset grouping
 					//is used to format the search results
 					$result_list = $asset_info;
-	
+
 					if ($this->attr('group_by') == 'grouped') {
 						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
 						$this->sortGroups($this->attr('asset_grouping'), $result_list, $result_list);
@@ -2803,7 +2803,7 @@ class Search_Page extends Listing_Engine
 	* @param string	$assetid		The assetid of the asset we are printing
 	* @param int	$list_position	Asset's position in the list
 	* @param array	$keywords		Keywords
-	* @param int    $num_items      the number of items in the current list (required by Listing Engine)
+	* @param int	$num_items		the number of items in the current list (required by Listing Engine)
 	*
 	* @return void
 	* @access protected
