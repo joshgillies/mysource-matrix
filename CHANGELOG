@@ -87,20 +87,20 @@ Core
 + A new Global Keyword in the format %globals_server_xxx% has been added, to make values from the PHP $_SERVER array available for use
 + Any asset type may now be linked underneath a User asset
 
+Bulkmail
++ Bulkmail Jobs can be sent to a Search Folder to allow sending to Bulkmail and User asset types resulting from a predetermined search query
+
 CMS
 * Fixed Bug #3276: Asset Builder crashes when too many &nbsp; characters are submitted and indexed
 * Fixed Bug #3280: Parent attributes of linked assets
 * Fixed Bug #3316: Global Keywords don't work in Asset Builder Bodycopies
 * Fixed Bug #3319: Asset Builder: Captcha keywords don't work in custom form layout
 
-Bulkmail
-+ Bulkmail Jobs can be sent to a Search Folder to allow sending to Bulkmail and User asset types resulting from a predetermined search query
-
 E-Commerce
 * Fixed Bug #3314: Transaction ID is lost if payment gateway times out
 
 Google Maps
-* Fixed Bug #3310: Error message when using google maps
+* Fixed Bug #3310: Error message when using Google Maps
 + An option to enable a Google Earth map equivalent from the "Details" screen of Google Map asset is now available
 
 Search
