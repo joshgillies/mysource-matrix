@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.343.2.5 2008/08/07 03:57:47 bpearson Exp $
+* $Id: asset_edit_interface.inc,v 1.343.2.6 2008/11/03 02:51:18 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.343.2.5 $
+* @version $Revision: 1.343.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1562,11 +1562,11 @@ class Asset_Edit_Interface extends MySource_Object
 							foreach ($field->children() as $sub_field) {
 								switch ($sub_field->getName()) {
 									case 'display_name':
-										$display_name = (string)$sub_field->display_name;
+										$display_name = (string)$sub_field;
 									break;
 
 									case 'note':
-										$field_note = (string)$sub_field->note;
+										$field_note = (string)$sub_field;
 									break;
 
 									default:
