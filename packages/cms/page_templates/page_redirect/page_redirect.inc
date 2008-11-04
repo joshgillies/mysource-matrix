@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.36 2007/12/03 23:31:29 bshkara Exp $
+* $Id: page_redirect.inc,v 1.37 2008/11/04 04:20:12 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -174,6 +174,14 @@ class Page_Redirect extends Page
 
 		$url = $this->_getRedirectURL();
 		if (empty($url)) return;
+
+
+		//if redirect permanently, change location now
+		if($this->attr('permanent_redirect') && !headers_sent()) {
+				header('HTTP/1.1 301 Moved Permanently');
+				header('Location: '.$url);
+				return;
+		}
 
 		$timeout = $this->attr('timeout');
 		if (($timeout > 0) || headers_sent()) {
