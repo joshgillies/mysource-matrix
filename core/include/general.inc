@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.187.2.8 2008/10/08 10:08:20 gnoel Exp $
+* $Id: general.inc,v 1.187.2.9 2008/11/04 03:57:57 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187.2.8 $
+* @version $Revision: 1.187.2.9 $
 * @package MySource_Matrix
 */
 
@@ -1354,8 +1354,9 @@ function get_asset_tag_line($assetid, $screen='')
 					array_splice($lineage_names, 2, -1, Array('...'));
 				}
 				$lineage_names[$assetid] = $asset_info['name'];
+				$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
 				?><tr>
-				<td class="sq-backend-table-cell" ><a href="#" onclick="if (self.name == 'sq_wysiwyg_popup_main') {am = self;} else if (self.name == 'hipo_job') {am = opener;} else if ((typeof sq_wysiwyg_dialog != 'undefined') && (sq_wysiwyg_dialog != null) && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog; am.focus(); } else { am = parent.top.frames['sq_sidenav']; } am.asset_locator_start('<?php echo get_asset_lineage_sort_order($lineage_assetids) ?>'); tooltip.hide(); return false;"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+				<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 				</tr><?php
 			} else {
 				unset($lineages[$lineage_key]);
@@ -1380,14 +1381,7 @@ function get_asset_tag_line($assetid, $screen='')
 			$lineage_names = $lineages[0]['lineage'];
 			$lineage_names[$assetid] = $asset_info['name'];
 
-			// Logic:
-			// 1. Invoking from a WYSIWYG popup itself (WYSIWYG search results)
-			//    => target is the popup, to target the simple asset map
-			// 2. Invoking from main window when a WYSIWYG popup is active
-			//    => target is the popup (simple asset map), BUT need to focus it
-			// 3. Invoking from main window, no WYSWIYG popup
-			//    => target is the sidenav window, to target the main asset map
-			$lineages_onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {am = self;} else if (self.name == \'hipo_job\') {am = opener;} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && !sq_wysiwyg_dialog.closed) { am = sq_wysiwyg_dialog.frames[\'sq_wysiwyg_popup_main\']; am.focus(); } else { am = parent.top.frames[\'sq_sidenav\']; } am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\'); return false;';
+			$lineages_onclick = _asset_locator_onclick($lineage_assetids, FALSE);
 			$lineages_name = translate('show_in_asset_map');
 		}
 
@@ -1422,6 +1416,47 @@ function get_asset_tag_line($assetid, $screen='')
 	return $contents;
 
 }//end get_asset_tag_line()
+
+
+/**
+* Returns the onclick event used by the binoculars icon for get_asset_tag_line()
+*
+* @param array		$lineage_assetids	list of assetids indicating lineage of asset to be located
+* @param boolean	$tooltip_hide		whether to hide the tooltip after locating the asset
+*
+* @return string
+* @access public
+*/
+function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
+{
+	// Logic:
+	// 1. Invoking from a WYSIWYG popup itself (WYSIWYG search results)
+	//    => target is the popup, to target the simple asset map
+	// 2. Invoking from main window when a WYSIWYG popup is active
+	//    => target is the popup (simple asset map), BUT need to focus it
+	// 3. Invoking from a popup which is not a sq_wysiwyg_dialog, e.g. keywords page popup
+	//    => target is the main window (opener) and no need to focus it
+	// 4. Invoking from main window, no WYSWIYG popup
+	//    => target is the sidenav window, to target the main asset map
+	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
+					am = self;
+				} else if (self.name == \'hipo_job\') {
+					am = opener;
+				} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && (!sq_wysiwyg_dialog.closed)) {
+					am = sq_wysiwyg_dialog.frames[\'sq_wysiwyg_popup_main\'];
+					am.focus();
+				} else if ((typeof opener != \'undefined\') && (opener != null) && (!opener.closed)) {
+					am = opener.parent.top.frames[\'sq_sidenav\'];
+				} else {
+					am = parent.top.frames[\'sq_sidenav\'];
+				}
+				am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\');';
+
+	if ($tooltip_hide) $onclick .= 'tooltip.hide();';
+	$onclick .= 'return false;';
+	return $onclick;
+
+}//end _asset_locator_onclick()
 
 
 /**
@@ -1568,7 +1603,9 @@ function replace_global_keywords(&$text)
 				}
 				if (0 === strpos($keyword, 'globals_server_')) {
 					$replacements[$keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
-					if (!is_scalar($replacements[$keyword])) $replacements[$keyword] = '';
+					if (!is_scalar($replacements[$keyword])) {
+						$replacements[$keyword] = '';
+					}
 				}
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
@@ -1620,7 +1657,7 @@ function replace_global_keywords(&$text)
 						}
 					} else {
 						$asset_exist = $GLOBALS['SQ_SYSTEM']->am->assetExists($matches[2]);
-						if($asset_exist === TRUE) {
+						if ($asset_exist === TRUE) {
 							$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 							$asset_replacement = $asset->getKeywordReplacement($matches[1]);
 							if ($asset_replacement != "%$matches[1]%") {
@@ -1628,7 +1665,7 @@ function replace_global_keywords(&$text)
 							}
 						}
 					}
-				}
+				}//end if
 				if (0 === strpos($keyword, 'globals_snippet_')) {
 					$replacements[$keyword] = '';
 					if ($GLOBALS['SQ_SYSTEM']->am->installed('content_type_snippet')) {
@@ -1680,9 +1717,9 @@ function clean_keyword_value($keyword_value)
 		$safe_list = 'A-Za-z0-9\.\-\_\%\$\(\)\=';
 		$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
 	}
-	
+
 	return $keyword_value;
-	
+
 }//end clean_keyword_value()
 
 
