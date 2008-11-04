@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.11 2008/10/08 02:38:41 mbrydon Exp $
+* $Id: search_page.inc,v 1.213.2.12 2008/11/04 21:38:16 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.11 $
+* @version $Revision: 1.213.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -102,27 +102,27 @@ class Search_Page extends Listing_Engine
 
 
 	/**
-        * Perform any additional processing required during the creation of this asset
-        *
-        * For example, creating other child assets should be performed in this method
-        *
-        * @param array  &$link  information used to create the initial link<br/>
-        * <pre>
-        * Array (
-        *   'asset'        => [ref major asset to create link under],
-        *   'link_type'    => SQ_LINK_?,
-        *   'value'        => [link value],
-        *   'sort_order'   => [link sort order],
-        *   'is_dependant' => [0|1],
-        *   'is_exclusive' => [0|1],
-        * )
-        * </pre>
-        *
-        * @return boolean
-        * @access private
-        */
-        function _createAdditional(Array &$link)
-        {
+	* Perform any additional processing required during the creation of this asset
+	*
+	* For example, creating other child assets should be performed in this method
+	*
+	* @param array	&$link	information used to create the initial link<br/>
+	* <pre>
+	* Array (
+	*	'asset'		   => [ref major asset to create link under],
+	*	'link_type'    => SQ_LINK_?,
+	*	'value'		   => [link value],
+	*	'sort_order'   => [link sort order],
+	*	'is_dependant' => [0|1],
+	*	'is_exclusive' => [0|1],
+	* )
+	* </pre>
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(Array &$link)
+	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		// Grab the attributes lock
@@ -138,9 +138,9 @@ class Search_Page extends Listing_Engine
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 		}
 
-                return TRUE;
+		return TRUE;
 
-        }//end _createAdditional()
+	}//end _createAdditional()
 
 
 	/**
@@ -478,8 +478,8 @@ class Search_Page extends Listing_Engine
 	/**
 	* Remove assets with a status that we do not want to show
 	*
-	* Search page doesnt need to filter anything because does everything for it,
-	* including checking read access.
+	* Search page doesnt need to filter anything because Search Manager does
+	* everything for it, including checking read access.
 	*
 	* @param array	&$todo	an array of assets to list in the same format as the return
 	*						value of getAssetList()
@@ -1777,14 +1777,18 @@ class Search_Page extends Listing_Engine
 			$replacement = "%$keyword%";
 			switch ($keyword) {
 				case 'result_list':
-					$result_list = Array();
+					// the groupAssetsRecursively() method must be called before the getChunk() method because the getChunk()
+					// method expect the data structure returned by the groupAssetsRecursively() method. Otherwise, there will
+					// be PHP errors in _groupChunk() function ($todo is not an array like it is expected) if asset grouping
+					// is used to format the search results
+					$result_list = $asset_info;
 
-					$result_list = $this->getChunk($asset_info, $parent_replaces, $keywords, $current_result_page, $results_per_page);
-	
 					if ($this->attr('group_by') == 'grouped') {
 						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
 						$this->sortGroups($this->attr('asset_grouping'), $result_list, $result_list);
 					}
+
+					$result_list = $this->getChunk($result_list, $parent_replaces, $keywords, $current_result_page, $results_per_page);
 
 					// For the 'select all' code
 					$relations = $this->_analyseCheckAllRelations($result_list);
