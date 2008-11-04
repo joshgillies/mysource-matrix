@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.104 2008/11/03 00:55:00 lwright Exp $
+* $Id: lang_errors.xml,v 1.105 2008/11/04 22:07:24 mbrydon Exp $
 *
 */
 
@@ -1069,6 +1069,7 @@ As specified by %5$s and will be deferred</error><!-- core/include/package_manag
 	<error code="SYS0163">Failed reverting asset "%s" to system version, could not locate object data file</error><!-- core/include/asset.inc: -->
 
 	<error code="SYS0164">Failed reverting asset "%s" to system version, could not save previous version of attributes</error><!-- core/include/asset.inc: -->
+	<error code="SYS0331">Failed reverting asset "%s" to system version, could not save previous version of metadata</error><!-- core/include/asset.inc: -->
 
 	<error code="SYS0165">Failed reverting asset "%1$s" to system version, could not save value of attribute "%2$s"</error><!-- core/include/asset.inc: -->
 <!-- core/include/asset.inc: -->
@@ -1413,6 +1414,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0317">Neither the System Default nor Tech email addresses have been set.</error>
 
 	<error code="SYS0329">Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets</error>
+	
 
 
 	<!-- CORE ASSETS -->
