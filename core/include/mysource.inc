@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.276 2008/10/27 22:19:38 bpearson Exp $
+* $Id: mysource.inc,v 1.277 2008/11/04 05:01:15 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.276 $
+* @version $Revision: 1.277 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1210,7 +1210,14 @@ class MySource
 			case 'logout' :
 				$for_real = ($this->user && !($this->user instanceof Public_User));
 				$old_user = &$this->user;
-				$this->_logSecurityMsg('system.security.logout.manual');
+
+				// Log a slightly different system message if we logging out from secondary user session (after using "Login As...")
+				if (isset($_SESSION['login_as_invoker_user_full_name'])) {
+					$this->_logSecurityMsg('system.security.logout.secondary.manual', Array('secondary_user_name' => $_SESSION['login_as_invoker_user_full_name']));
+				} else {
+					$this->_logSecurityMsg('system.security.logout.manual');
+				}
+
 				$stalled_hipo_array = Array();
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -1238,11 +1245,20 @@ class MySource
 				if (isset($_SERVER['PHP_AUTH_USER'])) { unset($_SERVER['PHP_AUTH_USER']); }
 				if (isset($_SERVER['PHP_AUTH_PW'])) { unset ($_SERVER['PHP_AUTH_PW']); }
 
-				$this->_clearSession();
-				$this->loginPublicUser();
-				$this->generateLoginKey(TRUE);
-				if ($for_real) {
-					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
+				// Restore a previous System Administrator account after user switching
+				$invoker_user_id = NULL;
+				if (isset($_SESSION['login_as_invoker_id']) && isset($_SESSION['login_as_invoker_username'])) {
+					$invoker_user_id = $_SESSION['login_as_invoker_id'];
+					$invoker_username = $_SESSION['login_as_invoker_username'];
+					$this->_loginAsUser($invoker_username, $invoker_user_id, TRUE);
+				} else {
+					$this->_clearSession();
+
+					$this->loginPublicUser();
+					$this->generateLoginKey(TRUE);
+					if ($for_real) {
+						$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
+					}
 				}
 			break;
 			case 'real_logout' :
@@ -1257,6 +1273,22 @@ class MySource
 				$this->generateLoginKey(TRUE);
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
+				}
+			break;
+			case 'login_as' :
+				$username = '';
+				if (isset($_GET['user'])) {
+					$username = trim($_GET['user']);
+
+					/*
+					* Don't allow the user to login again as themselves - that's a bit silly
+					* Also don't allow the user to switch to "root" as no-one is worthy. Only an initial login
+					* as "root" will provide access to this account
+                    */
+                    
+					if (($username != 'root') && (($username != $this->user->attr('username')) && (strlen($username) > 0))) {
+						$this->_loginAsUser($username);
+					}
 				}
 			break;
 			case 'send_security_key' :
@@ -1360,6 +1392,124 @@ class MySource
 
 
 	/**
+	* Log in as a predetermined user
+	* The existing user must be a System Admin or Root User and be the administrator of that User for this to succeed
+	* The asset ID of the previous user must be supplied if resuming a session after a "Login As" operation
+	*
+	* @param string		$username				The username with which to log in
+	* @param string		$resuming_user_id_match	The asset ID of the resuming user
+	* @param boolean	$resuming_session		Whether we are going back to the invoking account
+	*
+	* @return boolean
+	* @access private
+	*/
+	private function _loginAsUser($username, $resuming_user_id_match='', $resuming_session=FALSE)
+	{
+		$logged_in = ($this->user && !($this->user instanceof Public_User));
+
+		if ($logged_in && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $resuming_session)) {
+			$old_user = $this->user;
+			$invoking_user_id = $this->user->id;
+			$invoking_username = $this->user->attr('username');
+			$invoking_user_full_name = $this->user->name;
+
+			// Be nice and store the user's navigation history so we make it easier when they resume
+			$invoking_user_nav_history = NULL;
+			if ($resuming_session) {
+				$invoking_user_nav_history = $_SESSION['login_as_invoker_sq_nav_history'];
+			} else {
+				$invoking_user_nav_history = $_SESSION['sq_nav_history'];
+			}
+
+			// Log out the invoking user (System Admin)
+			$this->broadcastTriggerEvent('trigger_event_before_user_logout', $this->user, NULL);
+			$this->_logSecurityMsg('system.security.logout.manual');
+
+			// Prepare a new session
+			$this->_clearSession();
+			$this->loginPublicUser();
+			$this->generateLoginKey(TRUE);
+
+			$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
+
+			// Switch to the secondary user without authenticating
+			// Don't worry about the login key as we know we are performing the request ourselves
+
+			// Get a list of all the installed authentication systems
+			$auth_folder = $this->am->getSystemAsset('authentication_folder');
+			if (is_null($auth_folder)) {
+				trigger_localised_error('SYS0249', E_USER_ERROR);
+				return;
+			}
+			$auth_systems = $auth_folder->getAuthSystems();
+
+			// Try each auth system in order to see if we can load a user asset
+			$secondary_user = NULL;
+			$user_status = NULL;
+			foreach ($auth_systems as $systemid) {
+				$system = $this->am->getAsset($systemid);
+				if (is_null($system)) continue;
+
+				// Don't authenticate this time, but just locate the user and log in
+				$secondary_user = $system->locateUser($username);
+		        if (!is_null($secondary_user)) {
+					// Ensure that if we are resuming, that the username and ID match so we
+					// are certain that we are logging back in to the correct account type
+					if ($resuming_session && ($secondary_user->id != $resuming_user_id_match)) {
+						// No go
+						$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('user_not_found')), TRUE);
+						return FALSE;
+					}
+
+            		// user found with username and password supplied
+		            unset($_SESSION['user_login_attempts']);
+
+					$user_status = $secondary_user->status;
+				}
+
+				// check that the user exists AND that it can login
+				// (ie. it is not yet live, or has been locked)
+				if (!is_null($secondary_user) && $secondary_user->canLogin()) {
+					// Store the details of the invoking user so we can switch back quickly
+					if ($resuming_session) {
+						// Alrighty, let's resume the user's previous account and their navigation history
+						if (isset($invoking_user_nav_history)) {
+							$_SESSION['sq_nav_history'] = $invoking_user_nav_history;
+						}
+						return $this->loginUser($secondary_user);
+					} else {
+						$_SESSION['login_as_invoker_username'] = $invoking_username;
+						$_SESSION['login_as_invoker_user_full_name'] = $invoking_user_full_name;
+						$_SESSION['login_as_invoker_id']  = $invoking_user_id;
+						$_SESSION['login_as_invoker_sq_nav_history'] = $invoking_user_nav_history;
+
+						// Ok all is good - login as the user we are after
+						return $this->loginUser($secondary_user, $old_user->name);
+					}
+				}
+			}
+
+			$failure_reason = translate('user_not_found');
+			if (!is_null($user_status)) {
+				if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
+					$failure_reason = translate('user_status_not_live');
+				} else {
+					$failure_reason = translate('user_asset_in_trash');
+				}
+			}
+
+			$this->addMessage(translate('user_not_found'));
+
+			// Log failed attempt
+			$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => $failure_reason), TRUE);
+		}
+
+		return FALSE;
+		
+	}//end _loginAsUser()
+
+
+	/**
 	* Try to login a user who has already been HTTP-authenticated by some external mechanism
 	*
 	* @return void
@@ -1436,12 +1586,13 @@ class MySource
 	*
 	* SHOULD BE USED WITH CAUTION - the assumption is that this user has already been authenticated
 	*
-	* @param User	$user	The user object to log in
+	* @param User	$user						The user object to log in
+	* @param string	$invoking_user_full_name	The name of the user who has invoked the login (only used from the "Login As..." function)
 	*
 	* @return void
 	* @access public
 	*/
-	public function loginUser(User $user)
+	public function loginUser(User $user, $invoking_user_full_name = '')
 	{
 		if (is_null($user)) return FALSE;
 
@@ -1464,7 +1615,11 @@ class MySource
 		}
 
 		// log a message so we know someone has logged in
-		$this->_logSecurityMsg('system.security.login');
+		if (empty($invoking_user_full_name)) {
+			$this->_logSecurityMsg('system.security.login');
+		} else {
+			$this->_logSecurityMsg('system.security.login.secondary', Array('secondary_user_name' => $invoking_user_full_name));
+		}
 
 		// generate a new login key so that when they try and login next
 		// they have to re-enter the details

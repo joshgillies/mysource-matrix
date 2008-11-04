@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.192 2008/10/09 21:46:21 csmith Exp $
+* $Id: backend.inc,v 1.193 2008/11/04 05:01:15 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.192 $
+* @version $Revision: 1.193 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -898,12 +898,51 @@ class Backend extends MySource_Object
 					<?php echo translate('logged_in_as', $GLOBALS['SQ_SYSTEM']->user->name, $message); ?></a>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
-					<table cellpadding="0" border="0" cellspacing="0">
+					<?php
+					if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
+					?>
+					<table cellpadding="0" border="0" cellspacing="0" id="login_as_form" style="display: none; height: 23px;" align="right">
+						<tr>
+							<td nowrap valign="middle">
+								<script>
+									function submit_login_as()
+									{
+										var login_as_user = document.getElementById('user').value;
+										if ((login_as_user.length > 0) && (login_as_user != 'root') && (login_as_user != '<?php htmlentities($GLOBALS['SQ_SYSTEM']->user->attr('username')); ?>')) {
+											top.location = './?SQ_ACTION=login_as&user='+login_as_user;
+										}
+									}
+
+									function show_login_as_form()
+									{
+										document.getElementById('login_as_form').style.display = 'block';
+										document.getElementById('tool_buttons').style.display = 'none';
+									}
+
+									function hide_login_as_form()
+									{
+										document.getElementById('login_as_form').style.display = 'none';
+										document.getElementById('tool_buttons').style.display = 'block';
+									}
+								</script>
+								<?php
+								echo '<span class="sq-backend-header-item">'.translate('login_as').'</span>';
+								text_box('user', '',  22, 0, TRUE, 'class="sq-backend-header-search-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+								?>
+								<input type="button" style="height: 20px;" value="Login" onclick="submit_login_as();" />
+								<input type="button" style="height: 20px;" value="Cancel" onclick="hide_login_as_form();" />
+							</td>
+						</tr>
+					</table>
+					<?php
+					}
+					?>
+					<table cellpadding="0" border="0" cellspacing="0" id="tool_buttons" align="right">
 						<tr>
 							<td nowrap valign="middle">
 							<?php
 								echo '<span class="sq-backend-header-item">'.translate('quick_search').'</span>';
-								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
+								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box" onkeypress="if (event.keyCode == 13) form.submit();"');
 							?>
 							</td>
 							<td nowrap>
@@ -949,14 +988,49 @@ class Backend extends MySource_Object
 										'icon'		=> 'asset_tree.png',
 									 );
 
+						if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
+							$options[] = Array(
+											'target'	=> '_top',
+											'title'		=> translate('login_as'),
+											'icon'		=> 'login_as.png',
+											'onclick'	=> 'document.getElementById("tool_buttons").style.display = "none"; document.getElementById("login_as_form").style.display = "block"; document.getElementById("user").focus();',
+										 );
+						}
+
+						$logout_button_tooltip = translate('logout');
+						$logout_icon = 'logout.png';
+
+						// Change the "Logout" button to a "Logout and resume as ..." button when we are temporarily logged in as another user
+						if (isset($_SESSION['login_as_invoker_username'])) {
+							$logout_button_tooltip = translate('logout_and_resume', htmlentities($_SESSION['login_as_invoker_username']));	
+							$logout_icon = 'logout_and_resume.png';
+						}
+
 						$options[] = Array(
 										'url'		=> $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
 										'target'	=> '_top',
-										'title'		=> translate('logout'),
-										'icon'		=> 'logout.png',
+										'title'		=> $logout_button_tooltip,
+										'icon'		=> $logout_icon,
 									 );
 
 					} else {
+
+						if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
+							$options[] = Array(
+											'target'	=> '_top',
+											'title'		=> translate('login_as'),
+											'icon'		=> 'login_as.png',
+											'onclick'	=> 'show_login_as_form();',
+										 );
+						}
+
+						if (isset($_SESSION['login_as_invoker_username'])) {
+							$options[] = Array(
+											'target'	=> '_top',
+											'title'		=> translate('logout_and_resume', $_SESSION['login_as_invoker_username']),
+											'icon'		=> 'logout_and_resume.png',
+										 );
+						}
 
 						$options[] = Array(
 										'url'		=> current_url(TRUE, TRUE),
@@ -968,7 +1042,11 @@ class Backend extends MySource_Object
 					}
 
 					foreach ($options as $option) {
-						?><a href="<?php echo $option['url'];?>"
+						if (isset($option['url'])) {
+						?><a href="<?php echo $option['url'];?>"<?php
+						} else {
+						?><a nohref <?php
+						}?>
 							 class="sq-backend-header-item"
 							 title="<?php echo htmlspecialchars($option['title']);?>"
 							 onMouseOver="window.status = '<?php echo htmlspecialchars($option['title']);?>'; return true;"
