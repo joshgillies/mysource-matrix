@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.24 2008/06/16 05:44:05 bpearson Exp $
+* $Id: lang_messages.xml,v 1.25 2008/11/04 22:08:44 mbrydon Exp $
 *
 * Core Internal Messages File
 */
@@ -112,13 +112,25 @@
 		<subject>User Logged In</subject>
 		<body>User "%user_name%" logged in</body><!-- user-name -->
 	</message>
+	<message type="system.security.login.secondary">
+		<subject>User Logged In As Secondary User</subject>
+		<body>User "%secondary_user_name%" logged in as "%user_name%" from user switching</body><!-- secondary-user-name, user-name -->
+	</message>
 	<message type="system.security.logout.manual">
 		<subject>User Logged Out</subject>
 		<body>User "%user_name%" logged themselves out</body><!-- user-name -->
 	</message>
+	<message type="system.security.logout.secondary.manual">
+		<subject>User Logged Out Secondary User</subject>
+		<body>User "%secondary_user_name%" has logged out from the account of "%user_name%" after user switching</body><!-- secondary-user-name, user-name -->
+	</message>
 	<message type="system.security.login.failed">
 		<subject>User Login Failed</subject>
 		<body>User "%login_name%" failed to login (%failure_reason%)</body><!-- user-name -->
+	</message>
+	<message type="system.security.login.secondary.failed">
+		<subject>User Secondary Login Failed</subject>
+		<body>Login to user account "%secondary_login_name%" failed from account "%login_name%" (%failure_reason%)</body><!-- secondary-login-name, login-name -->
 	</message>
 	<message type="system.security.logout.idle">
 		<subject>User Automatically Logged Out</subject>
