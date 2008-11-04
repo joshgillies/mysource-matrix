@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.111.2.4 2008/10/14 00:05:01 bshkara Exp $
+* $Id: page_asset_listing.inc,v 1.111.2.5 2008/11/04 00:42:47 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111.2.4 $
+* @version $Revision: 1.111.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -379,7 +379,7 @@ class Page_Asset_Listing extends Listing_Engine
 						$restrict_types = array_get_index($group, 'restrict_types', Array());
 						$direct_parent_only = array_get_index($group, 'direct_parent_only', FALSE);
 						foreach ($links as $childid => $direct_parents) {
-							foreach ($direct_parents as $row => $parentid) {
+							foreach ($direct_parents as $row => $direct_parent) {
 								if (count($direct_parents) > 1) {
 									// resort to calling getGroupableParentAssetids() only if there is more than one parent
 									// otherwise the resulting direct parents may lie outside the root node
