@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_web_path.inc,v 1.11 2007/12/05 06:07:16 colivar Exp $
+* $Id: trigger_action_add_web_path.inc,v 1.11.2.1 2008/11/05 15:30:13 gnoel Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,8 +52,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		// check required settings
-		if (!isset($settings['path'])) return FALSE;
-		if ($settings['path'] == '') return FALSE;
+		if (empty($settings['path'])) return FALSE;
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -66,15 +65,26 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 
-		$valid_paths = make_valid_web_paths(Array($settings['path']));
+		// replace keywords
+		$web_path = self::replaceKeywordsInWebPath($settings['path'], $state['asset']);
+		$valid_paths = make_valid_web_paths(Array($web_path));
 		$web_path = array_shift($valid_paths);
 
-		// dont change anything if the asset already has this web path
-		$web_paths = $state['asset']->getWebPaths();
-		if (!in_array($web_path, $web_paths)) {
-			// add the new web path (note that lookups are updated by the saveWebPaths fn)
-			$web_paths[] = $web_path;
-			if (!$state['asset']->saveWebPaths($web_paths)) {
+		// add the new web path
+		$web_paths_new = $web_paths_old = $state['asset']->getWebPaths();
+		if (!in_array($web_path, $web_paths_new)) {
+			$web_paths_new[] = $web_path;
+		}
+
+		// remove all other paths, if needed
+		if (!empty($settings['remove_all'])) {
+			$web_paths_new = Array($web_path);
+		}
+
+		// only save the new paths if they have changed
+		// (note that lookups are updated by the saveWebPaths fn)
+		if ($web_paths_new !== $web_paths_old) {
+			if (!$state['asset']->saveWebPaths($web_paths_new)) {
 				return FALSE;
 			}
 
@@ -90,6 +100,36 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 			   );
 
 	}//end execute()
+
+
+	/**
+	* Replaces all the keywords in a string.
+	* Global keywords are also replaced.
+	* All other keywords will refer to the event asset.
+	* (think about moving this function to Trigger_Action)
+	*
+	* @param string		$web_path		a web path (can contain keywords %xxx%)
+	* @param Asset		$event_asset	the event asset
+	*
+	* @return string
+	* @access public
+	*/
+	public static function replaceKeywordsInWebPath($web_path, Asset $event_asset)
+	{
+		// replace global keywords
+		replace_global_keywords($web_path);
+
+		// replace event asset keywords
+		$keywords = retrieve_keywords_replacements($web_path);
+		$replacements = Array();
+		foreach ($keywords as $keyword) {
+			$replacements[$keyword] = $event_asset->getKeywordReplacement($keyword);
+		}
+		replace_keywords($web_path, $replacements);
+
+		return $web_path;
+
+	}//end replaceKeywordsInWebPath()
 
 
 	/**
@@ -109,10 +149,14 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		$web_path = array_get_index($settings, 'path', '');
 		echo translate('add_web_path').' ';
 		if ($write_access) {
-			text_box($prefix.'[path]', $web_path, 20);
+			text_box($prefix.'[path]', $web_path, 40);
 		} else {
 			echo '<b>'.$web_path.'</b>';
 		}
+		echo '<br>';
+		echo '<div class="sq-backend-section-note">'.translate('trigger_add_web_path_note').'</div>';
+		check_box($prefix.'[remove_all]', '1', array_get_index($settings, 'remove_all', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+		echo '<label for='.$prefix.'[remove_all]'.'>'.translate('trigger_add_web_path_remove_all').'.</label>';
 
 		return ob_get_clean();
 
@@ -138,6 +182,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 			return translate('web_path_not_specified');
 		}
 		$settings['path'] = $web_path;
+		$settings['remove_all'] = array_get_index($request_data, 'remove_all', '');
 
 		return FALSE;
 
