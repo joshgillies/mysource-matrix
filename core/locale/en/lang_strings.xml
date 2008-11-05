@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.295 2008/11/05 04:33:40 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.296 2008/11/05 15:28:54 gnoel Exp $
 *
 */
 
@@ -2337,6 +2337,10 @@ Are you sure you want to proceed?</string>
 	<string source="date_format_rfc2822">RFC2822 format</string>
 	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string>
 	<string source="date_format_ical">iCalendar format</string>
+
+	<!-- Add Web Path Trigger Actions -->
+	<string source="trigger_add_web_path_remove_all">Delete all other webpaths</string>
+	<string source="trigger_add_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
 
 	<!-- Future Status Trigger Actions -->
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
