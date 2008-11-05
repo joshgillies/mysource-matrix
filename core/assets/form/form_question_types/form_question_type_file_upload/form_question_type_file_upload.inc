@@ -1,3 +1,4 @@
+
 <?php
 /**
 * +--------------------------------------------------------------------+
@@ -10,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.30 2008/10/24 03:27:14 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.31 2008/11/05 01:04:35 lwright Exp $
 *
 */
 
@@ -26,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,8 +86,11 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$temp_path = array_get_index($this->extra_data, 'temp_filesystem_path', '');
 		if (!empty($temp_path)) {
 			?><p>Current file: <?php echo basename($temp_path); ?>
-			<?php echo check_box($name.'_clear', 1, FALSE) ?> Clear?</p><?php
+			<?php if (!$this->attr('is_required')) {
+				echo check_box($name.'_clear', 1, FALSE) ?> Clear?<?php
+			}
 		}
+		?></p><?php
 		file_upload($name, $extras);
 		$html = ob_get_contents();
 		ob_end_clean();
@@ -143,8 +147,11 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		$ok = TRUE;
 
-		if (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']) && $this->attr('is_required')) {
-			// no file uploaded to required field
+		$none_uploaded = is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']);
+		$previously_uploaded = empty($this->extra_data['temp_filesystem_path']);
+
+		if ($none_uploaded && !$previously_uploaded && $this->attr('is_required')) {
+			// no file uploaded to required field (and none previously uploaded either)
 			if (strlen($this->attr('cust_required_error'))) {
 				$this->failed_rules[] = $this->attr('cust_required_error');
 			} else {
