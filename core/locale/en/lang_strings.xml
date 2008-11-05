@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.293 2008/11/02 23:14:46 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.294 2008/11/05 00:30:32 lwright Exp $
 *
 */
 
@@ -2035,6 +2035,9 @@ Are you sure you want to proceed?</string>
 	<string source="default_content_type">Default Content Type</string>
 	<string source="default_content_type_note">When new bodycopy containers are created they will use this content type</string>
 
+	<string source="default_presentation_type">Default Presentation Type</string>
+	<string source="default_presentation_type_note">When new bodycopy Divs are created they will use this presentation type by default. This can be changed for a particular Div container at any time.</string>
+
 	<string source="asset_assetid">The ID of the asset</string>
 	<string source="asset_short_name">Short name of the asset</string>
 	<string source="asset_version">Version of the asset being displayed</string>
@@ -2353,7 +2356,7 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_action_future_permission_attr_interval">the date and time stored in the attribute</string>
 	<string source="trigger_action_future_permission_cascade_all">and cascade the permission change to all children of the asset</string>
 	<string source="trigger_action_future_permission_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future permission will be set</string>
-	
+
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
 	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
 

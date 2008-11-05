@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_prefs.inc,v 1.7 2008/09/22 02:05:17 ata Exp $
+* $Id: bodycopy_container_prefs.inc,v 1.8 2008/11/05 00:30:32 lwright Exp $
 *
 */
 
@@ -25,18 +25,24 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Bodycopy_Container_Prefs extends Prefs
 {
 	public $pref_vars = Array(
-							'SQ_DEFAULT_CONTENT_TYPE'	=> Array(
-															'name'			=> 'default_content_type',
-															'description'	=> 'When bodycopy containers are created they will have this content type by default',
-															'default'		=> 'content_type_wysiwyg',
-															'protected'		=> FALSE,
-														   ),
+							'SQ_DEFAULT_CONTENT_TYPE'		=> Array(
+																'name'			=> 'default_content_type',
+																'description'	=> 'When bodycopy containers are created they will have this content type by default',
+																'default'		=> 'content_type_wysiwyg',
+																'protected'		=> FALSE,
+															   ),
+							'SQ_DEFAULT_PRESENTATION_TYPE'	=> Array(
+																'name'			=> 'default_presentation_type',
+																'description'	=> 'When bodycopy containers are created they will have this presentation type by default',
+																'default'		=> 'div',
+																'protected'		=> FALSE,
+															   ),
 						);
 
 
@@ -74,7 +80,7 @@ class Bodycopy_Container_Prefs extends Prefs
 				$default_content_type = $this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['default'];
 				if ($have_lock) {
 					$all_content_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('content_type');
-					
+
 					//if markdown is not enabled, remove it from the content type
 					$markdown_key = array_search('content_type_markdown', $all_content_types);
 					if ($markdown_key !== FALSE) {
@@ -90,12 +96,34 @@ class Bodycopy_Container_Prefs extends Prefs
 							unset($all_content_types[$markdown_key]);
 						}
 					}
-					
+
 					$content_type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($all_content_types, 'name');
 					combo_box('prefs[SQ_DEFAULT_CONTENT_TYPE]', $content_type_names, FALSE, $default_content_type);
 					echo '<div class="sq-backend-note">'.translate('default_content_type_note').'</div>';
 				} else {
 					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($default_content_type, 'name');
+				}
+
+			if (is_null($pref)) $o->closeField();
+		}
+
+		if (is_null($pref) || $pref == 'SQ_DEFAULT_PRESENTATION_TYPE') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['name']));
+			}
+
+				$default_pres_type = $this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['default'];
+				$possible_types = Array(
+									'div'	=> translate('block-level'),
+									'span'	=> translate('inline'),
+									'none'	=> translate('raw_html'),
+								  );
+
+				if ($have_lock) {
+					combo_box('prefs[SQ_DEFAULT_PRESENTATION_TYPE]', $possible_types, FALSE, $default_pres_type);
+					echo '<div class="sq-backend-note">'.translate('default_presentation_type_note').'</div>';
+				} else {
+					echo $possible_types[$default_pres_type];
 				}
 
 			if (is_null($pref)) $o->closeField();
@@ -125,6 +153,12 @@ class Bodycopy_Container_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_DEFAULT_CONTENT_TYPE') {
 			if (isset($_POST['prefs']['SQ_DEFAULT_CONTENT_TYPE'])) {
 				$this->pref_vars['SQ_DEFAULT_CONTENT_TYPE']['default'] = $_POST['prefs']['SQ_DEFAULT_CONTENT_TYPE'];
+			}
+		}
+
+		if (is_null($pref) || $pref == 'SQ_DEFAULT_PRESENTATION_TYPE') {
+			if (isset($_POST['prefs']['SQ_DEFAULT_PRESENTATION_TYPE'])) {
+				$this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['default'] = $_POST['prefs']['SQ_DEFAULT_PRESENTATION_TYPE'];
 			}
 		}
 

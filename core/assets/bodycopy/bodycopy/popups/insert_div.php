@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.13 2008/09/22 02:09:50 ata Exp $
+* $Id: insert_div.php,v 1.14 2008/11/05 00:30:32 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,6 +52,12 @@ include(dirname(__FILE__).'/header.php');
 	require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 	$content_types = Content_Type::getAvailableContentTypes();
 	$default_content_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_CONTENT_TYPE');
+	$default_pres_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_PRESENTATION_TYPE');
+	$possible_types = Array(
+					'div'	=> translate('block-level'),
+					'span'	=> translate('inline'),
+					'none'	=> translate('raw_html'),
+				  );
 ?>
 <div class="title" style="text-align: right;"><?php echo translate('insert_div'); ?></div>
 <form name="main_form">
@@ -75,11 +81,7 @@ include(dirname(__FILE__).'/header.php');
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
 					<td>
-						<select name="layout_type">
-							<option value="div" ><?php echo translate('block-level'); ?></option>
-							<option value="span"><?php echo translate('inline'); ?></option>
-							<option value="none"><?php echo translate('raw_html'); ?></option>
-						</select>
+						<?php combo_box('layout_type', $possible_types, FALSE, $default_pres_type); ?>
 					</td>
 				</tr>
 				<tr>
