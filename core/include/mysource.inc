@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.277 2008/11/04 05:01:15 mbrydon Exp $
+* $Id: mysource.inc,v 1.278 2008/11/05 04:33:40 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.277 $
+* @version $Revision: 1.278 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1416,9 +1416,13 @@ class MySource
 			// Be nice and store the user's navigation history so we make it easier when they resume
 			$invoking_user_nav_history = NULL;
 			if ($resuming_session) {
-				$invoking_user_nav_history = $_SESSION['login_as_invoker_sq_nav_history'];
+				if (isset($_SESSION['login_as_invoker_sq_nav_history'])) {
+					$invoking_user_nav_history = $_SESSION['login_as_invoker_sq_nav_history'];
+				}
 			} else {
-				$invoking_user_nav_history = $_SESSION['sq_nav_history'];
+				if (isset($_SESSION['sq_nav_history'])) {
+					$invoking_user_nav_history = $_SESSION['sq_nav_history'];
+				}
 			}
 
 			// Log out the invoking user (System Admin)
@@ -1446,6 +1450,8 @@ class MySource
 			// Try each auth system in order to see if we can load a user asset
 			$secondary_user = NULL;
 			$user_status = NULL;
+			$failure_reason = translate('user_not_found');
+
 			foreach ($auth_systems as $systemid) {
 				$system = $this->am->getAsset($systemid);
 				if (is_null($system)) continue;
@@ -1457,7 +1463,7 @@ class MySource
 					// are certain that we are logging back in to the correct account type
 					if ($resuming_session && ($secondary_user->id != $resuming_user_id_match)) {
 						// No go
-						$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('user_not_found')), TRUE);
+						$this->_logSecurityMsg('system.security.login.secondary.failed', Array('login_name' => $old_user->attr('username'), 'secondary_login_name' => $username, 'failure_reason' => translate('user_switching_access_denied')), TRUE);
 						return FALSE;
 					}
 
@@ -1465,31 +1471,52 @@ class MySource
 		            unset($_SESSION['user_login_attempts']);
 
 					$user_status = $secondary_user->status;
-				}
 
-				// check that the user exists AND that it can login
-				// (ie. it is not yet live, or has been locked)
-				if (!is_null($secondary_user) && $secondary_user->canLogin()) {
-					// Store the details of the invoking user so we can switch back quickly
-					if ($resuming_session) {
-						// Alrighty, let's resume the user's previous account and their navigation history
-						if (isset($invoking_user_nav_history)) {
-							$_SESSION['sq_nav_history'] = $invoking_user_nav_history;
-						}
-						return $this->loginUser($secondary_user);
-					} else {
-						$_SESSION['login_as_invoker_username'] = $invoking_username;
-						$_SESSION['login_as_invoker_user_full_name'] = $invoking_user_full_name;
-						$_SESSION['login_as_invoker_id']  = $invoking_user_id;
-						$_SESSION['login_as_invoker_sq_nav_history'] = $invoking_user_nav_history;
+					// check that the user exists AND that it can login
+					// (ie. it is not yet live, or has been locked)
+					if ($secondary_user->canLogin()) {
+						// Store the details of the invoking user so we can switch back quickly
+						if ($resuming_session) {
+							// Alrighty, let's resume the user's previous account and their navigation history
+							if (isset($invoking_user_nav_history)) {
+								$_SESSION['sq_nav_history'] = $invoking_user_nav_history;
+							}
+							return $this->loginUser($secondary_user);
+						} else {
+							/*
+							* Ok to be perfectly clear, we're NOT allowed to log in as the Root User, and
+							* System Administrators are not allowed to log in as other System Administrators.
+							*
+							* When referring to System Administrators here we are interested in real admins, not the Root User
+							* which just happens to be a System Administrator too.
+							*/
+							$old_user_system_admin = (($old_user instanceof System_User) && !($old_user instanceof Root_User));
+							$secondary_user_system_admin = (($secondary_user instanceof System_User) && !($secondary_user instanceof Root_User));
 
-						// Ok all is good - login as the user we are after
-						return $this->loginUser($secondary_user, $old_user->name);
-					}
-				}
-			}
+							$allowed_login = !(($secondary_user instanceof Root_User) || ($old_user_system_admin && $secondary_user_system_admin));
 
-			$failure_reason = translate('user_not_found');
+							if ($allowed_login) {
+								$_SESSION['login_as_invoker_username'] = $invoking_username;
+								$_SESSION['login_as_invoker_user_full_name'] = $invoking_user_full_name;
+								$_SESSION['login_as_invoker_id']  = $invoking_user_id;
+								if (isset($invoking_user_nav_history)) {
+									$_SESSION['login_as_invoker_sq_nav_history'] = $invoking_user_nav_history;
+								}
+
+								// Ok all is good - login as the user we are after
+								return $this->loginUser($secondary_user, $old_user->name);
+							} else {
+								$failure_reason = translate('user_switching_access_denied');
+								$user_status = NULL;
+							}
+
+						}//end else
+					}//end if (secondary user can login)
+
+				}//end if (secondary user not null)
+
+			}//end foreach (authentication systems)
+
 			if (!is_null($user_status)) {
 				if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
 					$failure_reason = translate('user_status_not_live');
