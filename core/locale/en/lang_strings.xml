@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.15 2008/10/13 11:32:45 gnoel Exp $
+* $Id: lang_strings.xml,v 1.262.2.16 2008/11/05 15:30:55 gnoel Exp $
 *
 */
 
@@ -1164,7 +1164,7 @@
 	<string source="trigger_asset_id">Asset ID is %s</string>
 	<string source="trigger_asset_type">Asset is of type %s</string>
 	<string source="trigger_asset_sysadmin">Current user %s effectively a system administrator</string>
-	
+
 	<string source="trigger_request_method">HTTP Request Method:%s</string>
 
 	<string source="trigger_link_exists_basic"><![CDATA[has a %1$s asset <ul style="list-style-type: none; padding: 0;"><li>%2$sof type %3$s</li><li>%4$s with ID %5$s</li><li>%6$s Use only advanced link parameters (below). This option ONLY works for the triggering link.</li></ul>%7$s]]></string>
@@ -2306,6 +2306,10 @@ Are you sure you want to proceed?</string>
 	<string source="date_format_rfc2822-dateonly">RFC2822 format, date only</string>
 	<string source="date_format_ical">iCalendar format</string>
 
+	<!-- Add Web Path Trigger Actions -->
+	<string source="trigger_add_web_path_remove_all">Delete all other webpaths</string>
+	<string source="trigger_add_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
+
 	<!-- Future Status Trigger Actions -->
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
 	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
@@ -2325,7 +2329,7 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_action_future_permission_attr_interval">the date and time stored in the attribute</string>
 	<string source="trigger_action_future_permission_cascade_all">and cascade the permission change to all children of the asset</string>
 	<string source="trigger_action_future_permission_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future permission will be set</string>
-	
+
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
 	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
 
