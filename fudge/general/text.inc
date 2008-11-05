@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.38 2008/10/21 02:38:23 akarelia Exp $
+* $Id: text.inc,v 1.39 2008/11/05 03:59:07 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package Fudge
 * @subpackage Text
 */
@@ -198,9 +198,11 @@ function remove_silent_chars($text, $not_indexing=FALSE)
 	$text = str_replace('\'', '', $text);
 
 	$silent_chars = Array('.', ':', ';', ',', '!', '?', '"', '`', '!', '@', '#', '$', '^', '*', '-', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
-	$oracle_search_operators = Array('(',')','~','&','|','%', '_'); // just move underscore ('_') from the above line to this line so that it won't be removed when search in oracle
 	if ($not_indexing == FALSE) {
+		$oracle_search_operators = Array('(',')','~','&','|','%');
 		$silent_chars = array_merge($silent_chars, $oracle_search_operators);
+		//Remove the underscore ('_') that is usually used in metadata select field, e.g. select_1 => select1
+		$text = str_replace('_', '', $text); // just move underscore ('_') from the above line to this line so that it won't be removed when search in oracle
 	}
 
 	// Replace the rest of silent characters with space (' '). This will create more indexed words but it is safer, e.g. Hello,world => Hello world
