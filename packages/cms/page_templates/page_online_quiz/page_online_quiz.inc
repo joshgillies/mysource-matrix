@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.17.2.6 2008/11/06 00:15:28 ewang Exp $
+* $Id: page_online_quiz.inc,v 1.17.2.7 2008/11/06 00:18:58 ewang Exp $
 *
 */
 
@@ -60,7 +60,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.17.2.6 $
+* @version $Revision: 1.17.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1516,7 +1516,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (!empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['question_pagination'])) {
 			$question_pagination = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['question_pagination'];
 		}
-		if (empty($question_pagination)) {
+		if (empty($question_pagination) || empty($question_pagination['pages_to_questions'])) {
 			// regenerate the question pagination cache
 
 			// grab the list of question assets for chunking later
