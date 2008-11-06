@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.17.2.5 2008/09/14 23:30:41 akarelia Exp $
+* $Id: page_online_quiz.inc,v 1.17.2.6 2008/11/06 00:15:28 ewang Exp $
 *
 */
 
@@ -60,7 +60,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.17.2.5 $
+* @version $Revision: 1.17.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -485,13 +485,11 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	* @return boolean
 	* @access public
 	*/
+	
 	function printBody()
 	{
-		if ($this->getFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE)) {
-			if (!$this->attr('can_retake')) {
-				$this->printBodycopy('already_taken');
-				$can_take_quiz = FALSE;
-			}
+		if ($this->getFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE) && !$this->attr('can_retake')) {
+			$this->printBodycopy('already_taken');
 		} else {
 			parent::printBody();
 		}
@@ -499,7 +497,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		return TRUE;
 
 	}//end printBody()
-
+ 	
 
 	/**
 	* Prints a bodycopy (if available)
@@ -1518,12 +1516,12 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		if (!empty($_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['question_pagination'])) {
 			$question_pagination = $_SESSION[SQ_ONLINE_QUIZ_SESSION_VAR]['quiz'][$this->id]['question_pagination'];
 		}
-
 		if (empty($question_pagination)) {
 			// regenerate the question pagination cache
 
 			// grab the list of question assets for chunking later
 			$children = $this->getAssetList();
+			
 			$this->filterAssetList($children);
 			$replacements = Array();
 			$question_pagination = Array(
@@ -1576,7 +1574,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$this->saveQuestionPagination($question_pagination);
 
 		}//end if (empty($question_pagination))
-
 		return $question_pagination;
 
 	}//end loadQuestionPagination()
@@ -1652,7 +1649,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					// just get the warnings
 					$errors = $question->validateValue();
 				}
-
 				// only get the warnings if the questions aren't on the current page, or warn_on_missing_answers is off
 				// otherwise, present warnings to the user via javascript
 				if (!isset($current_page_assets[$questionid]) || !$this->attr('clientside_validation')) {
@@ -1670,7 +1666,6 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// set the error_stack, to be used later when the doing keyword replacements (eg. submit button prints the warnings)
 		$this->_error_stack = $error_stack;
-
 		return TRUE;
 
 	}//end processQuestions()
@@ -2364,6 +2359,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	function getQuestionRangeKeywordReplacement()
 	{
 		$question_pagination = $this->loadQuestionPagination();
+	
 		$pages_to_questions  = array_get_index($question_pagination, 'pages_to_questions', Array());
 		$questions_to_pages  = array_get_index($question_pagination, 'questions_to_pages', Array());
 		$current_page_assets = array_get_index($pages_to_questions, $this->getCurrentPage(), Array());
