@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.40 2007/12/14 05:38:14 rong Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.40.2.1 2008/11/06 00:53:38 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,7 +39,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	{
 		parent::__construct();
 
-	}//end constructor
+	}//end __construct()
 
 
 	/**
@@ -202,9 +202,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		}
 
 		// Now add the ID of the DIV
-		$val = str_replace(' ', '_', strtolower($asset->attr('name')));
+		$val = clean_div_attribute($asset->attr('name'));
 		if (!empty($val)) {
-			$attribute_list .= ' '.'id="'.str_replace('"', '&quot;', $val).'"';
+			$attribute_list .= ' '.'id="'.$val.'"';
 		}
 
 		// print DIV or SPAN tag if we are not printing raw HTML
