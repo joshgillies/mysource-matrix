@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.173.2.6 2008/11/06 01:03:41 bshkara Exp $
+* $Id: general.inc,v 1.173.2.7 2008/11/06 02:22:15 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.173.2.6 $
+* @version $Revision: 1.173.2.7 $
 * @package MySource_Matrix
 */
 
@@ -1706,18 +1706,18 @@ function do_redirect($url, $message=NULL, $timeout=0)
 /**
 * Sanitises a DIV attribute making it ready for output
 *
-* @param string $id the ID of the DIV tag
+* @param string $attribute the attribute of the DIV tag
 *
 * @return string
 * @access public
 */
-function clean_div_attribute($id)
+function clean_div_attribute($attribute)
 {
 	// do not allow PHP tags or whitespace
-	$pattern = '/(?:<|\?|>)+|\s+/';
+	$pattern = '/(?:<\?|\?>)+|\s+/';
 	$replacement = '_';
-	$id = preg_replace($pattern, $replacement, $id);
-	return str_replace('"', '&quot;', $id);
+	$attribute = preg_replace($pattern, $replacement, $attribute);
+	return str_replace('"', '&quot;', $attribute);
 
 }//end clean_div_attribute()
 
