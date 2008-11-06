@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz_edit_fns.inc,v 1.9.2.1 2008/03/12 04:04:23 lwright Exp $
+* $Id: page_online_quiz_edit_fns.inc,v 1.9.2.2 2008/11/06 03:20:10 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -602,9 +602,8 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 
 		$sql = $sql.$where.' ORDER BY a.created DESC';
-		$parameters = Array('rows' => $num_per_page, 'offset' => $submission_offset);
 
-		$sql .= db_extras_modify_limit_clause(MatrixDAL::getDbType(), $parameters);
+		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $num_per_page, $submission_offset);
 
 		if ($asset_count == 0) {
 			?><p><i><?php echo translate('online_quiz_no_submissions_during_period') ?></i></p><?php
@@ -754,8 +753,13 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			// because we could be displaying a lot on this page
 			$result = NULL;
 			 try {
-				$_query = MatrixDAL::preparePdoQuery($sql);
-				$result = MatrixDAL::executeSqlAssoc($sql);
+				 $_query = MatrixDAL::preparePdoQuery($sql);
+				 MatrixDAL::bindValueToPdo($_query, 'assetid',           $asset->id);
+				 MatrixDAL::bindValueToPdo($_query, 'subfolder_assetid', $sub_folder->id);
+				 MatrixDAL::bindValueToPdo($_query, 'inhd_type_code',    'online_quiz_submission');
+				 MatrixDAL::bindValueToPdo($_query, 'from_date',         $from_value);
+				 MatrixDAL::bindValueToPdo($_query, 'to_date',           $to_value);
+				 $result = MatrixDAL::executePdoAssoc($_query);
 			} catch (Exception $e) {
 				throw new Exception($e->getMessage());
 			}
@@ -1037,7 +1041,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l
 				ON l.minorid = a.assetid';
 
-		$where = 'l.majorid IN ('.MatrixDAL::quote($asset->id).', '.MatrixDAL::quote($sub_folder->id).') AND i.inhd_type_code = '.MatrixDAL::quote('online_quiz_submission').' AND a.created BETWEEN '.MatrixDAL::quoteSmart(ts_iso8601($from_ts)).' AND '.MatrixDAL::quoteSmart(ts_iso8601($to_ts));
+		$where = 'l.majorid IN ('.MatrixDAL::quote($asset->id).', '.MatrixDAL::quote($sub_folder->id).') AND i.inhd_type_code = '.MatrixDAL::quote('online_quiz_submission').' AND a.created BETWEEN '.MatrixDAL::quote(ts_iso8601($from_ts)).' AND '.MatrixDAL::quote(ts_iso8601($to_ts));
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'i');
@@ -1053,7 +1057,7 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 		while (TRUE) {
 			// Get the current limited query
-			$sql = db_extras_modify_limit_query($base_sql.$where, MatrixDAL::getDbType(), $chunk_size, $offset);
+			$sql = db_extras_modify_limit_clause($base_sql.$where, MatrixDAL::getDbType(), $chunk_size, $offset);
 			$result = MatrixDAL::executeSqlAssoc($sql);
 
 			// If no further results, we are done.
