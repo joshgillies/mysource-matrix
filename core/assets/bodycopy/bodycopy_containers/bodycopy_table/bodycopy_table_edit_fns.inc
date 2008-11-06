@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.34 2007/12/14 00:42:46 rong Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.35 2008/11/06 00:28:19 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,7 +39,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	{
 		parent::__construct();
 
-	}//end constructor
+	}//end __construct()
 
 
 	/**
@@ -273,9 +273,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		}
 
 		// Now add the ID of the table
-		$val = str_replace(' ', '_', strtolower($asset->attr('name')));
+		$val = clean_div_attribute($asset->attr('name'));
 		if (!empty($val)) {
-			$attribute_list .= ' '.'id="'.str_replace('"', '&quot;', $val).'"';
+			$attribute_list .= ' '.'id="'.$val.'"';
 		}
 
 		echo "\n<table{$attribute_list}>\n";
@@ -487,7 +487,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		?>
 		</td>
 		<?php
-		}
+		}//end if
 		?>
 
 		<td style="border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">

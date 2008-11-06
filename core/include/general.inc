@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.198 2008/11/04 04:31:07 bshkara Exp $
+* $Id: general.inc,v 1.199 2008/11/06 00:28:19 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.198 $
+* @version $Revision: 1.199 $
 * @package MySource_Matrix
 */
 
@@ -1821,6 +1821,25 @@ function get_class_lower($object)
 	return strtolower(get_class($object));
 
 }//end get_class_lower()
+
+
+/**
+* Sanitises a DIV attribute making it ready for output
+*
+* @param string $id the ID of the DIV tag
+*
+* @return string
+* @access public
+*/
+function clean_div_attribute($id)
+{
+	// do not allow PHP tags or whitespace
+	$pattern = '/(?:<|\?|>)+|\s+/';
+	$replacement = '_';
+	$id = preg_replace($pattern, $replacement, $id);
+	return str_replace('"', '&quot;', $id);
+
+}//end clean_div_attribute()
 
 
 /**
