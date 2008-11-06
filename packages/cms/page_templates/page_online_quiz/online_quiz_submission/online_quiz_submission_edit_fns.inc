@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: online_quiz_submission_edit_fns.inc,v 1.2 2007/12/06 05:03:08 rong Exp $
+* $Id: online_quiz_submission_edit_fns.inc,v 1.3 2008/11/06 22:18:05 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Online Quiz Submission edit functions
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -86,21 +86,41 @@ class Online_Quiz_Submission_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintUserDetailsAnswers(&$asset, &$o, $prefix)
 	{
+		
 		$user_details_answers = $asset->attr('user_details_answers');
-		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($user_details_answers), 'simple_form', FALSE));
-		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 
-		// We're using a Simple Form, so here is where it differs from the "Form Submission" asset
-		$user_details_questions = $form->getQuestions();
-
-		foreach ($user_details_questions as $question_id => $question) {
-			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
-			$o->openField($question->getVal('title'), '', $question->getVal('note'));
-			$answer_details = $user_details_answers[$question_id];
-			echo $answer_details['answer'];
+		// If it is a system user's submission,(which is not required to fill in user detail form), print the user's detail
+		if(!isset($user_details_answers) || empty($user_details_answers)) {
+			$sub_user = $asset->created_userid;
+			$valid_user = FALSE;
+			$o->openField(translate('user'));
+						if (!empty($sub_user)) {
+							$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+							if (!empty($sub_user_asset)) {
+								echo get_asset_tag_line($sub_user);
+								$valid_user = TRUE;
+							}
+						}
+						if (!$valid_user) {
+						 	echo '<i>'.translate('online_quiz_no_logged_in_user').'</i>'; 
+						}	
 			$o->closeField();
 		}
+		else { // if the user_details_answers is filled, print out the user's detail
+			$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($user_details_answers), 'simple_form', FALSE));
+			$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 
+			// We're using a Simple Form, so here is where it differs from the "Form Submission" asset
+			$user_details_questions = $form->getQuestions();
+
+			foreach ($user_details_questions as $question_id => $question) {
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_id);
+				$o->openField($question->getVal('title'), '', $question->getVal('note'));
+				$answer_details = $user_details_answers[$question_id];
+				echo $answer_details['answer'];
+				$o->closeField();
+			}
+		}
 		return TRUE;
 
 	}//end paintUserDetailsAnswers()
