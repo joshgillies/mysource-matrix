@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.31 2008/09/14 23:27:33 akarelia Exp $
+* $Id: page_online_quiz.inc,v 1.32 2008/11/06 00:08:41 ewang Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -489,18 +489,16 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function printBody()
 	{
-	if ($this->getFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE)) {
-		if (!$this->attr('can_retake')) {
+		if ($this->getFlag(SQ_ONLINE_QUIZ_FLAG_COMPLETE) && !$this->attr('can_retake')) {
 			$this->printBodycopy('already_taken');
-			$can_take_quiz = FALSE;
+		} else {
+			parent::printBody();
 		}
-	} else {
-		parent::printBody();
-	}
 
-	return TRUE;
+		return TRUE;
 
 	}//end printBody()
+
 
 	/**
 	* Prints a bodycopy (if available)
@@ -756,6 +754,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 	*/
 	function printFrontend()
 	{
+	
 		// Tie the process and following paint together using db2 in order to
 		// avoid possible replication slowdown on db1
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
