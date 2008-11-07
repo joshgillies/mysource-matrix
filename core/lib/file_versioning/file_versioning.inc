@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.42 2008/09/26 00:07:12 mbrydon Exp $
+* $Id: file_versioning.inc,v 1.43 2008/11/07 04:39:33 ata Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -262,7 +262,7 @@ class File_Versioning
 		}
 
 		if (empty($fileid)) return Array();
-		return $this->_getFileInfoAtVersion($fileid);
+		return $this->_getFileInfoAtVersion($fileid, $version);
 
 	}//end _getFileInfoFromPath()
 
