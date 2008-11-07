@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.31 2008/11/05 01:04:35 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.32 2008/11/07 05:32:01 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -148,7 +148,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$ok = TRUE;
 
 		$none_uploaded = is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']);
-		$previously_uploaded = empty($this->extra_data['temp_filesystem_path']);
+		$previously_uploaded = !empty($this->extra_data['temp_filesystem_path']);
 
 		if ($none_uploaded && !$previously_uploaded && $this->attr('is_required')) {
 			// no file uploaded to required field (and none previously uploaded either)
