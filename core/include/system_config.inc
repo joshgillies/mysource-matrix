@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.116 2008/10/29 05:47:28 mbrydon Exp $
+* $Id: system_config.inc,v 1.117 2008/11/07 00:15:24 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -987,42 +987,26 @@ class System_Config extends Config
 		$db = MatrixDAL::getDb();
 		$db_type = MatrixDAL::getDbType();
 
-		// Process change of Roles System availability
-		$drop_perm_view_sql = 'DROP VIEW sq_vw_ast_perm';
-		$drop_role_view_sql = 'DROP VIEW sq_vw_ast_role';
-
-		// Default is to retain the standard Matrix Roles View unless modified below
-		$create_role_view_sql = $this->_getCommonViewDefinition('views', $db_type, 'sq_vw_ast_role View');
-
-		// Modify Roles View to remove Global Role associations
-		if (!$enable_global_roles) {
-			$create_role_view_sql = 'CREATE OR REPLACE VIEW sq_vw_ast_role AS
-						SELECT
-							assetid, roleid, userid
-						FROM sq_ast_role
-						WHERE userid <> '.MatrixDAL::quote(0);
-		}
-
-		// Modify Permissions View
-		$create_perm_view_sql = 'CREATE OR REPLACE VIEW sq_vw_ast_perm AS
-               	        	        SELECT
-                                	        p.assetid, p.userid, p.permission, p.granted
-	                                FROM
-       		                                sq_ast_perm p';
-
-		// Restore Permissions View a la default Matrix installation
-		if ($enable_roles_system) {
-			$create_perm_view_sql = $this->_getCommonViewDefinition('views', $db_type, 'sq_vw_ast_perm View');
-		}
+		/*
+		* Default behaviour is to retain the standard Matrix Roles View unless modified, in which case we will define a simpler view
+		*
+		* 1. Modify Roles View to remove Global Role associations
+		* 2. Modify Permissions View to disable the Roles System entirely
+		*/
+		$create_role_view_sql = $this->_getCommonViewDefinition('views_roles', $db_type, 'sq_vw_ast_role '.((!$enable_global_roles) ? 'Disabled ' : '').'View');
+		$create_perm_view_sql = $this->_getCommonViewDefinition('views_roles', $db_type, 'sq_vw_ast_perm '.((!$enable_roles_system) ? 'Disabled ' : '').'View');
 
 		// Let's start a transaction for safety
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		try {
-			$drop_result = MatrixDAL::executeSql($drop_perm_view_sql);
-			$drop_result = MatrixDAL::executeSql($drop_role_view_sql);
-			$create_role_view_result = MatrixDAL::executeSql($create_role_view_sql);
-			$create_perm_view_result = MatrixDAL::executeSql($create_perm_view_sql);
+			// Drop the views first
+			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_perm');
+			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_role');
+
+			// Then create the new views
+			MatrixDAL::executeSql($create_role_view_sql);
+			MatrixDAL::executeSql($create_perm_view_sql);
 
 			$roles_changed = TRUE;
 		} catch (Exception $e) {
@@ -1034,6 +1018,7 @@ class System_Config extends Config
 		// Allow the secondary user to operate (select, update etc.) with the Roles views
 		grant_secondary_user_perms(FALSE);
 
+		// All is good, commit the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 

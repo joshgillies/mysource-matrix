@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.71 2007/10/30 01:07:06 lwright Exp $
+* $Id: step_02.php,v 1.72 2008/11/07 00:13:25 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -115,10 +115,26 @@ foreach ($packages as $package) {
 	}
 }
 
+// Install all views except for Roles-related views which are handled further below
 install_stored_relations('views');
 
 // grant permissions to the tables for the secondary user
 grant_secondary_user_perms();
+
+/*
+* Verify that Roles views are all cool as determined by the system-wide config settings.
+* This is especially important if we have upgraded from a previous version where Roles were
+* disabled as at this point Matrix will have the default definitions.
+*/
+
+// Install the applicable views from the common_views_roles.xml file
+echo "\n".'Configuring Roles Views... ';
+$roles_configured = $cfg->configureRoleTables(SQ_CONF_ENABLE_ROLES_SYSTEM, SQ_CONF_ENABLE_GLOBAL_ROLES);
+if ($roles_configured) {
+	echo "done\n\n";
+} else {
+	echo "FAILED! Existing definition retained\n\n";
+}
 
 $fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
