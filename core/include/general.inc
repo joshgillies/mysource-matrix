@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.187.2.11 2008/11/06 02:28:19 bshkara Exp $
+* $Id: general.inc,v 1.187.2.12 2008/11/07 00:21:59 bshkara Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.187.2.11 $
+* @version $Revision: 1.187.2.12 $
 * @package MySource_Matrix
 */
 
@@ -1834,7 +1834,7 @@ function clean_div_attribute($attribute)
 	// do not allow PHP tags or whitespace
 	$pattern = '/(?:<\?|\?>)+|\s+/';
 	$replacement = '_';
-	$attribute = preg_replace($pattern, $replacement, $attribute);
+	$attribute = strtolower(preg_replace($pattern, $replacement, $attribute));
 	return str_replace('"', '&quot;', $attribute);
 
 }//end clean_div_attribute()
