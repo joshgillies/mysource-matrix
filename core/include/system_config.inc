@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.8 2008/11/07 00:01:39 mbrydon Exp $
+* $Id: system_config.inc,v 1.104.2.9 2008/11/07 00:43:01 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.8 $
+* @version $Revision: 1.104.2.9 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -1001,8 +1001,8 @@ class System_Config extends Config
 
 		try {
 			// Drop the views first
-			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_perm');
-			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_role');
+			MatrixDAL::executeSql('DROP VIEW IF EXISTS sq_vw_ast_perm');
+			MatrixDAL::executeSql('DROP VIEW IF EXISTS sq_vw_ast_role');
 
 			// Then create the new views
 			MatrixDAL::executeSql($create_role_view_sql);
