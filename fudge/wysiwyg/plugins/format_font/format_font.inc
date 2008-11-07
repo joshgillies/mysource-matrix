@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_font.inc,v 1.10 2007/03/29 04:33:46 tbarrett Exp $
+* $Id: format_font.inc,v 1.10.6.1 2008/11/07 05:29:09 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to change font size, family, and style
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -168,7 +168,13 @@ class format_font extends wysiwyg_plugin
 			if (HTMLArea.is_ie) { // sad but true
 				value = "<" + value + ">";
 			}
-			this._execCommand(txt, false, value);
+			// Safari Hack - Removing those 'Apple-style-span' (ie. do NOT use execCommand)
+			if (HTMLArea.is_safari) {
+				value = "<" + value + ">";
+				this.surroundHTML(value, "");
+			} else {
+				this._execCommand(txt, false, value);
+			}
 		break;
 		<?php
 	}

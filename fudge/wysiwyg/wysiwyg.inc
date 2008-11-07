@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.74.2.1 2008/10/20 04:46:25 mbrydon Exp $
+* $Id: wysiwyg.inc,v 1.74.2.2 2008/11/07 05:29:08 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74.2.1 $
+* @version $Revision: 1.74.2.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -957,7 +957,12 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								// add the rightParagraph
 								if (!isRightParagraphEmpty) fullRange.insertNode(rightParagraph);
 								// add a space in the new paragraph
-								newParagraph.appendChild(document.createTextNode(""+'\u0020'));
+								var s = document.createTextNode(""+'\u0020');
+								newParagraph.appendChild(s);
+								if (HTMLArea.is_safari) {
+									// Safari Hack - This will force the cursor down to the next line
+									this.insertDeepLeft(newParagraph, '&nbsp;');
+								}
 								fullRange.insertNode(newParagraph);
 								// add the rightParagraph
 								if (!isLeftParagraphEmpty) fullRange.insertNode(leftParagraph);

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.24 2006/12/06 05:11:07 bcaldwell Exp $
+* $Id: utility.js,v 1.24.8.1 2008/11/07 05:29:09 bpearson Exp $
 *
 */
 
@@ -30,6 +30,7 @@ HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_mac    = (HTMLArea.agt.indexOf("mac") != -1);
 HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
 HTMLArea.is_win_ie = (HTMLArea.is_ie && !HTMLArea.is_mac);
+HTMLArea.is_safari = (HTMLArea.agt.indexOf("safari"));
 HTMLArea.is_gecko  = (navigator.product == "Gecko");
 
 
