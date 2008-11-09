@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.9 2008/11/07 00:43:01 mbrydon Exp $
+* $Id: system_config.inc,v 1.104.2.10 2008/11/09 22:09:07 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.9 $
+* @version $Revision: 1.104.2.10 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -999,12 +999,17 @@ class System_Config extends Config
 		// Let's start a transaction for safety
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// Drop the views first
+		// this is in a try/catch in case the view doesn't exist
+		// oracle has no "drop view if exists" type functionality
 		try {
-			// Drop the views first
-			MatrixDAL::executeSql('DROP VIEW IF EXISTS sq_vw_ast_perm');
-			MatrixDAL::executeSql('DROP VIEW IF EXISTS sq_vw_ast_role');
+			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_perm');
+			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_role');
+		} catch (Exception $e) {
+		}
 
-			// Then create the new views
+		// Then create the new views
+		try {
 			MatrixDAL::executeSql($create_role_view_sql);
 			MatrixDAL::executeSql($create_perm_view_sql);
 
@@ -1018,8 +1023,8 @@ class System_Config extends Config
 
 		// Allow the secondary user to operate (select, update etc.) with the Roles views
 		grant_secondary_user_perms(FALSE);
-  	
-		// All is good, commit the transaction 
+
+		// All is good, commit the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
