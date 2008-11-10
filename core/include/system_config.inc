@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.10 2008/11/09 22:09:07 csmith Exp $
+* $Id: system_config.inc,v 1.104.2.11 2008/11/10 22:18:46 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.10 $
+* @version $Revision: 1.104.2.11 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -999,17 +999,16 @@ class System_Config extends Config
 		// Let's start a transaction for safety
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// Drop the views first
-		// this is in a try/catch in case the view doesn't exist
-		// oracle has no "drop view if exists" type functionality
 		try {
-			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_perm');
-			MatrixDAL::executeSql('DROP VIEW sq_vw_ast_role');
-		} catch (Exception $e) {
-		}
+			// Oracle does not have an "IF EXISTS" clause in "DROP VIEW", so leave it out here
+			$drop_view_if_exists = (($db_type == 'pgsql') ? 'IF EXISTS ' : '');
 
-		// Then create the new views
-		try {
+			// Drop the views first
+			// If we can't drop or create views accordingly then we'll roll back the transaction in the "catch" block
+			MatrixDAL::executeSql('DROP VIEW '.$drop_view_if_exists.'sq_vw_ast_perm');
+			MatrixDAL::executeSql('DROP VIEW '.$drop_view_if_exists.'sq_vw_ast_role');
+
+			// Then create the new views
 			MatrixDAL::executeSql($create_role_view_sql);
 			MatrixDAL::executeSql($create_perm_view_sql);
 
