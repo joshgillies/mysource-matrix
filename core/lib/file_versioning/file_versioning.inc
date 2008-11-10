@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.43 2008/11/07 04:39:33 ata Exp $
+* $Id: file_versioning.inc,v 1.44 2008/11/10 06:29:45 ata Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -520,98 +520,106 @@ class File_Versioning
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = MatrixDAL::getDb();
-
-		$sql = 'SELECT COALESCE(MAX(version), 0) + 1
-				FROM sq_file_vers_history
-				WHERE fileid = :fileid';
-
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'fileid', $fileid);
-			$version = MatrixDAL::executePdoOne($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get version information for file ID '.$fileid.' due to database error: '.$e->getMessage());
-		}
-
-		$now = time();
-		$date = ts_iso8601($now);
-		/*if (MatrixDAL::getDbType() == 'oci') {
-			$date = db_extras_todate(MatrixDAL::getDbType(), $date);
-		}*/
-
-		$sql = 'UPDATE sq_file_vers_history
-				SET to_date = :to_date
-				WHERE fileid = :fileid
-				  AND to_date IS NULL';
-
-
-		try {
-			if (MatrixDAL::getDbType() == 'oci') {
-				$sql = str_replace(':to_date', db_extras_todate(MatrixDAL::getDbType(), ':to_date', FALSE), $sql);
+			$db = MatrixDAL::getDb();
+	
+			$sql = 'SELECT COALESCE(MAX(version), 0) + 1
+					FROM sq_file_vers_history
+					WHERE fileid = :fileid';
+	
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'fileid', $fileid);
+				$version = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get version information for file ID '.$fileid.' due to database error: '.$e->getMessage());
 			}
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'fileid',  $fileid);
-			MatrixDAL::bindValueToPdo($query, 'to_date', $date);
-			MatrixDAL::execPdoQuery($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to update version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
-		}
-
-		$version   = (int) $version;
-		if (file_exists($real_file)) {
-			$file_size = filesize($real_file);
-			$md5       = md5_file($real_file);
-			$sha1      = sha1_file($real_file);
-			$removal   = '0';
-		} else {
-			$file_size = 0;
-			$md5       = '';
-			$sha1      = '';
-			$removal   = '1';
-		}
-
-		$sql = 'INSERT INTO sq_file_vers_history
-				(fileid, version, from_date, to_date, file_size, md5, sha1, removal, extra_info)
-				VALUES
-				(:fileid, :version, :from_date, :to_date, :file_size, :md5, :sha1, :removal, :extra_info)';
-
-		try {
-			if (MatrixDAL::getDbType() == 'oci') {
-				$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
+	
+			$now = time();
+			$date = ts_iso8601($now);
+			/*if (MatrixDAL::getDbType() == 'oci') {
+				$date = db_extras_todate(MatrixDAL::getDbType(), $date);
+			}*/
+	
+			$sql = 'UPDATE sq_file_vers_history
+					SET to_date = :to_date
+					WHERE fileid = :fileid
+					  AND to_date IS NULL';
+	
+	
+			try {
+				if (MatrixDAL::getDbType() == 'oci') {
+					$sql = str_replace(':to_date', db_extras_todate(MatrixDAL::getDbType(), ':to_date', FALSE), $sql);
+				}
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'fileid',  $fileid);
+				MatrixDAL::bindValueToPdo($query, 'to_date', $date);
+				MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to update version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
 			}
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'fileid',     $fileid);
-			MatrixDAL::bindValueToPdo($query, 'version',    $version);
-			MatrixDAL::bindValueToPdo($query, 'from_date',  $date);
-			MatrixDAL::bindValueToPdo($query, 'to_date',    NULL);
-			MatrixDAL::bindValueToPdo($query, 'file_size',  $file_size);
-			MatrixDAL::bindValueToPdo($query, 'md5',        $md5);
-			MatrixDAL::bindValueToPdo($query, 'sha1',       $sha1);
-			MatrixDAL::bindValueToPdo($query, 'removal',    $removal);
-			MatrixDAL::bindValueToPdo($query, 'extra_info', $extra_info);
-			MatrixDAL::execPdoQuery($query);
+	
+			$version   = (int) $version;
+			if (file_exists($real_file)) {
+				$file_size = filesize($real_file);
+				$md5       = md5_file($real_file);
+				$sha1      = sha1_file($real_file);
+				$removal   = '0';
+			} else {
+				$file_size = 0;
+				$md5       = '';
+				$sha1      = '';
+				$removal   = '1';
+			}
+	
+			$sql = 'INSERT INTO sq_file_vers_history
+					(fileid, version, from_date, to_date, file_size, md5, sha1, removal, extra_info)
+					VALUES
+					(:fileid, :version, :from_date, :to_date, :file_size, :md5, :sha1, :removal, :extra_info)';
+	
+			try {
+				if (MatrixDAL::getDbType() == 'oci') {
+					$sql = str_replace(':from_date', db_extras_todate(MatrixDAL::getDbType(), ':from_date', FALSE), $sql);
+				}
+				$query = MatrixDAL::preparePdoQuery($sql);
+				MatrixDAL::bindValueToPdo($query, 'fileid',     $fileid);
+				MatrixDAL::bindValueToPdo($query, 'version',    $version);
+				MatrixDAL::bindValueToPdo($query, 'from_date',  $date);
+				MatrixDAL::bindValueToPdo($query, 'to_date',    NULL);
+				MatrixDAL::bindValueToPdo($query, 'file_size',  $file_size);
+				MatrixDAL::bindValueToPdo($query, 'md5',        $md5);
+				MatrixDAL::bindValueToPdo($query, 'sha1',       $sha1);
+				MatrixDAL::bindValueToPdo($query, 'removal',    $removal);
+				MatrixDAL::bindValueToPdo($query, 'extra_info', $extra_info);
+				MatrixDAL::execPdoQuery($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to insert version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
+			}
+	
+			// if we aren't removing, copy the file into the repository
+			if (file_exists($real_file)) {
+	
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				$rep_dir = $this->_dir.'/'.$rep_path;
+				if (!is_dir($rep_dir) && !create_directory($rep_dir)) {
+					//trigger_localised_error('FVER0020', E_USER_NOTICE, $rep_dir);
+					throw new Exception('There is no repository folder for file #'.$fileid);
+				}//end if
+	
+				$rep_file = $rep_dir.'/'.basename($real_file).',ffv'.$version;
+				if (!copy($real_file, $rep_file)) {
+					throw new Exception('Can not copy file to repository for file #'.$fileid);
+				}
+	
+			}//endif
+	
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} catch (Exception $e) {
-			throw new Exception('Unable to insert version history for file ID '.$fileid.' due to database error: '.$e->getMessage());
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$version = 0;
 		}
-
-		// if we aren't removing, copy the file into the repository
-		if (file_exists($real_file)) {
-
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			$rep_dir = $this->_dir.'/'.$rep_path;
-			if (!is_dir($rep_dir) && !create_directory($rep_dir)) {
-				trigger_localised_error('FVER0020', E_USER_NOTICE, $rep_dir);
-				return 0;
-			}//end if
-
-			$rep_file = $rep_dir.'/'.basename($real_file).',ffv'.$version;
-			if (!copy($real_file, $rep_file)) return 0;
-
-		}//endif
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $version;
 
