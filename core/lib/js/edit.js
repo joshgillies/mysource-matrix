@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.47 2007/06/08 01:59:43 hnguyen Exp $
+* $Id: edit.js,v 1.48 2008/11/10 04:01:16 mbrydon Exp $
 *
 */
 
@@ -226,6 +226,32 @@ var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
 var onClickMoveUp = new Function('listMoveUp(this); return false;');
 var onClickMoveDown = new Function('listMoveDown(this); return false;');
 
+// Wrapper to handle appendChild() in Safari
+function appendChildWrapper(parentNode, childNode)
+{
+	if (HTMLArea.is_safari) {
+		var childHTML = childNode.innerHTML;
+		var parentHTML = parentNode.innerHTML;
+        parentNode.innerHTML = parentHTML + childHTML;
+	} else {
+		parentNode.appendChild(childNode);
+	}
+}
+
+
+// Wrapper to handle createElement() when appending in Safari
+function appendChildHTMLWrapper(parentNode, childHTML)
+{
+	if (HTMLArea.is_safari) {
+		var parentHTML = parentNode.innerHTML;
+		parentNode.innerHTML = parentHTML + '<' + childHTML + '>';
+	} else {
+		var element = document.createElement(childHTML);
+		appendChildWrapper(parentNode, element);
+	}
+}
+
+
 function expandOptionList(input)
 {
 	// abort if we are not the last input in the lit
@@ -267,9 +293,18 @@ function expandOptionList(input)
 
 	var brElements = lastInput.parentNode.getElementsByTagName('BR');
 	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
-	input.parentNode.appendChild(moveDownButton);
-	input.parentNode.appendChild(document.createElement('BR'));
 
+	var elementValues = new Array();
+	// Store element values as Safari will wipe these out!
+	if (HTMLArea.is_safari) {
+		for (n=0; n<inputs.length; n++) {
+			element = inputs[n];
+			elementValues[n] = element.value;
+		}
+	}
+
+	appendChildWrapper(input.parentNode, moveDownButton);
+	appendChildHTMLWrapper(input.parentNode, 'BR');
 
 
 	// add the extra field
@@ -277,15 +312,14 @@ function expandOptionList(input)
 	newInput.onfocus = expandListFn;
 	newInput.value = '';
 	newInput.id = optionItemPrefix+'_options['+inputs.length+']';
-	input.parentNode.appendChild(newInput);
+	appendChildWrapper(input.parentNode, newInput);
 	var delButton = input.nextSibling;
 	while (delButton.tagName != 'BUTTON') {
 		delButton = delButton.nextSibling;
 	}
 	delButton = delButton.cloneNode(true);
 	delButton.onclick = deleteRowFn;
-	input.parentNode.appendChild(delButton);
-
+	appendChildWrapper(input.parentNode, delButton);
 
 
 	// add the move up button to the new input
@@ -300,8 +334,17 @@ function expandOptionList(input)
 	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 	moveUpButton.onclick = onClickMoveUp;
 
-	input.parentNode.appendChild(moveUpButton);
-	input.parentNode.appendChild(document.createElement('BR'));
+	appendChildWrapper(input.parentNode, moveUpButton);
+	appendChildHTMLWrapper(input.parentNode, 'BR');
+
+	// Restore element values
+	if (HTMLArea.is_safari) {
+		for (element in elementValues) {
+			for (n=0; n<inputs.length; n++) {
+				inputs[n].value = element;
+			}
+		}
+	}
 
 }
 
@@ -461,9 +504,9 @@ function expandDateList(input)
 	}
 	delButton = delButton.cloneNode(true);
 	delButton.onclick = deleteDateRowFn;
-	input.parentNode.parentNode.appendChild(newSpan);
-	input.parentNode.parentNode.appendChild(delButton);
-	input.parentNode.parentNode.appendChild(document.createElement('BR'));
+	appendChildWrapper(input.parentNode.parentNode, newSpan);
+	appendChildWrapper(input.parentNode.parentNode, delButton);
+	appendChildHTMLWrapper(input.parentNode.parentNode, 'BR');
 }
 
 function deleteDateListRow(button)
