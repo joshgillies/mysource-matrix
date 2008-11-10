@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.30 2008/02/18 04:10:10 lwright Exp $
+* $Id: preview.inc,v 1.31 2008/11/10 03:06:08 akarelia Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 */
 
@@ -37,6 +37,15 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 {
+	// turning off error reporting for get size function
+	// `since a wrong url will display all unwanted error messgae...
+	error_reporting(0);
+	$q = $_GET['calc'];
+	if (strlen($q) > 0) {
+		printSize($owner);
+		exit;
+	}
+	error_reporting(6143); // restore the error reporting
 	$db = MatrixDAL::getDb();
 	$sql = 'SELECT l.url, l.http, l.https, lv.name
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -157,6 +166,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			<script type="text/javascript">
 
 				var preview_url = '<?php echo str_replace("'", "\'", $primary_url); ?>';
+				var xmlHttp = null;
+				var url_calculate;
 
 				function update_preview_url()
 				{
@@ -199,10 +210,64 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					document.getElementById('sq_preview_frame').src = preview_url;
 				}
 
-			</script>
-			<?php
-		$o->closeRaw();
+				function get_size() {
+					try
+					{
+						xmlHttp=new XMLHttpRequest();
+					}
+					catch(e)
+					{
+						try
+						{
+							xmlHttp=new ActiveXObject("Microsoft.XMLHTTP");
+						}
+						catch(e)
+						{
+							alert ("Your browser does not support XMLHTTP!");
+							return;  
+						}
+					}
+					document.getElementById("size_button").value = "Calculating ....";
+					document.getElementById("size_button").disabled = true;
+					if (preview_url.match(/SQ_DESIGN_NAME=/)) {
+						var design_name = preview_url.split("?SQ_DESIGN_NAME=");
+						if(design_name[0].match(/_nocache/)){
+							url_calculate = design_name[0].split("_nocache");
+						}
+						url_calculate=url_calculate+"/_admin/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=<?php echo $owner->id ?>&asset_ei_screen=preview";
+					url_calculate = url_calculate+"&calc=calculate";
+					url_calculate = url_calculate+"&sid="+Math.random();
+					} else {
+						if(preview_url.match(/_nocache/)){
+							url_calculate = preview_url.split("_nocache");
+						}
+						url_calculate=preview_url+"/_admin/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=<?php echo $owner->id ?>&asset_ei_screen=preview";
+						url_calculate = url_calculate+"&calc=calculate";
+						url_calculate = url_calculate+"&sid="+Math.random();
+					}
+					
+					
+					if (preview_url.match(/SQ_DESIGN_NAME=/)) {
+						url_calculate = url_calculate+"&SQ_DESIGN_NAME="+design_name[1];
+					}
+					xmlHttp.onreadystatechange = stateChanged;
+					xmlHttp.open("GET",url_calculate,true);
+					xmlHttp.send(null);
+				}
+				
+				function stateChanged() 
+				{ 
+					if (xmlHttp.readyState==4)
+					{
+						document.getElementById("size_elements").innerHTML=xmlHttp.responseText;
+						document.getElementById("size_button").value = "Calculate Size";
+						document.getElementById("size_button").disabled = false;
+					}
+				}
 
+			</script>
+		<?php 
+		$o->closeRaw();
 		$o->openSection(translate('preview_options'));
 			$o->openField(translate('url'));
 				if (count($preview_urls) > 1) {
@@ -212,6 +277,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					hidden_field('preview_url', $primary_url);
 				}
 			$o->closeField();
+
 			$o->openField(translate('design'));
 				if (count($preview_designs) > 1) {
 					combo_box('preview_design', $preview_designs, FALSE, '', 1, 'onchange="update_preview_url()"');
@@ -225,7 +291,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeField();
 			if ($owner->status & SQ_SC_STATUS_SAFE_EDITING) {
 				$o->openField(translate('show_diff'));
-					check_box('show_diff', '1', FALSE, 'if (this.checked) 				{ document.getElementById(\'use_cache\').checked = false; } update_preview_url()');
+					check_box('show_diff', '1', FALSE, 'if (this.checked) { document.getElementById(\'use_cache\').checked = false; } update_preview_url()');
 					label(translate('show_safe_edit_difference'), 'show_diff');
 				$o->closeField();
 			}
@@ -239,8 +305,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->closeRaw();
 			$o->openRaw();
 				?>
+				<span id="size_elements"></span>
+			<?php 
+			$o->closeRaw();
+			$o->openRaw();
+			?>
 				<p style="text-align: right;">
-					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); ?>
+					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); echo ' ';
+					normal_button('size_button', translate('calculate'), 'get_size()');?>
 				</p>
 				<?php
 			$o->closeRaw();
@@ -295,6 +367,171 @@ function processPreview(&$owner, &$o, &$ei)
 	return FALSE;
 
 }//end processPreview()
+
+
+/**
+* Processes the size of the Asset we are previewing
+*
+* @param object	&$owner	Asset: the asset whose interface we are painting
+*
+* @return void
+* @access public
+*/
+function printSize(&$owner)
+{
+	$asset_here = $GLOBALS['SQ_SYSTEM']->am->getAsset($owner->id,'',TRUE);
+	// If its a file asset just get the size and display it
+	if ($owner instanceof File) {
+		$existing = $asset_here->getExistingFile();
+		echo '<br><b>Size&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'.easy_filesize($existing['size']).'</b>';
+		return;
+	}
+	ob_start();
+		$asset_here->printFrontend();
+		$file_content = ob_get_contents();
+	ob_end_clean();
+	$file_size = mb_strlen($file_content);
+	ob_start();
+		$asset_here->printBody();
+		$body_content = ob_get_contents();
+	ob_end_clean();
+	$body_size = mb_strlen($body_content);
+	$array_img = Array();
+	$array_img_2 = Array();
+	$array_css = Array();
+	$array_js = Array();
+	$total_img_size = 0;
+	$total_js_size = 0;
+	$total_css_size = 0;
+	$total_other_size = 0;
+	preg_match_all('/(url\(\"?([^\")]+))/ie', $file_content, $array_img);
+	preg_match_all('/\<(img|input|embed).*\>/iU', $file_content, $matches);
+	preg_match_all('/(?:src|background)[\s]?=[\s]?"?([^"]+)"?/i', implode('', $matches[0]), $array_img_embd);
+
+	preg_match_all('/<script[^>]+.*[\s]*(src|background)[\040]*=[\040]*\"?([^\"\' >]+)/ie', $file_content, $array_js);
+	preg_match_all('/<link[^>]+href[\040]*=[\040]*[\"|\'|\\\\]*([^\'|\"|>|\040]*(.*)\.css)[\"|\'|>|\040|\\\\]* /ie',$file_content, $array_css);
+	$array_img = $array_img[2];
+	$array_img = array_merge($array_img,$array_img_embd[1]);
+	$array_js = $array_js[2];
+	$array_css = $array_css[1];
+	$array_types = Array(
+					'img'	=> Array(
+								0	=> $system_url_img = NULL,
+								1	=> $array_img,
+							   ),
+					'css'	=> Array(
+								0	=> $system_url_css = NULL,
+								1	=> $array_css,
+							   ),
+					'js'	=> Array(
+								0	=> $system_url_js = NULL,
+								1	=> $array_js,
+							   ),
+				   );
+
+	foreach ($array_types as $key => $type_asset) {
+		foreach ($type_asset[1] as $key_value => $url) {
+			$url = str_replace("'",'',$url);
+			$basename = split('/',$url);
+			$protocol = split(':',$url);
+			$db = MatrixDAL::getDb();
+			$sql = 'SELECT 
+							assetid
+					FROM
+							sq_ast_path
+					WHERE
+							path = :url';
+			try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'url', $basename[sizeof($basename)-1]);
+					$result = MatrixDAL::executePdoAll($query);
+			} catch (Exception $e) {
+					throw new Exception('Unable to get URLs for asset '.$path.' due to database error: '.$e->getMessage());
+			}
+			if (!($result)) {
+				$type_asset[0] = $type_asset[0].$url.'~';
+			} else {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($result[0][0]);
+				if ($asset && $key == 'img') {
+					$total_img_size += $asset->attr('size');
+				} else if ($asset && $key == 'css') {
+					$total_css_size += filesize($asset->data_path.'/'.$asset->name);
+				} else if ($asset && $key == 'js') {
+					$total_js_size += filesize($asset->data_path.'/'.$asset->name);
+				} else if ($asset) {
+					$total_other_size += filesize($asset->data_path.'/'.$asset->name);
+				}
+			}
+		}//end foreach
+		// get default times so that we can restore them later
+		$default_execution_time = ini_get('max_execution_time');
+		$default_socket_time = ini_get('default_socket_timeout');
+		$type_asset[0] = split('~',$type_asset[0]);
+		if (sizeof($type_asset[0]) != 1) {
+			foreach ($type_asset[0] as $key => $url) {
+				$url = str_replace("'",'',$url);
+				if (ereg('__data',$url) && $url != '') {
+					$parts = split('__data',$url);
+					$url = SQ_DATA_PATH.'/public'.$parts[1];
+					$total_js_size_here = filesize($url);
+					$total_js_size += $total_js_size_here;
+				} else {
+					if ( $url != '' && ereg('__lib',$url)) {
+						$parts = split('__lib',$url);
+						$url = SQ_INCLUDE_PATH.'/../lib'.$parts[1];
+						$total_js_size_here = filesize($url);
+						$total_js_size += $total_js_size_here;
+					} else if ($url != '') {
+						// set execution time to 5 second so that script doesnt take too long to fetch the headers
+						set_time_limit(5);
+						ini_set('default_socket_timeout', 5);
+						$headers = get_headers($url,1);
+						if ($key == 'img') {
+							$total_img_size += $headers['Content-Length'];
+						} else if ($key == 'css') {
+							$total_css_size += $headers['Content-Length'];
+						} else if ($key == 'js') {
+							$total_js_size += $headers['Content-Length'];
+						} else {
+							$total_other_size += $headers['Content-Length'];
+						}
+						if (ereg('404',$headers[0]) || !($headers)) {
+							$element_unknown = $element_unknown.$url.'~';
+						}
+						set_time_limit($default_execution_time);
+						ini_set('default_socket_timeout', $default_socket_time);
+					}
+				}
+			}//end foreach
+		}//end if
+	}//end foreach
+	$output = '<br><table width=40% cellspacing =\'0\'>
+				<tr><td width=25%><b>Size</b></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('page_standard'),15,15,'',NULL,'').'</td><td>HTML content</td><td align=right>'.number_format(($file_size/1024),2).'</td><td>KB</td></tr>
+				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('bodycopy'),15,15,'',NULL,'').'</td><td>Body content</td><td align=right>'.number_format(($body_size/1024),2).'</td><td>KB</td></tr>
+				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('design_css'),15,15,'',NULL,'').'</td><td>CSS ('.sizeof($array_css).')</td><td align=right>'.number_format((($total_css_size)/1024),2).'</td><td>KB</td></tr>
+				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('text_file'),15,15,'',NULL,'').'</td><td>Javascript ('.sizeof($array_js).')</td><td align=right>'.number_format((($total_js_size)/1024),2).'</td><td>KB</td></tr>
+				<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('image'),15,15,'',NULL,'').'</td><td>Media ('.sizeof($array_img).')</td><td align=right>'.number_format(($total_img_size/1024),2).'</td><td>KB</td></tr>';
+
+	if ($total_other_size > 0) {
+		$output .= '<tr><td></td><td>'.sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL('file'),15,15,'',NULL,'').'</td><td>Other Elements</td><td align=right>'.number_format(($total_other_size/1024),2).'</td><td>KB</td></tr>
+		<tr><td></td><td>'.sq_get_icon(sq_web_path('lib').'/web/images/blank.gif',15,15,'',NULL,'').'</td><td style=\'border-top: thin solid#000000\'><b>Total<b></td><td align=right style=\'border-top: thin solid#000000\'><b>'.number_format((($file_size+$total_img_size+$total_js_size+$total_css_size)/1024),2).'</b></td><td style=\'border-top: thin solid#000000\'><b>KB</b></td></tr></table>';
+	} else {
+		$output .= '<tr><td></td><td>'.sq_get_icon(sq_web_path('lib').'/web/images/blank.gif',15,15,'',NULL,'').'</td><td style=\'border-top: thin solid#000000\'><b>Total</b></td><td align=right style=\'border-top: thin solid#000000\'><b>'.number_format((($file_size+$total_img_size+$total_js_size+$total_css_size)/1024),2).'</b></td><td style=\'border-top: thin solid#000000\'><b>KB</b></td></tr></table>';
+	}
+
+	echo $output;
+
+	$element_unknown = split('~',$element_unknown);
+	if (sizeof($element_unknown)!= 1) {
+		echo '<br><span class="sq-backend-warning ">Could not get data for</span>';
+		foreach ($element_unknown as $key => $unknown_url) {
+			if ($unknown_url != '') {
+				echo '<br><span class="sq-backend-warning ">'.$unknown_url.'</span>';
+			}
+		}
+	}
+
+}//end printSize()
 
 
 ?>
