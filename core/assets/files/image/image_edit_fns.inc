@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.55 2008/11/11 22:45:22 bshkara Exp $
+* $Id: image_edit_fns.inc,v 1.56 2008/11/11 23:20:55 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -578,7 +578,6 @@ class Image_Edit_Fns extends File_Edit_Fns
 				applet.style.width = '0';
 				applet.style.height = '0';
 				var element = document.createElement('div');
-				//element.innerHTML = 'The Image Editor is not currently supported for Safari on Windows.  As such it has been disabled.';
 				element.innerHTML = js_translate('image_editor_disabled');
 				applet.parentNode.appendChild(element);
 			}
