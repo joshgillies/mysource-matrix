@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.14 2008/10/27 04:19:12 bshkara Exp $
+* $Id: metadata_field_hierarchy_edit_fns.inc,v 1.1.2.15 2008/11/11 05:32:20 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.14 $
+* @version $Revision: 1.1.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -868,7 +868,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			break;
 			case 2:
 				// Sort by value
-				$aok = sort($hierarchy);
+				$aok = asort($hierarchy);
 			break;
 		}
 
