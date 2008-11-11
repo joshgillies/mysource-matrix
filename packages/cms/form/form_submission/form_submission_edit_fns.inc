@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.25 2008/10/10 03:52:51 lwright Exp $
+* $Id: form_submission_edit_fns.inc,v 1.26 2008/11/11 22:56:38 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,11 +112,15 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				$is_editable_q = TRUE;
 			}
 			if (isset($section_questions[$form_id][$q_id])) {
-				$q->setValue($section_questions[$form_id][$q_id]['answer']);
+				if (is_string($section_questions[$form_id][$q_id]['answer'])) {
+					$q->setValue(html_entity_decode($section_questions[$form_id][$q_id]['answer']));
+				} else {
+					$q->setValue($section_questions[$form_id][$q_id]['answer']);
+				}
 			}
 			$note = $q->isEditable() ? $q->getVal('note') : '<i>'.translate('cms_form_submission_cannot_edit_question_type').'</i>';
 			$o->openField($q->getVal('title'), '', $note);
-			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : $q->getSummary().'&nbsp;';
+			echo ($q->isEditable() && $wa) ? $q->getHtmlField() : htmlentities($q->getSummary(), ENT_NOQUOTES).'&nbsp;';
 			$section_questions[$form_id][$q_id]['printed'] = TRUE;
 			$o->closeField();
 		}
@@ -209,8 +213,12 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 				if (($question_asset->getValue() != $details['answer']) && (!$question_asset->hasValidValue())) {
 					$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $question_asset->failed_rules);
 				} else {
-					$attributes['answers'][$q_id]['answer'] = $question_asset->getValue();
-					$attributes['summary'][$q_id]['answer'] = $question_asset->getSummary();
+					$value = $question_asset->getValue();
+					if (is_string($value)) {
+						$value = htmlentities($value, ENT_NOQUOTES);
+					}
+					$attributes['answers'][$q_id]['answer'] = $value;
+					$attributes['summary'][$q_id]['answer'] = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
 					$attributes['summary'][$q_id]['name'] = $question_asset->getVal('title');
 				}
 				unset($unanswered_questions[$q_id]);
@@ -221,18 +229,22 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		foreach ($unanswered_questions as $unanswered_question) {
-			$q =& $unanswered_question;
-			if (!$q->isEditable()) continue;
-			$q->setAttrValue('is_required', FALSE); // temporarily
-			$q->populate();
-			if (!$q->hasValidValue()) {
-				$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $q->failed_rules);
+			$question_asset =& $unanswered_question;
+			if (!$question_asset->isEditable()) continue;
+			$question_asset->setAttrValue('is_required', FALSE); // temporarily
+			$question_asset->populate();
+			if (!$question_asset->hasValidValue()) {
+				$this->_tmp['question_errors'] = array_merge($this->_tmp['question_errors'], $question_asset->failed_rules);
 			} else {
-				$attributes['answers'][$q->id]['answer'] = $q->getValue();
-				$attributes['summary'][$q->id]['answer'] = $q->getSummary();
-				$attributes['summary'][$q->id]['name'] = $q->getVal('title');
+				$value = $question_asset->getValue();
+				if (is_string($value)) {
+					$value = htmlentities($value, ENT_NOQUOTES);
+				}
+				$attributes['answers'][$q->id]['answer'] = $value;
+				$attributes['summary'][$q->id]['answer'] = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
+				$attributes['summary'][$q->id]['name'] = $question_asset->getVal('title');
 			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q); // make sure that attr change doesn't stick
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($question_asset); // make sure that attr change doesn't stick
 		}
 		if (empty($this->_tmp['question_errors'])) {
 			$asset->setAttrValue('attributes', $attributes);
