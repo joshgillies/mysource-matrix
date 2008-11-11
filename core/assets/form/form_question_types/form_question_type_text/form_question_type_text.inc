@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.7 2006/12/06 00:35:31 emcdonald Exp $
+* $Id: form_question_type_text.inc,v 1.8 2008/11/11 22:49:22 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,7 +83,6 @@ class Form_Question_Type_Text extends Form_Question
 		}
 
 		$value = $this->getValue();
-		$value = htmlspecialchars($value);
 
 		ob_start();
 		if ($height == 1) {
@@ -97,7 +96,7 @@ class Form_Question_Type_Text extends Form_Question
 		// calling text_box will convert the open and close php tags into their html counter-parts
 		// so we need to convert them back to proper php tags
 
-		return html_entity_decode($html);
+		return $html;
 
 	}//end getHtmlField()
 
