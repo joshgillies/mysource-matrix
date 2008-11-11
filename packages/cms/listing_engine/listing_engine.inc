@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.15 2008/10/23 06:10:56 ewang Exp $
+* $Id: listing_engine.inc,v 1.242.2.16 2008/11/11 11:22:42 gnoel Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.15 $
+* @version $Revision: 1.242.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2254,6 +2254,19 @@ class Listing_Engine extends Page
 						$keywords['asset_contents'] = ob_get_contents();
 					ob_end_clean();
 
+				}
+
+				// Body with user-defined paint layout applied (%asset_contents_paint_NAME%)
+				if (preg_match('|%asset_contents_paint_([^%]+)%|is', $bodycopy->getRawBodycopyContent(), $paint_layouts)) {
+					if ($assetid != $this->id) {
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);						
+						$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layouts[1]);
+						if (!empty($layout_id) && $GLOBALS['SQ_SYSTEM']->am->assetExists($layout_id)) {
+							ob_start();
+							$asset->printBodyWithPaintLayout($layout_id);
+							$keywords['asset_contents_paint_'.$paint_layouts[1]] = ob_get_clean();
+						}
+					}
 				}
 
 				// %asset_contents_raw% will print the asset's body WITHOUT a
