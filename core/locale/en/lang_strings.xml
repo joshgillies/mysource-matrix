@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.298 2008/11/11 22:46:17 bshkara Exp $
+* $Id: lang_strings.xml,v 1.299 2008/11/11 23:05:38 akarelia Exp $
 *
 */
 
@@ -80,6 +80,7 @@
 	<string source="inherit_types">Inherit Types</string>
 	<string source="at" js="1">At</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
+	<string source="calculate">Calculate Size</string>
 	<string source="cascade_options">Cascade Options</string>
 	<string source="cascade_permission_changes">Cascade Permission Changes?</string>
 	<string source="cascade">Cascade</string>
