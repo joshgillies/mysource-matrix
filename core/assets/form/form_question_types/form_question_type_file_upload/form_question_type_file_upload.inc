@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.32 2008/11/07 05:32:01 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.33 2008/11/11 22:54:59 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$html = ob_get_contents();
 		ob_end_clean();
 
-		return html_entity_decode($html);
+		return $html;
 
 	}//end getHtmlField()
 
