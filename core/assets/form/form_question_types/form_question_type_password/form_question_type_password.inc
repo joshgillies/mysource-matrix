@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.9 2006/12/06 00:35:31 emcdonald Exp $
+* $Id: form_question_type_password.inc,v 1.10 2008/11/11 22:55:38 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,7 +98,7 @@ class Form_Question_Type_Password extends Form_Question
 		// calling text_box will convert the open and close php tags into their html counter-parts
 		// so we need to convert them back to proper php tags
 
-		return html_entity_decode($html);
+		return $html;
 
 	}//end getHtmlField()
 
@@ -122,7 +122,9 @@ class Form_Question_Type_Password extends Form_Question
 	{
 		if (is_null($answer)) $answer = $this->getValue();
 
-		if ($this->attr('verify') && ($answer != $this->_tmp['verify_value'])) {
+		// Only try to check "passwords entered differently" if we've actually
+		// submitted something to the form
+		if ($this->attr('verify') && isset($this->_tmp['verify_value']) && ($answer != $this->_tmp['verify_value'])) {
 			$this->failed_rules[] = translate('core_form_password_entered_differently', $this->attr('name'));
 		}
 		if (strlen($answer) < $this->attr('min')) {
