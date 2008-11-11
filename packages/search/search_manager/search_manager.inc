@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.181 2008/10/20 00:28:47 ata Exp $
+* $Id: search_manager.inc,v 1.182 2008/11/11 04:27:15 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1287,20 +1287,20 @@ class Search_Manager extends Asset
 			$schemaids[] = $schema_info['majorid'];
 		}
 
-		$info      = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($fieldid), Array(), TRUE, 'type_code');
-		$type_code = $info[$fieldid];
+		$info      = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
+		$type_code = $info[$assetid];
 
 		$weight_sources = Array(
-							'Asset'		=> $assetid,
-							'AssetTree'	=> $assetid,
-							'AssetType'	=> $type_code,
-							// also check the global metadata weightings
-							'AssetTree'	=> $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder'),
-						  );
+								0 => Array('function_name' => 'Asset'		, 'param' => $assetid),
+								1 => Array('function_name' => 'AssetTree'	, 'param' => $assetid),
+								2 => Array('function_name' => 'AssetType'	, 'param' => $type_code),
+								// also check the global metadata weightings
+								3 => Array('function_name' => 'AssetTree'	, 'param' => $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder')),
+						  		);
 
-		foreach ($weight_sources as $type => $key) {
-			$fn = 'get'.$type.'weightings';
-			$weightings = $this->$fn($key);
+		foreach ($weight_sources as $source) {
+			$fn = 'get'.$source['function_name'].'Weightings';
+			$weightings = $this->$fn($source['param']);
 			if (!empty($weightings) && isset($weightings['metadata_weights'])) {
 				$weight = $this->_getLocalMetadataWeightings($weightings['metadata_weights'], $fieldid, $sectionid, $schemaids);
 				// if the weight is false then we don't want to index this field
