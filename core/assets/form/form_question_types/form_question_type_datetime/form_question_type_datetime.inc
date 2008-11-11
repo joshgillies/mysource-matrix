@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.17 2007/11/06 06:12:58 rong Exp $
+* $Id: form_question_type_datetime.inc,v 1.18 2008/11/11 22:52:40 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,7 +121,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		ob_end_clean();
 
 		// so we need to convert them back to proper php tags
-		return html_entity_decode($html);
+		return $html;
 
 	}//end getHtmlField()
 
@@ -428,8 +428,8 @@ class Form_Question_Type_Datetime extends Form_Question
 	{
 		$val = '';
 		$name = 'q'.$this->id;
-		$value = $_POST[$name.'value'];
-		$show = $_POST[$name.'show'];
+		$value = array_get_index($_POST, $name.'value', '');
+		$show = array_get_index($_POST, $name.'show', '');
 
 		if (strpos($show, 'y') === FALSE) {
 			$val .= '----';
