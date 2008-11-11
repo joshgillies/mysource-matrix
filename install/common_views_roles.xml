@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views_roles.xml,v 1.1.2.1 2008/11/07 00:00:20 mbrydon Exp $
+* $Id: common_views_roles.xml,v 1.1.2.2 2008/11/11 03:52:46 mbrydon Exp $
 *
 */
 -->
@@ -46,43 +46,6 @@
 				FROM
 					sq_ast_perm p LEFT JOIN sq_vw_ast_role r on (r.roleid=p.userid AND r.assetid=p.assetid)
 
-		]]>
-	</sql_element>
-	<sql_element display_name="sq_vw_ast_role Rollback View">
-		<![CDATA[
-			CREATE OR REPLACE VIEW sq_rb_vw_ast_role AS
-				(SELECT
-					r.sq_eff_from, r.sq_eff_to,
-					r.assetid, r.roleid, l.minorid as userid
-				FROM
-					sq_rb_vw_ast_lnk_minor l INNER JOIN sq_rb_ast_role r ON l.majorid = r.roleid
-				WHERE
-					r.userid = '0')
-			UNION
-				(SELECT
-					sq_eff_from, sq_eff_to,
-					assetid, roleid, userid
-				FROM
-					sq_rb_ast_role
-				WHERE
-					userid <> '0')
-		]]>
-	</sql_element>
-	<sql_element display_name="sq_vw_ast_perm Rollback View">
-		<![CDATA[
-			CREATE OR REPLACE VIEW sq_rb_vw_ast_perm AS
-			SELECT
-				CASE WHEN r.sq_eff_from IS NULL THEN p.sq_eff_from ELSE r.sq_eff_from END AS sq_eff_from,
-				CASE WHEN r.sq_eff_to IS NULL THEN p.sq_eff_to ELSE r.sq_eff_to END AS sq_eff_to,
-				CASE WHEN r.assetid IS NULL THEN p.assetid ELSE r.assetid END AS assetid,
-				CASE WHEN r.userid IS NULL THEN p.userid ELSE r.userid END AS userid,
-				p.permission,
-				p.granted,
-				p.cascades
-			FROM
-				sq_rb_vw_ast_role r
-				LEFT JOIN sq_rb_ast_perm p
-				ON (r.roleid = p.userid AND r.assetid = p.assetid)
 		]]>
 	</sql_element>
 	<sql_element display_name="sq_vw_ast_role Disabled View">
