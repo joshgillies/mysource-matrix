@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.24 2008/01/24 05:28:48 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.25 2008/11/11 22:09:25 bpearson Exp $
 *
 */
 -->
@@ -133,6 +133,11 @@
 		</field>
 		<field attribute="reset_button_text">
 			<text width="25" height="1" />
+		</field>
+	</section>
+	<section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
+		<field attribute="parameter_map" format="new_line">
+			<parameter_map />
 		</field>
 	</section>
 </contents>
