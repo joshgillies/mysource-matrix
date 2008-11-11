@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.21 2008/10/12 22:15:21 akarelia Exp $
+* $Id: asset.inc,v 1.633.2.22 2008/11/11 11:15:48 gnoel Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.21 $
+* @version $Revision: 1.633.2.22 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4221,9 +4221,11 @@ class Asset extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	public function printBodyWithPaintLayout()
+	public function printBodyWithPaintLayout($layout_id='')
 	{
-		$layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
+		if (empty($layout_id)) {
+			$layout_id = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
+		}
 		if (empty($layout_id)) {
 			$url = strip_url(current_url(FALSE, TRUE));
 			$layout_name = $this->getCurrentPaintLayoutName();
@@ -4242,11 +4244,12 @@ class Asset extends MySource_Object
 			$switched_frontend = FALSE;
 
 			// Firstly check if the "frontend_asset" is set, and then try to extract the id from it
-                        if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && $GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
+            if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && $GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
 				$current_frontend_asset = &$GLOBALS['SQ_SYSTEM']->frontend_asset;
 				$GLOBALS['SQ_SYSTEM']->frontend_asset = &$this;
 				$switched_frontend = TRUE;
 			}
+
 			$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id);
 			$layout->paint($this);
 
