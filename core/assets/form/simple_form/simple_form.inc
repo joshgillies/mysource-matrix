@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.35 2008/10/10 03:34:01 lwright Exp $
+* $Id: simple_form.inc,v 1.36 2008/11/11 23:19:12 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1147,8 +1147,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 
 		foreach ($questions as $shadowid => $question) {
 			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
-			$keywords[$prefix.$this->id.'_q'.$shadowid] = $q->getSummary();
-			$keywords[$prefix.$this->id.'_q'.$shadowid.'_raw'] = $q->getValue();
+			$keywords[$prefix.$this->id.'_q'.$shadowid] = htmlentities($q->getSummary(), ENT_NOQUOTES);
+			$keywords[$prefix.$this->id.'_q'.$shadowid.'_raw'] = htmlentities($q->getValue(), ENT_NOQUOTES);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 			unset($q);
 		}
@@ -1524,8 +1524,8 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>() {
 			<?php foreach ($answers as $answer) {
 				?>
 				<tr>
-					<td valign="top"><ul><li><?php echo $answer['name']; ?>:</li></ul></td>
-					<td valign="top"><?php echo $answer['value']; ?></td>
+					<td valign="top"><ul><li><?php echo htmlspecialchars($answer['name']); ?>:</li></ul></td>
+					<td valign="top"><?php echo htmlspecialchars($answer['value']); ?></td>
 				</tr>
 			<?php }
 			?>
