@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.203 2008/10/31 05:16:40 lwright Exp $
+* $Id: form.inc,v 1.204 2008/11/11 22:57:58 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.203 $
+* @version $Revision: 1.204 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1684,7 +1684,7 @@ class Form extends Asset implements Bridge
 			if (!is_null($jump_to_page)) {
 				$current_page = $jump_to_page;
 			} else {
-				// Only validate the page responses if.
+				// Only validate the page responses if the "Next/Submit" button is pressed.
 				// In other words, allow gunky data to be stored because we
 				// aren't actually progressing in the form; we will get sto it
 				// when we go forward from this page (whenever that happens).
@@ -2535,6 +2535,7 @@ class Form extends Asset implements Bridge
 		$questions = $this->getQuestionAssetsOnPage($page_number);
 
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
+
 			$question->populate($this);
 			// Only fail the page if we are moving forward
 			if (!$question->hasValidValue() && $validate_page) {
@@ -2546,6 +2547,7 @@ class Form extends Asset implements Bridge
 			$this->current_answers[$question->id] = $question->getValue();
 			$this->extra_data[$question->id]      = $question->getExtraData();
 		}
+
 
 		return $ok;
 
@@ -2690,7 +2692,11 @@ class Form extends Asset implements Bridge
 				echo ($html) ? '<tr><td><ul><li>' : '';
 				echo $question->attr('name');
 				echo ($html) ? ': </li></ul></td><td>' : ' : ';
-				echo $question->getSummary();
+				if ($html) {
+					echo htmlentities($question->getSummary(), ENT_NOQUOTES);
+				} else {
+					echo $question->getSummary();
+				}
 				echo ($html) ? '</td></tr>' : "\n";
 			}
 
@@ -2716,7 +2722,11 @@ class Form extends Asset implements Bridge
 					echo ($html) ? '<tr><td><ul><li>' : '';
 					echo $question->attr('name');
 					echo ($html) ? ': </li></ul></td><td>' : ' : ';
-					echo $question->getSummary();
+					if ($html) {
+						echo htmlentities($question->getSummary(), ENT_NOQUOTES);
+					} else {
+						echo $question->getSummary();
+					}
 					echo ($html) ? '</td></tr>' : "\n";
 				}
 
@@ -3270,6 +3280,9 @@ class Form extends Asset implements Bridge
 			if ($this->submission_asset) {
 				$answers = $this->submission_asset->getAnswers();
 				foreach ($answers as $assetid => $response) {
+					if (is_string($response['answer'])) {
+						$response['answer'] = html_entity_decode($response['answer']);
+					}
 					$this->current_answers[$assetid] = $response['answer'];
 					$this->extra_data[$assetid]      = array_get_index($response, 'extra_data', '');
 				}
@@ -3303,8 +3316,12 @@ class Form extends Asset implements Bridge
 			}
 
 			// only re-set the answer if it has changed
-			if ($question->getValue() !== $submission_asset->getAnswer($assetid)) {
-				$submission_asset->setAnswer($assetid, $question->getValue());
+			$value = $question->getValue();
+			if (is_string($value)) {
+				$value = htmlentities($value, ENT_NOQUOTES);
+			}
+			if ($value !== $submission_asset->getAnswer($assetid)) {
+				$submission_asset->setAnswer($assetid, $value);
 			}
 
 			// same with Extra Data
@@ -3312,7 +3329,7 @@ class Form extends Asset implements Bridge
 				$submission_asset->setExtraData($assetid, $question->getExtraData());
 			}
 
-			$submission_asset->setSummary($assetid, $question->attr('name'), $question->getSummary());
+			$submission_asset->setSummary($assetid, $question->attr('name'), htmlentities($question->getSummary(), ENT_NOQUOTES));
 		}
 
 		$submission_asset->saveAttributes();
@@ -3892,9 +3909,9 @@ class Form extends Asset implements Bridge
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (!empty($question_asset)) {
 				if ($raw_response) {
-					$replacement = $question_asset->getValue();
+					$replacement = htmlentities($question_asset->getValue(), ENT_NOQUOTES);
 				} else {
-					$replacement = $question_asset->getSummary();
+					$replacement = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
 				}
 			}
 
@@ -4486,9 +4503,14 @@ class Form extends Asset implements Bridge
 				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_assetid.':q'.$question_assetid);
 				if (!empty($question_asset)) {
 					if ($raw) {
-						$replacement = $question_asset->getValue();
+						$value = $question_asset->getValue();
+						if (is_string($question_asset->getValue())) {
+							$replacement = htmlentities($question_asset->getValue(), ENT_NOQUOTES);
+						} else {
+							$replacement = '';
+						}
 					} else {
-						$replacement = $question_asset->getSummary();
+						$replacement = htmlentities($question_asset->getSummary(), ENT_NOQUOTES);
 					}
 				}
 
