@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.13 2008/09/08 06:27:14 ewang Exp $
+* $Id: form_question_type_select.inc,v 1.14 2008/11/11 22:51:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,7 +94,7 @@ class Form_Question_Type_Select extends Form_Question
 		}
 
 		ob_start();
-		combo_box($name, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), $extras);
+		combo_box($name, $this->getOptions(), $this->attr('multiple'), $this->value, $this->attr('height'), $extras);
 		$html = ob_get_contents();
 		ob_end_clean();
 
@@ -114,11 +114,16 @@ class Form_Question_Type_Select extends Form_Question
 		$options = $this->attr('options');
 
 		if (count($options) > 0) {
+			$decoded_options = Array();
 			// remove empty options
 			foreach (array_keys($options) as $k) {
-				$options[$k] = html_entity_decode($options[$k]);
-				if ($options[$k] == '') unset($options[$k]);
+				//$options[$k] = html_entity_decode($options[$k]);
+				if ($options[$k] != '') {
+					$decoded_options[html_entity_decode($k)] = html_entity_decode($options[$k]);
+				}
 			}
+			$options = $decoded_options;
+
 			// if allow empty is true, add the '-- Leave Empty --' as the first option
 			if ($this->attr('allow_empty')) {
 				$empty = Array(html_entity_decode($this->attr('empty_key')) => html_entity_decode($this->attr('empty_text')));
@@ -141,7 +146,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function getSummary($answer=NULL)
 	{
-		if (is_null($answer)) $answer = $this->getValue();
+		if (is_null($answer)) $answer = $this->value;
 
 		if (is_array($answer)) {
 			$ans_str = Array();
@@ -216,7 +221,6 @@ class Form_Question_Type_Select extends Form_Question
 	}//end isSelected()
 
 
-	
 	/**
 	* returns TRUE if this particuar option is an --Leave Empty-- option
 	*
@@ -231,10 +235,6 @@ class Form_Question_Type_Select extends Form_Question
 		return $option_name == $this->attr('empty_text');
 
 	}//end isEmptyOption()
-
-
-
-
 
 
 	/**
