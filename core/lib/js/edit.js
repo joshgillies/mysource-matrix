@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.48 2008/11/10 04:01:16 mbrydon Exp $
+* $Id: edit.js,v 1.49 2008/11/11 00:30:26 ewang Exp $
 *
 */
 
@@ -226,30 +226,7 @@ var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
 var onClickMoveUp = new Function('listMoveUp(this); return false;');
 var onClickMoveDown = new Function('listMoveDown(this); return false;');
 
-// Wrapper to handle appendChild() in Safari
-function appendChildWrapper(parentNode, childNode)
-{
-	if (HTMLArea.is_safari) {
-		var childHTML = childNode.innerHTML;
-		var parentHTML = parentNode.innerHTML;
-        parentNode.innerHTML = parentHTML + childHTML;
-	} else {
-		parentNode.appendChild(childNode);
-	}
-}
 
-
-// Wrapper to handle createElement() when appending in Safari
-function appendChildHTMLWrapper(parentNode, childHTML)
-{
-	if (HTMLArea.is_safari) {
-		var parentHTML = parentNode.innerHTML;
-		parentNode.innerHTML = parentHTML + '<' + childHTML + '>';
-	} else {
-		var element = document.createElement(childHTML);
-		appendChildWrapper(parentNode, element);
-	}
-}
 
 
 function expandOptionList(input)
@@ -291,20 +268,19 @@ function expandOptionList(input)
 	moveDownButton = moveDownButton.cloneNode(true);
 	moveDownButton.onclick = onClickMoveDown;
 
-	var brElements = lastInput.parentNode.getElementsByTagName('BR');
-	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
 
-	var elementValues = new Array();
-	// Store element values as Safari will wipe these out!
-	if (HTMLArea.is_safari) {
-		for (n=0; n<inputs.length; n++) {
-			element = inputs[n];
-			elementValues[n] = element.value;
-		}
+	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+	var buttonScript =  moveDownButton.getElementsByTagName("script")[0]; 
+	if (HTMLArea.is_safari  && buttonScript != null) {
+			moveDownButton.removeChild(buttonScript);
 	}
 
-	appendChildWrapper(input.parentNode, moveDownButton);
-	appendChildHTMLWrapper(input.parentNode, 'BR');
+
+	var brElements = lastInput.parentNode.getElementsByTagName('BR');
+	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
+ 	input.parentNode.appendChild(moveDownButton);
+	input.parentNode.appendChild(document.createElement('BR'));
+
 
 
 	// add the extra field
@@ -312,14 +288,14 @@ function expandOptionList(input)
 	newInput.onfocus = expandListFn;
 	newInput.value = '';
 	newInput.id = optionItemPrefix+'_options['+inputs.length+']';
-	appendChildWrapper(input.parentNode, newInput);
+	input.parentNode.appendChild(newInput);
 	var delButton = input.nextSibling;
 	while (delButton.tagName != 'BUTTON') {
 		delButton = delButton.nextSibling;
 	}
 	delButton = delButton.cloneNode(true);
 	delButton.onclick = deleteRowFn;
-	appendChildWrapper(input.parentNode, delButton);
+	input.parentNode.appendChild(delButton);
 
 
 	// add the move up button to the new input
@@ -334,18 +310,16 @@ function expandOptionList(input)
 	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 	moveUpButton.onclick = onClickMoveUp;
 
-	appendChildWrapper(input.parentNode, moveUpButton);
-	appendChildHTMLWrapper(input.parentNode, 'BR');
-
-	// Restore element values
-	if (HTMLArea.is_safari) {
-		for (element in elementValues) {
-			for (n=0; n<inputs.length; n++) {
-				inputs[n].value = element;
-			}
-		}
+	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+	var buttonScript =  moveUpButton.getElementsByTagName("script")[0]; 
+	if (HTMLArea.is_safari  && buttonScript != null) {
+			moveUpButton.removeChild(buttonScript);
 	}
 
+
+
+ 	input.parentNode.appendChild(moveUpButton);
+	input.parentNode.appendChild(document.createElement('BR'));
 }
 
 // move up a row
@@ -504,9 +478,9 @@ function expandDateList(input)
 	}
 	delButton = delButton.cloneNode(true);
 	delButton.onclick = deleteDateRowFn;
-	appendChildWrapper(input.parentNode.parentNode, newSpan);
-	appendChildWrapper(input.parentNode.parentNode, delButton);
-	appendChildHTMLWrapper(input.parentNode.parentNode, 'BR');
+	input.parentNode.parentNode.appendChild(newSpan);
+	input.parentNode.parentNode.appendChild(delButton);
+ 	input.parentNode.parentNode.appendChild(document.createElement('BR'));
 }
 
 function deleteDateListRow(button)
