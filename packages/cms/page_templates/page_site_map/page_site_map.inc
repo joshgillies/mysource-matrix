@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.38 2007/12/03 23:14:03 bshkara Exp $
+* $Id: page_site_map.inc,v 1.39 2008/11/11 14:48:29 gnoel Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -133,9 +133,10 @@ class Page_Site_Map extends Page
 			$SQ_SITE_MAP_ASSET_URLS = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetids);
 
 			ob_start();
+				if ($this->attr('icons')) {
+					echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/general.js"></script>';
+				}
 				?>
-				<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
-				<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 
 				<?php
 				// figure out the columns for the site map
@@ -328,7 +329,7 @@ class Page_Site_Map extends Page
 				$image1 = (($level == 1 && !$top_level) || !$stalks) ? 'blank.gif' : 'tree/stalk.gif';
 				$image2 = (($level == 1 && !$top_level) || !$stalks) ? 'blank.gif' : 'tree/branch.gif';
 
-				$bg = ($end) ? '' : 'style="background-image:'.sq_web_path('lib').'/web/images/'.$image1.'"';
+				$bg = ($end) ? '' : 'style="background-image: url(\''.sq_web_path('lib').'/web/images/'.$image1.'\')"';
 
 				$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$data[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$data['assetid']];
 				?>
