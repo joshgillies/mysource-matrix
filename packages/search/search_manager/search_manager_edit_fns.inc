@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.20 2007/12/17 22:43:24 rong Exp $
+* $Id: search_manager_edit_fns.inc,v 1.21 2008/11/11 23:53:59 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -551,8 +551,9 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _paintAssetTypeChooser($field_name, $selected_type_code)
 	{
-		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(TRUE, TRUE);
+		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(TRUE);
 
+		$all_types = Array();
 		foreach ($asset_types as $type_code => $info) {
 			$all_types[$type_code] = $info['name'];
 			$type_anc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
