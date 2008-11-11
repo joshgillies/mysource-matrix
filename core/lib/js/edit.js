@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.47 2007/06/08 01:59:43 hnguyen Exp $
+* $Id: edit.js,v 1.47.4.1 2008/11/11 02:49:20 ewang Exp $
 *
 */
 
@@ -265,6 +265,12 @@ function expandOptionList(input)
 	moveDownButton = moveDownButton.cloneNode(true);
 	moveDownButton.onclick = onClickMoveDown;
 
+	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+	var buttonScript =  moveDownButton.getElementsByTagName("script")[0]; 
+	if (HTMLArea.is_safari  && buttonScript != null) {
+			moveDownButton.removeChild(buttonScript);
+	}
+
 	var brElements = lastInput.parentNode.getElementsByTagName('BR');
 	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
 	input.parentNode.appendChild(moveDownButton);
@@ -300,6 +306,11 @@ function expandOptionList(input)
 	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 	moveUpButton.onclick = onClickMoveUp;
 
+	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+	var buttonScript =  moveUpButton.getElementsByTagName("script")[0]; 
+	if (HTMLArea.is_safari  && buttonScript != null) {
+			moveUpButton.removeChild(buttonScript);
+	}
 	input.parentNode.appendChild(moveUpButton);
 	input.parentNode.appendChild(document.createElement('BR'));
 
