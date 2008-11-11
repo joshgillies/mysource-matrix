@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.54 2008/05/26 23:50:21 hnguyen Exp $
+* $Id: image_edit_fns.inc,v 1.55 2008/11/11 22:45:22 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,9 +50,16 @@ class Image_Edit_Fns extends File_Edit_Fns
 		parent::paintFileUpload($asset, $o, $prefix);
 
 		if ((!$asset->id) && file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
-			// we are in the create screen, so offer the editor too
+			// we are in the create screen, so offer the editor too unless we are on Safari Windows
 			echo '<p>';
-			normal_button($prefix.'_use_editor_button', translate('core_use_image_editor_button'), 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
+			normal_button($prefix.'_use_editor_button', translate('core_use_image_editor_button'), 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';', 'style=display:none;');
+			?>
+			<script type="text/javascript">
+				if (!(navigator.userAgent.match(/Windows/i) && navigator.userAgent.match(/Safari/i))) {
+					document.getElementById('<?php echo $prefix; ?>_use_editor_button').style.display = 'inline';
+				}
+			</script>
+			<?php
 			echo '</p>';
 		}
 
@@ -562,6 +569,21 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 		?>
 		</applet>
+
+		<script type="text/javascript"><!--
+			// do not display applet for Safari Windows - problems exist currently with the JRE bundled with the browser, in particular the LiveConnect API
+			if (navigator.userAgent.match(/Windows/i) && navigator.userAgent.match(/Safari/i)) {
+				var applet = document.getElementById('<?php echo $prefix; ?>_image_editor');
+				// cannot set display:none because Safari Windows will not respect this with an applet tag
+				applet.style.width = '0';
+				applet.style.height = '0';
+				var element = document.createElement('div');
+				//element.innerHTML = 'The Image Editor is not currently supported for Safari on Windows.  As such it has been disabled.';
+				element.innerHTML = js_translate('image_editor_disabled');
+				applet.parentNode.appendChild(element);
+			}
+			// -->
+		</script>
 		<?php
 		return TRUE;
 

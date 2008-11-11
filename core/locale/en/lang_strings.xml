@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.297 2008/11/10 03:05:46 akarelia Exp $
+* $Id: lang_strings.xml,v 1.298 2008/11/11 22:46:17 bshkara Exp $
 *
 */
 
@@ -1831,6 +1831,7 @@ Are you sure you want to proceed?</string>
 	<string source="show_lock_details" js="1">Show Lock Details</string>
 	<string source="enable" js="1">Enable</string>
 	<string source="disable" js="1">Disable</string>
+	<string source="image_editor_disabled" js="1">The Image Editor is not currently supported for Safari on Windows.  As such it has been disabled.</string>
 
 	<string source="enabled">Enabled</string>
 	<string source="disabled">Disabled</string>
