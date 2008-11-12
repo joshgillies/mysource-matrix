@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.205 2008/11/12 06:52:24 lwright Exp $
+* $Id: form.inc,v 1.206 2008/11/12 23:03:40 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.205 $
+* @version $Revision: 1.206 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2743,7 +2743,7 @@ class Form extends Asset implements Bridge
 	*/
 	public function printSemanticSummary()
 	{
-		echo '<ul class="sq-form-summary-semantic-'.$this->id.'">'."\n";
+		echo '<ul id="sq-form-summary-semantic-'.$this->id.'" class="sq-form-summary-semantic">'."\n";
 
 		if ($this->getQuestionCount() > 0) {
 			echo '<li>'."\n";
