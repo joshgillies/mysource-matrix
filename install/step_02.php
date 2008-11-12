@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.72 2008/11/07 00:13:25 mbrydon Exp $
+* $Id: step_02.php,v 1.73 2008/11/12 00:59:15 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -118,8 +118,13 @@ foreach ($packages as $package) {
 // Install all views except for Roles-related views which are handled further below
 install_stored_relations('views');
 
-// grant permissions to the tables for the secondary user
-grant_secondary_user_perms();
+$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+if (!$fv->initRepository()) {
+	trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
+}
+
+$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 /*
 * Verify that Roles views are all cool as determined by the system-wide config settings.
@@ -136,13 +141,9 @@ if ($roles_configured) {
 	echo "FAILED! Existing definition retained\n\n";
 }
 
-$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+// grant permissions to the tables for the secondary user
+grant_secondary_user_perms();
 
-if (!$fv->initRepository()) {
-	trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
-}
-
-$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
