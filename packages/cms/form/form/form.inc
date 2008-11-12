@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.204 2008/11/11 22:57:58 lwright Exp $
+* $Id: form.inc,v 1.205 2008/11/12 06:52:24 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.204 $
+* @version $Revision: 1.205 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1937,7 +1937,6 @@ class Form extends Asset implements Bridge
 					$section->printBody($this, FALSE);
 				}
 			} else {
-				// Single page form
 				$this->printPageContentsBodycopy();
 			}
 		}
@@ -2737,6 +2736,46 @@ class Form extends Asset implements Bridge
 		echo ($html) ? '</table>' : '';
 
 	}//end printSummary()
+
+
+	/**
+	*
+	*/
+	public function printSemanticSummary()
+	{
+		echo '<ul class="sq-form-summary-semantic-'.$this->id.'">'."\n";
+
+		if ($this->getQuestionCount() > 0) {
+			echo '<li>'."\n";
+			echo '<strong>'.htmlentities($this->attr('unattached_page_name'), ENT_NOQUOTES).'</strong>'."\n";
+			echo '<dl>'."\n";
+			foreach ($this->attr('sort_order') as $sort_order => $question_assetid) {
+
+				// Make sure that we own this question
+				if ($this->id == strtok($question_assetid, ':')) {
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_assetid);
+					echo '<dt>'.$question->attr('name').'</dt>'."\n";
+					echo '<dd>'.htmlentities($question->getSummary(), ENT_NOQUOTES).'</dd>'."\n";
+				}
+
+			}
+			echo '</dl>'."\n";
+			echo '</li>'."\n";
+		}
+
+		// now sections - get the section to print itself out
+		$section_links = $this->getSectionLinks();
+		foreach ($section_links as $section_link) {
+			echo '<li>'."\n";
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+				echo '<strong>'.htmlentities($section->attr('name'), ENT_NOQUOTES).'</strong>'."\n";
+				$section->printSemanticSummary();
+			echo '</li>'."\n";
+		}
+
+		echo '</ul>';
+
+	}//end printSemanticSummary()
 
 
 	/**
@@ -3937,8 +3976,12 @@ class Form extends Asset implements Bridge
 	*/
 	function getCurrentPageContentsKeywordReplacement()
 	{
-		$current_page = $this->getCurrentPageNumber();
-		return $this->getPageContents($current_page);
+		if ($this->attr('multi_page')) {
+			$current_page = $this->getCurrentPageNumber();
+			return $this->getPageContents($current_page);
+		} else {
+			return $this->getFormContentsKeywordReplacement();
+		}
 
 	}//end getCurrentPageContentsKeywordReplacement()
 
@@ -4370,6 +4413,14 @@ class Form extends Asset implements Bridge
 
 			ob_start();
 				$this->printSummary(TRUE);
+				$replacement = ob_get_contents();
+			ob_end_clean();
+
+		} else if ($keyword === 'form_summary_semantic') {
+			// Form semantic summary - intended for HTML ONLY
+
+			ob_start();
+				$this->printSemanticSummary();
 				$replacement = ob_get_contents();
 			ob_end_clean();
 

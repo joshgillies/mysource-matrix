@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.68 2008/11/03 23:54:08 lwright Exp $
+* $Id: form_section.inc,v 1.69 2008/11/12 06:52:25 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1171,6 +1171,44 @@ class Form_Section extends Asset implements Bridge
 		$format_bodycopy->printBody();
 
 	}//end printCustomFormat()
+
+
+	function printSemanticSummary()
+	{
+		if ($this->getQuestionCount() > 0) {
+			echo '<dl>'."\n";
+			foreach ($this->attr('sort_order') as $sort_order => $question_assetid) {
+
+				// Make sure that we own this question
+				if ($this->id == strtok($question_assetid, ':')) {
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_assetid);
+					echo '<dt>'.$question->attr('name').'</dt>'."\n";
+					echo '<dd>'.htmlentities($question->getSummary(), ENT_NOQUOTES).'</dd>'."\n";
+				}
+
+			}
+			echo '</dl>'."\n";
+		}
+
+		// now nested sections - get them to print itself out, recursively
+		$section_links = $this->getSectionLinks();
+		if (count($section_links) > 0) {
+			echo '<ul>'."\n";
+		}
+
+		foreach ($section_links as $section_link) {
+			echo '<li>'."\n";
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+				echo '<strong>'.htmlentities($section->attr('name'), ENT_NOQUOTES).'</strong>'."\n";
+				$section->printSemanticSummary();
+			echo '</li>'."\n";
+		}
+
+		if (count($section_links) > 0) {
+			echo '</ul>'."\n";
+		}
+
+	}//end printSemanticSummary()
 
 
 //--        CUSTOM FORMAT BODYCOPY FUNCTIONS        --//
