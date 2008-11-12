@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.10.4.1 2008/11/12 22:05:52 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.10.4.2 2008/11/12 22:09:09 lwright Exp $
 *
 */
 -->
@@ -29,7 +29,7 @@
 	<section name="Event Sources" write_access="write:attributes">
 		<field>
 			<display_name></display_name>
-			<note><![CDATA[<p>Choose the locations in the asset tree from which you want to list events.  For each location you can specify a CSS class, or one of the CSS named colours, to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white and yellow).  Events that are linked under several of these event sources will have several CSS classes applied (Note that where there are conflicts between CSS rules the CSS standard dictates that rules defined later in the CSS file will take precedence).</p><p>Note that for the default calendar styling to work, you must use a design that uses the Head design area. Alternatively, you can download the default CSS file and customise and add it to the design yourself, below.</p>]]></note>
+			<note><![CDATA[<p>Choose the locations in the asset tree from which you want to list events.  For each location you can specify a CSS class, or one of the CSS named colours, to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white and yellow).  Events that are linked under several of these event sources will have several CSS classes applied (Note that where there are conflicts between CSS rules the CSS standard dictates that rules defined later in the CSS file will take precedence).</p><p>Note that for the default calendar styling to work, you must use a design that uses the Head design area.</p>]]></note>
 			<function_call>
 				<paint_function   name="paintRootNodes"   />
 				<process_function name="processRootNodes" />
