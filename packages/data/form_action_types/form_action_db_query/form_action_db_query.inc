@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_db_query.inc,v 1.3 2008/05/21 01:15:16 lwright Exp $
+* $Id: form_action_db_query.inc,v 1.4 2008/11/12 00:27:19 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -345,7 +345,7 @@ class Form_Action_DB_Query extends Form_Action
 			$count = 0;
 			do {
 				$sql = preg_replace('/%'.$match[1].'%/U', ':response_'.$i, $sql, 1, $count);
-				$bind_vars['response_'.$i] = $form->_getThankYouKeywordReplacement($match[1]);
+				$bind_vars['response_'.$i] = html_entity_decode($form->_getThankYouKeywordReplacement($match[1]));
 				$i++;
 			} while ($count > 0);
 		}
