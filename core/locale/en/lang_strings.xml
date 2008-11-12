@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.299 2008/11/11 23:05:38 akarelia Exp $
+* $Id: lang_strings.xml,v 1.300 2008/11/12 22:00:01 ewang Exp $
 *
 */
 
@@ -860,6 +860,7 @@
 	<string source="bodycopy_asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it for the URL currently being edited [&lt;b&gt;%s&lt;/b&gt;]. No style information is available to use for content editing.</string>
 	<string source="bodycopy_asset_has_no_preview">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</string>
 	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while in Safe Edit mode</string>
+	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference</string>
 	<string source="bodycopy_insert_table">Insert Table</string>
 	<string source="table_styles-colours">Table Styles / Colours</string>
 	<string source="style_information">Style Information</string>
@@ -887,6 +888,7 @@
 	<string source="horizontal">Horizontal</string>
 	<string source="vertical">Vertical</string>
 	<string source="delete_this_div">Delete This Div</string>
+	<string source="delete_this_div_not_allowed">Deleting Not Allowed In User Preference</string>
 	<string source="div_properties">DIV Properties</string>
 	<string source="top">Top</string>
 	<string source="middle">Middle</string>
@@ -2040,6 +2042,14 @@ Are you sure you want to proceed?</string>
 
 	<string source="default_presentation_type">Default Presentation Type</string>
 	<string source="default_presentation_type_note">When new bodycopy Divs are created they will use this presentation type by default. This can be changed for a particular Div container at any time.</string>
+
+	<string source="div_disable_create">Disable Creating Divisions or Tables</string>
+	<string source="div_disable_create_note">Allows you to stop users from being able to create Divisions or Tables on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.</string>
+
+	<string source="div_disable_delete">Disable Deleting Divisions or Tables</string>
+	<string source="div_disable_delete_note">Allows you to stop users from being able to delete Divisions or Tables on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.</string>
+
+
 
 	<string source="asset_assetid">The ID of the asset</string>
 	<string source="asset_short_name">Short name of the asset</string>

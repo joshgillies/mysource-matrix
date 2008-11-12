@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_prefs.inc,v 1.8 2008/11/05 00:30:32 lwright Exp $
+* $Id: bodycopy_container_prefs.inc,v 1.9 2008/11/12 21:58:26 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Bodycopy_Container_Prefs extends Prefs
@@ -41,6 +41,18 @@ class Bodycopy_Container_Prefs extends Prefs
 																'name'			=> 'default_presentation_type',
 																'description'	=> 'When bodycopy containers are created they will have this presentation type by default',
 																'default'		=> 'div',
+																'protected'		=> FALSE,
+															),
+							'SQ_DIV_DISABLE_CREATE'	=> Array(
+																'name'			=> 'div_disable_create',
+																'description'	=> 'If bodycopy containers are disabled for creating, they can not be created in Edit Content Screen',
+																'default'		=> 'no',
+																'protected'		=> FALSE,
+															),
+							'SQ_DIV_DISABLE_DELETE'	=> Array(
+																'name'			=> 'div_disable_delete',
+																'description'	=> 'If bodycopy containers are disabled for deleting, they can not be deleted in Edit Content Screen',
+																'default'		=> 'no',
 																'protected'		=> FALSE,
 															   ),
 						);
@@ -129,7 +141,71 @@ class Bodycopy_Container_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 
+
+		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_CREATE') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_DIV_DISABLE_CREATE']['name']));
+			}
+				$div_disable_create = $this->pref_vars['SQ_DIV_DISABLE_CREATE']['default'];
+				?>
+				<table class="sq-backend-table" style="width: 100px;">
+					<tr>
+						<td class="sq-backend-table-header" nowrap="nowrap">
+						<?php
+							echo translate('disable');
+						?>
+						</td>
+						<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						if ($have_lock && $is_admin) {
+							combo_box('prefs[SQ_DIV_DISABLE_CREATE][default]', Array('yes' => 'Yes', 'no' => 'No'), FALSE, $div_disable_create);
+						} else {
+							echo ucfirst($div_disable_create);
+						}
+						?>
+						</td>
+					</tr>
+				</table>
+				<?php
+			$o->note(translate('div_disable_create_note'));
+
+			if (is_null($pref)) $o->closeField();
+
+		}//end if show SQ_DIV_DISABLE_CREATE
+
+			if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_DELETE') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_DIV_DISABLE_DELETE']['name']));
+			}
+				$div_disable_delete = $this->pref_vars['SQ_DIV_DISABLE_DELETE']['default'];
+				?>
+				<table class="sq-backend-table" style="width: 100px;">
+					<tr>
+						<td class="sq-backend-table-header" nowrap="nowrap">
+						<?php
+							echo translate('disable');
+						?>
+						</td>
+						<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						if ($have_lock && $is_admin) {
+							combo_box('prefs[SQ_DIV_DISABLE_DELETE][default]', Array('yes' => 'Yes', 'no' => 'No'), FALSE, $div_disable_delete);
+						} else {
+							echo ucfirst($div_disable_delete);
+						}
+						?>
+						</td>
+					</tr>
+				</table>
+				<?php
+			$o->note(translate('div_disable_delete_note'));
+
+			if (is_null($pref)) $o->closeField();
+
+		}//end if show SQ_DIV_DISABLE_DELETE
 		return TRUE;
+
+
 
 	}//end paintBackend()
 
@@ -159,6 +235,20 @@ class Bodycopy_Container_Prefs extends Prefs
 		if (is_null($pref) || $pref == 'SQ_DEFAULT_PRESENTATION_TYPE') {
 			if (isset($_POST['prefs']['SQ_DEFAULT_PRESENTATION_TYPE'])) {
 				$this->pref_vars['SQ_DEFAULT_PRESENTATION_TYPE']['default'] = $_POST['prefs']['SQ_DEFAULT_PRESENTATION_TYPE'];
+			}
+		}
+
+		// Div DISABLE CREATE 
+		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_CREATE') {
+			if (isset($_POST['prefs']['SQ_DIV_DISABLE_CREATE'])) {
+				$this->pref_vars['SQ_DIV_DISABLE_CREATE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_CREATE']['default'];
+			}
+		}
+
+		// Div DISABLE DELETE 
+		if (is_null($pref) || $pref == 'SQ_DIV_DISABLE_DELETE') {
+			if (isset($_POST['prefs']['SQ_DIV_DISABLE_DELETE'])) {
+				$this->pref_vars['SQ_DIV_DISABLE_DELETE']['default'] = $_POST['prefs']['SQ_DIV_DISABLE_DELETE']['default'];
 			}
 		}
 
