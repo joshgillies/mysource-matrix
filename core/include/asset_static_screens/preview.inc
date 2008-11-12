@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.31 2008/11/10 03:06:08 akarelia Exp $
+* $Id: preview.inc,v 1.32 2008/11/12 22:33:49 akarelia Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 
@@ -411,9 +411,9 @@ function printSize(&$owner)
 	preg_match_all('/<script[^>]+.*[\s]*(src|background)[\040]*=[\040]*\"?([^\"\' >]+)/ie', $file_content, $array_js);
 	preg_match_all('/<link[^>]+href[\040]*=[\040]*[\"|\'|\\\\]*([^\'|\"|>|\040]*(.*)\.css)[\"|\'|>|\040|\\\\]* /ie',$file_content, $array_css);
 	$array_img = $array_img[2];
-	$array_img = array_merge($array_img,$array_img_embd[1]);
-	$array_js = $array_js[2];
-	$array_css = $array_css[1];
+	$array_img = array_unique(array_merge($array_img,$array_img_embd[1]));
+	$array_js  = array_unique($array_js[2]);
+	$array_css = array_unique($array_css[1]);
 	$array_types = Array(
 					'img'	=> Array(
 								0	=> $system_url_img = NULL,
