@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.15 2008/11/12 05:11:24 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.16 2008/11/12 06:55:44 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,7 @@ class Form_Question_Type_Select extends Form_Question
 		}
 
 		ob_start();
-		combo_box($name, $this->getOptions(), $this->attr('multiple'), $this->value, $this->attr('height'), $extras);
+		combo_box($name, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), $extras);
 		$html = ob_get_contents();
 		ob_end_clean();
 
