@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.105 2008/11/04 22:07:24 mbrydon Exp $
+* $Id: lang_errors.xml,v 1.106 2008/11/12 05:11:25 lwright Exp $
 *
 */
 
@@ -1414,7 +1414,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0317">Neither the System Default nor Tech email addresses have been set.</error>
 
 	<error code="SYS0329">Asset "%1$s" (#%2$s) cannot be linked to "%3$s" (#%4$s), a significant link already exists between these assets</error>
-	
+
 
 
 	<!-- CORE ASSETS -->
@@ -1755,6 +1755,8 @@ Full Node Contents :
 	<error code="CORE0283">Unable to delete paint layout notice link with linkid: %1$s and value: %2$s for asset: #%3$s</error>
 	<error code="CORE0284">Unable to delete paint layout lookup value with name: %1$s for asset: #%2$s</error>
 	<error code="CORE0285">Unable to create paint layout notice link (%1$s) with value: %2$s for asset: #%3$s</error>
+
+	<error code="CORE0286">More than one default option was set in the CSV file, but the question is not set for multiple selection. Only the first default option found will be used.</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->

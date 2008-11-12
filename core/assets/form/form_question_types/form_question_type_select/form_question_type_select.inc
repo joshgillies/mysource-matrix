@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.14 2008/11/11 22:51:18 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.15 2008/11/12 05:11:24 lwright Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../form_question/form_question.inc';
+require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 
 
 /**
@@ -25,7 +26,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -253,6 +254,87 @@ class Form_Question_Type_Select extends Form_Question
 		return $this->getAnswerByOffset($option_code);
 
 	}//end getOptionName()
+
+
+	/**
+	* Replace options with an imported CSV file.
+	*
+	* If 1 column: value only - key is sequentially assigned (from 0)
+	* If 2 columns: key, value
+	* If 3 columns: key, value, default [1|0]
+	*
+	* @param string	$filename	The (temp) file name to import
+	*
+	* @return void
+	*/
+	public function importOptionsFromCSV($filename)
+	{
+		$csv = new CSV($filename);
+		$csv->import();
+
+		$values = $csv->values;
+		$options = Array();
+		$defaults = Array();
+
+		if (!empty($values)) {
+			// We will assume that the number of columns in the first row
+			// is representative of the entire list
+			$num_columns = count($values[0]);
+			$index = 0;
+
+			foreach ($values as $row) {
+				if ($num_columns === 1) {
+					// If we haven't provided a first column, then key and value
+					// are the same
+					$value = htmlentities($row[0], ENT_NOQUOTES);
+					$options[$index] = $value;
+					$index++;
+				} else {
+					$key = htmlentities($row[0], ENT_NOQUOTES);
+					$value = htmlentities($row[1], ENT_NOQUOTES);
+					$options[$key] = $value;
+
+					if ($num_columns === 3) {
+						if ($row[2] == 1) {
+							$defaults[] = $key;
+						}
+					}
+				}
+			}
+
+			$this->setAttrValue('options', $options);
+			if ($num_columns === 3) {
+				if (!$this->attr('multiple')) {
+					if (count($defaults) > 1) {
+						trigger_localised_error('CORE0286', E_USER_NOTICE);
+					}
+					if (count($defaults) > 0) {
+						$defaults = Array($defaults[0]);
+					} else {
+						$defaults = Array();
+					}
+				}
+
+				$this->setAttrValue('default', $defaults);
+			} else {
+				// What happens if it gets overwritten?
+				$current_default = $this->attr('default');
+				if (!is_array($current_default)) {
+					$current_default = Array($current_default);
+				}
+				foreach ($current_default as $default_key) {
+					// Remove any default options that are not choices in this
+					// particular situation
+					if (!isset($options[$default_key])) {
+						unset($current_default[$default_key]);
+					}
+				}
+				$this->setAttrValue('default', $current_default);
+			}
+			$this->saveAttributes();
+		}
+
+	}//end importOptionsFromCSV()
 
 
 }//end class

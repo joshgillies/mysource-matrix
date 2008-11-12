@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2008/04/01 04:21:24 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2008/11/12 05:11:24 lwright Exp $
 */
 -->
 
@@ -40,6 +40,12 @@
 			<function_call>
 				<paint_function   name="paintDefault"   />
 				<process_function name="processDefault" />
+			</function_call>
+		</field>
+		<field read_access="write:attributes">
+			<function_call>
+				<paint_function   name="paintOptionUpload"   />
+				<process_function name="processOptionUpload" />
 			</function_call>
 		</field>
 		<field attribute="height">

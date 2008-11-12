@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.7 2008/04/01 05:44:30 bpearson Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.8 2008/11/12 05:11:24 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		$options = $asset->getOptions();
 		if (count($options) > 0) {
 			foreach ($options as $key => $value) {
-				hidden_field($prefix.'_old_options['.$key.']', $value, 'id='.$prefix.'_old_options['.$key.']');
+				hidden_field($prefix.'_old_options['.$key.']', $value, 'id='.$prefix.'_old_options['.htmlspecialchars($key).']');
 			}
 		}
 		$multiple = ($asset->attr('multiple')) ? TRUE : FALSE;
@@ -117,6 +117,48 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		return TRUE;
 
 	}//end processDefault()
+
+
+	/**
+	* Print the interface for uploading a CSV file containing a mass list of options
+	*
+	* @param Form_Question_Type_Select	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function paintOptionUpload(Form_Question_Type_Select $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess();
+		file_upload($prefix.'_option_upload');
+		return $write_access;
+
+	}//end paintOptionUpload()
+
+
+	/**
+	* Print the interface for uploading a CSV file containing a mass list of options
+	*
+	* @param Form_Question_Type_Select	$asset	the asset whose interface we are painting
+	* @param Backend_Outputter			$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function processOptionUpload(Form_Question_Type_Select $asset, Backend_Outputter $o, $prefix)
+	{
+		if (isset($_FILES[$prefix.'_option_upload'])) {
+			$file = $_FILES[$prefix.'_option_upload'];
+
+			if ($file['error'] === UPLOAD_ERR_OK) {
+				$asset->importOptionsFromCSV($file['tmp_name']);
+			}
+		}
+
+	}//end processOptionUpload()
 
 
 	/**
@@ -214,7 +256,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 
 				// If the input is disabled, don't respond
 				if (inputs[currentOrder].disabled) return;
-				
+
 				// Do the move
 				if (currentOrder > 2) {
 					sListMoveMe(currentOrder, currentOrder-2);
@@ -413,7 +455,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 
 				f[first-1].value = f[second-1].value;
 				f[second-1].value = tempkey;
-				
+
 				var temp = f[first].value;
 				f[first].value = f[second].value;
 				f[second].value = temp;
@@ -520,7 +562,7 @@ function processOptions(&$asset, &$o, $prefix)
 
 
 	/**
-	* paint the option field 
+	* paint the option field
 	*
 	* @param string		$key		the key of the current field
 	* @param string		$value		the value of the current field
