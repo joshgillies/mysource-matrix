@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.11 2008/11/10 22:18:46 mbrydon Exp $
+* $Id: system_config.inc,v 1.104.2.12 2008/11/12 00:45:01 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.11 $
+* @version $Revision: 1.104.2.12 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -999,6 +999,9 @@ class System_Config extends Config
 		// Let's start a transaction for safety
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$drop_success = FALSE;
+
+		// Attempt "DROP VIEW ... IF EXISTS" for PostGres, "DROP VIEW" for Oracle
 		try {
 			// Oracle does not have an "IF EXISTS" clause in "DROP VIEW", so leave it out here
 			$drop_view_if_exists = (($db_type == 'pgsql') ? 'IF EXISTS ' : '');
@@ -1008,6 +1011,34 @@ class System_Config extends Config
 			MatrixDAL::executeSql('DROP VIEW '.$drop_view_if_exists.'sq_vw_ast_perm');
 			MatrixDAL::executeSql('DROP VIEW '.$drop_view_if_exists.'sq_vw_ast_role');
 
+			$drop_success = TRUE;
+		} catch (Exception $e) {
+			// Don't let the world know, just keep on keeping on - we'll create the view in a sec
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+
+			// A new transaction
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		}
+
+		// If the "DROP VIEW ... IF EXISTS" failed under PostGres, then maybe we are running PostGres 8.1.
+		// In this case, give it another go
+		if (!$drop_success && ($db_type == 'pgsql')) {
+			try {
+				MatrixDAL::executeSql('DROP VIEW sq_vw_ast_perm');
+				MatrixDAL::executeSql('DROP VIEW sq_vw_ast_role');
+
+				$drop_success = TRUE;
+			} catch (Exception $e) {
+				// Que sera, sera
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				
+				// A new transaction
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			}
+		}
+
+		// Assume that the views have been dropped, so let's re-create them again
+		try {
 			// Then create the new views
 			MatrixDAL::executeSql($create_role_view_sql);
 			MatrixDAL::executeSql($create_perm_view_sql);
