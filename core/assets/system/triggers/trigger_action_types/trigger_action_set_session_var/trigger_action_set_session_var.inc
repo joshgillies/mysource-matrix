@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_session_var.inc,v 1.4 2007/11/28 03:50:05 colivar Exp $
+* $Id: trigger_action_set_session_var.inc,v 1.5 2008/11/12 23:58:20 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,7 +126,10 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 		$_SESSION[SQ_SESSION_SANDBOX_INDEX][$var_name] = $value;
 
 
-		return TRUE;
+		return Array(
+				'name'		=> $var_name,
+				'value'		=> $value,
+			   );
 
 	}//end execute()
 
