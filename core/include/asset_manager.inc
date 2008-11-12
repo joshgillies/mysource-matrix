@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.17 2008/11/12 05:26:43 akarelia Exp $
+* $Id: asset_manager.inc,v 1.571.2.18 2008/11/12 05:34:56 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.17 $
+* @version $Revision: 1.571.2.18 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7195,7 +7195,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($asset_info as $assetid => $screen) {
 			$href = '';
 			if (SQ_IN_LIMBO) {
-				$href = sq_web_path('edit').'/?limbo_assetid='.$assetid.'&asset_ei_screen='.$screen;
+				$href = sq_web_path('edit').'/?asset_ei_screen='.$screen;
 				if (isset($_GET['limbo_assetid'])) {
                     $href = $href.'&limbo_assetid='.$assetid;
                 }
