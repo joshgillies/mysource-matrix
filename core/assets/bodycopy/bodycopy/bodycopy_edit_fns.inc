@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.63 2008/10/27 04:48:11 akarelia Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.64 2008/11/12 22:00:49 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -264,7 +264,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									?>
 									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
 									<?php
-								} else {
+								}
+								else if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
+									?>
+									<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
+									<?php
+								}	
+								else {
 									?>
 									<td>
 										<?php
@@ -317,7 +323,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								?>
 								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_safe_edit_cannot_insert_new'); ?></span></td>
 								<?php
-							} else {
+							} 
+							else if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
+								?>
+								<td colspan="2"><span class="sq-backend-warning"><?php echo translate('bodycopy_pref_cannot_insert_new'); ?></span></td>
+								<?php
+							}	
+							else {
 								?>
 								<td>
 									<?php
