@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.47 2007/06/08 01:59:43 hnguyen Exp $
+* $Id: edit.js,v 1.47.2.1 2008/11/13 05:07:34 ewang Exp $
 *
 */
 
@@ -223,8 +223,6 @@ function textboxReplaceSelect(input, text)
 
 var expandListFn = new Function('expandOptionList(this)');
 var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
-var onClickMoveUp = new Function('listMoveUp(this); return false;');
-var onClickMoveDown = new Function('listMoveDown(this); return false;');
 
 function expandOptionList(input)
 {
@@ -263,7 +261,6 @@ function expandOptionList(input)
 	}
 	moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-2)+']';
 	moveDownButton = moveDownButton.cloneNode(true);
-	moveDownButton.onclick = onClickMoveDown;
 
 	var brElements = lastInput.parentNode.getElementsByTagName('BR');
 	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
@@ -298,7 +295,6 @@ function expandOptionList(input)
 	}
 	moveUpButton = moveUpButton.cloneNode(true);
 	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
-	moveUpButton.onclick = onClickMoveUp;
 
 	input.parentNode.appendChild(moveUpButton);
 	input.parentNode.appendChild(document.createElement('BR'));
