@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: menu_get_assets.inc,v 1.14 2008/07/17 00:48:48 bpearson Exp $
+* $Id: menu_get_assets.inc,v 1.15 2008/11/13 23:10:42 lwright Exp $
 *
 */
 
@@ -123,7 +123,7 @@ function menu_get_assets($id_name, $majorids)
 		$sql   .= '
 				 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid ';
 		$sql   .= '
-				 LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
+				 LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid AND p.assetid = r.assetid ';
 	}
 	$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
 				 AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_FRONTEND_NAV).' > 0 ';
