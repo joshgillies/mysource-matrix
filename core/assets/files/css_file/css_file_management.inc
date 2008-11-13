@@ -10,52 +10,38 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file.inc,v 1.4.2.1 2008/11/13 04:08:01 bpearson Exp $
+* $Id: css_file_management.inc,v 1.1.2.1 2008/11/13 04:08:00 bpearson Exp $
 *
 */
 
-require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Text_File
+* CSS_File_Management
 *
-* @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4.2.1 $
+* @see Asset_Management
+*
+* @author  Benjamin Pearson <bpearson@squiz.net>
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Text_File extends File
+class CSS_File_Management extends Asset_Management
 {
 
 
 	/**
 	* Constructor
 	*
-	* @param int    $assetid    the asset id to be loaded
+	* @param Package_Manager	$pm	The package manager relevant to this particular asset
 	*
 	*/
-	function __construct($assetid=0)
+	function __construct(Package_Manager $pm)
 	{
-		parent::__construct($assetid);
+		Asset_Management::__construct($pm);
 
 	}//end constructor
-
-
-	/**
-	* Returns the editable content of this asset
-	*
-	* @return string
-	* @access public
-	*/
-	function getContent()
-	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$parse_file = $this->data_path.'/'.$this->name;
-		$content = file_to_string($parse_file);
-	
-		return trim($content);
-
-	}//end getContent()
 
 
 }//end class

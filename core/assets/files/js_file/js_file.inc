@@ -10,22 +10,30 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file.inc,v 1.4.2.1 2008/11/13 04:08:01 bpearson Exp $
+* $Id: js_file.inc,v 1.1.2.1 2008/11/13 04:08:01 bpearson Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 
 /**
-* Text_File
+* JS_File
 *
-* @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4.2.1 $
+* @author  Benjamin Pearson <bpearson@squiz.net>
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Text_File extends File
+class JS_File extends File
 {
+
+
+	/**
+	* All allowed extensions for a js
+	*
+	* @var Array(string)
+	*/
+	public $allowed_extensions = Array('js');
 
 
 	/**
@@ -39,23 +47,6 @@ class Text_File extends File
 		parent::__construct($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Returns the editable content of this asset
-	*
-	* @return string
-	* @access public
-	*/
-	function getContent()
-	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$parse_file = $this->data_path.'/'.$this->name;
-		$content = file_to_string($parse_file);
-	
-		return trim($content);
-
-	}//end getContent()
 
 
 }//end class
