@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.47.4.2 2008/11/13 05:10:53 ewang Exp $
+* $Id: edit.js,v 1.47.4.3 2008/11/13 23:26:44 ewang Exp $
 *
 */
 
@@ -382,7 +382,6 @@ function deleteOptionListRow(button)
 		}
 		moveUpBut = moveUpBut.nextSibling;
 	}
-	button.parentNode.removeChild(moveUpBut);
 
 	var moveDownBut = button.nextSibling;
 	while (moveDownBut != null) {
@@ -391,6 +390,9 @@ function deleteOptionListRow(button)
 		}
 		moveDownBut = moveDownBut.nextSibling;
 	}
+
+	if(moveUpBut == null || moveDownBut == null) return;	
+	button.parentNode.removeChild(moveUpBut);
 	button.parentNode.removeChild(moveDownBut);
 
 
