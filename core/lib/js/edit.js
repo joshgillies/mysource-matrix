@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.49 2008/11/11 00:30:26 ewang Exp $
+* $Id: edit.js,v 1.50 2008/11/13 05:09:18 ewang Exp $
 *
 */
 
@@ -223,8 +223,6 @@ function textboxReplaceSelect(input, text)
 
 var expandListFn = new Function('expandOptionList(this)');
 var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
-var onClickMoveUp = new Function('listMoveUp(this); return false;');
-var onClickMoveDown = new Function('listMoveDown(this); return false;');
 
 
 
@@ -266,7 +264,6 @@ function expandOptionList(input)
 	}
 	moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-2)+']';
 	moveDownButton = moveDownButton.cloneNode(true);
-	moveDownButton.onclick = onClickMoveDown;
 
 
 	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
@@ -308,7 +305,6 @@ function expandOptionList(input)
 	}
 	moveUpButton = moveUpButton.cloneNode(true);
 	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
-	moveUpButton.onclick = onClickMoveUp;
 
 	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
 	var buttonScript =  moveUpButton.getElementsByTagName("script")[0]; 
