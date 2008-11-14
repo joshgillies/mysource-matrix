@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.633.2.22 2008/11/11 11:15:48 gnoel Exp $
+* $Id: asset.inc,v 1.633.2.23 2008/11/14 04:18:54 hnguyen Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.633.2.22 $
+* @version $Revision: 1.633.2.23 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1723,7 +1723,7 @@ class Asset extends MySource_Object
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql);
 				MatrixDAL::bindValueToPdo($query, 'assetid', $this->id);
-				$result = MatrixDAL::executePdoOne($query);
+				$result = MatrixDAL::execPdoQuery($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to delete attribute values for asset: '.$this->id.' due to database error: '.$e->getMessage());
 			}
