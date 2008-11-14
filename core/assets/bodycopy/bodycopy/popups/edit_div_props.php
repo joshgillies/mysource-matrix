@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.21 2007/10/25 23:23:03 rong Exp $
+* $Id: edit_div_props.php,v 1.21.2.1 2008/11/14 00:43:48 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,16 +158,30 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 		<td>
 			<fieldset>
 			<legend><b><?php echo translate('delete_this_div'); ?></b></legend>
+			<?php
+			// if asset is in safe edit we dont want user to delete it
+			if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
+				echo translate('delete_this_div_not_allowed_safe_edit');
+			}
+			// if delete div is disabled by user preference, do not print the icon
+			else if ($GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_DELETE') === 'yes'){
+				echo translate('bodycopy_pref_cannot_insert_new'); 
+			}	
+			// else print the icon and let user do as he please 
+			else {
+			?>
+
 			<table>
 				<tr>
 					<td class="label"><?php echo translate('click_icon_to_delete'); ?>:</td>
 					<td>
-						<?php
-						sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete this Div', 'Delete this Div', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"');
-						?>
+						<?php	sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete this Div', 'Delete this Div', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"'); ?>
 					</td>
 				</tr>
-			</table>
+				</table>
+			<?php
+				}
+			?>
 			</fieldset>
 		</td>
 	</tr>
