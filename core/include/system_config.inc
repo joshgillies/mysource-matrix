@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.104.2.12 2008/11/12 00:45:01 mbrydon Exp $
+* $Id: system_config.inc,v 1.104.2.13 2008/11/14 04:37:38 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104.2.12 $
+* @version $Revision: 1.104.2.13 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -972,8 +972,8 @@ class System_Config extends Config
 	/**
 	* Configures the Permissions and Roles database views to reflect the specified roles state
 	*
-	* @param boolean        $enable_roles_system    whether to enable or disable the Roles system completely
-	* @param boolean        $enable_global_roles    whether to enable or disable Global Roles
+	* @param boolean	$enable_roles_system	whether to enable or disable the Roles system completely
+	* @param boolean	$enable_global_roles	whether to enable or disable Global Roles
 	*
 	* @return boolean
 	* @access public
@@ -1031,7 +1031,7 @@ class System_Config extends Config
 			} catch (Exception $e) {
 				// Que sera, sera
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				
+
 				// A new transaction
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			}
@@ -1047,16 +1047,15 @@ class System_Config extends Config
 		} catch (Exception $e) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
 			throw $e;
 		}
-
-		// Allow the secondary user to operate (select, update etc.) with the Roles views
-		grant_secondary_user_perms(FALSE);
 
 		// All is good, commit the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// Allow the secondary user to operate (select, update etc.) with the Roles views
+		grant_secondary_user_perms(FALSE);
 
 		return $roles_changed;
 
@@ -1066,10 +1065,10 @@ class System_Config extends Config
 	/**
 	* Obtains a database definition from the specified core or package XML file
 	*
-	* @param string         $relations      the type of relations to install. Eg. functions|views
-	* @param string         $db_type        the database type (eg; 'pgsql')
-	* @param boolean        $display_name   the alias to refer to in the XML file for the wanted query
-	* @param string         $package        the Matrix Package in which the query can be found
+	* @param string		$relations	the type of relations to install. Eg. functions|views
+	* @param string		$db_type	the database type (eg; 'pgsql')
+	* @param boolean	$display_name	the alias to refer to in the XML file for the wanted query
+	* @param string		$package	the Matrix Package in which the query can be found
 	*
 	* @return string
 	* @access private
