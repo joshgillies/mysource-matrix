@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.300 2008/11/12 22:00:01 ewang Exp $
+* $Id: lang_strings.xml,v 1.301 2008/11/14 00:43:55 akarelia Exp $
 *
 */
 
@@ -889,6 +889,7 @@
 	<string source="vertical">Vertical</string>
 	<string source="delete_this_div">Delete This Div</string>
 	<string source="delete_this_div_not_allowed">Deleting Not Allowed In User Preference</string>
+	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete Div or Table while in Safe Edit mode</string>
 	<string source="div_properties">DIV Properties</string>
 	<string source="top">Top</string>
 	<string source="middle">Middle</string>
