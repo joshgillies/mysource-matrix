@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.33.2.3 2008/05/07 04:35:21 bshkara Exp $
+* $Id: ecommerce_cart.inc,v 1.33.2.4 2008/11/14 03:36:29 hnguyen Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.33.2.3 $
+* @version $Revision: 1.33.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -710,6 +710,7 @@ class Ecommerce_Cart extends Listing_Engine
 
 		// type folder links
 		$folder =& $this->getFolder();
+		$type_formats	= Array();
 		if (!is_null($folder)) {
 			$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
 			foreach ($type_links as $link_info) {
@@ -719,6 +720,7 @@ class Ecommerce_Cart extends Listing_Engine
 			}
 		}
 
+		$keywords	= Array();
 		if (count($type_formats) > 0) {
 			$keywords['product_quantity'] = translate('ecom_cart_keyword_product_quantity');
 			$keywords['product_total'] = translate('ecom_cart_keyword_product_total');
