@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.301 2008/11/14 00:43:55 akarelia Exp $
+* $Id: lang_strings.xml,v 1.302 2008/11/14 00:59:03 akarelia Exp $
 *
 */
 
@@ -537,7 +537,7 @@
 	<string source="most_recent">Most Recent</string>
 	<string source="history_viewed_row">The highlighted row in the version history is the current version of "%s" being viewed in rollback mode</string>
 	<string source="show_cached_asset">Show the cached version of this asset</string>
-	<string source="preview_change_options">Press the Preview button after changing options to preview the asset below or Press Calculate button to get size of asset and its elements.</string>
+	<string source="preview_change_options">Press the Preview button after changing options to preview the asset below , or press the Calculate button to retrieve a size breakdown of this asset and its elements.</string>
 	<string source="different_domain_login">You may be presented with a Login screen if you choose a URL from a domain different to &lt;b&gt;%s&lt;/b&gt;.&lt;br /&gt;Just enter your Username and Password to login as normal.</string>
 	<string source="asset_cannot_preview">This asset cannot be previewed or does not have a URL assigned to it.</string>
 	<string source="no_asset_settings">There are no settings for "%s"</string>
@@ -859,7 +859,7 @@
 	<string source="content_type_no_change">-- Leave Unchanged --</string>
 	<string source="bodycopy_asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it for the URL currently being edited [&lt;b&gt;%s&lt;/b&gt;]. No style information is available to use for content editing.</string>
 	<string source="bodycopy_asset_has_no_preview">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</string>
-	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while in Safe Edit mode</string>
+	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode</string>
 	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference</string>
 	<string source="bodycopy_insert_table">Insert Table</string>
 	<string source="table_styles-colours">Table Styles / Colours</string>
@@ -889,7 +889,7 @@
 	<string source="vertical">Vertical</string>
 	<string source="delete_this_div">Delete This Div</string>
 	<string source="delete_this_div_not_allowed">Deleting Not Allowed In User Preference</string>
-	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete Div or Table while in Safe Edit mode</string>
+	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete Div or Table whilst in Safe Edit mode</string>
 	<string source="div_properties">DIV Properties</string>
 	<string source="top">Top</string>
 	<string source="middle">Middle</string>
