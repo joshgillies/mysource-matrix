@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.54.2.2 2008/05/13 03:49:13 mbrydon Exp $
+* $Id: db_install.inc,v 1.54.2.3 2008/11/14 04:38:07 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54.2.2 $
+* @version $Revision: 1.54.2.3 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -675,9 +675,10 @@ function grant_secondary_user_perms($verbose=TRUE)
 		$secondary_dsn = $db_conf['db2'];
 		$tertiary_dsn  = $db_conf['db3'];
 		$cache_dsn     = $db_conf['dbcache'];
+		$search_dsn    = $db_conf['dbsearch'];
+		$grant_sql     = 'SELECT sq_grant_access(:user)';
 
 		// grant to the primary user
-		$grant_sql = 'SELECT sq_grant_access(:user)';
 		try {
 			$query = MatrixDAL::preparePdoQuery($grant_sql);
 			MatrixDAL::bindValueToPdo($query, 'user', $primary_dsn['user']);
@@ -734,6 +735,27 @@ function grant_secondary_user_perms($verbose=TRUE)
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
 
+		// grant to the search user, if dsn is defined
+		if (!is_null($search_dsn)) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			if (DAL::getDbType() == 'pgsql') {
+				try {
+					$query = MatrixDAL::preparePdoQuery($grant_sql);
+					MatrixDAL::bindValueToPdo($query, 'user', $search_dsn['user']);
+					MatrixDAL::execPdoQuery($query);
+				} catch (DALException $e) {
+					throw $e;
+				}
+
+				if ($verbose) {
+					pre_echo('PGSQL SEARCH USER PERMISSIONS FIXED');
+				}
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
 
 	}//end if
 
