@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.121 2008/11/12 00:59:15 mbrydon Exp $
+* $Id: system_config.inc,v 1.122 2008/11/14 04:35:33 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.121 $
+* @version $Revision: 1.122 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -989,7 +989,6 @@ class System_Config extends Config
 
 		/*
 		* Default behaviour is to retain the standard Matrix Roles View unless modified, in which case we will define a simpler view
-		*
 		* 1. Modify Roles View to remove Global Role associations
 		* 2. Modify Permissions View to disable the Roles System entirely
 		*/
@@ -1015,28 +1014,28 @@ class System_Config extends Config
 		} catch (Exception $e) {
 			// Don't let the world know, just keep on keeping on - we'll create the view in a sec
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-  	 
+
 			// A new transaction
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		}
-  	 
+
 		// If the "DROP VIEW ... IF EXISTS" failed under PostGres, then maybe we are running PostGres 8.1.
 		// In this case, give it another go
 		if (!$drop_success && ($db_type == 'pgsql')) {
 			try {
 				MatrixDAL::executeSql('DROP VIEW sq_vw_ast_perm');
 				MatrixDAL::executeSql('DROP VIEW sq_vw_ast_role');
-  	 
+
 				$drop_success = TRUE;
 			} catch (Exception $e) {
 				// Que sera, sera
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-  	 
+
 				// A new transaction
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			}
 		}
-  	 
+
 		// Assume that the views have been dropped, so let's re-create them again
 		try {
 			// Then create the new views
@@ -1050,12 +1049,12 @@ class System_Config extends Config
 			throw $e;
 		}
 
-		// Allow the secondary user to operate (select, update etc.) with the Roles views
-		grant_secondary_user_perms(FALSE);
-
 		// All is good, commit the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// Allow the secondary user to operate (select, update etc.) with the Roles views
+		grant_secondary_user_perms(FALSE);
 
 		return $roles_changed;
 
