@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.206 2008/11/12 23:03:40 lwright Exp $
+* $Id: form.inc,v 1.207 2008/11/14 00:43:28 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.206 $
+* @version $Revision: 1.207 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2964,7 +2964,13 @@ class Form extends Asset implements Bridge
 
 						$submission_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($incomplete_link['minorid'], $submission_asset->id);
 						if ($submission_link) {
+							// We need to force this through, for the same reason as we
+							// need to force for the creation of a submission. Without
+							// this, a User asset without write access to the form would
+							// not be able to move it to the Completed Submissions folder
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 							$GLOBALS['SQ_SYSTEM']->am->moveLink($submission_link['linkid'], $complete_link['minorid'], SQ_LINK_TYPE_3, 0);
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 						}
 					}
 				}
