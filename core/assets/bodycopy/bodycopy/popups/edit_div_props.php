@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.22 2008/11/12 22:01:24 ewang Exp $
+* $Id: edit_div_props.php,v 1.23 2008/11/14 00:43:43 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,8 +159,16 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			<fieldset>
 			<legend><b><?php echo translate('delete_this_div'); ?></b></legend>
 			<?php
-				// if delete div is disabled by user preference, do not print the icon
-				if( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_DELETE') === 'no'){
+			// if asset is in safe edit we dont want user to delete it
+			if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
+				echo translate('delete_this_div_not_allowed_safe_edit');
+			}
+			// if delete div is disabled by user preference, do not print the icon
+			else if ($GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_DELETE') === 'yes'){
+				echo translate('bodycopy_pref_cannot_insert_new'); 
+			}	
+			// else print the icon and let user do as he please 
+			else {
 			?>
 
 			<table>
@@ -173,9 +181,6 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				</table>
 			<?php
 				}
-						else {
-							echo translate('delete_this_div_not_allowed');
-						}
 			?>
 			</fieldset>
 		</td>
