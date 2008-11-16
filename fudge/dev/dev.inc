@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.33 2007/11/29 04:09:56 hnguyen Exp $
+* $Id: dev.inc,v 1.34 2008/11/16 23:26:10 ata Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package Fudge
 * @subpackage dev
 */
@@ -255,7 +255,7 @@ function pre_echo($x, $max_depth=0, $style='')
 * @return mixed void|string
 * @access public
 */
-function speed_check($str='', $html=TRUE, $log_error=TRUE)
+function speed_check($str='', $html=TRUE, $log_error=TRUE, $log_file = '')
 {
 	list($msec, $sec) = explode(' ',microtime());
 	// Record time (note we ignore time spent IN this function)
@@ -271,7 +271,11 @@ function speed_check($str='', $html=TRUE, $log_error=TRUE)
 			if (!$log_error) {
 				echo sprintf('%.5f/%.5f', $elapsed, $SPEED_CHECK_TOTAL).' '.$str;
 			} else {
-				error_log(sprintf('%.5f/%.5f', $elapsed, $SPEED_CHECK_TOTAL).' '.$str);
+				if ($log_file == '') {
+					error_log(sprintf('%.5f/%.5f', $elapsed, $SPEED_CHECK_TOTAL).' '.$str);
+				} else {
+					log_write(sprintf('%.5f/%.5f', $elapsed, $SPEED_CHECK_TOTAL).' '.$str, $log_file);
+				}
 			}
 		}
 
