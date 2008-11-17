@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.571.2.18 2008/11/12 05:34:56 akarelia Exp $
+* $Id: asset_manager.inc,v 1.571.2.19 2008/11/17 23:53:07 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.571.2.18 $
+* @version $Revision: 1.571.2.19 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7734,8 +7734,6 @@ class Asset_Manager extends MySource_Object
 			for (reset($result); NULL !== ($key = key($result)); next($result)) {
 				$result[$key] = $db->quoteSmart($result[$key]);
 			}
-
-			$in_sql = implode(',', $result);
 		} else {
 			$in_sql = 'SELECT * FROM '.$in_sql;
 		}
@@ -7795,10 +7793,18 @@ class Asset_Manager extends MySource_Object
 			$where = '(('.implode(') OR (', $where_comps).'))';
 
 		} else {
-			// No conditions, just stick the treeids query straight into the main query
-			$where  ='t.treeid IN (
-						'.$in_sql.'
-					  )';
+			//No conditions, just stick the treeids query straight into the main query
+			if ($db->phptype == 'oci8') {
+				
+				foreach (array_chunk($result, 999) as $chunk) {
+					$in_clauses[] = ' (t.treeid IN ('.implode(', ', $chunk).'))';
+				}
+				$where = '('.implode(' OR ', $in_clauses).')';
+			} else {
+				$where  ='t.treeid IN (
+							'.$in_sql.'
+						  )';
+			}
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
