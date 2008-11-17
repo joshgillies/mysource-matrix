@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.74.2.4 2008/10/16 05:46:25 lwright Exp $
+* $Id: page_remote_content.inc,v 1.74.2.5 2008/11/17 04:52:53 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.74.2.4 $
+* @version $Revision: 1.74.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -198,7 +198,21 @@ class Page_Remote_Content extends Page
 			return FALSE;
 		}
 
-		$query_string = array_get_index($_SERVER, 'QUERY_STRING');
+		
+		//Implode the GET array to construct the query string.
+	   	//Avoid using $_SERVER['query_string'], because, some $_GET vars are passed indirectly.We have to trust $_GET[]
+		$first = true;
+   		$query_string = '';
+    	foreach($_GET as $key => $value) {
+        	if ($first) {
+        	    $query_string = $key.'='.$value;
+        	    $first = false;
+       	 	} else {
+        	    $query_string .= '&'.$key.'='.$value;   
+       		}
+   		}	
+		
+		
 		if (!empty($query_string) && !is_null($remote_source)) {
 			// we're preparing to pass all the query vars to the remote target
 			// remove the query var that contains the reference to the remote target
