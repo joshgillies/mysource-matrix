@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.78 2008/10/16 05:45:22 lwright Exp $
+* $Id: page_remote_content.inc,v 1.79 2008/11/17 04:49:48 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,6 +124,7 @@ class Page_Remote_Content extends Page
 	*/
 	function printBody()
 	{
+
 		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
@@ -166,7 +167,7 @@ class Page_Remote_Content extends Page
 	* @access public
 	*/
 	function _process()
-	{
+	{ 
 		$remote_url		= trim($this->attr('remote_url'));
 		$remote_source	= array_get_index($_REQUEST, SQ_REMOTE_SOURCE);
 
@@ -198,7 +199,21 @@ class Page_Remote_Content extends Page
 			return FALSE;
 		}
 
-		$query_string = array_get_index($_SERVER, 'QUERY_STRING');
+
+		//Implode the GET array to construct the query string.
+	   	//Avoid using $_SERVER['query_string'], because, some $_GET vars are passed indirectly.We have to trust $_GET[]
+		$first = true;
+   		$query_string = '';
+    	foreach($_GET as $key => $value) {
+        	if ($first) {
+        	    $query_string = $key.'='.$value;
+        	    $first = false;
+       	 	} else {
+        	    $query_string .= '&'.$key.'='.$value;   
+       		}
+   		}
+	
+	
 		if (!empty($query_string) && !is_null($remote_source)) {
 			// we're preparing to pass all the query vars to the remote target
 			// remove the query var that contains the reference to the remote target
@@ -206,6 +221,7 @@ class Page_Remote_Content extends Page
 			$source = $is_post ? $remote_source : urlencode($remote_source);
 			$query_string = trim(str_replace(SQ_REMOTE_SOURCE.'='.$source, '', $query_string));
 		}
+		
 		// merge the get vars of current request with those of the source string
 		$url_parts = explode('?', $url);
 		if (isset($url_parts[1])) {
@@ -387,8 +403,10 @@ class Page_Remote_Content extends Page
 			$result = $HTTP_Client->post($url, $post_data, $post_is_encoded, $files);
 
 		} else {
+
 			// fix a php 5 strict warning
 			$result = $HTTP_Client->get($url);
+			
 			//$dummy_http = new HTTP_Client();
 			//$result = $dummy_http->get($url);
 		}
