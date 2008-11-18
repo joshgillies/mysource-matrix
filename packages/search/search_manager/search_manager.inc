@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.182 2008/11/11 04:27:15 ata Exp $
+* $Id: search_manager.inc,v 1.183 2008/11/18 22:02:58 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.182 $
+* @version $Revision: 1.183 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2897,7 +2897,7 @@ class Search_Manager extends Asset
 								$schema_data = $mm->getSchemaDefaultValues($schema->id);
 								foreach ($schema_data as $fieldid => $data) {
 									foreach ($words as $word) {
-										if (preg_match("/$word/i", $data['value'])) {
+										if (preg_match("/$word/i", $data[0]['value'])) {
 											$formatted_results[$schema->id]['schema'][$fieldid] = $data;
 											break;
 										}
