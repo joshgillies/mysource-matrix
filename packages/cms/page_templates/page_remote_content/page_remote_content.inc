@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.74.2.5 2008/11/17 04:52:53 ewang Exp $
+* $Id: page_remote_content.inc,v 1.74.2.6 2008/11/18 04:19:03 hnguyen Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.74.2.5 $
+* @version $Revision: 1.74.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -205,10 +205,10 @@ class Page_Remote_Content extends Page
    		$query_string = '';
     	foreach($_GET as $key => $value) {
         	if ($first) {
-        	    $query_string = $key.'='.$value;
+        	    $query_string = $key.'='.urlencode($value);
         	    $first = false;
        	 	} else {
-        	    $query_string .= '&'.$key.'='.$value;   
+        	    $query_string .= '&'.$key.'='.urlencode($value);   
        		}
    		}	
 		
