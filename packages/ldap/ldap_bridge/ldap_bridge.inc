@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.72 2008/10/22 04:14:53 bpearson Exp $
+* $Id: ldap_bridge.inc,v 1.73 2008/11/18 05:48:02 hnguyen Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -199,7 +199,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 
 		$ldap = @$this->connectToLdap();
-			if (is_null($ldap->ptr)) return $asset;
+			if (is_null($ldap) || is_null($ldap->ptr)) return $asset;
 
 			$shadowid = $this->decodeString($shadowid);
 			$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
@@ -425,7 +425,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 				if (is_null($entries)) {
 					$ldap = @$this->connectToLdap();
-					if (is_null($ldap->ptr)) return Array();
+					if (is_null($ldap) || is_null($ldap->ptr)) return Array();
 
 					if ($assetid == $this->id) {
 						$base_dn = $this->attr('root_dn');
@@ -613,7 +613,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 		if (!isset($this->_tmp['getParents'][$assetid])) {
 			$ldap = @$this->connectToLdap();
-			if (is_null($ldap->ptr)) return Array();
+			if (is_null($ldap) || is_null($ldap->ptr)) return Array();
 
 			$assetid = $this->decodeString($assetid);
 			$result = $ldap->search($assetid,'(objectClass=*)');
@@ -750,7 +750,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 
 		$ldap = @$this->connectToLdap();
-		if (is_null($ldap->ptr)) return Array();
+		if (is_null($ldap) || is_null($ldap->ptr)) return Array();
 
 		if ($assetid == $this->id) {
 			$base_dn = $this->attr('root_dn');
