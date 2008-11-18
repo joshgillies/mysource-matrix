@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.52.2.2 2008/08/12 05:32:11 bpearson Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.52.2.3 2008/11/18 23:47:29 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.2 $
+* @version $Revision: 1.52.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -148,8 +148,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 									 */
 									removeGetRow: function(prefix, index) {
 										node = document.getElementById(prefix + '_additional_get_row_' + index);
-										parent = node.parentNode;
-										parent.removeChild(node);
+										node.parentNode.removeChild(node);	
 										this.updateNoVarStatus(prefix);
 									},
 
@@ -158,9 +157,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 									 */
 									updateNoVarStatus: function(prefix) {
 										node = document.getElementById(prefix + '_additional_get_body');
-										noVarBody = document.getElementById(prefix + '_additional_get_none');
-										noVarBody.style.display = (node.getElementsByTagName('tr').length > 0) ? 'none' : 'table-row-group';
-									},
+										var noVarBody = document.getElementById(prefix + '_additional_get_none');
+										noVarBody.style.display = (node.getElementsByTagName('tr').length > 0) ? 'none' : 'block';
+									}
 								};
 							}//end if
 
@@ -200,7 +199,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 								<tr id="<?php echo $prefix; ?>_additional_get_row_<?php echo $key; ?>">
 									<td><?php text_box($prefix.'_additional_get['.$key.'][name]', $var_info['name'], 20) ?></td>
 									<td><?php text_box($prefix.'_additional_get['.$key.'][value]', $var_info['value'], 30) ?></td>
-									<td><a href="" onclick="<?php echo $asset->type() ?>.removeGetRow('<?php echo $prefix; ?>_additional_get_row_<?php echo $key; ?>'); return false;"><?php echo $delete_icon; ?></a></td>
+									<td><a href="" onclick="<?php echo $asset->type() ?>.removeGetRow('<?php echo $prefix; ?>','<?php echo $key; ?>'); return false;"><?php echo $delete_icon; ?></a></td>
 								</tr>
 								<?php
 							}
