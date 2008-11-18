@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.149.2.7 2008/09/24 00:54:03 bpearson Exp $
+* $Id: file.inc,v 1.149.2.8 2008/11/18 22:08:38 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.149.2.7 $
+* @version $Revision: 1.149.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -336,6 +336,13 @@ class File extends Asset
 		// there's a chance someone will try and use that name later
 		if ($this->attr('name') != $se_name) {
 			$se_rep_path = $this->data_path_suffix.'/'.$se_name;
+			$result = $fv->remove($se_rep_path, '');
+			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
+				trigger_localised_error('CORE0042', E_USER_WARNING);
+				return FALSE;
+			}
+			$removed_file_info = $fv->_checkOutCheck($se_rep_path);
+			$fv->_updateFile($removed_file_info['fileid'], $this->data_path_suffix, $this->data_path.'/'.$se_name);
 		}
 
 		// check out the old version of the file into the private data directory
