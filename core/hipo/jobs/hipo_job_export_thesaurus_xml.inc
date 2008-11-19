@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_thesaurus_xml.inc,v 1.7 2007/12/03 22:15:08 hnguyen Exp $
+* $Id: hipo_job_export_thesaurus_xml.inc,v 1.8 2008/11/19 00:10:31 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -351,7 +351,7 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 	* @return object
 	* @access public
 	*/
-	function &getThesaurusRef()
+	function getThesaurusRef()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['thesaurus_id']);
 
