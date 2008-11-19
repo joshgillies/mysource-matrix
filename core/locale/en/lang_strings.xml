@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.262.2.19 2008/11/14 00:59:13 akarelia Exp $
+* $Id: lang_strings.xml,v 1.262.2.20 2008/11/19 23:32:08 bshkara Exp $
 *
 */
 
@@ -990,6 +990,12 @@
 	A "session" is a calendar day on which there was at least one hit.&lt;br /&gt;
 	Whenever this condition returns true the counter is reset.</string>
 
+	<string source="condition_interface_mode_user_in">User must be in ANY of the following interface modes: </string>
+	<string source="condition_interface_mode_frontend">Frontend Interface</string>
+	<string source="condition_interface_mode_backend">Backend Interface</string>
+	<string source="condition_interface_mode_limbo">Simple Edit Interface</string>
+	<string source="condition_interface_mode_login">Login Interface</string>
+	<string source="condition_interface_mode_cron">Cron Scripts</string>
 
 	<string source="no_layouts_defined">There are no Layouts Defined</string>
 	<string source="no_layouts_for_screens">No Layouts defined for any of %s's Screens</string>
@@ -1223,6 +1229,9 @@
 
 	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
 	<string source="trigger_total_comment_rating_metadata_field">Metadata text field to store total comments: </string>
+
+	<string source="trigger_action_redirect_redirect_url">Redirect URL</string>
+	<string source="trigger_action_redirect_url_instructions">You may use asset based keywords to construct the redirect URL.</string>
 
 	<!-- common single word strings -->
 
