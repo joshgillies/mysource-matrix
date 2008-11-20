@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.184 2008/11/19 22:13:20 hnguyen Exp $
+* $Id: search_manager.inc,v 1.185 2008/11/20 05:58:46 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.184 $
+* @version $Revision: 1.185 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2101,7 +2101,7 @@ class Search_Manager extends Asset
 		$cache_key .= $search_term;
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
-		if (empty($result)) {
+		if ($result === FALSE) {
 			$plugin =& $this->_getDBPlugin();
 			$result = $plugin->processWordSearch($this, $search_term, $data_source, $base_query, $word_logic);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
@@ -2142,7 +2142,7 @@ class Search_Manager extends Asset
 		$cache_key .= 'from'.$date_range['from'].'to'.$date_range['to'];
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
-		if (empty($result)) {
+		if ($result === FALSE) {
 			$plugin =& $this->_getDBPlugin();
 			$result = $plugin->processDateSearch($this, $date_range, $data_source, $base_query);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));
@@ -2183,7 +2183,7 @@ class Search_Manager extends Asset
 		$cache_key .= 'l'.$numeric_range['lower'].'u'.$numeric_range['upper'];
 
 		$result = $this->_tmp['cm']->loadFromCache($this->id, $this->type(), $cache_key);
-		if (empty($result)) {
+		if ($result === FALSE) {
 			$plugin =& $this->_getDBPlugin();
 			$result = $plugin->processNumericSearch($this, $numeric_range, $data_source, $base_query);
 			$r = $this->_tmp['cm']->saveToCache($this->id, $this->type(), $cache_key, serialize($result));

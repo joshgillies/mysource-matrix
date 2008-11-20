@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.27 2007/04/05 00:13:19 skim Exp $
+* $Id: data_source_graph.inc,v 1.28 2008/11/20 05:59:19 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -823,7 +823,7 @@ class Data_Source_Graph extends Image
 		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), 'default');
 
-		if (empty($result)) $this->updateCache();
+		if ($result === FALSE) $this->updateCache();
 
 		$existing = $this->getExistingFile();
 		if (!empty($existing)) {

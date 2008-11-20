@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.278 2008/11/05 04:33:40 mbrydon Exp $
+* $Id: mysource.inc,v 1.279 2008/11/20 05:50:06 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.278 $
+* @version $Revision: 1.279 $
 * @package MySource_Matrix
 */
 class MySource
@@ -649,7 +649,7 @@ class MySource
 		ob_end_clean();
 
 		// not cached or has expired
-		if (empty($cache_info)) {
+		if ($cache_info === FALSE) {
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);
@@ -1284,8 +1284,8 @@ class MySource
 					* Don't allow the user to login again as themselves - that's a bit silly
 					* Also don't allow the user to switch to "root" as no-one is worthy. Only an initial login
 					* as "root" will provide access to this account
-                    */
-                    
+					*/
+
 					if (($username != 'root') && (($username != $this->user->attr('username')) && (strlen($username) > 0))) {
 						$this->_loginAsUser($username);
 					}
@@ -1458,7 +1458,7 @@ class MySource
 
 				// Don't authenticate this time, but just locate the user and log in
 				$secondary_user = $system->locateUser($username);
-		        if (!is_null($secondary_user)) {
+				if (!is_null($secondary_user)) {
 					// Ensure that if we are resuming, that the username and ID match so we
 					// are certain that we are logging back in to the correct account type
 					if ($resuming_session && ($secondary_user->id != $resuming_user_id_match)) {
@@ -1467,8 +1467,8 @@ class MySource
 						return FALSE;
 					}
 
-            		// user found with username and password supplied
-		            unset($_SESSION['user_login_attempts']);
+					// user found with username and password supplied
+					unset($_SESSION['user_login_attempts']);
 
 					$user_status = $secondary_user->status;
 
@@ -1532,7 +1532,7 @@ class MySource
 		}
 
 		return FALSE;
-		
+
 	}//end _loginAsUser()
 
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.26 2008/08/07 03:47:38 bpearson Exp $
+* $Id: page_standard.inc,v 1.27 2008/11/20 05:53:46 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,7 +198,7 @@ class Page_Standard extends Page
 
 
 		// if the cache is empty, go ahead and regenerate a new version
-		if (empty($cached_contents)) {
+		if ($cached_contents === FALSE) {
 			$bodycopy = $this->getBodycopy();
 			if (is_null($bodycopy)) return;
 			ob_start();

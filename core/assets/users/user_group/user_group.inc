@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.23 2007/12/11 03:29:58 rong Exp $
+* $Id: user_group.inc,v 1.24 2008/11/20 05:49:49 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -136,7 +136,7 @@ class User_Group extends Folder
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), 'default');
 
 		// if the cache is empty, go ahead and regenerate a new version
-		if (empty($cached_contents)) {
+		if ($cached_contents === FALSE) {
 			ob_start();
 				$this->printUserList($this->id);
 				$groups = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'user_group', FALSE);
