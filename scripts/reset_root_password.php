@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: reset_root_password.php,v 1.4 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: reset_root_password.php,v 1.4.8.1 2008/11/20 18:28:08 gnoel Exp $
 *
 */
 
@@ -18,15 +18,21 @@
 * Reset the root users password back to 'root'
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+if (empty($SYSTEM_ROOT)) {
+	echo 'Syntax: '.basename(__FILE__)." SYSTEM_ROOT [NEW_PASSWORD]\n\n";
+	echo "\tIf NEW_PASSWORD is not provided, it will be reset to 'root'\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !file_exists($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo 'ERROR: '.$SYSTEM_ROOT.' is not a valid Matrix System Root path'."\n";
 	exit();
 }
 
@@ -45,13 +51,14 @@ if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_user->id, 'attributes')) trigg
 $current_run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
 $GLOBALS['SQ_SYSTEM']->setRunLevel($current_run_level - SQ_SECURITY_PASSWORD_VALIDATION);
 
-if (!$root_user->setAttrValue('password', 'root')) trigger_error("Couldn't set password\n", E_USER_ERROR);
+$password = array_get_index($argv, 2, 'root');
+if (!$root_user->setAttrValue('password', $password)) trigger_error("Couldn't set password\n", E_USER_ERROR);
 if (!$root_user->saveAttributes()) trigger_error("Couldn't save attributes \n", E_USER_ERROR);
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 $GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id, 'attributes');
 
-echo 'Root User Password now reset to "root", please login and change.', "\n";
+echo 'Root User Password now reset to "'.$password.'", please login and change.', "\n";
 
 ?>
