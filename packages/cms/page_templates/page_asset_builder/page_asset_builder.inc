@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.16 2008/10/31 00:21:15 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.17 2008/11/20 23:24:08 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.16 $
+* @version $Revision: 1.122.2.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -125,7 +125,10 @@ class Page_Asset_Builder extends Page
 		}
 
 		// Create / remove layouts
-		if ($this->id) {
+		// Bug Fix : #3360 Cloning asset builder with customised create layout fail
+		// We now check is Asset Exists, because while cloning it is trying to link the layout
+		// to the page_asset_builder Asset when it doesnt exist on the system
+		if ($this->id && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)) {
 			$custom_types = $this->attr('create_form_customisations');
 			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE);
 			$current_layouts = Array();
