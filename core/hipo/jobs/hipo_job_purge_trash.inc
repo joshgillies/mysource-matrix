@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.50 2007/11/26 03:41:35 rong Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.50.2.1 2008/11/20 18:24:01 gnoel Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.50.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -415,7 +415,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$links[] = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['purge_root_linkid'], $this->_running_vars['purge_root_id'], 'minor');
 		}
 
-		foreach ($links as $link) {
+		// We reverse the array to start deleting the assets with the highest sort-order.
+		// This is *much* faster because we don't have to update the sort order  
+		// of all the other assets under the trash each time
+		foreach (array_reverse($links) as $link) {
 			// we know it has other links so no new trash link will be created
 			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 		}
