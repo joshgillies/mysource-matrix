@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.35 2007/12/11 03:29:56 rong Exp $
+* $Id: design_area_body.inc,v 1.36 2008/11/20 05:49:39 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,7 +128,9 @@ class Design_Area_Body extends Design_Area
 				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$body = $cm->loadFromCache($ASSET->id, $ASSET->type());
 			}
-			if (empty($body)) {
+
+			// If cache MISS, or not cacheable at all
+			if (!$ASSET->_is_cacheable || ($body === FALSE)) {
 				ob_start();
 					$ASSET->printBodyWithPaintLayout();
 					$body = ob_get_contents();
