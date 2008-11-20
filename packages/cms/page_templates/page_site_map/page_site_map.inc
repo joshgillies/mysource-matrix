@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.39 2008/11/11 14:48:29 gnoel Exp $
+* $Id: page_site_map.inc,v 1.40 2008/11/20 06:02:13 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -116,7 +116,7 @@ class Page_Site_Map extends Page
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), $rootid);
 
 		// if the cache is empty, go ahead and regenerate a new version
-		if (empty($cached_contents)) {
+		if ($cached_contents === FALSE) {
 
 			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : NULL;
 

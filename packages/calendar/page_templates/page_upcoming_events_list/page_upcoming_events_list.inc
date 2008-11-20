@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.18 2008/05/22 02:10:14 bpearson Exp $
+* $Id: page_upcoming_events_list.inc,v 1.19 2008/11/20 06:00:53 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -167,7 +167,7 @@ class Page_Upcoming_Events_List extends Page
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
-		if (!empty($cached_contents)) {
+		if ($cached_contents !== FALSE) {
 			echo $cached_contents;
 		} else {
 			// No cached version, so carry out the calculations

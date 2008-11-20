@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.216 2008/09/08 06:02:44 mbrydon Exp $
+* $Id: page_calendar.inc,v 1.217 2008/11/20 06:00:52 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -337,7 +337,7 @@ class Page_Calendar extends Page
 				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 				$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 			}
-			if (!empty($cached_contents)) {
+			if ($cached_contents !== FALSE) {
 				echo $cached_contents;
 			} else {
 				// have to generate from scratch

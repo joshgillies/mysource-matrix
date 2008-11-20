@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.35 2008/05/22 02:09:30 bpearson Exp $
+* $Id: page_calendar_rolling.inc,v 1.36 2008/11/20 06:00:52 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -240,7 +240,7 @@ class Page_Calendar_Rolling extends Page
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 		}
 
-		if (!empty($cached_contents)) {
+		if ($cached_contents !== FALSE) {
 			echo $cached_contents;
 		} else {
 			// No cached version, so carry out the calculations
@@ -491,10 +491,10 @@ class Page_Calendar_Rolling extends Page
 		$mm = NULL;
 
 		// Store the date supplied in the URL (if supplied) so it can be restored after use
-                $orig_date_param = '';
-                if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-                        $orig_date_param = $_REQUEST['SQ_CALENDAR_DATE'];
-                }
+				$orig_date_param = '';
+				if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+						$orig_date_param = $_REQUEST['SQ_CALENDAR_DATE'];
+				}
 
 		foreach ($events_by_time_unit as $unit_count => $events_by_date) {
 
@@ -596,11 +596,11 @@ class Page_Calendar_Rolling extends Page
 		}//end foreach ($events_by_time_unit)
 
 		// Restore supplied date value
-                if ($orig_date_param != '') {
-                        $_REQUEST['SQ_CALENDAR_DATE'] = $orig_date_param;
-                } else {
-                        unset($_REQUEST['SQ_CALENDAR_DATE']);
-                }
+				if ($orig_date_param != '') {
+						$_REQUEST['SQ_CALENDAR_DATE'] = $orig_date_param;
+				} else {
+						unset($_REQUEST['SQ_CALENDAR_DATE']);
+				}
 
 		return Array('event_list' => $event_list);
 
