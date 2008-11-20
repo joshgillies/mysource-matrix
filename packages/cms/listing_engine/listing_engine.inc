@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.265 2008/11/20 06:02:12 lwright Exp $
+* $Id: listing_engine.inc,v 1.266 2008/11/20 23:08:57 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.265 $
+* @version $Revision: 1.266 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -426,7 +426,7 @@ class Listing_Engine extends Page
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
 
-		$cached_contents = '';
+		$cached_contents = FALSE;
 		if (!empty($cache_key)) {
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
@@ -631,10 +631,10 @@ class Listing_Engine extends Page
 		// get children of exclude root nodes, add them to the exclude list
 		$exclude_root_nodes = $this->attr('exclude_root_nodes');
 		foreach($exclude_root_nodes as $key =>$value) {
-			$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);	
+			$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);
 			$exclude_assets += array_keys($exclude_children);
 		}
-		
+
 		if (!empty($exclude_assets)) {
 			foreach ($exclude_assets as $index => $assetid) {
 				if (isset($children[$assetid])) {
@@ -642,8 +642,8 @@ class Listing_Engine extends Page
 				}//end if
 			}//end foreach
 		}//end if
-		
-			
+
+
 
 		$children =& $this->convertProxyAssetTypes($children);
 		$this->filterAssetList($children);
@@ -3068,7 +3068,7 @@ class Listing_Engine extends Page
 				}
 			}
 		}
-		
+
 		$parent_link_assetids = Array();
 
 		$root_nodes = $this->getRootNodes(FALSE);
@@ -3147,7 +3147,7 @@ class Listing_Engine extends Page
 						// keep the original score
 						$new_results[$link['minorid']] = $results[$orig_assetid];
 						// store the temporary array of child => parents for use later in getGroupableParentAssetids() method
-						// if neccessary. The structure of the array is 
+						// if neccessary. The structure of the array is
 						// Array(childid => Array(parent_type_code => Array(parentid))) - A child asset can have many parents in
 						// different type codes. Grouping parentids like this will make it easier to get them all later
 						$this->_tmp['proxy_grouping'][$link['minorid']][$result_type][] = $orig_assetid;
