@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.17 2008/11/18 22:50:24 hnguyen Exp $
+* $Id: listing_engine.inc,v 1.242.2.18 2008/11/21 04:12:29 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.17 $
+* @version $Revision: 1.242.2.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -263,7 +263,7 @@ class Listing_Engine extends Page
 			// No Results bodycopy is obviously hidden, so we should be getting TYPE_3 link instead
 			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'bodycopy', TRUE, 'no_results');
 		}
-		
+
 		if (!empty($bodycopy_link) && $bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 			return translate('cms_cannot_delete_link', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 		}
@@ -427,7 +427,7 @@ class Listing_Engine extends Page
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
 
-		$cached_contents = '';
+		$cached_contents = FALSE;
 		if (!empty($cache_key)) {
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
@@ -435,7 +435,7 @@ class Listing_Engine extends Page
 
 		$group_by = $this->attr('group_by');
 		// if the cache is empty, go ahead and regenerate a new version
-		if (empty($cached_contents)) {
+		if ($cached_contents === FALSE) {
 
 			// get the contents of this page
 			// we do this because when contents are prepared the query vars that are used by the form elements
@@ -627,7 +627,7 @@ class Listing_Engine extends Page
 
 		$exclude_assets = $this->attr('exclude_assets');
 
-		
+
 		if (!empty($exclude_assets)) {
 			foreach ($exclude_assets as $index => $assetid) {
 				if (isset($children[$assetid])) {
@@ -654,7 +654,7 @@ class Listing_Engine extends Page
 					$replacements[$selection_name.'_check_all'] = '';
 					$replacements[$selection_name.'_check_all_in_group'] = '';
 				}
-				
+
 				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
 			}
@@ -2260,7 +2260,7 @@ class Listing_Engine extends Page
 				// Body with user-defined paint layout applied (%asset_contents_paint_NAME%)
 				if (preg_match('|%asset_contents_paint_([^%]+)%|is', $bodycopy->getRawBodycopyContent(), $paint_layouts)) {
 					if ($assetid != $this->id) {
-						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);						
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layouts[1]);
 						if (!empty($layout_id) && $GLOBALS['SQ_SYSTEM']->am->assetExists($layout_id)) {
 							ob_start();
