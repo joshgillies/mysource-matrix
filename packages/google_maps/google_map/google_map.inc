@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.2.2.8 2008/10/30 05:44:16 bpearson Exp $
+* $Id: google_map.inc,v 1.2.2.9 2008/11/21 04:46:30 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.8 $
+* @version $Revision: 1.2.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -41,41 +41,41 @@ class Google_Map extends Page_Asset_Listing
 	function __construct($assetid=0)
 	{
 		parent::__construct($assetid);
-        $this->_ser_attrs	= TRUE;
-        $this->api_key		= '';
+		$this->_ser_attrs	= TRUE;
+		$this->api_key		= '';
 
-    }//end constructor
+	}//end constructor
 
 
-    /**
-    * Perform any additional processing required during the creation of this asset
-    *
-    * Standard pages create a bodycopy asset when they are created
-    *
-    * @param array  &$link  information used to create the initial link
-    *
-    * @return boolean
-    * @access private
-    */
-    function _createAdditional(&$link, $args=Array())
-    {
-    	if (!parent::_createAdditional($link)) return FALSE;
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Standard pages create a bodycopy asset when they are created
+	*
+	* @param array  &$link  information used to create the initial link
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _createAdditional(&$link, $args=Array())
+	{
+		if (!parent::_createAdditional($link)) return FALSE;
 
 		$this->createBodycopy('Popup Window');
 
 		return TRUE;
 
-    }//end _createAdditional()
+	}//end _createAdditional()
 
 
-    /**
-    * This function create the bodycopy for the map to be customized
-    *
-    * @return unknown
-    * @access public
-    */
-    function createBodycopy($name)
-    {
+	/**
+	* This function create the bodycopy for the map to be customized
+	*
+	* @return unknown
+	* @access public
+	*/
+	function createBodycopy($name)
+	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bodycopy = new Bodycopy();
 		$bodycopy->setAttrValue('name', $name);
@@ -102,18 +102,18 @@ class Google_Map extends Page_Asset_Listing
 			return FALSE;
 		}//end if
 
-    }//end createBodycopy()
+	}//end createBodycopy()
 
 
-    /**
-    * Returns an array of all the permitted link type, the type asset and the cardinality
-    *
-    * @return array
-    * @access private
-    * @see Asset::_getAllowLinks()
-    */
-    function _getAllowedLinks()
-    {
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
 
 		$allowed_link['asset']['card'] = 'M';
 		$allowed_link['asset']['exclusive'] = FALSE;
@@ -123,19 +123,19 @@ class Google_Map extends Page_Asset_Listing
 		$links[SQ_LINK_TYPE_3] = $allowed_link;
 		$links[SQ_LINK_NOTICE] = $allowed_link;
 
-        return $links;
+		return $links;
 
-    }//end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
-    /**
-    * This function return the cache key of the map based on root nodes
-    *
-    * @return string
-    * @access public
-    */
-    public function getCacheKey()
-    {
+	/**
+	* This function return the cache key of the map based on root nodes
+	*
+	* @return string
+	* @access public
+	*/
+	public function getCacheKey()
+	{
 		$root_nodes	= $this->getRootNodes();
 		$hash_str	= '';
 		foreach ($root_nodes as $root_assetid) {
@@ -144,56 +144,56 @@ class Google_Map extends Page_Asset_Listing
 		$hash	= md5($hash_str);
 
 		return $hash;
-    }//end getCacheKey()
+	}//end getCacheKey()
 
 
-    /**
-    * Returns an array of the result of query execution
-    *
-    * @param string $cache_key  the cache key for this entry
-    *
-    * @return array
-    * @access public
-    */
-    public function getCachedResultSet($cache_key='')
-    {
+	/**
+	* Returns an array of the result of query execution
+	*
+	* @param string $cache_key  the cache key for this entry
+	*
+	* @return array
+	* @access public
+	*/
+	public function getCachedResultSet($cache_key='')
+	{
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, FALSE);
 
 		// empty string means that the result was not serialised
 		// which means cache manager does not have an entry for this cache_key
-		if ($result == '') return FALSE;
+		if ($result === FALSE) return FALSE;
 
 		$result = unserialize($result);
 		return $result;
 
-    }//end getCachedResultSet()
+	}//end getCachedResultSet()
 
 
-    /**
-    * this function cache the result
-    *
-    * @return void
-    * @access private
-    */
-    private function cacheResultSet(Array $result, $cache_key='')
-    {
-    	$cm	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-    	$r	= $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
+	/**
+	* this function cache the result
+	*
+	* @return void
+	* @access private
+	*/
+	private function cacheResultSet(Array $result, $cache_key='')
+	{
+		$cm	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$r	= $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
 
-    }//end cacheResultSet()
+	}//end cacheResultSet()
 
 
-    /**
-    * printBody() this function print the frontend of the map
-    *
-    * @return void
-    * @access public
-    */
-    public function printBody()
-    {
-    	$api_key			= $this->attr('api_key');
-    	$this->api_key		= $api_key;
+	/**
+	* printBody() this function print the frontend of the map
+	*
+	* @return void
+	* @access public
+	*/
+	public function printBody()
+	{
+		$api_key			= $this->attr('api_key');
+		$this->api_key		= $api_key;
 		$lat				= $this->attr('default_latitude');
 		$lng				= $this->attr('default_longitude');
 		$zoom_level			= $this->attr('default_zoom_level');
@@ -215,11 +215,11 @@ class Google_Map extends Page_Asset_Listing
 		$street_view		= $this->attr('enable_street_view');
 		$create_location	= $this->attr('enable_create_location');
 
-    	$dynamic_lat		= $this->getDynamicVariableValue('latitude');
-    	$dynamic_lng		= $this->getDynamicVariableValue('longitude');
-    	$dynamic_desc		= $this->getDynamicVariableValue('description');
-    	$dynamic_zoom_level	= $this->getDynamicVariableValue('zoom_level');
-    	$dynamic_map_type	= $this->getDynamicVariableValue('map_type');
+		$dynamic_lat		= $this->getDynamicVariableValue('latitude');
+		$dynamic_lng		= $this->getDynamicVariableValue('longitude');
+		$dynamic_desc		= $this->getDynamicVariableValue('description');
+		$dynamic_zoom_level	= $this->getDynamicVariableValue('zoom_level');
+		$dynamic_map_type	= $this->getDynamicVariableValue('map_type');
 
 		if ($dynamic_lat && $dynamic_lng) {
 			$lat			= $dynamic_lat;
@@ -230,11 +230,11 @@ class Google_Map extends Page_Asset_Listing
 		if (!empty($dynamic_desc)) 			$description	= $dynamic_desc;
 		if (!empty($dynamic_map_type)) 		$map_type		= $dynamic_map_type;
 
-    	$cache_key				= $this->getCacheKey();
-    	$cached_result			= $this->getCachedResultSet($cache_key);
+		$cache_key				= $this->getCacheKey();
+		$cached_result			= $this->getCachedResultSet($cache_key);
 
-    	$bodycopy_popup_window	= $this->getBodycopy('Popup Window');
-        $keywords				= $bodycopy_popup_window->getKeywords();
+		$bodycopy_popup_window	= $this->getBodycopy('Popup Window');
+		$keywords				= $bodycopy_popup_window->getKeywords();
 
 		$root_node_id			= $this->attr('root_assetid');
 
@@ -345,16 +345,16 @@ class Google_Map extends Page_Asset_Listing
 				}//end if
 
 				$replacements	= Array();
-        		foreach ($keywords as $word) {
-        			$asset_keyword	= $this->getMappedKeyword($child_asset_type, $word);
-        			$replacements[$word] = $child_asset->getKeywordReplacement($asset_keyword);
+				foreach ($keywords as $word) {
+					$asset_keyword	= $this->getMappedKeyword($child_asset_type, $word);
+					$replacements[$word] = $child_asset->getKeywordReplacement($asset_keyword);
 				}//end foreach
 
 				$bodycopy_popup_window->setKeywordReplacements($replacements);
-		        ob_start();
-		        	$bodycopy_popup_window->printBody();
-		        $popup_html = ob_get_contents();
-		        ob_end_clean();
+				ob_start();
+					$bodycopy_popup_window->printBody();
+				$popup_html = ob_get_contents();
+				ob_end_clean();
 
 				$locations_info[$loc_index]['html']	= $popup_html;
 
@@ -412,7 +412,7 @@ class Google_Map extends Page_Asset_Listing
 			?>
 				if (ge != null) {
 					ge.getLayerRoot().enableLayerById(ge.LAYER_BORDERS, true);
-				    ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, true);
+					ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, true);
 				}
 			<?php
 				}
@@ -613,81 +613,81 @@ class Google_Map extends Page_Asset_Listing
 
 
 	/**
-    * Get a value of a dynamic variable
-    *
-    * @param string $variable_name  Name of variable
-    *
-    * @return string
-    * @access public
-    */
-    public function getDynamicVariableValue($variable_name)
-    {
-        $dynamic_vars = $this->attr('dynamic_vars');
-        if (!isset($dynamic_vars[$variable_name])) return '';
+	* Get a value of a dynamic variable
+	*
+	* @param string $variable_name  Name of variable
+	*
+	* @return string
+	* @access public
+	*/
+	public function getDynamicVariableValue($variable_name)
+	{
+		$dynamic_vars = $this->attr('dynamic_vars');
+		if (!isset($dynamic_vars[$variable_name])) return '';
 
-        $parameter_map = $this->getAttribute('parameter_map');
-        $value = $parameter_map->getParameterValue($variable_name);
+		$parameter_map = $this->getAttribute('parameter_map');
+		$value = $parameter_map->getParameterValue($variable_name);
 
-        if (empty($value)) {
-            $value = array_get_index($dynamic_vars, $variable_name, '');
-        }//end if
+		if (empty($value)) {
+			$value = array_get_index($dynamic_vars, $variable_name, '');
+		}//end if
 
-        return $value;
+		return $value;
 
-    }//end getDynamicVariableValue()
+	}//end getDynamicVariableValue()
 
 
-    /**
+	/**
 	* return the keywords for content type
 	*
 	* @return array
 	* @access public
 	*/
-    function _getContentsKeywords()
-    {
+	function _getContentsKeywords()
+	{
 
-    	$keywords							= parent::_getContentsKeywords();
-    	$keywords['location_name']			= translate('google_map_name_keyword');
-    	$keywords['location_latitude']		= translate('google_map_latitude_keyword');
-    	$keywords['location_longitude']		= translate('google_map_longitude_keyword');
-    	$keywords['location_description']	= translate('google_map_description_keyword');
-    	$keywords['location_icon_url']		= translate('google_map_icon_url_keyword');
-    	$keywords['google_map']				= translate('google_map_initialisation');
+		$keywords							= parent::_getContentsKeywords();
+		$keywords['location_name']			= translate('google_map_name_keyword');
+		$keywords['location_latitude']		= translate('google_map_latitude_keyword');
+		$keywords['location_longitude']		= translate('google_map_longitude_keyword');
+		$keywords['location_description']	= translate('google_map_description_keyword');
+		$keywords['location_icon_url']		= translate('google_map_icon_url_keyword');
+		$keywords['google_map']				= translate('google_map_initialisation');
 
-    	$keywords['street_view']			= translate('google_map_street_view');
-    	$keywords['toggle_overlay']			= translate('google_map_toggle_overlay');
-    	$keywords['toggle_street_view_window']	= translate('google_map_toggle_street_view_window');
-    	$keywords['toggle_new_address_list']= translate('google_map_toggle_new_address_list');
-    	$keywords['toggle_tool_bar']		= translate('google_map_toggle_tool_bar');
-    	$keywords['tool_bar']				= translate('google_map_tool_bar');
-    	$keywords['toggle_address_finder']	= translate('google_map_toggle_address_finder');
+		$keywords['street_view']			= translate('google_map_street_view');
+		$keywords['toggle_overlay']			= translate('google_map_toggle_overlay');
+		$keywords['toggle_street_view_window']	= translate('google_map_toggle_street_view_window');
+		$keywords['toggle_new_address_list']= translate('google_map_toggle_new_address_list');
+		$keywords['toggle_tool_bar']		= translate('google_map_toggle_tool_bar');
+		$keywords['tool_bar']				= translate('google_map_tool_bar');
+		$keywords['toggle_address_finder']	= translate('google_map_toggle_address_finder');
 
-    	$keywords['toggle_asset_types']		= translate('google_map_toggle_asset_types');
-    	$keywords['toggle_root_nodes']		= translate('google_map_toggle_root_nodes');
+		$keywords['toggle_asset_types']		= translate('google_map_toggle_asset_types');
+		$keywords['toggle_root_nodes']		= translate('google_map_toggle_root_nodes');
 
-    	$keywords['address_finder']			= translate('google_map_address_finder');
-    	$keywords['new_address_list']		= translate('google_map_new_address_list');
-    	$keywords['asset_builder']			= translate('google_map_asset_builder');
+		$keywords['address_finder']			= translate('google_map_address_finder');
+		$keywords['new_address_list']		= translate('google_map_new_address_list');
+		$keywords['asset_builder']			= translate('google_map_asset_builder');
 
-    	$keywords['get_closest_location']	= translate('google_map_get_closest_location');
-    	$keywords['clear_new_markers']		= translate('google_map_clear_new_markers');
-    	$keywords['map_type_menu']			= translate('google_map_map_type_menu');
+		$keywords['get_closest_location']	= translate('google_map_get_closest_location');
+		$keywords['clear_new_markers']		= translate('google_map_clear_new_markers');
+		$keywords['map_type_menu']			= translate('google_map_map_type_menu');
 
-    	return $keywords;
+		return $keywords;
 
-    }//end _getContentsKeywords()
+	}//end _getContentsKeywords()
 
 
-    /**
-    * function getKeywordReplacements
-    *
-    * @param string $keywords
-    *
-    * @return string
-    * @access public
-    */
-    public function getKeywordReplacement($keyword)
-    {
+	/**
+	* function getKeywordReplacements
+	*
+	* @param string $keywords
+	*
+	* @return string
+	* @access public
+	*/
+	public function getKeywordReplacement($keyword)
+	{
 		if ($keyword == 'google_map') {
 			$map_code	= $this->attr('map_code');
 			return $map_code;
@@ -697,11 +697,11 @@ class Google_Map extends Page_Asset_Listing
 		} else if ($keyword == 'address_finder') {
 			return  '<div id="address_finder" class="address_finder_div">
 						<form action="#" onsubmit="findLocationFromAddress(this.address.value); return false">
-					      <p>
-					        <input type="text" style="width:400px;" name="address" value="" />
-					        <input type="submit" value="Find Location" />
-					      </p>
-					    </form>
+						  <p>
+							<input type="text" style="width:400px;" name="address" value="" />
+							<input type="submit" value="Find Location" />
+						  </p>
+						</form>
 					</div>';
 		} else if ($keyword == 'new_address_list') {
 			return '<div id="new_address_list" class="new_address_list">
@@ -709,12 +709,12 @@ class Google_Map extends Page_Asset_Listing
 		} else if ($keyword == 'map_type_menu') {
 			$enable_google_earth = $this->attr('enable_google_earth');
 			$map_menu = '<ul id="map_menu" class="map_type_menu" style="list-style:none;">
-			        <li><button onClick="setMapType(G_NORMAL_MAP);">NORMAL</button></li>
+					<li><button onClick="setMapType(G_NORMAL_MAP);">NORMAL</button></li>
 					<li><button onClick="setMapType(G_PHYSICAL_MAP);">TERRAIN</button></li>
-			        <li><button onClick="setMapType(G_SATELLITE_MAP);">SATELLITE</button></li>
-			        <li><button onClick="setMapType(G_HYBRID_MAP);">HYBRID</button></li>
-			        <li><button onClick="setMapType(G_SKY_VISIBLE_MAP);">SKY VISIBLE</button></li>
-			        <li><button onClick="setMapType(G_MARS_VISIBLE_MAP);">MARS VISIBLE</button></li>';
+					<li><button onClick="setMapType(G_SATELLITE_MAP);">SATELLITE</button></li>
+					<li><button onClick="setMapType(G_HYBRID_MAP);">HYBRID</button></li>
+					<li><button onClick="setMapType(G_SKY_VISIBLE_MAP);">SKY VISIBLE</button></li>
+					<li><button onClick="setMapType(G_MARS_VISIBLE_MAP);">MARS VISIBLE</button></li>';
 			if ($enable_google_earth) {
 				$map_menu .= '<li><button onClick="setMapType(G_SATELLITE_3D_MAP);">EARTH</button></li>';
 			}
@@ -774,14 +774,14 @@ class Google_Map extends Page_Asset_Listing
 					$result		.= '<a href="javascript:toggleDisplay(markerRootNodes, \''.$root_assetid.'\')">Toggle '.$root_asset->attr('name').'</a><br />';
 				}//end foreach
 				return $result;
-    	} else {
+		} else {
 			parent::getKeywordReplacement($keyword);
 		}//end if
 
-    }//end getKeywordReplacement()
+	}//end getKeywordReplacement()
 
 
-    /**
+	/**
 	* this function return the mapped keyword for each asset type
 	*
 	* @param string $type_code
@@ -790,9 +790,9 @@ class Google_Map extends Page_Asset_Listing
 	* @return mixed string|boolean
 	* @access public
 	*/
-    public function getMappedKeyword($type_code, $keyword)
-    {
-    	$keywords_list	= $this->attr('asset_types_keywords');
+	public function getMappedKeyword($type_code, $keyword)
+	{
+		$keywords_list	= $this->attr('asset_types_keywords');
 		if (isset($keywords_list[$type_code])) {
 			switch ($keyword) {
 				case 'location_name':
@@ -835,10 +835,10 @@ class Google_Map extends Page_Asset_Listing
 					return $keyword;
 					break;
 			}//end switch
-    	} else {
+		} else {
 			return FALSE;
 		}//end else
-    }//end getMappedKeyword()
+	}//end getMappedKeyword()
 
 
 	/**
@@ -1005,11 +1005,11 @@ class Google_Map extends Page_Asset_Listing
 				$lng = $coordinates_array[0];
 			} else if (strcmp($status, "620") == 0) {
 				// slow down
-	      		$delay += 100000;
-	    	} else {
+				$delay += 100000;
+			} else {
 				// failure to geocode
 				$geocode_pending = false;
-	    	}//end else
+			}//end else
 			usleep($delay);
 		}//end while
 
