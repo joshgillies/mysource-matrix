@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.21.2.3 2008/07/09 06:56:52 bpearson Exp $
+* $Id: page_rss_feed.inc,v 1.21.2.4 2008/11/21 04:46:44 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.21.2.3 $
+* @version $Revision: 1.21.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -202,7 +202,6 @@ class Page_RSS_Feed extends Page
 		$rss = '';
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$rss = $cm->loadFromCache($this->id, $this->type(), '', FALSE);
-		$rss = unserialize($rss);
 
 		if ($this->charset) {
 			$charset = $this->charset;
@@ -211,7 +210,9 @@ class Page_RSS_Feed extends Page
 		}
 
 		// if cache returns nothing then build the feed
-		if (empty($rss)) {
+		if ($rss !== FALSE) {
+			$rss = unserialize($rss);
+		} else {
 			// get the assets to be listed in the feed
 			$num_assets_as_items = $this->attr('num_assets_as_items');
 			$assets_to_list = Array();

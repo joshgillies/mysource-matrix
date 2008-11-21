@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.213.2.12 2008/11/04 21:38:16 bpearson Exp $
+* $Id: search_page.inc,v 1.213.2.13 2008/11/21 04:46:58 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213.2.12 $
+* @version $Revision: 1.213.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2814,7 +2814,7 @@ class Search_Page extends Listing_Engine
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$element_contents = $cm->loadFromCache($this->id, $this->type(), $assetid);
 
-		if (empty($element_contents)) {
+		if ($element_contents === FALSE) {
 			// keyword replacements for %result_number% and %score% are now handled
 			// by the "extended asset" keywords replacements defined in getExtendedAssetKeywordReplacements()
 
