@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.61 2007/12/14 04:27:33 bshkara Exp $
+* $Id: design_area.inc,v 1.61.2.1 2008/11/21 04:05:02 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.61.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -357,7 +357,7 @@ class Design_Area extends Asset
 				$cm = $GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
 				$asset_contents'.$instance_id.' = $cm->loadFromCache('.$this->id.', \''.$this->type().'\', \''.$design->id.'\');
 
-				if (empty($asset_contents'.$instance_id.')) {
+				if ($asset_contents'.$instance_id.' === FALSE) {
 			?>
 			';
 		}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.23.2.2 2008/03/12 04:03:49 lwright Exp $
+* $Id: data_source.inc,v 1.23.2.3 2008/11/21 04:04:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23.2.2 $
+* @version $Revision: 1.23.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,7 @@ class Data_Source extends Asset implements Bridge
 
 		// empty string means that the result was not serialised
 		// which means cache manager does not have an entry for this cache_key
-		if ($result == '') return FALSE;
+		if ($result === FALSE) return FALSE;
 
 		$result = unserialize($result);
 		return $result;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.12 2008/10/27 22:21:23 bpearson Exp $
+* $Id: mysource.inc,v 1.258.2.13 2008/11/21 04:09:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.12 $
+* @version $Revision: 1.258.2.13 $
 * @package MySource_Matrix
 */
 class MySource
@@ -648,7 +648,7 @@ class MySource
 		ob_end_clean();
 
 		// not cached or has expired
-		if (empty($cache_info)) {
+		if ($cache_info === FALSE) {
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
 			$last_updated = $asset->getEffectiveLastUpdatedTime($assetids);

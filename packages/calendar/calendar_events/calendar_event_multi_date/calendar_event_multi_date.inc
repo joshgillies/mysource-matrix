@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.4 2007/12/28 00:51:42 hnguyen Exp $
+* $Id: calendar_event_multi_date.inc,v 1.4.2.1 2008/11/21 04:12:09 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -146,7 +146,7 @@ class Calendar_Event_Multi_Date extends Asset
 		$cached_contents = $cm->loadFromCache($this, 'default');
 
 		// if the cache is empty, go ahead and regenrate a new version
-		if (empty($cached_contents)) {
+		if ($cached_contents === FALSE) {
 			// get the bodycopy here to avoid caching of any possible error messages
 			$bodycopy = $this->getBodycopy();
 			ob_start();
