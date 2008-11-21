@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.65.2.4 2008/09/19 01:35:33 bpearson Exp $
+* $Id: cache_manager.inc,v 1.65.2.5 2008/11/21 04:01:46 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65.2.4 $
+* @version $Revision: 1.65.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,22 +127,30 @@ class Cache_Manager extends Asset
 	* Loads the contents from a cache file for the specified asset
 	* and unique key
 	*
-	* returns FALSE if no cache version exist
+	* A return of boolean FALSE should be interpreted as a cache MISS. This can
+	* happen if:
+	* - the cache is disabled (either globally or for that asset type), or
+	* - the cache file does not exist on the file system, or is not readable, or
+	* - the cache file exists, but has expired.
+	*
+	* A return of '' (empty string) should be interpreted as a cache HIT where
+	* the cached result is actually an empty string. Therefore, when checking
+	* for a cache MISS, you should directly compare to FALSE using "===".
 	*
 	* @param string		$assetid	id of the the asset that owns the cache file
 	* @param string		$asset_type	type_code of that asset
 	* @param string		$cache_key	the cache key for this entry
 	* @param boolean	$use_url	whether to use the current url
 	*
-	* @return string
+	* @return mixed string|boolean
 	* @access public
 	*/
 	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=TRUE)
 	{
-		if (!$this->cacheEnabled($asset_type)) return '';
+		if (!$this->cacheEnabled($asset_type)) return FALSE;
 
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
-		if (empty($perm_key)) return '';
+		if (empty($perm_key)) return FALSE;
 
 		if ($use_url) {
 			$url = current_url();
@@ -161,7 +169,7 @@ class Cache_Manager extends Asset
 			// expired
 			if (time() > strtotime($cached['expires'])) {
 				$this->_deleteCache($cache_key, $perm_key, $url);
-				return '';
+				return FALSE;
 			} else {
 				if (file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
 					$contents = file_to_string(SQ_CACHE_PATH.'/'.$cached['path']);
@@ -169,17 +177,17 @@ class Cache_Manager extends Asset
 						// if we cannot read from the cache file, remove this cache entry
 						$this->_deleteCache($cache_key, $perm_key, $url);
 						// trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
-						return '';
+						return FALSE;
 					}
 					return $contents;
 				} else {
 					// if we cannot find this cache file, remove this cache entry
 					$this->_deleteCache($cache_key, $perm_key, $url);
-					return '';
+					return FALSE;
 				}
 			}
 		}
-		return '';
+		return FALSE;
 
 	}//end loadFromCache()
 
