@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_links.inc,v 1.1 2008/11/23 23:42:15 mbrydon Exp $
+* $Id: trigger_action_remove_links.inc,v 1.2 2008/11/23 23:53:09 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * 	- Link Value
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -326,7 +326,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		ob_start();
 			$parameter_map_value = array_get_index($settings, 'parameter_map_target_asset', serialize(Array()));
 			$attr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
-			$attr_parameter_map->setParameter('asset', 'Target Asset');
+			$attr_parameter_map->setParameter('asset', 'Candidate Asset Links');
 			echo $attr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
 			$basic_part_4 = ob_get_contents();
 		ob_end_clean();
