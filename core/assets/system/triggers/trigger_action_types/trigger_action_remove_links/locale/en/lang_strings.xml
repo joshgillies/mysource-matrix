@@ -1,0 +1,5 @@
+<strings>
+	<string source="trigger_remove_link_basic">As linked to the Broadcasting Asset, which also resides under: %1$s</string>
+	<string source="trigger_remove_link_advanced">With Link Type %1$s and Link Value %2$s</string>
+	<string source="trigger_remove_link_matching_asset_types">Linked Asset Type</string>
+</strings>
