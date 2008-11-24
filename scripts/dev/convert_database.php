@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.1 2008/11/19 03:49:12 csmith Exp $
+* $Id: convert_database.php,v 1.2 2008/11/24 23:25:18 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -588,7 +588,7 @@ function getSequences()
 			$sql = 'SELECT sequence_name FROM user_sequences';
 		break;
 		case 'pgsql':
-			$sql = 'SELECT sequence_name from information_schema.sequences WHERE sequence_schema NOT IN (\'pg_catalog\', \'information_schema\')';
+			$sql = 'SELECT relname FROM pg_catalog.pg_statio_user_sequences WHERE schemaname = \'public\'';
 		break;
 	}
 
