@@ -2,16 +2,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
 * | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: schedule_bulkmail_job.php,v 1.1 2008/06/30 03:25:08 bpearson Exp $
+* $Id: schedule_bulkmail_job.php,v 1.2 2008/11/24 22:28:17 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *		Used to allow cron systems to handle bulkmail jobs.
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
