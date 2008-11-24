@@ -1,20 +1,19 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
 * | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.218 2008/11/21 03:59:53 lwright Exp $
+* $Id: page_calendar.inc,v 1.219 2008/11/24 23:17:15 mbrydon Exp $
 *
 */
 
-check_ssv_licence();
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -31,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.218 $
+* @version $Revision: 1.219 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

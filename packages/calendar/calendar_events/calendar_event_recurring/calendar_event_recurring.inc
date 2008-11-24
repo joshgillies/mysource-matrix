@@ -1,20 +1,19 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
 * | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
-* | IMPORTANT: This Module is not available under an open source       |
-* | license and consequently distribution of this and any other files  |
-* | that comprise this Module is prohibited. You may only use this     |
-* | Module if you have the written consent of Squiz.                   |
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.92 2008/06/26 00:02:52 bpearson Exp $
+* $Id: calendar_event_recurring.inc,v 1.93 2008/11/24 23:17:14 mbrydon Exp $
 *
 */
 
-check_ssv_licence();
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 require_once  dirname(__FILE__).'/../../lib/calendar_common.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
@@ -28,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
