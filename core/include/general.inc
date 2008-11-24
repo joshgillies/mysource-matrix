@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.201 2008/11/07 00:20:20 bshkara Exp $
+* $Id: general.inc,v 1.202 2008/11/24 12:51:05 gnoel Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.201 $
+* @version $Revision: 1.202 $
 * @package MySource_Matrix
 */
 
@@ -1598,6 +1598,10 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_get_')) {
 					$sub_keyword = substr($keyword, 12);
 					$replacements[$keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''));
+				}
+				if (0 === strpos($keyword, 'globals_post_')) {
+					$sub_keyword = substr($keyword, 13);
+					$replacements[$keyword] = clean_keyword_value(array_get_index($_POST, $sub_keyword, ''));
 				}
 				if (0 === strpos($keyword, 'globals_session_')) {
 					$sub_keyword = substr($keyword, 16);
