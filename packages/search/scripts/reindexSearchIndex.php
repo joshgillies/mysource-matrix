@@ -1,4 +1,18 @@
 <?php
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: reindexSearchIndex.php,v 1.2 2008/11/25 05:03:13 mbrydon Exp $
+*
+*/
 
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
