@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.202 2008/11/24 12:51:05 gnoel Exp $
+* $Id: general.inc,v 1.203 2008/11/25 15:10:34 gnoel Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.202 $
+* @version $Revision: 1.203 $
 * @package MySource_Matrix
 */
 
@@ -1567,6 +1567,30 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 	return implode('|',$asset_lineage).'~'.implode('|',$sort_orders);
 
 }//end get_asset_lineage_sort_order()
+
+
+/**
+* Returns the code and description off all the available global keywords
+*
+* @return array
+* @access public
+*/
+function get_available_global_keywords()
+{
+	$ret = Array(
+					'globals_user_' 	=> 'Global Keywords - Current User',
+					'globals_get_' 		=> 'Global Keywords - Get Parameters',
+					'globals_post_' 	=> 'Global Keywords - Post Parameters',
+					'globals_session_' 	=> 'Global Keywords - Session',
+					'globals_server_' 	=> 'Global Keywords - Server',
+					'globals_site_' 	=> 'Global Keywords - Current Site',
+					'globals_asset_' 	=> 'Global Keywords - Front End Asset',
+					'globals_snippet_' 	=> 'Global Keywords - Snippet',
+				);
+	
+	return $ret;
+
+}//end get_available_global_keywords()
 
 
 /**
