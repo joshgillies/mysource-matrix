@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.5 2008/05/29 05:28:20 lwright Exp $
+* $Id: condition_keyword_regexp.inc,v 1.6 2008/11/25 15:15:45 gnoel Exp $
 *
 */
 
@@ -22,9 +22,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * Purpose
 *     This condition compares a keyword against a specified regular expression
 *
-*
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,15 +55,45 @@ class Condition_Keyword_Regexp extends Condition
 	*/
 	public static function evaluate(Asset $asset, Array $condition_data)
 	{
-		if (!isset($condition_data['keyword_value']) || !isset($condition_data['keyword_match'])) {
+		if (!isset($condition_data['keyword']) || !isset($condition_data['keyword_match'])) {
 			return FALSE;
 		}
-		$keyword_replacement = $condition_data['keyword_value'];
+
+		if (isset($condition_data['keyword_value'])) {
+			$keyword_replacement = $condition_data['keyword_value'];
+		} else {
+			$keyword_replacement = self::getRegExpKeywordReplacement($asset, $condition_data);
+		}
 		$keyword_match = $condition_data['keyword_match'];
 		$matches = preg_match('/'.str_replace('/', '\\'.'/', $keyword_match).'/i', $keyword_replacement);
 		return ($matches > 0);
 
 	}//end evaluate()
+
+
+	/**
+	* Evaluate keywords (local or global)
+	*
+	* @param Asset	$asset			the asset to evaluate against
+	* @param array	$condition_data	the condition details to use when evaluating
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function getRegExpKeywordReplacement(Asset $asset, Array $condition_data)
+	{
+		$ret = '';
+
+		if (preg_match('/^globals_/', $condition_data['keyword'])) {
+			$ret = '%'.$condition_data['keyword'].'%';
+			replace_global_keywords($ret);
+		} else {
+			$ret = $asset->getKeywordReplacement($condition_data['keyword']);
+		}
+
+		return $ret;
+
+	}//end getRegExpKeywordReplacement()
 
 
 	/**

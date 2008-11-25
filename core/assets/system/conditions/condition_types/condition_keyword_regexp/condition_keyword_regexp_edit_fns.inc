@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp_edit_fns.inc,v 1.4 2007/11/22 22:23:59 lwright Exp $
+* $Id: condition_keyword_regexp_edit_fns.inc,v 1.5 2008/11/25 15:15:45 gnoel Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,14 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 					<?php
 					$selected_keyword = $condition_data['keyword'];
 
+					if (empty($allowed_keywords)) {
+						// we don't know the type of the asset here so we add the keywords of the generic Asset object
+						$dummy_asset = new Asset();
+						$allowed_keywords = array_keys($dummy_asset->getAvailableKeywords());
+					}
+
 					$keyword_options = Array();
+					$allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
 					foreach ($allowed_keywords as $keyword) {
 						$keyword_options[$keyword] = $keyword;
 					}
