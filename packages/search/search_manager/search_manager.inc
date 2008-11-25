@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.185 2008/11/20 05:58:46 lwright Exp $
+* $Id: search_manager.inc,v 1.186 2008/11/25 01:16:49 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.185 $
+* @version $Revision: 1.186 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1291,21 +1291,23 @@ class Search_Manager extends Asset
 		$type_code = $info[$assetid];
 
 		$weight_sources = Array(
-								0 => Array('function_name' => 'Asset'		, 'param' => $assetid),
-								1 => Array('function_name' => 'AssetTree'	, 'param' => $assetid),
-								2 => Array('function_name' => 'AssetType'	, 'param' => $type_code),
-								// also check the global metadata weightings
-								3 => Array('function_name' => 'AssetTree'	, 'param' => $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder')),
-						  		);
+			0 => Array('function_name' => 'Asset'        , 'param' => $assetid),
+			1 => Array('function_name' => 'AssetTree'    , 'param' => $assetid),
+			2 => Array('function_name' => 'AssetType'    , 'param' => $type_code),
+			// also check the global metadata weightings
+			3 => Array('function_name' => 'AssetTree'    , 'param' => $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder')),
+		);
 
 		foreach ($weight_sources as $source) {
 			$fn = 'get'.$source['function_name'].'Weightings';
 			$weightings = $this->$fn($source['param']);
 			if (!empty($weightings) && isset($weightings['metadata_weights'])) {
 				$weight = $this->_getLocalMetadataWeightings($weightings['metadata_weights'], $fieldid, $sectionid, $schemaids);
+
 				// if the weight is false then we don't want to index this field
 				if ($weight === FALSE) return FALSE;
-				// if the weight is not -1 then this is the wieght to use
+
+				// if the weight is not -1 then this is the weight to use
 				// otherwise continue to the next source
 				if ($weight != -1) return $weight;
 			}
@@ -1668,14 +1670,14 @@ class Search_Manager extends Asset
 	}//end extractKeywords()
 
 
-//--        TAG STRIP        --//	
-	
+//--        TAG STRIP        --//
+
 	/**
 	 * Strip tags by tag name
 	 *
 	 * @param array 	$tags		the array of tag names, e.g. Array('span', 'b', 'i')
 	 * @param string 	$contents	the string that contains tags
-	 * 
+	 *
 	 * @return string	the result string that has tags removed
 	 * @access private
 	 */
@@ -1683,7 +1685,7 @@ class Search_Manager extends Asset
 		if (!is_array($tags)) {
 			$tags = Array($tags);
 		}
-		
+
 		foreach ($tags as $tag) {
 			//a tag will start with <, there can be one / if it is close tag, and then the tag name,
 			//to make sure that the tags with tag name are removed, not the tags start with that tag name,
@@ -1691,12 +1693,12 @@ class Search_Manager extends Asset
 			//other characters (to form attributes <h1 align="center">, or the / itself (<br />) )
 			$contents = preg_replace('/<\/?'.$tag.'(\/|(\s+[^>]*))?>/i', '', $contents);
 		}
-		
+
 		return $contents;
-		
+
 	}//end _strip_tags() function
-	
-	
+
+
 //--        SEARCH PROCESSING        --//
 
 
@@ -1762,6 +1764,7 @@ class Search_Manager extends Asset
 	*/
 	function processSearch($search_info, $include_context=FALSE)
 	{
+
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 
 		  /////////////////////////////
@@ -1825,13 +1828,13 @@ class Search_Manager extends Asset
 		 //  CONSTRUCT BASE SEARCH QUERY  //
 		///////////////////////////////////
 		$base_query = $this->constructBaseSearchQuery($search_info);
-		$base_query['select'][] = 'a.assetid';
+		$base_query['select'][] = 'ai.assetid';
 		$base_query['select'][] = 'SUM(ai.score) as search_score';
-		$base_query['join'][] = 'INNER JOIN sq_sch_idx ai ON ai.assetid = a.assetid';
 
-		if (!in_array('a.assetid', array_get_index($base_query, 'group_by', Array()))) {
-			$base_query['group_by'][] = 'a.assetid';
+		if (!in_array('ai.assetid', array_get_index($base_query, 'group_by', Array()))) {
+			$base_query['group_by'][] = 'ai.assetid';
 		}
+
 		if ($include_context) {
 			$base_query['select'][] = 'ai.component as source';
 			$base_query['group_by'][] = 'ai.component';
@@ -2046,13 +2049,13 @@ class Search_Manager extends Asset
 		} else {
 			// DONT remove unindexable words (then you cannot search for part of it)
 			$words = Array();
-			
+
 			//only use mb_strtolower() function if it is supported
 			$mb_support = FALSE;
 			if (function_exists('mb_strtolower')) {
 				$mb_support = TRUE;
 			}
-			
+
 			foreach ($this->generateWordList($field_details['words']) as $word) {
 				if ($mb_support) {
 					$words[] = mb_strtolower($word, SQ_CONF_DEFAULT_CHARACTER_SET);
@@ -2402,6 +2405,21 @@ class Search_Manager extends Asset
 	* Does not put the search index table or anything like that in the query
 	* Returns components of search query in a format ready for implode_sql()
 	*
+	* We end up with a subquery from this method which the calling code
+	* then uses to restrict which assets the search index table will look at.
+	*
+	* We end up with something like this for the subquery:
+	* select assetid from sq_ast
+	* inner join sq_ast_lnk inner join sq_ast_lnk_tree ...
+	* where tree.node like ('starting_tree_id%')
+	* intersect
+	* select assetid from sq_ast_perm
+	* ... check all permissions are ok here.
+	*
+	* the intersect outperforms the join syntax
+	* because the db can independently plan/execute each part of the intersect
+	* and then reduce the results by looking for elements in both parts of the query.
+	*
 	* @param array	$search_info	an array of search settings
 	*
 	* @return array
@@ -2412,13 +2430,50 @@ class Search_Manager extends Asset
 	{
 		$db = MatrixDAL::getDb();
 
+		/**
+		 * This is the main query that is returned.
+		 * We only need to specify the from table and alias here
+		 * The select fields are worked out by the calling method
+		 * based on what is being searched and what it has been set up to return.
+		*/
 		$query = Array(
 					'select'		=> Array(),
-					'from'			=> Array('sq_ast a'),
+					'from'			=> Array('sq_sch_idx ai'),
+					'join'			=> Array(),
 					'where'			=> Array(),
 					'where_joiner'	=> 'AND',
 					'order_by'		=> Array(),
-				 );
+				);
+
+		/**
+		 * The subquery is the part that restricts the search
+		 * based on:
+		 * - which part of the asset tree we are looking at
+		 * - what type of assets we're searching for
+		*/
+		$subquery = Array(
+					'select'		=> Array('a.assetid'),
+					'from'			=> Array('sq_ast a'),
+					'join'			=> Array(),
+					'where'			=> Array(),
+					'where_joiner'	=> 'AND',
+					'order_by'		=> Array(),
+				);
+
+		/**
+		 * The intersect query is the part that checks permissions
+		 * based on roles, groups, public user access etc.
+		 * It becomes part of the subquery at the end
+		 * if we are restricting based on roles/groups/permissions.
+		*/
+		$intersectquery = Array(
+					'select'		=> Array('p.assetid'),
+					'from'			=> Array('sq_ast_perm p'),
+					'join'			=> Array(),
+					'where'			=> Array(),
+					'where_joiner'	=> 'AND',
+					'order_by'		=> Array(),
+				);
 
 		// TREE LOCATIONS
 		if (!empty($search_info['roots'])) {
@@ -2436,22 +2491,22 @@ class Search_Manager extends Asset
 
 			if ($root_logic == 'AND') {
 				foreach (array_values($search_info['roots']) as $i => $rootid) {
-					$query['join'][] = 'INNER JOIN sq_ast_lnk l'.$i.' ON l'.$i.'.minorid = a.assetid'; // join the link tree and link tables
-					$query['join'][] = 'INNER JOIN sq_ast_lnk_tree t'.$i.' ON l'.$i.'.linkid =  t'.$i.'.linkid'; // join them to the asset table
+					$subquery['join'][] = 'INNER JOIN sq_ast_lnk l'.$i.' ON l'.$i.'.minorid = a.assetid'; // join the link tree and link tables
+					$subquery['join'][] = 'INNER JOIN sq_ast_lnk_tree t'.$i.' ON l'.$i.'.linkid =  t'.$i.'.linkid'; // join them to the asset table
 
 					$treeid = $root_tree_ids[$rootid][0]['treeid'];
-					$query['where'][] = 't'.$i.'.treeid LIKE '.MatrixDAL::quote($treeid.'%');
+					$subquery['where'][] = 't'.$i.'.treeid LIKE '.MatrixDAL::quote($treeid.'%');
 				}
 			} else {
-				$query['join'][] = 'INNER JOIN sq_ast_lnk l ON l.minorid = a.assetid';
-				$query['join'][] = 'INNER JOIN sq_ast_lnk_tree t ON t.linkid = l.linkid';
+				$subquery['join'][] = 'INNER JOIN sq_ast_lnk l ON l.minorid = a.assetid';
+				$subquery['join'][] = 'INNER JOIN sq_ast_lnk_tree t ON t.linkid = l.linkid';
 
 				$treeid_wheres = Array();
 				foreach ($root_tree_ids as $treeid) {
 					$treeid_wheres[] = '(t.treeid LIKE '.MatrixDAL::quote($treeid[0]['treeid'].'%').')';
 				}
 				if (!empty($treeid_wheres)) {
-					$query['where'][] = implode(' OR ', $treeid_wheres);
+					$subquery['where'][] = implode(' OR ', $treeid_wheres);
 				}
 			}
 		}//end if !empty($search_info['roots'])
@@ -2459,11 +2514,10 @@ class Search_Manager extends Asset
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
-			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
 			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
 			if (!$no_roles) {
-				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+				$intersectquery['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
 			}
 
 			$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
@@ -2487,49 +2541,55 @@ class Search_Manager extends Asset
 
 			$userids[] = $public_user->id;
 
+			$userids = array_unique($userids);
+
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 				$userids[$i] = MatrixDAL::quote($userids[$i]);
 			}
 
 			$usrids_str = implode(',', $userids);
 
-			// If there is only one user in $userids, use equal sign instead.
-			$query['where'][] = ((count($userids)==1) ? 'p.userid = '.$usrids_str : 'p.userid  IN ('.$usrids_str.')')
-								.(!$no_roles ? ' OR '.((count($userids)==1) ? 'r.userid  = '.$usrids_str : 'r.userid  IN ('.$usrids_str.')') : '');
-
+			$userid_check = '(
+								p.userid IN ('. $usrids_str . ')';
+			if (!$no_roles) {
+				$userid_check .= ' OR r.userid IN (' . $usrids_str . ')';
+			}
+			$userid_check .= ') ';
+			$intersectquery['where'][] = $userid_check;
 
 			// If we are searching as public user, we don't want to have group and roles check with permission granted.
 			// We want to get all denied access as well. But if we are logged in, then we only want public granted access rows.
-			$check_group_role = $public_user_access ? '' :
-							'(
+			$check_group_role = '';
+			if (!$public_user_access) {
+				$check_group_role = '(
 								(p.permission = '.MatrixDAL::quote(SQ_PERMISSION_READ).'
 									AND (
-											(p.userid <> '.MatrixDAL::quote($public_user->id).
-											// If we are not checking for roles, and we are searching as public
-											(!$no_roles ?
-												($public_user_access ? '
-												OR' : '
-												AND').'	(r.userid IS NULL OR r.userid <> '.MatrixDAL::quote($public_user->id).')'
-											: '').')
+										(p.userid <> '.MatrixDAL::quote($public_user->id);
+				if (!$no_roles) {
+					if ($public_user_access) {
+						$check_group_role .= ' OR ';
+					} else {
+						$check_group_role .= ' AND ';
+					}
+					$check_group_role .= ' (r.userid IS NULL OR r.userid <> '.MatrixDAL::quote($public_user->id).')';
+				}
+				$check_group_role .= ')
+					OR (p.userid = '.MatrixDAL::quote($public_user->id).' AND granted = \'1\')';
+				if (!$no_roles) {
+					$check_group_role .= ' OR (r.userid = '.MatrixDAL::quote($public_user->id).' AND granted = \'1\')';
+				}
 
-											OR (p.userid = '.MatrixDAL::quote($public_user->id).' AND granted = \'1\')'.
-											(!$no_roles ? '
-												OR (r.userid = '.MatrixDAL::quote($public_user->id).' AND granted = \'1\')'
-											: '')
-											.'
-										)
+				$check_group_role .= '
+									)
 								)
 								OR
 								(p.permission > '.MatrixDAL::quote(SQ_PERMISSION_READ).' AND p.granted = \'1\')
 							)';
+			}
 
 			if (!empty($check_group_role)) {
-				$query['where'][] = $check_group_role;
+				$intersectquery['where'][] = $check_group_role;
 			}//end if
-
-			$query['having'][] = 'MIN(p.granted) <> \'0\'';
-
-			$query['group_by'][] = 'a.assetid';
 		}//end if
 
 		// STATUS RESTRICTIONS
@@ -2539,11 +2599,11 @@ class Search_Manager extends Asset
 				foreach ($statuses as $i => $status) {
 					$statuses[$i] = MatrixDAL::quote($status);
 				}
-				$query['where'][] = 'a.status IN ('.implode(', ', $statuses).')';
+				$subquery['where'][] = 'a.status IN ('.implode(', ', $statuses).')';
 			}
 		} else {
 			// if there are no status restrictions, default to LIVE assets only
-			$query['where'][] = 'a.status  >= '.MatrixDAL::quote(SQ_STATUS_LIVE);
+			$subquery['where'][] = 'a.status  >= '.MatrixDAL::quote(SQ_STATUS_LIVE);
 		}
 
 		// ASSET TYPE RESTRICTIONS
@@ -2567,17 +2627,42 @@ class Search_Manager extends Asset
 					$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
 				}
 				$type_code_cond = implode(' OR ', $type_code_cond);
-				$query['where'][] = 'a.type_code IN (
+				$subquery['where'][] = 'a.type_code IN (
 											SELECT type_code
 											FROM sq_ast_typ_inhd
 											WHERE '.$type_code_cond.'
 										)';
 			} else {
 				// if we only got normal type instead we are not using the subquery
-				$query['where'][] = 'a.type_code IN ('.implode(', ', $normal_types).')';
+				$subquery['where'][] = 'a.type_code IN ('.implode(', ', $normal_types).')';
 			}
-
 		}
+
+		/**
+		 * Now we've worked out all of the restrictions:
+		 * - which area we're searching
+		 * - what asset types we're searching for
+		 * - permissions checks etc..
+		 * put it all together into a big subquery.
+		 * This then becomes part of the main query where clause.
+		*/
+		$subquery_string = 'SELECT ' . implode(',', $subquery['select']) . ' FROM ' . implode(',', $subquery['from']) . ' ' . implode(' ', $subquery['join']);
+		$subquery_string .= ' WHERE ' . implode(' ' . $subquery['where_joiner'] . ' ', $subquery['where']);
+
+		/**
+		 * If/only if we are checking permissions,
+		 * intersect the two parts of the sql query.
+		 * No need to include this if we're not checking permissions.
+		*/
+		if (!empty($intersectquery['where'])) {
+			$subquery_string .= ' INTERSECT ';
+			$subquery_string .= 'SELECT ' . implode(',', $intersectquery['select']) . ' FROM ' . implode(',', $intersectquery['from']) . ' ' . implode(' ', $intersectquery['join']);
+			$subquery_string .= ' WHERE ' . implode(' ' . $intersectquery['where_joiner'] . ' ', $intersectquery['where']);
+			$subquery_string .= ' GROUP BY ' . implode(',', $intersectquery['select']);
+			$subquery_string .= ' HAVING MIN(p.granted) <> \'0\'';
+		}
+
+		$query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
 
 		return $query;
 
