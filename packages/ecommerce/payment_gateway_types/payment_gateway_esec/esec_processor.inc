@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.13 2008/11/25 00:48:05 mbrydon Exp $
+* $Id: esec_processor.inc,v 1.14 2008/11/25 06:06:00 bshkara Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -57,7 +57,6 @@ class Esec_Processor
 	var $card_types = Array(
 		"visa"      => "visa",
 		"mastercard"=> "mastercard",
-		"bankcard"  => "bankcard",
 		"amex"      => "amex",
 		"dinersclub"=> "dinersclub",
 		"jcb"       => "jcb"
