@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.29 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.30 2008/11/25 05:43:10 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -32,12 +32,13 @@ class Search_Manager_Plugin_PgSQL
 	//list of silent characters that are not going to be indexed
 	private $_silent_chars_to_space; //the list of silent characters that will be converted to space character (' ')
 	private $_silent_chars_to_empty; //the list of silent characters that will be converted to empty string ('')
-	
+
 	/**
 	 * Constructor
 	 *
 	 */
-	function __construct() {
+	function __construct()
+	{
 		//These are lists of silent characters that are not going to be indexed. They are listed here instead of remove_silent_chars()
 		//function in text.inc because they are common characters but are not ASCII characters. Therefore, they will be encoded
 		//differently in different character encodings. That makes the str_replace() function used in remove_silent_chars()
@@ -47,16 +48,16 @@ class Search_Manager_Plugin_PgSQL
 			$silent_chars_to_space[$key] = html_entity_decode($value, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 		$this->_silent_chars_to_space = $silent_chars_to_space;
-		
+
 		//Just like the apostrophe (') in remove_silent_chars() function in text.inc, "you've" will become "youve"
 		$silent_chars_to_empty = Array('&rsquo;');
 		foreach ($silent_chars_to_empty as $key => $value) {
 			$silent_chars_to_empty[$key] = html_entity_decode($value, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
 		$this->_silent_chars_to_empty = $silent_chars_to_empty;
-		
+
 	}//end constructor
-	
+
 
 	/**
 	* Processes a search for a particular word in a particular data source
@@ -64,6 +65,12 @@ class Search_Manager_Plugin_PgSQL
 	* Return value is based on what has been set as the 'select' fields in the
 	* base query ($base_query). Typically this will be (keyword => score) but
 	* this can obviously be changed.
+	*
+	* A NULL result means the word was skipped due to not having been indexable
+	* in the first place. Terms returning NULL should be ignored for word logic
+	* purposes in the Search Manager. A NULL result will never occur for data
+	* sources of metadata selection type (including multiple text and hierarchy)
+	* - this allows all options to be searched regardless of length.
 	*
 	* @param object	&$sm			The search manager
 	* @param string	$search_term	Word to search for
@@ -73,7 +80,7 @@ class Search_Manager_Plugin_PgSQL
 	*								(IGNORED in PostgreSQL as the words are
 	*								already split up)
 	*
-	* @return array
+	* @return mixed array|NULL
 	* @access public
 	*/
 	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
@@ -83,10 +90,14 @@ class Search_Manager_Plugin_PgSQL
 		switch ($data_source['type']) {
 
 			case 'include_all':
+				if (!$sm->isWordIndexable($search_term)) return NULL;
+
 				$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 			break;
 
 			case 'asset_attrib':
+				if (!$sm->isWordIndexable($search_term)) return NULL;
+
 				$attrid = $data_source['params']['attrid'];
 				$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
 				$attr_info = $attr_info[$attrid];
@@ -115,6 +126,11 @@ class Search_Manager_Plugin_PgSQL
 							 );
 				$exact_type = Array('metadata_field_hierarchy', 'metadata_field_select', 'metadata_field_multiple_text');
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
+
+				if ($key_type !== 'selection') {
+					if (!$sm->isWordIndexable($search_term)) return NULL;
+				}
+
 				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
 				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
 				if (in_array(get_class_lower($metadata_field), $exact_type)) {
@@ -125,6 +141,8 @@ class Search_Manager_Plugin_PgSQL
 			break;
 
 			case 'standard':
+				if (!$sm->isWordIndexable($search_term)) return NULL;
+
 				$field = $data_source['params']['field'];
 				if (isset($sm->standard_text_fields[$field])) {
 					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
@@ -578,7 +596,7 @@ class Search_Manager_Plugin_PgSQL
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		// force lowercase keys (= keywords) - CASE_LOWER is default for this function
-// ALL THE KEYS ARE IN LOWERCASE ALREADY. THIS FUNCTION CHANGE THE STRING WHEN THE STRING CONTAINS SPECIAL CHARACTERS LIKE &ouml;		
+// ALL THE KEYS ARE IN LOWERCASE ALREADY. THIS FUNCTION CHANGE THE STRING WHEN THE STRING CONTAINS SPECIAL CHARACTERS LIKE &ouml;
 //		$result = array_change_key_case($result);
 
 		if ($include_scores) {
@@ -609,14 +627,14 @@ class Search_Manager_Plugin_PgSQL
 			//convert wildcard symbols to corresponding SQL wildcards
 //DO NOT NEED TO CONVERT THOSE CHARACTERS BECAUSE THEY WILL BE REMOVED IN remove_silent_chars FUNCTION IN text.inc
 //			$words = strtr($words, '*?', '%_');
-			
+
 			//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
 			$words = str_replace($this->_silent_chars_to_empty, '', $words);
 			$words = str_replace($this->_silent_chars_to_space, ' ', $words);
 
 			//invoke remove_silent_chars in text.inc
 			$words = remove_silent_chars($words);
-			
+
 			$words = preg_split('/\s+/', $words, -1, PREG_SPLIT_NO_EMPTY);
 		}
 
@@ -640,7 +658,7 @@ class Search_Manager_Plugin_PgSQL
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
 	{
 		$index_content = Array();
-		
+
 		//only use mb_strtolower() function if it is supported
 		if (function_exists('mb_strtolower')) {
 			//use mbstring function because the input contents can be different from ASCII characters
@@ -653,12 +671,12 @@ class Search_Manager_Plugin_PgSQL
 		}
 		$contents = str_replace('&nbsp;', ' ', $contents);
 		$contents = trim($contents);
-		
+
 		if (($data_type == 'text') || ($data_type == 'wysiwyg')) {
 			//the wysiwyg tool converts special characters to html entities in the HTML editor so they need to be converted back
 			$contents = html_entity_decode($contents, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
-		
+
 		//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
 		$contents = str_replace($this->_silent_chars_to_empty, '', $contents);
 		$contents = str_replace($this->_silent_chars_to_space, ' ', $contents);
