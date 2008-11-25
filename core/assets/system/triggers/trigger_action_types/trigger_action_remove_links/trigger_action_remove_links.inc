@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_links.inc,v 1.2 2008/11/23 23:53:09 mbrydon Exp $
+* $Id: trigger_action_remove_links.inc,v 1.3 2008/11/25 23:36:01 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * 	- Link Value
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,7 +138,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 							sq_ast_lnk l, sq_ast_lnk_tree t
 						WHERE
 							t.linkid = l.linkid AND
-							l.minorid = '.$root_node_asset_id;
+							l.minorid = '.MatrixDAL::quote($root_node_asset_id);
 
 		$root_node_tree_id = MatrixDAL::executeSqlOne($tree_id_sql);
 
