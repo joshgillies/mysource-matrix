@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_recover_file_versions.php,v 1.3 2008/11/25 04:51:12 ata Exp $
+* $Id: system_integrity_recover_file_versions.php,v 1.4 2008/11/25 06:57:47 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Notes: YOU SHOULD BACK UP YOUR SYSTEM BEFORE USING THIS SCRIPT
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -107,6 +107,11 @@ foreach ($assetids as $assetid => $asset_info) {
 				}
 			} else {
 				//db version is less than file system version
+				//if db version is 0, check to see if the file has been stored in sq_file_vers_file table
+				if ($db_info['version'] == 0) {
+					//insert file info to sq_file_vers_file table if one does not exist
+					_insertFileVersFileInfo($fv, $fs_info['fileid'], $rep_file);
+				}
 				//add version file if needed
 				$new_version = $fs_info['version'];
 				$is_fixed = _updateVersionFile($fv, $asset->data_path_suffix, $real_file, $fs_info, $new_version);
@@ -280,6 +285,7 @@ function _updateVersionFile($file_versioning, $rep_path, $real_file, $file_info,
 /**
  * Update the sq_file_vers_history table in database. Set to_time for old record and add new record
  *
+ * @param File_Versioning $file_versioning	the File_Versioning object
  * @param string $fileid	the fileid of the file to be updated
  * @param string $real_file	the real file path of the file
  * @param int $version		the new version of the file
@@ -300,8 +306,6 @@ function _updateFileVersionHistory($file_versioning, $fileid, $real_file, $versi
 			return FALSE;
 		}
 		
-		$db = MatrixDAL::getDb();
-	
 		$now = time();
 		$date = ts_iso8601($now);
 		/*if (MatrixDAL::getDbType() == 'oci') {
@@ -376,7 +380,60 @@ function _updateFileVersionHistory($file_versioning, $fileid, $real_file, $versi
 }//end _updateFileVersionHistory()
 
 
+/**
+ * Insert a file record info to sq_file_vers_file table if one does not exist
+ *
+ * @param File_Versioning $file_versioning	the File_Versioning object
+ * @param string $fileid	the fileid of the file to be inserted
+ * @param string $rep_file	the repository file path of the file
+ * @see add() in file_versioning.inc
+ */
+function _insertFileVersFileInfo($file_versioning, $fileid, $rep_file) {
+	$sql = 'SELECT COUNT(*)
+			FROM sq_file_vers_file
+			WHERE fileid = :fileid';
+	$fileid_count = 0;
+	try {
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'fileid', $fileid);
+		$fileid_count = MatrixDAL::executePdoOne($query);
+	} catch (Exception $e) {
+		echo "ERROR: ".$e->getMessage()."\n";
+		return;
+	}
+	
+	//the record info already exists, return without doing anything
+	if ($fileid_count != 0) {
+		return;
+	}
+	
+	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+	
+	$sql = 'INSERT INTO sq_file_vers_file (fileid, path, filename)
+			VALUES (:fileid, :path, :filename)';
 
+	try {
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'fileid', $fileid);
+		MatrixDAL::bindValueToPdo($query, 'path', dirname($rep_file));
+		MatrixDAL::bindValueToPdo($query, 'filename', basename($rep_file));
+		MatrixDAL::execPdoQuery($query);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	} catch (Exception $e) {
+		echo "ERROR: ".$e->getMessage()."\n";
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	}
+
+}//end _insertFileVersFileInfo()
+
+
+/**
+ * Print the usage of this script
+ *
+ */
 function print_usage() {
 	echo "\n\n------------------------------------------------------------------------------------------------\n\n";
 	echo "This script is used to test and recover file (and its decendants) assets.\n\n";
@@ -386,5 +443,6 @@ function print_usage() {
 	echo "\tTREE_ID: The asset id of the root of the asset tree. If not specified, all file assets in the system will be used.\n";
 	echo "\nNOTES: YOU SHOULD BACKUP YOUR SYSTEM BEFORE USING THE recover (in lowercase) OPTION OF THIS SCRIPT\n\n";
 	
-}
+}//end print_usage()
+
 ?>
