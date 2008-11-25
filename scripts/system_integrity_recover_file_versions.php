@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_recover_file_versions.php,v 1.1 2008/11/10 06:27:02 ata Exp $
+* $Id: system_integrity_recover_file_versions.php,v 1.2 2008/11/25 04:30:08 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Notes: YOU SHOULD BACK UP YOUR SYSTEM BEFORE USING THIS SCRIPT
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -85,7 +85,8 @@ foreach ($assetids as $assetid => $asset_info) {
 	//if the 2 previous versions are different, there is something wrong with this file asset => report and fix it (if required)
 	if ($db_info['version'] != $fs_info['version']) {
 		//report the problem
-		echo "The versions of the file asset #{$asset->id} are different. Database version: {$db_info['version']} - File system version {$fs_info['version']}\n";
+		$file_id = isset($db_info['fileid'])? $db_info['fileid'] : $fs_info['fileid'];
+		echo "The versions of the file asset #{$asset->id} (fileid = $file_id) are different. Database version: {$db_info['version']} - File system version {$fs_info['version']}\n";
 		$error_count++;
 		//want to fix the problem
 		if ($command == 'recover') {
