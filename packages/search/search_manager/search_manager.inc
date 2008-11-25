@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.187 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: search_manager.inc,v 1.188 2008/11/25 05:43:55 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.187 $
+* @version $Revision: 1.188 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1290,12 +1290,12 @@ class Search_Manager extends Asset
 		$type_code = $info[$assetid];
 
 		$weight_sources = Array(
-			0 => Array('function_name' => 'Asset'        , 'param' => $assetid),
-			1 => Array('function_name' => 'AssetTree'    , 'param' => $assetid),
-			2 => Array('function_name' => 'AssetType'    , 'param' => $type_code),
-			// also check the global metadata weightings
-			3 => Array('function_name' => 'AssetTree'    , 'param' => $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder')),
-		);
+								0 => Array('function_name' => 'Asset'		, 'param' => $assetid),
+								1 => Array('function_name' => 'AssetTree'	, 'param' => $assetid),
+								2 => Array('function_name' => 'AssetType'	, 'param' => $type_code),
+								// also check the global metadata weightings
+								3 => Array('function_name' => 'AssetTree'	, 'param' => $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder')),
+						  );
 
 		foreach ($weight_sources as $source) {
 			$fn = 'get'.$source['function_name'].'Weightings';
@@ -1876,16 +1876,19 @@ class Search_Manager extends Asset
 //THE SILENT CHARACTERS WERE REMOVED BEFORE IN _prepareSearchField() FUNCTION
 //						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
 						$term_results = $this->_processWordSearch($search_term, $data_source, $base_query, $word_logic);
-						if (!isset($all_source_results[$search_term])) {
-							$all_source_results[$search_term] = Array();
+
+						if (!is_null($term_results)) {
+							if (!isset($all_source_results[$search_term])) {
+								$all_source_results[$search_term] = Array();
+							}
+							$all_source_results[$search_term] = $all_source_results[$search_term] + $term_results;
+
+							// Records all the assets in which we find the term.
+							$all_source_assetids = $all_source_assetids + $term_results;
+
+							$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
+							$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 						}
-						$all_source_results[$search_term] = $all_source_results[$search_term] + $term_results;
-
-						// Records all the assets in which we find the term.
-						$all_source_assetids = $all_source_assetids + $term_results;
-
-						$term_totals[$search_term] = array_get_index($term_totals, $search_term, 0) + count($term_results);
-						$data_source_results = $this->_combineResults($data_source_results, $term_results, $word_logic);
 					}
 				}
 				$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
@@ -1895,7 +1898,12 @@ class Search_Manager extends Asset
 			foreach ($all_source_results as $term => $results) {
 				$cross_source_results = array_intersect_assoc($cross_source_results, $results);
 			}
-			$field_results = $field_results + $cross_source_results;
+
+			if (is_null($field_results)) {
+				$field_results = $cross_source_results;
+			} else {
+				$field_results = $field_results + $cross_source_results;
+			}
 
 			$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
 		}//end foreach $search_info['fields']
