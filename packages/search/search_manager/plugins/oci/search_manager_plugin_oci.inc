@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.14 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.15 2008/11/26 06:20:00 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -571,10 +571,10 @@ class Search_Manager_Plugin_OCI
 		} else if (is_string($words)) {
 			//convert wildcard symbols to corresponding SQL wildcards
 			$words = strtr($words, '*?', '%_');
-			
+
 			//invoke remove_silent_chars in text.inc
 			$words = remove_silent_chars($words, TRUE);
-			
+
 			return Array($words);
 		}
 
@@ -600,7 +600,7 @@ class Search_Manager_Plugin_OCI
 	function splitIndexableContent($contents, $type_code, $data_type, $component, $weighting)
 	{
 		$index_content = Array();
-		
+
 		//only use mb_strtolower() function if it is supported
 		if (function_exists('mb_strtolower')) {
 			//use mbstring function because the input contents can be different from ASCII characters
@@ -613,12 +613,12 @@ class Search_Manager_Plugin_OCI
 		}
 		$contents = str_replace('&nbsp;', ' ', $contents);
 		$contents = trim($contents);
-		
+
 		if (($data_type == 'text') || ($data_type == 'wysiwyg')) {
 			//the wysiwyg tool converts special characters to html entities in the HTML editor so they need to be converted back
 			$contents = html_entity_decode($contents, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
-		
+
 		$index_content[] = Array(
 							'value'		=> $contents,
 							'type_code'	=> $type_code,
@@ -1272,8 +1272,6 @@ class Search_Manager_Plugin_OCI
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
 
-		array_unshift($query_comps['from'], 'sq_sch_idx ai'); // need to have this first to avoid SQL error
-		$query_comps['where'][] = 'ai.assetid = a.assetid';
 		$query_comps['select'][] = 'ai.assetid';
 
 		$data_source_comps = Array();

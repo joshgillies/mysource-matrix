@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.30 2008/11/25 05:43:10 lwright Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.31 2008/11/26 06:20:01 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -811,8 +811,6 @@ class Search_Manager_Plugin_PgSQL
 		$search_info = $search_page->populateBaseSearchInfo();
 		$query_comps = $sm->constructBaseSearchQuery($search_info);
 
-		array_unshift($query_comps['from'], 'sq_sch_idx ai'); // need to have this first to avoid SQL error
-		$query_comps['where'][] = 'ai.assetid = a.assetid';
 		$query_comps['select'][] = 'ai.value';
 		$query_comps['select'][] = 'ai.assetid';
 		$query_comps['select'][] = 'SUBSTR(ai.value, 1, 1) AS first_letter';
@@ -850,6 +848,7 @@ class Search_Manager_Plugin_PgSQL
 
 		$query_comps['group_by'][] = 'ai.value';
 		$query_comps['group_by'][] = 'ai.assetid';
+
 		$sql = implode_sql($query_comps);
 
 		try {
