@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.39 2008/11/05 03:59:07 ata Exp $
+* $Id: text.inc,v 1.40 2008/11/26 22:18:50 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package Fudge
 * @subpackage Text
 */
@@ -197,9 +197,9 @@ function remove_silent_chars($text, $not_indexing=FALSE)
 	// Remove apostrophe ('), e.g. you've => youve
 	$text = str_replace('\'', '', $text);
 
-	$silent_chars = Array('.', ':', ';', ',', '!', '?', '"', '`', '!', '@', '#', '$', '^', '*', '-', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
+	$silent_chars = Array('.', ':', ';', ',', '!', '?', '`', '!', '@', '#', '$', '^', '*', '-', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
 	if ($not_indexing == FALSE) {
-		$oracle_search_operators = Array('(',')','~','&','|','%');
+		$oracle_search_operators = Array('(',')','"','~','&','|','%');
 		$silent_chars = array_merge($silent_chars, $oracle_search_operators);
 		//Remove the underscore ('_') that is usually used in metadata select field, e.g. select_1 => select1
 		$text = str_replace('_', '', $text); // just move underscore ('_') from the above line to this line so that it won't be removed when search in oracle
