@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.18.2.6 2008/10/08 02:38:14 ata Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.18.2.7 2008/11/26 05:46:14 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18.2.6 $
+* @version $Revision: 1.18.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -36,6 +36,11 @@ class Search_Manager_Plugin_PgSQL
 	* Return value is based on what has been set as the 'select' fields in the
 	* base query ($base_query). Typically this will be (keyword => score) but
 	* this can obviously be changed.
+	* A NULL result means the word was skipped due to not having been indexable
+	* in the first place. Terms returning NULL should be ignored for word logic
+	* purposes in the Search Manager. A NULL result will never occur for data
+	* sources of metadata selection type (including multiple text and hierarchy)
+	* - this allows all options to be searched regardless of length.
 	*
 	* @param object	&$sm			The search manager
 	* @param string	$search_term	Word to search for
@@ -45,7 +50,7 @@ class Search_Manager_Plugin_PgSQL
 	*								(IGNORED in PostgreSQL as the words are
 	*								already split up)
 	*
-	* @return array
+	* @return mixed array|NULL
 	* @access public
 	*/
 	function processWordSearch(&$sm, $search_term, $data_source, $base_query, $word_logic='AND')
@@ -55,10 +60,14 @@ class Search_Manager_Plugin_PgSQL
 		switch ($data_source['type']) {
 
 			case 'include_all':
+				if (!$sm->isWordIndexable($search_term)) return NULL;
+
 				$base_query['where'][] = 'ai.value LIKE '.MatrixDAL::quote(($sm->attr('enable_begins_with') ? '%' : '').$search_term.'%');
 			break;
 
 			case 'asset_attrib':
+				if (!$sm->isWordIndexable($search_term)) return NULL;
+
 				$attrid = $data_source['params']['attrid'];
 				$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
 				$attr_info = $attr_info[$attrid];
@@ -87,6 +96,11 @@ class Search_Manager_Plugin_PgSQL
 							 );
 				$exact_type = Array('metadata_field_hierarchy', 'metadata_field_select', 'metadata_field_multiple_text');
 				$key_type = array_get_index($key_types, get_class_lower($metadata_field), 'text');
+
+				if ($key_type !== 'selection') {
+					if (!$sm->isWordIndexable($search_term)) return NULL;
+				}
+
 				$base_query['where'][] = 'ai.type = '.MatrixDAL::quote($key_type);
 				$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('metadata:'.(int)$data_source['params']['assetid']);
 				if (in_array(get_class_lower($metadata_field), $exact_type)) {
@@ -97,6 +111,8 @@ class Search_Manager_Plugin_PgSQL
 			break;
 
 			case 'standard':
+				if (!$sm->isWordIndexable($search_term)) return NULL;
+
 				$field = $data_source['params']['field'];
 				if (isset($sm->standard_text_fields[$field])) {
 					$base_query['where'][] = 'ai.component = '.MatrixDAL::quote('__'.$field.'__');
