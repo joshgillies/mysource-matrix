@@ -10,19 +10,22 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.4.2.6 2008/09/25 06:48:41 bpearson Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.4.2.7 2008/11/26 03:48:12 lwright Exp $
 *
 */
 
 
+require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+
 /**
-* Search_Manager_Plugin_OCI8
+* Search_Manager_Plugin_OCI
 *
 * Handles of certain low-level search functions, optimised to improve database
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.6 $
+* @version $Revision: 1.4.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -848,13 +851,14 @@ class Search_Manager_Plugin_OCI
 	* @param boolean	$remove_stop_words	if TRUE stop words will be removed from the terms string
 	* @param boolean	$return_stop_words	if TRUE stop words will be returned in the list
 	* @param boolean	$replace			if TRUE the words will be replaced with a #
-	*										for building generalization strings
+	*										for building generalization strings. Non-indexable words
+	*										will be stripped completely instead of being #'d.
 	* @param array		$ignore_chars		a list of characters that will be ignored and not added to the words array nor stripped from the $terms list
 	*
 	* @return array
 	* @access private
 	*/
-	function _getWords(&$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE, $ignore_chars=Array())
+	function _getWords(Search_Manager $sm, &$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE, $ignore_chars=Array())
 	{
 		$preg_ignore_chars = Array();
 		foreach ($ignore_chars as $char) {
@@ -881,10 +885,25 @@ class Search_Manager_Plugin_OCI
 
 			foreach ($words[1] as $word) {
 				if (empty($ignore_chars) || !in_array($word, $ignore_chars)) {
-					if ($replace) {
-						$terms = preg_replace('/'.$replace_chars.'+/', '#', $terms, 1);
+					// If the word is indexable, then replace it with a # symbol
+					// (if we are replacing) and add it to the list of
+					// replacement words we'll put back in later
+					if ($sm->isWordIndexable($word)) {
+						if ($replace) {
+							$terms = preg_replace('/'.$replace_chars.'+/', '#', $terms, 1);
+						}
+
+						$good_words[] = $word;
+
+					} else {
+						// We're removing the word (if we are replacing - ie.
+						// we're replacing it with nothing) if it is not
+						// something that we can search on
+						if ($replace) {
+							$terms = preg_replace('/'.$replace_chars.'+/', '', $terms, 1);
+						}
+
 					}
-					$good_words[] = $word;
 				}
 			}
 			return $good_words;
@@ -958,7 +977,7 @@ class Search_Manager_Plugin_OCI
 		// get the words from the terms string and replace them
 		// with #, and remove non-indexable words
 		// (make an exception for @, as it's our search phrase placeholder)
-		$words = $this->_getWords($terms, TRUE, FALSE, TRUE, Array($phrase_placeholder));
+		$words = $this->_getWords($sm, $terms, TRUE, FALSE, TRUE, Array($phrase_placeholder));
 
 		// remove spaces
 		$terms = preg_replace('/\s+/', '', $terms);
