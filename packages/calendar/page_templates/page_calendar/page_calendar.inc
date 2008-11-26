@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.219 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: page_calendar.inc,v 1.220 2008/11/26 23:30:38 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.219 $
+* @version $Revision: 1.220 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -354,6 +354,7 @@ class Page_Calendar extends Page
 
 				// Save the current calendar date - we need to edit it in contents to make it work
 				$calendar_date = $_REQUEST['SQ_CALENDAR_DATE'];
+				$cal_view = $_REQUEST['SQ_CALENDAR_VIEW'];
 				$replacements['calendar_contents'] = $this->getCalendarContents($events_array);
 				$_REQUEST['SQ_CALENDAR_DATE'] = $calendar_date;
 
@@ -368,10 +369,13 @@ class Page_Calendar extends Page
 				// get the number of events we will need to display
 
 				$nb_events = count($events_array);
+				$event_view = FALSE;
+				if ($cal_view == 'event') $event_view = TRUE;
+				if ($cal_view == 'edit') $event_view = TRUE;
 
 				// if there is no event and use_no_results_body_copy is true then we use the page_contents_no_results
 				$use_no_results_body_copy = $this->attr('use_no_results_body_copy');
-				if ( (!empty($use_no_results_body_copy)) && ($nb_events == 0)) {
+				if ( (!empty($use_no_results_body_copy)) && (($nb_events == 0) && !($cal_view))) {
 				  $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents_no_results');
 				  if (empty($bodycopy_link)) return FALSE;
 				  $contents_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
