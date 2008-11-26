@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.188 2008/11/25 05:43:55 lwright Exp $
+* $Id: search_manager.inc,v 1.189 2008/11/26 04:12:15 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.188 $
+* @version $Revision: 1.189 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2291,12 +2291,13 @@ class Search_Manager extends Asset
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 		$query_comps = $this->constructBaseSearchQuery($search_info);
+
 		if (empty($query_comps)) return Array();
-		$query_comps['select'][] = 'distinct a.assetid';
+		$query_comps['select'][] = 'distinct ai.assetid';
 		$query_comps['select'][] = '1 as weight';
-		$query_comps['join'][] = 'INNER JOIN sq_sch_idx s ON a.assetid = s.assetid';
 
 		$search_sql = implode_sql($query_comps);
+
 		$search_results = Array();
 
 		try {
