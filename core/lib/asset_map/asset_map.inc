@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265.2.10 2008/11/03 23:49:02 ewang Exp $
+* $Id: asset_map.inc,v 1.265.2.11 2008/11/26 02:57:00 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.10 $
+* @version $Revision: 1.265.2.11 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1141,31 +1141,42 @@ class Asset_Map
 		unset($bind_vars);
 		try {
 			$bind_vars = Array();
-			$sql = 'SELECT majorid, COUNT(*) as link_count
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
+			// Search both tables (sq_ast_lnk - 1 and sq_shdw_ast_lnk - 2) and union the results
+			$sql1 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
+			$sql2 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
 
-			$sub_sql = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_minor';
-			$sub_where = 'majorid = :assetid';
+			$sub_sql1 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
+			$sub_sql2 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+			$sub_where1 = 'majorid = :assetid';
+			$sub_where2 = 'majorid = :assetid2';
 			$bind_vars['assetid'] = $assetid;
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'lnk_', 'WHERE', FALSE);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ast_', 'WHERE', FALSE);
+			$bind_vars['assetid2'] = $assetid;
+			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, 'lnk_', 'WHERE', FALSE);
+			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, 'ast_', 'WHERE', FALSE);
+			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, 'lnk_', 'WHERE', FALSE);
+			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, 'ast_', 'WHERE', FALSE);
+			$sub_sql = $sub_sql1.' '.$sub_where1.' GROUP BY minorid UNION ALL '.$sub_sql2.' '.$sub_where2.' GROUP BY minorid';
 
-			$where_clause = 'majorid IN ('.$sub_sql.' '.$sub_where.') AND link_type <= :max_link_type';
+			$where_clause = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
 			$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', FALSE);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', FALSE);
 			$where .= ' GROUP BY majorid ';
 
-			$query2 = MatrixDAL::preparePdoQuery($sql.' '.$where);
-			foreach($bind_vars as $key => $value) {
+			$query2 = MatrixDAL::preparePdoQuery($sql1.' '.$where.' UNION ALL '.$sql2.' '.$where);
+			foreach ($bind_vars as $key => $value) {
 				MatrixDAL::bindValueToPdo($query2, $key, $value);
 			}
 			$db_result = MatrixDAL::executePdoAssoc($query2);
 			if (!empty($db_result))
 			{
 				foreach ($db_result as $key => $value) {
-					$num_kids[$value['majorid']] = $value['link_count'];
+					if (isset($num_kids[$value['majorid']])) {
+						$num_kids[$value['majorid']] = $num_kids[$value['majorid']] + $value['link_count'];
+					} else {
+						$num_kids[$value['majorid']] = $value['link_count'];
+					}//end if
 				}
 			}
 		} catch (Exception $e) {
