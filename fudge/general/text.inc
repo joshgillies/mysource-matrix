@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.36 2007/09/19 23:12:30 bshkara Exp $
+* $Id: text.inc,v 1.36.2.1 2008/11/26 00:56:58 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package Fudge
 * @subpackage Text
 */
@@ -181,8 +181,8 @@ function get_word_counts($text, $split_regexp="/[\t\n\r ]+/", $word_match_regexp
 */
 function remove_silent_chars($text, $not_indexing=FALSE)
 {
-	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '"', '`', '!', '@', '#', '$', '^', '*', '-', '_', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
-	$oracle_search_operators = Array('(',')','~','&','|','%');
+	$silent_chars = Array('.', ':', ';', ',', '!', '?', '\'', '`', '!', '@', '#', '$', '^', '*', '-', '_', '=', '+', '{', '}', '[', ']', '\\', '<', '>', '/');
+	$oracle_search_operators = Array('"', '(',')','~','&','|','%');
 	if ($not_indexing == FALSE) {
 		$silent_chars = array_merge($silent_chars, $oracle_search_operators);
 	}
