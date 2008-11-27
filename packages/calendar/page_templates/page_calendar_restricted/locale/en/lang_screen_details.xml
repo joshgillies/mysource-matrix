@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.7 2008/11/27 06:53:38 akarelia Exp $
 *
 */
 -->
@@ -49,6 +49,10 @@
 			<display_name>Day Heading Format</display_name>
 			<note>Day headings will display the date in this format.  (Symbols are from the PHP date function)</note>
 		</field>
+		<field attribute="next_text">
+            <display_name>Next Page Link Text</display_name>
+            <note>The text used in the link that the user clicks to view the next page of events.  The keyword %n% ca    n be used to place the days-per-page value in this text</note>
+        </field>
 		<field attribute="prev_text">
 			<display_name>Prev Page Link Text</display_name>
 			<note>The text used in the link that the user clicks to view the previous page of events.  The keyword %n% can be used to place the days-per-page value in this text</note>
