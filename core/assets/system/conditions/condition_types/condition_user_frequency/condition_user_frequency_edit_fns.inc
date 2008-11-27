@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_frequency_edit_fns.inc,v 1.7 2007/11/22 22:24:00 lwright Exp $
+* $Id: condition_user_frequency_edit_fns.inc,v 1.7.2.1 2008/11/27 00:54:09 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,6 +57,8 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 	*/
 	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
+		$value = array_get_index($condition_data, 'value', 0);
+		$units = array_get_index($condition_data, 'units', 'hits');
 		$options = Array(
 					'hits'		=> 'Hits',
 					'session'	=> 'Session',
@@ -71,9 +73,9 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 			<td>
 				<?php
 				if ($write_access) {
-					text_box($prefix.'[value]', $condition_data['value'], 10);
+					text_box($prefix.'[value]', $value, 10);
 				} else {
-					echo $condition_data['value'];
+					echo $value;
 				}
 				?>
 			</td>
@@ -83,9 +85,9 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 			<td>
 				<?php
 				if ($write_access) {
-					combo_box($prefix.'[units]', $options, 0, $condition_data['units']);
+					combo_box($prefix.'[units]', $options, 0, $units);
 				} else {
-					echo $options[$condition_data['units']];
+					echo $options[$units];
 				}
 				?>
 			</td>
