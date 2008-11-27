@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.206.2.10 2008/11/26 23:27:33 bpearson Exp $
+* $Id: page_calendar.inc,v 1.206.2.11 2008/11/27 04:35:16 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.206.2.10 $
+* @version $Revision: 1.206.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -3203,7 +3203,8 @@ class Page_Calendar extends Page
 			$root_treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($restrictive_roots);
 			$treeid_options = Array();
 			foreach ($root_treeids as $rootid => $this_root_treeids) {
-				$treeid_options[] = 'salt.treeid LIKE '.MatrixDAL::quote(reset($this_root_treeids).'%');
+				//bug fix : #3363  Event Personalisation on Calendar Page does not show events
+				$treeid_options[] = 'salt.treeid LIKE '.MatrixDAL::quote(reset(reset($this_root_treeids)).'%');
 			}
 			$sql = '
 					AND a.assetid IN (
