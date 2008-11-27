@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.221 2008/11/27 04:32:38 akarelia Exp $
+* $Id: page_calendar.inc,v 1.222 2008/11/27 04:34:26 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.221 $
+* @version $Revision: 1.222 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -3143,7 +3143,7 @@ class Page_Calendar extends Page
 
 			$cols = Array();
 			foreach ($column_treeids as $column_id => $this_column_treeids) {
-				foreach ($this_column_treeids as $column_treeid) {
+				foreach ($this_column_treeids[0] as $column_treeid) {
 					foreach ($details['treeid'] as $event_treeid) {
 						if (0 === strpos($event_treeid, $column_treeid)) {
 							$cols[] = $column_id;
