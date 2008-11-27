@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.20 2007/11/28 03:50:03 colivar Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.21 2008/11/27 05:24:14 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
+
 		// check required settings
 		if (empty($settings['attribute'])) return FALSE;
 
@@ -92,6 +93,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 				case 'Asset_Attribute_Email_Format' :
 					if (Trigger_Action_Set_Attribute_Value::_safeToEval($value)) {
 						// set $value to be the contents of the array
+						
 						eval('$value = '.$value.';');
 					} else {
 						trigger_localised_error('TRIG0003', E_USER_WARNING);
@@ -105,6 +107,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		$current_value = $state['asset']->attr($settings['attribute']);
 		if ($current_value != $value) {
 			if (!$state['asset']->setAttrValue($settings['attribute'], $value)) {
+			
 				return FALSE;
 			}
 			if (!$state['asset']->saveAttributes()) return FALSE;
@@ -135,27 +138,22 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		// first check the value contains only allowable components
 		$allowed_expressions = Array('array', '(', ')', '=>', ',', ';');
 		$reduced_value = str_replace($allowed_expressions, '', strtolower($str));
-
+	
 		// digits are ok
 		$reduced_value = preg_replace('/\d/', '', $reduced_value);
-
 		// check for TRUE/FALSE/NULL (dependent on no white space, so trim() the string first)
 		$reduced_value = trim($reduced_value);
 		$reduced_value = preg_replace('/(^|[^[:alnum:]])(TRUE|FALSE|NULL)([^[:alnum:]]|$)/i', '$1$3', $reduced_value);
-
 		// escaped double-quoted strings are ok
-		$reduced_value = preg_replace('/\\\\"([^"]*)\\\\"/', '', $reduced_value);
-
+		$reduced_value = preg_replace('/\\\\"/', '', $reduced_value);
 		// escaped single-quoted strings are ok
-		$reduced_value = preg_replace("/\\\\'([^']*)\\\\'/", '', $reduced_value);
-
+		$reduced_value = preg_replace("/\\\\'/", '', $reduced_value);
 		// double-quoted strings are ok
 		$reduced_value = preg_replace('/"([^"]*)"/', '', $reduced_value);
-
 		// single-quoted strings are ok
 		$reduced_value = preg_replace("/'([^']*)'/", '', $reduced_value);
-
 		$reduced_value = trim($reduced_value);
+
 		return empty($reduced_value);
 
 	}//end _safeToEval()

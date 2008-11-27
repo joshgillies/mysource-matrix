@@ -10,21 +10,38 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.5 2008/05/14 06:56:24 bpearson Exp $
+* $Id: export_to_xml.php,v 1.6 2008/11/27 05:24:59 ewang Exp $
 *
 */
 
 /**
 * Creates XML based on an asset ID provided.
 *
-*
+* @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
+
+
+/*
+ *
+ *
+ * Example usage:
+ * php scripts/import/export_to_xml.php . 3:35,4:36 1 >export.xml
+ * 
+ * First argument specifies system root path
+ *
+ * Second argument specifies which asset should be moved underneath which parent asset, 
+ * 3:35 means asset with id 3 will be moved underneath parent asset with id 35
+ *
+ * Third argument specifies create link type
+ *
+ */
+
 error_reporting(E_ALL);
-ini_set('memory_limit', '512M');
+ini_set('memory_limit', '1024M');
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
@@ -32,17 +49,14 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
 }
 
-$asset_id = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
-if (empty($asset_id)) {
-	trigger_error("You need to supply the asset id for the asset you want to export as the second argument\n", E_USER_ERROR);
+$asset_infos = (isset($_SERVER['argv'][2])) ? explode(',',$_SERVER['argv'][2]) : Array();
+if (empty($asset_infos)) {
+	trigger_error("You need to supply the asset id for the asset you want to export and parent asset it will link to as the second argument with format 3:75,4:46 (assetid 3 links to assetid 75, assetid 4 links to asset id 46)\n", E_USER_ERROR);
 }
 
-$initial_parent_id = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
-if (empty($initial_parent_id)) {
-	trigger_error("You need to supply the asset id for the starting parent you want to import under as the third argument\n", E_USER_ERROR);
-}
 
-$initial_link_type = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
+
+$initial_link_type = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($initial_link_type)) {
 	trigger_error("You need to supply the initial link type as the fourth argument\n", E_USER_ERROR);
 }
@@ -61,11 +75,26 @@ $asset_id_map = Array();
 
 echo "<actions>\n";
 
-
-printCreateXML($asset_id, $initial_parent_id, $initial_link_type);
-printAttributeXML($asset_id);
-printNoticeLinksXML($asset_id);
-printPermissionXML($asset_id);
+foreach($asset_infos as $asset_info) {
+	$asset_from_to_id = explode(':',$asset_info);
+	if(!isset($asset_from_to_id[0]) || !isset($asset_from_to_id[1])) 	trigger_error("Failed to parse second argument\n", E_USER_ERROR);
+	printCreateXML($asset_from_to_id[0], $asset_from_to_id[1], $initial_link_type);
+}
+foreach($asset_infos as $asset_info) {
+	$asset_from_to_id = explode(':',$asset_info);
+	if(!isset($asset_from_to_id[0])) 	trigger_error("Failed to parse second argument\n", E_USER_ERROR);
+	printAttributeXML($asset_from_to_id[0]);
+}
+foreach($asset_infos as $asset_info) {
+	$asset_from_to_id = explode(':',$asset_info);
+	if(!isset($asset_from_to_id[0])) 	trigger_error("Failed to parse second argument\n", E_USER_ERROR);
+	printNoticeLinksXML($asset_from_to_id[0]);
+}
+foreach($asset_infos as $asset_info) {
+	$asset_from_to_id = explode(':',$asset_info);
+	if(!isset($asset_from_to_id[0])) 	trigger_error("Failed to parse second argument\n", E_USER_ERROR);
+	printPermissionXML($asset_from_to_id[0]);
+}
 
 echo "</actions>\n\n";
 
@@ -84,6 +113,10 @@ echo "</actions>\n\n";
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 		if (is_null($asset)) exit();
+
+		// system assets are not allowed to be exported.
+		if (replace_system_assetid($asset->id) != NULL)	trigger_error("Can not export system asset!\n", E_USER_ERROR);
+
 
 		$action_code = getAssetType($asset).'_'.$asset->id;
 
@@ -162,8 +195,17 @@ echo "</actions>\n\n";
 	function printLinkXML($parent, $link_info, $action_code) {
 
 		global $asset_id_map;
-
-		$remap_id = (isset($asset_id_map[$link_info['minorid']])) ? "[[output://create_".$asset_id_map[$link_info['minorid']].".assetid]]" : $link_info['minorid'];
+		
+		// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
+		if (isset($asset_id_map[$link_info['minorid']])){
+			$remap_id =	"[[output://create_".$asset_id_map[$link_info['minorid']].".assetid]]"; 
+		}
+		else {
+			//before we use asset id, we should make sure if it's a system asset, we use system asset name instead of id. 
+			//because new system may have different system assets ids.
+			$system_asset_name = replace_system_assetid($link_info['minorid']);
+			$system_asset_name == NULL ? $remap_id = $link_info['minorid'] : $remap_id = "[[system://".$system_asset_name."]]" ;
+		}
 
 		echo "<action>\n";
 		echo "   <action_id>link_".$action_code."</action_id>\n";
@@ -192,6 +234,14 @@ echo "</actions>\n\n";
 		foreach ($asset->vars as $attr_name => $attr_info) {
 			$attr = $asset->getAttribute($attr_name);
 			$value = $attr->getContent();
+			// unserilize it, we want clean script
+			if(isSerialized($value) && !empty($value)){
+				$value = var_export(unserialize($value),TRUE);
+			}
+			// if the value is an assetid attribute, we should match it with asset_id_map first
+			if (preg_match("/assetid/",$attr_name) && isset($asset_id_map[$value])){
+				$value =	"[[output://create_".$asset_id_map[$value].".assetid]]"; 
+			}
 			$assets_done[$asset->id] = TRUE;
 
 			if (!empty($value)) {
@@ -201,7 +251,7 @@ echo "</actions>\n\n";
 				echo "   <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
 				if ($attr_name == 'html') { $value = _parseValue($value); }
-				echo "   <value><![CDATA[".$value."]]></value>\n";
+				echo "   <value><![CDATA[\n".$value."\n          ]]>\n   </value>\n";
 				echo "</action>\n\n";
 			}
 		}
@@ -239,8 +289,16 @@ echo "</actions>\n\n";
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_LINK_NOTICE, '', FALSE, 'major');
 
 		foreach ($notice_links as $notice_link) {
-
-			$remap_id = (isset($asset_id_map[$asset_id])) ? "[[output://create_".$asset_id_map[$asset_id].".assetid]]" : $asset_id;
+			// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
+			if (isset($asset_id_map[$asset_id])){
+				$remap_id =	"[[output://create_".$asset_id_map[$asset_id].".assetid]]" ;
+			}
+			else {
+				//before we use asset id, we should make sure if it's a system asset, we use system asset name instead of id. 
+				//because new system may have different system assets ids.
+				$system_asset_name = replace_system_assetid($asset_id);
+				$system_asset_name == NULL ? $remap_id = $asset_id : $remap_id = "[[system://".$system_asset_name."]]" ;
+			}
 			printLinkXML($remap_id, $notice_link, 'notice_'.$asset_id.'_to_'.$notice_link['minorid']);
 
 		}//end foreach
@@ -281,9 +339,31 @@ echo "</actions>\n\n";
 		// Now, some permissions
 		$read_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset_id, SQ_PERMISSION_READ, NULL, FALSE, FALSE, TRUE, TRUE);
 		foreach ($read_permissions as $permission_id => $permission_granted) {
+			// if the asset is created by this script, use asset_id_map	
+			if (isset($asset_id_map[$permission_id])){
+				$remap_id =	"[[output://create_".$asset_id_map[$permission_id].".assetid]]" ;
+			}
+			else {
+				//if it's a system asset, we use system asset name instead of id. 
+				//because new system may have different system assets ids.
+				$system_asset_name = replace_system_assetid($permission_id);
+				$system_asset_name == NULL ? $remap_id = $permission_id : $remap_id = "[[system://".$system_asset_name."]]" ;
+			}
+			
+		
 
-			$remap_id = (isset($asset_id_map[$permission_id])) ? "[[output://create_".$asset_id_map[$permission_id].".assetid]]" : $permission_id;
-
+			// if the action is to deny a previous permission, make sure we will remove the permission first
+			// even removing it will possibly fail, it will not affect the result.
+			if($permission_granted == 0) {
+				echo "<action>\n";
+				echo "    <action_id>set_permission_".$asset_id."_read_".$permission_id."</action_id>\n";
+				echo "    <action_type>set_permission</action_type>\n";
+				echo "    <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
+				echo "    <permission>1</permission>\n";
+				echo "    <granted>-1</granted>\n";
+				echo "    <userid>".$remap_id."</userid>\n";
+				echo "</action>\n";
+			}
 			echo "<action>\n";
 			echo "    <action_id>set_permission_".$asset_id."_read_".$permission_id."</action_id>\n";
 			echo "    <action_type>set_permission</action_type>\n";
@@ -298,8 +378,28 @@ echo "</actions>\n\n";
 		$write_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset_id, SQ_PERMISSION_WRITE, NULL, FALSE, FALSE, TRUE, TRUE);
 		foreach ($write_permissions as $permission_id => $permission_granted) {
 
-			$remap_id = (isset($asset_id_map[$permission_id])) ? "[[output://create_".$asset_id_map[$permission_id].".assetid]]" : $permission_id;
+			// if the asset is created by this script, use asset_id_map	
+			if (isset($asset_id_map[$permission_id])){
+				$remap_id =	"[[output://create_".$asset_id_map[$permission_id].".assetid]]" ;
+			}
+			else {
+				//if it's a system asset, we use system asset name instead of id. 
+				//because new system may have different system assets ids.
+				$system_asset_name = replace_system_assetid($permission_id);
+				$system_asset_name == NULL ? $remap_id = $permission_id : $remap_id = "[[system://".$system_asset_name."]]" ;
+			}
 
+			// if the action is to deny a previous permission, make sure we will remove the permission first
+			if($permission_granted == 0) {
+				echo "<action>\n";
+				echo "    <action_id>set_permission_".$asset_id."_write_".$permission_id."</action_id>\n";
+				echo "    <action_type>set_permission</action_type>\n";
+				echo "    <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
+				echo "    <permission>2</permission>\n";
+				echo "    <granted>-1</granted>\n";
+				echo "    <userid>".$remap_id."</userid>\n";
+				echo "</action>\n";
+			}
 			echo "<action>\n";
 			echo "    <action_id>set_permission_".$asset_id."_write_".$permission_id."</action_id>\n";
 			echo "    <action_type>set_permission</action_type>\n";
@@ -314,8 +414,24 @@ echo "</actions>\n\n";
 		$admin_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset_id, SQ_PERMISSION_ADMIN, NULL, FALSE, FALSE, TRUE, TRUE);
 		foreach ($admin_permissions as $permission_id => $permission_granted) {
 
-			$remap_id = (isset($asset_id_map[$permission_id])) ? "[[output://create_".$asset_id_map[$permission_id].".assetid]]" : $permission_id;
+			if (isset($asset_id_map[$permission_id])){
+				$remap_id =	"[[output://create_".$asset_id_map[$permission_id].".assetid]]" ;
+			}
+			else {
+				$system_asset_name = replace_system_assetid($permission_id);
+				$system_asset_name == NULL ? $remap_id = $permission_id : $remap_id = "[[system://".$system_asset_name."]]" ;
+			}
 
+			if($permission_granted == 0) {
+				echo "<action>\n";
+				echo "    <action_id>set_permission_".$asset_id."_admin_".$permission_id."</action_id>\n";
+				echo "    <action_type>set_permission</action_type>\n";
+				echo "    <asset>[[output://create_".$asset_id_map[$asset_id].".assetid]]</asset>\n";
+				echo "    <permission>3</permission>\n";
+				echo "    <granted>-1</granted>\n";
+				echo "    <userid>".$remap_id."</userid>\n";
+				echo "</action>\n";
+			}
 			echo "<action>\n";
 			echo "    <action_id>set_permission_".$asset_id."_admin_".$permission_id."</action_id>\n";
 			echo "    <action_type>set_permission</action_type>\n";
@@ -383,13 +499,8 @@ echo "</actions>\n\n";
 
 		$shadow_reg = '|.\/?a=(\d+:\w*)|';
 		$normal_reg = '|.\/?a=(\d+)|';
-
-		$shadow_matches = Array();
-		$normal_matches = Array();
-
-		preg_match_all($shadow_reg, $value, $shadow_matches);
-		preg_match_all($normal_reg, $value, $normal_matches);
-
+        preg_match_all($shadow_reg, $value, $shadow_matches=Array());
+        preg_match_all($normal_reg, $value, $normal_matches=Array());
 		$shadow_matches = $shadow_matches[1];
 		$normal_matches = $normal_matches[1];
 		$replace_assetids = Array();
@@ -419,7 +530,7 @@ echo "</actions>\n\n";
 	*/
 	function getAssetType(&$asset)
 	{
-		$class = get_class_lower($asset);
+		$class = get_class($asset);
 		return $class;
 
 	}//end getAssetType()
@@ -453,4 +564,36 @@ echo "</actions>\n\n";
 
 	}//end echo_headline()
 
+	/**
+	* Replace a current system asset's id with its name, because new system might have different asset id. a name will be safer
+	*
+	* @param string		$s assetid
+	*
+	* @return void|String
+	* @access public
+	*/
+	function replace_system_assetid($assetid){
+		foreach($GLOBALS['SQ_SYSTEM']->am->_system_assetids as $asset_name => $asset_id){
+			if($assetid == $asset_id) {
+				return $asset_name;
+			}
+		}
+		return NULL;
+	}
+	
+	
+	/**
+	* 
+	* Test if a string is serialized
+	* @param string	
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isSerialized($str) {
+   	 	return ($str == serialize(false) || @unserialize($str) !== false);
+	}
+
 ?>
+
+
