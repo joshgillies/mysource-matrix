@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.8 2007/12/18 22:07:36 colivar Exp $
+* $Id: import_from_xml.php,v 1.8.2.1 2008/11/27 05:25:53 ewang Exp $
 *
 */
 
@@ -21,11 +21,12 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
+ini_set('memory_limit', '1024M');
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';

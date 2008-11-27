@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_attribute_value.inc,v 1.20 2007/11/28 03:50:03 colivar Exp $
+* $Id: trigger_action_set_attribute_value.inc,v 1.20.2.1 2008/11/27 05:25:31 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -144,10 +144,10 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		$reduced_value = preg_replace('/(^|[^[:alnum:]])(TRUE|FALSE|NULL)([^[:alnum:]]|$)/i', '$1$3', $reduced_value);
 
 		// escaped double-quoted strings are ok
-		$reduced_value = preg_replace('/\\\\"([^"]*)\\\\"/', '', $reduced_value);
+		$reduced_value = preg_replace('/\\\\"/', '', $reduced_value);
 
 		// escaped single-quoted strings are ok
-		$reduced_value = preg_replace("/\\\\'([^']*)\\\\'/", '', $reduced_value);
+		$reduced_value = preg_replace("/\\\\'/", '', $reduced_value);
 
 		// double-quoted strings are ok
 		$reduced_value = preg_replace('/"([^"]*)"/', '', $reduced_value);
