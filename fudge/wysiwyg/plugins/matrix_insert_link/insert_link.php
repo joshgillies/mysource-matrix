@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.42 2008/01/07 03:50:56 colivar Exp $
+* $Id: insert_link.php,v 1.42.2.1 2008/11/28 02:44:07 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.2.1 $
 * @package MySource_Matrix
 */
 
@@ -160,6 +160,11 @@ if (!isset($_GET['new_window'])) {
 				var fields = ["url"];
 				var param = new Object();
 				var f = document.main_form;
+
+				// check for the manual entering in the asset picker
+				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) == '') && (f.elements["assetid[assetid]"].value != '') && (f.elements["assetid[assetid]"].value != 0)) {
+					setUrl();
+				}
 
 				// check if there is just an anchor in there
 				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) != '')) {
