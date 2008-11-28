@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.17 2007/12/06 04:28:49 lwright Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.18 2008/11/28 00:02:02 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,6 +82,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$this->_setVariables($asset, $all_contents)) {
 			return FALSE;
 		}
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = TRUE;
 		$asset->setAttrValue('contents', $contents);
 		return $asset->saveAttributes();
 
