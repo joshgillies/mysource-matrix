@@ -1,5 +1,36 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.16.15
+
+Complete Changelog
+-----------------------------------
+
+Core 
+* Fixed Bug #3331: Custom Form: Keyword list binoculars don't work
+* Fixed Bug #3334: Backslashes in metadata text input not escaped properly
+* Fixed Bug #3349: Wrong link "asset workflow screen" on Details screen in simple edit mode
+* Fixed Bug #3350: Move up/down button fails to reorder the list when there's more than three items
+* Fixed Bug #3351: In Safe Edit mode, divisions are still deletable
+* Fixed Bug #3352: In JS Option List, removing last field throws js exception, if there's value in it
+* Fixed Bug #3355: Files not cleanly removed from file repository
+* Fixed Bug #3356: Condition_server_variable doesn't ensure $_SERVER variable is set
+* Fixed Bug #3357: Oracle sometimes throws error while getting parents of an Asset
+* Fixed Bug #3364: Login form design area automatically created in trash
+* Fixed Bug #3376: Paint Layout Condition: User Frequency throws php error
+* Fixed Bug #3378: Improve the instructional copy for the Set Thumbnail Trigger Action
+
+CMS
+* Fixed Bug #3316: Globals Keywords don't work in Asset Builder Bodycopies
+* Fixed Bug #3329: Online quiz client-side validation issue
+* Fixed Bug #3335: Online Quiz can not repeat quiz
+* Fixed Bug #3360: Cloning asset builder with customised create layout fails
+
+Calendar
+* Fixed Bug #3372: No Results Bodycopy overrides event view on the calendar page
+* Fixed Bug #3380: Field name missing on the Restricted-Period Calendar Page
+
+
+
 VERSION 3.16.14
 
 Featured Changes
