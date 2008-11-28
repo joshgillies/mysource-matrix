@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.24.8.1 2008/11/07 05:29:09 bpearson Exp $
+* $Id: utility.js,v 1.24.8.2 2008/11/28 05:56:14 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_mac    = (HTMLArea.agt.indexOf("mac") != -1);
 HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
 HTMLArea.is_win_ie = (HTMLArea.is_ie && !HTMLArea.is_mac);
-HTMLArea.is_safari = (HTMLArea.agt.indexOf("safari"));
+HTMLArea.is_safari = (HTMLArea.agt.indexOf("safari") != -1);
 HTMLArea.is_gecko  = (navigator.product == "Gecko");
 
 
@@ -40,15 +40,6 @@ HTMLArea._object = null;
 
 // FIXME!!! this should return false for IE < 5.5
 HTMLArea.checkSupportedBrowser = function() {
-	if (HTMLArea.is_gecko) {
-		if (navigator.productSub < 20021201) {
-			alert(js_translate('mozilla13_alpha_not_supported'));
-			return false;
-		}
-		if (navigator.productSub < 20030210) {
-			alert(js_translate('mozilla13_beta_not_supported'));
-		}
-	}
 	return HTMLArea.is_gecko || HTMLArea.is_ie;
 };
 
