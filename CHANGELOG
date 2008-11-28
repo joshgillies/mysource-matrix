@@ -1,5 +1,86 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.8
+
+Featured Changes
+-----------------------------------
+
+New "Creation User" Asset Keywords available
+
+	New asset keywords %asset_created_by_asset_id% and %asset_created_by_url% have been added to provide the asset ID and URL respectively of the User that created the asset.
+
+
+"Add Web Path" Trigger Action keyword and option enhancements
+
+	The "Add Web Path" trigger now accepts keywords in the webpath field. Both global keywords and asset keywords for the "firing asset" are accepted. There is also a new check box (disabled by default) to delete all previous webpaths on that asset.
+
+
+Asset Contents Paint Layout keyword
+
+	A new keyword %asset_contents_paint_xx% is available for use in the Type Formats bodycopy of assets based on Listing Engine such as Asset Listing. The "xx" denotes the name of a User-Defined Paint Layout associated with the asset. The keyword will print the asset contents as rendered with that Paint Layout.
+
+
+"Remove Asset Remaps" Trigger Action
+
+	A new Trigger Action has been added to manage entries in the Remap Manager. Remapped and/or original URLs which match any of the current asset's URLs can be removed with this action. 
+
+
+New File Types and file content indexing modifications
+
+	CSS and JS File assets have been added. These asset types inherit from the File asset and their contents are *not* indexed by Search Manager. Content of Text File assets is now available for indexing by Search Manager.
+
+
+Interface Mode Trigger Condition
+
+	This Trigger Condition evaluates whether the user is in a particular interface mode (ie; frontend, backend, limbo, login, cron). 
+
+
+"Delete Future Lineage" Trigger Action
+
+	This Trigger Action allows a Future Lineage to be removed between the asset that fired trigger and an asset specified within the action. The Future Lineage is removed by the Cron Manager in a manner similar to "Delete Link" from the asset "Linking" screen. The removal time is specified within the Trigger Action.
+
+
+"Redirect" Trigger Action
+
+	This Trigger Action will redirect the user to a specified URL. Asset-based keywords may be used to specify this redirect URL.
+
+
+"Remove Links" Trigger Action
+
+	This Trigger Action removes the association between the firing asset and a specified set of candidate parent links. Links removed can be limited by one or more of the following: asset type, link type, link value.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3326: %details-S_details% for file asset doesn't print the titles for the input
+* Fixed Bug #3347: Hierarchy not returning results on search page
+* Fixed Bug #3349: Wrong link "asset workflow screen" on Details screen in simple edit mode
+* Fixed Bug #3350: Move up/down button fails to reorder the list when there's more than three items
+* Fixed Bug #3351: In Safe Edit mode, divisions are still deletable
+* Fixed Bug #3352: In JS Option List, removing last field throws js exception, if there's value in it
+* Fixed Bug #3354: Converting a content type result in Oracle notice 
+* Fixed Bug #3355: Files not cleanly removed from file repository
+* Fixed Bug #3356: Condition_server_variable doesn't ensure $_SERVER variable is set
+* Fixed Bug #3364: Login form design area automatically created in trash
+* Fixed Bug #3376: Paint Layout Condition: User Frequency throws php error
+* Fixed Bug #3378: Improve the instructional copy for the Set Thumbnail Trigger Action
+* Fixed Bug #3383: Id:# field in insert image and insert link not working
++ New Root password can be specified as a parameter to the Reset Root Password command-line script
+
+CMS
+* Fixed Bug #3353: New Nested assets functionality - multiple issues
+* Fixed Bug #3360: Cloning asset builder with customised create layout fails
+
+Calendar
+* Fixed Bug #3363: Event Personalisation on Calendar Page does not show events
+* Fixed Bug #3371: Columns don't work for the day view on the calendar
+* Fixed Bug #3372: No Results Bodycopy overrides event view on the calendar page
+* Fixed Bug #3380: Field name missing on the Restricted-Period Calendar Page
+
+
+
 VERSION 3.18.7
 
 Featured Changes
