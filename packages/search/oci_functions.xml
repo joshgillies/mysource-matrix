@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: oci_functions.xml,v 1.1 2008/02/18 23:16:46 lwright Exp $
+* $Id: oci_functions.xml,v 1.2 2008/11/28 00:04:46 csmith Exp $
 *
 */
 -->
@@ -86,9 +86,7 @@
 					sql_str VARCHAR2(2000);
 					c NUMBER := 0;
 				BEGIN
-					sql_str :=	'SELECT COUNT(ai.VALUE) AS hits FROM sq_sch_idx ai, ' ||
-								' sq_ast a INNER JOIN sq_ast_lnk l ON l.minorid = a.assetid ' ||
-								' INNER JOIN sq_ast_lnk_tree t ON t.linkid = l.linkid WHERE ' ||
+					sql_str :=	'SELECT COUNT(ai.VALUE) AS hits FROM sq_sch_idx ai WHERE ' ||
 								cond ||
 								' AND CONTAINS(ai.value, "' || word ||  '" , 1) > 0';
 					sql_str := replace(sql_str, '"', '''');
@@ -109,9 +107,7 @@
 					value VARCHAR2(32767);
 					word VARCHAR2(500);
 				BEGIN
-					sql_str :=	'SELECT ai.value FROM sq_sch_idx ai,' ||
-								' sq_ast a INNER JOIN sq_ast_lnk l ON l.minorid = a.assetid ' ||
-								' INNER JOIN sq_ast_lnk_tree t ON t.linkid = l.linkid WHERE ' || cond;
+					sql_str :=	'SELECT ai.value FROM sq_sch_idx ai WHERE ' || cond;
 
 					sql_str := replace(sql_str, '"', '''');
 					OPEN curl_1 FOR sql_str;
