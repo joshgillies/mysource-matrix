@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layouts.inc,v 1.3 2008/11/28 03:18:17 bpearson Exp $
+* $Id: layouts.inc,v 1.4 2008/11/28 03:47:14 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Layouts Static Screen Functions
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -76,14 +76,11 @@ function paintLayouts(&$owner, &$o, &$ei, $keywords=NULL)
 						$return_lookup = TRUE;
 
 						// Allow changes here
-						if (empty($current_value)) {
-							$o->openField('');
-							check_box($prefix.'_add_layouts', '1');
-							$add_label = (is_null($section['display_name'])) ? $section['name'] : $section['display_name'];
-							label($add_label, $prefix.'_add_layouts');
+						$o->openField('');
+						$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+						asset_type_chooser($prefix.'_add_layouts', TRUE, Array());
 
-							$o->closeField();
-						}//end if
+						$o->closeField();
 					} else {
 						$return_lookup = TRUE;
 					}
@@ -258,7 +255,7 @@ function processLayouts(&$owner, &$o, &$ei)
 		trigger_localised_error('SYS0330', E_USER_WARNING);
 	}
 
-	// Process Adding a new layout of the owner's type code
+	// Process Adding a new layout of type code xx
 	if (isset($_POST[$prefix.'_add_layouts']) && !empty($_POST[$prefix.'_add_layouts'])) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -269,9 +266,24 @@ function processLayouts(&$owner, &$o, &$ei)
 			$layout_schemas[] = key($layout_designs);
 		}
 
-		$layout_schema = 'layout::'.$owner->type().'::noscreen';
-		$layouts[$url][$layout_schema] = Array();
-		$layouts[$url][$layout_schema]['value'] = 0;
+		// Remember last postings so we don't too many of the same
+		$prev_post = Array();
+
+		foreach ($_POST[$prefix.'_add_layouts'] as $type_code) {
+			// Check they are not trying to add multiple entries of the same page
+			if (in_array($type_code, $prev_post)) {
+				continue;
+			} else {
+				$prev_post[] = $type_code;
+			}
+
+			// layouts::type_code::screen where is not defined screen will default to noscreen with asset of 0
+			if (!empty($type_code)) {
+				$layout_schema = 'layout::'.$type_code.'::noscreen';
+				$layouts[$url][$layout_schema] = Array();
+				$layouts[$url][$layout_schema]['value'] = 0;
+			}
+		}//end foreach
 
 		if (!$owner->setLookupValues($layouts)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
