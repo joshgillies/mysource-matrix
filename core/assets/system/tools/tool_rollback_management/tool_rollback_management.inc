@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_rollback_management.inc,v 1.1 2008/10/12 21:41:04 mbrydon Exp $
+* $Id: tool_rollback_management.inc,v 1.2 2008/11/30 23:03:53 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/rollback_management.inc';
 * 	A tool to manage the amount of data stored in Rollback
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,8 @@ class Tool_Rollback_Management extends Tool
 
 		$o->openSection($tool_info['name']);
 
-		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
+		// Allow System Admins to run this tool
+		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$o->openField('');
 				$o->note('Access denied to run this tool');
 			$o->closeField();
@@ -188,7 +189,10 @@ class Tool_Rollback_Management extends Tool
 	*/
 	public static function processTool(&$o, $type_code)
 	{
-		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) return FALSE;
+		// Allow System Admins to run this tool
+		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+			return FALSE;
+		}
 
 		$settings = Array();
 
