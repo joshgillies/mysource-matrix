@@ -29,6 +29,9 @@ Calendar
 * Fixed Bug #3372: No Results Bodycopy overrides event view on the calendar page
 * Fixed Bug #3380: Field name missing on the Restricted-Period Calendar Page
 
+E-Commerce
+* Fixed Bug #3379: Correct the approach taken when calculating tax amounts
+
 
 
 VERSION 3.16.14
