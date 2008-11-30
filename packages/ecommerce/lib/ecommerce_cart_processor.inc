@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.11.2.6 2008/07/25 06:10:47 bshkara Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.11.2.7 2008/11/30 21:53:54 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11.2.6 $
+* @version $Revision: 1.11.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -363,8 +363,8 @@ class Ecommerce_Cart_Processor
 		// deduct tax or add tax depending on whether item currently has tax included in its price
 		if ($has_tax) {
 			// deduct tax and alter product cost as well to reflect this
-			$tax_cost = $cost * $taxation_rate;
-			$cost = $cost - ($cost * $taxation_rate);
+			$tax_cost = $cost - ($cost / (1 + $taxation_rate));
+			$cost = $cost - $tax_cost;
 		} else {
 			// add tax
 			$tax_cost = $cost * $taxation_rate;
@@ -376,7 +376,7 @@ class Ecommerce_Cart_Processor
 
 		return $item_costs;
 
-	}// end _calculateItemCosts()
+	}//end _calculateItemCosts()
 
 
 	/**
@@ -624,7 +624,7 @@ class Ecommerce_Cart_Processor
 	* Prints out the contents of the Ecommerce Cart
 	*
 	* @param string		$taxation_name	name of tax
-	* @param int		$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
+	* @param float		$taxation_rate	tax value (0.1 is 10%, 0.2 is 20%)
 	* @param array		$flat_charges	flat charges Array('Name' => 'Price')
 	* @param boolean	$remove_tax		whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	*
