@@ -50,6 +50,11 @@ Interface Mode Trigger Condition
 	This Trigger Action removes the association between the firing asset and a specified set of candidate parent links. Links removed can be limited by one or more of the following: asset type, link type, link value.
 
 
+Safari Compatibility
+
+	Changes have been made to the WYSIWYG editor and the multi-text option list interfaces to provide increased compatibility with Safari.
+
+
 Additional Changes and Bug Fixes
 -----------------------------------
 
@@ -78,6 +83,9 @@ Calendar
 * Fixed Bug #3371: Columns don't work for the day view on the calendar
 * Fixed Bug #3372: No Results Bodycopy overrides event view on the calendar page
 * Fixed Bug #3380: Field name missing on the Restricted-Period Calendar Page
+
+E-Commerce
+* Fixed Bug #3379: Correct the approach taken when calculating tax amounts
 
 
 
