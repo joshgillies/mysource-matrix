@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.16 2008/11/25 00:48:05 mbrydon Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.17 2008/11/30 21:50:35 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -363,8 +363,8 @@ class Ecommerce_Cart_Processor
 		// deduct tax or add tax depending on whether item currently has tax included in its price
 		if ($has_tax) {
 			// deduct tax and alter product cost as well to reflect this
-			$tax_cost = $cost * $taxation_rate;
-			$cost = $cost - ($cost * $taxation_rate);
+			$tax_cost = $cost - ($cost / (1 + $taxation_rate));
+			$cost = $cost - $tax_cost;
 		} else {
 			// add tax
 			$tax_cost = $cost * $taxation_rate;
