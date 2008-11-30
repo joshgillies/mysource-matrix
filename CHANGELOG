@@ -11,7 +11,7 @@ Selected Packages under GPL from 3.20.0
 
 
 Hipo Herder: Resume jobs in new window
-     
+
 	The HIPO Herder screen now allows users the option to resume stalled HIPO Jobs in a new window, rather than in the main window as is previously. The original option to open in the main window still remains.
 
 
@@ -21,7 +21,7 @@ Filter by URL in Remap Manager
 
 
 Clear Matrix Cache: Multiple Root Nodes
-        
+
 	This addition allows multiple non-dependant assets to be cleared in a single run of the Clear Matrix Cache tool.
 
 
@@ -31,208 +31,167 @@ Option to control remapping of Web Paths
 
 
 New re-cache suffix
-        
+
 	MySource Matrix currently has a "no-cache" (by default, "_nocache") suffix that can be added to an asset, to bypass the Matrix cache system and view the most recent version of an asset on the front-end. This new recache suffix (by default, "_recache") will do this, and also clear and re-populate the cache.
 
 The new suffix will only work if a user has write access to an asset. This suffix is changeable from the System Configuration screen or the main.inc configuration file.
 
 
 Exclude Assets from Asset Listing Page
-        
+
 	This new feature allows one or more assets to be excluded from the Asset Listing Page, preventing them from being listed even when the usual criteria would see them listed.
 
 
 Metadata Value Cascading
-        
+
 	This new feature allows default and/or custom values to be cascaded to child assets on a field-by-field, asset-by-asset basis. This can be set by ticking the "Cascade Value" checkbox(es) on the Metadata screen of the asset being edited.
 
 
 CAPTCHA Field in Asset Builder Page
-        
+
 	This new feature allows you to add a CAPTCHA test to an Asset Builder Page asset. When the "Require CAPTCHA" option is turned ON on the Details screen, a number of CAPTCHA-related keywords will be made available to the Logged In bodycopy. A few options are also provided to control the look of the CAPTCHA, such as the number of characters displayed. 
 
 
 Image Content Type: Option to use DIVs
-        
+
 	The Image Content Type would previously wrap the image to be inserted in TABLE tags, allowing advanced features such as floating. This has now been extended to allow the image to be wrapped in DIV tags instead. New user preferences have also been added.
 
 
 Use HTML Tidy as accessibility checker
-        
+
 	The Tidy binary, currently used to clean up invalid HTML, is now also used to conduct WCAG accessibility checks. Failed accessibility checks are available as a new icon mouse-over, located next to the current HTML Tidy on/off indicator at the top-right of each bodycopy container. 
 
 
 TRIM Data Source Asset (SSV only)
-       
+
 	This new data source allows you to make queries against an installation of the TRIM information management system, and return the results as Data Source Record shadow assets. 
 
 
 Send Workflow starter rejection email
-       
+
 	This change to the Workflow system will send an email to the user that initiated a workflow process on an asset, if that process is rejected. This notifies the user that they may need to review their edits, along with any notes provided in the workflow process. This change applies to all workflows and cannot be disabled.
 
 
 Asset Lineage Design Area: "Start at" level
-       
+
 	A new "start_at_level" variable has now been added to the Asset Lineage Design Area asset, that starts printing from a specified level. The top of the lineage (the Site asset, if coming from a forward direction) is Level 0, and increases from there. 
 
 
 Backend unsaved changes warning
-       
+
 	A warning message will now appear if you try to move away from a page on the Matrix backend while you are editing an asset. This allows users who try to accidentally navigate away from the backend to negate their action and not lose unsaved changes. 
 
 
 Auto-approve multiple Workflow Steps
-       
+
 	MySource Matrix will now automatically approve as much workflow as possible when a user approves an asset's changes, spreading over multiple steps when necessary, until it finds a step that requires someone else's approval (or where that user's approval is not enough to approve that step).
 
 In the rare instance that a user is able to approve a multiple-step workflow all by him- or herself, the workflow will not be initiated and the status will jump to Approved to Go Live, which is the same setup as what happens for a single-step workflow. If a user is able to approve all remaining steps of a workflow already in progress, then all approval messages will be sent before the workflow is completed.
 
 
 Simple Edit Layouts applied by Root Node
-       
+
 	MySource Matrix will now allow you to set Simple Edit Layouts by root node, similar to what happens now with Designs. This can be performed via a new Layouts screen.
 
 Existing global assignments of Simple Edit Layouts will be preserved and can still be set or modified in the Layout Manager, and will still take effect if no root node-level Simple Edit Layout is found for a given asset. 
 
 
 System Maintenance Screen
-       
-	The new System Maintenance screen gets its first appearance this week. This new screen, accessible from a button to the right of the HIPO Herder link, allows you to view various types of information about your system.
 
-This screen lists recommended maintenance tasks that should be performed on your system; some of these will be able to be performed from this screen.
+	This new screen, accessible from a button to the right of the HIPO Herder link, allows you to view various types of information about your system (eg; Top 20 asset types). Rollback can be managed from this screen as recommended maintenance task.
 
 
 "Create Link" Trigger Action: Dynamic target
-       
+
 	The Create Link trigger action now allows you to specify a dynamic target asset ID through a dynamic parameter. A fixed target must still be specified for the occasions that it is not. 
 
 
 Metadata Field values covered under "Safe Edit"
-       
+
 	Changes to Metadata Field values can now be prepared in "Safe Edit" before setting an asset "Live". Previously such values would have immediate effect when applied to an asset. Metadata Field values are restored for remaining fields when "Safe Edit" is cancelled. 
 
 
-Form Enhancements
-       
 Multi-Page Forms
--------------------------------
-A new "Multi-Page Form" option is available on the "Details" screen of a Custom Form to display Form Sections as paginated forms. Questions not assigned to a Form Section will reside on Page 1, then Form Sections will start from Page 2.
+
+	Multi-Page Forms can now be created from the "Details" screen of a Custom Form. Form Sections are used to determine pagination of questions.
+
 
 Form Confirmation Page
--------------------------------
-A confirmation page can now be added as an additional page at the end of a form, regardless of whether it is designated as a "Multi-Page Form". Only CAPTCHA questions may be provided on this page.
 
-New Pagination Buttons
--------------------------------
-"Previous Page" and  "Next Page" buttons have been added to navigate "Multi-Page" forms. "Save" and "Save and Exit" buttons are also available to save progress without validating values on the page. Customisable text for each of these buttons is available.
+	A confirmation page can now be added as an additional page at the end of a Custom Form.
+
 
 New Cron Job: Manage Incomplete Submissions
--------------------------------
-This Cron Job handles incomplete submissions from a multiple-page custom form, sending reminder emails to their owners and deleting them after a certain time period. This is a system asset that will run on each Cron run.
 
-Each Custom Form has two settings: reminder period and expiry period. Once the reminder period times out (measured from the creation time of the submission), a reminder email will be sent to the creator of the submission, as long as an Email Address is set for that user.
+	This Cron Job handles incomplete submissions from a multiple-page Custom Form, sending reminder emails to their owners and deleting them after a certain time period. An "Incomplete Submissions" screen has been added to Custom Form to configure the operation of this Cron Job.
 
-Once the expiry period times out, the submission will be deleted. The reminder email and time periods are set from a new "Incomplete Submissions" screen in the Custom Form. Either or both can be disabled (which is the default) by setting the relevant duration to zero.
 
-This Cron Job It will store a list of submissions that it has already sent a reminder email to, and clean them out whenever they are deleted, or completed.
+New File Upload handling in Custom Form
 
-Form Question Extra Data
--------------------------------
-Further information can now be stored against answers to Form Questions. This is used in the File Upload question to store the destination for uploaded files and the filename as assigned after submission.
+	When completing a multiple-page form, File Upload answers (ie; files) are moved to a temporary location. These files are then created as a File asset when a Create Location is specified, or managed by the Form itself if a location is not specified. Files which are saved to a permanent location are available from the "Details" screen of the Form Submission.
 
-New File Upload handling
--------------------------------
-When completing a multiple-page form, File Upload answers (ie; files) are moved to a temporary location. These files are then created as a File asset when a Create Location is specified, or managed by the Form itself if a location is not specified. Files which are saved to a permanent location are available from the "Details" screen of the Form Submission.
 
-Incomplete Submissions Screen and related Cron Job
--------------------------------
-An "Incomplete Submissions" screen has been added to the Form. This handles settings for reminding users when their submissions have been inactive for an extended period, and controls deleting of submissions that have expired after a certain period.
+Custom Form Page List
 
-This relies on the new Manage Incomplete Submissions Cron Job, and is therefore only effective if the Cron Manager is configured.
+	The "Page List" is an unordered list of pages, styled with certain CSS classes depending on their location in the Custom Form. This can then be styled through a Design or Design CSS asset. The Page List is configured for display on the "Page Contents" bodycopy via the %page_list% keyword.
 
-Page List
--------------------------------
-The "Page List" is an unordered list of pages, styled with certain classes depending on whether they are before or after the current page (or are the current page), are the latest page, are after the latest page etc. This can then be styled through a Design or Design CSS asset. The Page List is configured for display on the "Page Contents" bodycopy via the %page_list% keyword.
 
-The format of each Page List entry is controlled from the "Page List Entry Format" value on the Details screen of the Form. New Keywords for "Page Number", "Total Pages" are available here.
+New Overwrite Rule handling for Custom Form
 
-The Page Name for Unattached Questions and Confirmation pages (if either/both are used) can be custonised from the Details screen. For the other pages, the name of the Form Section is used. 
-
-CAPTCHA handling modifications
--------------------------------
-Where a CAPTCHA is required, it only needs to be filled in once on any page, and this status will be stored in the submission. If no pages are customised (or the last one is not), the CAPTCHA will appear on the last page. Having more than one CAPTCHA is optional. If no CAPTCHA has been filled in by the last page, a submission error will appear on the last page.
-
-Submission handling
--------------------------------
-Submissions for logged-in users are stored as Form Submission assets under the "Incomplete Submissions" folder - only the original creator of the submission will be able to return to the submission and continue. Submissions made when not logged in are stored in a session variable.
-
-New Overwrite Rule handling
--------------------------------
-The file Overwrite Rule no longer applies when a Create Location is not specified. Overwrite Rule handling has now also been tightened so that it only overwrites File assets and checking for clashes is done by comparing web paths, not asset names.
-
-Please note that *no conflict resolution* is used when two people with incomplete submissions upload the same file name within a short space of time. It is recommended that the "Rename" option is used when selecting an Overwrite Rule to avoid this scenario.
-
-Download Link for File Upload questions
--------------------------------
-A "download" link is shown next to the file summary for File Upload questions without a specified Create Location. It is now possible to download of the uploaded file while in the backend or Simple Edit.
-
-Save Confirmation text and related keyword
--------------------------------
-Customised "Save Confirmation" text can be specified for multi-page forms. When populated, this value will activate a keyword - %save_confirmation%. If left empty, the default message "Your progress has been saved" will be used instead.
+	The file Overwrite Rule no longer applies when a Create Location is not specified. Overwrite Rule handling only overwrites File assets and checking for clashes is done by comparing web paths, not asset names.
 
 
 Rollback Management Tool
-       
+
 	A new web-based tool has been added to allow System Administrators to control rollback data. This tool provides the same management parameters as the existing "rollback_management.php" command-line script. Rollback data may be aligned to a particular date or purged based on age, and can be enabled or disabled within the tool.
 
 
 "Increment Version" Trigger Action: New failure condition
-       
+
 	This trigger will now return a failure condition if the asset version number supplied is not of the expected format. 
 
 
 "Exclude Root Nodes" Listing Engine option
-       
+
 	It is now possible to nominate one or more root nodes to be excluded from Listing Engine-based pages such as Asset Listing and Search Page. This option is available on the "Details" screen of these asset types.
 
 
 Indication that a Division is linked elsewhere
-       
+
 	A binoculars icon is shown near the top-right of each division if it is linked in multiple locations. Clicking this icon will show all lineages to which the division is linked and provide links to each of these assets. 
 
 
 Locating Nested Assets
-       
+
 	A binoculars icon is shown below the Asset Picker in Nested Content cells which when clicked will show the lineages of all locations where the referred content is linked. 
 
 
 YouTube WYSIWYG Plugin
-       
+
 	A new tool icon is available in the WYSIWYG editor which allows content hosted on YouTube to be easily added to bodycopies. A pop-up window is shown with content options when adding YouTube content.
 
 This tool can be enabled / disabled on a User Group basis in the same manner as other WYSIWYG tools.
 
 
 Quick Link WYSIWYG Plugin
-       
+
 	A "Quick Link" tool has been added to the WYSIWYG editor which will turn a URL or email address into a link. The desired content (eg; email address) is highlighted and is turned into a link (in this case a "mailto:" link) once this tool is selected.
 
 
 Upload a new Image within "Insert Image" WYSIWYG Tool
-       
+
 	The WYSIWYG "Insert Image" tool will now create an Image asset from a file uploaded within the pop-up window. This is accomplished by clicking the "Insert Image" button in the pop-up window then selecting the local file and a root node to be used as the destination for the Image asset.
 
 The process of uploading the image will immediately select this image for immediate insertion into the content.
 
 
 Simple Edit User
-       
+
 	A new user type - Simple Edit User - has been created which will provide access only to the Simple Edit interface and not the Administration (backend) interface.
 
 
 Log In as another user (Troubleshooting Tool)
-       
+
 	System Administrators (and the Root User) can now switch to another user account without a password for troubleshooting purposes. A key icon is shown to the left of the "Logout" icon for these users. Once clicked, a small form is shown in the header bar for entry of a username. When entered, the current user is logged out and the secondary user is logged in at the same URL.
 
 A modified "Logout" icon is shown once in the secondary account, which when clicked will log the originating user back in and restore their asset history lineage to minimise disruption. This feature cannot be used to change to the Root User, nor can System Administrators log in as other System Administrators.
@@ -247,17 +206,17 @@ New Messaging Service event codes:
 
 
 Default Presentation Type for Bodycopy Containers
-       
+
 	The Default Presentation Type for Bodycopy Containers (ie; Block-level, Inline, or Raw HTML) can now be configured from the "Global Preferences" screen of System Configuration. 
 
 
 Total page size on asset "Preview" screen
-       
+
 	A summary of the byte size of images, CSS, Javascript and other content has been added to the "Preview" screen for assets. A "Calculate Size" button is shown next to the "Preview" button which will perform the calculations and return the summary.
 
 
 File Versioning System Integrity script
-       
+
 	A new script "system_integrity_recover_file_versions.php" has been added to recover incorrect file versioning entries in MySource Matrix.
 The script takes three arguments, the System Root directory, running mode ("test" or "recover") and a Root Node asset ID from which to perform the recovery.
 
@@ -265,16 +224,20 @@ The "test" mode summarises any conflicts between file versions stored in the fil
 
 
 Permission restrictions for creation / deletion of Bodycopy Containers
-       
+
 	Creation and deletion of Bodycopy Containers can now be controlled at a Global or User Group level. When these restrictions are enforced, a warning message is shown above each Bodycopy Container and the green edit icon is hidden.
 
 
 Automatic population of "Select Form Questions" from CSV file
-       
+
 	Existing "Select Form Questions" can be populated from a CSV file uploaded on the "Details" screen of the question.
 
 If the CSV file contains one column, these entries are used as the selection values. A key can be specified alongside a value in a two-column file - with the value as the second field. A third field can be specified to determine whether the options form part of the default selection (0 = no, 1 = yes).
 
+
+Safari Compatibility
+
+	Changes have been made to the WYSIWYG editor and the multi-text option list interfaces to provide increased compatibility with Safari.
 
 
 Additional Changes and Bug Fixes
@@ -290,13 +253,19 @@ Core
 + The Asset Finder widget now supports the manual entering of an asset ID in the smaller box to the right of the "Id: #" label
 + Emails sent to users involved in the running workflow of an asset now have direct links to approve or reject the workflow
 + The Asset Sorting Tool can now sort by Asset Attribute as well as by standard asset fields
-+ A new Trigger Event type "Before User Logout" has been added. This event can be used with Trigger Actions where user details are required to be preserved just before the logout process has completed (eg; for use with a "Send Email" Trigger Action to send an email to the user while they log out). 
++ A new Trigger Event type "Before User Logout" has been added. This event can be used with Trigger Actions where user details are required to be preserved just before the logout process has completed (eg; for use with a "Send Email" Trigger Action to send an email to the user while they log out) 
 
 CMS
-+ Custom Form: Form Sections can now be nested to delineate groups of questions on Multi-Page Forms
-+ Custom Form: The Submission Logs will now only list completed submissions
-+ Custom Form: A new keyword %form_summary_semantic% has been added to clearly show form element relationships
-+ Custom Form: A key can now be stored against values in a Select Form Question. The key is stored in the form submission when that form is submitted
+Custom Form changes:
+	+ Form Sections can now be nested to delineate groups of questions on Multi-Page Forms
+	+ The "Submission Logs" screen only lists completed submissions
+	+ A new keyword %form_summary_semantic% has been added to clearly show form element relationships
+	+ A key can now be stored against values in a Select Form Question. The key is stored in the form submission when that form is submitted
+	+ Where a CAPTCHA is required, it only needs to be filled in once on any page, and this status will be stored in the submission
+	+ Submissions for logged-in users are stored as Form Submission assets under the "Incomplete Submissions" folder
+	+ "Previous" and "Next" page buttons have been added to navigate "Multi-Page" forms. "Save" and "Save and Exit" buttons are also available to save progress without validating values on the page
+	+ Further information can now be stored against answers to Form Questions in an "Extra Data" field
+	+ A "download" link is shown next to the file summary for File Upload questions without a specified Create Location to enable these files to be downloaded from the backend or when in Simple Edit
 + Redirect Page: HTTP 301 "Moved Permanently" responses can be issued from these assets
 + What's New Page: A dynamic parameter can be specified to assign a Root Node for this listing from sources such as GET, POST and SESSION variables
 
