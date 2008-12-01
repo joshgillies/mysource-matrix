@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.16 2008/11/26 22:15:23 lwright Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.17 2008/12/01 01:10:51 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -882,7 +882,7 @@ class Search_Manager_Plugin_OCI
 	* @return array
 	* @access private
 	*/
-	function _getWords(Search_Manager $sm, &$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE, $ignore_chars=Array())
+	function _getWords(&$terms, $remove_stop_words=FALSE, $return_stop_words=FALSE, $replace=FALSE, $ignore_chars=Array())
 	{
 		$preg_ignore_chars = Array();
 		foreach ($ignore_chars as $char) {
@@ -1001,7 +1001,7 @@ class Search_Manager_Plugin_OCI
 		// get the words from the terms string and replace them
 		// with #, and remove non-indexable words
 		// (make an exception for @, as it's our search phrase placeholder)
-		$words = $this->_getWords($sm, $terms, TRUE, FALSE, TRUE, Array($phrase_placeholder));
+		$words = $this->_getWords($terms, TRUE, FALSE, TRUE, Array($phrase_placeholder));
 
 		// remove spaces
 		$terms = preg_replace('/\s+/', '', $terms);
