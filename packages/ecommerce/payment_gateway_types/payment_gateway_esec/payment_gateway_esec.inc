@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.20.2.1 2008/10/27 00:35:51 bshkara Exp $
+* $Id: payment_gateway_esec.inc,v 1.20.2.2 2008/12/01 23:21:22 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -188,8 +188,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$this->returnToCaller('SUCCESS');
 
 		} else if ($card_info) {
-			$_SESSION['SQ_ECOM_CARDINFO'] = $card_info;
-			if ($this->processPayment()) {
+			if ($this->processPayment($card_info)) {
 				unset($_SESSION['SQ_ECOM_AMOUNT']);
 				$this->returnToCaller('SUCCESS');
 			}
@@ -275,18 +274,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		$Esec->setAmount($amount);
 		$amount = $Esec->getAmount();
 
-		$card_info = array_get_index($_SESSION, 'SQ_ECOM_CARDINFO', FALSE);
-		if (!$card_info) {
-			$card_info = Array(
-							'name'		=> '',
-							'number'	=> '',
-							'ccv'		=> '',
-							'month'		=> '',
-							'year'		=> '',
-							'type'		=> '',
-						 );
-		}
-
 		$prefix = $this->getPrefix();
 		$card = $prefix.'_card';
 		$form_contents = '';
@@ -294,8 +281,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		// determine which card type is selected
 		$form_contents_select = '';
 		foreach ($card_types as $type) {
-			$selected = ($card_info['type'] == $type) ? ' selected="selected"' : '';
-			$form_contents_select .= '<option value="'.$type.'"'.$selected.'>'.$type.'</option>';
+			$form_contents_select .= '<option value="'.$type.'>'.$type.'</option>';
 		}
 
 		// set variables for test mode
@@ -306,12 +292,11 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$test_card_numbers = $Esec->getTestCardNumbers();
 			$card_number = '<select name="'.$card.'[number]">';
 			foreach ($test_card_numbers as $number => $label) {
-				$selected = ($card_info['number'] == $number) ? ' selected="selected"' : '' ;
-				$card_number .= '<option value="'.$number.'"'.$selected.'>'.$number.'</option>';
+				$card_number .= '<option value="'.$number.'>'.$number.'</option>';
 			}
 			$card_number .= '</select>';
 		} else {
-			$card_number = '<input name="'.$card.'[number]" value="'.$card_info['number'].'" />';
+			$card_number = '<input name="'.$card.'[number]" />';
 		}
 
 		// check for errors
@@ -338,7 +323,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			<table cellpadding="5">
 				<tr>
 					<td align="right">Name on Card</td>
-					<td><input name="<?php echo $card; ?>[name]" value="<?php echo $card_info['name'];?>" /></td>
+					<td><input name="<?php echo $card; ?>[name]" /></td>
 				</tr>
 				<tr>
 					<td align="right">Number</td>
@@ -349,14 +334,14 @@ class Payment_Gateway_Esec extends Payment_Gateway
 				?>
 				<tr>
 					<td  align="right">CCV</td>
-					<td><input name="<?php echo $card; ?>[ccv]" value="<?php echo $card_info['ccv'];?>" size='4' /> - from the back of your credit card</td>
+					<td><input name="<?php echo $card; ?>[ccv]" size='4' /> - from the back of your credit card</td>
 				</tr>
 				<?php
 				}
 				?>
 				<tr>
 					<td align="right">Expiry Date (MM/YY)</td>
-					<td><input name="<?php echo $card; ?>[month]" value="<?php echo $card_info['month'];?>" size="2" /> / <input name="<?php echo $card; ?>[year]" value="<?php echo $card_info['year'];?>" size="2" /></td>
+					<td><input name="<?php echo $card; ?>[month]" size="2" /> / <input name="<?php echo $card; ?>[year]" size="2" /></td>
 				</tr>
 				<tr>
 					<td align="right">Type</td>
@@ -384,14 +369,17 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	/**
 	* Process credit card details to gateway
 	*
+	* @param array	$card_info	Submitted credit card information
+	*
 	* @return boolean
 	* @access public
 	*/
-	function processPayment()
+	function processPayment($card_info)
 	{
+		if (!$card_info) return FALSE;
+
 		$ref_no      = $_SESSION['SQ_ECOM_REF_NO'];
 		$amount      = $_SESSION['SQ_ECOM_AMOUNT'];
-		$card_info   = $_SESSION['SQ_ECOM_CARDINFO'];
 
 		$Esec = new Esec_Processor_Integration_Interface();
 
@@ -488,7 +476,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function getCreditCardNumberKeywordReplacement()
 	{
 
-		$card_info = $this->_getCardInfo();
 		$prefix = $this->getPrefix();
 		$card = $prefix.'_card';
 
@@ -497,12 +484,11 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			$test_card_numbers = $this->_esec->getTestCardNumbers();
 			$card_number = '<select name="'.$card.'[number]">';
 			foreach ($test_card_numbers as $number => $label) {
-				$selected = ($card_info['number'] == $number) ? ' selected="selected"' : '' ;
-				$card_number .= '<option value="'.$number.'"'.$selected.'>'.$number.'</option>';
+				$card_number .= '<option value="'.$number.'" >'.$number.'</option>';
 			}
 			$card_number .= '</select>';
 		} else {
-			$card_number = '<input name="'.$card.'[number]" value="'.$card_info['number'].'" />';
+			$card_number = '<input name="'.$card.'[number]" />';
 		}
 
 		return $card_number;
@@ -519,9 +505,8 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function getCreditCardNameKeywordReplacement()
 	{
 
-		$card_info = $this->_getCardInfo();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[name]" value="'.$card_info['name'].'" />';
+		$string = '<input name="'.$card.'[name]" />';
 		return $string;
 
 	}//end getCreditCardNameKeywordReplacement()
@@ -536,9 +521,8 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function getCreditCardCcvKeywordReplacement()
 	{
 
-		$card_info = $this->_getCardInfo();
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[ccv]" value="'.@$card_info['ccv'].'" size="4" />';
+		$string = '<input name="'.$card.'[ccv]" size="4" />';
 		return $string;
 
 	}//end getCreditCardCcvKeywordReplacement()
@@ -553,7 +537,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function getCreditCardTypeSelectorKeywordReplacement()
 	{
 
-		$card_info = $this->_getCardInfo();
 		$card = $this->getPrefix().'_card';
 
 		$card_types = $this->_esec->getCardTypes();
@@ -561,8 +544,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		ob_start();
 		echo '<select name="'.$card.'[type]">';
 		foreach ($card_types as $type) {
-			$selected = ($card_info['type'] == $type) ? ' selected="selected"' : '';
-			echo '<option value="'.$type.'"'.$selected.'>'.$type.'</option>';
+			echo '<option value="'.$type.'">'.$type.'</option>';
 		}
 
 		echo '</select>';
@@ -615,10 +597,9 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function getCreditCardExpiryYearKeywordReplacement()
 	{
 
-		$card_info = $this->_getCardInfo();
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[year]" value="'.$card_info['year'].'" size="2" />';
+		$string = '<input name="'.$card.'[year]" size="2" />';
 		return $string;
 
 	}//end getCreditCardExpiryYearKeywordReplacement()
@@ -633,10 +614,9 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function getCreditCardExpiryMonthKeywordReplacement()
 	{
 
-		$card_info = $this->_getCardInfo();
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[month]" value="'.$card_info['month'].'" size="2" />';
+		$string = '<input name="'.$card.'[month]" size="2" />';
 		return $string;
 
 	}//end getCreditCardExpiryMonthKeywordReplacement()
@@ -685,31 +665,6 @@ class Payment_Gateway_Esec extends Payment_Gateway
 		return '<input type="submit" name="'.$this->getPrefix().'_action" value="'.$button_text.'" />';
 
 	}//end getCancelButtonKeywordReplacement()
-
-
-	/**
-	* Get Credit Card Info for current transaction
-	*
-	* @return string
-	* @access private
-	*/
-	function _getCardInfo()
-	{
-		$card_info = array_get_index($_SESSION, 'SQ_ECOM_CARDINFO', FALSE);
-		if (!$card_info) {
-			$card_info = Array(
-							'name'		=> '',
-							'number'	=> '',
-							'ccv'		=> '',
-							'month'		=> '',
-							'year'		=> '',
-							'type'		=> '',
-						 );
-		}
-
-		return $card_info;
-
-	}//end _getCardInfo()
 
 
 }//end class
