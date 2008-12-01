@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.4.2.1 2008/11/21 04:12:09 lwright Exp $
+* $Id: calendar_event_multi_date.inc,v 1.4.2.2 2008/12/01 22:58:07 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -253,7 +253,7 @@ class Calendar_Event_Multi_Date extends Asset
 		if (empty($this->_tmp['pending_children'])) {
 			$this->_tmp['pending_children'] = Array();
 		}
-		$this->_tmp['pending_children'][] = Array('asset' => &$asset, 'link' => $link);
+		$this->_tmp['pending_children'][] = Array('asset' => $asset, 'link' => $link);
 
 	}//end addPendingChild()
 
