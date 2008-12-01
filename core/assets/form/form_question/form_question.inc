@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.27.2.2 2008/04/24 02:20:15 hnguyen Exp $
+* $Id: form_question.inc,v 1.27.2.3 2008/12/01 22:32:33 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @authro  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27.2.2 $
+* @version $Revision: 1.27.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -658,7 +658,7 @@ class Form_Question extends Asset
 		$rules = $this->getRules();
 		$ok = TRUE;						// We start as being all OK
 
-		if (!$this->attr('is_required') && $answer == '') {
+		if (!$this->attr('is_required') && $answer === '') {
 			return TRUE;
 		}
 
