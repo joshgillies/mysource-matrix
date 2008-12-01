@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2006/12/05 05:48:39 emcdonald Exp $
+* $Id: asset.xml,v 1.4.8.1 2008/12/01 03:09:17 hnguyen Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>content_type_wysiwyg</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>WYSIWYG Content Type</name>
 	<description>WYSIWYG Content Type, edit cell contents using a WYSIWYG editor</description>
 	<instantiable>yes</instantiable>
