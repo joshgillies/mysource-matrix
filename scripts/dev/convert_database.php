@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.2 2008/11/24 23:25:18 csmith Exp $
+* $Id: convert_database.php,v 1.3 2008/12/02 06:53:27 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -267,6 +267,19 @@ foreach ($info['tables'] as $tablename => $table_info) {
 			if (is_numeric($data_key)) {
 				continue;
 			}
+
+			/**
+			 * bytea fields from postgres are returned as resources
+			 * Convert them from resources into actual text content
+			 *
+			 * See http://www.php.net/manual/en/pdo.lobs.php
+			 */
+			if (is_resource($data_value)) {
+				$stream = $data_value;
+				$data_value = stream_get_contents($stream);
+				fclose($stream);
+			}
+
 			MatrixDAL::bindValueToPdo($prepared_sql, $data_key, $data_value);
 		}
 		MatrixDAL::execPdoQuery($prepared_sql);
