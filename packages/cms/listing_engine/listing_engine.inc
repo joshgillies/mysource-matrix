@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.18 2008/11/21 04:12:29 lwright Exp $
+* $Id: listing_engine.inc,v 1.242.2.19 2008/12/02 02:44:04 bshkara Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.18 $
+* @version $Revision: 1.242.2.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4046,6 +4046,7 @@ class Listing_Engine extends Page
 	function getStructuredRootNodeKeywordReplacement()
 	{
 		$options = $this->attr('structured_dropdown_options');
+		if (empty($options['root_node'])) return '';
 
 		// initial type_codes, before we check for inheritance
 		$pass_codes = array_keys($options['asset_types']);
