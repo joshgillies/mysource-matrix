@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.79 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: search_page_edit_fns.inc,v 1.80 2008/12/02 22:55:27 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1010,7 +1010,20 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		// Any categories to delete?
 		if (!empty($_POST[$prefix.'_category_sets_to_delete'])) {
 			foreach ($_POST[$prefix.'_category_sets_to_delete'] as $delete_name) {
-				unset($cats[$delete_name]);
+				// delete notice links for removed category
+				foreach ($cats[$delete_name]['options'] as $option_delete_name => $option_content) {
+					$old_link_value = 'root_'.$delete_name.'_'.$option_delete_name;
+					$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', $old_link_value);
+					
+					$ok = TRUE;
+					foreach ($root_links as $root_link) {
+						if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+							$ok = FALSE;
+						}
+					}
+			
+				}
+				if($ok) unset($cats[$delete_name]);
 			}
 		}
 
@@ -1042,9 +1055,19 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function _processCategoryOptions(&$asset, $prefix, $set_name, $old_options)
 	{
 		$new_options = Array();
+		//delete unwanted category
 		if (isset($_POST[$prefix.'_to_delete'])) {
 			foreach ($_POST[$prefix.'_to_delete'] as $delete_name) {
-				unset($old_options[$delete_name]);
+				$old_link_value = 'root_'.$set_name.'_'.$delete_name;
+				$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', $old_link_value);
+				// delete notice links for removed category
+				$ok = TRUE;
+				foreach ($root_links as $root_link) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
+						$ok = FALSE;
+					}
+				}
+				if($ok) unset($old_options[$delete_name]);
 			}
 		}
 		foreach ($old_options as $code_name => $old_option) {
