@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.21 2008/09/24 05:07:29 csmith Exp $
+* $Id: recreate_link_tree.php,v 1.21.2.1 2008/12/02 23:56:37 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -71,7 +71,7 @@ if ($pgdb) {
 echo $sql,"\n";
 
 // Work out how many significant links we actually have
-$sql = 'SELECT COUNT(*) FROM sq_ast_lnk l WHERE	'.db_extras_bitand($db, 'l.link_type', MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT)).' > 0';
+$sql = 'SELECT COUNT(*) FROM sq_ast_lnk l WHERE	'.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT)).' > 0';
 $num_links = MatrixDAL::executeSqlOne($sql);
 echo_headline('ANALYSING '.$num_links.' SIGNIFICANT LINKS');
 
@@ -82,7 +82,7 @@ $base_sql = 'SELECT l.majorid, l.linkid, l.minorid
 		FROM
 			sq_ast_lnk l
 		WHERE
-			'.db_extras_bitand($db, 'l.link_type', MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT)).' > 0
+			'.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', MatrixDAL::quote(SQ_SC_LINK_SIGNIFICANT)).' > 0
 		ORDER BY l.sort_order';
 
 $offset = 0;
