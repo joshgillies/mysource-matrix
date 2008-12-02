@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_quick_link.inc,v 1.1 2008/10/31 03:48:29 bpearson Exp $
+* $Id: matrix_insert_quick_link.inc,v 1.2 2008/12/02 05:51:46 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to make quick links from text
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -117,9 +117,9 @@ class Matrix_Insert_Quick_Link extends WYSIWYG_Plugin
 							link_url = sel;
 						}
 					} else {
-						checkmaillink = new RegExp("^mailto\:\/\/", "gi");
+						checkmaillink = new RegExp("^mailto\:", "gi");
 						if (test.search(checkmaillink) == -1) {
-							link_url = "mailto://" + sel;
+							link_url = "mailto:" + sel;
 						} else {
 							link_url = sel;
 						}
