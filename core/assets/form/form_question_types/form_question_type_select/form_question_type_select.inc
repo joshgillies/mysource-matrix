@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.10.6.1 2008/09/08 06:36:24 ewang Exp $
+* $Id: form_question_type_select.inc,v 1.10.6.2 2008/12/03 04:58:12 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10.6.1 $
+* @version $Revision: 1.10.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,16 +110,21 @@ class Form_Question_Type_Select extends Form_Question
 	* @access public
 	*/
 	function getOptions()
-	{
+	{	
 		$options = split("\r\n", $this->attr('options'));
 		// remove empty options
+	
 		foreach (array_keys($options) as $k) {
-			$options[$k] = htmlspecialchars($options[$k]);
-			if ($options[$k] == '') unset($options[$k]);
+			$options[$k] = html_entity_decode($options[$k]);
+			if ($options[$k] != '') {
+					$decoded_options[html_entity_decode($k)] = html_entity_decode($options[$k]);
+				}
 		}
+		$options = $decoded_options;
+
 		// if allow empty is true, add the '-- Leave Empty --' as the first option
 		if ($this->attr('allow_empty')) {
-			$empty = Array(htmlspecialchars($this->attr('empty_text')));
+			$empty = Array(html_entity_decode($this->attr('empty_text')));
 			$options = array_merge($empty, $options);
 		}
 
@@ -177,11 +182,11 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		ob_start();
 
-		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
+		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlentities($this->attr('name')).'">';
 		if (!is_array($answer)) $answer = Array($answer);
 
 		foreach ($answer as $a) {
-			echo '<option value="'.$a.'">'.htmlspecialchars($this->getAnswerByOffset($a)).'</option>';
+			echo '<option value="'.$a.'">'.htmlentities($this->getAnswerByOffset($a)).'</option>';
 		}
 		echo '</select_q>';
 
