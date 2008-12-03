@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.29.2.1 2008/03/12 04:04:01 lwright Exp $
+* $Id: preview.inc,v 1.29.2.2 2008/12/03 00:56:10 bshkara Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.29.2.1 $
+* @version $Revision: 1.29.2.2 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	$db = MatrixDAL::getDb();
 	$sql = 'SELECT l.url, l.http, l.https, lv.name
 			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url OR (l.url || \'/\' = lv.url)';
+			LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
+			ON ((l.url = lv.url)
+			OR (l.url || \'/\' = lv.url)
+			OR ((l.url LIKE lv.url || \'/%\')
+			AND (l.url NOT LIKE lv.url || \'%/$\')))';
 
 	$where = 'l.assetid = :ownerid
 			AND lv.name LIKE :pattern';
@@ -59,8 +63,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	}//end try catch
 
 	if (empty($url_data)) {
-		// there is no direct URL for this assets, so
-		// look at the dependant parents to try and find one
+		// there is no direct URL for this asset
+		// so look at the dependant parents to try and find one
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($owner->id);
 		foreach ($parents as $parentid) {
 			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, '', TRUE);
@@ -81,7 +85,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	}
 
 	if (empty($url_data)) {
-		// there is no URL's with lookup values for this asset
+		// there is no URL with lookup values for this asset
 		// so just do a straight call for lookups
 		$url_data = $owner->getLookups();
 	}
