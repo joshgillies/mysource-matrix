@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.3.2.2 2008/11/27 05:26:04 ewang Exp $
+* $Id: export_to_xml.php,v 1.3.2.3 2008/12/03 05:47:49 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.3.2.2 $
+* @version $Revision: 1.3.2.3 $
 * @package MySource_Matrix
 */
 
@@ -494,15 +494,18 @@ echo "</actions>\n\n";
 	}//end _saveFileAsset()
 
 	function _parseValue($value) {
-
 		global $asset_id_map;
 
 		$shadow_reg = '|.\/?a=(\d+:\w*)|';
 		$normal_reg = '|.\/?a=(\d+)|';
-        preg_match_all($shadow_reg, $value, $shadow_matches=Array());
-        preg_match_all($normal_reg, $value, $normal_matches=Array());
-		$shadow_matches = $shadow_matches[1];
-		$normal_matches = $normal_matches[1];
+		$shadow_matches = Array();
+		$normal_matches = Array();
+
+        preg_match_all($shadow_reg, $value, $shadow_matche);
+		preg_match_all($normal_reg, $value, $normal_matches);
+
+		if(isset($shadow_matches[1]))		$shadow_matches = $shadow_matches[1];
+		if(isset($normal_matches[1])) 	$normal_matches = $normal_matches[1];
 		$replace_assetids = Array();
 		foreach ($shadow_matches as $data) {
 				$replace_assetids[] = $data;
