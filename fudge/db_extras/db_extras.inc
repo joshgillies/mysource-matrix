@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.26.2.1 2008/12/03 02:44:34 csmith Exp $
+* $Id: db_extras.inc,v 1.26.2.2 2008/12/03 04:43:41 csmith Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26.2.1 $
+* @version $Revision: 1.26.2.2 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -299,8 +299,13 @@ function db_get_function_result($db_type, $sql, $bind_vars=Array())
 function db_extras_modify_limit_clause($sql, $db_type, $limit, $offset=0)
 {
 	if ($db_type == 'oci') {
-		$inner_sql = 'SELECT original_query.*, rownum rnum FROM (' . $sql . ') original_query WHERE rownum <= ' . ($offset + $limit);
-		$sql = 'SELECT * FROM (' . $inner_sql . ') WHERE rnum > ' . $offset;
+		if ($offset > 0) {
+			$inner_sql = 'SELECT original_query.*, rownum rnum FROM (' . $sql . ') original_query WHERE rownum <= ' . ($offset + $limit);
+			$sql = 'SELECT * FROM (' . $inner_sql . ') WHERE rnum > ' . $offset;
+		} else {
+			$sql  = 'SELECT * FROM ('.$sql.')';
+			$sql .= ' WHERE ROWNUM BETWEEN 0 AND '.$limit;
+		}
 	} else { // psql, db2, mysql
 		$sql  = $sql.' LIMIT '.$limit.' OFFSET '.$offset;
 	}
