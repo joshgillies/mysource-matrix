@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.14.2.3 2008/05/22 02:07:02 bpearson Exp $
+* $Id: page_upcoming_events_list.inc,v 1.14.2.4 2008/12/04 23:15:09 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14.2.3 $
+* @version $Revision: 1.14.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -326,15 +326,16 @@ class Page_Upcoming_Events_List extends Page
 
 			$type_code = $asset->type();
 			$format_type = $asset->type();
-
-			foreach ($required_keywords[$format_type] as $keyword) {
-				if ($keyword == 'asset_contents') {
-					ob_start();
-						$asset->printBody();
-						$replacements[$keyword] = ob_get_contents();
-					ob_end_clean();
-				} else {
-					$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			if (isset($required_keywords[$format_type])) {
+				foreach ($required_keywords[$format_type] as $keyword) {
+					if ($keyword == 'asset_contents') {
+						ob_start();
+							$asset->printBody();
+							$replacements[$keyword] = ob_get_contents();
+						ob_end_clean();
+					} else {
+						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+					}
 				}
 			}
 
@@ -353,7 +354,9 @@ class Page_Upcoming_Events_List extends Page
 				}
 			}
 
-			$entry = $type_formats[$format_type];
+			if (isset($required_keywords[$format_type])) {
+				$entry = $type_formats[$format_type];
+			}
 			replace_keywords($entry, $replacements);
 			$event_list .= $entry;
 
