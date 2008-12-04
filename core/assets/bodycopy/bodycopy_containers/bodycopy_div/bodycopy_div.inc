@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.20 2007/12/04 05:35:34 lwright Exp $
+* $Id: bodycopy_div.inc,v 1.20.4.1 2008/12/04 22:21:18 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,7 @@ class Bodycopy_Div extends Bodycopy_Container
 		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
-	}//end constructor
+	}//end __construct()
 
 
 	/**
@@ -93,6 +93,17 @@ class Bodycopy_Div extends Bodycopy_Container
 		}
 
 		$edit_fns = $this->getEditFns();
+
+		// Use the specified Presentation Type if provided, otherwise use the default set in "Global Preferences"
+		if (!isset($bc_data['attributes']['layout_type'])) {
+			$default_layout_type = $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DEFAULT_PRESENTATION_TYPE');
+
+			$attributes = $this->attr('attributes');
+
+			$saved = $edit_fns->setAttribute($attributes, 'layout_type', $default_layout_type);
+			$this->setAttrValue('attributes', $attributes);
+		}
+
 		if (!$this->saveAttributes() || !$edit_fns->generateContentFile($this)) {
 			return FALSE;
 		}
