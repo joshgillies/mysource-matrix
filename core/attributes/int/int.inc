@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.38.2.1 2008/03/12 04:03:57 lwright Exp $
+* $Id: int.inc,v 1.38.2.2 2008/12/05 05:38:09 bshkara Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -81,7 +81,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{// TODO TOF TEST
+	{
 		if (!parent::setEditParams($node)) return FALSE;
 		$this->_edit_params['width']  = (int) $node->attributes()->width;
 
@@ -101,9 +101,14 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=FALSE)
 	{
-		if ($this->value !== '') {
+		// we want to retain empty values retrieved from the DB
+		// Postgres will return an empty string and Oracle will return a NULL value
+		if (($this->value === '') || is_null($this->value)) {
+			$this->value = '';
+		} else {
 			$this->value = (int)$this->value;
 		}
+
 		if ($read_only) {
 			echo $this->value;
 			return;
