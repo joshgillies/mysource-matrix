@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.51.2.8 2008/11/03 23:52:19 ewang Exp $
+* $Id: trigger_manager.inc,v 1.51.2.9 2008/12/05 00:33:27 ewang Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.51.2.8 $
+* @version $Revision: 1.51.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -267,7 +267,7 @@ class Trigger_Manager extends Asset implements Bridge
 		
 			$my_result = &$results;
 			//category name must have right format, otherwise, it will be linked under trigger manager
-			if(empty($trigger['category']) || !preg_match('/^[a-zA-Z][a-zA-Z0-9_\- ]*(\/[a-zA-Z][a-zA-Z0-9_\- ]+)*$/',$trigger['category'])){
+			if(empty($trigger['category']) || !preg_match('/^[a-zA-Z][a-zA-Z0-9_\- ]*(\/[a-zA-Z][a-zA-Z0-9_\- ]*)*$/',$trigger['category'])){
 				$categories = NULL;
 			}
 			else {
