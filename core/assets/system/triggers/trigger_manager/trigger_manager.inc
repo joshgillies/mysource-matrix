@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.61 2008/11/03 23:38:04 ewang Exp $
+* $Id: trigger_manager.inc,v 1.62 2008/12/05 00:32:59 ewang Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -268,7 +268,7 @@ class Trigger_Manager extends Asset implements Bridge
 		
 			$my_result = &$results;
 			//category name must have right format, otherwise, it will be linked under trigger manager
-			if(empty($trigger['category']) || !preg_match('/^[a-zA-Z][a-zA-Z0-9_\- ]*(\/[a-zA-Z][a-zA-Z0-9_\- ]+)*$/',$trigger['category'])){
+			if(empty($trigger['category']) || !preg_match('/^[a-zA-Z][a-zA-Z0-9_\- ]*(\/[a-zA-Z][a-zA-Z0-9_\- ]*)*$/',$trigger['category'])){
 				$categories = NULL;
 			}
 			else {
@@ -401,6 +401,7 @@ class Trigger_Manager extends Asset implements Bridge
 			}
 			
 			
+
 			// make sure everything is with alphabetic order
 			foreach(array_keys($sort_index) as $type){
 				asort($sort_index[$type]);	
