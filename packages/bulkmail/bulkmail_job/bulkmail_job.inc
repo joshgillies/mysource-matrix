@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.40 2008/11/24 22:28:19 mbrydon Exp $
+* $Id: bulkmail_job.inc,v 1.40.2.1 2008/12/08 03:53:53 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -147,7 +147,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 
 		// set $crlf to "\n" since we are sending the content using PEAR Mail
 		$mime = new Mail_mime("\n");
-		if ($this->attr('content_text_only')) {
+		if (!$this->attr('content_text_only')) {
 			$mime->setHTMLBody($content);
 		}
 		$mime->setTxtBody($text_only_content);
