@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.7 2008/12/03 05:46:51 ewang Exp $
+* $Id: export_to_xml.php,v 1.8 2008/12/08 02:43:48 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -58,7 +58,7 @@ if (empty($asset_infos)) {
 
 $initial_link_type = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($initial_link_type)) {
-	trigger_error("You need to supply the initial link type as the fourth argument\n", E_USER_ERROR);
+	trigger_error("You need to supply the initial link type as the third argument\n", E_USER_ERROR);
 }
 
 
