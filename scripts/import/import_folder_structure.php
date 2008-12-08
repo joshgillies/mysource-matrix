@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_folder_structure.php,v 1.2 2007/11/30 03:27:26 mbrydon Exp $
+* $Id: import_folder_structure.php,v 1.2.4.1 2008/12/08 03:34:04 mbrydon Exp $
 *
 */
 
@@ -40,7 +40,7 @@
 *
 *	A final confirmation will be displayed informing the user that the directory names will be modified
 *	on the filesystem. The renaming of directories on the filesystem is optional, however it will not
-*	be possible to use the files directly with the file import script should this option be selected.
+*	be possible to use the files directly with the file import script if this is not selected.
 *
 *	This script assumes that all directories are in the specified folders directory and that there are no
 *	other directories within these directories.
