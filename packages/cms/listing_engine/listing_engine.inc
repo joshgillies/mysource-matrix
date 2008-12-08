@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.19 2008/12/02 02:44:04 bshkara Exp $
+* $Id: listing_engine.inc,v 1.242.2.20 2008/12/08 04:55:03 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.19 $
+* @version $Revision: 1.242.2.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3597,6 +3597,7 @@ class Listing_Engine extends Page
 		$keywords['asset_lineage'] = translate('asset_lineage');
 		$keywords['asset_lineage_linked'] = translate('asset_lineage_linked');
 		$keywords['asset_contents'] = translate('cms_listing_asset_contents');
+		$keywords['asset_contents_paint_'] = translate('cms_listing_asset_contents_paint');
 		$keywords['asset_name_linked'] = translate('cms_listing_asset_name_linked');
 		$keywords['asset_short_name_linked'] = translate('cms_listing_asset_short_name_linked');
 		$keywords['asset_position'] = translate('cms_listing_asset_position');
