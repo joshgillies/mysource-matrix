@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2007/10/24 05:46:30 bshkara Exp $
+* $Id: lang_screen_details.xml,v 1.1.4.1 2008/12/10 05:04:30 bshkara Exp $
 *
 */
 -->
@@ -29,6 +29,10 @@
 			</function_call>
 			<display_name>Link For The XML Feed</display_name>
 			<note>The URL which returns the XML feed. Please include all GET request parameters except for the user ID and rolling authentication key.</note>
+		</field>
+		<field attribute="root_tag">
+			<display_name>Root Tag</display_name>
+			<note>An optional root tag may be specified. If nothing is specified, the entire XML document will be parsed for the specified tags.</note>
 		</field>
 		<field>
 			<function_call>
