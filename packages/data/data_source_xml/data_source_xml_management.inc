@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_management.inc,v 1.1 2007/10/24 05:39:38 bshkara Exp $
+* $Id: data_source_xml_management.inc,v 1.2 2008/12/10 05:47:18 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -57,6 +57,12 @@ class Data_Source_Xml_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'Serialized array of tag names',
+											   ),
+						'root_tag'			=> Array (
+												'added'			=> '0.2',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'Root tag for the parser',
 											   ),
 						'tag_attributes'	=> Array (
 												'added'			=> '0.1',

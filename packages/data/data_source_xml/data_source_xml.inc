@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.4 2008/10/16 05:45:38 lwright Exp $
+* $Id: data_source_xml.inc,v 1.5 2008/12/10 05:47:18 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -48,6 +48,14 @@ class Data_Source_Xml extends Data_Source
 	* @var boolean
 	*/
 	protected $_inside_relevant_tag = FALSE;
+
+
+	/**
+	* Flag set when we are in the specified root tag
+	*
+	* @var boolean
+	*/
+	protected $_inside_root_tag = FALSE;
 
 
 	/**
@@ -254,6 +262,39 @@ class Data_Source_Xml extends Data_Source
 
 
 	/**
+	* Determines whether the parser is inside the specified root tag or not
+	*
+	* @param string	$name	Name of the element
+	*
+	* @return void
+	* @access private
+	*/
+	function _checkRootTag($name)
+	{
+		$root_tag = $this->attr('root_tag');
+		if (!$this->_inside_root_tag) {
+			if (empty($root_tag)) {
+				$this->_inside_root_tag = TRUE;
+			} else if ($name === $root_tag) {
+				$this->_inside_root_tag = TRUE;
+			} else {
+				$this->_inside_root_tag = FALSE;
+			}
+		} else {
+			// already inside the root tag
+			if (empty($root_tag)) {
+				// handle empty root tag
+				$this->_inside_root_tag = TRUE;
+			} else if ($name === $root_tag) {
+				// handle the closing root tag
+				$this->_inside_root_tag = FALSE;
+			}
+		}
+
+	}//end _checkRootTag()
+
+
+	/**
 	* Handles the start of an element
 	*
 	* @param object	$parser		the xml parser
@@ -266,18 +307,23 @@ class Data_Source_Xml extends Data_Source
 	function startElement($parser, $name, $attributes=FALSE)
 	{
 		if (!empty($name)) {
-			$required_tags = $this->_getRequiredTags();
-			for ($i=0; $i<count($required_tags); $i++) {
-				if ($name === $required_tags[$i]) {
-					$this->_inside_relevant_tag = TRUE;
-					$this->_current_tag_name = $name;
-					$this->_passes++;
-					// used to calculate when next record set begins
-					$this->_quotient = $this->_passes / count($required_tags);
-					if ($attributes) {
-						$this->_current_attributes = $attributes;
-					} else {
-						$this->_current_attributes = FALSE;
+			// check that we are inside the root tag
+			$this->_checkRootTag($name);
+
+			if ($this->_inside_root_tag) {
+				$required_tags = $this->_getRequiredTags();
+				for ($i=0; $i<count($required_tags); $i++) {
+					if ($name === $required_tags[$i]) {
+						$this->_inside_relevant_tag = TRUE;
+						$this->_current_tag_name = $name;
+						$this->_passes++;
+						// used to calculate when next record set begins
+						$this->_quotient = $this->_passes / count($required_tags);
+						if ($attributes) {
+							$this->_current_attributes = $attributes;
+						} else {
+							$this->_current_attributes = FALSE;
+						}
 					}
 				}
 			}
@@ -334,6 +380,9 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function endElement($parser, $name)
 	{
+		// check that we are outside of the root tag
+		$this->_checkRootTag($name);
+
 		$this->_inside_relevant_tag = FALSE;
 
 	}//end endElement()
