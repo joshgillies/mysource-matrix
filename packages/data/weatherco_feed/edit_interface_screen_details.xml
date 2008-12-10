@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2007/10/24 05:46:29 bshkara Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.6.1 2008/12/10 05:36:45 bshkara Exp $
 *
 */
 -->
@@ -27,6 +27,9 @@
                 <process_function name="processFeed" />
             </function_call>
         </field>
+		<field attribute="root_tag">
+			<text width="25" height="1"/>
+		</field>
 		<field attribute="userid">
 			<text width="25" height="1"/>
 		</field>
