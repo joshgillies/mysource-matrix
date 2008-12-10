@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.9 2007/12/27 05:59:21 hnguyen Exp $
+* $Id: tool_bulk_file_import.inc,v 1.9.2.1 2008/12/10 01:07:05 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -198,7 +198,12 @@ class Tool_Bulk_File_Import extends Tool
 									this.image_exts = Array('jpg', 'jpeg', 'gif', 'png');
 									this.doc_exts = Array('doc', 'dot');
 									this.pdf_exts = Array('pdf');
-
+									this.xls_exts = Array('xls', 'xlt', 'xlsx', 'xlsm', 'xltx', 'xltm');
+									this.rtf_exts = Array('rtf');
+									this.txt_exts = Array('txt');
+									this.js_exts = Array('js');
+									this.ppt_exts = Array('ppt', 'pps', 'pot', 'pptx', 'ppsx', 'potx', 'pptm', 'potm', 'ppsm');
+									this.css_exts = Array('css');
 									// Create the initial table for local imiport
 									this.init = function()
 									{
@@ -419,6 +424,18 @@ class Tool_Bulk_File_Import extends Tool
 											td_2.innerHTML = 'MS Word<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_word" id="bulk_file_upload_row_' + id + '_file_type_word" \>';
 										} else if (this._isFileTypeIn(this.pdf_exts, ext)) {
 											td_2.innerHTML = 'PDF<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_pdf" id="bulk_file_upload_row_' + id + '_file_type_pdf" \>';
+										} else if (this._isFileTypeIn(this.ppt_exts, ext)) {
+											td_2.innerHTML = 'MS Powerpoint<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_powerpoint" id="bulk_file_upload_row_' + id + '_file_type_powerpoint" \>';
+										} else if (this._isFileTypeIn(this.xls_exts, ext)) {
+											td_2.innerHTML = 'MS Excel<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_excel" id="bulk_file_upload_row_' + id + '_file_type_excel" \>';
+										} else if (this._isFileTypeIn(this.rtf_exts, ext)) {
+											td_2.innerHTML = 'RTF<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_rtf" id="bulk_file_upload_row_' + id + '_file_type_rtf" \>';
+										} else if (this._isFileTypeIn(this.txt_exts, ext)) {
+											td_2.innerHTML = 'Text<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_text" id="bulk_file_upload_row_' + id + '_file_type_textf" \>';
+										} else if (this._isFileTypeIn(this.css_exts, ext)) {
+											td_2.innerHTML = 'CSS<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_css" id="bulk_file_upload_row_' + id + '_file_type_css" \>';
+										} else if (this._isFileTypeIn(this.js_exts, ext)) {
+											td_2.innerHTML = 'JS<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_js" id="bulk_file_upload_row_' + id + '_file_type_js" \>';
 										} else {
 											td_2.innerHTML = 'Others<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_others" id="bulk_file_upload_row_' + id + '_file_type_others" \>';
 										}
@@ -458,7 +475,7 @@ class Tool_Bulk_File_Import extends Tool
 									// It also returns 'none' if the file has been chosen
 									this._currentFileType = function(id)
 									{
-										types = Array('image', 'pdf', 'word', 'others');
+										types = Array('image', 'pdf', 'word', 'powerpoint', 'excel', 'rtf', 'text', 'js' , 'css',  'others');
 										for (i = 0; i < types.length; i++) {
 											radio_button = document.getElementById('bulk_file_upload_row_' + id + '_file_type_' + types[i]);
 											if (radio_button != null) {
@@ -597,7 +614,7 @@ class Tool_Bulk_File_Import extends Tool
 			if (!empty($local_import_rootid) && !empty($_FILES)) {
 
 				$error = FALSE;
-				$file_types = Array('image', 'pdf', 'word', 'others');
+				$file_types = Array('image', 'pdf', 'word','powerpoint', 'excel', 'rtf', 'text', 'js' , 'css',  'others');
 				$uploaded_files = Array();
 				$tmp_dir_name = $type_code.'__tmp_file_upload__';
 

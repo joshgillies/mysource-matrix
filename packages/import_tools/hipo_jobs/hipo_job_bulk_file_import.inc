@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.8.2.2 2008/03/12 04:04:51 lwright Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.8.2.3 2008/12/10 01:07:23 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8.2.2 $
+* @version $Revision: 1.8.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -293,6 +293,43 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('pdf_file');
 					$new_asset_type = 'pdf_file';
 				break;
+				case 'xls' :
+				case 'xlt' :
+				case 'xlsx' :
+				case 'xlsm' :
+				case 'xltx' :
+				case 'xltm' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('excel_doc');
+					$new_asset_type = 'excel_doc';
+				break;
+				case 'ppt' :
+				case 'pot' :
+				case 'pps' :
+				case 'pptx' :
+				case 'potx' :
+				case 'ppsx' :
+				case 'pptm' :
+				case 'potm' :
+				case 'ppsm' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('powerpoint_doc');
+					$new_asset_type = 'powerpoint_doc';
+				break;
+				case 'rtf' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('rtf_file');
+					$new_asset_type = 'rtf_file';
+				break;
+				case 'txt' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('text_file');
+					$new_asset_type = 'text_file';
+				break;
+				case 'js' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('js_file');
+					$new_asset_type = 'js_file';
+				break;
+				case 'css' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('css_file');
+					$new_asset_type = 'css_file';
+				break;
 				case 'gif' :
 				case 'jpg' :
 				case 'jpeg' :
@@ -359,6 +396,30 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 				case 'pdf' :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('pdf_file');
 					$new_asset_type = 'pdf_file';
+				break;
+				case 'powerpoint' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('powerpoint_doc');
+					$new_asset_type = 'powerpoint_doc';
+				break;
+				case 'excel' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('excel_doc');
+					$new_asset_type = 'excel_doc';
+				break;
+				case 'rtf' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('rtf_file');
+					$new_asset_type = 'rtf_file';
+				break;
+				case 'text' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('text_file');
+					$new_asset_type = 'text_file';
+				break;
+				case 'css' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('css_file');
+					$new_asset_type = 'css_file';
+				break;
+				case 'js' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('js_file');
+					$new_asset_type = 'js_file';
 				break;
 				case 'image' :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
