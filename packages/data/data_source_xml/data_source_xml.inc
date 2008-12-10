@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.3.2.2 2008/12/10 05:04:30 bshkara Exp $
+* $Id: data_source_xml.inc,v 1.3.2.3 2008/12/10 05:08:26 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3.2.2 $
+* @version $Revision: 1.3.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -55,7 +55,7 @@ class Data_Source_Xml extends Data_Source
 	*
 	* @var boolean
 	*/
-	protected var $_inside_root_tag = FALSE;
+	protected $_inside_root_tag = FALSE;
 
 
 	/**
