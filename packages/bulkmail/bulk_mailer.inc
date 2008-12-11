@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.6 2008/10/28 05:39:17 lwright Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.7 2008/12/11 23:42:52 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.6 $
+* @version $Revision: 1.71.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -855,6 +855,8 @@ class Bulk_Mailer
 				$keyword_replacements[$word] = '';
 			}
 		}
+		require_once SQ_INCLUDE_PATH.'/general.inc';
+		replace_global_keywords($content);
 		replace_keywords($content, $keyword_replacements);
 		return $content;
 
