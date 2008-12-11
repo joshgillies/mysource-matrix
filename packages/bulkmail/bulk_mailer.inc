@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.82 2008/11/24 22:28:17 mbrydon Exp $
+* $Id: bulk_mailer.inc,v 1.83 2008/12/11 23:41:45 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -892,6 +892,8 @@ class Bulk_Mailer
 				$keyword_replacements[$word] = '';
 			}
 		}
+		require_once SQ_INCLUDE_PATH.'/general.inc';
+		replace_global_keywords($content);
 		replace_keywords($content, $keyword_replacements);
 		return $content;
 
