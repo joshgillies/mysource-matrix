@@ -32,7 +32,7 @@
 // | Author: Richard Heyes <richard@phpguru.org>                           |
 // +-----------------------------------------------------------------------+
 //
-// $Id: Request.php,v 1.4 2006/09/27 23:14:51 gsherwood Exp $
+// $Id: Request.php,v 1.5 2008/12/11 03:45:35 ewang Exp $
 //
 // HTTP_Request Class
 //
@@ -1025,6 +1025,7 @@ class HTTP_Response
 				$this->_code     = intval($returncode);
 			}
 			while ('' !== ($header = $this->_sock->readLine())) {
+				if(FALSE === strpos($header,':')) continue;
 				$this->_processHeader($header);
 			}
 		} while (100 == $this->_code);
