@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.265.2.11 2008/11/26 02:57:00 bpearson Exp $
+* $Id: asset_map.inc,v 1.265.2.12 2008/12/14 22:36:21 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.11 $
+* @version $Revision: 1.265.2.12 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1404,6 +1404,7 @@ class Asset_Map
 		$root = $output->addChild('assets');
 		//$output = new XML_Tree();
 		//$root = $output->addRoot('assets', '');
+		$done = Array();
 
 		// go through the kids and add them to the $root
 		foreach ($input->children() as $k => $v) {
@@ -1416,8 +1417,25 @@ class Asset_Map
 
 			if (empty($tmp_info['assetid'])) continue;
 
+			if (array_key_exists(urldecode($tmp_info['assetid']), $done)) {
+				// Double check
+				$linkid_check = ($done[urldecode($tmp_info['assetid'])]['linkid'] == urldecode($tmp_info['linkid']));
+				$start_check = ($done[urldecode($tmp_info['assetid'])]['start'] == urldecode($tmp_info['start']));
+				$limit_check = ($done[urldecode($tmp_info['assetid'])]['limit'] == urldecode($tmp_info['limit']));
+				if ($linkid_check && $start_check && $limit_check) {
+					continue;
+				}
+			}//end if
+
 			// get the information about the asset
 			$info = $this->_getAssetInfo(urldecode($tmp_info['assetid']), urldecode($tmp_info['linkid']));
+
+			// Place in done array, so we don't double up
+			$done[urldecode($tmp_info['assetid'])] = Array(
+														'linkid'	=> urldecode($tmp_info['linkid']),
+														'start'		=> urldecode($tmp_info['start']),
+														'limit'		=> urldecode($tmp_info['limit']),
+													 );
 
 			// create a new node and fill out the attributes
 			$tmp_node = $root->addChild('asset');
