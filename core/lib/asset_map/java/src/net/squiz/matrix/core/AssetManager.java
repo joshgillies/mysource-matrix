@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.8 2007/05/10 02:57:59 rong Exp $
+* $Id: AssetManager.java,v 1.9 2008/12/14 22:50:32 bpearson Exp $
 *
 */
 
@@ -41,6 +41,10 @@ public class AssetManager {
 	private static MatrixTreeNode root;
 	private static String currentUserid;
 	private static String currentUserType = "root_user";
+	private static String lastRequest = "";
+	private static Date now = new Date();
+	private static Date lastRequestTime = new Date(now.getTime() - (2 * 60 * 60 * 1000));
+	private static Element lastResponse = null;
 	private static String workspaceid;
 	private static boolean isInited = false;
 	private static int limit = 0;
@@ -181,6 +185,7 @@ public class AssetManager {
 			 </asset>              2
 		   </assets>               1
 		*/
+
 
 		NodeList parentNodes = (NodeList) rootElement.getChildNodes();
 		// level 2
@@ -337,9 +342,26 @@ public class AssetManager {
 			}
 		}
 		xml.append("</command>");
-		Document doc = Matrix.doRequest(xml.toString());
 
-		return doc.getDocumentElement();
+		// If the request is the same as the last just sent out, why bother doing it again?
+		Date currentTime = new Date(System.currentTimeMillis());
+		long diffResponse = (currentTime.getTime() - lastRequestTime.getTime());
+		Element currentElement = null;
+		if (lastRequest.equals(xml.toString()) && (diffResponse >= 0 && diffResponse < 2000) && lastResponse != null) {
+			currentElement = lastResponse;
+		} else {
+			Document doc = Matrix.doRequest(xml.toString());
+			// Remember the last request/response
+			lastRequest = xml.toString();
+			lastRequestTime = new Date(System.currentTimeMillis());
+			lastResponse = doc.getDocumentElement();
+			currentElement = doc.getDocumentElement();
+		}
+
+		return currentElement;
+
+//		Document doc = Matrix.doRequest(xml.toString());
+//		return doc.getDocumentElement();
 	}
 
 	public static Element makeRefreshRequest(String[] assetids, String direction) throws IOException {
