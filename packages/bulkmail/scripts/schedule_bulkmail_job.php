@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: schedule_bulkmail_job.php,v 1.2 2008/11/24 22:28:17 mbrydon Exp $
+* $Id: schedule_bulkmail_job.php,v 1.1.2.1 2008/12/15 02:21:00 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *		Used to allow cron systems to handle bulkmail jobs.
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 */
 

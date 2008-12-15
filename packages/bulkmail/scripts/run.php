@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.7 2008/11/24 22:28:17 mbrydon Exp $
+* $Id: run.php,v 1.1.2.1 2008/12/15 02:20:59 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 */
 
