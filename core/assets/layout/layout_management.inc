@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_management.inc,v 1.9 2007/12/03 01:19:47 lwright Exp $
+* $Id: layout_management.inc,v 1.9.4.1 2008/12/16 06:04:14 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,11 +40,19 @@ class Layout_Management extends Asset_Management
 		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
-						'name'	=> Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								   ),
+						'name'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> '',
+									   ),
+						'options'	=> Array(
+										'added'		=> '0.2',
+										'type'		=> 'serialise',
+										'default'	=> Array(
+														'show_cascade_metadata_field'	=> FALSE,
+													   ),
+									   ),
+
 					  );
 
 	}//end constructor
@@ -91,6 +99,57 @@ class Layout_Management extends Asset_Management
 				);
 
 	}//end _getFileList()
+
+
+	/**
+	* Upgrade this asset type
+	*
+	* @param string $current_version    the version of the asset that is currenly installed
+    *
+    * @return boolean
+    * @access public
+    */
+    public function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+        $asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+        $am = $GLOBALS['SQ_SYSTEM']->am;
+
+        if (version_compare($current_version, '0.2', '<')) {
+            // version 0.1 -> 0.2
+            pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.2');
+
+			$default_val = Array('show_cascade_metadata_field'   => FALSE);
+
+            $pages = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), TRUE, TRUE);
+
+            foreach ($pages as $assetid => $type_code) {
+                $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code['type_code']);
+                if (is_null($asset)) continue;
+                echo 'Upgrading Asset #'.$assetid."...\n";
+
+				// Add "options" attribute to existing Layout assets
+				
+                if (!$asset->setAttrValue('options', $default_val)) {
+                    echo 'Asset #', $asset->id, ' (', $asset->name,') Could not add "options" attribute to existing Layout', "\n";
+                    continue;
+                }
+
+				if (!$asset->saveAttributes()) {
+                    echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to save attributes', "\n";
+                    continue;
+                }
+                $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+                unset($asset);
+            }//end foreach
+            pre_echo($asset_name.' UPGRADE COMPLETE - TO VERSION 0.2');
+
+        }//end if - upgrade to version 0.2
+
+		return TRUE;
+
+	}//end _upgrade()
 
 
 }//end class

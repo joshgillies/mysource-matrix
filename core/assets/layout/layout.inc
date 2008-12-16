@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.9 2007/12/03 01:16:21 lwright Exp $
+* $Id: layout.inc,v 1.9.4.1 2008/12/16 06:04:14 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,6 +47,7 @@ class Layout extends Bodycopy
 	*/
 	function __construct($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
 	}//end constructor

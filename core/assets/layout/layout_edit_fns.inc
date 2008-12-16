@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_edit_fns.inc,v 1.7 2007/12/03 01:16:21 lwright Exp $
+* $Id: layout_edit_fns.inc,v 1.7.4.1 2008/12/16 06:04:14 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,6 +111,75 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 	  return parent::processBodycopy($asset, $o, $prefix);
 
 	}//end processLayout()
+
+
+	/**
+	* Paint the interface for customising Layout options
+	*
+	* @param Layout				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintLayoutOptions(Layout $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$layout_display_options = $asset->attr('options');
+
+		$show_cascade_metadata_field = FALSE;
+		if (isset($layout_display_options['show_cascade_metadata_field'])) {
+			$show_cascade_metadata_field = $layout_display_options['show_cascade_metadata_field'];
+		}
+
+		if ($write_access) {
+			check_box($prefix.'[show_cascade_metadata_field]', 1, $show_cascade_metadata_field);
+			label(translate('core_layout_show_cascade_metadata_field'), $prefix.'[show_cascade_metadata_field]');
+		} else {
+			?>
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($show_cascade_metadata_field ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
+			<?php
+			echo translate('core_layout_show_cascade_metadata_field');
+		}
+
+		return TRUE;
+
+	}//end paintLayoutOptions()
+
+
+	/**
+	* Processes the interface for Layout options
+	*
+	* @param Layout				$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend_Outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processLayoutOptions(Layout $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+			$layout_display_options = $asset->attr('options');
+
+			// With checkboxes, default to unset unless it is set, in which case set the value. Now we're all set
+			$layout_display_options['show_cascade_metadata_field'] = FALSE;
+			
+			if (isset($_POST[$prefix]['show_cascade_metadata_field'])) {
+				$layout_display_options['show_cascade_metadata_field'] = (bool) $_POST[$prefix]['show_cascade_metadata_field'];
+			}
+
+			$asset->setAttrValue('options', $layout_display_options);
+			$asset->saveAttributes();
+		}
+
+		return TRUE;
+
+	}//end processLayoutOptions()
 
 
 }//end class

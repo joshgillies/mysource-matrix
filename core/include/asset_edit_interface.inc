@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.352 2008/11/03 02:48:39 ewang Exp $
+* $Id: asset_edit_interface.inc,v 1.352.2.1 2008/12/16 06:04:14 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.352 $
+* @version $Revision: 1.352.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1307,6 +1307,11 @@ class Asset_Edit_Interface extends MySource_Object
 						if ($this->_getStaticScreenKeywordReplacements($owner, $o, 'lookupValues', $static_keywords, $entire_screen)) {
 							$print_commit_button = TRUE;
 						}
+					} else if ($screen == 'metadata') {
+						$layout_options = $layout->attr('options');
+						if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen, $layout_options)) {
+							$print_commit_button = TRUE;
+						}
 					} else if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen)) {
 						$print_commit_button = TRUE;
 					}
@@ -1472,11 +1477,12 @@ class Asset_Edit_Interface extends MySource_Object
 	* @param string		$screen				the static screen to get a replacement for
 	* @param array|NULL	$static_keywords	the wantedkeyowrd of this static screen
 	* @param boolean	$get_screen			if TRUE the entire screen will be captured into a replacement
+	* @param Array		$layout_options		the Simple Edit layout options
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _getStaticScreenKeywordReplacements(&$owner, &$o, $screen, $static_keywords, $get_screen=FALSE)
+	function _getStaticScreenKeywordReplacements(&$owner, &$o, $screen, $static_keywords, $get_screen=FALSE, Array $layout_options=Array())
 	{
 		$this->includeStaticScreen($screen);
 		$print_commit_button = FALSE;
@@ -1484,7 +1490,7 @@ class Asset_Edit_Interface extends MySource_Object
 		ob_start();
 			$paint_function = 'paint'.$screen;
 
-			if ($paint_function($owner, $o, $this, $static_keywords)) {
+			if ($paint_function($owner, $o, $this, $static_keywords, $layout_options)) {
 				$print_commit_button = TRUE;
 			}
 

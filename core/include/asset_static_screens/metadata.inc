@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.43 2008/10/15 03:11:46 bpearson Exp $
+* $Id: metadata.inc,v 1.43.2.1 2008/12/16 06:04:14 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix
 */
 
@@ -28,15 +28,16 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paint the interface for managing metadata values
 *
-* @param object		&$owner		the asset whose interface we are painting
-* @param object		&$o			the outputter class
-* @param object		&$ei		the edit interface
-* @param boolean	$keywords	the keywords to replace
+* @param object		&$owner			the asset whose interface we are painting
+* @param object		&$o				the outputter class
+* @param object		&$ei			the edit interface
+* @param boolean	$keywords		the keywords to replace
+* @param Array		$layout_options	the Simple Edit layout options
 *
 * @return boolean
 * @access public
 */
-function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
+function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options=Array())
 {
 	$root = $ei->findScreen('static_screen_metadata');
 	if (is_null($root)) return FALSE;
@@ -47,6 +48,14 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE);
 	$metadata_warnings = Array();
+
+	// If we are in Simple Edit, obtain the "Show Cascade Metadata field" option value so we can determine
+	// whether or not to print the checkbox
+	$print_cascade_values_option = TRUE;
+
+	if ((!SQ_IN_BACKEND) && (isset($layout_options['show_cascade_metadata_field']))) {
+		$print_cascade_values_option = $layout_options['show_cascade_metadata_field'];
+	}
 
 	foreach ($root->section as $section) {
 		// only do this if we are not painting a layout
@@ -178,7 +187,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
 							$edit_fns = $schema->getEditFns();
-							if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, TRUE, $owner->type())) {
+							if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, $print_cascade_values_option, $owner->type())) {
 								$print_commit_button = TRUE;
 							}
 						}
@@ -282,7 +291,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL)
 					$edit_fns = $field->getEditFns();
 
 					ob_start();
-					$edit_fns->paintValueInterface($field, $o, $value, $write_access, FALSE);
+					$edit_fns->paintValueInterface($field, $o, $value, $write_access, FALSE, $print_cascade_values_option);
 					$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
 					ob_end_flush();
 				}
