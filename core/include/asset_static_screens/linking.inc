@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.39 2008/10/24 03:03:55 bpearson Exp $
+* $Id: linking.inc,v 1.39.2.1 2008/12/16 22:31:06 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix
 */
 
@@ -366,27 +366,31 @@ function processLinking(&$owner, &$o, &$ei)
 		if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) {
 			$new_type = NULL;
 		}
-		$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
-		if ($link['link_type'] == $new_type) {
-			$new_type = NULL;
+		else {
+			$new_type = $_POST[$prefix.'_link_type'][$link['linkid']];
+			if ($link['link_type'] == $new_type) {
+				$new_type = NULL;
+			}
 		}
-
 		// Find out the value
 		if (!isset($_POST[$prefix.'_link_value'][$link['linkid']])) {
 			$new_value = NULL;
 		}
-		$new_value = $_POST[$prefix.'_link_value'][$link['linkid']]; // Set the value for testing
-		if (html_entity_decode($link['value']) == $new_value) {
-			$new_value = NULL;
+		else {
+			$new_value = $_POST[$prefix.'_link_value'][$link['linkid']]; // Set the value for testing
+			if (html_entity_decode($link['value']) == $new_value) {
+				$new_value = NULL;
+			}
 		}
-
 		// Nothing to do let's continue
 		if (is_null($new_type) && is_null($new_value)) {
 			continue;
 		}
 
 		// Actually set the value
-		$new_value = $_POST[$prefix.'_link_value'][$link['linkid']];
+		if (isset($_POST[$prefix.'_link_value'][$link['linkid']])) {
+			$new_value = $_POST[$prefix.'_link_value'][$link['linkid']];
+		}
 
 		// Cleanup any html
 		$new_value = (is_null($new_value)) ? NULL : htmlentities($new_value);
