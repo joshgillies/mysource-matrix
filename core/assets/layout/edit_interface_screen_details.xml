@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2006/12/06 01:07:34 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2008/12/16 06:04:00 mbrydon Exp $
 *
 */
 -->
@@ -20,5 +20,13 @@
 		<field attribute="name">
 			<text width="12" height="1" />
 		</field>
+	</section>
+	<section name="Simple Edit Configuration Options" write_access="write:attributes">
+		<field keyword="layout_options">
+            <function_call>
+                <paint_function   name="paintLayoutOptions"   />
+                <process_function name="processLayoutOptions" />
+            </function_call>
+        </field>
 	</section>
 </contents>
