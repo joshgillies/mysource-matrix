@@ -10,8 +10,6 @@
 			var location = new GLatLng(centerLatitude, centerLongitude);
 			map.setCenter(location, zoomLevel);
 			map.setMapType(map_type);
-
-			ge = map.getEarthInstance(getEarthInstanceCB);
 	    }//end if
 
 	}//end gmap_init()
