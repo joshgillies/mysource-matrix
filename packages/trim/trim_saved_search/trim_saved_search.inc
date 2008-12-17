@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.4 2008/09/24 00:45:43 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.4.2.1 2008/12/17 22:40:01 hnguyen Exp $
 *
 */
 
-//check_ssv_licence();
+check_ssv_licence();
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,9 +27,9 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage __trim__
 */
 class TRIM_Saved_Search extends Data_Source
 {

@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_trim_submit.inc,v 1.3 2008/09/24 00:45:43 hnguyen Exp $
+* $Id: form_action_trim_submit.inc,v 1.3.2.1 2008/12/17 22:40:01 hnguyen Exp $
 *
 */
 
-
+check_ssv_licence();
 require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */

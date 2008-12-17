@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.3 2008/09/10 23:30:31 hnguyen Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.3.2.1 2008/12/17 22:40:01 hnguyen Exp $
 *
 */
 
@@ -18,15 +18,15 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns.inc';
 
 /**
-* Data_Source_DB_Edit_Fns
+* TRIM_Saved_Search_Edit_Fns
 *
 * Purpose
 *
 *
-* @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @author  Huan Nguyen <hnguyen@squiz.net>
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage __trim__
 */
 class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 {
