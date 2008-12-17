@@ -2,16 +2,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.1.2.1 2008/12/15 02:20:59 bpearson Exp $
+* $Id: run.php,v 1.1.2.2 2008/12/17 23:16:26 bshkara Exp $
 *
 */
 
@@ -21,14 +21,14 @@
 * The one file through which everything runs
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @author  Rayn Ong <rong@squiz.net>
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix
 */
 
 ini_set('memory_limit', -1);
 ini_set('error_reporting', E_ALL & (~E_STRICT));
-require_once dirname(__FILE__).'/bulk_mailer.inc';
+require_once dirname(__FILE__).'/../bulk_mailer.inc';
 
 $bulk_mailer = new Bulk_Mailer();
 $bulk_mailer->start();
