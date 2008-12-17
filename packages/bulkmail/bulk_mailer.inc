@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.7 2008/12/11 23:42:52 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.8 2008/12/17 23:00:58 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.7 $
+* @version $Revision: 1.71.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -398,13 +398,15 @@ class Bulk_Mailer
 					$subtype = '.error';
 				}
 
-				if (count($progress_info['filtered']) > 0) {
+				if (isset($progress_info['filtered']) && (count($progress_info['filtered']) > 0)) {
 					trigger_localised_error('BML0019', E_USER_WARNING, implode(',', $progress_info['filtered']));
 					if (empty($subtype)) {
 						$subtype = '.filtered';
 					} else {
 						$subtype = '+filtered';
 					}
+				} else {
+					$progress_info['filtered'] = 0;
 				}
 
 				$message_type = 'bulkmail.job.completed'.$subtype;
