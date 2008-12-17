@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.2 2008/09/10 06:08:51 hnguyen Exp $
+* $Id: trim_saved_search_management.inc,v 1.2.2.1 2008/12/17 22:37:50 hnguyen Exp $
 *
 */
 
@@ -18,14 +18,14 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Data_Source_DB_Management
+* TRIM_Saved_Search_Management
 *
 * @see Asset_Management
 *
-* @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @author  Huan Nguyen <hnguyen@squiz.net>
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage __trim__
 */
 class TRIM_Saved_Search_Management extends Asset_Management
 {
