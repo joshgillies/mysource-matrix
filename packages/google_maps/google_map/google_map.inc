@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.15 2008/11/20 05:56:15 lwright Exp $
+* $Id: google_map.inc,v 1.15.2.1 2008/12/17 04:04:07 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -408,16 +408,8 @@ class Google_Map extends Page_Asset_Listing
 				<?php
 				}//end if
 
-				if ($this->attr('enable_google_earth')) {
-			?>
-				if (ge != null) {
-					ge.getLayerRoot().enableLayerById(ge.LAYER_BORDERS, true);
-					ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, true);
-				}
-			<?php
-				}
-			?>
 
+			?>
 
 			</script>
 			<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
@@ -440,7 +432,17 @@ class Google_Map extends Page_Asset_Listing
 					// Now we are listing new markers, but we have to store them in a central array.
 
 			<?php
-				//}//end if
+
+				if ($this->attr('enable_google_earth')) {
+
+				?>
+					ge = map.getEarthInstance(getEarthInstanceCB);
+					if (ge != null) {
+						ge.getLayerRoot().enableLayerById(ge.LAYER_BORDERS, true);
+						ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, true);
+					}
+				<?php
+				}//end if
 
 				$asset_types	= $this->attr('types');
 				foreach ($asset_types as $type_code	=> $inherit) {
