@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_clear_matrix_cache.inc,v 1.6 2008/01/09 04:28:35 hnguyen Exp $
+* $Id: cron_job_clear_matrix_cache.inc,v 1.6.2.1 2008/12/17 05:13:44 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,7 +88,7 @@ class Cron_Job_Clear_Matrix_Cache extends Cron_Job
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$status_errors = $hh->freestyleHipo('hipo_job_clear_cache', $vars);
 		if (empty($status_errors)) {
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(isset($assetid[0]) ? $assetid[0] : NULL);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
 			if ($this->attr('type') == 'one_off') {
