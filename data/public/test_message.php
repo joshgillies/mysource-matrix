@@ -293,9 +293,16 @@ foreach ($dsn_list as $dsn_name => $query) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection($dsn_name);
 	}
 
-	$query = MatrixDAL::preparePdoQuery($query);
+	$qry = MatrixDAL::preparePdoQuery($query);
 	try {
-		$res = MatrixDAL::executePdoOne($query);
+		// if it's a select query, use executePdoOne
+		// if it's not, use execPdoQuery - so it will return the number of affected rows.
+
+		if (strtolower(substr($query, 0, 6)) === 'select') {
+			$res = MatrixDAL::executePdoOne($qry);
+		} else {
+			$res = MatrixDAL::execPdoQuery($qry);
+		}
 	} catch (Exception $e) {
 		$res = '-1';
 		$return_code = '500';
