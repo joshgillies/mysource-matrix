@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.8 2008/12/17 23:00:58 bshkara Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.9 2008/12/17 23:51:16 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.8 $
+* @version $Revision: 1.71.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -405,8 +405,6 @@ class Bulk_Mailer
 					} else {
 						$subtype = '+filtered';
 					}
-				} else {
-					$progress_info['filtered'] = 0;
 				}
 
 				$message_type = 'bulkmail.job.completed'.$subtype;
@@ -415,7 +413,7 @@ class Bulk_Mailer
 				$msg_reps = Array(
 								'num_recip'		=> number_format($progress_info['total_count']),
 								'num_problem'	=> number_format(count($progress_info['problematic'])),
-								'num_filtered'	=> number_format(count($progress_info['filtered'])),
+								'num_filtered'	=> isset($progress_info['filtered']) ? number_format(count($progress_info['filtered'])) : 0,
 								);
 
 				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
