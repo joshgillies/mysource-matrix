@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.9 2008/12/17 23:51:16 bshkara Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.10 2008/12/18 05:22:28 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.9 $
+* @version $Revision: 1.71.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -600,14 +600,20 @@ class Bulk_Mailer
 		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
 		$public_user_id = $public_user->id;
 		for ($recipients_expanded; NULL != ($recipient_id = key($recipients_expanded)); next($recipients_expanded)) {
-			//if it has right permission, but it is not an email address
+			// if it has right permission, but it is not an email address
 			if (!in_array($recipient_id, $permission_denied) &&  (!is_array($recipients_expanded[$recipient_id]) || !array_key_exists('email',$recipients_expanded[$recipient_id]))) {
 
 				$recipient_id_parts = explode(':', $recipient_id);
 				if (isset($recipient_id_parts[1])) {
 					$recipient = $am->getAsset($recipient_id);
-					$recipients[$recipient->id] = $recipient->attr('email');
-					$am->forgetAsset($recipient);
+					// calls to getChildren() on bridge assets do not always return User assets
+					if ($recipient instanceof User) {
+						$recipients[] = Array(
+												'assetid'		=> $recipient->id,
+												'custom_val'	=> $recipient->attr('email'),
+											   );
+						$am->forgetAsset($recipient);
+					}
 				} else {
 					// Only do assets here
 					$recipients_query[] = $recipient_id;
@@ -643,7 +649,7 @@ class Bulk_Mailer
 			}
 		}
 
-		$recipients += $query_result;
+		$recipients = array_merge($recipients, $query_result);
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
 
