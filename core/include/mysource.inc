@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.279 2008/11/20 05:50:06 lwright Exp $
+* $Id: mysource.inc,v 1.280 2008/12/18 05:34:40 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.279 $
+* @version $Revision: 1.280 $
 * @package MySource_Matrix
 */
 class MySource
@@ -238,24 +238,26 @@ class MySource
 				}
 			}
 
-			$domain = strip_url(sq_web_path('root_url'), TRUE);
-			$pos = strpos($domain, '/');
-			$path = '/';
-			if ($pos !== FALSE) {
-				$path = substr($domain, $pos);
-				$domain = substr($domain, 0, $pos);
+			// Set up the session handler
+			if (SQ_CONF_SESSION_HANDLER === '') {
+				$session_handler = 'Session_Handler_Default';
+			} else {
+				$session_handler = 'Session_Handler_'.ucwords(SQ_CONF_SESSION_HANDLER);
 			}
 
-			// if there is a port at the end of the domain, we need to remove
-			// it as domains cannot contain ports. You will not be able to log
-			// in if the domain contains a port
-			$domain = preg_replace('|:\d+$|', '', $domain);
-
-			session_set_cookie_params(0, $path, $domain);
-			session_name('SQ_SYSTEM_SESSION');
-			if (!SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH) {
-				session_save_path(SQ_SYSTEM_ROOT.'/cache');
+			$handler_exists = FALSE;
+			try {
+				$this->am->includeAsset(strtolower($session_handler));
+				$handler_exists = TRUE;
+			} catch (Exception $e) {
+				// Throwing a fatal may be a bit heavy-handed, but the alternative
+				// is to throw a notice, and this breaks when other headers need
+				// to be sent. Best to make them fix it first
+				trigger_error('Cannot start MySource user session; session handler \''.SQ_CONF_SESSION_HANDLER.'\' does not exist', E_USER_ERROR);
 			}
+
+			eval($session_handler.'::init();');
+
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = FALSE;
