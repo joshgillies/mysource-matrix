@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.83 2008/12/11 23:41:45 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.84 2008/12/18 00:02:12 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -422,7 +422,7 @@ class Bulk_Mailer
 					$msg_reps = Array(
 									'num_recip'		=> number_format($progress_info['total_count']),
 									'num_problem'	=> number_format(count($progress_info['problematic'])),
-									'num_filtered'	=> number_format(count($progress_info['filtered'])),
+									'num_filtered'	=> isset($progress_info['filtered']) ? number_format(count($progress_info['filtered'])) : 0,
 								);
 				} else {
 					$subtype = '';
@@ -431,7 +431,7 @@ class Bulk_Mailer
 						$subtype = '.error';
 					}
 
-					if (count($progress_info['filtered']) > 0) {
+					if (isset($progress_info['filtered']) && (count($progress_info['filtered']) > 0)) {
 						trigger_localised_error('BML0019', E_USER_WARNING, implode(',', $progress_info['filtered']));
 						if (empty($subtype)) {
 							$subtype = '.filtered';
@@ -446,7 +446,7 @@ class Bulk_Mailer
 					$msg_reps = Array(
 									'num_recip'		=> number_format($progress_info['total_count']),
 									'num_problem'	=> number_format(count($progress_info['problematic'])),
-									'num_filtered'	=> number_format(count($progress_info['filtered'])),
+									'num_filtered'	=> isset($progress_info['filtered']) ? number_format(count($progress_info['filtered'])) : 0,
 								);
 				}//end if
 
