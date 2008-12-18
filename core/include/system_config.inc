@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.122 2008/11/14 04:35:33 bpearson Exp $
+* $Id: system_config.inc,v 1.123 2008/12/18 05:32:44 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122 $
+* @version $Revision: 1.123 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -85,6 +85,7 @@ class System_Config extends Config
 						'SQ_CONF_LOG_FILE_SYSTEM'				=> Array('editable' => 0, 'default' => 'system'),
 						'SQ_CONF_LOG_FILE_ERROR'				=> Array('editable' => 0, 'default' => 'error'),
 						'SQ_CONF_LOG_ERRORS'					=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_SESSION_HANDLER'				=> Array('editable' => 0, 'default' => ''),
 						'SQ_CONF_SESSION_GC_MAXLIFETIME'		=> Array('editable' => 1, 'default'	=> 604800),
 						'SQ_CONF_EDITING_TIME'					=> Array('editable' => 0, 'default' => 3600),
 						'SQ_CONF_NUM_DATA_DIRS'					=> Array('editable' => 0, 'default' => 20),
