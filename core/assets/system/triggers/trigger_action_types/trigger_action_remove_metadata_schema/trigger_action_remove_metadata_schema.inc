@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_metadata_schema.inc,v 1.2 2008/08/21 05:26:57 ewang Exp $
+* $Id: trigger_action_remove_metadata_schema.inc,v 1.3 2008/12/19 05:27:44 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 * A trigger action that removes a metadata schema
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,10 +85,10 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 		// Error checking
 		// Test 1 - No schema and no remove all schema ie. nothing to do!
 		// Test 2 - No schema and remove all with no metadata schemas ie. again nothing to do!
-		if ((is_null($schema) || $schema->type() != 'metadata_schema') && !$remove_all) {
-			return FALSE;
-		} else if (empty($master_list) && $remove_all && (is_null($schema) || $schema->type() != 'metadata_schema')) {
-			return FALSE;
+		if ((is_null($schema) || $schema->type() != 'metadata_schema') && !$remove_all) {bam(1);
+			return TRUE;
+		} else if (empty($master_list) && $remove_all && (is_null($schema) || $schema->type() != 'metadata_schema')) {bam(2);
+			return TRUE;
 		}
 
 		if (!$cascade) {
@@ -98,6 +98,7 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 				}
 			} else {
 				$result = $mm->deleteSchema($state['asset']->id, $schema->id);
+			
 			}//end if
 		} else {
 			if ($remove_all) {
