@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.82.2.2 2008/12/17 23:47:15 bshkara Exp $
+* $Id: bulk_mailer.inc,v 1.82.2.3 2008/12/19 05:00:03 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.82.2.2 $
+* @version $Revision: 1.82.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -643,7 +643,13 @@ class Bulk_Mailer
 				$recipient_id_parts = explode(':', $recipient_id);
 				if (isset($recipient_id_parts[1])) {
 					$recipient = $am->getAsset($recipient_id);
-					$recipients[$recipient->id] = $recipient->attr('email');
+					// calls to getChildren() on bridge assets do not always return User assets
+					if ($recipient instanceof User) {
+						$recipients[] = Array(
+											'assetid'	 => $recipient->id,
+											'custom_val' => $recipient->attr('email'),
+										);
+					}
 					$am->forgetAsset($recipient);
 				} else {
 					// Only do assets here
@@ -680,7 +686,7 @@ class Bulk_Mailer
 			}
 		}
 
-		$recipients += $query_result;
+		$recipients =array_merge($recipients, $query_result);
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
 
