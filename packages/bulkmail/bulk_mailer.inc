@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.10 2008/12/18 05:22:28 bshkara Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.11 2008/12/19 04:58:29 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.10 $
+* @version $Revision: 1.71.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -611,9 +611,9 @@ class Bulk_Mailer
 						$recipients[] = Array(
 												'assetid'		=> $recipient->id,
 												'custom_val'	=> $recipient->attr('email'),
-											   );
-						$am->forgetAsset($recipient);
+										);
 					}
+					$am->forgetAsset($recipient);
 				} else {
 					// Only do assets here
 					$recipients_query[] = $recipient_id;
