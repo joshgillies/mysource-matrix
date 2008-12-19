@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.4.2.1 2008/05/29 05:29:22 lwright Exp $
+* $Id: condition_keyword_regexp.inc,v 1.4.2.2 2008/12/19 02:47:19 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,8 +83,9 @@ class Condition_Keyword_Regexp extends Condition
 	*/
 	public static function updateKeywords(Array $logical_keywords, Array &$condition_data)
 	{
+
 		$keyword_name = $condition_data['keyword'];
-		$condition_data['keyword_value'] = $logical_keywords[$keyword_name] ? $logical_keywords[$keyword_name] : '';
+		$condition_data['keyword_value'] = isset($logical_keywords[$keyword_name]) ? $logical_keywords[$keyword_name] : '';
 
 	}//end updateKeywords()
 
