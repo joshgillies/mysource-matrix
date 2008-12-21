@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.71.2.11 2008/12/19 04:58:29 bshkara Exp $
+* $Id: bulk_mailer.inc,v 1.71.2.12 2008/12/21 23:19:34 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.71.2.11 $
+* @version $Revision: 1.71.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -564,14 +564,18 @@ class Bulk_Mailer
 				$recipient = $am->getAsset($recipient_id);
 
 				// If the asset is not a user, we should check for children
-				if (!in_array($recipient->type(), Array('user', 'bulkmail_user'))) {
+				if (!($recipient instanceOf User) && !($recipient instanceOf Bulkmail_User)) {
 					// It is no longer just user group
 					// If it is a search folder, do something, otherwise just try to get children
 					if ($recipient->type() == 'search_folder') {
 						$map_links	= $recipient->getAssetMapLinks();
 						foreach ($map_links as $map_link) {
 							// We only add this asset if it is a user or bulkmail user
-							if (in_array($map_link['type_code'], Array('user', 'bulkmail_user'))) {
+							$all_user_types	= Array();
+							$user_types				= $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
+							$bulkmail_user_types	= $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('bulkmail_user', TRUE);
+							$all_user_types	= array_merge($user_types, $bulkmail_user_types);
+							if (in_array($map_link['type_code'], $all_user_types)) {
 								$id_parts		= explode(':', $map_link['assetid']);
 								// We are so sure that it has shadow id, but just incase
 								if (isset($id_parts[1])) {
