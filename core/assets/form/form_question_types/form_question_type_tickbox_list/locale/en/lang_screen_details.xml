@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2008/02/27 23:29:46 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.7.2.1 2008/12/22 23:48:39 bpearson Exp $
 */
 -->
 
@@ -34,9 +34,13 @@
 			<display_name>Note</display_name>
 			<note></note>
 		</field>
-		<field attribute="options">
+		<field>
 			<display_name>Options</display_name>
 			<note>Enter possible options (the list will expand as necessary)</note>
+			<function_call>
+				<paint_function   name="paintOptions"   />
+				<process_function name="processOptions" />
+			</function_call>
 		</field>
 		<field>
 			<display_name>Default</display_name>

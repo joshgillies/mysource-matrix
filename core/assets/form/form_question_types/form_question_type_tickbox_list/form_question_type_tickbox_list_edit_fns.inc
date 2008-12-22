@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.5 2007/11/15 03:44:51 hnguyen Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.5.4.1 2008/12/22 23:48:39 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,10 +56,10 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function paintDefault(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return FALSE;
 
-		$options = explode("\r\n", $asset->attr('options'));
-		$multiple = (get_class($asset) == 'Form_Question_Type_Tickbox_List') ? true : false;
+		$options = $asset->getOptions();
+		$multiple = (get_class($asset) == 'Form_Question_Type_Tickbox_List') ? TRUE : FALSE;
 		$defaults = $asset->attr('default');
 
 		foreach ($options as $ref => $option) {
@@ -68,13 +68,13 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 			$type = ($multiple) ? 'check_box' : 'radio_button';
 			$name = $prefix.'default[]';
 
-			$checked = (in_array($ref, $defaults)) ? true : false;
+			$checked = (in_array($ref, $defaults)) ? TRUE : FALSE;
 			$type($name, $ref, $checked, '', 'id="'.$prefix.'default'.$ref.'"');
 			label($option, $prefix.'default'.$ref);
 			echo '<br />';
 		}
 
-		return true;
+		return TRUE;
 
 	}//end paintDefault()
 
@@ -96,7 +96,7 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 		}
 		else if (isset($_POST[$prefix.'default'])) {
 			if (!$asset->setAttrValue('default', $_POST[$prefix.'default'])) {
-				return false;
+				return FALSE;
 			}
 		// if nothing has been submitted, then nothing has been selected, so blank all defaults out
 		} else {
@@ -104,9 +104,53 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 		}
 		$asset->saveAttributes();
 
-		return true;
+		return TRUE;
 
 	}//end processDefault()
+
+
+	/**
+	* Paints the options for this question
+	*
+	* @param object	&$asset	Form_Question, the asset whose interface we are painting
+	* @param object	&$o		Backend_Outputter, the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintOptions(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		require_once(SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc');
+		$option_list = new Asset_Attribute_Option_List(0, $asset->attr('options'));
+		$option_list->paint($prefix.'_option_list', !$write_access, FALSE);
+
+	}//end paintOptions()
+
+
+	/**
+	* Processes the options for this question
+	*
+	* @param object	&$asset	Form_Question, the asset whose interface we are painting
+	* @param object	&$o		Backend_Outputter, the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processOptions(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_option_list_options'])) {
+			require_once(SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc');
+			$option_list = new Asset_Attribute_Option_List(0, $asset->attr('options'));
+			$option_list->process($prefix.'_option_list', FALSE);
+
+			$asset->setAttrValue('options', $option_list->value);
+			$asset->saveAttributes();
+		}//end if
+
+	}//end processOptions()
 
 
 }//end class
