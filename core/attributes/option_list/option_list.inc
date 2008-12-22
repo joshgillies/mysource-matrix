@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.38 2008/10/08 18:05:34 gnoel Exp $
+* $Id: option_list.inc,v 1.39 2008/12/22 23:52:44 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -72,25 +72,47 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	/**
 	* Print the interface for filling in a value
 	*
-	* @param string		$prefix		prefix for the form elements
-	* @param boolean	$read_only	are we just printing the value
+	* @param string		$prefix			prefix for the form elements
+	* @param boolean	$read_only		are we just printing the value
+	* @param boolean	$use_delimiter	Use the delimiter (TRUE) or was the value an array (FALSE)
 	*
 	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=FALSE)
+	function paint($prefix, $read_only=FALSE, $use_delimiter=TRUE)
 	{
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
-		$value = explode($this->delimiter, $this->value);
+		if (!$use_delimiter) {
+			$value = @unserialize($this->value);
+		} else {
+			$value = explode($this->delimiter, $this->value);
+		}//end if
+		if (!is_array($value) && empty($value)) {
+			// If empty, give it a blank option
+			$value = Array('0'=>'');
+		}//end if
+
 		if (!$read_only) {
 			?>
 			<div id="option-list-<?php echo $prefix; ?>">
 				<?php
 				$order = 0;
-				foreach ($value as $v) {
+
+				// Find the last key for the next empty options
+				$temp_value = $value;
+				end($temp_value);
+				$last_number = key($temp_value);
+				$next_number = '0';
+				if (empty($value)) {
+					$next_number = '0';
+				} else if ($last_number >= 0) {
+					$next_number = $last_number + 1;
+				}//end if
+
+				foreach ($value as $k => $v) {
 					$v = htmlspecialchars($v);
 					?>
-					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
+					<input type="text"  name="<?php echo $prefix; ?>_options[<?php echo $k; ?>]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
 						if ($order !=0) {
 							$this->_printMoveUpButton($order, $prefix);
@@ -100,9 +122,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					<?php
 					$order++;
 				}
-				for ($i = 0; $i < 2; $i++) {
+				for ($i = $next_number; $i < ($next_number + 2); $i++) {
 					?>
-					<input type="text" name="<?php echo $prefix; ?>_options[]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
+					<input type="text" name="<?php echo $prefix; ?>_options[<?php echo $i; ?>]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
 						$this->_printMoveUpButton($order, $prefix);
 						if ($i < 1) {
@@ -157,8 +179,12 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			</script>
 			<?php
 		} else {
-			echo '<ul><li>'.implode('</li><li>', $value).'</li></ul>';
-		}
+			if (!empty($value)) {
+				echo '<ul><li>'.implode('</li><li>', $value).'</li></ul>';
+			} else {
+				echo translate('not_set');
+			}//end if
+		}//end if
 
 	}//end paint()
 
@@ -202,12 +228,13 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	/**
 	* Process the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form elements
+	* @param string		$prefix			prefix for the form elements
+	* @param boolean	$use_delimiter	Use the delimiter (TRUE) or was the value an array (FALSE)
 	*
 	* @return void
 	* @access public
 	*/
-	function process($prefix)
+	function process($prefix, $use_delimiter=TRUE)
 	{
 		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
 		if (!isset($_REQUEST[$prefix.'_options'])) return;
@@ -216,7 +243,11 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			if ($v == '') unset($value[$i]);
 		}
 
-		$processed_value = implode($this->delimiter,$value);
+		if (!$use_delimiter) {
+			$processed_value = serialize($value);
+		} else {
+			$processed_value = implode($this->delimiter,$value);
+		}//end if
 		$this->processed = $this->setValue($processed_value);
 
 	}//end process()

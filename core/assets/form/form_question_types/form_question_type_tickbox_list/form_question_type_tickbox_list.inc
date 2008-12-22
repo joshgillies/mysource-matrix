@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.11 2006/12/06 00:35:32 emcdonald Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.12 2008/12/22 23:53:29 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -133,7 +133,11 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function getOptions()
 	{
-		$options = split("\r\n", $this->attr('options'));
+		$options = @unserialize($this->attr('options'));
+		//$options = split("\r\n", $this->attr('options'));
+		if (!is_array($options) && empty($options)) {
+			$options = Array();
+		}//end if
 		// remove empty options
 		foreach (array_keys($options) as $k) {
 			if ($options[$k] == '') unset($options[$k]);

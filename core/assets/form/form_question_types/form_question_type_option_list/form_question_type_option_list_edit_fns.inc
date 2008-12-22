@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.5 2006/12/06 00:35:31 emcdonald Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.6 2008/12/22 23:53:29 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 
 		// default entry to have no default value
 		$none = Array('none');
-		$options = explode("\r\n", $asset->attr('options'));
+		$options = $asset->getOptions();
 		$options = array_merge($none, $options);
 
 		echo "<table cellpadding=\"0\" cellspacing=\"0\">\n";
