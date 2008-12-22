@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.71 2008/11/24 23:17:14 mbrydon Exp $
+* $Id: calendar_common.inc,v 1.72 2008/12/22 05:00:03 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -947,7 +947,8 @@ class Calendar_Common
 													Calendar_Common::getDateComponents($event_start_date, 'start_date_'),
 													Calendar_Common::getDateComponents($event_start_date, 'end_date_'));
 			} else {
-				$start_date = date('Y-m-d', $start_time);
+				// when this timestamp was cached, it was calculated with the UTC standard, so respect this when converting it back
+				$start_date = gmdate('Y-m-d', $start_time);
 				$result_list[$assetid.':'.$i] = array_merge($result_list[$assetid.':'.$i],
 													Calendar_Common::getDateComponents($start_date.' 00:00:00', 'start_date_'),
 													Calendar_Common::getDateComponents($start_date.' 24:00:00', 'end_date_'));
