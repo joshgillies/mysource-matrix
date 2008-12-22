@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.5 2007/06/29 00:21:32 rhoward Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.5.4.1 2008/12/22 23:42:44 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,6 +116,50 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		return TRUE;
 
 	}//end processDefault()
+
+
+	/**
+	* Paints the options for this question
+	*
+	* @param object	&$asset	Form_Question, the asset whose interface we are painting
+	* @param object	&$o		Backend_Outputter, the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSelOptions(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		require_once(SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc');
+		$option_list = new Asset_Attribute_Option_List(0, $asset->attr('options'));
+		$option_list->paint($prefix.'_option_list', !$write_access, FALSE);
+
+	}//end paintSelOptions()
+
+
+	/**
+	* Processes the options for this question
+	*
+	* @param object	&$asset	Form_Question, the asset whose interface we are painting
+	* @param object	&$o		Backend_Outputter, the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSelOptions(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_option_list_options'])) {
+			require_once(SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc');
+			$option_list = new Asset_Attribute_Option_List(0, $asset->attr('options'));
+			$option_list->process($prefix.'_option_list', FALSE);
+
+			$asset->setAttrValue('options', $option_list->value);
+			$asset->saveAttributes();
+		}//end if
+
+	}//end processSelOptions()
 
 
 }//end class

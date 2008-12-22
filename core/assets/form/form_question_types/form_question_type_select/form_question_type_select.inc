@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.10.6.2 2008/12/03 04:58:12 ewang Exp $
+* $Id: form_question_type_select.inc,v 1.10.6.3 2008/12/22 23:42:44 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10.6.2 $
+* @version $Revision: 1.10.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,10 +110,16 @@ class Form_Question_Type_Select extends Form_Question
 	* @access public
 	*/
 	function getOptions()
-	{	
-		$options = split("\r\n", $this->attr('options'));
+	{
+		//$options = split("\r\n", $this->attr('options'));
+		$options = @unserialize($this->attr('options'));
+		if (!is_array($options) && empty($options)) {
+			$options = Array();
+		}//end if
+
 		// remove empty options
-	
+
+		$decoded_options = Array();
 		foreach (array_keys($options) as $k) {
 			$options[$k] = html_entity_decode($options[$k]);
 			if ($options[$k] != '') {
@@ -229,9 +235,9 @@ class Form_Question_Type_Select extends Form_Question
  	{
   		$option_name = $this->getAnswerByOffset($option);
       	return $option_name == $this->attr('empty_text');
-	
+
 	}//end isEmptyOption()
-			
+
 
 	/**
 	* Get option name

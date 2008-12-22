@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2006/12/06 00:35:31 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6.8.1 2008/12/22 23:42:44 bpearson Exp $
 */
 -->
 
@@ -30,8 +30,11 @@
 		<field attribute="note">
 			<text width="40" height="2" />
 		</field>
-		<field attribute="options">
-			<option_list />
+		<field>
+			<function_call>
+				<paint_function   name="paintSelOptions"   />
+				<process_function name="processSelOptions" />
+			</function_call>
 		</field>
 		<field>
 			<function_call>
