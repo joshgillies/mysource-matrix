@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.56.2.4 2008/09/22 04:32:47 ata Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.56.2.5 2008/12/23 23:48:46 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56.2.4 $
+* @version $Revision: 1.56.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,11 +56,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
 	*
 	* @param Backend_Outputter	$o	the Backend_Outputter class
+	* @param Boolean 	   $mute_errors 	mutes error reported , default is false hence will report all the errors
 	*
 	* @return void
 	* @access private
 	*/
-	protected function _saveCssIds(Backend_Outputter $o)
+	protected function _saveCssIds(Backend_Outputter $o, $mute_errors = FALSE)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
@@ -108,10 +109,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				unset($design);
 
 			} else {
-				$o->note(translate('bodycopy_asset_has_no_design', $GLOBALS['sq_preview_url']));
+				if (!$mute_errors) {
+					$o->note(translate('bodycopy_asset_has_no_design', $GLOBALS['sq_preview_url']));
+				}
 			}
 		} else {
-			$o->note(translate('bodycopy_asset_has_no_preview'));
+			if (!$mute_errors) {
+				$o->note(translate('bodycopy_asset_has_no_preview'));
+			}
 		}
 
 	}//end _saveCssIds()
@@ -370,10 +375,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$updated = FALSE;
 
 		// save css ids into global var
-		// we dont want note to be displayed so we added ob_start/ob_end_clean
-		#ob_start();
-		$this->_saveCssIds($o);
-		#ob_end_clean();
+		// we dont want note to be displayed so we mute errors
+		$this->_saveCssIds($o,TRUE);
 
 		// do some thing for the first time we process a bodycopy on this page
 		if (empty($this->_tmp['update_initialised'])) {
