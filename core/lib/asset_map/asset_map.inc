@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.281 2008/12/14 22:46:25 bpearson Exp $
+* $Id: asset_map.inc,v 1.282 2008/12/23 23:50:19 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281 $
+* @version $Revision: 1.282 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1154,17 +1154,17 @@ class Asset_Map
 			$sub_where2 = 'majorid = :assetid2';
 			$bind_vars['assetid'] = $assetid;
 			$bind_vars['assetid2'] = $assetid;
-			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, 'lnk_', 'WHERE', FALSE);
-			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, 'ast_', 'WHERE', FALSE);
-			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, 'lnk_', 'WHERE', FALSE);
-			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, 'ast_', 'WHERE', FALSE);
+			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, NULL, 'WHERE', FALSE);
+			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, NULL, 'WHERE', FALSE);
+			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, NULL, 'WHERE', FALSE);
+			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, NULL, 'WHERE', FALSE);
 			$sub_sql = $sub_sql1.' '.$sub_where1.' GROUP BY minorid UNION ALL '.$sub_sql2.' '.$sub_where2.' GROUP BY minorid';
 
 			$where_clause = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
 			$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'lnk_', 'WHERE', FALSE);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'ast_', 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, NULL, 'WHERE', FALSE);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, NULL, 'WHERE', FALSE);
 			$where .= ' GROUP BY majorid ';
 
 			$query2 = MatrixDAL::preparePdoQuery($sql1.' '.$where.' UNION ALL '.$sql2.' '.$where);
