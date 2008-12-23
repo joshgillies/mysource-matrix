@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_maintenance.inc,v 1.2 2008/10/02 07:02:51 mbrydon Exp $
+* $Id: system_maintenance.inc,v 1.3 2008/12/23 03:37:48 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    useful for performance analysis and tuning.
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class System_Maintenance extends MySource_Object
@@ -46,8 +46,7 @@ class System_Maintenance extends MySource_Object
 
 			$this->_processReport($o, $report);
 			$this->_paintReport($o, $report);
-
-			return TRUE;
+			exit;
 		}
 
 		$o->setHeading(translate('system_maintenance'), sq_get_icon($o->filesPath('/images/icons/header/system_maintenance.png'), 20, 20, translate('system_maintenance')));
