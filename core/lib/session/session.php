@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session.php,v 1.5 2006/12/05 05:07:54 bcaldwell Exp $
+* $Id: session.php,v 1.6 2008/12/24 04:03:21 lwright Exp $
 *
 */
 
@@ -20,6 +20,7 @@ require_once '../../include/init.inc';
 $site_network_id = array_get_index($_GET, 'site_network', '0');
 $site_network = null;
 $primary_url = '';
+$session_handler = $GLOBALS['SQ_SYSTEM']->getSessionHandlerClassName();
 
 if ($site_network_id) {
 	$site_network = &$GLOBALS['SQ_SYSTEM']->am->getAsset($site_network_id);
@@ -55,7 +56,7 @@ if ($primary_url == sq_web_path('root_url')) {
 		trigger_localised_error('SYS0014', E_USER_ERROR);
 	}
 
-	$site_network->syncSessionFile($_GET['sessionid']);
+	eval($session_handler.'::syncSession(\''.$_GET['sessionid'].'\');');
 
 }//end if
 ?>

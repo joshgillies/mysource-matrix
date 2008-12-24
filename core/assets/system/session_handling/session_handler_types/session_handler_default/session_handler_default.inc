@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.2 2008/12/18 05:34:40 lwright Exp $
+* $Id: session_handler_default.inc,v 1.3 2008/12/24 04:03:20 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.2 $
+* @version    $Revision: 1.3 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -89,21 +89,153 @@ class Session_Handler_Default extends Session_Handler
 
 	
 	/**
-	* Synchronises two sessions together
+	* Unserialises a session
 	*
-	* Required for Site Network assets to work properly. In this method,
-	* the session passed will be synchronised to be the same as the
-	* specified "primary" session ID.
+	* It breaks each of the session variables up and stores them as the key elements
+	* of an array with their values as the values of the array elements.
 	*
-	* @param string	$primary_session_id	The ID that will provide the
-	*									session details to sync with
+	* @param string	$session_id	the ID of the session to unserialise
+	*
+	* @return array
+	* @access public
+	*/
+	function unserialiseSession($session_id)
+	{
+		$session_file = session_save_path().'/sess_'.$session_id;
+
+		$session_str = file_get_contents($session_file);
+		// break the session at the word boundaries and the pipes
+		$parts = preg_split('/\w+\|/', $session_str, -1, PREG_SPLIT_OFFSET_CAPTURE);
+		$session_arr = Array();
+
+		for ($i = 0; $i < count($parts); $i++) {
+			if ($i == count($parts) - 1) continue;
+			$offset = $parts[$i][1] + strlen($parts[$i][0]);
+			$len = $parts[$i + 1][1] - 1 - $offset;
+
+			$key = substr($session_str, $offset, $len);
+			$session_arr[$key] = unserialize($parts[$i + 1][0]);
+		}
+		return $session_arr;
+
+	}//end unserialiseSession()
+
+
+	/**
+	* Serialises the specified session contents and writes it to the specified session file
+	*
+	* @param string	$session_id			the ID of the session to write to
+	* @param array	$session_contents	the contents to write to file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function serialiseSession($session_id, $session_contents)
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$session_file = session_save_path().'/sess_'.$session_id;
+
+		if (!file_exists($session_file)) {
+			trigger_localised_error('CORE0072', E_USER_WARNING, $session_file);
+			return FALSE;
+		}
+
+		if (!is_array($session_contents)) {
+			trigger_localised_error('CORE0004', E_USER_WARNING, gettype($session_contents));
+			return FALSE;
+		}
+
+		$session_str = '';
+		foreach ($session_contents as $key => $val) {
+			$session_str .= $key.'|'.serialize($val);
+		}
+
+		if (!string_to_file($session_str, $session_file)) {
+			trigger_localised_error('CORE0021', E_USER_WARNING, $session_file);
+			return FALSE;
+		}
+		return TRUE;
+
+	}//end serialiseSession()
+
+
+	/**
+	* Returns TRUE if the session exists
+	*
+	* @param string	$session_id	The ID to check
 	*
 	* @return boolean
 	*/
-	public static function sessionSync($primary_session_id)
+	public static function sessionExists($session_id)
 	{
+		$session_file = session_save_path().'/sess_'.$session_id;
+		return file_exists($session_file);
 
-	}//end sessionSync()	
+	}//end sessionExists()
+
+
+	/**
+	* Synchronises the specified primary session with the current (secondary) session
+	*
+	* The current session will be overridden with the primary session if the
+	* primary's timestamp is the most recent, and vice versa. $_SESSION is
+	* used for the current session, and will be written to at script completion.
+	*
+	* @param string	$pri_sessionid	the sessionid of the primary session
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function syncSession($pri_sessionid)
+	{
+		$pri_sess = self::unserialiseSession($pri_sessionid);
+
+		if (!is_array($pri_sess)) {
+			// something is definately wrong
+			trigger_localised_error('CORE0071', E_USER_ERROR);
+			return FALSE;
+		}
+
+		$pri_timestamp = array_get_index($pri_sess, 'SQ_SESSION_TIMESTAMP', -1);
+		$sec_timestamp = array_get_index($_SESSION, 'SQ_SESSION_TIMESTAMP', -1);
+		$pri_login_key = array_get_index($pri_sess, 'SQ_LOGIN_KEY', NULL);
+		$sec_login_key = array_get_index($_SESSION, 'SQ_LOGIN_KEY', NULL);
+
+		// if primary is younger
+		if ($pri_timestamp > $sec_timestamp || $pri_timestamp == -1) {
+			// copy primary to secondary
+			$_SESSION = $pri_sess;
+		} else {
+			// copy secondary to primary
+			$pri_sess = $_SESSION;
+		}
+
+		$now = time();
+		$pri_sess['SQ_SESSION_TIMESTAMP'] = $now;
+		$_SESSION['SQ_SESSION_TIMESTAMP'] = $now;
+
+		// preserve login keys
+		if (!is_null($pri_login_key)) {
+			$pri_sess['SQ_LOGIN_KEY'] = $pri_login_key;
+		}
+		if (!is_null($sec_login_key)) {
+			$_SESSION['SQ_LOGIN_KEY'] = $sec_login_key;
+		}
+
+		// save the sessionid of the primary so that we
+		// know that we have run this script before. We won't have to
+		// do anther browser refresh if we know this.
+		$_SESSION['PRIMARY_SESSIONID'] = $pri_sessionid;
+		$pri_sess['PRIMARY_SESSIONID'] = $pri_sessionid;
+
+		// *** JEDI MIND TRICK *** you did not see us doing this... move along
+		if (!self::serialiseSession($pri_sessionid, $pri_sess)) {
+			trigger_localised_error('CORE0020', E_USER_ERROR);
+			return FALSE;
+		}
+		return TRUE;
+
+	}//end syncSession()
 
 
 }//end class
