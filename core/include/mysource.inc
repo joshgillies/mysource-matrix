@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.280 2008/12/18 05:34:40 lwright Exp $
+* $Id: mysource.inc,v 1.281 2008/12/24 04:02:07 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.280 $
+* @version $Revision: 1.281 $
 * @package MySource_Matrix
 */
 class MySource
@@ -239,23 +239,7 @@ class MySource
 			}
 
 			// Set up the session handler
-			if (SQ_CONF_SESSION_HANDLER === '') {
-				$session_handler = 'Session_Handler_Default';
-			} else {
-				$session_handler = 'Session_Handler_'.ucwords(SQ_CONF_SESSION_HANDLER);
-			}
-
-			$handler_exists = FALSE;
-			try {
-				$this->am->includeAsset(strtolower($session_handler));
-				$handler_exists = TRUE;
-			} catch (Exception $e) {
-				// Throwing a fatal may be a bit heavy-handed, but the alternative
-				// is to throw a notice, and this breaks when other headers need
-				// to be sent. Best to make them fix it first
-				trigger_error('Cannot start MySource user session; session handler \''.SQ_CONF_SESSION_HANDLER.'\' does not exist', E_USER_ERROR);
-			}
-
+			$session_handler = $this->getSessionHandlerClassName();
 			eval($session_handler.'::init();');
 
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
@@ -336,7 +320,7 @@ class MySource
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
-
+		
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -1844,6 +1828,28 @@ class MySource
 		return (isset($_SESSION['SQ_LOGIN_KEY'])) ? $_SESSION['SQ_LOGIN_KEY'] : '';
 
 	}//end loginKey()
+
+
+	public function getSessionHandlerClassName()
+	{
+		if (SQ_CONF_SESSION_HANDLER === '') {
+			$session_handler = 'Session_Handler_Default';
+		} else {
+			$session_handler = 'Session_Handler_'.ucwords(SQ_CONF_SESSION_HANDLER);
+		}
+
+		try {
+			$this->am->includeAsset(strtolower($session_handler));
+		} catch (Exception $e) {
+			// Throwing a fatal may be a bit heavy-handed, but the alternative
+			// is to throw a notice, and this breaks when other headers need
+			// to be sent. Best to make them fix it first
+			trigger_error('Cannot start MySource user session; session handler \''.SQ_CONF_SESSION_HANDLER.'\' does not exist', E_USER_ERROR);
+		}
+
+		return $session_handler;
+
+	}//end getSessionHandlerClassName()
 
 
 	/**
