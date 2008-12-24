@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.4.2.1 2008/03/12 04:04:28 lwright Exp $
+* $Id: xml_user_bridge.inc,v 1.4.2.2 2008/12/24 03:00:36 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -210,22 +210,29 @@ class XML_User_Bridge extends Asset implements Bridge
 			return Array();
 		}
 
+		// We only can return links for descendants of User and User Group
+		$user_type_codes = array_diff($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants(Array('user', 'user_group'), TRUE), Array('root_user'));
+		if (!empty($type_code) && !in_array($type_code, $user_type_codes)) {
+			return Array();
+		}
+
 		$bits = explode(':', $assetid);
 		switch (count($bits)) {
 			case 1:
 				if (($assetid == $this->id) && ($side_of_link == 'major')) {
 					// Get the groups under this asset
 					$sample = Array(
-								'majorid'			=> $this->id,
 								'link_type'			=> SQ_LINK_TYPE_1,
 								'major_type_code'	=> 'xml_user_bridge',
 								'minor_type_code'	=> 'user_group',
+								'value'				=> '',
+								'linkid'			=> 0,
 								'sort_order'		=> -1,
 							  );
 					$res = Array();
 					foreach ($this->groups as $id => $name) {
 						$sample['minorid'] = $this->id.':'.$id;
-						$res[$this->id.':'.$id] = $sample;
+						$res[] = $sample;
 					}
 					return $res;
 				} else {
@@ -236,29 +243,32 @@ class XML_User_Bridge extends Asset implements Bridge
 				if ($side_of_link == 'major') {
 					// Get the users under this group
 					$sample = Array(
-								'majorid'			=> $assetid,
 								'link_type'			=> SQ_LINK_TYPE_1,
 								'major_type_code'	=> 'user_group',
 								'minor_type_code'	=> $this->attr('user_type'),
+								'value'				=> '',
+								'linkid'			=> 0,
 								'sort_order'		=> -1,
 							  );
 					$res = Array();
 					foreach ($this->group_members[$bits[1]] as $userid => $details) {
 						$sample['minorid'] = $assetid.':'.$userid;
-						$res[$assetid.':'.$userid] = $sample;
+						$res[] = $sample;
 					}
 					return $res;
 
 				} else {
 					// Just this
-					return Array(
-							'minorid'			=> $assetid,
+					$res = Array(
 							'majorid'			=> $this->id,
 							'link_type'			=> SQ_LINK_TYPE_1,
 							'major_type_code'	=> 'xml_user_bridge',
 							'minor_type_code'	=> 'user_group',
+							'value'				=> '',
+							'linkid'			=> 0,
 							'sort_order'		=> -1,
 						   );
+					return Array($res);
 				}
 			break;
 			case 3:
@@ -267,18 +277,19 @@ class XML_User_Bridge extends Asset implements Bridge
 				} else {
 					// Get the groups this user belongs to
 					$sample = Array(
-								'minorid'			=> $assetid,
 								'link_type'			=> SQ_LINK_TYPE_1,
 								'major_type_code'	=> 'user_group',
 								'minor_type_code'	=> $this->attr('user_type'),
+								'value'				=> '',
+								'linkid'			=> 0,
 								'sort_order'		=> -1,
 							  );
 					$res = Array();
 					foreach ($this->user_memberships[$bits[2]] as $groupid) {
 						$sample['majorid'] = $this->id.':'.$groupid;
-						$res[$this->id.':'.$groupid.':'.$bits[2]] = $sample;
+						$res[] = $sample;
 					}
-
+					return $res;
 				}
 			break;
 		}//end switch
