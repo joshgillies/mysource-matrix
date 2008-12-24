@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.4.2.2 2008/12/24 03:00:36 bshkara Exp $
+* $Id: xml_user_bridge.inc,v 1.4.2.3 2008/12/24 03:11:51 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4.2.2 $
+* @version $Revision: 1.4.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -222,6 +222,7 @@ class XML_User_Bridge extends Asset implements Bridge
 				if (($assetid == $this->id) && ($side_of_link == 'major')) {
 					// Get the groups under this asset
 					$sample = Array(
+								'majorid'			=> $this->id,
 								'link_type'			=> SQ_LINK_TYPE_1,
 								'major_type_code'	=> 'xml_user_bridge',
 								'minor_type_code'	=> 'user_group',
@@ -243,6 +244,7 @@ class XML_User_Bridge extends Asset implements Bridge
 				if ($side_of_link == 'major') {
 					// Get the users under this group
 					$sample = Array(
+								'majorid'			=> $assetid,
 								'link_type'			=> SQ_LINK_TYPE_1,
 								'major_type_code'	=> 'user_group',
 								'minor_type_code'	=> $this->attr('user_type'),
@@ -260,6 +262,7 @@ class XML_User_Bridge extends Asset implements Bridge
 				} else {
 					// Just this
 					$res = Array(
+							'minorid'			=> $assetid,
 							'majorid'			=> $this->id,
 							'link_type'			=> SQ_LINK_TYPE_1,
 							'major_type_code'	=> 'xml_user_bridge',
@@ -277,6 +280,7 @@ class XML_User_Bridge extends Asset implements Bridge
 				} else {
 					// Get the groups this user belongs to
 					$sample = Array(
+								'minorid'			=> $assetid,
 								'link_type'			=> SQ_LINK_TYPE_1,
 								'major_type_code'	=> 'user_group',
 								'minor_type_code'	=> $this->attr('user_type'),
