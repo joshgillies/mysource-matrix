@@ -10,29 +10,35 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pre_session.php,v 1.7 2007/05/11 06:50:45 rong Exp $
+* $Id: pre_session.php,v 1.7.6.1 2008/12/29 05:03:23 lwright Exp $
 *
 */
 
 if (!isset($_SESSION['PRIMARY_SESSIONID'])) {
-	reload_browser(true, $SQ_SITE_NETWORK);
+	error_log('No primary session');
+	reload_browser(TRUE, $SQ_SITE_NETWORK);
 } else {
-	if (!is_file(SQ_CACHE_PATH.'/sess_'.$_SESSION['PRIMARY_SESSIONID'])) {
+	// Set up the session handler
+	$session_handler = $GLOBALS['SQ_SYSTEM']->getSessionHandlerClassName();
+	$session_exists = eval('return '.$session_handler.'::sessionExists(\''.$_SESSION['PRIMARY_SESSIONID'].'\');');
+
+	if (!$session_exists) {
 		unset($_SESSION['PRIMARY_SESSIONID']);
-		reload_browser(false, $SQ_SITE_NETWORK);
+		reload_browser(FALSE, $SQ_SITE_NETWORK);
 	}
-	$pri_session = $SQ_SITE_NETWORK->unserialiseSessionFile(SQ_CACHE_PATH.'/sess_'.$_SESSION['PRIMARY_SESSIONID']);
+
+	$pri_session = eval('return '.$session_handler.'::unserialiseSession(\''.$_SESSION['PRIMARY_SESSIONID'].'\');');
 	$pri_timestamp = (isset($pri_session['SQ_SESSION_TIMESTAMP'])) ? $pri_session['SQ_SESSION_TIMESTAMP'] : -1;
 	$sec_timestamp = (isset($_SESSION['SQ_SESSION_TIMESTAMP'])) ? $_SESSION['SQ_SESSION_TIMESTAMP'] : -1;
 
 	if ($pri_timestamp > $sec_timestamp) {
-		$SQ_SITE_NETWORK->syncSessionFile($_SESSION['PRIMARY_SESSIONID']);
-		reload_browser(false, $SQ_SITE_NETWORK);
+		eval($session_handler.'::syncSession(\''.$_SESSION['PRIMARY_SESSIONID'].'\');');
+		reload_browser(FALSE, $SQ_SITE_NETWORK);
 	}
 }
 
 
-function reload_browser($do_js_request=false, $site_network)
+function reload_browser($do_js_request=FALSE, $site_network)
 {
 	$primary_url = $site_network->getPrimaryURL();
 	?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.279 2008/11/20 05:50:06 lwright Exp $
+* $Id: mysource.inc,v 1.279.2.1 2008/12/29 05:03:23 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.279 $
+* @version $Revision: 1.279.2.1 $
 * @package MySource_Matrix
 */
 class MySource
@@ -238,24 +238,10 @@ class MySource
 				}
 			}
 
-			$domain = strip_url(sq_web_path('root_url'), TRUE);
-			$pos = strpos($domain, '/');
-			$path = '/';
-			if ($pos !== FALSE) {
-				$path = substr($domain, $pos);
-				$domain = substr($domain, 0, $pos);
-			}
+			// Set up the session handler
+			$session_handler = $this->getSessionHandlerClassName();
+			eval($session_handler.'::init();');
 
-			// if there is a port at the end of the domain, we need to remove
-			// it as domains cannot contain ports. You will not be able to log
-			// in if the domain contains a port
-			$domain = preg_replace('|:\d+$|', '', $domain);
-
-			session_set_cookie_params(0, $path, $domain);
-			session_name('SQ_SYSTEM_SESSION');
-			if (!SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH) {
-				session_save_path(SQ_SYSTEM_ROOT.'/cache');
-			}
 			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 
 			$session_set = FALSE;
@@ -334,7 +320,7 @@ class MySource
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
-
+		
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -1842,6 +1828,28 @@ class MySource
 		return (isset($_SESSION['SQ_LOGIN_KEY'])) ? $_SESSION['SQ_LOGIN_KEY'] : '';
 
 	}//end loginKey()
+
+
+	public function getSessionHandlerClassName()
+	{
+		if (SQ_CONF_SESSION_HANDLER === '') {
+			$session_handler = 'Session_Handler_Default';
+		} else {
+			$session_handler = 'Session_Handler_'.ucwords(SQ_CONF_SESSION_HANDLER);
+		}
+
+		try {
+			$this->am->includeAsset(strtolower($session_handler));
+		} catch (Exception $e) {
+			// Throwing a fatal may be a bit heavy-handed, but the alternative
+			// is to throw a notice, and this breaks when other headers need
+			// to be sent. Best to make them fix it first
+			trigger_error('Cannot start MySource user session; session handler \''.SQ_CONF_SESSION_HANDLER.'\' does not exist', E_USER_ERROR);
+		}
+
+		return $session_handler;
+
+	}//end getSessionHandlerClassName()
 
 
 	/**
