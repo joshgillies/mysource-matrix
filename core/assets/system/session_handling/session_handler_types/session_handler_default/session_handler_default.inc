@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.3 2008/12/24 04:03:20 lwright Exp $
+* $Id: session_handler_default.inc,v 1.4 2008/12/29 01:13:18 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.3 $
+* @version    $Revision: 1.4 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -82,7 +82,13 @@ class Session_Handler_Default extends Session_Handler
 		// defined in php.ini. If OFF (default), we use the cache
 		// directory inside the Matrix install directory.
 		if (!SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH) {
-			session_save_path(SQ_CACHE_PATH);
+			if (SQ_CONF_CUSTOM_SESSION_SAVE_PATH !== '') {
+				$cache_path = SQ_CONF_CUSTOM_SESSION_SAVE_PATH;
+			} else {
+				$cache_path = SQ_CACHE_PATH;
+			}
+
+			session_save_path($cache_path);
 		}
 
 	}//end init()
