@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_memcache.inc,v 1.1 2008/12/29 01:16:30 lwright Exp $
+* $Id: session_handler_memcache.inc,v 1.2 2008/12/29 04:53:35 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    within PHP's memcache PECL extension.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.1 $
+* @version    $Revision: 1.2 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -62,10 +62,24 @@ class Session_Handler_Memcache extends Session_Handler
 		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Session Handler; it requires the memcache PECL extension installed within PHP, which is not installed');
 		assert_true(SQ_CONF_CUSTOM_SESSION_SAVE_PATH !== '', 'Cannot use Memcache Session Handler; connection data is not set in the main.inc file');
 
+		// Calculate the domain and path for the session cookie.
+		$domain = strip_url(sq_web_path('root_url'), TRUE);
+		$pos = strpos($domain, '/');
+		$path = '/';
+		if ($pos !== FALSE) {
+			$path = substr($domain, $pos);
+			$domain = substr($domain, 0, $pos);
+		}
+
+		// Remove the port number from the host part, if any.
+		// Session cookies cannot have a port in the domain.
+		$domain = preg_replace('|:\d+$|', '', $domain);
+
 		// Now, set to the 'memcache' module and set the
 		// appropriate save path (ie. the connection string to thee
 		// memcached server).
 		session_name('SQ_SYSTEM_SESSION');
+		session_set_cookie_params(0, $path, $domain);
 		session_module_name('memcache');
 		session_save_path('tcp://'.SQ_CONF_CUSTOM_SESSION_SAVE_PATH);
 
