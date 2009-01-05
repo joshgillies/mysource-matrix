@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.2 2009/01/05 13:18:52 hnguyen Exp $
+* $Id: sharepoint_common.inc,v 1.3 2009/01/05 13:30:09 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -663,7 +663,6 @@ ListVersion="0" >
 				$conn[$i]	= curl_init($url);
 				echo "\n G: $final_path \n";
 				$fp[$i]		= fopen($final_path, "w");
-				var_dump($fp[$i]);
 				curl_setopt($conn[$i], CURLOPT_FILE, $fp[$i]);
 				curl_setopt($conn[$i], CURLOPT_HEADER ,0);
 				curl_setopt($conn[$i], CURLOPT_CONNECTTIMEOUT, 60);
