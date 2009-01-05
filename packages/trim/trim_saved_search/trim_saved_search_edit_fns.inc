@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.2.2.2 2008/12/17 22:37:50 hnguyen Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.2.2.3 2009/01/05 14:17:44 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -618,12 +618,15 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				eval(ajax.response);
 				if (numUpdate !== false) {
 					if (numUpdate === 0) {
-						update_text.innerHTML = '<span style="color:green;font-weight:bold;>No Update Required</span>';
+						update_text.style.color	= 'green';
+						update_text.innerHTML = 'No Update Required';
 					} else {
-						update_text.innerHTML = '<span style="color:red;font-weight:bold;>'+numUpdate+' out-of-date Records</span>';
+						update_text.style.color	= 'red';
+						update_text.innerHTML = numUpdate+' out-of-date Records';
 					}//end else
 				} else {
-					update_text.innerHTML = '<span style="color:red;font-weight:bold;>Unable to check for update. Your cache might be turned off.</span>';
+					update_text.style.color	= 'red';
+					update_text.innerHTML = 'Unable to check for update. Your cache might be turned off.';
 				}//end else
 
 			}//end updateInterface()
@@ -632,9 +635,11 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			{
 				var update_text = document.getElementById('update_text');
 				if (ajax.response == 1) {
-					update_text.innerHTML = '<span style="color:green;font-weight:bold;>Successfully Synchronized</span>';
+					update_text.style.color	= 'green';
+					update_text.innerHTML = 'Successfully Synchronized';
 				} else if (ajax.response == 0) {
-					update_text.innerHTML = '<span style="color:red;font-weight:bold;>Nothing to Synchronized</span>';
+					update_text.style.color	= 'red';
+					update_text.innerHTML = 'No Records Available For Synchronization';
 				}//end else if
 			}//end updateSynchInterface()
 
