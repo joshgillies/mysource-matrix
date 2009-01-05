@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.8 2009/01/05 09:23:57 bshkara Exp $
+* $Id: xml_user_bridge.inc,v 1.9 2009/01/05 10:33:37 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -418,6 +418,24 @@ class XML_User_Bridge extends Asset implements Bridge
 		return NULL;
 
 	}//end getLink()
+
+
+	/**
+	* Get details of the link with specified linkid
+	*
+	* @param int	$linkid			id of the link were returning
+	* @param int	$assetid		id of the the $side_of_link asset
+	*								if zero no check is made and both major and minor information is returned
+	* @param string	$side_of_link	Which side of the link the asset represented by $assetid is on ('major' or 'minor')
+	*
+	* @return array
+	* @access public
+	*/
+	function getLinkById($linkid, $assetid=0, $side_of_link='major')
+	{
+		return Array();
+
+	}//end getLinkById()
 
 
 	/**
