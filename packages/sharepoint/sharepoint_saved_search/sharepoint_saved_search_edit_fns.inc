@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search_edit_fns.inc,v 1.3 2009/01/05 14:05:11 hnguyen Exp $
+* $Id: sharepoint_saved_search_edit_fns.inc,v 1.4 2009/01/05 22:55:57 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -83,6 +83,11 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			if (!empty($options)) {
 		?>
 
+			<span class="sq-backend-section-subheading" style="margin-left:60px;">Search Logic</span><br />
+			<?php combo_box($prefix.'_search_logic', Array('And' => 'AND', 'Or' => 'OR'), FALSE, 'And', 0, ' style="margin:7 0 20 120px;"'); ?>
+			<br />
+
+
 			<p class="sq-backend-section-subheading" style="margin-left:60px;">Criterion</p>
 			<table class="sq-backend-table" style="width:auto; margin-left:120px;">
 				<th>Field Name</th>
@@ -100,7 +105,7 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 							if ($write_access) {
 							?>
 								<tr>
-									<td style="min-width:250px;"><p><?php echo $field_name_info.' ( '.$field_name.' )'; ?></p></td>
+									<td style="width:250px;"><p><?php echo $field_name_info.' ( '.$field_name.' )'; ?></p></td>
 									<td><?php combo_box($prefix.'_new_search_operator', $available_operators, FALSE, $crit['operator']); ?></td>
 									<td><p><?php text_box($prefix.'_url', $crit['value'], 30); ?></p></td>
 									<td><?php check_box($prefix.'_delete_crit['.$data_list.']['.$field_name.']'); ?></td>
@@ -110,7 +115,7 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 							} else {
 							?>
 								<tr>
-									<td style="min-width:250px;"><p><?php echo $available_fields[$field_name].' ( '.$field_name.' )'; ?></p></td>
+									<td style="width:250px;"><p><?php echo $available_fields[$field_name].' ( '.$field_name.' )'; ?></p></td>
 									<td align="center"><?php echo $available_operators[$crit['operator']]; ?></td>
 									<td><p><?php echo $crit['value']; ?></p></td>
 								</tr>
@@ -574,57 +579,14 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$o->openRaw();
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/sharepoint_saved_search/js/ajax.js' ?>"></script>
-		<script type="text/javascript">
-			var ajax = new sack();
-            function checkUpdate()
-            {
-                ajax.requestFile	= '<?php echo $asset->getURL(); ?>'+'?check_update=1';   // Specifying which file to get
-                ajax.onCompletion	= updateCheckInterface;   // Specify function that will be executed after file has been found
-                ajax.runAJAX();     // Execute AJAX function
-            }//end checkUpdate
 
-			function updateCheckInterface()
-			{
-				var update_text = document.getElementById('update_text');
-				eval(ajax.response);
-				if (numUpdate !== false) {
-					if (numUpdate === 0) {
-						update_text.innerHTML = '<span style="color:green;font-weight:bold;>No Update Is Required</span>';
-					} else {
-						update_text.innerHTML = '<span style="color:red;font-weight:bold;>'+numUpdate+' out-of-date Records</span>';
-					}//end else
-				} else {
-					update_text.innerHTML = '<span style="color:red;font-weight:bold;>Unable to check for update. Your cache might be turned off.</span>';
-				}//end else
-
-			}//end updateInterface()
-
-			function updateSynchInterface()
-			{
-				var update_text = document.getElementById('update_text');
-				if (ajax.response == 1) {
-					update_text.style.color	= 'green';
-					update_text.innerHTML = 'Successfully Synchronized';
-				} else if (ajax.response == 0) {
-					update_text.style.color	= 'red';
-					update_text.innerHTML = 'No Records Available For Synchronization';
-				}//end else if
-			}//end updateSynchInterface()
-
-			function synchRecords()
-			{
-                ajax.requestFile = '<?php echo $asset->getURL(); ?>'+'?synch_now=1';   // Specifying which file to get
-                ajax.onCompletion = updateSynchInterface;   // Specify function that will be executed after file has been found
-                ajax.runAJAX();     // Execute AJAX function
-			}//end synchRecords()
-		</script>
 		<div style="position:relative;top:0px;">
 			<table style="width:auto;border-spacing:0px;" border="0">
 				<tr>
 					<td width="90"><span style="font-weight:bold;">Check Update</span><br /><br /></td>
 					<td width="150"><span id="update_text">Not Checked</span><br /><br /></td>
 					<td><?php //if ($wa) normal_button($prefix.'_update', 'Check for Updates', 'checkUpdate()'); ?><br /><br /></td>
-					<td><?php if ($wa) normal_button($prefix.'_synch', 'Synchronize Now', 'synchRecords()'); ?><br /><br /></td>
+					<td><?php if ($wa) normal_button($prefix.'_synch', 'Synchronize Now', 'sendRequest(\''.$asset->getURL().'?synch_now=1\', \'updateSynchInterface\');'); ?><br /><br /></td>
 				</tr>
 			</table>
 		</div>
