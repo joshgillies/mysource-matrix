@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.7 2008/12/24 03:10:23 bshkara Exp $
+* $Id: xml_user_bridge.inc,v 1.8 2009/01/05 09:23:57 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -489,11 +489,11 @@ class XML_User_Bridge extends Asset implements Bridge
 			foreach ($assetids as $id) {
 				$bits = explode(':', $id);
 				if (count($bits) == 2) {
-					$details = array_get_index($this->groups, $bits[1]);
-					if ($details) {
+					$name = array_get_index($this->groups, $bits[1]);
+					if ($name) {
 						$entry = $template;
-						$entry['name'] = $details['name'];
-						$entry['short_name'] = $details['name'];
+						$entry['name'] = $name;
+						$entry['short_name'] = $name;
 						$entry['type_code'] = 'user_group';
 						if (empty($field)) {
 							$res[$id] = $entry;
