@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search_edit_fns.inc,v 1.2 2009/01/05 13:18:54 hnguyen Exp $
+* $Id: sharepoint_saved_search_edit_fns.inc,v 1.3 2009/01/05 14:05:11 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -361,10 +361,10 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	function paintWsdlUrl(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$wsdl	= $asset->attr('wsdl');
+		$wsdl	= $asset->attr('url');
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-			text_box($prefix.'_wsdl_url', $wsdl, '35');
+			text_box($prefix.'_sys_url', $wsdl, '35');
 		} else {
 			echo $wsdl;
 		}//end else if
@@ -387,9 +387,9 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
         if (!$asset->writeAccess('attributes')) return FALSE;
 
         $new_name = NULL;
-        $old_wsdl = $asset->attr('wsdl');
-        if (!empty($_POST[$prefix.'_wsdl_url'])) {
-            $new_wsdl = trim($_POST[$prefix.'_wsdl_url']);
+        $old_wsdl = $asset->attr('url');
+        if (!empty($_POST[$prefix.'_sys_url'])) {
+            $new_wsdl = trim($_POST[$prefix.'_sys_url']);
 	        if ($old_wsdl != $new_wsdl) {
 	            $res = $asset->setAttrValue('url', $new_wsdl);
 	            return TRUE;
@@ -573,9 +573,7 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$wa	= $asset->writeAccess('attributes');
 		$o->openRaw();
 		?>
-		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/data_source_trim/js/ajax.js' ?>">
-		</script>
-
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/sharepoint_saved_search/js/ajax.js' ?>"></script>
 		<script type="text/javascript">
 			var ajax = new sack();
             function checkUpdate()
@@ -620,7 +618,7 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
                 ajax.runAJAX();     // Execute AJAX function
 			}//end synchRecords()
 		</script>
-		<div>
+		<div style="position:relative;top:0px;">
 			<table style="width:auto;border-spacing:0px;" border="0">
 				<tr>
 					<td width="90"><span style="font-weight:bold;">Check Update</span><br /><br /></td>
