@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_create_sharepoint_list_item.inc,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: form_action_create_sharepoint_list_item.inc,v 1.2 2009/01/05 13:29:07 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -371,7 +371,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 			$settings['create_list_name']	= $create_list_name;
 		}//end if
 
-		if ($new_create_list != $settings['create_list']) {
+		if (!(isset($settings['create_list'])) || $new_create_list != $settings['create_list']) {
 			$settings['create_list']		= $new_create_list;
 			$settings['sharepoint_fields']	= Array();
 		}//end if
