@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.10 2008/12/10 01:04:04 ewang Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.11 2009/01/05 09:45:37 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -330,6 +330,17 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('css_file');
 					$new_asset_type = 'css_file';
 				break;
+				case 'gif' :
+				case 'jpg' :
+				case 'jpeg' :
+				case 'png' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
+					$new_asset_type = 'image';
+				break;
+				case 'mp3' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('mp3_file');
+					$new_asset_type = 'mp3_file';
+				break;
 				default :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
 					$new_asset_type = 'file';
@@ -417,6 +428,10 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 				case 'image' :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
 					$new_asset_type = 'image';
+				break;
+				case 'mp3' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('mp3_file');
+					$new_asset_type = 'mp3_file';
 				break;
 				default :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
