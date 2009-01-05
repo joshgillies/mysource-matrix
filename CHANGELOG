@@ -1,5 +1,71 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.9
+
+Featured Changes
+-----------------------------------
+E-Commerce Payment Gateway: Credit Card details removed from session
+	Credit Card information is no longer stored in the User Session when using the Payment Gateway with ESec. Form data is now passed directly to the SecurePay gateway. A side-effect of this is that the form fields for the Payment Gateway are no longer pre-populated with the user's previous input.
+
+
+E-Commerce Checkout: Total Cost rounding
+	The Ecommerce Checkout asset now rounds the total cost of the cart using a new "Float Precision" attribute.  This attribute is only editable if the receipt is chosen to be customised on the "Display Formatting Options" screen. The default "Float Precision" value is 2. 
+
+
+Starting tag for XML Data Source and Weather Company Feed assets
+	A starting tag can now be specified in XML Data Source and Weather Company Feed assets to control the parsing of shadow assets resulting from the XML source. This is used to delineate tags with the same name appearing in multiple levels in the XML output, to ensure that the intended target is used.
+
+The starting tag is specified from the "Details" screen of both asset types.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3393: Previewing an asset after edit gives error about URL
+* Fixed Bug #3394: Web connectivity causes PHP time-out when a URL is not supplied
+* Fixed Bug #3399: recreate_link_tree.php script fails on Oracle with 'invalid relational operator' error
+* Fixed Bug #3403: system_update_lookups.php script fails on an Oracle system
+* Fixed Bug #3405: Category field on the Trigger not working correctly 
+* Fixed Bug #3427: Cron Issues: Uncaught exception
+* Fixed Bug #3438: Keyword condition not evaluated correctly when keyword value is 0/false
+* Fixed Bug #3440: Trigger to remove all metadata schemas errors
+* Fixed Bug #3446: Rollback mode causes Asset Map errors
++ Microsoft Excel and PowerPoint, RTF, Text, CSS and JavaScript file types are now created as their respective file-specific Matrix assets when imported via the "Bulk File Import" tool.
+
+Bulkmail
+* Fixed Bug #3358: Bulkmail - HTML/text option
+* Fixed Bug #3431: Bulkmail cannot send emails to XML User Bridge Users
+* Fixed Bug #3433: Bulkmail error log contains undefined index messages
+* Fixed Bug #3441: Bulkmail Job does not send email to a singly selected user
++ Global Keywords are now replaced in content sent from Bulkmail Job assets.
+
+Calendar
+* Fixed Bug #3385: Cannot create more than one Multi-Date Calendar Event under a common parent
+* Fixed Bug #3388: PHP notice when previewing the Upcoming Events Page
+* Fixed Bug #3429: Single Calendar Events without time get sorted incorrectly
+
+CMS
+* Fixed Bug #3397: Incorrect encoding of ampersand in custom forms
+* Fixed Bug #3407: Default values for listing engine min/max depth is 0 for Oracle systems 
+* Fixed Bug #3418: Asset listing on Oracle systems with min/max depth set to non-null and group by parent breaks
+
+Data
+* Fixed Bug #3436: XML User Bridge User Group Details and Linking screens fail
+* Fixed Bug #3443: XML User Bridge User Groups and Users are not able to be linked
+* Fixed Bug #3444: getAssetInfo() for XML User Bridge is broken for User Groups
+
+Google Maps
+* Fixed Bug #3430: Google Map page sends MIME application/geplugin when Google Earth plugin turned off
+
+LDAP
+* Fixed Bug #3419: Linking a LDAP user to a User Group causes a PHP notice error
+
+Search
+* Fixed Bug #3386: Search page structured root node keyword throws exception if not configured
+
+
+
 VERSION 3.18.8
 
 Featured Changes
