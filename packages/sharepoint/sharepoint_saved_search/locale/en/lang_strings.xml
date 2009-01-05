@@ -1,0 +1,24 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: This Module is not available under an open source       |
+* | license and consequently distribution of this and any other files  |
+* | that comprise this Module is prohibited. You may only use this     |
+* | Module if you have the written consent of Squiz.                   |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+*
+*
+* DB DataSource Localised Strings File
+*/
+-->
+
+<strings>
+
+<string source="trim_ds_search_default_options_note">These options above set the default value for TRIM record searching. <![CDATA[Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)]]></string>
+
+</strings>
