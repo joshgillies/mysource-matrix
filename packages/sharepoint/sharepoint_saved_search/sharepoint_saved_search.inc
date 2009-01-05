@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search.inc,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: sharepoint_saved_search.inc,v 1.2 2009/01/05 13:18:54 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -190,9 +190,12 @@ class Sharepoint_Saved_Search extends Data_Source
 			unset($result[$hash]);
 		}//end if
 		$this->setAttrValue('cached_result', $result);
-		$this->getResultSet();
-
-		return TRUE;
+		$new_result	= $this->getResultSet();
+		if (!empty($new_result)) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}//end else
 
 	}//end updateCachedResult()
 
@@ -338,7 +341,7 @@ class Sharepoint_Saved_Search extends Data_Source
     */
 	public function setAttrValue($name, $value)
 	{
-		if ($name == 'download_files') {
+		if ($name == 'data_list') {
 			$res_val	= parent::setAttrValue($name, $value);
 			$this->updateCachedResult(TRUE);
 			return $res_val;

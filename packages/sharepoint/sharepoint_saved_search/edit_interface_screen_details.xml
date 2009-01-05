@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2009/01/05 13:18:54 hnguyen Exp $
 *
 */
 -->
@@ -36,9 +36,6 @@
         </field>
     </section>
     <section name="Synchronize Options" write_access="write:attributes">
-    	<field attribute="download_files">
-    		<boolean true_text="yes" false_text="no" />
-    	</field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
@@ -76,19 +73,14 @@
             </function_call>
         </field>
     </section>
-    <section name="Search Criterion Setting" write_access="write:attributes">
-	<!--    <field>
-            <function_call>
-                <paint_function   name="paintRecordSearchType"   />
-                <process_function name="processRecordSearchType" />
-            </function_call>
-        </field>
-	-->
+	<!--     <section name="Search Criterion Setting" write_access="write:attributes">
+
+
 		<field>
 			<function_call>
 				<paint_function	  name="paintDynamicData" />
 				<process_function name="processDynamicData" />
 			</function_call>
 		</field>
-    </section>
+    </section>-->
 </contents>

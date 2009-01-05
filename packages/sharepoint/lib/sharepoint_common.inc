@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: sharepoint_common.inc,v 1.2 2009/01/05 13:18:52 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -49,7 +49,6 @@ class Sharepoint_Common
 								'attachment'	=> $base64Binary,
 							  );
 			$response	= $client->AddAttachment($input_param);
-			log_dump($response);
 			$upload_result	= $response->AddAttachmentResult;
 			if (basename($upload_result) == basename($file_name)) {
 				return TRUE;
@@ -71,29 +70,22 @@ class Sharepoint_Common
 	* @return void
 	* @access public
 	*/
-	public static function checkOutFile()
+	public static function checkOutFile($page_url, $last_modified='')
 	{
-
-		$pageURL	= 'http://192.168.1.60:12671/Sharepoint Whitepapers/Whitepaper - Document Management with Microsoft Office SharePoint Server 2007.doc';
-		$pageURL2	= 'http://192.168.1.60:12671/Sharepoint%20Whitepapers/Whitepaper%20-%20Document%20Management%20with%20Microsoft%20Office%20SharePoint%20Server%202007.doc';
-		$pageURL3	= 'http://192.168.1.60:12671/Sharepoint Whitepapers/index.dat';
-		$pageURL4	= 'http://192.168.1.60:12671/Documents/whitepaper.doc';
-
 		try {
 			$client			= new SoapClient(WSDL, $authen);
 			$input_param	= Array (
-								'pageUrl'			=> 'http://192.168.1.60:12671/Documents/whitepaper.doc',
-								'checkoutToLocal'	=> 'TRUE',
-								'lastmodified'		=> '20 Jun 1982 12:00:00 GMT',
+								'pageUrl'			=> $page_url,
+								'checkoutToLocal'	=> TRUE,
+								'lastmodified'		=> $last_modified, //20 Jun 1982 12:00:00 GMT
 							  );
 			$response	= $client->CheckOutFile($input_param);
-			//$response_xml	= simplexml_load_string($response->GetPermissionCollectionResult->any);
-			//bam($response_xml);
+			$response_xml	= simplexml_load_string($response->GetPermissionCollectionResult->any);
 
 		} catch (SoapFault $sf) {
-			echo 'LAST REQUEST: '.$client->__getLastRequest()."\n";
-			var_dump($sf->getMessage());
-			if (isset($sf->detail)) var_dump($sf->detail);
+			$detail = '';
+			if (isset($sf->detail)) $detail = $sf->detail;
+			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
 		}//end try catch()
 
 	}//end checkOutFile()
@@ -187,7 +179,6 @@ class Sharepoint_Common
 	 */
 	public static function getPermissionCollection($list_name)
 	{
-
 		try {
 			$client	= new SoapClient(WSDL_PERM, $authen);
 			$input_param	= Array (
@@ -203,7 +194,7 @@ class Sharepoint_Common
 			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
 		}//end try catch()
 
-	}//end
+	}//end getPermissionCollection()
 
 
 	/**
@@ -229,7 +220,7 @@ class Sharepoint_Common
 			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
 		}//end try catch
 
-	}//end addList()
+	}//end deleteList()
 
 
 	/**

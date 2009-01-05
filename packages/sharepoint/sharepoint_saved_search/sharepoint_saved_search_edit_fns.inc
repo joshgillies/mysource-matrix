@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search_edit_fns.inc,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: sharepoint_saved_search_edit_fns.inc,v 1.2 2009/01/05 13:18:54 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -572,9 +572,7 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 	{
 		$wa	= $asset->writeAccess('attributes');
 		$o->openRaw();
-
 		?>
-
 		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/data_source_trim/js/ajax.js' ?>">
 		</script>
 
@@ -607,9 +605,11 @@ class Sharepoint_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 			{
 				var update_text = document.getElementById('update_text');
 				if (ajax.response == 1) {
-					update_text.innerHTML = '<span style="color:green;font-weight:bold;>Successfully Synchronized</span>';
+					update_text.style.color	= 'green';
+					update_text.innerHTML = 'Successfully Synchronized';
 				} else if (ajax.response == 0) {
-					update_text.innerHTML = '<span style="color:red;font-weight:bold;>No Records Available For Synchronization</span>';
+					update_text.style.color	= 'red';
+					update_text.innerHTML = 'No Records Available For Synchronization';
 				}//end else if
 			}//end updateSynchInterface()
 

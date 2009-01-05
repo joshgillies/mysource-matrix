@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1 2009/01/05 10:54:31 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.2 2009/01/05 13:18:54 hnguyen Exp $
 *
 */
 -->
@@ -27,11 +27,6 @@
                 <paint_function   name="paintRecordSearchTypes"  />
                 <process_function name="processRecordSearchTypes" />
             </function_call>
-        </field>
-
-        <field attribute="downloadLimit">
-			<display_name>File size Download Limit</display_name>
-			<note>Size in KB</note>
         </field>
 	</section>
     <section name="Connection Setup" write_access="write:attributes">
@@ -62,10 +57,6 @@
     	</field>
     </section>
     <section name="Synchronize Options" write_access="write:attributes">
-    	<field attribute="download_files">
-    		<display_name>Download Files</display_name>
-    		<note>Enable downloading of attachments which comes with Sharepoint documents.</note>
-    	</field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
@@ -101,21 +92,13 @@
             <note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
         </field>
     </section>
-    <section name="Search Criterion Setting" write_access="write:attributes">
-    <!--    <field>
-            <function_call>
-                <paint_function   name="paintRecordSearchType"   />
-                <process_function name="processRecordSearchType" />
-            </function_call>
-			<display_name>Search Type</display_name>
-			<note />
-        </field>
-	-->
+   <!--   <section name="Search Criterion Setting" write_access="write:attributes">
+
 		<field>
 			<function_call>
 				<paint_function name="paintDynamicData" />
 				<process_function name="processDynamicData" />
 			</function_call>
 		</field>
-    </section>
+    </section>-->
 </contents>
