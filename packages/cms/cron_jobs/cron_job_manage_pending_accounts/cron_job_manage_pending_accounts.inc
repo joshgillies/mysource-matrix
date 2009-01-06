@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.8 2008/10/01 23:26:51 lwright Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.9 2009/01/06 06:00:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -162,16 +162,15 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 	*/
 	function _exec(&$msg)
 	{
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('page_account_manager', FALSE);
 
 		foreach($assetids as $assetid) {
-			$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// Get the pending accounts group, if it exists
 			$pending_group_link = $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, NULL, 'user_group', TRUE, 'pending_accounts');
 			if ($asset->attr('use_email_validation') && !empty($pending_group_link)) {
-				$pending_group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($pending_group_link['minorid']);
+				$pending_group = $GLOBALS['SQ_SYSTEM']->am->getAsset($pending_group_link['minorid']);
 
 				// RESEND VALIDATION TIMEOUT //
 				$resend_period = $asset->attr('resend_validation_period');
@@ -198,7 +197,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 						$user_assetid = $user_row['assetid'];
 						$user_linkid  = $user_row['linkid'];
 
-						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 
 						// Resend the validation and update the link to TYPE_2
 						$asset->resendValidation($user->attr('username'));
@@ -231,7 +230,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 						$user_assetid = $user_row['assetid'];
 						$user_linkid  = $user_row['linkid'];
 
-						$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_assetid);
 
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($user_assetid);
 
@@ -242,7 +241,7 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 
 						// Delete the inbox and remove its URLs
 						$inbox_link = $user->getInboxLink();
-						$inbox =& $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
+						$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
 						$GLOBALS['SQ_SYSTEM']->am->trashAsset($inbox->id);
 						$inbox->updateLookups();
 
