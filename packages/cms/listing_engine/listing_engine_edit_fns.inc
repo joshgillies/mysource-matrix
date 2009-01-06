@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.84.2.9 2009/01/06 04:38:41 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.84.2.10 2009/01/06 23:12:18 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.84.2.9 $
+* @version $Revision: 1.84.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -291,6 +291,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	function processAssetPositions(&$asset, &$o, $prefix)
 	{
 		$asset_positions = Array();
+
+		// if there's noting in the POST array, do nothing
+		if(!isset($_POST[$prefix.'_asset_position']) && !isset($_POST[$prefix.'_delete_asset_position']) && !isset($_POST[$prefix.'_new_asset_position_pos'])) return FALSE;
+
 
 		// first, update the existing positions
 		$current_asset_positions = array_get_index($_POST, $prefix.'_asset_position', Array());
