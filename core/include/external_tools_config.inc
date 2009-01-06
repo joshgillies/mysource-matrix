@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.29 2008/09/22 02:11:08 ata Exp $
+* $Id: external_tools_config.inc,v 1.30 2009/01/06 22:55:11 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -54,6 +54,8 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_MARKDOWN_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_MARKDOWNIFY_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/markdownify.php'),
 						'SQ_TOOL_MARKDOWNIFY_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_TOOL_GETID3_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/getid3'),
+						'SQ_TOOL_GETID3_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 
@@ -215,6 +217,13 @@ class External_Tools_Config extends Config
 				echo (SQ_TOOL_MARKDOWNIFY_ENABLED) ? translate('yes') : translate('no');
 			}
 			
+			$o->openField('Enable MP3 ID3 Extraction');
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_GETID3_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_GETID3_ENABLED);
+			} else {
+				echo (SQ_TOOL_GETID3_ENABLED) ? translate('yes') : translate('no');
+			}
+			
 		$o->closeSection();
 
 		$o->openSection(translate('wysiwyg_editor_tools'));
@@ -347,6 +356,22 @@ class External_Tools_Config extends Config
 			}//end if
 			
 		$o->closeSection();
+		
+		$o->openSection('MP3 ID3 Extraction');
+
+			$o->openField('Path to getID3');
+			if ($write_access) {
+				text_box($class.'[SQ_TOOL_GETID3_PATH]', SQ_TOOL_GETID3_PATH, 60);
+			} else {
+				echo SQ_TOOL_GETID3_PATH;
+			}
+
+			if (!is_dir(SQ_TOOL_GETID3_PATH)) {
+				?><br /><span class="sq-backend-warning">Supplied path is not valid</span><?php
+			}
+
+		$o->closeSection();
+
 		
 		if ($write_access) $o->commitButton('', TRUE);
 
