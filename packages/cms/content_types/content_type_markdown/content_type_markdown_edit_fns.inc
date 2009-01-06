@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_markdown_edit_fns.inc,v 1.1 2008/09/22 01:59:19 ata Exp $
+* $Id: content_type_markdown_edit_fns.inc,v 1.1.4.1 2009/01/06 03:49:32 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -63,12 +63,31 @@ class Content_Type_Markdown_Edit_Fns extends Content_Type_Edit_Fns
 				if (trim($html) != '') {
 					$is_markdownified = FALSE;
 					require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+					require_once SQ_FUDGE_PATH.'/general/text.inc';
 					if (SQ_TOOL_MARKDOWNIFY_ENABLED && is_file(SQ_TOOL_MARKDOWNIFY_PATH)) {
 						require_once SQ_TOOL_MARKDOWNIFY_PATH;
 						$class_name = basename(SQ_TOOL_MARKDOWNIFY_PATH, '.php');
 						if (method_exists($class_name, 'parseString')) {
 							$markdownify = new $class_name;
-							$markdown = $markdownify->parseString($html);
+
+							// Keep the html 'pure' only make changes on safe_html
+							$safe_html = $html;
+
+							// Find the keywords and make them 'markdown-proof'
+							$keywords = retrieve_keywords_replacements($html);
+							foreach ($keywords as $keyword) {
+								$safe_keyword = '%'.str_replace('_', '[MY3SEP]', $keyword).'%';
+								$safe_html = str_replace('%'.$keyword.'%', $safe_keyword, $safe_html);
+							}//end foreach
+
+							// Convert HTML to Markdown
+							$markdown = $markdownify->parseString($safe_html);
+
+							// Change the safe keywords back to normal keywords
+							foreach ($keywords as $keyword) {
+								$safe_keyword = '%'.str_replace('_', '[MY3SEP]', $keyword).'%';
+								$markdown = str_replace($safe_keyword, '%'.$keyword.'%', $markdown);
+							}//end foreach
 							$is_markdownified = TRUE;
 						}
 					}
@@ -138,10 +157,30 @@ class Content_Type_Markdown_Edit_Fns extends Content_Type_Edit_Fns
 				$current_markdown = $asset->attr('markdown');
 				if ($markdown != $current_markdown) {
 					require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+					require_once SQ_FUDGE_PATH.'/general/text.inc';
 					if (SQ_TOOL_MARKDOWN_ENABLED && is_file(SQ_TOOL_MARKDOWN_PATH)) {
 						require_once SQ_TOOL_MARKDOWN_PATH;
 						if (function_exists('Markdown')) {
-							$html = Markdown($markdown);
+							// Keep the markdown 'pure' only make changes on safe_markdown
+							$safe_markdown = $markdown;
+
+							// Find the keywords and make them 'markdown-proof'
+							$keywords = retrieve_keywords_replacements($markdown);
+							foreach ($keywords as $keyword) {
+								$safe_keyword = '%'.str_replace('_', '[MY3SEP]', $keyword).'%';
+								$safe_markdown = str_replace('%'.$keyword.'%', $safe_keyword, $safe_markdown);
+							}//end foreach
+
+							// Convert Markdown to HTML
+							$html = Markdown($safe_markdown);
+
+							// Change the safe keywords back to normal keywords
+							foreach ($keywords as $keyword) {
+								$safe_keyword = '%'.str_replace('_', '[MY3SEP]', $keyword).'%';
+								$html = str_replace($safe_keyword, '%'.$keyword.'%', $html);
+							}//end foreach
+
+							// Save the changes
 							if ($asset->setAttrValue('markdown', $markdown) && $asset->setAttrValue('html', $html)) {
 								return TRUE;
 							}
