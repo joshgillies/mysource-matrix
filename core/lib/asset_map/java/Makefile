@@ -9,7 +9,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.9 2007/05/28 05:41:10 rong Exp $
+#* $Id: Makefile,v 1.9.6.1 2009/01/06 05:40:26 bshkara Exp $
 #*
 #*/
 
@@ -19,7 +19,7 @@
 # @author Rayn Ong <rong@squiz.net>
 
 # we always compile with java version 1.4 to maintain compatibility
-javapath = /opt/java-1.4/bin
+javapath = /usr/bin
 
 # asset map component
 component = assetmap core debug inspector matrixtree plaf ui
