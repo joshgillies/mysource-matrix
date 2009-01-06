@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.304 2008/11/28 04:46:10 bpearson Exp $
+* $Id: lang_strings.xml,v 1.305 2009/01/06 05:08:34 bshkara Exp $
 *
 */
 
@@ -2024,6 +2024,8 @@ Are you sure you want to proceed?</string>
 	<string source="asset_map_menu_useme" java="1">Use Me</string>
 	<string source="asset_map_menu_add_new" java="1">Add New</string>
 	<string source="asset_map_menu_remove" java="1">Remove</string>
+	<string source="asset_map_menu_new_child_previous" java="1">New Child: %s</string>
+	<string source="asset_map_menu_no_previous_child" java="1">No Previous Child</string>
 
 	<string source="asset_map_confirm_move_child" java="1">Are you sure you want to move the asset "%s" to the Trash?</string>
 	<string source="asset_map_confirm_move_children" java="1">Are you sure you want to move %s assets to the Trash?</string>
