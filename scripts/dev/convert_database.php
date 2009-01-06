@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.3 2008/12/02 06:53:27 csmith Exp $
+* $Id: convert_database.php,v 1.4 2009/01/06 01:31:13 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -253,6 +253,8 @@ foreach ($info['tables'] as $tablename => $table_info) {
 
 	MatrixDAL::beginTransaction();
 
+	$trans_count = 0;
+
 	printName('Preparing SQL INSERT Query');
 
 	$prepared_sql = MatrixDAL::preparePdoQuery($sql);
@@ -267,6 +269,15 @@ foreach ($info['tables'] as $tablename => $table_info) {
 			if (is_numeric($data_key)) {
 				continue;
 			}
+
+			// if the key isn't in the new tables columns, skip it.
+			// this causes a problem with the sq_thes_lnk table
+			// where the 'relation' column was renamed to 'relid'
+			// but this change is not in the upgrade guides anywhere.
+			if (!in_array($data_key, $columns)) {
+				continue;
+			}
+
 
 			/**
 			 * bytea fields from postgres are returned as resources
@@ -283,6 +294,14 @@ foreach ($info['tables'] as $tablename => $table_info) {
 			MatrixDAL::bindValueToPdo($prepared_sql, $data_key, $data_value);
 		}
 		MatrixDAL::execPdoQuery($prepared_sql);
+
+		$trans_count++;
+
+		if ($trans_count % 5000 == 0) {
+			MatrixDAL::commit();
+			MatrixDAL::beginTransaction();
+			$trans_count = 0;
+		}
 	}
 
 	printUpdateStatus('OK');
