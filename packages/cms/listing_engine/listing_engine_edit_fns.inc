@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.84.2.7 2008/10/23 06:11:42 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.84.2.8 2009/01/06 03:22:57 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.84.2.7 $
+* @version $Revision: 1.84.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3547,6 +3547,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (!isset($_POST[$prefix.'_permissions'])) return FALSE;
 
 		$permission = array_get_index($_POST[$prefix.'_permissions'], 'list');
 		$effective  = array_get_index($_POST[$prefix.'_permissions'], 'effective', 0);
