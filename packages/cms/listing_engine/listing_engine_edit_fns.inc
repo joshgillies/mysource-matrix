@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.90.2.1 2009/01/06 03:24:36 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.90.2.2 2009/01/06 04:32:15 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.90.2.1 $
+* @version $Revision: 1.90.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3477,9 +3477,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$statuses[] = $status;
 			}
 			$statuses = array_unique($statuses);
-		}
-
 		return $asset->setAttrValue('statuses', $statuses);
+		}
+		
+		return FALSE;
 
 	}//end processStatus()
 
