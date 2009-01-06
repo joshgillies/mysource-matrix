@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTree.java,v 1.29 2007/09/13 23:40:17 colivar Exp $
+* $Id: MatrixTree.java,v 1.30 2009/01/06 05:07:38 bshkara Exp $
 *
 */
 
@@ -56,6 +56,8 @@ public class MatrixTree extends CueTree
 	private DropHandler dropHandler;
 	private DoubleClickHandler dcHandler;
 	private SelectionTool selTool;
+
+	private String lastTypeCodeCreated = null;
 
 	private BufferedImage dblBuffer = null;
 	private DragSource dragSource = null;
@@ -847,6 +849,9 @@ public class MatrixTree extends CueTree
 						requestForNewAsset(evt);
 				}
 			}
+			// Store last created asset type code in ivar
+			lastTypeCodeCreated = typeCode;
+
 	}
 
 	/**
@@ -1650,9 +1655,24 @@ public class MatrixTree extends CueTree
 		 * @return the ancillery menu items
 		 */
 		protected JMenuItem[] getAncillaryMenuItems() {
-			JMenuItem[] items = new JMenuItem[2];
+			JMenuItem[] items = new JMenuItem[3];
 			final JMenuItem teleportItem = new JMenuItem(Matrix.translate("asset_map_menu_teleport"));
-			final JMenuItem refreshItem  = new JMenuItem(Matrix.translate("asset_map_menu_refresh"));
+			final JMenuItem refreshItem = new JMenuItem(Matrix.translate("asset_map_menu_refresh"));
+
+			// Work out the title of the new previous child menu item
+			final String newChildPreviousItemTitle;
+			if (lastTypeCodeCreated != null) {
+				Object[] transArgs = { ((AssetType) AssetManager.getAssetType(lastTypeCodeCreated)).getName() };
+				newChildPreviousItemTitle = Matrix.translate("asset_map_menu_new_child_previous", transArgs);
+			} else {
+				newChildPreviousItemTitle = Matrix.translate("asset_map_menu_no_previous_child");
+			}
+
+			final JMenuItem newChildPreviousItem = new JMenuItem(newChildPreviousItemTitle);
+			// Disable the new child previous item if assets have not previously been created yet
+			if (lastTypeCodeCreated == null) {
+				newChildPreviousItem.setEnabled(false);
+			}
 
 			ActionListener extrasListener = new ActionListener() {
 				public void actionPerformed(ActionEvent evt) {
@@ -1662,6 +1682,10 @@ public class MatrixTree extends CueTree
 						String [] assetids = new String[] { getSelectionNode().getAsset().getId() };
 						AssetRefreshWorker worker = new AssetRefreshWorker(assetids, true);
 						worker.start();
+					} else if (evt.getSource().equals(newChildPreviousItem)) {
+						// Get the selected node to use as the parent and let MatrixTreeComm handle the tree position
+						final MatrixTreeNode node = getSelectionNode();
+						fireNewAsset(lastTypeCodeCreated, node, -1);
 					}
 				}
 			};
@@ -1677,8 +1701,10 @@ public class MatrixTree extends CueTree
 			}
 
 			refreshItem.addActionListener(extrasListener);
+			newChildPreviousItem.addActionListener(extrasListener);
 			items[0] = teleportItem;
 			items[1] = refreshItem;
+			items[2] = newChildPreviousItem;
 
 			return items;
 		}
