@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.28 2009/01/07 05:41:47 akarelia Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.29 2009/01/07 05:47:46 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -205,7 +205,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 				?>
 				<td class="sq-backend-table-header">
-					<?php echo 'Never Delete?'; ?>
+					<?php echo translate('never_delete'); ?>
 				</td>
 			</tr>
 			<?php
