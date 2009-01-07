@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.56 2008/10/09 03:53:54 ewang Exp $
+* $Id: tables.xml,v 1.57 2009/01/07 05:41:47 akarelia Exp $
 *
 */
 -->
@@ -861,6 +861,12 @@
 					<default />
 					<description>The time when this remap expires. Should be cleaned up after this time.</description>
 				</column>
+				<column name="never_delete" allow_null="0">
+                    <type>CHAR(1)</type>
+                    <type_variations />
+                    <default>'1'</default>
+                    <description>If this option is locked (true) then the remap wont be deleted at all. To delete the remap we need to first unlock this option</description>
+                </column>
 			</columns>
 			<keys>
 				<primary_key>

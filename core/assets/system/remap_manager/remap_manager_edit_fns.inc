@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.27 2008/01/17 02:48:11 mbrydon Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.28 2009/01/07 05:41:47 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -125,7 +125,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header-header" colspan="4"><b><?php
+				<td class="sq-backend-table-header-header" colspan="5"><b><?php
 					hidden_field($prefix.'_link_offset', $link_offset);
 					if ($link_offset > 0) {
 						?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -196,13 +196,17 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						?>
 						<td class="sq-backend-table-header">
 							<?php
-							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
 							label(translate('delete_question'), $prefix.'_select_all');
+							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");							
 							?>
 						</td>
+						
 						<?php
 					}
 				?>
+				<td class="sq-backend-table-header">
+					<?php echo 'Never Delete?'; ?>
+				</td>
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
@@ -237,7 +241,31 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 								check_box($prefix.'_delete_remap['.$url_info['url'].']');
 								?>
 							</td>
+							<td class="sq-backend-table-cell">
+								<?php
+								if ((isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete']) {
+									check_box($prefix.'_never_delete_remap['.$url_info['url'].']',1, TRUE);
+									
+								} else {
+									check_box($prefix.'_never_delete_remap['.$url_info['url'].']');
+								}
+								?>
+							</td>
 							<?php
+						} else {
+							if ((isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete']) {
+								?>
+									<td class="sq-backend-table-cell">
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="12" height="12" />
+									</td>
+								<?php
+							} else {
+								?>
+									<td class="sq-backend-table-cell">
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="12" height="12" />
+									</td>
+								<?php
+							}
 						}
 					?>
 				</tr>
@@ -269,8 +297,42 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		if (isset($_POST[$prefix.'_never_delete_remap'])) {
+			$urls_to_update = array_keys($_POST[$prefix.'_never_delete_remap']);
+			try {
+				$bind_vars = Array(
+								'never_delete'		=> '0',
+								'urls_to_update'	=> $urls_to_update,
+								  );
+				$bind_vars_add = Array(
+									'never_delete'		=> '1',
+									'urls_to_update'	=> $urls_to_update,
+								  );
+				MatrixDAL::executeQuery('remap_manager', 'removeNeverDeleteFromCurrentRemapURL', $bind_vars);
+				MatrixDAL::executeQuery('remap_manager', 'addNeverDeleteToCurrentRemapURL', $bind_vars_add);
+			} catch (DALException $e) {
+				throw new Exception('Unable to delete remaps due to database error: '.$e->getMessage());
+			}
+		} else {
+			try {
+				$bind_vars = Array('never_delete' => '0');
+				MatrixDAL::executeQuery('remap_manager', 'updateAllRemapURL', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception("Unable to get remap urls due to the following database error: ".$e->getMessage());
+			}			
+		}
+
 		if (isset($_POST[$prefix.'_delete_remap'])) {
 			$urls = array_keys($_POST[$prefix.'_delete_remap']);
+			if (isset($_POST[$prefix.'_never_delete_remap'])) {
+				foreach ($_POST[$prefix.'_never_delete_remap'] as $url => $not_deletable) {
+					foreach ($urls as  $index => $url_to_delete){
+						if ($url == $url_to_delete && !$not_deletable == 0) {
+							unset($urls[$index]);
+						}
+					}
+				}
+			}
 
 			try {
 				$bind_vars = Array('urls' => $urls);
@@ -310,6 +372,10 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openField(translate('new_url'));
 			text_box($prefix.'_add_remap_new_url', '', 50);
 		$o->closeField();
+		
+		$o->openField(translate('never_delete'));
+			check_box($prefix.'_add_never_delete_option');
+		$o->closeField();
 
 		$o->openField(translate('expires'));
 			text_box($prefix.'_add_remap_expires_days', '', 5);
@@ -321,7 +387,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			// csv upload instructions
 			$o->note(translate('csv_upload_instructions'));
-			$o->note(translate('csv_upload_instructions_example_1').'<br />'.translate('csv_upload_instructions_example_2'));
+			$o->note(translate('csv_upload_instructions_example_1').'<br />'.translate('csv_upload_instructions_example_2').'<br />'.translate('csv_upload_instructions_example_3'));
 		$o->closeField();
 
 	}//end paintAddRemapURLs()
@@ -362,8 +428,9 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					$int_expires = iso8601_ts($expires);
 				}
+				$never_delete = trim($line_value[3]);
 
-				$asset->addRemapURL($old_url, $new_url, $int_expires);
+				$asset->addRemapURL($old_url, $new_url, $int_expires, $never_delete);
 			}
 		}
 
@@ -375,6 +442,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$old_url = trim($_POST[$prefix.'_add_remap_old_url']);
 		$new_url = trim($_POST[$prefix.'_add_remap_new_url']);
 		$expires = NULL;
+		if (isset($_POST[$prefix.'_add_never_delete_option'])) {
+			$never_delete = trim($_POST[$prefix.'_add_never_delete_option']);
+		} else {
+			$never_delete = '0' ;
+		}
 
 		if (empty($old_url) || empty($new_url)) {
 			return FALSE;
@@ -387,7 +459,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		$asset->addRemapURL($old_url, $new_url, $expires);
+		$asset->addRemapURL($old_url, $new_url, $expires, $never_delete);
 
 		return TRUE;
 
