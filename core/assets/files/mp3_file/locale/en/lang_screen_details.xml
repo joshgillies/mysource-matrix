@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2009/01/08 00:52:51 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2 2009/01/08 04:07:33 lwright Exp $
 *
 */
 -->
@@ -43,6 +43,10 @@
 		</field>
 		<field attribute="year">
 			<display_name>Year</display_name>
+			<note />
+		</field>
+		<field attribute="genre">
+			<display_name>Genre</display_name>
 			<note />
 		</field>
 		<field attribute="length">

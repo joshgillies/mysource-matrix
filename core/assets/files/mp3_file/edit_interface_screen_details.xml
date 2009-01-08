@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2009/01/08 00:52:51 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2009/01/08 04:07:33 lwright Exp $
 *
 */
 -->
@@ -54,6 +54,9 @@
 		</field>
 		<field attribute="year">
 			<text width="6" />
+		</field>
+		<field attribute="genre">
+			<text width="20" />
 		</field>
 		<field attribute="length">
 			<duration biggest_units="minutes" smallest_units="seconds" />
