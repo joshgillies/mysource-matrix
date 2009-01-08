@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.1 2009/01/08 00:52:51 lwright Exp $
+* $Id: mp3_file.inc,v 1.2 2009/01/08 05:16:57 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.1 $
+* @version    $Revision: 1.2 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,22 +359,9 @@ class MP3_File extends File
 			}
 
 			if (isset($tag['content_type'])) {
-				// If the first character is "(" and second character isn't, then this is
-				// a reference to an ID3v1 code - we need to convert this ourselves, unlike ID3v1 where
-				// it is done for us (use getID3's ID3v1 module to lookup). Otherwise, assume that the
-				// whole tag is the genre. When looking up ID3v1 genre name, return first found
-				// content type as the genre. Ignore refinements or additional content types.
-				// eg. content type of "(32)" refers to "Classical".
-				if (($tag['content_type']{0} === '(') && ($tag['content_type']{1} !== '(')) {
-					$id3v1_type = substr($tag['content_type'], 1, strpos($tag['content_type'], ')') - 1);
-					$tag['genre'] = getID3_ID3v1::LookupGenreName($id3v1_type);
-				} else {
-					$tag['genre'] = $tag['content_type'];
-					if (substr($tag['genre'], 0, 2) == '((') {
-						// Custom content type requires that an initial opening bracket
-						// is escaped by doubling it.
-						$tag['genre'] = substr_replace($tag['genre'], '(', 0, 2);
-					}
+				$genres = getID3_ID3v2::ParseID3v2GenreString($tag['content_type']);
+				if (count($genres) > 0) {
+					$tag['genre'] = $genres['genre'][0];
 				}
 			}
 
