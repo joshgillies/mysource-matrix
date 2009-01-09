@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2009/01/05 14:05:10 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3.2.1 2009/01/09 05:00:50 hnguyen Exp $
 *
 */
 -->
@@ -22,10 +22,16 @@
 		</field>
 	</section>
     <section name="Connection Setup" write_access="write:attributes">
+        <field>
+    		<function_call>
+                <paint_function     name="paintTestConnection" />
+                <process_function   name="processTestConnection" />
+            </function_call>
+    	</field>
 		<field>
 			<function_call>
-				<paint_function		name="paintWsdlUrl" />
-				<process_function	name="processWsdlUrl" />
+				<paint_function		name="paintSystemUrl" />
+				<process_function	name="processSystemUrl" />
 			</function_call>
 		</field>
         <field attribute="username">
@@ -73,14 +79,4 @@
             </function_call>
         </field>
     </section>
-	<!--	<section name="Search Criterion Setting" write_access="write:attributes">
-
-
-		<field>
-			<function_call>
-				<paint_function	  name="paintDynamicData" />
-				<process_function name="processDynamicData" />
-			</function_call>
-		</field>
-    </section>-->
 </contents>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search_management.inc,v 1.2 2009/01/05 14:05:11 hnguyen Exp $
+* $Id: sharepoint_saved_search_management.inc,v 1.2.2.1 2009/01/09 05:00:50 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -51,6 +51,23 @@ class Sharepoint_Saved_Search_Management extends Asset_Management
 											   		'parameters'	=> Array (
 												   						'allow_empty'		=> FALSE,
 												   					   ),
+												   ),
+						'search_logic'			=> Array (
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> 'And',
+											   		'parameters'	=> Array (
+												   						'allow_empty'		=> FALSE,
+												   					   ),
+												   ),
+						'row_limit'				=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> 30,
+													'parameters'	=> Array (
+																		'allow_empty'		=> TRUE,
+																		'allow_negative'	=> FALSE,
+																	   ),
 												   ),
 						'data_list'				=> Array (
 													'added'			=> '0.1',
@@ -89,25 +106,6 @@ class Sharepoint_Saved_Search_Management extends Asset_Management
 		                                            'type'      => 'password',
 		                                            'default'   => '',
 		                                           ),
-						'download_limit'			=> Array(
-													'added'			=> '0.1',
-													'type'			=> 'int',
-													'default'		=> 2097152,
-													'parameters'	=> Array (
-																		'allow_empty'		=> TRUE,
-																		'allow_negative'	=> FALSE,
-																	   ),
-												   ),
-						'record_search_type'	=> Array (
-											   		'added'			=> '0.1',
-											   		'type'			=> 'serialise',
-											   		'default'		=> Array(
-												   						'StringSearch'	=> 'StringSearch',
-												   					   ),
-											   		'parameters'	=> Array (
-												   						'allow_empty'		=> FALSE,
-												   					   ),
-											  	   ),
 
 						'dynamic_vars'			=> Array(
 													'added'		=> '0.2',
