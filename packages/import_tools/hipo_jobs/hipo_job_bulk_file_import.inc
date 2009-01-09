@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.9.2.1 2008/12/10 01:05:55 ewang Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.9.2.2 2009/01/09 05:20:36 lwright Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -337,6 +337,10 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
 					$new_asset_type = 'image';
 				break;
+				case 'mp3' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('mp3_file');
+					$new_asset_type = 'mp3_file';
+				break;
 				default :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
 					$new_asset_type = 'file';
@@ -424,6 +428,10 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 				case 'image' :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('image');
 					$new_asset_type = 'image';
+				break;
+				case 'mp3' :
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('mp3_file');
+					$new_asset_type = 'mp3_file';
 				break;
 				default :
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
