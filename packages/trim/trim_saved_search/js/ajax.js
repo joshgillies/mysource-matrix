@@ -1,193 +1,87 @@
-/* Simple AJAX Code-Kit (SACK) v1.6.1 */
-/* ©2005 Gregory Wild-Smith */
-/* www.twilightuniverse.com */
-/* Software licenced under a modified X11 licence,
-   see documentation or authors website for more details */
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: ajax.js,v 1.1.1.1.4.1 2009/01/09 05:25:41 hnguyen Exp $
+*
+*/
 
-function sack(file) {
-	this.xmlhttp = null;
+function constructXmlHttpOjb()
+{
+	var xmlHttp;
 
-	this.resetData = function() {
-		this.method = "POST";
-  		this.queryStringSeparator = "?";
-		this.argumentSeparator = "&";
-		this.URLString = "";
-		this.encodeURIString = true;
-  		this.execute = false;
-  		this.element = null;
-		this.elementObj = null;
-		this.requestFile = file;
-		this.vars = new Object();
-		this.responseStatus = new Array(2);
-  	};
-
-	this.resetFunctions = function() {
-  		this.onLoading = function() { };
-  		this.onLoaded = function() { };
-  		this.onInteractive = function() { };
-  		this.onCompletion = function() { };
-  		this.onError = function() { };
-		this.onFail = function() { };
-	};
-
-	this.reset = function() {
-		this.resetFunctions();
-		this.resetData();
-	};
-
-	this.createAJAX = function() {
+	try {
+		// FF, Opera, Safari
+		xmlHttp = new XMLHttpRequest();
+	} catch (e) {
 		try {
-			this.xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-		} catch (e1) {
+			// IE
+			xmlHttp = new ActiveXObject("Msxml2.XMLHTTP");
+		} catch (e) {
 			try {
-				this.xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-			} catch (e2) {
-				this.xmlhttp = null;
+				xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
+			} catch (e) {
+				alert("Your browser does not support AJAX");
+				return false;
 			}
 		}
+	}//end try catch
 
-		if (! this.xmlhttp) {
-			if (typeof XMLHttpRequest != "undefined") {
-				this.xmlhttp = new XMLHttpRequest();
-			} else {
-				this.failed = true;
-			}
-		}
-	};
-
-	this.setVar = function(name, value){
-		this.vars[name] = Array(value, false);
-	};
-
-	this.encVar = function(name, value, returnvars) {
-		if (true == returnvars) {
-			return Array(encodeURIComponent(name), encodeURIComponent(value));
-		} else {
-			this.vars[encodeURIComponent(name)] = Array(encodeURIComponent(value), true);
-		}
-	}
-
-	this.processURLString = function(string, encode) {
-		encoded = encodeURIComponent(this.argumentSeparator);
-		regexp = new RegExp(this.argumentSeparator + "|" + encoded);
-		varArray = string.split(regexp);
-		for (i = 0; i < varArray.length; i++){
-			urlVars = varArray[i].split("=");
-			if (true == encode){
-				this.encVar(urlVars[0], urlVars[1]);
-			} else {
-				this.setVar(urlVars[0], urlVars[1]);
-			}
-		}
-	}
-
-	this.createURLString = function(urlstring) {
-		if (this.encodeURIString && this.URLString.length) {
-			this.processURLString(this.URLString, true);
-		}
-
-		if (urlstring) {
-			if (this.URLString.length) {
-				this.URLString += this.argumentSeparator + urlstring;
-			} else {
-				this.URLString = urlstring;
-			}
-		}
-
-		// prevents caching of URLString
-		this.setVar("rndval", new Date().getTime());
-
-		urlstringtemp = new Array();
-		for (key in this.vars) {
-			if (false == this.vars[key][1] && true == this.encodeURIString) {
-				encoded = this.encVar(key, this.vars[key][0], true);
-				delete this.vars[key];
-				this.vars[encoded[0]] = Array(encoded[1], true);
-				key = encoded[0];
-			}
-
-			urlstringtemp[urlstringtemp.length] = key + "=" + this.vars[key][0];
-		}
-		if (urlstring){
-			this.URLString += this.argumentSeparator + urlstringtemp.join(this.argumentSeparator);
-		} else {
-			this.URLString += urlstringtemp.join(this.argumentSeparator);
-		}
-	}
-
-	this.runResponse = function() {
-		eval(this.response);
-	}
-
-	this.runAJAX = function(urlstring) {
-		if (this.failed) {
-			this.onFail();
-		} else {
-			this.createURLString(urlstring);
-			if (this.element) {
-				this.elementObj = document.getElementById(this.element);
-			}
-			if (this.xmlhttp) {
-				var self = this;
-				if (this.method == "GET") {
-					totalurlstring = this.requestFile + this.queryStringSeparator + this.URLString;
-					this.xmlhttp.open(this.method, totalurlstring, true);
-				} else {
-					this.xmlhttp.open(this.method, this.requestFile, true);
-					try {
-						this.xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded")
-					} catch (e) { }
-				}
-
-				this.xmlhttp.onreadystatechange = function() {
-					switch (self.xmlhttp.readyState) {
-						case 1:
-							self.onLoading();
-							break;
-						case 2:
-							self.onLoaded();
-							break;
-						case 3:
-							self.onInteractive();
-							break;
-						case 4:
-							self.response = self.xmlhttp.responseText;
-							self.responseXML = self.xmlhttp.responseXML;
-							self.responseStatus[0] = self.xmlhttp.status;
-							self.responseStatus[1] = self.xmlhttp.statusText;
-
-							if (self.execute) {
-								self.runResponse();
-							}
-
-							if (self.elementObj) {
-								elemNodeName = self.elementObj.nodeName;
-								elemNodeName.toLowerCase();
-								if (elemNodeName == "input"
-								|| elemNodeName == "select"
-								|| elemNodeName == "option"
-								|| elemNodeName == "textarea") {
-									self.elementObj.value = self.response;
-								} else {
-									self.elementObj.innerHTML = self.response;
-								}
-							}
-							if (self.responseStatus[0] == "200") {
-								self.onCompletion();
-							} else {
-								self.onError();
-							}
-
-							self.URLString = "";
-							break;
-					}
-				};
-
-				this.xmlhttp.send(this.URLString);
-			}
-		}
-	};
-
-	this.reset();
-	this.createAJAX();
+	return xmlHttp;
 }
+
+function sendRequest(url, call_back_func)
+{
+	var xmlHttp	= constructXmlHttpOjb();
+	var response = null;
+	xmlHttp.onreadystatechange=function()
+	{
+		if (xmlHttp.readyState == 4) {
+			response	= xmlHttp.responseText;
+			eval(call_back_func+'(response)');
+		}
+	}
+	xmlHttp.open("GET", url, true);
+	xmlHttp.send(null);
+
+}//end sendRequest()
+
+
+function updateSynchInterface(response)
+{
+	var update_text = document.getElementById('update_text');
+	if (response == 1) {
+		update_text.style.color	= 'green';
+		update_text.innerHTML = 'Successfully Synchronized';
+	} else if (response == 0) {
+		update_text.style.color	= 'red';
+		update_text.innerHTML = 'No Records Available For Synchronization';
+	}//end else if
+}//end updateSynchInterface()
+
+
+function updateCheckInterface(response)
+{
+	var update_text = document.getElementById('update_text');
+	eval(response);
+	if (numUpdate !== false) {
+		if (numUpdate === 0) {
+			update_text.style.color	= 'green';
+			update_text.innerHTML = 'No Update Is Required';
+		} else {
+			update_text.style.color	= 'red';
+			update_text.innerHTML = numUpdate+' out-of-date Records';
+		}//end else
+	} else {
+		update_text.style.color	= 'red';
+		update_text.innerHTML = 'Unable to check for update. Your cache might be turned off.';
+	}//end else
+
+}//end updateInterface()

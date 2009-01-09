@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.3 2008/09/10 23:30:30 hnguyen Exp $
+* $Id: trim_common.inc,v 1.3.2.1 2009/01/09 05:25:41 hnguyen Exp $
 *
 */
 
@@ -21,9 +21,9 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
-* @subpackage calendar
+* @subpackage trim
 */
 
 
@@ -617,6 +617,36 @@ class TRIM_Common
 
 	}//end getRecordProperties()
 
+
+	/**
+	* this function return the record properties available for sorting
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getRecordSortProperties()
+	{
+		$properties = Array (
+						'Number'					=> 'Number',
+						'FreeTitle'					=> 'FreeTitle',
+						'ExternalId'				=> 'ExternalId',
+						'DateRegistered'			=> 'DateRegistered',
+						'DateCreated'				=> 'DateCreated',
+						'DateDue'					=> 'DateDue',
+						'DateClosed'				=> 'DateClosed',
+						'Priority'					=> 'Priority',
+						'Consignment'				=> 'Consignment',
+						'DateInactive'				=> 'DateInactive',
+						'DateLastAction'			=> 'DateLastAction',
+						'RecordType'				=> 'RecordType',
+						'StructuredTitle'			=> 'StructuredTitle',
+						'DateFinalized'				=> 'DateFinalized',
+						'DatePublished'				=> 'DatePublished',
+					  );
+
+		return $properties;
+
+	}//end getRecordSortProperties()
 
 	/**
 	* This function return all the available security levels in TRIM
