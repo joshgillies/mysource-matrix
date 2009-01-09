@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.2.2.3 2009/01/05 14:17:44 hnguyen Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.2.2.4 2009/01/09 05:32:01 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.3 $
+* @version $Revision: 1.2.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -116,7 +116,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 				} else if (strpos(urlencode($var), 'search_sort') !== FALSE) {
 					$search_sort = TRUE;
 					$list['None']	= 'None';
-					$list += TRIM_Common::getRecordProperties();
+					$list += TRIM_Common::getRecordSortProperties();
 				} else if (urlencode($var) == 'string_search_type') {
 					$list = TRIM_Common::getRecordStringSearchClauseType();
 				} else if (urlencode($var) == 'search_date_range_type') {
@@ -601,62 +601,15 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		$o->openRaw();
 		//
 		?>
-		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/data_source_trim/js/ajax.js' ?>">
-		</script>
-		<script type="text/javascript">
-			var ajax = new sack();
-            function checkUpdate()
-            {
-                ajax.requestFile = '<?php echo $asset->getURL(); ?>'+'?check_update=1';   // Specifying which file to get
-                ajax.onCompletion = updateCheckInterface;   // Specify function that will be executed after file has been found
-                ajax.runAJAX();     // Execute AJAX function
-            }//end checkUpdate
-
-			function updateCheckInterface()
-			{
-				var update_text = document.getElementById('update_text');
-				eval(ajax.response);
-				if (numUpdate !== false) {
-					if (numUpdate === 0) {
-						update_text.style.color	= 'green';
-						update_text.innerHTML = 'No Update Required';
-					} else {
-						update_text.style.color	= 'red';
-						update_text.innerHTML = numUpdate+' out-of-date Records';
-					}//end else
-				} else {
-					update_text.style.color	= 'red';
-					update_text.innerHTML = 'Unable to check for update. Your cache might be turned off.';
-				}//end else
-
-			}//end updateInterface()
-
-			function updateSynchInterface()
-			{
-				var update_text = document.getElementById('update_text');
-				if (ajax.response == 1) {
-					update_text.style.color	= 'green';
-					update_text.innerHTML = 'Successfully Synchronized';
-				} else if (ajax.response == 0) {
-					update_text.style.color	= 'red';
-					update_text.innerHTML = 'No Records Available For Synchronization';
-				}//end else if
-			}//end updateSynchInterface()
-
-			function synchRecords()
-			{
-                ajax.requestFile = '<?php echo $asset->getURL(); ?>'+'?synch_now=1';   // Specifying which file to get
-                ajax.onCompletion = updateSynchInterface;   // Specify function that will be executed after file has been found
-                ajax.runAJAX();     // Execute AJAX function
-			}//end synchRecords()
+		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/trim_saved_search/js/ajax.js' ?>">
 		</script>
 		<div>
 			<table style="width:auto;border-spacing:0px;" border="0">
 				<tr>
 					<td width="90"><span style="font-weight:bold;">Check Update</span></td>
 					<td width="150"><span id="update_text">Not Checked</span></td>
-					<td><?php if ($wa) normal_button($prefix.'_update', 'Check for Updates', 'checkUpdate()'); ?></td>
-					<td><?php if ($wa) normal_button($prefix.'_synch', 'Synchronize Now', 'synchRecords()'); ?></td>
+					<td><?php if ($wa) normal_button($prefix.'_update', 'Check for Updates', 'sendRequest(\''.$asset->getURL().'?check_update=1\', \'updateCheckInterface\');'); ?></td>
+					<td><?php if ($wa) normal_button($prefix.'_synch', 'Synchronize Now', 'sendRequest(\''.$asset->getURL().'?synch_now=1\', \'updateSynchInterface\');'); ?></td>
 				</tr>
 			</table>
 		</div>

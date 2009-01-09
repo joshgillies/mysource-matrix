@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.2.2.3 2008/12/17 22:37:50 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.2.2.4 2009/01/09 05:32:01 hnguyen Exp $
 *
 */
 
@@ -27,9 +27,9 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.3 $
+* @version $Revision: 1.2.2.4 $
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage __trim__
 */
 class TRIM_Saved_Search extends Data_Source
 {
@@ -240,16 +240,19 @@ class TRIM_Saved_Search extends Data_Source
 							$updated = TRUE;
 						} else {
 							// INTEGRITY Check
-							if (isset($record_info['recDocumentType']) && $record_info['recDocumentType'] != 'Record has no document attached.') {
+							if (isset($new_record_info['recDocumentType']) && $new_record_info['recDocumentType'] != 'Record has no document attached.') {
 								// We have a file here, have to check whether it is still in the system
-								$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
+								$final_file_path	= $this->data_path.'/'.$new_record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
 
 								// If there is no file in there
 								if (empty($files_stored)) {
 									$this->storeDocumentList($connection, $new_record_info);
 									$updated = TRUE;
-								}//end if
+								} else if (!isset($record_info['download_url'])) {
+									$result[$index]['document_url']		= $this->getURL().'?Uri='.$new_record_info['Uri'];
+									$updated = TRUE;
+								}//end else if
 							}//end if
 
 						}//end else
@@ -484,7 +487,7 @@ class TRIM_Saved_Search extends Data_Source
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			create_directory($final_file_path);
 
-			$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, &$final_file_path);
+			$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, $final_file_path);
 			$record_info['document_url']	= $this->getURL().'?Uri='.$record_info['Uri'];
 		}//end if
 
