@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2008/05/20 23:35:54 lwright Exp $
+* $Id: lang_strings.xml,v 1.1.4.1 2009/01/09 03:21:43 bpearson Exp $
 *
 *
 * DB DataSource Localised Strings File
@@ -24,6 +24,14 @@
 <string source="host_name">Host Name</string>
 <string source="password">Password</string>
 
+<string source="connection_type">Connection Type</string>
+<string source="connection_setup">Connection Setup</string>
+<string source="sql_query">SQL Query</string>
+<string source="database_details">Database Details</string>
+<string source="dsn">DSN</string>
+<string source="db_connector">DB Connector</string>
+
 <string source="data_password_not_displayed">(Password not displayed)</string>
+<string source="trigger_execute_database_query_note"><![CDATA[Note that you can use keywords of the current asset (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the SQL Query]]></string>
 
 </strings>
