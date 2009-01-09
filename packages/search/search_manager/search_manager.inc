@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.189 2008/11/26 04:12:15 csmith Exp $
+* $Id: search_manager.inc,v 1.189.2.1 2009/01/09 03:56:07 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.189 $
+* @version $Revision: 1.189.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2655,7 +2655,9 @@ class Search_Manager extends Asset
 		 * This then becomes part of the main query where clause.
 		*/
 		$subquery_string = 'SELECT ' . implode(',', $subquery['select']) . ' FROM ' . implode(',', $subquery['from']) . ' ' . implode(' ', $subquery['join']);
-		$subquery_string .= ' WHERE ' . implode(' ' . $subquery['where_joiner'] . ' ', $subquery['where']);
+		if (!empty($subquery['where'])) {
+			$subquery_string .= ' WHERE ' . implode(' ' . $subquery['where_joiner'] . ' ', $subquery['where']);
+		}
 
 		/**
 		 * If/only if we are checking permissions,
