@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_common.inc,v 1.3 2009/01/05 13:30:09 hnguyen Exp $
+* $Id: sharepoint_common.inc,v 1.4 2009/01/09 04:07:04 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -262,7 +262,7 @@ class Sharepoint_Common
 	* @return array|int
 	* @access public
 	*/
-	public static function getTemplateId($template_name='')
+	private static function getTemplateId($template_name='')
 	{
 		$template_ids	= Array (
 							'announcements'					=> '104',
@@ -337,7 +337,6 @@ class Sharepoint_Common
 	public static function getListAvailableFields($connection, $list_id, $all=FALSE, $get_field_info=FALSE)
 	{
 		$response	= self::getList($connection, $list_id);
-
 
 	    $available_fields   = Array();
 	    $field_info			= Array();
@@ -489,24 +488,43 @@ ListVersion="0" >
 	* @param array	$field_info		The information about all fields available for this list
 	*
 	* @return string
-	* @access public
+	* @access private
 	*/
-	public static function constructXMLQuery($search_query, $search_logic, $field_info)
+	private static function constructXMLQuery($search_query, $search_logic, $field_info)
 	{
+		// Refer to MS CAML Query schema @ http://msdn.microsoft.com/en-us/library/ms467521.aspx
+
 		$query_str	= '';
 		$operators	= Array (
-						'<'	=> 'Lt',
-						'>'	=> 'Gt',
-						'='	=> 'Eq',
+						'<'				=> 'Lt',
+						'<='			=> 'Leq',
+						'>'				=> 'Gt',
+						'>='			=> 'Geq',
+						'='				=> 'Eq',
+						'!='			=> 'Neq',
+						'Contains'		=> 'Contains',
+						'BeginsWith'	=> 'BeginsWith',
+						'IsNotNull'		=> 'IsNotNull',
+						'IsNull'		=> 'IsNull',
 					  );
 
-		foreach ($search_query as $field_name => $crit_info) {
+		$search_query_temp	= Array();
+
+		foreach ($search_query as  $index => $field_crit_info) {
+			$field_name	= key($field_crit_info);
+			$crit_info	= $field_crit_info[$field_name];
 			$op 		= $operators[$crit_info['operator']];
 			$val		= $crit_info['value'];
 			$type		= $field_info[$field_name]['Type'];
-			$query_str	.= '<'.$op.'><FieldRef Name="'.$field_name.'" /><Value Type="'.$type.'">'.$val.'</Value></'.$op.'>';
+
+			$query_str	= '<'.$op.'><FieldRef Name="'.$field_name.'" /><Value Type="'.$type.'">'.$val.'</Value></'.$op.'>';
+			$search_query_temp[]	= $query_str;
 		}//end if
-		$final_query_str	= "<Query><Where><".$search_logic.">".$query_str."</".$search_logic."></Where></Query>";
+
+		$query_strings		= self::recursiveXMLConstruct($search_query_temp, $search_logic);
+		$built_query_string	= array_pop($search_query_temp);
+
+		$final_query_str	= "<Query><Where>".$built_query_string."</Where></Query>";
 
 		return $final_query_str;
 
@@ -514,15 +532,60 @@ ListVersion="0" >
 
 
 	/**
-	 * This function is used to search for list items within a sharepoint list
-	 * An XML query can be provided to set the criterions of the search based on item's fields
-	 *
-	 * @param $search_info array	The fields criterions to search for
-	 *
-	 * @return array
-	 * @access public
-	 */
-	public static function getListItems($connection, $list_id, $search_query=Array())
+	* This function construct the XML for CAML query recursively
+	*
+	* @param array	&$search_query	The array which contain query clauses inside, to be grouped recursively
+	* @param string	$search_logic	The search logic AND or OR
+	*
+	* @return void
+	* @access private
+	*/
+	private static function recursiveXMLConstruct(&$search_query, $search_logic)
+	{
+		/* Ok, a bit confusing here, but we want to add an logic (AND/ OR) to a pair of conditions, if we have an
+		* uneven number of conditions, say 3, we would need to have something like
+		* <AND>
+		* 	<AND><ConditionA><ConditionB></AND>
+		* 	<ConditionC>
+		* </AND>
+		* If it is even then it's simpler
+		* <AND>
+		* 	<AND><ConditionA><ConditionB></AND>
+		* 	<AND><ConditionC><ConditionD></AND>
+		* </AND>
+		*/
+		$temp_array	= Array();
+		for (reset($search_query); NULL !== ($k = key($search_query)); next($search_query)) {
+			$current_element = $search_query[$k];
+			if (!empty($current_element)) {
+				$next_element	= next($search_query);
+				 if (!empty($next_element)) {
+					$search_clause	= '<'.$search_logic.'>'.$current_element.$next_element.'</'.$search_logic.'>';
+					$temp_array[]	= $search_clause;
+				 } else {
+					$search_clause	= $current_element;
+					$temp_array[]	= $search_clause;
+				 }//end else
+			}//end if
+		}//end for
+		$search_query	= $temp_array;
+		if (count($search_query) >= 2) {
+			self::recursiveXMLConstruct($search_query, $search_logic);
+		}//end if
+
+	}//end recursiveXMLConstruct
+
+
+	/**
+	* This function is used to search for list items within a sharepoint list
+	* An XML query can be provided to set the criterions of the search based on item's fields
+	*
+	* @param $search_info array	The fields criterions to search for
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getListItems($connection, $list_id, $search_query=Array(), $search_logic='And', $row_limit='')
 	{
 		$result	= Array();
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
@@ -536,24 +599,23 @@ ListVersion="0" >
 			$param			= Array (
 								'listName'		=> $list_id,
 								'viewName'		=> '',
-								'rowLimit'		=> '',
+								'rowLimit'		=> $row_limit,
 							  );
+			$ndQueryOptions	= '	<QueryOptions>
+									<IncludeAttachmentUrls>TRUE</IncludeAttachmentUrls>
+								</QueryOptions>';
+
+			$param['queryOptions']	= Array (
+										'any'	=> $ndQueryOptions,
+									  );
 
 			if (!empty($search_query)) {
 				$field_info	= self::getListAvailableFields($connection, $list_id, TRUE, TRUE);
-				$logic = 'And';
-				$query	= self::constructXMLQuery($search_query, $logic, $field_info);
+				$query	= self::constructXMLQuery($search_query, $search_logic, $field_info);
 				$param['query']	= Array (
 									'any'	=> $query,
 								  );
 
-				/*$ndQueryOptions	= '	<queryOptions>
-										<IncludeMandatoryColumns>FALSE</IncludeMandatoryColumns>
-										<DateInUtc>TRUE</DateInUtc>
-									</queryOptions>';
-				$param['queryOptions']	= Array (
-									'any'	=> $ndQueryOptions,
-								  );*/
 			}//end if
 
 			$items		= $client->GetListItems($param);
@@ -568,6 +630,9 @@ ListVersion="0" >
 				$ows_ID				= (string) $zresult['ows_ID'];
 				foreach ($zresult->attributes() as $attr_name => $attr_val) {
 					$attr_val	= str_replace($ows_ID.';#', '', $attr_val);
+					if ($attr_name == 'ows_Attachments') {
+						$attr_val	= str_replace(';#', '', $attr_val);
+					}//end
 					$result[$ows_ID][$attr_name]	= (string) $attr_val;
 				}//end foreach
 				$result[$ows_ID]['download_url']	= $connection['url'].'/'.str_replace(' ', '%20', $result[$ows_ID]['ows_FileRef']);
@@ -590,7 +655,7 @@ ListVersion="0" >
 	 * @return array
 	 * @access public
 	 */
-	public static function getListCollections($connection)
+	public static function getListCollections($connection, $custom_list_only=FALSE)
 	{
 		$lists	= Array();
 		$list_wsdl	= self::getWSDLLocation('lists', $connection['url']);
@@ -603,16 +668,17 @@ ListVersion="0" >
 
 			foreach ($result->children() as $list) {
 				$list_id	= (string) $list ['ID'];
+				if ($custom_list_only && (string) $list['ServerTemplate'] != '100') {
+					continue;
+				}//end if
 				foreach ($list->attributes() as $name	=> $value) {
 					$lists[$list_id][$name]	= (string) $value;
-
 				}//end foreach
 
 			}//end foreach
 		} catch (SoapFault $sf) {
 			$detail = '';
 			if (isset($sf->detail)) $detail = $sf->detail;
-			trigger_error($sf->getMessage().'.'.$detail, E_USER_WARNING);
 		}//end try catch
 
 		return $lists;
@@ -654,7 +720,7 @@ ListVersion="0" >
     * @return int		// The number of file(s) downloaded
     * @access public
     */
-    public static function downloadFiles($urls, $save_path='/home/hnguyen/matrix_installs/matrix_dev/Sharepoint/download/')
+    private static function downloadFiles($urls, $save_path='/home/hnguyen/matrix_installs/matrix_dev/Sharepoint/download/')
     {
 		$mh	= curl_multi_init();
 		foreach ($urls as $i => $url) {
@@ -696,23 +762,29 @@ ListVersion="0" >
 	* @return boolean
 	* @access public
 	*/
-	public static function test_sharepoint_connection($connection)
+	public static function test_sharepoint_connection($connection, $silent=FALSE)
 	{
 		try {
 			$client = new SoapClient(self::getWSDLLocation('lists', $connection['url']), $connection['authentication']);
 			$fns	= $client->__getFunctions();
 
 	        if (!empty($fns)) {
+				$all_lists	= Sharepoint_Common::getListCollections($connection);
+				if (empty($all_lists)) return FALSE;
 	        	return TRUE;
 	        } else {
 	        	return FALSE;
 	        }//end else
+
 		} catch (SoapFault $e) {
-			echo $e->getMessage().'<br />';
+			if (!$silent) {
+				echo $e->getMessage().'<br />';
+			}//end if
 			return FALSE;
 		}//end if
 
 	}//end test_trim_connection()
+
 
 
 }//end class

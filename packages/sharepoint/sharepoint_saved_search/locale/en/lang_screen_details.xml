@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2009/01/05 14:05:11 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.4 2009/01/09 04:07:04 hnguyen Exp $
 *
 */
 -->
@@ -21,19 +21,19 @@
 			<display_name>Name</display_name>
 			<note />
 		</field>
-        <field>
-            <display_name>Search Type</display_name>
-            <function_call>
-                <paint_function   name="paintRecordSearchTypes"  />
-                <process_function name="processRecordSearchTypes" />
-            </function_call>
-        </field>
 	</section>
     <section name="Connection Setup" write_access="write:attributes">
+    	<field>
+    		<function_call>
+                <paint_function     name="paintTestConnection" />
+                <process_function   name="processTestConnection" />
+            </function_call>
+            <display_name>Connection Status</display_name>
+    	</field>
         <field>
             <function_call>
-                <paint_function     name="paintWsdlUrl" />
-                <process_function   name="processWsdlUrl" />
+                <paint_function     name="paintSystemUrl" />
+                <process_function   name="processSystemUrl" />
             </function_call>
 			<display_name>WSDL URL</display_name>
         </field>
@@ -92,13 +92,4 @@
             <note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
         </field>
     </section>
-   <!--   <section name="Search Criterion Setting" write_access="write:attributes">
-
-		<field>
-			<function_call>
-				<paint_function name="paintDynamicData" />
-				<process_function name="processDynamicData" />
-			</function_call>
-		</field>
-    </section>-->
 </contents>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search.inc,v 1.2 2009/01/05 13:18:54 hnguyen Exp $
+* $Id: sharepoint_saved_search.inc,v 1.3 2009/01/09 04:07:04 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -64,7 +64,7 @@ class Sharepoint_Saved_Search extends Data_Source
     protected function _createAdditional(Array &$link, $args=Array())
     {
     	if (!parent::_createAdditional($link)) return FALSE;
-		$this->setAttrValue('shadow_name', '%ds__recTitle%');
+		$this->setAttrValue('shadow_name', '%ds__ows_FileLeafRef%');
 
 		return TRUE;
 
@@ -130,8 +130,11 @@ class Sharepoint_Saved_Search extends Data_Source
 					}//end if
 
 					$search_crits	= $this->attr('search_options');
+					$search_logic	= $this->attr('search_logic');
+					$row_limit		= $this->attr('row_limit');
 					$search_crit	= isset($search_crits[$data_list]) ? $search_crits[$data_list] : Array();
-					$result = Sharepoint_Common::getListItems($connection, $data_list, $search_crit);
+
+					$result = Sharepoint_Common::getListItems($connection, $data_list, $search_crit, $search_logic, $row_limit);
 					if (!empty($result)) sort($result);
 					$this->cacheResult($result, $hash);
 
@@ -148,6 +151,14 @@ class Sharepoint_Saved_Search extends Data_Source
 	}//end getResultSet()
 
 
+	/**
+	* Return the cached result
+	*
+	* @param string	$hash_key	The hash key that this asset used to cache the result
+	*
+	* @return array
+	* @access public
+	*/
 	public function getCachedResults($hash_key)
 	{
 		$result = $this->attr('cached_result');
@@ -160,6 +171,15 @@ class Sharepoint_Saved_Search extends Data_Source
 	}//end cacheResult()
 
 
+	/**
+	* Cache the result
+	*
+	* @param array	$result		The result from the external system
+	* @param string	$hash_key	The hash key
+	*
+	* @return boolean
+	* @access public
+	*/
 	public function cacheResult($result, $hash_key)
 	{
 		$cached_result = $this->attr('cached_result');
@@ -282,46 +302,16 @@ class Sharepoint_Saved_Search extends Data_Source
 	*/
 	public function printFrontend()
 	{
-			if (isset($_GET['check_update']) && !empty($_GET['check_update'])) {
-				if ($this->adminAccess()) {
-					echo 'var numUpdate = false;';
-					$new_object_list	= $this->getTRIMRecords($connection);
-
-					$hash	= $this->getHashKey();
-					$result = $this->getCachedResults($hash);
-
-					if (!empty($result)) {
-						// We have some cache. Lets check them one by one.
-						$i = 0;
-						foreach ($result as $index	=> $record_info) {
-							foreach ($new_object_list as $new_index	=> $new_record_info) {
-								// Comparing the same record based on the URI
-								if ($record_info['Uri'] == $new_record_info['Uri']) {
-									if ($record_info['Version'] !== $new_record_info['Version']) {
-										$i++;
-									}//end if
-								}//end if
-							}//end foreach
-						}//end foreach
-
-						// If we have records to add or delete, have to account for them as well
-						$final_count	= $i+abs(count($result) - count($new_object_list));
-						echo 'var numUpdate = '.$final_count.';';
-					} else {
-						// We have no cache. Just return the count in object_list
-						echo 'var numUpdate = '.count($new_object_list).';';
-					}//end else
-
+		// We are only doing synching in this asset, there's no need to check for update
+		if (isset($_GET['synch_now']) && !empty($_GET['synch_now'])) {
+			if ($this->adminAccess()) {
+				if ($this->updateCachedResult()) {
+					echo '1';
+				} else {
+					echo '0';
 				}//end if
-			} else if (isset($_GET['synch_now']) && !empty($_GET['synch_now'])) {
-				if ($this->adminAccess()) {
-					if ($this->updateCachedResult()) {
-						echo '1';
-					} else {
-						echo '0';
-					}//end if
-				}//end if
-			}//end else if
+			}//end if
+		}//end else if
 
 	}//end printFrontend()
 
@@ -341,7 +331,7 @@ class Sharepoint_Saved_Search extends Data_Source
     */
 	public function setAttrValue($name, $value)
 	{
-		if ($name == 'data_list') {
+		if ($name == 'data_list' || $name == 'row_limit' || $name == 'search_logic') {
 			$res_val	= parent::setAttrValue($name, $value);
 			$this->updateCachedResult(TRUE);
 			return $res_val;
@@ -381,6 +371,7 @@ class Sharepoint_Saved_Search extends Data_Source
 
 		return $asset;
 	}//end getAsset()
+
 
 }//end class
 ?>

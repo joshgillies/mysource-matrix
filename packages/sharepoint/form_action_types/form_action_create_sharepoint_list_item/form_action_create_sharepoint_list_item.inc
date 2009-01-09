@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_create_sharepoint_list_item.inc,v 1.2 2009/01/05 13:29:07 hnguyen Exp $
+* $Id: form_action_create_sharepoint_list_item.inc,v 1.3 2009/01/09 04:07:04 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -94,7 +94,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 
 			$valid = Sharepoint_Common::test_sharepoint_connection($connection);
 			if ($valid) {
-				$all_lists	= Sharepoint_Common::getListCollections($connection);
+				$all_lists	= Sharepoint_Common::getListCollections($connection, TRUE);
 				$sp_lists	= Sharepoint_Common::getListNames($connection, $all_lists);
 				$list_names	+= $sp_lists;
 			}//end if
@@ -103,6 +103,9 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 			foreach ($list_names as $id	=> $name) {
 				if ($id != 'None') {
 					$available_fields_by_list	= Sharepoint_Common::getListAvailableFields($connection, $id);
+					if (isset($available_fields_by_list['FileLeafRef'])) {
+						unset($available_fields_by_list['FileLeafRef']);
+					}//end
 					$lists_fields[$id]			= $available_fields_by_list;
 				}//end if
 			}//end foreach
@@ -241,7 +244,7 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 					new_tr		= document.createElement("tr");
 					new_td_1	= document.createElement("td");
 
-					new_td_1.innerHTML	= '<strong>File attachment not available</strong>';
+					new_td_1.innerHTML	= '<strong>File attachment not available.</strong>';
 					new_tr.appendChild(new_td_1);
 					new_tbody.appendChild(new_tr);
 				}//end else
@@ -474,20 +477,21 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 			self::getKeywordReplacementsForForm($field_name, $field_content, $sharepoint_fields, $form);
 		}//end foreach
 
+		$form_sub_id_array	= Array();
 		if (!empty($settings['attachment_assetid'])) {
 			$form_sub_id_array	= Array (
 									'submission_id'	=> '%form_submission_id%',
 								  );
 			self::getKeywordReplacementsForForm(key($form_sub_id_array), $form_sub_id_array[key($form_sub_id_array)], $form_sub_id_array, $form);
+			$submission_asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($form_sub_id_array['submission_id']);
+			$sub_asset_attr		= $submission_asset->attr('attributes');
 		}//end if
 
-		$submission_asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($form_sub_id_array['submission_id']);
-		$sub_asset_attr		= $submission_asset->attr('attributes');
 
 		// Handling file upload
 		$base64_content		= NULL;
-		if (isset($sub_asset_attr['answers'][$settings['attachment_assetid']])) {
-			$extra_data	= $sub_asset_attr['answers'][$settings['attachment_assetid']]['extra_data'];
+		if (!empty($sub_asset_attr) && isset($sub_asset_attr['answers'][$settings['attachment_assetid']])) {
+			$extra_data	= array_get_index($sub_asset_attr['answers'][$settings['attachment_assetid']], 'extra_data', Array());
 			$uploaded_file_path = NULL;
 			if (isset($extra_data['new_file_assetid'])) {
 				$uploaded_file_assetid	= $sub_asset_attr['answers'][$settings['attachment_assetid']]['extra_data']['new_file_assetid'];
