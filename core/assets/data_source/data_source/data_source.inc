@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.23.2.3 2008/11/21 04:04:48 lwright Exp $
+* $Id: data_source.inc,v 1.23.2.4 2009/01/09 06:22:52 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.23.2.3 $
+* @version $Revision: 1.23.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -163,7 +163,7 @@ class Data_Source extends Asset implements Bridge
 	*/
 	public function setResultSet(Array $result, $result_id='')
 	{
-		$this->cacheResultSet($result, $cache_key='');
+		$this->cacheResultSet($result, $result_id);
 
 	}//end setResultSet()
 
