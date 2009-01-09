@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.4 2009/01/09 05:08:54 hnguyen Exp $
+* $Id: trim_common.inc,v 1.5 2009/01/09 05:25:20 hnguyen Exp $
 *
 */
 
@@ -21,9 +21,9 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
-* @subpackage calendar
+* @subpackage trim
 */
 
 
