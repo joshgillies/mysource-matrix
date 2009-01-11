@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207 2008/11/14 00:43:28 lwright Exp $
+* $Id: form.inc,v 1.207.2.1 2009/01/11 23:36:10 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.207.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1641,6 +1641,7 @@ class Form extends Asset implements Bridge
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 		} else {
 			$submission = $this->getSubmissionAsset();
+
 		}
 
 		if (isset($submission)) {
@@ -2491,6 +2492,9 @@ class Form extends Asset implements Bridge
 	public function processPage($page_number, $validate_page=TRUE)
 	{
 		$ok = TRUE;
+		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.  
+		// this var is used to make sure captcha status is processed correctly in this case
+		$one_page_captcha_status = FALSE;
 
 		// Has a captcha been completed on this page? Error if it is incorrect,
 		// otherwise set the status that we have passed one
@@ -2506,6 +2510,9 @@ class Form extends Asset implements Bridge
 				} else if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'])) {
 					$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 					$submission_var['captcha_status'] = TRUE;
+				} else if ($this->getTotalPages() == 1) {
+					$one_page_captcha_status = TRUE;
+					
 				}
 			} else {
 				if (is_null($this->submission_errors)) $this->submission_errors = Array();
@@ -2521,6 +2528,8 @@ class Form extends Asset implements Bridge
 		} else if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'])) {
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 			$captcha_status = array_get_index($submission_var, 'captcha_status', FALSE);
+		} else if ($one_page_captcha_status === TRUE) {
+				$captcha_status = TRUE;
 		} else {
 			$captcha_status = FALSE;
 		}
