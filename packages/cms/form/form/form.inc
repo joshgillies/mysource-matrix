@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207 2008/11/14 00:43:28 lwright Exp $
+* $Id: form.inc,v 1.208 2009/01/11 23:37:34 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1635,6 +1635,7 @@ class Form extends Asset implements Bridge
 	**/
 	function printBody()
 	{
+	
 		// Pick up the current submission, if any.
 		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
 			$this->restoreFromSubmissionCookie();
@@ -1697,6 +1698,7 @@ class Form extends Asset implements Bridge
 					// If the submission has not yet been created, create the submission
 					// in the "Incomplete Submissions" folder - but if there was only
 					// one page, we can fudge it
+				
 					if (!isset($submission_var) && !$submission) {
 						$create_in_completed = ($total_pages == 1) ? TRUE : FALSE;
 
@@ -2491,6 +2493,9 @@ class Form extends Asset implements Bridge
 	public function processPage($page_number, $validate_page=TRUE)
 	{
 		$ok = TRUE;
+		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status. 
+		// this var is used to make sure captcha status is processed correctly in this case
+		$one_page_captcha_status = FALSE;
 
 		// Has a captcha been completed on this page? Error if it is incorrect,
 		// otherwise set the status that we have passed one
@@ -2500,13 +2505,17 @@ class Form extends Asset implements Bridge
 		if ($validate_page && isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
 			if (validate_security_key()) {
 				$submission = $this->getSubmissionAsset();
+			
 				if (!empty($submission)) {
 					$submission->setAttrValue('captcha_status', TRUE);
 					$submission->saveAttributes();
 				} else if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'])) {
 					$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 					$submission_var['captcha_status'] = TRUE;
+				} else if ($this->getTotalPages() == 1) {
+					$one_page_captcha_status = TRUE;
 				}
+		
 			} else {
 				if (is_null($this->submission_errors)) $this->submission_errors = Array();
 				$this->submission_errors = array_merge($this->submission_errors, Array(translate('security_key_incorrect')));
@@ -2521,9 +2530,13 @@ class Form extends Asset implements Bridge
 		} else if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'])) {
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 			$captcha_status = array_get_index($submission_var, 'captcha_status', FALSE);
+		} else if ($one_page_captcha_status === TRUE) {
+				$captcha_status = TRUE;
 		} else {
 			$captcha_status = FALSE;
 		}
+
+		
 
 		if (($page_number == $this->getTotalPages()) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {
 			if (is_null($this->submission_errors)) $this->submission_errors = Array();
@@ -3301,6 +3314,7 @@ class Form extends Asset implements Bridge
 	*/
 	function &getSubmissionAsset()
 	{
+	
 		if (!$this->submission_asset) {
 			// Find the submission asset, but ensure we are getting it from _POST first
 			$submission_assetid = array_get_index($_POST, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
