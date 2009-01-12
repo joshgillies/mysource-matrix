@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.42 2009/01/07 05:41:47 akarelia Exp $
+* $Id: remap_manager.inc,v 1.43 2009/01/12 02:26:59 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,7 +176,7 @@ class Remap_Manager extends Asset
 	* @return int
 	* @access public
 	*/
-	public function addRemapURL($old_url, $new_url, $expires=NULL, $never_delete)
+	public function addRemapURL($old_url, $new_url, $expires=NULL, $never_delete='1')
 	{
 		// old url and new url must be strings, makes not sense otherwise
 		if (!is_string($old_url) || !is_string($new_url)) {
