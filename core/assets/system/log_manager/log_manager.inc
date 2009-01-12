@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.27 2007/11/29 00:06:31 lwright Exp $
+* $Id: log_manager.inc,v 1.28 2009/01/12 22:48:59 csmith Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,7 +149,6 @@ class Log_Manager extends Asset
 	* Array(
 	*       logname => Array(
 	*                        rotation => Array(
-	*                                          last_index            => int  // the index of the last rotation
 	*                                          last_timestamp        => int  // unix time
 	*                                          min_index             => int  // the smallest index a log rotation can have
 	*                                          max_index             => int  // the largest index a log rotation can have
@@ -301,10 +300,9 @@ class Log_Manager extends Asset
 	{
 		$rotation = array_get_index($log, 'rotation', Array());
 
-		$log['rotation']['interval']       = array_get_index($rotation, 'interval', 86400);
+		$log['rotation']['interval']       = array_get_index($rotation, 'interval', 10);
 		$log['rotation']['min_index']      = array_get_index($rotation, 'min_index', 1);
 		$log['rotation']['max_index']      = array_get_index($rotation, 'max_index', 10);
-		$log['rotation']['last_index']     = array_get_index($rotation, 'last_index', NULL);
 		$log['rotation']['last_timestamp'] = array_get_index($rotation, 'last_timestamp', 0);
 
 		return $log;
@@ -496,22 +494,66 @@ class Log_Manager extends Asset
 		$interval       = array_get_index($rotation, 'interval');
 		$min_index      = array_get_index($rotation, 'min_index');
 		$max_index      = array_get_index($rotation, 'max_index');
-		$last_rotation  = array_get_index($rotation, 'last_index');
 		$last_timestamp = array_get_index($rotation, 'last_timestamp');
 
 		// check to see if we have the settings we need, otherwise, fail
 		if (empty($rotation) || empty($interval) || !is_numeric($min_index) || empty($max_index) || $min_index > $max_index) {
 			$status = FALSE;
 		} else {
-			// if we can't increment the rotation index any higher, start at the beginning again
-			$next_rotation = (($last_rotation + 1) > $max_index) ? $min_index : $last_rotation + 1;
-			$status = $this->_rotateLogFiles(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, $next_rotation);
+
+			/**
+			* Get an array of existing log filenames
+			* Saves doing file_exists checks inside the while loop below
+			* but does have small room for a race condition
+			* - file exists when we do the glob
+			* - doesn't exist by the time we get to the rotate part.
+			* or vice-versa
+			*/
+			$existing_logs = glob(SQ_LOG_PATH . '/' . $logname . SQ_CONF_LOG_EXTENSION . '*');
+
+			/**
+			* Start at $max_index and work our way backwards.
+			* If the log exists, move it to the next name.
+			*/
+			$log_id = $max_index;
+			while ($log_id > 0) {
+				$full_log_path = SQ_LOG_PATH . '/' . $logname . SQ_CONF_LOG_EXTENSION;
+				/**
+				 * The max_index file is a special case
+				 * the highest file just gets deleted, not moved.
+				 * once we've dealt with the max_index case, skip to the next log to look at.
+				 */
+				if ($log_id == $max_index) {
+					if (in_array($full_log_path . '.' . $max_index, $existing_logs)) {
+						$log_deleted = @unlink($full_log_path . '.' . $max_index);
+						if (!$log_deleted) {
+							return FALSE;
+						}
+					}
+
+					$log_id--;
+					continue;
+				}
+
+				if (in_array($full_log_path . '.' . $log_id, $existing_logs)) {
+					$status = $this->_rotateLogFiles($full_log_path, $log_id, ($log_id+1));
+					// if we can't move a log file, break out of the loop.
+					if (!$status) {
+						break;
+					}
+				}
+				$log_id--;
+			}
+
+			/**
+			* After moving the rest, move the original log file.
+			*/
+			$status = $this->_rotateLogFiles(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, '', '1');
 
 			if ($status) {
 				$log_data['rotation']['interval']       = $interval;
 				$log_data['rotation']['min_index']      = $min_index;
 				$log_data['rotation']['max_index']      = $max_index;
-				$log_data['rotation']['last_index']     = $next_rotation;
 				$log_data['rotation']['last_timestamp'] = time();
 			} else {
 				$status = FALSE;
@@ -524,19 +566,26 @@ class Log_Manager extends Asset
 
 
 	/**
-	* Rotate out a logfile to a file with the specified rotation index appended, eg. "$file.$rotation_index"
+	* Rotate a logfile from the specified rotation index to the new rotation index. eg "$file.$current_index" to "$file.$new_rotation"
+	* if current_rotation is empty, we're trying to move 'file.log' for example to 'file.log.1'
+	* if it's not empty, we're moving 'file.log.1' to 'file.log.2'
 	*
-	* @param string	$file			the logfile to rotate
-	* @param string	$rotation_index	the rotation index the rotation will use
+	* @param string	$file				the logfile to rotate
+	* @param string	$current_rotation	the current rotation index
+	* @param string	$new_rotation		the new rotation index
 	*
 	* @return boolean
 	* @access private
 	*/
-	protected function _rotateLogFiles($file, $rotation_index)
+	protected function _rotateLogFiles($file, $current_rotation, $new_rotation)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		if (file_exists($file)) {
-			return move_file($file, $file.'.'.$rotation_index);
+			$orig_filename = $file;
+			if (!empty($current_rotation)) {
+				$orig_filename .= '.' . $current_rotation;
+			}
+			return move_file($orig_filename, $file.'.'.$new_rotation);
 		} else {
 			return FALSE;
 		}
