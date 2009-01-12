@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.28 2009/01/12 22:48:59 csmith Exp $
+* $Id: log_manager.inc,v 1.29 2009/01/12 23:02:28 csmith Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -300,7 +300,7 @@ class Log_Manager extends Asset
 	{
 		$rotation = array_get_index($log, 'rotation', Array());
 
-		$log['rotation']['interval']       = array_get_index($rotation, 'interval', 10);
+		$log['rotation']['interval']       = array_get_index($rotation, 'interval', 86400);
 		$log['rotation']['min_index']      = array_get_index($rotation, 'min_index', 1);
 		$log['rotation']['max_index']      = array_get_index($rotation, 'max_index', 10);
 		$log['rotation']['last_timestamp'] = array_get_index($rotation, 'last_timestamp', 0);
