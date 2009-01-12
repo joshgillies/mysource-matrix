@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.2.2.4 2009/01/09 05:32:01 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.2.2.5 2009/01/12 03:14:55 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2.2.4 $
+* @version $Revision: 1.2.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -327,11 +327,19 @@ class TRIM_Saved_Search extends Data_Source
 		} else {
 			return FALSE;
 		}
+
+		// Fix for IE caching
+		header("Pragma: public"); 
+		header("Expires: 0"); 
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+		header("Cache-Control: private",false);
+
 		// We'll be outputting a file
 		header('Content-type: application/'.strtolower($path_parts['extension']));
 
 		// Set the name of the file
-		header("Content-Disposition: attachment; filename=".$path_parts['basename']);
+		header('Content-Disposition: attachment; filename="'.$path_parts['basename'].'";');
+		header('Content-Length: '.filesize($file_path));
 
 		// Get the source file
 		readfile($file_path);
