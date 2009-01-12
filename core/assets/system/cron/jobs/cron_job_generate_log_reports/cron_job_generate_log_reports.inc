@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_generate_log_reports.inc,v 1.11 2008/03/12 01:20:56 hnguyen Exp $
+* $Id: cron_job_generate_log_reports.inc,v 1.11.2.1 2009/01/12 23:01:51 csmith Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *   Note that this is a singleton asset - when the asset type is installed it creates a single
 *   instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -189,12 +189,7 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 		$logs = $lm->getLogs();
 		foreach ($target_logs as $logname) {
 			if (isset($logs[$logname])) {
-				if (isset($logs[$logname]['rotation']['last_index'])) {
-					$last_index = $logs[$logname]['rotation']['last_index'];
-				} else {
-					$last_index = NULL;
-				}
-				$this->generateReportFromLog($logname, $log_reports, $last_index);
+				$this->generateReportFromLog($logname, $log_reports);
 			}
 		}
 
@@ -208,12 +203,11 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 	*
 	* @param string	$logname		the log to generate from
 	* @param array	&$log_reports	the log reports to generate (assetid=>type)
-	* @param int	$rotation_index	the index of the log to generate from
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateReportFromLog($logname, Array &$log_reports, $rotation_index=NULL)
+	public function generateReportFromLog($logname, Array &$log_reports)
 	{
 		if (empty($log_reports)) return FALSE;
 
@@ -227,7 +221,6 @@ class Cron_Job_Generate_Log_Reports extends Cron_Job
 				$vars   = Array(
 							'assetid'			=> $reportid,
 							'report'			=> $report,
-							'rotation_index'	=> $rotation_index,
 						  );
 				$status = $hh->freestyleHIPO('hipo_job_generate_report', $vars);
 			}
