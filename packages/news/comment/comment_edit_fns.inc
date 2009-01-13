@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_edit_fns.inc,v 1.14 2008/04/28 04:55:55 gsherwood Exp $
+* $Id: comment_edit_fns.inc,v 1.14.2.1 2009/01/13 23:43:38 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -49,7 +49,8 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 		$size   = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_INPUT_SIZE');
 
 		if ($write_access) {
-			text_box($prefix.'_name', $asset->attr('name_raw'), '', '', FALSE, 'style="width: '.$size['width'].';"');
+			$name = isset($_REQUEST[$prefix.'_name']) ? $_REQUEST[$prefix.'_name'] : $asset->attr('name_raw');
+			text_box($prefix.'_name', $name, '', '', FALSE, 'style="width: '.$size['width'].';"');
 		} else {
 			echo $asset->attr('name');
 		}
@@ -167,7 +168,8 @@ class Comment_Edit_Fns extends Page_Edit_Fns
 		$length = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_COMMENT_MAX_LENGTH');
 
 		if ($write_access) {
-			text_area($prefix.'_comment', $asset->attr('comment_raw'), 0, 0, $length, 'style="width: '.$size['width'].'; height: '.$size['height'].';"');
+			$comment = isset($_REQUEST[$prefix.'_comment']) ? $_REQUEST[$prefix.'_comment'] : $asset->attr('comment_raw');
+			text_area($prefix.'_comment', $comment, 0, 0, $length, 'style="width: '.$size['width'].'; height: '.$size['height'].';"');
 		} else {
 			echo $asset->attr('comment');
 		}
