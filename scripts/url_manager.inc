@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -164,7 +164,11 @@ Make sure you have all you information you need before Proceeding\n");
 		if ($update_file_public_live_assets) {
 
 			// Before we do any of the processing, lets grab all the FILE assets that are LIVE, and have PUBLIC READ ACCESS.
-			$asset_types_list = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file'));
+			$asset_types_list_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file');
+
+			$asset_types_list = Array();
+			self::getTypeListRecursive($asset_types_list_info, $asset_types_list);
+
 			$asset_types_list[] = 'file';
 			$children = Array();
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $asset_types_list, TRUE);
@@ -391,9 +395,9 @@ Make sure you have all you information you need before Proceeding\n");
 	*
 	*
 	*/
-	public static function removeUrl($remove_urlid, $remove_assetid, $remove_url, $quiet=FALSE)
+	public static function removeUrl($remove_urlid, $remove_assetid, $remove_url, $quiet=FALSE, $SYSTEM_ROOT)
 	{
-		global $SYSTEM_ROOT, $db;
+		global $db;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -408,7 +412,11 @@ Make sure you have all you information you need before Proceeding\n");
 		$avoid_urls = MatrixDAL::executePdoAssoc($query);
 
 		// Before we do any of the processing, lets grab all the FILE assets that are LIVE, and have PUBLIC READ ACCESS.
-		$asset_types_list = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file'));
+		$asset_types_list_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('file');
+
+		$asset_types_list = Array();
+		self::getTypeListRecursive($asset_types_list_info, $asset_types_list);
+
 		$asset_types_list[] = 'file';
 		$children = Array();
 		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($remove_assetid, $asset_types_list, TRUE);
@@ -620,6 +628,22 @@ Make sure you have all you information you need before Proceeding\n");
 		return TRUE;
 
 	}//end checkNewUrlExists()
+
+
+	/**
+	*	This function return all the asset types and theirs subtypes
+	*/
+	private static function getTypeListRecursive($asset_types_list_info, &$asset_types_list)
+	{
+		foreach ($asset_types_list_info as $asset_type => $type_info)
+		{
+				$asset_types_list[]   = $asset_type;
+				if (isset($type_info['subs'])) {
+					self::getTypeListRecursive($type_info['subs'], $asset_types_list);
+				}//end if
+		}//end foreach
+
+	}//end getTypeListRecursive()
 
 
 }//end class

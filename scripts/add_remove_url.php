@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -64,7 +64,7 @@ if ($action == 'add') {
 	$queries	= URL_Manager::addUrl($inputs['http'], $inputs['https'], $inputs['new_url'], $inputs['existing_url'], $inputs['siteid'], $inputs['update_file_public_live_assets'], $inputs['existing_urlid'], $SYSTEM_ROOT);
 } else if ($action == 'remove') {
 	$remove_url_info	= URL_Manager::cliInterfaceRemoveUrl();
-	$queries	= URL_Manager::removeUrl($remove_url_info['remove_urlid'], $remove_url_info['remove_assetid'], $remove_url_info['remove_url']);
+	$queries	= URL_Manager::removeUrl($remove_url_info['remove_urlid'], $remove_url_info['remove_assetid'], $remove_url_info['remove_url'], FALSE, $SYSTEM_ROOT);
 }//end else if
 
 
