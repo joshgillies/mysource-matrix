@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mp3_file.inc,v 1.2.2.2 2009/01/09 05:25:06 lwright Exp $
+* $Id: mp3_file.inc,v 1.2.2.3 2009/01/13 04:26:34 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.2.2.2 $
+* @version    $Revision: 1.2.2.3 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -365,7 +365,9 @@ class MP3_File extends File
 				}
 			}
 
-			$tag['track'] = $tag['track_number'];
+			if (isset($tag['track_number'])) {
+        		$tag['track'] = $tag['track_number'];
+			}
 		} else if (isset($id3->info['tags']['id3v1'])) {
 			$tag =& $id3->info['tags']['id3v1'];
 			
