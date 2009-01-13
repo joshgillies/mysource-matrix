@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2.2.2 2009/01/09 05:25:06 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.2.3 2009/01/13 03:38:15 ewang Exp $
 *
 */
 -->
@@ -51,6 +51,9 @@
 		</field>
 		<field attribute="artist">
 			<text width="40" />
+		</field>
+		<field attribute="track">
+			<text width="6" />
 		</field>
 		<field attribute="year">
 			<text width="6" />
