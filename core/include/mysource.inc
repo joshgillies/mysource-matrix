@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.282 2009/01/13 22:26:52 bpearson Exp $
+* $Id: mysource.inc,v 1.283 2009/01/13 23:36:12 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.282 $
+* @version $Revision: 1.283 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1941,11 +1941,19 @@ class MySource
 					if (($current_ip_value > -1) && ($current_ip_value != FALSE) && ($ip_from_value > -1) && ($ip_from_value != FALSE)) {
 						if (!empty($current_ip) && ($current_ip == $sess_pref['ip_from'])) {
 							// Match
+							$prefs['persist'] = $sess_pref['persist'];
+							$prefs['timeout'] = $sess_pref['timeout'];
+							$prefs['max_length'] = $sess_pref['max_length'];
+							break;
 						} else if (!empty($current_ip) && ($current_ip_value > $ip_from_value)) {
 							if (isset($sess_pref['ip_to']) && !empty($sess_pref['ip_to']) && preg_match($patt, $sess_pref['ip_to'])) {
 								if ((ip2long($sess_pref['ip_to']) > -1) && (ip2long($sess_pref['ip_to']) != FALSE)) {
 									if ($current_ip_value < ip2long($sess_pref['ip_to'])) {
 										// Match
+										$prefs['persist'] = $sess_pref['persist'];
+										$prefs['timeout'] = $sess_pref['timeout'];
+										$prefs['max_length'] = $sess_pref['max_length'];
+										break;
 									} else {
 										// No Match
 										continue;
@@ -1962,7 +1970,7 @@ class MySource
 					}//end if
 				}//end if
 
-				// No IP Restriction found or we meet the IP restriction, so continue
+				// No IP Restriction found, so continue
 				$temp['persist'] = $sess_pref['persist'];
 				$temp['timeout'] = $sess_pref['timeout'];
 				$temp['max_length'] = $sess_pref['max_length'];
