@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.279.2.1 2008/12/29 05:03:23 lwright Exp $
+* $Id: mysource.inc,v 1.279.2.2 2009/01/13 22:30:33 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.279.2.1 $
+* @version $Revision: 1.279.2.2 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1007,11 +1007,12 @@ class MySource
 		if (array_get_index($_SESSION, 'user_last_access') && !$has_security_action) {
 
 			$session_prefs = $this->getUserPrefs('user', 'SQ_USER_SESSION_PREFS', TRUE);
+			$user_prefs = $this->_findValidSessionExpiry($session_prefs);
 
 			// See if it's been too long since their last MatrixActivity(R)
-			if (!empty($session_prefs['timeout'])) {
-				if (time() - $_SESSION['user_last_access'] > $session_prefs['timeout']) {
-					$this->_logSecurityMsg('system.security.logout.idle', Array('timeout' => $session_prefs['timeout']));
+			if (!empty($user_prefs['timeout'])) {
+				if (time() - $_SESSION['user_last_access'] > $user_prefs['timeout']) {
+					$this->_logSecurityMsg('system.security.logout.idle', Array('timeout' => $user_prefs['timeout']));
 					$this->_clearSession();
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
@@ -1025,13 +1026,13 @@ class MySource
 			// straight away.  If the timeout is today then we only ask for authentication if the user has been inactive
 			// for a certain time (Which probably means they are not editing).
 			if (array_get_index($_SESSION, 'user_last_authentication')) {
-				if (!empty($session_prefs['max_length'])) {
-					$session_expiry_ts = $_SESSION['user_last_authentication'] + $session_prefs['max_length'];
+				if (!empty($user_prefs['max_length'])) {
+					$session_expiry_ts = $_SESSION['user_last_authentication'] + $user_prefs['max_length'];
 					$today_start_ts = strtotime('00:00:01 today');
 					$tomorrow_start_ts = strtotime('00:00:01 tomorrow');
 					if ($session_expiry_ts < $today_start_ts) {
 						// it expired yesterday so clear the session / force a login right now
-						$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
+						$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $user_prefs['max_length']));
 						$this->_clearSession();
 						$this->loginPublicUser();
 						$this->generateLoginKey(TRUE);
@@ -1040,7 +1041,7 @@ class MySource
 						if (time() - $_SESSION['user_last_access'] > SQ_CONF_EDITING_TIME) {
 							// because they haven't done anything for a while we assume it's safe to log them out
 							// and ask for re-authentication
-							$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $session_prefs['max_length']));
+							$this->_logSecurityMsg('system.security.logout.staleauth', Array('timeout' => $user_prefs['max_length']));
 							$this->_clearSession();
 							$this->loginPublicUser();
 							$this->generateLoginKey(TRUE);
@@ -1866,9 +1867,11 @@ class MySource
 		if (empty($session_id)) return FALSE;
 
 		$session_prefs = $this->getUserPrefs('user', 'SQ_USER_SESSION_PREFS', TRUE);
-		$time_to_live = $session_prefs['persist']; // 1 or 0
+		$user_prefs = $this->_findValidSessionExpiry($session_prefs);
+
+		$time_to_live = $user_prefs['persist']; // 1 or 0
 		if (!empty($time_to_live)) {
-			$time_to_live = $session_prefs['timeout'] + 3600; // cookie should last 1 extra day
+			$time_to_live = $user_prefs['timeout'] + 3600; // cookie should last 1 extra day
 			if (empty($time_to_live)) {
 				// there is no max inactive time but we do want to persist across browser sessions...
 				$time_to_live = 60 * 60 * 24 * 365; // give them a a year
@@ -1905,6 +1908,76 @@ class MySource
 		header($header);
 
 	}//end _updateSessionCookie()
+
+
+	/**
+	* Find the largest valid session expiry for the current user
+	*
+	* @param array	$session_prefs	An array of all the current preferences
+	*
+	* @return array
+	* @access public
+	*/
+	public function _findValidSessionExpiry($session_prefs)
+	{
+		$prefs = Array(
+					'persist'		=> '0',
+					'timeout'		=> '0',
+					'max_length'	=> '0',
+				 );
+		$current_ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
+		$patt = '/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/';
+		if (is_array($session_prefs)) {
+			foreach ($session_prefs as $id => $sess_pref) {
+				$temp = Array(
+						'persist'		=> '0',
+						'timeout'		=> '0',
+						'max_length'	=> '0',
+						);
+				// Check that the current IP falls between the 'to' and 'from' field (also check an IP was passed)
+				if (isset($sess_pref['ip_from']) && !empty($sess_pref['ip_from']) && preg_match($patt, $sess_pref['ip_from'])) {
+					$current_ip_value = ip2long($current_ip);
+					$ip_from_value = ip2long($sess_pref['ip_from']);
+					if (($current_ip_value > -1) && ($current_ip_value != FALSE) && ($ip_from_value > -1) && ($ip_from_value != FALSE)) {
+						if (!empty($current_ip) && ($current_ip == $sess_pref['ip_from'])) {
+							// Match
+						} else if (!empty($current_ip) && ($current_ip_value > $ip_from_value)) {
+							if (isset($sess_pref['ip_to']) && !empty($sess_pref['ip_to']) && preg_match($patt, $sess_pref['ip_to'])) {
+								if ((ip2long($sess_pref['ip_to']) > -1) && (ip2long($sess_pref['ip_to']) != FALSE)) {
+									if ($current_ip_value < ip2long($sess_pref['ip_to'])) {
+										// Match
+									} else {
+										// No Match
+										continue;
+									}//end if
+								}//end if
+							} else {
+								// No Match
+								continue;
+							}//end if
+						} else {
+							// No Match
+							continue;
+						}//end if
+					}//end if
+				}//end if
+
+				// No IP Restriction found or we meet the IP restriction, so continue
+				$temp['persist'] = $sess_pref['persist'];
+				$temp['timeout'] = $sess_pref['timeout'];
+				$temp['max_length'] = $sess_pref['max_length'];
+
+				// Look for the largest general result
+				foreach ($temp as $key => $value) {
+					if ($value > $prefs[$key]) $prefs[$key] = $value;
+				}//end foreach
+			}//end foreach
+		}//end if
+
+		// Return the results
+		return $prefs;
+
+	}//end _findValidSessionExpiry()
 
 
 	/**
