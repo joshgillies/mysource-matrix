@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.307 2009/01/14 00:54:03 bshkara Exp $
+* $Id: lang_strings.xml,v 1.308 2009/01/14 16:42:54 ata Exp $
 *
 */
 
@@ -2378,6 +2378,7 @@ Are you sure you want to proceed?</string>
 	<!-- Add Web Path Trigger Actions -->
 	<string source="trigger_add_web_path_remove_all">Delete all other webpaths</string>
 	<string source="trigger_add_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
+	<string source="trigger_add_web_path_make_lowercase">Make the new webpath in lowercase</string>
 
 	<!-- Future Status Trigger Actions -->
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
