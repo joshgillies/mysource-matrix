@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.10 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.10.2.1 2009/01/14 00:35:15 mbrydon Exp $
 *
 *
 * Search Package Localised Strings File
@@ -79,4 +79,6 @@
 <string source="sch_auto_syn_enabled_using_field"><![CDATA[Automatic Synonym Search is <strong>enabled</strong>, using field: <strong>%s</strong>]]></string>
 <string source="sch_auto_syn_not_enabled"><![CDATA[Automatic Synonym Search is <strong>disabled</strong>]]></string>
 <string source="sch_auto_syn_enable">Enable Automatic Synonym Searching</string>
+<string source="sch_enable_multi_word_synonym_lookups">Enable Multi-Word Synonym Lookups</string>
+<string source="sch_enable_multi_word_synonym_lookups_note"><![CDATA[This option will iterate through the supplied search string and search the Thesaurus for groups of words. If these grouped words have synonyms in the Thesaurus then the <em>synonyms</em> will be appended to the search string.<br />For example, a search for 'fred flute player' will result in a Thesaurus lookup of synonyms for 'fred flute', 'flute player' (matches 'flautist') and 'fred flute player'. The search string in this case will be modified on-the-fly to read 'fred flute player flautist'.]]></string>
 </strings>

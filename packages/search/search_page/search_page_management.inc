@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.62 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: search_page_management.inc,v 1.62.2.1 2009/01/14 00:35:15 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.62.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -258,6 +258,14 @@ class Search_Page_Management extends Asset_Management
 														   ),
 												   ),
 								 );
+
+		$this->vars['enable_multi_word_synonym_lookups']	= Array(
+																'added'			=> '0.22',
+																'type'			=> 'boolean',
+																'default'		=> FALSE,
+																'description'	=> 'If true, a Thesaurus lookup will be performed for matching synonyms based on combinations of words from the search string',
+																'parameters'	=> Array('allow_empty'	=> FALSE),
+															  );
 
 
 	}//end constructor

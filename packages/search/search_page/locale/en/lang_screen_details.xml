@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.26 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.26.2.1 2009/01/14 00:35:15 mbrydon Exp $
 *
 */
 -->
@@ -146,6 +146,14 @@
 			<function_call>
 				<paint_function   name="paintAutoSynonymSearch" />
 				<process_function name="processAutoSynonymSearch" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Multi-Word Synonym Lookups</display_name>
+			<note><![CDATA[This option will iterate through the supplied search string and search the Thesaurus for groups of two-or-more words. If these grouped words have synonyms in the Thesaurus then these synonyms will be appended to the search string.<br />For example, a search for "fred flute player" will result in a Thesaurus lookup of synonyms for "fred flute", "flute player" (matches "flautist") and "fred flute player". The search string in this case will be modified on-the-fly to read "fred flute player flautist"]]></note>
+			<function_call>
+				<paint_function   name="paintMultiWordSynonymLookups" />
+				<process_function name="processMultiWordSynonymLookups" />
 			</function_call>
 		</field>
 	</section>

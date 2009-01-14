@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.230 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: search_page.inc,v 1.230.2.1 2009/01/14 00:35:15 mbrydon Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.230 $
+* @version $Revision: 1.230.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2417,13 +2417,17 @@ class Search_Page extends Listing_Engine
 		}//end if
 
 		if ($query_fields_exist) {
+            $auto_ss_field = $this->attr('auto_synonym_search_field');
+
 			$search_results = $sm->processSearch($search_info);
+
+            if (($this->attr('enable_multi_word_synonym_lookups')) && (!empty($auto_ss_field))) {
+				$search_results = $this->getMultiWordSynonymSearchResults($search_results, $search_info, $auto_ss_field, $thesaurus);
+			}
 
 			// If there are no results, check to see whether there is an auto
 			// synonym search set up, and if so, use that
 			if (empty($search_results)) {
-				$auto_ss_field = $this->attr('auto_synonym_search_field');
-
 				if (!empty($auto_ss_field)) {
 					// Search with a copy of the original search info, because
 					// we don't want to interfere with the original search
@@ -2464,6 +2468,52 @@ class Search_Page extends Listing_Engine
 		}
 
 	}//end processSearch()
+
+
+	/*
+	* Returns all combinations of words from a string, of length 2 to "string length" words.
+	* "Combinations" as in the contiguous mathematical sense.
+	*
+	* For example:
+	*	supplied words  = 'high', 'climbing', 'walls'
+	*	combinations    = 'high climbing', 'climbing walls', 'high climbing walls'
+	*
+	* @param array	$words	The search words to iterate (in order)
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getWordCombinations(Array $words)
+	{
+		$word_combinations = Array();
+
+		// Only return combinations if we have at least three words, otherwise return a string of what was supplied
+		$num_words = count($words);
+		if ($num_words < 3) {
+			return Array(implode(' ', $words));
+		}
+
+		// Chunk is back. Grab "string length" down to two-word combinations at each step
+		// This is better illustrated with coloured pencils
+		for ($chunk_size=$num_words; $chunk_size >= 2; $chunk_size--)
+		{
+			for ($start_index=0; $start_index <= $num_words - $chunk_size; $start_index++)
+			{
+				$combination = '';
+				for ($n=0; $n < $chunk_size; $n++)
+				{
+					$word_index = $start_index + $n;
+					$combination .= $words[$word_index].' ';
+				}
+
+				// Add combination to our list and trim trailing space
+				$word_combinations[] = rtrim($combination);
+			}
+		}
+
+		return $word_combinations;
+
+	}//end _getWordCombinations()
 
 
 	/**
@@ -3032,6 +3082,202 @@ class Search_Page extends Listing_Engine
 		return $keywords;
 
 	}//end _getSearchInSearchKeywords()
+
+
+	/**
+	* Return search results based on supplied terms after expanding the specified field into synonyms
+	*
+	* @param array		$original_search_results	Results as returned from the original unmodified search query
+	* @param array		$original_search_info		The original search query "info" structure
+	* @param string		$auto_ss_field				The name of the field assigned for "Auto Synonym Search" search. Only terms corresponding to this
+	*												field will be looked up for synonym matches and modified accordingly
+	* @param Thesaurus	$field_name					The Thesaurus asset with which to perform synonym lookups
+	*
+	* @return array
+	* @access public
+	*/
+	public function getMultiWordSynonymSearchResults(Array $original_search_results, Array $original_search_info, $auto_ss_field, Thesaurus $thesaurus)
+	{
+		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+
+		$search_field = $original_search_info['fields'][$auto_ss_field];
+		$words = $search_field['words'];
+		if (!is_array($words)) $words = explode(' ', $words);
+
+		// Loop over each group of words (2 words or more) and add synonyms of these multi-word-words to the search string
+		$syn_search_info = $original_search_info;
+
+		$synonym_words = Array();
+		$word_combinations = $this->_getWordCombinations($words);
+
+		$search_logic = Array();
+		$search_string = $syn_search_info['fields'][$auto_ss_field]['words'];
+
+		// If we are just two words, don't forget to check each term as a synonym too (eg; fred flautist -> fred (no match) -> flautist (flute player) = fred flautist flute player)
+		if (count($words) == 2) {
+			$word_combinations[] = $words[0];
+			$word_combinations[] = $words[1];
+		}
+
+		foreach ($word_combinations as $word_combination) {
+			$combination_synonyms = $thesaurus->getSynonymsForTerm($word_combination);
+			$num_synonyms = count($combination_synonyms);
+			$synonym_words += $combination_synonyms;
+
+			// Keep track of search logic
+			if ($num_synonyms > 0) {
+				$search_logic[$word_combination] = $combination_synonyms;
+
+				// Remove word combination from search string
+				$search_string = str_ireplace($word_combination, '', $search_string);
+				}
+		}
+
+		// Only modify the search query if we have matching synonyms
+		if (!empty($synonym_words)) {
+			// Append found synonyms to the current search
+			// For example:
+			//		original search = fred flute player
+			//		found synonym   = flautist (for 'flute player')
+			//		new search      = fred flute.player flautist
+
+			$syn_search_results = Array();
+
+			// We need to ensure that the matching multi-word terms are separated with AND logic
+			// First, perform a search for any search terms that are not synonyms or have not been matched with synonyms
+			$syn_search_info['fields'][$auto_ss_field]['words'] = $search_string;
+
+			// Keep note of the outer logic, as we have to ensure that we eliminate some results that are not common if it is AND
+			$outer_word_logic = $syn_search_info['fields'][$auto_ss_field]['word_logic'];
+
+			// Perform a search for terms which did not match synonyms (eg; "fred" in "fred flute player")
+			$initial_search_results = Array();
+			if (!empty($search_string)) {
+				$initial_search_results = $sm->processSearch($syn_search_info);
+			}
+
+			// If we are using AND word logic and can't match the outer terms (eg; "fred") then unfortunately any
+			// synonym expansion is not going to return any results common to all terms. Time to exit here with our
+			// original search result as we haven't found anything else of use
+			if (($outer_word_logic == 'AND') && (empty($initial_search_results))) {
+				return $original_search_results;
+			}
+
+			// Keep an overall tally
+			$common_search_results = Array();
+			foreach ($initial_search_results as $result => $weighting) {
+				$common_search_results[][$result] = $weighting;
+			}
+
+			// Now perform a search for each synonym match so we can aggregate these at the end with AND
+			// eg; (flute.player + flautist)
+			foreach ($search_logic as $original_term => $matching_synonyms) {
+				// Search for user-supplied term (flute player)
+				$syn_search_info = $original_search_info;
+				$syn_search_info['fields'][$auto_ss_field]['words'] = $original_term;
+				$term_exploded = explode(' ', $original_term);
+
+				// Multiple words, use AND logic
+				if (count($term_exploded) > 1) {
+					$syn_search_info['fields'][$auto_ss_field]['word_logic'] = 'AND';
+				}
+
+				$term_search_results = Array();
+
+				$results = $sm->processSearch($syn_search_info);
+				if (count($results) > 0) {
+					foreach ($results as $result => $weighting) {
+						if (isset($term_search_results[$result])) {
+							$term_search_results[$result] += $weighting;
+						} else {
+							$term_search_results[$result] = $weighting;
+						}
+					}
+				}
+
+				// Search for synonym terms (flautist)
+				$synonym_term_search_results = Array();
+				foreach ($matching_synonyms as $matching_synonym) {
+						$syn_search_info = $original_search_info;
+						$syn_search_info['fields'][$auto_ss_field]['words'] = $matching_synonym;
+						$term_exploded = explode(' ', $matching_synonym);
+
+						// Multiple words, use AND logic
+						if (count($term_exploded) > 1) {
+							$syn_search_info['fields'][$auto_ss_field]['word_logic'] = 'AND';
+						}
+
+						$results = $sm->processSearch($syn_search_info);
+						if (count($results) > 0) {
+							foreach ($results as $result => $weighting) {
+								if (isset($term_search_results[$result])) {
+									$term_search_results[$result] += $weighting;
+								} else {
+									$term_search_results[$result] = $weighting;
+								}
+							}
+						}
+				}
+
+				$common_search_results[] = $term_search_results;
+			}
+
+			// Flatten common search results. These are the results from our synonym term searches
+			$synonym_search_results = Array();
+			if ($outer_word_logic == 'AND') {
+				// We need to eliminate any items that are not common between results, adding weightings of "keepers" as we go
+				$common = Array();
+				$first_time = TRUE;
+				foreach ($common_search_results as $result) {
+					if ($first_time) {
+						if (!empty($result)) {
+							$common = array_keys($result);
+						}
+					}
+
+					foreach ($result as $asset_id => $weighting) {
+						// Only add to results the second time around if we have common terms
+						// This was added for increased complexity
+						if ($first_time || (!$first_time && in_array($asset_id, $common))) {
+							if (isset($synonym_search_results[$asset_id])) {
+								$synonym_search_results[$asset_id] += $weighting;
+							} else {
+								$synonym_search_results[$asset_id] = $weighting;
+							}
+						}
+					}
+
+					$first_time = FALSE;
+				}
+			} else {
+				// Simply flatten and add
+				foreach ($common_search_results as $result) {
+					foreach ($result as $asset_id => $weighting) {
+						if (isset($synonym_search_results[$asset_id])) {
+							$synonym_search_results[$asset_id] += $weighting;
+						} else {
+							$synonym_search_results[$asset_id] = $weighting;
+						}
+					}
+				}
+			}
+
+			// Combine all term results with those of the original search
+			foreach ($original_search_results as $result => $weighting) {
+				if (isset($synonym_search_results[$result])) {
+					$synonym_search_results[$result] += $weighting;
+				} else {
+					$synonym_search_results[$result] = $weighting;
+				}
+			}
+
+			// Tell the wider world!
+			$original_search_results = $synonym_search_results;
+		}
+
+		return $original_search_results;
+
+	}//end getMultiWordSynonymSearchResults
 
 
 }//end class

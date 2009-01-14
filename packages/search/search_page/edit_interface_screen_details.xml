@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.46 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.46.2.1 2009/01/14 00:35:15 mbrydon Exp $
 *
 */
 -->
@@ -114,6 +114,12 @@
 			<function_call>
 				<paint_function   name="paintAutoSynonymSearch" />
 				<process_function name="processAutoSynonymSearch" />
+			</function_call>
+		</field>
+		<field write_access="write:attributes">
+			<function_call>
+				<paint_function   name="paintEnableMultiWordSynonymLookups" />
+				<process_function name="processEnableMultiWordSynonymLookups" />
 			</function_call>
 		</field>
 	</section>
