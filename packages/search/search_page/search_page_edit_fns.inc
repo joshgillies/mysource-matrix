@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.80 2008/12/02 22:55:27 ewang Exp $
+* $Id: search_page_edit_fns.inc,v 1.81 2009/01/14 00:14:50 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1505,11 +1505,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$field = $asset->attr('auto_synonym_search_field');
 
 		if ($write_access) {
-			check_box($prefix.'_auto_synonym_search_enabled', 1, !empty($field), 'form.elements["'.$prefix.'_auto_synonym_search_field"].disabled = !this.checked; return TRUE;');
+			check_box($prefix.'_auto_synonym_search_enabled', 1, !empty($field), 'form.elements["'.$prefix.'_auto_synonym_search_field"].disabled = !this.checked; form.elements["'.$prefix.'_enable_multi_word_synonym_lookups"].disabled = !this.checked; return TRUE;');
 			echo translate('sch_auto_syn_enable');
 			$o->closeField();
+
 			$o->openField(translate('sch_auto_syn_use_search_field'));
-			combo_box($prefix.'_auto_synonym_search_field', $keyed_search_fields, FALSE, $field, 0,  empty($field) ? 'disabled="disabled"' : '');
+				combo_box($prefix.'_auto_synonym_search_field', $keyed_search_fields, FALSE, $field, 0,  empty($field) ? 'disabled="disabled"' : '');
 		} else {
 			if (empty($field)) {
 				echo translate('sch_auto_syn_not_enabled');
@@ -1550,6 +1551,85 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		return FALSE;
 
 	}//end processAutoSynonymSearch()
+
+
+	/**
+	* Paints the "Enable Multi-Word Synonym Lookups" item
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintEnableMultiWordSynonymLookups(&$asset, &$o, $prefix)
+	{
+		$search_fields = array_keys($asset->attr('fields'));
+		$keyed_search_fields = Array();
+		foreach ($search_fields as $field) {
+			$keyed_search_fields[$field] = $field;
+		}
+
+		$write_access = $asset->writeAccess('attributes');
+
+		// No search fields present
+		if (empty($search_fields)) {
+			return FALSE;
+		}
+
+		// Thesaurus asset not installed (why? it's in the core...)
+		if (!$this->thesaurusInstalled($asset, $prefix)) {
+			return FALSE;
+		}
+
+		$link_value = 'thesaurus';
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', FALSE, $link_value);
+
+		// No thesaurus asset set
+		if (empty($root_link)) {
+			return FALSE;
+		}
+
+		$enable_multi_words = $asset->attr('enable_multi_word_synonym_lookups');
+
+		$o->openField(translate('sch_enable_multi_word_synonym_lookups'));
+		if ($write_access) {
+				check_box($prefix.'_enable_multi_word_synonym_lookups', 1, $enable_multi_words, '');
+				echo translate('sch_enable_multi_word_synonym_lookups');
+		} else {
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.(empty($enable_multi_words) ? 'cross' : 'tick').'.gif" />';
+		}
+		echo '<br />';
+		echo translate('sch_enable_multi_word_synonym_lookups_note');
+
+		return FALSE;
+
+	}//end paintEnableMultiWordSynonymLookups()
+
+
+	/**
+	* Processes the "Enable Multi-Word Synonym Lookups" item
+	*
+	* @param object	&$asset	the asset being painted
+	* @param object	&$o		backend outputter class
+	* @param string	$prefix	prefix for the html doc element name
+	*
+	* @return void
+	* @access public
+	*/
+	function processEnableMultiWordSynonymLookups(&$asset, &$o, $prefix)
+	{
+		if (empty($_POST[$prefix.'_enable_multi_word_synonym_lookups'])) {
+			$asset->setAttrValue('enable_multi_word_synonym_lookups', FALSE);
+		} else {
+			$asset->setAttrValue('enable_multi_word_synonym_lookups', TRUE);
+			
+		}
+
+		return TRUE;
+
+	}//end processEnableMultiWordSynonymLookups()
 
 
 	/**
