@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.170 2008/11/18 22:12:14 bpearson Exp $
+* $Id: file.inc,v 1.170.2.1 2009/01/14 02:17:24 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.170.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -487,7 +487,16 @@ class File extends Asset
 				SQ_LINK_TYPE_1	=> Array(),
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
-				SQ_LINK_NOTICE	=> Array('image' => Array('card' => 1, 'exclusive' => FALSE)),
+				SQ_LINK_NOTICE	=> Array(
+										'image'		=> Array(
+															'card'		=> 1,
+															'exclusive'	=> FALSE,
+															),
+										'comment'	=> Array(
+															'card'		=>1,
+															'exclusive' => FALSE,
+															),
+										),
 			   );
 
 	}//end _getAllowedLinks()
