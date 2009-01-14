@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_web_path.inc,v 1.12 2008/11/05 15:26:58 gnoel Exp $
+* $Id: trigger_action_add_web_path.inc,v 1.13 2009/01/14 16:45:15 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,6 +70,11 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		$valid_paths = make_valid_web_paths(Array($web_path));
 		$web_path = array_shift($valid_paths);
 
+		// lowercase the new web path, if needed
+		if (!empty($settings['make_lowercase'])) {
+			$web_path = strtolower($web_path);
+		}
+		
 		// add the new web path
 		$web_paths_new = $web_paths_old = $state['asset']->getWebPaths();
 		if (!in_array($web_path, $web_paths_new)) {
@@ -153,11 +158,14 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		} else {
 			echo '<b>'.$web_path.'</b>';
 		}
-		echo '<br>';
+		echo '<br />';
 		echo '<div class="sq-backend-section-note">'.translate('trigger_add_web_path_note').'</div>';
 		check_box($prefix.'[remove_all]', '1', array_get_index($settings, 'remove_all', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
 		echo '<label for='.$prefix.'[remove_all]'.'>'.translate('trigger_add_web_path_remove_all').'.</label>';
-
+		echo '<br />';
+		check_box($prefix.'[make_lowercase]', '1', array_get_index($settings, 'make_lowercase', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+		echo '<label for='.$prefix.'[make_lowercase]'.'>'.translate('trigger_add_web_path_make_lowercase').'.</label>';
+		
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -183,7 +191,8 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		}
 		$settings['path'] = $web_path;
 		$settings['remove_all'] = array_get_index($request_data, 'remove_all', '');
-
+		$settings['make_lowercase'] = array_get_index($request_data, 'make_lowercase', '');
+		
 		return FALSE;
 
 	}//end processInterface()
