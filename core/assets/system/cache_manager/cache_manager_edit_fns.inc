@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.17 2008/07/02 04:02:28 mbrydon Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.18 2009/01/14 00:54:03 bshkara Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $ - 1.0
+* @version $Revision: 1.18 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -59,7 +59,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
-//--        CACHE EXPIRY        --//
+//--        SPECIFIC CACHE EXPIRY        --//
 
 
 	/**
@@ -105,9 +105,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				<?php
 			}
 		?></select><?php
-
 		$o->addFormActionGetVar($prefix.'_type', $selected, TRUE);
 		submit_button($prefix.'_go', translate('go'));
+		echo '<br />'.translate('type_code_precedence_over_root_node');
 
 		if (isset($_REQUEST[$prefix.'_select_type']) && !empty($_REQUEST[$prefix.'_select_type'])) {
 			echo '<br/><br/><b>'.translate('currently_customising', $options[$_REQUEST[$prefix.'_select_type']]).'</b>';
@@ -157,64 +157,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($selected)) {
 
-			$type_codes = $asset->attr('type_codes');
-
-			// field opened by asset_edit_interface
-				$using_default = !isset($type_codes[$selected]['enabled']);
-				if ($using_default) {
-					echo translate('using_default_value_of',(($asset->attr('enabled')) ? translate('on') : translate('off'))).'<br/>';
-				} else {
-					$caching = ($type_codes[$selected]['enabled']) ? 1 : 0;
-					if ($write_access) {
-						combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), FALSE, $caching);
-					} else {
-						echo ($type_codes[$selected]['enabled']) ? translate('on') : translate('off');
-					}
-				}
-				if ($write_access) {
-					check_box($prefix.'_default_enabled', '1', $using_default);
-					echo ' '.translate('use_default');
-				}
-			$o->closeField();
-
-			$o->openField(translate('default_expiry'), '', translate('valid_cache_length'));
-				$using_default = !isset($type_codes[$selected]['expiry']);
-				if ($using_default) {
-					echo translate('using_default_value_of', $asset->attr('expiry').' seconds').'<br/>';
-				} else {
-					if ($write_access) {
-						text_box($prefix.'_expiry', $type_codes[$selected]['expiry'], 5);
-					} else {
-						echo $type_codes[$selected]['expiry'];
-					}
-				}
-				if ($write_access) {
-					check_box($prefix.'_default_expiry', '1', $using_default);
-					echo ' '.translate('use_default');
-				}
-			$o->closeField();
-
-                        $o->openField(translate('cache_manager_browser_cache_expiry'), '', translate('cache_manager_browser_valid_cache_length'));
-                                  $using_default = !isset($type_codes[$selected]['browser_cache_expiry']);
-                                  if ($using_default) {
-                                          $browser_cache_expiry = $asset->attr('browser_cache_expiry');
-                                          if (empty($browser_cache_expiry)) {
-                                                  echo translate('cache_manager_using_blank_default_value_equal_to', 'the system Default Expiry', $asset->attr('expiry').' seconds').'<br>';
-                                          } else {
-                                                  echo translate('using_default_value_of', $browser_cache_expiry.' seconds').'<br/>';
-                                          }
-                                  } else {
-                                          if ($write_access) {
-                                                  text_box($prefix.'_browser_cache_expiry', $type_codes[$selected]['browser_cache_expiry'], 5);
-                                          } else {
-                                                  echo $type_codes[$selected]['browser_cache_expiry'];
-                                          }
-                                  }
-                                  if ($write_access) {
-                                          check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
-                                          echo ' '.translate('use_default');
-                                  }
-			// field closed by asset_edit_interface
+			$this->_paintSpecificCacheManagement($asset, $o, $prefix, 'type_codes', $selected, FALSE);
 
 		} else {
 			echo translate('customise_asset_selection');
@@ -225,6 +168,155 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		return $write_access;
 
 	}//end paintCustomiseTypeCodeCaching()
+
+
+	/**
+	* Paints the cache management section for the provided type code or root node
+	*
+	* @param object		&$asset			the asset of the layout manager
+	* @param object		&$o				the backend outputter
+	* @param string		$prefix			a unique prefix for variables
+	* @param string		$attr_name		the attribute name where current values are stored
+	* @param string		$selected		the value which needs to be configured
+	* @param boolean	$check_exists	check whether the selected value exists in the current value list before painting
+	*
+	* @return void
+	* @access private
+	*/
+	function _paintSpecificCacheManagement(&$asset, &$o, $prefix, $attr_name, $selected, $check_exists=FALSE)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$current_values = $asset->attr($attr_name);
+		// check if the value to be configured actually exists if specified
+		if ($check_exists) {
+			$paint = in_array($selected, array_keys($current_values)) ? TRUE : FALSE;
+		} else {
+			$paint = TRUE;
+		}
+		if ($paint) {
+			// field opened by asset_edit_interface
+			$using_default = !isset($current_values[$selected]['enabled']);
+			if ($using_default) {
+				echo translate('using_default_value_of',(($asset->attr('enabled')) ? translate('on') : translate('off'))).'<br/>';
+			} else {
+				$caching = ($current_values[$selected]['enabled']) ? 1 : 0;
+				if ($wa) {
+					combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), FALSE, $caching);
+				} else {
+					echo ($current_values[$selected]['enabled']) ? translate('on') : translate('off');
+				}
+			}
+			if ($wa) {
+				check_box($prefix.'_default_enabled', '1', $using_default);
+				echo ' '.translate('use_default');
+			}
+			$o->closeField();
+
+			$o->openField(translate('default_expiry'), '', translate('valid_cache_length'));
+				$using_default = !isset($current_values[$selected]['expiry']);
+				if ($using_default) {
+					echo translate('using_default_value_of', $asset->attr('expiry').' seconds').'<br/>';
+				} else {
+					if ($wa) {
+						text_box($prefix.'_expiry', $current_values[$selected]['expiry'], 5);
+					} else {
+						echo $current_values[$selected]['expiry'];
+					}
+				}
+				if ($wa) {
+					check_box($prefix.'_default_expiry', '1', $using_default);
+					echo ' '.translate('use_default');
+				}
+			$o->closeField();
+
+			$o->openField(translate('cache_manager_browser_cache_expiry'), '', translate('cache_manager_browser_valid_cache_length'));
+				$using_default = !isset($current_values[$selected]['browser_cache_expiry']);
+				if ($using_default) {
+					$browser_cache_expiry = $asset->attr('browser_cache_expiry');
+					if (empty($browser_cache_expiry)) {
+						echo translate('cache_manager_using_blank_default_value_equal_to', 'the system Default Expiry', $asset->attr('expiry').' seconds').'<br>';
+					} else {
+						echo translate('using_default_value_of', $browser_cache_expiry.' seconds').'<br/>';
+					}
+				} else {
+					if ($wa) {
+						text_box($prefix.'_browser_cache_expiry', $current_values[$selected]['browser_cache_expiry'], 5);
+					} else {
+						echo $current_values[$selected]['browser_cache_expiry'];
+					}
+				}
+
+				if ($wa) {
+					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
+					echo ' '.translate('use_default');
+				}
+			// field closed by asset_edit_interface
+		}
+
+	}//end _paintSpecificCacheManagement();
+
+
+	/**
+	* Processes the interface for customising specific cache management options
+	*
+	* @param object		&$asset					the asset of the layout manager
+	* @param object		&$o						the backend outputter
+	* @param string		$prefix					a unique prefix for variables
+	* @param string		$attr_name				the attribute name where current values are stored
+	* @param string		$value_get_var			the value which needs to be configured
+	* @param boolean	$indicate_customised	whether to indicate in the saved attribute if a value is customised
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processSpecificCacheManagement(&$asset, &$o, $prefix, $attr_name, $value_get_var, $indicate_customised=FALSE)
+	{
+		$current_values = $asset->attr($attr_name);
+
+		if ($asset->writeAccess('attributes') && !isset($_POST[$value_get_var]) && isset($_GET[$value_get_var])) {
+			$type = $_REQUEST[$value_get_var];
+			$defaults = Array('enabled', 'expiry', 'browser_cache_expiry');
+			$save = FALSE;
+
+			foreach ($defaults as $default) {
+				$using_default = FALSE;
+				if (!isset($_POST[$prefix.'_default_'.$default])) {
+					if (!isset($current_values[$type][$default])) {
+						$save = TRUE;
+						$current_values[$type][$default] = $asset->attr($default);
+					}
+				} else {
+					$save = TRUE;
+					$using_default = TRUE;
+					if (isset($current_values[$type][$default])) {
+						unset($current_values[$type][$default]);
+					}
+				}
+				if (isset($_POST[$prefix.'_'.$default]) && !$using_default) {
+					if (!isset($current_values[$type][$default]) || $current_values[$type][$default] != $_POST[$prefix.'_'.$default]) {
+						$current_values[$type][$default] = $_POST[$prefix.'_'.$default];
+						$save = TRUE;
+					}
+				}
+			}
+			if (isset($current_values[$type]) && empty($current_values[$type])) {
+				unset($current_values[$type]);
+			}
+
+			if ($indicate_customised) {
+				// indicate that this value is customised
+				if (count((array_diff($defaults, array_keys($current_values[$type])))) < count($defaults)) {
+					$current_values[$type]['customised'] = 1;
+				} else {
+					$current_values[$type]['customised'] = 0;
+				}
+			}
+
+			return ($save) ? $asset->setAttrValue($attr_name, $current_values) : FALSE;
+		}
+		return FALSE;
+
+	}//end _processSpecificCacheManagement()
 
 
 	/**
@@ -239,42 +331,416 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processCustomiseTypeCodeCaching(&$asset, &$o, $prefix)
 	{
-		$type_codes = $asset->attr('type_codes');
-
-		if (isset($_REQUEST[$prefix.'_type'])) {
-			$type = $_REQUEST[$prefix.'_type'];
-			$defaults = Array('enabled', 'expiry', 'browser_cache_expiry');
-			$save = FALSE;
-
-			foreach ($defaults as $default) {
-				$using_default = FALSE;
-				if (!isset($_POST[$prefix.'_default_'.$default])) {
-					if (!isset($type_codes[$type][$default])) {
-						$save = TRUE;
-						$type_codes[$type][$default] = $asset->attr($default);
-					}
-				} else {
-					$save = TRUE;
-					$using_default = TRUE;
-					if (isset($type_codes[$type][$default])) {
-						unset($type_codes[$type][$default]);
-					}
-				}
-				if (isset($_POST[$prefix.'_'.$default]) && !$using_default) {
-					if (!isset($type_codes[$type][$default]) || $type_codes[$type][$default] != $_POST[$prefix.'_'.$default]) {
-						$type_codes[$type][$default] = $_POST[$prefix.'_'.$default];
-						$save = TRUE;
-					}
-				}
-			}
-			if (isset($type_codes[$type]) && empty($type_codes[$type])) {
-				unset($type_codes[$type]);
-			}
-			return ($save) ? $asset->setAttrValue('type_codes', $type_codes) : FALSE;
-		}
-		return FALSE;
+		return $this->_processSpecificCacheManagement($asset, $o, $prefix, 'type_codes', $prefix.'_type', FALSE);
 
 	}//end processCustomiseTypeCodeCaching()
+
+
+	/**
+	* Paints the interface for selecting a root node to customise
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintChooseRootNode(&$asset, &$o, $prefix)
+	{
+		$root_nodes = $asset->attr('root_nodes');
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && empty($root_nodes)) {
+			$root_nodes = Array(0);
+		}
+
+		$key = 0;
+		foreach ($root_nodes as $assetid => $data) {
+		?>
+			<table>
+				<tbody>
+					<tr>
+						<td colspan="2">
+							<?php
+								if ($wa) {
+									// holds the previous value
+									hidden_field($prefix.'_root_node_previous_values['.$key.']', $assetid);
+									asset_finder($prefix.'_root_node_X_'.$key.'_X_', $assetid);
+								} else {
+									echo get_asset_tag_line($assetid);
+								}
+							?>
+						</td>
+						<td>
+							<?php
+								if (isset($data['customised'])) {
+									$customised = $data['customised'];
+								} else {
+									$customised = FALSE;
+								}
+								if ($wa && !empty($assetid)) {
+									$radio_name = $prefix.'_customise_root_node';
+									check_box($radio_name, $assetid, FALSE, 'this.form.submit();');
+									if ($customised) {
+										label(translate('view_customisations'), $radio_name);
+									} else {
+										label(translate('customise'), $radio_name);
+									}
+								} else {
+									if ($customised) {
+										$radio_name = $prefix.'_customise_root_node';
+										check_box($radio_name, $assetid, FALSE, 'this.form.submit();');
+										label('<i>'.translate('view_customisations').'</i>', $radio_name);
+									} else {
+										if (!empty($assetid)) {
+											echo '<i>'.translate('not_yet_customised').'</i>';
+										}
+									}
+								}
+							?>
+						</td>
+					</tr>
+					<tr>
+						<td width="360px">
+							<?php
+								if ($wa) {
+									$options = Array(
+													0	=> translate('no'),
+													1	=> translate('yes'),
+											   );
+									$combo_name = $prefix.'_all_underneath_X_'.$key.'_X_';
+									combo_box($combo_name, $options, FALSE, $data['all_underneath']);
+									label(' '.translate('include_all_assets'), $combo_name);
+								} else {
+									if ($data['all_underneath']) {
+										echo '<b>'.translate('assets_underneath_root_node_affected').'</b>';
+									} else {
+										echo '<b>'.translate('assets_underneath_root_node_not_affected').'</b>';
+									}
+								}
+							?>
+						</td>
+						<td colspan="2">
+							<?php
+								if ($wa && $key+1 === count($root_nodes)) {
+									$more_button_name = $prefix.'_root_node_more_button_X_'.$key.'_X_';
+									normal_button($more_button_name, translate('more').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
+								}
+							?>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		<?php
+			$key++;
+			if ($key !== count($root_nodes)) echo '<br />';
+		}//end foreach
+
+		if (isset($_REQUEST[$prefix.'_customise_root_node']) && in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($root_nodes))) {
+			if ($wa) {
+				echo '<br/><br/><b>'.translate('currently_customising', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
+			} else {
+				echo '<br/><br/><b>'.translate('currently_viewing', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
+			}
+		} else {
+			unset($_REQUEST[$prefix.'_customise_root_node']);
+		}
+
+		?>
+			<script type="text/javascript">
+
+				function prependLastTable(moreButton)
+				{
+					var lastTable = moreButton.parentNode;
+					while (lastTable.tagName != 'TABLE') {
+						lastTable = lastTable.parentNode;
+					}
+
+					// to be used when adding the button back
+					var lastSibling = lastTable.previousSibling;
+					var lastTableButtonCell = moreButton.parentNode;
+
+					// look for sq-backend-data to prepend this table
+					var validLocation = moreButton.parentNode;
+					while (validLocation.className != 'sq-backend-data') {
+						validLocation = validLocation.parentNode;
+					}
+
+					var clone = lastTable.cloneNode(true);
+
+					// inserting clone after original
+					validLocation.insertBefore(clone, lastTable.nextSibling);
+
+					// append the 'More' button to the cloned table
+					lastTableButtonCell.appendChild(moreButton);
+
+					// remove the 'More' button from the original after cloning
+					moreButton.parentNode.removeChild(moreButton);
+
+					// remove the customise button elements from the clone
+					var cloneCustomiseCell = clone.rows[0].cells[1];
+					removeElementChildNodes(cloneCustomiseCell);
+
+					// add text in place of the customise button elements in the clone
+					var cloneCustomiseText = document.createElement('i');
+					cloneCustomiseCell.appendChild(cloneCustomiseText);
+
+					// use innerHTML for IE6
+					cloneCustomiseText.innerHTML = js_translate('customise_after_commit');
+
+					// remove the asset finder from the clone
+					var cloneAssetFinderCell = clone.rows[0].cells[0];
+					removeElementChildNodes(cloneAssetFinderCell);
+
+					// traverse DOM and increment each field name
+					incrementTableFieldNames(clone);
+
+					// add an asset finder for the cloned table
+					cloneInnerHTML(lastTable.rows[0].cells[0], cloneAssetFinderCell);
+
+					lastTable.appendChild(document.createElement('br'));
+
+					return clone;
+				}
+
+				// adds a new asset finder as a child of the specified element
+				function cloneInnerHTML(cellToCopy, cellToPopulate)
+				{
+					var htmlToClone = cellToCopy.innerHTML;
+					// discover what the new key should be
+					var currentKey = htmlToClone.match(/_X_(\d+)_X_/);
+					var newKey = parseInt(currentKey[1]) + 1;
+					cellToPopulate.innerHTML = htmlToClone.replace(/_X_(\d+)_X_/g, '_X_' + newKey + '_X_');
+				}
+
+				// removes all childNodes from the specified element
+				function removeElementChildNodes(element)
+				{
+					if (element.hasChildNodes()) {
+						while (element.childNodes.length > 0 ) {
+							element.removeChild(element.firstChild);
+						}
+					}
+				}
+
+				function incrementTableFieldNames(element)
+				{
+					var i=0;
+					var elementChildren = element.childNodes[i];
+					var tagName = element.tagName;
+
+					if ((tagName == 'INPUT') || (tagName == 'SELECT')) {
+						// increment field name
+						// have to use the _X_ delimiters because asset_finder cleans form names
+						var currentKey = element.name.match(/_X_(\d+)_X_/);
+						var newKey = parseInt(currentKey[1]) + 1;
+						element.name = element.name.replace(/_X_(\d+)_X_/, '_X_' + newKey + '_X_');
+						element.id = element.id.replace(/_X_(\d+)_X_/, '_X_' + newKey + '_X_');
+					}
+
+					while (elementChildren) {
+						incrementTableFieldNames(elementChildren);
+						i++;
+						elementChildren = element.childNodes[i];
+					}
+				}
+
+				function resetLastTableFields(element, findTable)
+				{
+					// clear all elements inside the table
+					if (findTable) {
+						var element = element.parentNode;
+						while (element.tagName != 'TABLE') {
+							element = element.parentNode;
+						}
+					}
+
+					var i=0;
+					var elementChildren = element.childNodes[i];
+					var tagName = element.tagName;
+
+					if (tagName == 'INPUT') {
+						// don't clear buttons
+						if (element.type != 'button') {
+							element.value = '';
+						}
+						return;
+					} else if (tagName == 'SELECT') {
+						element.selectedIndex = 0;
+						return;
+					}
+
+					while (elementChildren) {
+						resetLastTableFields(elementChildren, false);
+						i++;
+						elementChildren = element.childNodes[i];
+					}
+				}
+			</script>
+		<?php
+
+		return TRUE;
+
+	}//end paintChooseRootNode()
+
+
+	/**
+	* Processes the interface for selecting a root node to customise
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processChooseRootNode(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			$root_node_key = $prefix.'_root_node';
+			$submitted_root_nodes = Array();
+			$deleteme = Array();
+			foreach ($_POST as $key => $value) {
+				// look for form names which have _X_ delimiters
+				if (strpos($key, '_X_')) {
+					// retrieve the current index value
+					if (preg_match("/^$root_node_key".'_X_(\d+)_X_/', $key, $matches)) {
+						$current_row = $matches[1];
+						if (isset($_POST[$prefix.'_root_node_previous_values'][$current_row])) {
+							$previous_value = $_POST[$prefix.'_root_node_previous_values'][$current_row];
+						} else {
+							// populate the previous value with the actual value when it is retrieved
+							// this is because when new root nodes are created, they do not have a previous value
+							$previous_value = '';
+						}
+					}
+
+					// retrieve the actual values submitted
+					if (preg_match("/^$root_node_key/", $key)) {
+						$root_node = htmlspecialchars($_POST[$key]['assetid']);
+						// if no root node was submitted, skip it and mark for deletion
+						if (!$root_node) {
+							// record the previous assetid (i.e. the one to delete)
+							$deleteme[] = $previous_value;
+							continue;
+						}
+
+						if (empty($previous_value)) {
+							$submitted_root_nodes[$root_node]['previous'] = $root_node;
+						} else {
+							$submitted_root_nodes[$root_node]['previous'] = $previous_value;
+						}
+					} else if (isset($submitted_root_nodes[$root_node]) && strpos($key, 'all_underneath')) {
+						$all_underneath = $_POST[$key];
+						$submitted_root_nodes[$root_node]['all_underneath'] = $all_underneath;
+					}
+				}
+			}
+
+			// compare submitted values with stored ones and update/delete accordingly
+			$current_root_nodes = $asset->attr('root_nodes');
+			if (!empty($submitted_root_nodes)) {
+				foreach ($submitted_root_nodes as $assetid => $data) {
+					if (isset($current_root_nodes[$assetid])) {
+						// updating this existing node's options
+						foreach ($current_root_nodes[$assetid] as $key => $value) {
+							if (isset($data[$key])) {
+								$current_root_nodes[$assetid][$key] = $data[$key];
+							} else {
+								// submitted data does not have this key so use the existing value
+								$current_root_nodes[$assetid][$key] = $value;
+							}
+						}
+					} else if ($assetid !== $data['previous'] && isset($current_root_nodes[$data['previous']])) {
+						// updating this existing's nodes assetid
+						$old_values = $current_root_nodes[$data['previous']];
+						$current_root_nodes[$assetid] = $old_values;
+						unset($current_root_nodes[$data['previous']]);
+					} else if (!empty($submitted_root_nodes[$assetid])) {
+						// this value does not exist so create it
+						$current_root_nodes[$assetid] = $data;
+						// do not show root node cache management section
+						unset($_REQUEST[$prefix.'_customise_root_node']);
+					}
+				}
+
+				// delete entries marked for deletion
+				if (!empty($deleteme)) {
+					foreach($deleteme as $row => $assetid) {
+						unset($current_root_nodes[$assetid]);
+					}
+				}
+
+				// do not need 'previous' anymore
+				if (isset($current_root_nodes[$assetid]['previous'])) {
+					unset($current_root_nodes[$assetid]['previous']);
+				}
+			} else {
+				// delete them all
+				$current_root_nodes = Array();
+			}
+			$asset->setAttrValue('root_nodes', $current_root_nodes);
+		}
+		return $wa;
+
+	}//end processChooseRootNode()
+
+
+	/**
+	* Paints the interface for customising an individual root node's cache options
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCustomiseRootNodeCaching(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+
+		// get the assetid to customise
+		if (isset($_REQUEST[$prefix.'_customise_root_node'])) {
+			$this->_paintSpecificCacheManagement($asset, $o, $prefix, 'root_nodes', $_REQUEST[$prefix.'_customise_root_node'], TRUE);
+		} else {
+			if ($wa) {
+				echo translate('customise_root_node_selection');
+			} else {
+				echo translate('view_root_node_selection');
+			}
+		}
+
+		return $wa;
+
+	}//end paintCustomiseRootNodeCaching()
+
+
+	/**
+	* Processes the interface for customising an individual root node's cache options
+	*
+	* @param object	&$asset	the asset of the layout manager
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	a unique prefix for variables
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCustomiseRootNodeCaching(&$asset, &$o, $prefix)
+	{
+		if (isset($_REQUEST[$prefix.'_customise_root_node'])) {
+			$o->addFormActionGetVar($prefix.'_customise_root_node', $_REQUEST[$prefix.'_customise_root_node'], TRUE);
+
+			// first check if the value still exists
+			if (in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($asset->attr('root_nodes')))) {
+				return $this->_processSpecificCacheManagement($asset, $o, $prefix, 'root_nodes', $prefix.'_customise_root_node', TRUE);
+			} else {
+				return FALSE;
+			}
+		}
+
+	}//end processCustomiseRootNodeCaching()
 
 
 //--        CLEAR CACHE        --//

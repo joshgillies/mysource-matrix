@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.283 2009/01/13 23:36:12 bpearson Exp $
+* $Id: mysource.inc,v 1.284 2009/01/14 00:54:03 bshkara Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.283 $
+* @version $Revision: 1.284 $
 * @package MySource_Matrix
 */
 class MySource
@@ -619,8 +619,8 @@ class MySource
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), 'cache_info');
 
-		$cache_expiry = $cm->getExpiry($asset->type());
-		$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type());
+		$cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
+		$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
 		if (empty($browser_cache_expiry)) {
 			$browser_cache_expiry = $cache_expiry;
 		}
@@ -670,7 +670,7 @@ class MySource
 
 			// If the Browser Cache Expiry is set, caclculate the expiry time from now.
 			// Otherwise, use the expiry time as supplied by the Matrix cache.
-			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type());
+			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
 			if (empty($browser_cache_expiry)) {
 				header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
 			} else {
@@ -3215,9 +3215,9 @@ class MySource
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			header('Pragma: cache');
 
-			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type());
+			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
 			if (empty($browser_cache_expiry)) {
-				$browser_cache_expiry = $cm->getExpiry($asset->type());
+				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 			}
 
 			header('Cache-Control: max-age='.$browser_cache_expiry.', public');

@@ -10,28 +10,28 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_expiry.xml,v 1.2 2006/12/06 04:23:57 emcdonald Exp $
+* $Id: lang_screen_root_node_specific.xml,v 1.1 2009/01/14 00:54:34 bshkara Exp $
 *
 */
 -->
 <contents>
-	<section name="Select Asset Type">
+	<section name="Select Root Node">
 		<field>
-			<display_name>Configure Type Code</display_name>
+			<display_name>Configure Root Node</display_name>
 			<note />
 			<function_call>
-				<paint_function name="paintChooseTypeCode" />
-				<process_function name="processChooseTypeCode" />
+				<paint_function name="paintChooseRootNode" />
+				<process_function name="processChooseRootNode" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Type Code Cache Management">
+	<section name="Root Node Cache Management">
 		<field>
 			<display_name>Caching Status</display_name>
 			<note />
 			<function_call>
-				<paint_function name="paintCustomiseTypeCodeCaching" />
-				<process_function name="processCustomiseTypeCodeCaching" />
+				<paint_function name="paintCustomiseRootNodeCaching" />
+				<process_function name="processCustomiseRootNodeCaching" />
 			</function_call>
 		</field>
 	</section>

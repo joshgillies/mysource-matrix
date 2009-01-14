@@ -10,14 +10,25 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.5 2009/01/14 00:54:03 bshkara Exp $
+* $Id: edit_interface_screen_type_code_specific.xml,v 1.1 2009/01/14 00:54:34 bshkara Exp $
 *
 */
 -->
-
-<screens>
-	<screen code_name="clear_cache" display_name="Clear Cache" icon="create" lock_type="attributes" force_unlock="1" />
-	<screen code_name="refresh_cache" display_name="Refresh Cache" icon="create" lock_type="attributes" force_unlock="0" />
-	<screen code_name="type_code_specific" display_name="Type Code Specific" icon="create" lock_type="attributes" force_unlock="0" />
-	<screen code_name="root_node_specific" display_name="Root Node Specific" icon="create" lock_type="attributes" force_unlock="0" />
-</screens>
+<contents>
+	<section name="Select Asset Type" read_access="write:" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintChooseTypeCode" />
+				<process_function name="processChooseTypeCode" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Type Code Cache Management" read_access="write:" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintCustomiseTypeCodeCaching" />
+				<process_function name="processCustomiseTypeCodeCaching" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.70 2008/11/20 05:48:49 lwright Exp $
+* $Id: cache_manager.inc,v 1.71 2009/01/14 00:54:03 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,7 +147,7 @@ class Cache_Manager extends Asset
 	*/
 	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=TRUE)
 	{
-		if (!$this->cacheEnabled($asset_type)) return FALSE;
+		if (!$this->cacheEnabled($asset_type, $assetid)) return FALSE;
 
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return FALSE;
@@ -210,7 +210,7 @@ class Cache_Manager extends Asset
 	*/
 	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE)
 	{
-		if (!$this->cacheEnabled($asset_type)) return FALSE;
+		if (!$this->cacheEnabled($asset_type, $assetid)) return FALSE;
 
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return FALSE;
@@ -229,7 +229,7 @@ class Cache_Manager extends Asset
 		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
 		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
 		$file_path = $group.'/'.$file_name;
-		$expiry = time() + $this->getExpiry($asset_type);
+		$expiry = time() + $this->getExpiry($asset_type, $assetid);
 
 		// replace/update existing cache entry
 		// warning: will NOT cause duplicate primary key db error
@@ -560,18 +560,19 @@ class Cache_Manager extends Asset
 
 
 	/**
-	* Check if caching is enabled, generally, for the current root URL and for the specfied type code
+	* Check if caching is enabled, generally, for the current root URL and for the specfied type code or assetid
 	*
-	* If no type code is specified this function will check the system wide setting
+	* If no type code or assetid is specified this function will return the system wide setting
 	*
 	* @param string	$type_code	the type_code to check to see if caching is enabled
+	* @param string	$assetid	the assetid to check to see if caching is enabled
 	*
 	* @return boolean
 	* @access public
 	*/
-	function cacheEnabled($type_code='')
+	function cacheEnabled($type_code='', $assetid='')
 	{
-		// First check some obvious things
+		// first check some obvious things
 		if (SQ_ROLLBACK_VIEW) return FALSE;
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
 			return FALSE;
@@ -595,63 +596,109 @@ class Cache_Manager extends Asset
 			return FALSE;
 		}
 
-		// Check for type-code-specific settings
-		$type_codes = $this->attr('type_codes');
-		if (isset($type_codes[$type_code]['enabled'])) {
-			return $type_codes[$type_code]['enabled'];
+		// check type code and root node specific settings
+		$specific = $this->_specificCacheManagementSettings($type_code, $assetid, 'enabled');
+		if ($specific !== FALSE) {
+			return $specific;
 		}
+
 		return $this->attr('enabled');
 
 	}//end cacheEnabled()
 
 
 	/**
-	* Returns the expiry time for the specified type code.
+	* Returns the expiry time for the specified type code or assetid
 	*
-	* If the expiry value for that type code has not been customised,
-	* then the default expiry is returned
+	* If the expiry value for the provided type code or assetid has not been customised,
+	* then the system wide expiry is returned
 	*
 	* @param string	$type_code	the type code of the wanted expiry value
+	* @param string	$assetid	the assetid of the wanted expiry value
 	*
 	* @return int
 	* @access public
 	*/
-	function getExpiry($type_code='')
+	function getExpiry($type_code='', $assetid='')
 	{
-		$type_codes = $this->attr('type_codes');
-		if (isset($type_codes[$type_code]['expiry'])) {
-			return $type_codes[$type_code]['expiry'];
+		$specific = $this->_specificCacheManagementSettings($type_code, $assetid, 'expiry');
+		if ($specific !== FALSE) {
+			return $specific;
 		}
+
 		return $this->attr('expiry');
 
 	}//end getExpiry()
 
 
 	/**
-	* Returns the browser cache expiry time for the specified type code.
+	* Returns the browser cache expiry time for the specified type code or assetid
 	*
-	* If the expiry value for that type code has not been customised,
-	* then the default browser cache expiry is returned.
+	* If the expiry value for provided type code or assetid has not been customised,
+	* then the system wide browser cache expiry is returned
 	*
-	* @param string $type_code  the type code of the requested browser cache expiry value
+	* @param string $type_code 	the type code of the requested browser cache expiry value
+	* @param string $assetid	the assetid of the requested browser cache expiry value
 	*
 	* @return int
 	* @access public
 	*/
-	function getBrowserCacheExpiry($type_code='')
+	function getBrowserCacheExpiry($type_code='', $assetid='')
 	{
+		$specific = $this->_specificCacheManagementSettings($type_code, $assetid, 'browser_cache_expiry');
+		if ($specific !== FALSE) {
+			return $specific;
+		}
+
+		return $this->attr('browser_cache_expiry');
+
+	}//end getBrowserCacheExpiry()
+
+
+	/**
+	* Returns specified setting for the provided type code or assetid
+	*
+	* Type code specific settings take priority over root node configured settings
+	*
+	* @param string	$type_code	the type code of the wanted value
+	* @param string	$assetid	the assetid of the wanted value
+	* @param string	$value		the value required
+	*
+	* @return mixed int|boolean
+	* @access private
+	*/
+	function _specificCacheManagementSettings($type_code, $assetid, $value)
+	{
+		// check for type-code-specific settings
 		$type_codes = $this->attr('type_codes');
-		if (isset($type_codes[$type_code]['browser_cache_expiry'])) {
-			if (!empty($type_codes[$type_code]['browser_cache_expiry'])) {
-				return $type_codes[$type_code]['browser_cache_expiry'];
+		if (isset($type_codes[$type_code][$value])) {
+			return $type_codes[$type_code][$value];
+		}
+
+		// check for root node specific settings
+		$root_nodes = $this->attr('root_nodes');
+		if (isset($root_nodes[$assetid][$value])) {
+			return $root_nodes[$assetid][$value];
+		} else {
+			// before checking parents of provided assetid, check to see if an assetid was actually passed in
+			if (!empty($assetid)) {
+				// ok so retrieve the parents of this assetid
+				$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid));
+				foreach ($parents as $parentid) {
+					// check that this entry actually manages child entries
+					if (isset($root_nodes[$parentid]['all_underneath']) && $root_nodes[$parentid]['all_underneath']) {
+						// check the value of the option that was asked for
+						if (isset($root_nodes[$parentid][$value])) {
+							return $root_nodes[$parentid][$value];
+						}
+					}
+				}
 			}
 		}
 
-		$browser_cache_expiry = $this->attr('browser_cache_expiry');
+		return FALSE;
 
-		return $browser_cache_expiry;
-
-	}//end getBrowserCacheExpiry()
+	}//end _specificCacheManagementSettings()
 
 
 	/**

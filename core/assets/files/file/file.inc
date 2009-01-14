@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.170 2008/11/18 22:12:14 bpearson Exp $
+* $Id: file.inc,v 1.171 2009/01/14 00:54:02 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.170 $
+* @version $Revision: 1.171 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1138,9 +1138,9 @@ class File extends Asset
 				&& $this->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
 				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
-				$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type());
+				$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type(), $this->id);
 				if (empty($browser_cache_expiry)) {
-					$browser_cache_expiry = $cm->getExpiry($this->type());
+					$browser_cache_expiry = $cm->getExpiry($this->type(), $this->id);
 				}
 
 				$last_updated = $this->getEffectiveLastUpdatedTime(Array());
