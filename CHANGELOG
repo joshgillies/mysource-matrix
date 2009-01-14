@@ -237,9 +237,9 @@ Rollback Management Tool
 	This trigger will now return a failure condition if the asset version number supplied is not of the expected format. 
 
 
-"Exclude Root Nodes" Listing Engine option
+"Exclude Root Nodes" Asset Listing option
 
-	It is now possible to nominate one or more root nodes to be excluded from Listing Engine-based pages such as Asset Listing and Search Page. This option is available on the "Details" screen of these asset types.
+	It is now possible to nominate one or more root nodes to be excluded from Asset Listing pages. This option is available on the "Details" screen of these asset types.
 
 
 Indication that a Division is linked elsewhere
