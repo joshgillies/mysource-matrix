@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.34 2007/07/23 05:32:15 mbrydon Exp $
+* $Id: core.js,v 1.35 2009/01/15 23:49:23 mbrydon Exp $
 *
 */
 
@@ -168,12 +168,17 @@ HTMLArea.prototype.generate = function () {
 			editor._doc.style.width  = editor.config.width;
 		}
 
-		if (editor.config.width == null) {
+		if (editor.config.height == null) {
 			editor._doc.style.height = '100%';
 		} else {
 			editor._doc.style.height = editor.config.height;
 		}
 
+		// Now some help for IE7+ to allow DIVs to expand past the set height a la IE6
+		if (HTMLArea.is_ie7 || HTMLArea.is_ie8) {
+			editor._doc.style.minHeight = editor.config.height;
+			editor._doc.style.height = 'auto';
+		}
 
 		editor._doc.innerHTML = editor._textArea.value;
 		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
