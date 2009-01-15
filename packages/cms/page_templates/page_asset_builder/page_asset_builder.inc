@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.142 2008/11/20 23:24:42 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.143 2009/01/15 22:14:09 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -455,7 +455,6 @@ class Page_Asset_Builder extends Page
 									$metadata_field = substr($attr, strlen($this->getPrefix().'_metadata_'));
 									$mf_asset = $am->getAsset($metadata_field);
 									$valid_value = TRUE;
-									$no_write_access = TRUE;
 									$empty_value = TRUE;
 
 									// Validate the metadata value
@@ -474,18 +473,9 @@ class Page_Asset_Builder extends Page
 										}//end if
 									}//end if
 
-									// Check for write access
-									if (!empty($create_locations)) {
-										foreach ($create_locations as $create_location => $omgwtfbbq) {
-											$asset = $am->getAsset($create_location);
-												if (!is_null($asset) && !$asset->writeAccess('')) {
-													$no_write_access = FALSE;
-												}//end if
-											$am->forgetAsset($asset);
-										}//end foreach
-									}//end if
+									
 
-									if (!$valid_value || !$no_write_access) {
+									if (!$valid_value) {
 										if (empty($error_text)) {
 											$error_text = translate('cms_asset_builder_invalid_attr_value', $mf_asset->name);
 										}
