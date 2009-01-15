@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.24.8.2 2008/11/28 05:56:14 bpearson Exp $
+* $Id: utility.js,v 1.24.8.3 2009/01/15 23:42:57 mbrydon Exp $
 *
 */
 
@@ -26,6 +26,8 @@
 // browser identification
 HTMLArea.agt = navigator.userAgent.toLowerCase();
 HTMLArea.is_ie     = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
+HTMLArea.is_ie7    = ((HTMLArea.agt.indexOf("msie 7") != -1) && HTMLArea.is_ie);
+HTMLArea.is_ie8    = ((HTMLArea.agt.indexOf("msie 8") != -1) && HTMLArea.is_ie);
 HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_mac    = (HTMLArea.agt.indexOf("mac") != -1);
 HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
