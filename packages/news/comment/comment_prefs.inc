@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: comment_prefs.inc,v 1.8 2007/12/03 02:25:34 gsherwood Exp $
+* $Id: comment_prefs.inc,v 1.8.2.1 2009/01/16 02:28:40 mbrydon Exp $
 *
 */
 
@@ -41,7 +41,7 @@ if (!defined('SQ_COMMENT_HTML_STRIP')) {
 *    Looks after the creation the Comment Preferences
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix
 */
 class Comment_Prefs extends Prefs
@@ -73,7 +73,7 @@ class Comment_Prefs extends Prefs
 						'SQ_COMMENT_HTML_CONF'	=> Array(
 													'name'			=> 'comment_pref_html_conf_label',
 													'description'	=> 'Determines whether HTML is allowed, escaped or removed',
-													'default'		=> 0,
+													'default'		=> SQ_CONF_HTML_ESCAPE,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_MAX_RATING'	=> Array(
