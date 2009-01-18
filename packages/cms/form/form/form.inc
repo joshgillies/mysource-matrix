@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.1 2009/01/11 23:36:10 ewang Exp $
+* $Id: form.inc,v 1.207.2.2 2009/01/18 23:47:54 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.1 $
+* @version $Revision: 1.207.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1847,6 +1847,9 @@ class Form extends Asset implements Bridge
 			foreach ($matches as $key => $value) {
 				if (($key === 'SQ_FORM_'.$this->id.'_PAGE') || ($key === 'SQ_FORM_'.$this->id.'_SUBMISSION')) {
 					unset($matches[$key]);
+				} else {
+					// URLdecode the match because make_raw_post_data() will re-encode it
+					$matches[$key] = urldecode($matches[$key]);
 				}
 			}
 
