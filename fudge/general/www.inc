@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.32 2007/08/06 00:36:03 lwright Exp $
+* $Id: www.inc,v 1.33 2009/01/18 23:45:05 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package Fudge
 * @subpackage General
 */
@@ -184,7 +184,7 @@ function make_raw_post_data($data)
 function recursive_make_raw_post_data($name, $data)
 {
 	if (!is_array($data)) {
-		return $name.'='.urlencode($data);
+		return $name.'='.rawurlencode($data);
 	} else {
 		$val_array=Array();
 
