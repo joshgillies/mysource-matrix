@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.206 2009/01/19 03:32:13 mbrydon Exp $
+* $Id: general.inc,v 1.207 2009/01/19 03:35:53 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.206 $
+* @version $Revision: 1.207 $
 * @package MySource_Matrix
 */
 
@@ -1905,6 +1905,5 @@ the GPL.
 	trigger_error($licence_error, E_USER_ERROR);
 
 }//end check_ssv_licence()
-
 
 ?>
