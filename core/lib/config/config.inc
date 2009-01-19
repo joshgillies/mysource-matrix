@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.32 2007/11/15 04:32:39 hnguyen Exp $
+* $Id: config.inc,v 1.33 2009/01/19 23:43:16 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -291,6 +291,21 @@ class Config extends MySource_Object
 	{
 		require_once $this->config_file;
 
+		$map_array = Array (
+						'system_config'					=> 'system_configuration',
+						'squiz_server_config'			=> 'squiz_server_configuration',
+						'apache_config'					=> 'apache_configuration',
+						'hipo_config'					=> 'hipo_configuration',
+						'external_tools_config'			=> 'external_tools_configuration',
+						'password_rules_config'			=> 'password_rules_configuration',
+						'messaging_service_config'		=> 'messaging_service_configuration',
+						'proxy_authentication_config'	=> 'proxy_configuration',
+					 );
+
+		if ($o->_persistant_get_vars['config_screen'] = $map_array[$o->_persistant_get_vars['config_screen']]) {
+			$config_screen = $o->_persistant_get_vars['config_screen'];
+		}
+
 		$lock = $this->getLockInfo();
 		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 
@@ -319,13 +334,13 @@ class Config extends MySource_Object
 							if (!$expires_in) $expires_in = '1 second';
 							$expires_in = translate('due_to_expire', $expires_in);
 							if ($have_lock) {
-								echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
+								echo translate('release_lock', translate('release_lock_button'), translate($config_screen));
 								echo '<br />';
 							}
 							echo $expires_in;
 
 						} else {
-							echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
+							echo translate('acquire_lock', translate('acquire_lock_button'), translate($config_screen));
 						}
 						echo '</p>';
 						if (!empty($lock)) {
