@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.59 2009/01/13 23:08:17 akarelia Exp $
+* $Id: hipo_job_edit_status.inc,v 1.60 2009/01/19 06:26:32 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -419,24 +419,27 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		//feature bazar Workflow email not sent for dependant asset if it is not linked
 		// here we check the assetid  for which linking, if the asset is linked at more then 
 		// 2 places only then we will add the message to the queue to be sent as an email.
-		if(!empty($this->_running_vars['process_dependants'])) {
-			foreach($ms->queueContents() as $internal_message) {
-				$asset_id = $internal_message->parameters['assetid'];
-				$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset_id,'',TRUE,FALSE);
-				if(count($parents) > 1 ) {
-					$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
-					break;
-				}
-			}
-		}
+		if(empty($this->_running_vars['process_dependants']) && isset($assetid)) {
+            $this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
+        } else {
+            foreach($ms->queueContents() as $internal_message) {
+                $asset_id = $internal_message->parameters['assetid'];
+                $parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset_id,'',TRUE,FALSE);
+                if(count($parents) > 1 ) {
+                    $depedent_asset_message = Array ( 0 => $internal_message);
+                    $ms->send($depedent_asset_message);
+                }
+            }
+        }
+
 		$ms->abortQueue();	// we don't need the messages anymore, dump them
 
 		if (empty($this->_running_vars['todo_assetids'])) {
-			if (!empty($this->_running_vars['process_dependants'])) {
-				// send workflow email at this point
-				// there might still be a dependant job waiting to be processed
-				$ms->send($this->_running_vars['messages']);
-			}
+			if (empty($this->_running_vars['process_dependants']) && isset($assetid)) {
+                // send workflow email at this point
+                // there might still be a dependant job waiting to be processed
+                $ms->send($this->_running_vars['messages']);
+            }
 			if (empty($this->_running_vars['dependant_hipo_job'])) {
 				// todo array is empty, and no dependant job left
 				$step_data['percent_done'] = 100;
