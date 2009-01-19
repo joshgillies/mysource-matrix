@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.205 2009/01/16 06:13:14 mbrydon Exp $
+* $Id: general.inc,v 1.206 2009/01/19 03:32:13 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.205 $
+* @version $Revision: 1.206 $
 * @package MySource_Matrix
 */
 
@@ -627,7 +627,7 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 			$url = preg_replace('/'.SQ_CONF_LOGIN_SUFFIX.'\/?$/', '', $url);
 		}
 		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
-		$url = preg_replace('/'.SQ_CONF_RECACHE_SUFFIX.'\/?$/', '', $url);
+		$url = preg_replace('/\/'.SQ_CONF_RECACHE_SUFFIX.'\/?$/', '', $url);
 	}
 
 	if (empty($url)) {	// url empty, just use the first system root url
