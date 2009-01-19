@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.14 2007/12/04 05:08:48 gsherwood Exp $
+* $Id: ldap_user_group.inc,v 1.14.4.1 2009/01/19 00:29:14 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -66,6 +66,10 @@ class Ldap_User_Group extends User_Group
 			$class = strtolower($class);
 			foreach ($ldap->_group_types as $key => $value) {
 				if ($class == $key) {
+					if (!isset($attrs[$value])) {
+						$attrs[$value] = $value;
+					}
+
 					$this->name = $data[$attrs[$value]][0];
 				}
 			}

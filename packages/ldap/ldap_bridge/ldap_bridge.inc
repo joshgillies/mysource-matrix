@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.73 2008/11/18 05:48:02 hnguyen Exp $
+* $Id: ldap_bridge.inc,v 1.73.2.1 2009/01/19 00:29:14 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.73.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -48,6 +48,7 @@ class LDAP_Bridge extends Asset implements Bridge
 							'domain'				=> 'dc',
 							'container'				=> 'cn',
 							'organization'			=> 'o',
+							'country'				=> 'c',
 						);
 
 	/**
@@ -488,6 +489,10 @@ class LDAP_Bridge extends Asset implements Bridge
 						$class = strtolower($class);
 						foreach ($this->_group_types as $key => $value) {
 							if ($class == $key) {
+								if (!isset($attrs[$value])) {
+									$attrs[$value] = $value;
+								}
+
 								if (!isset($attrs[$value]) || !isset($data[$attrs[$value]][0])) {
 									continue(3);
 								}
@@ -501,6 +506,10 @@ class LDAP_Bridge extends Asset implements Bridge
 						if (empty($type)) {
 							foreach ($this->_user_types as $key => $value) {
 								if ($class == $key) {
+									if (!isset($attrs[$value])) {
+										$attrs[$value] = $value;
+									}
+
 									if (!isset($attrs[$value]) || (!isset($data[$attrs[$value]][0]) && !isset($data[$attrs[$value]]['value']))) {
 										continue(2);
 									}
