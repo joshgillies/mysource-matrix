@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.142.2.1 2009/01/15 22:14:11 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.142.2.2 2009/01/19 04:59:33 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.142.2.1 $
+* @version $Revision: 1.142.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -686,6 +686,11 @@ class Page_Asset_Builder extends Page
 								if (!$new_asset->saveWebPaths($valid_paths, FALSE)) {
 									$this->_errors[] = translate('cms_asset_builder_cannot_save_web_path', $new_asset->name, $link_parent->name);
 								}
+                                // if there is no difference in the arrays
+                                // we have to update lookups mannualy, otherwise it would have be done in saveWebPath already
+                                if (!array_diff_assoc($valid_paths, $current_paths) && !array_diff_assoc($current_paths, $valid_paths)) {
+                                    $new_asset->updateLookups();
+                                }
 							}
 						}
 
