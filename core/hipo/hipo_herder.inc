@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.97.2.3 2008/12/18 05:39:39 csmith Exp $
+* $Id: hipo_herder.inc,v 1.97.2.4 2009/01/20 00:36:25 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.97.2.3 $
+* @version $Revision: 1.97.2.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -911,13 +911,13 @@ class HIPO_Herder extends MySource_Object
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = translate('due_to_expire', $expires_in);
 						if ($have_lock) {
-							echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
+							echo translate('release_lock', translate('release_lock_button'), translate('hipo_herder'));
 							echo '<br />';
 						}
 						echo $expires_in;
 
 					} else {
-						echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
+						echo translate('acquire_lock', translate('acquire_lock_button'), translate('hipo_herder'));
 					}
 					echo '</p>';
 					if (!empty($lock)) {
