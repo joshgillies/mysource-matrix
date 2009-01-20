@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: common_views_roles.xml,v 1.3 2008/11/11 03:56:28 mbrydon Exp $
+* $Id: common_views_roles.xml,v 1.4 2009/01/20 22:13:54 csmith Exp $
 *
 */
 -->
@@ -38,11 +38,11 @@
 		<![CDATA[
 			CREATE OR REPLACE VIEW sq_vw_ast_perm AS
 				SELECT
-					case when r.assetid is null then p.assetid else r.assetid end as assetid,
+					p.assetid as assetid,
 					case when r.userid is null then p.userid else r.userid end as userid,
 					p.permission,
 					p.granted,
-					p.cascades 
+					p.cascades
 				FROM
 					sq_ast_perm p LEFT JOIN sq_vw_ast_role r on (r.roleid=p.userid AND r.assetid=p.assetid)
 
