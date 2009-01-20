@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.50 2008/01/09 23:57:59 colivar Exp $
+* $Id: html_form.js,v 1.51 2009/01/20 05:42:51 ewang Exp $
 *
 */
 
@@ -650,10 +650,11 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	parentElt.insertBefore(createHiddenField(name+'[url]', 0), moreButton);
 	parentElt.insertBefore(createTextBox(safeName+'_label', '', 20, 0, 'sq-form-asset-finder', 'this.tmp = this.value;', 'this.value = this.tmp;'), moreButton);
 	var tmp_id_label = createSpan('Id : #');
-	tmp_id_label.className = 'sq-form-asset-finder sq-asset-finder-id-label';
+	tmp_id_label.className = 'sq-asset-finder-id-label';
 	parentElt.insertBefore(tmp_id_label, moreButton);
 	var tmp_assetid = createTextBox(safeName+'_assetid', '', 2, 0, '', '');
 	tmp_assetid.style.border = '1px solid #EFEFEF';
+    tmp_assetid.style.width = '7ex';
 	tmp_assetid.onchange = new Function('', mapFrame+'.asset_finder_assetid_changed(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+",this.value);");
 	parentElt.insertBefore(tmp_assetid, moreButton);
 	var changeButton = createButton(safeName+'_change_btn', 'Change', mapFrame+'.asset_finder_change_btn_press(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+");");
