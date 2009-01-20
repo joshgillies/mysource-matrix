@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.74 2009/01/19 00:16:18 mbrydon Exp $
+* $Id: ldap_bridge.inc,v 1.75 2009/01/20 04:21:08 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -108,6 +108,10 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function connectToLdap()
 	{
+		// A bit silly to connect to LDAP without a hostname, otherwise continue...
+		$hostname = $this->attr('host');
+		if (empty($hostname)) return NULL;
+
 		$ldap = new Ldap();
 		if (!$ldap->connect($this->attr('host'), $this->attr('port'))) {
 			return NULL;
