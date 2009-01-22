@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.99 2008/10/28 00:39:00 bpearson Exp $
+* $Id: design_area_menu_type.inc,v 1.99.2.1 2009/01/22 00:58:17 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.99.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -817,7 +817,7 @@ class Design_Area_Menu_Type extends Design_Area
 				if (!empty($unwanted_types)) {
 					$unwanted_types_literal_array = 'Array("'.implode('", "', $unwanted_types).'")';
 					// We are sub menu
-					echo '<? if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
+					echo '<?php if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
 				}//end if
 
 				if ($this_contents = $this->attr('asset_contents')) {
