@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711 2008/11/12 05:24:40 akarelia Exp $
+* $Id: asset_manager.inc,v 1.711.2.1 2009/01/22 23:53:33 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711 $
+* @version $Revision: 1.711.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -955,7 +955,10 @@ class Asset_Manager extends MySource_Object
 		foreach ($res as $assetid => $val_info) {
 			if (isset($val_info[0]['default_val'])) {
 				$res[$assetid]	= $val_info[0]['default_val'];
-			}//end if
+			}// oracle fix, converting null to empty string. in case isset fail on null value for array entry
+            else if (isset($val_info[0]) && is_array($val_info[0]) && array_key_exists('default_val',$val_info[0])){
+                $res[$assetid] = '';
+            }
 		}//end foreach
 
 		// Now get customised values where applicable
@@ -985,7 +988,10 @@ class Asset_Manager extends MySource_Object
 		foreach ($custom_vals as $assetid => $rowinfo) {
 			if (isset($rowinfo[0]['custom_val'])) {
 				$res[$assetid] = $rowinfo[0]['custom_val'];
-			}//end if
+			}// oracle fix, converting null to empty string. in case isset fail on null value for array entry
+            else if (isset($rowinfo[0]) && is_array($rowinfo[0]) && array_key_exists('custom_val',$rowinfo[0])){
+                $res[$assetid] = '';
+            }
 		}//end foreach
 
 		return $res;
