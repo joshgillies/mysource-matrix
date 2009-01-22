@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.56 2008/11/11 23:20:55 bshkara Exp $
+* $Id: image_edit_fns.inc,v 1.56.2.1 2009/01/22 01:06:04 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -519,11 +519,12 @@ class Image_Edit_Fns extends File_Edit_Fns
 		if (!file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
 			return FALSE;
 		}
+		$time = time();
 		$open_url = $asset->getURL();
 		if (empty($open_url)) {
 			$open_url = current_url(TRUE, TRUE).'?a='.$asset->id;
 		}
-		$open_url .= ((strpos($open_url, '?') === FALSE) ? '?' : '&').'t='.time();
+		$open_url .= ((strpos($open_url, '?') === FALSE) ? '?' : '&').'SESSION_ID='.session_id().'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey().'&t='.$time;
 		?>
 
 		<script type="text/javascript"><!--
@@ -557,7 +558,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		<input type="hidden" name="<?php echo $prefix; ?>_applet_temp_filename" id="<?php echo $prefix; ?>_applet_temp_filename" value="" />
 		<input type="hidden" name="<?php echo $prefix; ?>_applet_filename" id="<?php echo $prefix; ?>_applet_filename" value="" />
 
-		<applet id="<?php echo $prefix; ?>_image_editor" name="<?php echo $prefix; ?>_image_editor" archive="<?php echo sq_web_path('fudge'); ?>/image_editor/imagej.jar?t=<?php echo time(); ?>" code="ij.ImageJ.class" width="90%" height="350">
+		<applet id="<?php echo $prefix; ?>_image_editor" name="<?php echo $prefix; ?>_image_editor" archive="<?php echo sq_web_path('fudge'); ?>/image_editor/imagej.jar?t=<?php echo $time; ?>" code="ij.ImageJ.class" width="90%" height="350">
 			<param name="SUBMIT_URL"
 				   value="<?php echo sq_web_path('lib'); ?>/web/accept_file_upload.php?SESSION_ID=<?php echo session_id(); ?>&SESSION_KEY=<?php echo $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(); ?>" />
 			<param name="FILE_FIELD_NAME" value="<?php echo $prefix; ?>" />
@@ -572,7 +573,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 		<script type="text/javascript"><!--
 			// do not display applet for Safari Windows - problems exist currently with the JRE bundled with the browser, in particular the LiveConnect API
-			if (navigator.userAgent.match(/Windows/i) && navigator.userAgent.match(/Safari/i)) {
+			// ... And let Chrome through since it is OK and uses Web Kit
+			if (navigator.userAgent.match(/Windows/i) && navigator.userAgent.match(/Safari/i) && !navigator.userAgent.match(/Chrome/i)) {
 				var applet = document.getElementById('<?php echo $prefix; ?>_image_editor');
 				// cannot set display:none because Safari Windows will not respect this with an applet tag
 				applet.style.width = '0';
