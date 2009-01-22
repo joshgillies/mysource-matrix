@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.18 2008/11/11 22:52:40 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.18.2.1 2009/01/22 03:40:16 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -456,7 +456,11 @@ class Form_Question_Type_Datetime extends Form_Question
 		$val .= ' ';
 
 		if ((isset($_POST[$name.'value']['h']) && empty($_POST[$name.'value']['h'])) || strpos($show, 'h') === FALSE) {
-			$val .= '--';
+			if ((string) $_POST[$name.'value']['h'] === '0') {
+				$val .= '00';
+			} else {
+				$val .= '--';
+			}
 		} else {
 			$val .= str_pad($_POST[$name.'value']['h'], 2, '0', STR_PAD_LEFT);
 		}
@@ -464,7 +468,11 @@ class Form_Question_Type_Datetime extends Form_Question
 		$val .= ':';
 
 		if ((isset($_POST[$name.'value']['i']) && empty($_POST[$name.'value']['i'])) || strpos($show, 'i') === FALSE) {
-			$val .= '--';
+			if ((string) $_POST[$name.'value']['i'] === '0') {
+				$val .= '00';
+			} else {
+				$val .= '--';
+			}
 		} else {
 			$val .= str_pad($_POST[$name.'value']['i'], 2, '0', STR_PAD_LEFT);
 		}
@@ -472,7 +480,11 @@ class Form_Question_Type_Datetime extends Form_Question
 		$val .= ':';
 
 		if ((isset($_POST[$name.'value']['s']) && empty($_POST[$name.'value']['s'])) || strpos($show, 's') === FALSE) {
-			$val .= '--';
+			if ((string) $_POST[$name.'value']['s'] === '0') {
+				$val .= '00';
+			} else {
+				$val .= '--';
+			}
 		} else {
 			$val .= str_pad($_POST[$name.'value']['s'], 2, '0', STR_PAD_LEFT);
 		}
