@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.207 2009/01/19 03:35:53 mbrydon Exp $
+* $Id: general.inc,v 1.208 2009/01/23 12:34:00 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.207 $
+* @version $Revision: 1.208 $
 * @package MySource_Matrix
 */
 
@@ -1717,7 +1717,17 @@ function replace_global_keywords(&$text)
 							}
 						}
 					}
-				}
+				}//end if
+				if (0 === strpos($keyword, 'globals_random')) {
+					if ($keyword == 'globals_random') {
+						$replacements[$keyword] = rand();
+					} else {
+						$sub_keyword = substr($keyword, 14);
+						if (preg_match('/^_(\d+)_(\d+)$/', $sub_keyword, $matches)) {
+							$replacements[$keyword] = rand((int)$matches[1], (int)$matches[2]);
+						}
+					}
+				}//end if
 			}//end if is global keyword
 		}//end foreach keyword
 		replace_keywords($text, $replacements);
