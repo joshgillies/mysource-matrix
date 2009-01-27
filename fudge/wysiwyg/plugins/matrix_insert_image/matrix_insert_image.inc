@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.36 2008/11/03 21:41:51 bpearson Exp $
+* $Id: matrix_insert_image.inc,v 1.36.2.1 2009/01/27 03:31:49 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -156,7 +156,12 @@ class matrix_insert_image extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('insert_image_frames.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_longdesc=" + escape(longdesc) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&f_image_class=" + escape(image_class) + "&f_image_id=" + escape(image_id) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertImage", strPage, 750, 600, true, function(param) {
+				var popup_height = 600;
+
+				// A bit more breathing room for Safari
+				if (HTMLArea.is_safari) popup_height += 35;
+
+				this._popupDialog("matrixInsertImage", strPage, 750, popup_height, true, function(param) {
 
 					if (!param) {
 						// user must have pressed Cancel

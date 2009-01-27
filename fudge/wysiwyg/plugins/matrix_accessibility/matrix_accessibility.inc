@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.14 2008/04/14 23:38:39 hnguyen Exp $
+* $Id: matrix_accessibility.inc,v 1.14.2.1 2009/01/27 03:31:49 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     Triple-A level accessibility tags (e.g. abbr and acronym)
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.2.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -157,7 +157,16 @@ class matrix_accessibility extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_abbr.php')?>?&title=" + escape(currArgs["title"]) + "&abbr=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertAbbr", strPage, 400, 200, true, function(param) {
+				var popup_width  = 400;
+				var popup_height = 200;
+
+				// A bit more breathing room for Safari
+				if (HTMLArea.is_safari) {
+					popup_width  += 25;
+					popup_height += 10;
+				}
+
+				this._popupDialog("matrixInsertAbbr", strPage, popup_width, popup_height, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;
@@ -279,7 +288,16 @@ class matrix_accessibility extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_acronym.php')?>?&title=" + escape(currArgs["title"]) + "&acronym=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertAcronym", strPage, 400, 200, true, function(param) {
+				var popup_width  = 400;
+				var popup_height = 200;
+
+				// A bit more breathing room for Safari
+				if (HTMLArea.is_safari) {
+					popup_width  += 25;
+					popup_height += 10;
+				}
+
+				this._popupDialog("matrixInsertAcronym", strPage, popup_width, popup_height, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;

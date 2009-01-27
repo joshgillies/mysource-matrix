@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.inc,v 1.11 2007/11/14 04:51:37 hnguyen Exp $
+* $Id: spell_checker.inc,v 1.11.4.1 2009/01/27 03:31:50 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to Check the spelling of the document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -110,7 +110,16 @@ class spell_checker extends wysiwyg_plugin
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 
-				this._popupDialog("spellChecker", "<?php echo $this->get_popup_href('spell_checker_popup.php')?>?editor_name=<?php echo $this->wysiwyg->name?>", 600, 400, false, function(param) {
+				var popup_width  = 600;
+				var popup_height = 400;
+
+				// A bit more breathing room for Safari
+				if (HTMLArea.is_safari) {
+					popup_width  += 5;
+					popup_height += 25;
+				}
+
+				this._popupDialog("spellChecker", "<?php echo $this->get_popup_href('spell_checker_popup.php')?>?editor_name=<?php echo $this->wysiwyg->name?>", popup_width, popup_height, false, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;
