@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.14 2008/11/28 05:56:52 csmith Exp $
+#* $Id: backup.sh,v 1.15 2009/01/27 23:53:57 csmith Exp $
 #*
 #*/
 #
@@ -313,7 +313,7 @@ if (SQ_CONF_DB_DSN !== SQ_CONF_DBCACHE_DSN) {
 ";
 
 if [[ -f ${SYSTEM_ROOT}/data/private/conf/db.inc ]]; then
-	print_verbose "Found a 3.18 system"
+	print_verbose "Found a 3.18/3.20 system"
 	eval `echo "${matrix_318_php_code}" | $PHP`
 else
 	print_verbose "Found a 3.16 system"
