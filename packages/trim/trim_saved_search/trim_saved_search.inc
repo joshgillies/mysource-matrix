@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.8 2009/01/12 03:12:35 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.9 2009/01/27 05:35:16 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -329,9 +329,9 @@ class TRIM_Saved_Search extends Data_Source
 		}
 
 		// Fix for IE caching
-		header("Pragma: public"); 
-		header("Expires: 0"); 
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 		header("Cache-Control: private",false);
 
 		// We'll be outputting a file
@@ -384,6 +384,7 @@ class TRIM_Saved_Search extends Data_Source
 						'Fetch'						=> TRIM_Common::constructFetch($record_properties, $search_limit),
 						'RecordSearch'				=> TRIM_Common::constructRecordSearch($search_clauses, $record_search_options),
 					  );
+
 		$object_list = TRIM_Common::executeRequest($connection, $operations, 'Fetch');
 
 		return $object_list;
@@ -482,21 +483,23 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	function storeDocumentList($connection, &$record_info)
 	{
-		$record_info['document_url']	= '';
-		if ($record_info['recDocumentType']	!= 'Record has no document attached.') {
-			// We got a file here.
-			$operations = Array (
-							'Download'					=> TRIM_Common::constructDownload(),
-							'ShortcutRecordUri'			=> TRIM_Common::constructShortcutRecordUri($record_info['Uri']),
-						  );
+		if (isset($record_info['Uri']) && $record_info['Uri'] != 0 && (!isset($record_info['error']))) {
+			$record_info['document_url']	= '';
+			if ($record_info['recDocumentType']	!= 'Record has no document attached.') {
+				// We got a file here.
+				$operations = Array (
+								'Download'					=> TRIM_Common::constructDownload(),
+								'ShortcutRecordUri'			=> TRIM_Common::constructShortcutRecordUri($record_info['Uri']),
+							  );
 
-			$hash_key			= $GLOBALS['SQ_SYSTEM']->user->attr('username').time();
-			$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			create_directory($final_file_path);
+				$hash_key			= $GLOBALS['SQ_SYSTEM']->user->attr('username').time();
+				$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				create_directory($final_file_path);
 
-			$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, $final_file_path);
-			$record_info['document_url']	= $this->getURL().'?Uri='.$record_info['Uri'];
+				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', $hash_key, $final_file_path);
+				$record_info['document_url']	= $this->getURL().'?Uri='.$record_info['Uri'];
+			}//end if
 		}//end if
 
 	}//end storeDocumentList()

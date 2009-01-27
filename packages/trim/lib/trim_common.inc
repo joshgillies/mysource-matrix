@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.5 2009/01/09 05:25:20 hnguyen Exp $
+* $Id: trim_common.inc,v 1.6 2009/01/27 05:35:16 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -743,6 +743,8 @@ class TRIM_Common
 						  );
 		$Execute['req']		= array_merge($Execute['req'], $operations);
 
+		$object_list = Array();		// Result List
+
 		// Get the soapclient object.
 			$client = new SoapClient($connection['wsdl'], $connection['authentication']);
 
@@ -753,6 +755,16 @@ class TRIM_Common
 			// come first in the soap request, otherwise TRIM wont know where the Fetch object should get the
 			// result from.
 			if (isset($operations['Fetch']) && isset($operations['RecordSearch'])) {
+				// We have to test the water to see whether we are getting any result first before we fetch, otherwise TRIM will complain
+				$original_execute	= $Execute;
+				unset($original_execute['req']['Fetch']);
+				$original_xml		= $client->ConvertToXml($original_execute);
+				$search_data 		= $client->ExecuteXml(Array('xml'	=> $original_xml->ConvertToXmlResult));
+				$search_xml			= new SimpleXMLElement($search_data->ExecuteXmlResult);
+				$result_count		= (string) $search_xml->SearchResult->FoundCount;
+				if ($result_count == 0) {
+					return $object_list;
+				}//end if
 				$xml = self::SwapElement($xml->ConvertToXmlResult, 'Fetch', 'RecordSearch');
 			} else if (isset($operations['Download']) && isset($operations['ShortcutRecordUri'])) {
 				$xml = self::SwapElement($xml->ConvertToXmlResult, 'Download', 'ShortcutRecordUri');
