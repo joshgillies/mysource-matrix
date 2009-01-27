@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_youtube.inc,v 1.1 2008/10/31 03:46:51 bpearson Exp $
+* $Id: matrix_embed_youtube.inc,v 1.2 2009/01/27 04:41:28 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to insert a YouTube movie
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -138,7 +138,12 @@ class matrix_embed_youtube extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('embed_youtube_frames.php')?>?f_vid=" + escape(vid) + "&f_video_url=" + escape(video_url) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_loop=" + escape(loop) + "&f_full_screen=" + escape(full_screen) + "&f_show_border=" + escape(show_border) + "&f_colour1=" + escape(colour1) + "&f_colour2=" + escape(colour2) + "&f_rel=" + escape(rel) + "&f_egm=" + escape(egm) + "&f_enable_js=" + escape(enable_js) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixEmbedYouTube", strPage, 780, 300, true, function(param) {
+				var popup_height = 300;
+
+				// A bit more breathing room for Safari
+				if (HTMLArea.is_safari) popup_height += 15;
+
+				this._popupDialog("matrixEmbedYouTube", strPage, 780, popup_height, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;

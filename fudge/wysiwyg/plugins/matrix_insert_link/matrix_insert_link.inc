@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.44 2007/06/04 07:21:20 mbrydon Exp $
+* $Id: matrix_insert_link.inc,v 1.45 2009/01/27 04:41:28 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -293,7 +293,12 @@ class matrix_insert_link extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_link_frames.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&link_title=" + escape(currArgs["link_title"])+ "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertLink", strPage, 750, 440, true, function(param) {
+				var popup_height = 440;
+
+				// A bit more breathing room for Safari
+				if (HTMLArea.is_safari) popup_height += 5;
+
+				this._popupDialog("matrixInsertLink", strPage, 750, popup_height, true, function(param) {
 					if (param && param["url"] != "") {
 
 						var html = '';
