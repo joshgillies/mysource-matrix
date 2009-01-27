@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.267 2008/12/02 02:40:46 bshkara Exp $
+* $Id: listing_engine.inc,v 1.268 2009/01/27 16:35:17 ata Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.267 $
+* @version $Revision: 1.268 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2269,11 +2269,15 @@ class Listing_Engine extends Page
 
 				}
 
-				// Body with user-defined paint layout applied (%asset_contents_paint_NAME%)
+				// Body with paint layout(%asset_contents_paint_ASSETID%) or user-defined paint layout(%asset_contents_paint_NAME%) applied
 				if (preg_match('|%asset_contents_paint_([^%]+)%|is', $bodycopy->getRawBodycopyContent(), $paint_layouts)) {
 					if ($assetid != $this->id) {
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-						$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layouts[1]);
+						$layout_id = $paint_layouts[1];
+						//layout code name must not be number, otherwise it will be considered as asset id
+						if (!assert_valid_assetid($layout_id, 'Not valid assetid', TRUE, FALSE)) {
+							$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL(preg_replace('/^[^:]*:\/\//', '', $asset->getUrl()), 'paint_layout::user::'.$paint_layouts[1]);
+						}
 						if (!empty($layout_id) && $GLOBALS['SQ_SYSTEM']->am->assetExists($layout_id)) {
 							ob_start();
 							$asset->printBodyWithPaintLayout($layout_id);
