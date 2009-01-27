@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: select_color.inc,v 1.12.10.1 2009/01/27 03:31:50 mbrydon Exp $
+* $Id: select_color.inc,v 1.12.10.2 2009/01/27 03:49:49 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     set text and background colours
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.10.1 $
+* @version $Revision: 1.12.10.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -59,14 +59,8 @@ class Select_Color extends WYSIWYG_Plugin
 		?>
 		case "forecolor":
 		case "backcolor":
-			var popup_width  = 238;
-			var popup_height = 182;
-
-			// A bit more breathing room for Safari
-			if (HTMLArea.is_safari) {
-				popup_width  += 10;
-				popup_height += 8;
-			}
+			var popup_width  = 248;
+			var popup_height = 190;
 
 			this._popupDialog("selectColor", "<?php echo $this->get_popup_href('select_color.html')?>", popup_width, popup_height, true, function(color) {
 				if (color) {
