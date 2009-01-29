@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_columns.xml,v 1.5 2007/02/20 03:35:07 colivar Exp $
+* $Id: edit_interface_screen_columns.xml,v 1.5.8.1 2009/01/29 22:17:03 ewang Exp $
 *
 */
 -->
@@ -23,6 +23,12 @@
 				<process_function name="processColumnSettings" />
 			</function_call>
 		</field>
+        <field attribute="column_layout_type">
+			<selection style="list" />
+		</field>
+        <field attribute="div_row_class">
+			<text width="30" />
+		</field>
 	</section>
 	<section name="Column Layout Preview"  limbo_access="1">
 		<field>
@@ -30,6 +36,6 @@
 				<paint_function   name="paintColumnPreview"   />
 				<process_function name="processColumnPreview" />
 			</function_call>
-		</field>
+		</field>     
 	</section>
 </contents>
