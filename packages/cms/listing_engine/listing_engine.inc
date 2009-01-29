@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.269 2009/01/29 04:16:11 akarelia Exp $
+* $Id: listing_engine.inc,v 1.270 2009/01/29 22:17:31 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.269 $
+* @version $Revision: 1.270 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2038,12 +2038,14 @@ class Listing_Engine extends Page
 	{
 		$allowed_types = $this->getAllowedAssetTypeMap();
 		$column_layout = $this->attr('column_layout');
+        $column_layout_type = $this->attr('column_layout_type');
 		$using_groups = $this->attr('group_by') == 'grouped';
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 		$num_items = count($todo);
 
 		$list_position = 1;
-		if ($using_columns) {
+	 //if table style is used to generate the column
+		if ($using_columns && $column_layout_type === 'table') {
 			$num_rows = max(array_keys($column_layout)) + 1;
 			$num_columns = max(array_values($column_layout));
 
@@ -2080,7 +2082,32 @@ class Listing_Engine extends Page
 			}//end for
 
 			echo '</table>';
-		} else {
+		}
+        //if div is used to generate the column
+        else if ($using_columns && $column_layout_type === 'div') {
+            $num_rows = max(array_keys($column_layout)) + 1;
+			$num_columns = max(array_values($column_layout));
+            $row_class = $this->attr('div_row_class');
+			$current_row = 1;
+
+            for (reset($todo); NULL !== ($assetid = key($todo));) {
+                echo empty($row_class) ? '<div>' : '<div class="'.$row_class.'">';
+                $cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
+
+                for ($c = 1; $c <= $cols_in_row; $c++) {
+                    if ($assetid != NULL) {
+                        $this->_printAsset($assetid, $list_position, $num_items);
+                        next($todo);
+                        $assetid = key($todo);
+                        $list_position++;
+                    }
+                }
+				$current_row++;
+                 echo '</div>';
+                 echo "\n\n";
+			}//end for
+
+        } else {
 			foreach ($todo as $assetid => $type_code) {
 				$this->_printAsset($assetid, $list_position, $num_items);
 				$list_position++;

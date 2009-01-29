@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.75 2008/10/27 04:28:16 ewang Exp $
+* $Id: listing_engine_management.inc,v 1.76 2009/01/29 22:17:40 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -239,6 +239,24 @@ class Listing_Engine_Management extends Asset_Management
 										'default'	=> Array('0' => '1'),
 									   );
 
+        $this->vars['column_layout_type'] = Array(
+									'added'			=> '0.16',
+									'type'			=> 'selection',
+									'default'		=> 'table',
+									'parameters'	=> Array(
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,
+														'options'		=> Array(
+																			'table'	=> 'Table',
+																			'div'	=> 'Div',
+																		   ),
+													   ),
+								   );
+        $this->vars['div_row_class'] = Array(
+											'added'		=> '0.16',
+											'type'		=> 'text',
+											'default'	=> '',
+										);
 		$this->vars['asset_positions'] = Array(
 											'added'		=> '0.1',
 											'type'		=> 'serialise',
