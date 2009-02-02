@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.190 2009/01/09 03:54:52 akarelia Exp $
+* $Id: search_manager.inc,v 1.191 2009/02/02 02:40:45 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2420,13 +2420,10 @@ class Search_Manager extends Asset
 	* select assetid from sq_ast
 	* inner join sq_ast_lnk inner join sq_ast_lnk_tree ...
 	* where tree.node like ('starting_tree_id%')
-	* intersect
+	* and assetid in (
 	* select assetid from sq_ast_perm
 	* ... check all permissions are ok here.
-	*
-	* the intersect outperforms the join syntax
-	* because the db can independently plan/execute each part of the intersect
-	* and then reduce the results by looking for elements in both parts of the query.
+	* )
 	*
 	* @param array	$search_info	an array of search settings
 	*
@@ -2469,12 +2466,10 @@ class Search_Manager extends Asset
 				);
 
 		/**
-		 * The intersect query is the part that checks permissions
-		 * based on roles, groups, public user access etc.
-		 * It becomes part of the subquery at the end
+		 * This becomes part of the subquery of $subquery at the end
 		 * if we are restricting based on roles/groups/permissions.
 		*/
-		$intersectquery = Array(
+		$permission_check_query = Array(
 					'select'		=> Array('p.assetid'),
 					'from'			=> Array('sq_ast_perm p'),
 					'join'			=> Array(),
@@ -2525,7 +2520,7 @@ class Search_Manager extends Asset
 			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
 			if (!$no_roles) {
-				$intersectquery['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
+				$permission_check_query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON p.userid = r.roleid';
 			}
 
 			$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
@@ -2563,7 +2558,7 @@ class Search_Manager extends Asset
 				$userid_check .= ' OR r.userid IN (' . $usrids_str . ')';
 			}
 			$userid_check .= ') ';
-			$intersectquery['where'][] = $userid_check;
+			$permission_check_query['where'][] = $userid_check;
 
 			// If we are searching as public user, we don't want to have group and roles check with permission granted.
 			// We want to get all denied access as well. But if we are logged in, then we only want public granted access rows.
@@ -2596,7 +2591,7 @@ class Search_Manager extends Asset
 			}
 
 			if (!empty($check_group_role)) {
-				$intersectquery['where'][] = $check_group_role;
+				$permission_check_query['where'][] = $check_group_role;
 			}//end if
 		}//end if
 
@@ -2661,15 +2656,21 @@ class Search_Manager extends Asset
 
 		/**
 		 * If/only if we are checking permissions,
-		 * intersect the two parts of the sql query.
+		 * make the permission checking a subquery off the other sub query.
 		 * No need to include this if we're not checking permissions.
 		*/
-		if (!empty($intersectquery['where'])) {
-			$subquery_string .= ' INTERSECT ';
-			$subquery_string .= 'SELECT ' . implode(',', $intersectquery['select']) . ' FROM ' . implode(',', $intersectquery['from']) . ' ' . implode(' ', $intersectquery['join']);
-			$subquery_string .= ' WHERE ' . implode(' ' . $intersectquery['where_joiner'] . ' ', $intersectquery['where']);
-			$subquery_string .= ' GROUP BY ' . implode(',', $intersectquery['select']);
+		if (!empty($permission_check_query['where'])) {
+			if (!empty($subquery['where'])) {
+				$subquery_string .= ' AND ';
+			} else {
+				$subquery_string .= ' WHERE ';
+			}
+			$subquery_string .= ' a.assetid IN (';
+			$subquery_string .= 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
+			$subquery_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
+			$subquery_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
 			$subquery_string .= ' HAVING MIN(p.granted) <> \'0\'';
+			$subquery_string .= ')';
 		}
 
 		$query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
