@@ -1,5 +1,123 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.20.1
+
+Featured Changes
+-----------------------------------
+
+SharePoint Integration Package (SSV only)
+	A new SSV Matrix package to provide search and further integration with SharePoint has been added. A connection is established from Matrix to a SharePoint system via the SharePoint Connector asset.
+
+
+Convert Database Script performance improvements
+	Queries performed by this script are now committed every 5000 records in order to avoid having large transactions. Columns which are not available in the destination schema are not transferred in order to prevent conversion failure.
+
+
+"Last Selected Child Type" Asset Map enhancement
+	A new menu item has been added above "New Child" in the Context Menu of the backend Asset Map which is populated with the last selected asset type that was requested to be created. This item expedites creation of another child of the same type.
+
+This item is disabled until an asset creation request is made. It is then available as "New Child: x" (where "x" is the full asset type name - eg; Standard Page). Please note that reloading the backend or the Asset Map frame will invoke a new Asset Map instance, causing this item to revert to its default (disabled) state.
+
+
+MP3 File asset
+	This asset, graciously contributed to the Matrix core by Nic Hubbard, provides metadata extraction from ID3 tags for MP3 files. Values such as "bit rate" and "sample rate" are exposed as keywords which can be used in asset listings.
+
+The MP3 File asset interfaces with a third-party package called "getID3()". The path to this utility must be configured in "External Tools Configuration" under "System Configuration" in order to provide metadata extraction functionality.
+
+This asset type is now used when importing MP3 files using the Bulk File Import tool.
+
+
+Execute Database Query Trigger Action
+	A new trigger action to execute a database query has been added to the "Data" package. Keywords of the firing asset and Global Keywords can be specified within the SQL query. Similar to the Data Source DB asset, keywords should not be surrounded by quotes due to the use of bind variables.
+
+Database connection details can be provided in text or by selecting an existing DB Connector asset.
+
+
+Log Rotation changes
+	The log rotation mechanism for Matrix log files has been changed so it is more standardised across platforms.
+
+The initial file (eg; "access.log") will be moved to "access.log.1" and through to the last available ID (default = 10). When rotating logs (daily by default), the file at the last position (ie; "access.log.10") will be deleted, existing log files shifted up by one position and a new "access.log" created for the current day.
+
+
+Multiple Session Expiry Rules
+	Multiple Session Expiry Rules can now be set in "Global Preferences" under "System Configuration". The session length can be varied depending on IP address and/or time since last login or Matrix asset request. This option defaults to expire sessions when the user closes the browser.
+
+
+Search Page: Multi-Word Synonym Lookups
+	A new option "Multi-Word Synonym Lookups" has been added to the "Details" screen of the Search Page asset. The "Auto Synonym Search" option must also be enabled with a Thesaurus and Search Field assigned in order to use this option. When enabled, this new option will look up the thesaurus for contiguous terms and append any found synonyms to the query. This is best described with an example:
+
+	Thesaurus configuration
+		- Contains terms "flautist" and "flute player"
+		- Each term is set up as a synonym of the other
+
+	Search Page configuration
+		- "Auto Synonym Search" is configured appropriately as mentioned above
+
+	Example scenario:
+	A search for "flautist" or "flute player" will append the alternate term to the existing search query. [ie; fred AND flautist => fred AND (flute player OR flautist)]
+
+The results of this modified search are combined with those of the original unmodified search query.
+
+
+Notice Links between Comment and File asset types
+	Notice Links can now be created between Comment assets and File asset types such as "Image" and "MP3 File" assets. This can be used in conjunction with an Asset Listing to list comments which are particular to these File assets.
+
+
+Recache option does not require Write Permission
+	Write Permission to the targeted asset is now no longer required in order to re-cache content via the "_recache" suffix. This is to provide re-caching of content as the Public User.
+
+It is recommended to change the default "_recache" and "_nocache" suffixes in "System Configuration" if you wish to hide this functionality from public users.
+
+
+Roles Performance Improvements
+	The SQL query structure for determining Role assignments has been modified for enhanced performance. This was accomplished by replacing a statement portion ("CASE ... WHEN") which was already assumed in the "WHERE" clause.
+
+
+Division-Based Multi-Column Asset Listing Layout
+	An option has been added to Asset Listing and Search Page to control the display type of multi-column lists. The list can be shown in TABLE format (current default) or as DIV elements for each row. The latter option allows CSS classes to be assigned to these rows. The "Column Type" and "Row Class" are available from the "Column Layout" screen to control the layout of the list.
+
+
+Control of Automatic Password Completion
+	Automatic password completion - password field contents as populated by the browser - can be switched off for Password fields from the Matrix screen XML files. In addition, automatic completion has been disabled for the password field on the "Details" screen of Remote Content assets.
+
+A new optional attribute "autocomplete" is appended to the <password> tag to disable automatic completion. A usage example is provided below:
+<password width="25" height="1" autocomplete="off"/>
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3455: Multiple asset finder has incorrect inline styles
+* Fixed Bug #3456: Captcha failed for custom form
+* Fixed Bug #3459: Some Data Sources don't cache correctly
+* Fixed Bug #3462: MP3 File - Track missing in edit_interface_screen_details.xml
+* Fixed Bug #3463: MP3 File - Check if id3v2 track isset
+* Fixed Bug #3464: Image Edit error
+* Fixed Bug #3465: add_remove_url.php ignores indirect descendants of file asset type
+* Fixed Bug #3473: Acquire locks message incorrect for System Configuration and HIPO Herder
+* Fixed Bug #3474: WYSIWYG elements do not expand vertically for large content in Simple Edit (IE7+ only)
+* Fixed Bug #3477: Default attribute value for selection type attribute on Oracle
+* Fixed Bug #3478: In Design Customisation, Calendar asset cannot be excluded in menu normal
+* Fixed Bug #3490: Removing workflow doesn't cascade to child assets
++ Asset and Global Keywords are now supported in Markdown Content Type cells
++ Insert image dialogue too small in Safari (3.20.0)
+
+CMS
+* Fixed Bug #3424: Asset listing causes PHP Notice when changing status
+* Fixed Bug #3452: Asset Statuses to List field for listing engine will lose value when changing status
+* Fixed Bug #3466: Asset Builder - LDAP User Metadata field errors
+* Fixed Bug #3472: Asset builder - Create location bug
+* Fixed Bug #3483: Search keyword group_total_child_asset_count always returns 0
+
+News
+* Fixed Bug #3467: Comment Asset - Entered Data does not stay when errors
+
+Search
+* Fixed Bug #3457: Backend search fails for "keyword" search with error message 
+
+
+
 VERSION 3.20.0
 
 Featured Changes
