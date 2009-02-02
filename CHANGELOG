@@ -1,5 +1,40 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.10
+
+Featured Changes
+-----------------------------------
+
+Roles Performance Improvements
+
+	The SQL query structure for determining Role assignments has been modified for enhanced performance. This was accomplished by replacing a statement portion ("CASE ... WHEN") which was already assumed in the "WHERE" clause. 
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3455: Multiple asset finder has incorrect inline styles
+* Fixed Bug #3459: Some Data Sources don't cache correctly
+* Fixed Bug #3464: Image Edit error
+* Fixed Bug #3465: add_remove_url.php ignores indirect descendants of file asset type
+* Fixed Bug #3473: Acquire locks message incorrect for System Configuration and HIPO Herder
+* Fixed Bug #3474: WYSIWYG elements do not expand vertically for large content in Simple Edit (IE7+ only) 
+* Fixed Bug #3477: Default attribute value for selection type attribute on Oracle
+* Fixed Bug #3478: In Design Customisation, Calendar asset cannot be excluded in menu normal
+* Fixed Bug #3490: Removing workflow doesn't cascade to child assets
+
+CMS
+* Fixed Bug #3424: Asset listing causes PHP Notice when changing status
+* Fixed Bug #3452: Asset Statuses to List field for listing engine will lose value when changing status
+* Fixed Bug #3466: Asset Builder - LDAP User Metadata field errors
+* Fixed Bug #3483: Search keyword group_total_child_asset_count always returns 0
+
+News
+* Fixed Bug #3467: Comment Asset - Entered Data does not stay when errors
+
+
+
 VERSION 3.18.9
 
 Featured Changes
