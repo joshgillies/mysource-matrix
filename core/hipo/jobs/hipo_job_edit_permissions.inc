@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.66.2.4 2008/09/18 00:09:34 hnguyen Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.66.2.5 2009/02/04 05:10:27 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.4 $
+* @version $Revision: 1.66.2.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -166,7 +166,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids'])) {
 			return 0;
 		}
-		return ((count($this->_running_vars['total_changes']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
+		return (($this->_running_vars['total_changes']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes'])) * 100);
 
 	}//end getThresholdPercentageRequired()
 
@@ -272,7 +272,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			unset($this->_running_vars['todo_assetids'][$assetid]);
 
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-
+log_dump($asset->id);
 			if (!is_null($asset) ) {
 				// check we can acquire lock and change permissions, otherwise silently pass by
 				 if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'permissions')) {
@@ -331,9 +331,10 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 								case 0  :
 								case 1  :
+									log_dump($asset->id);
 									// deny a permission
 									// grant a permission
-									$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing '.$perm_name.' permission to "'.$asset->name.'" (#'.$asset->id.')');
+									$step_data['message'] = htmlentities(($set_data['granted'] ? 'Apply' : 'Deny').'ing '.$perm_name.' permission to "'.$asset->name.'" (#'.$asset->id.')');log_dump($step_data['message']);
 									$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $set_data['userid'], $perm, $set_data['granted'], $set_data['cascades']);
 								break;
 							}
