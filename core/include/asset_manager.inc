@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711.2.1 2009/01/22 23:53:33 ewang Exp $
+* $Id: asset_manager.inc,v 1.711.2.2 2009/02/04 02:00:19 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711.2.1 $
+* @version $Revision: 1.711.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -988,7 +988,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($custom_vals as $assetid => $rowinfo) {
 			if (isset($rowinfo[0]['custom_val'])) {
 				$res[$assetid] = $rowinfo[0]['custom_val'];
-			}// oracle fix, converting null to empty string. in case isset fail on null value for array entry
+			} // oracle fix, converting null to empty string. in case isset fail on null value for array entry
             else if (isset($rowinfo[0]) && is_array($rowinfo[0]) && array_key_exists('custom_val',$rowinfo[0])){
                 $res[$assetid] = '';
             }
@@ -3381,7 +3381,7 @@ class Asset_Manager extends MySource_Object
 					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
-				';
+						';
 
 		// we want to get all the parent links of this assetid and use these
 		// as the minorid in the query, effectively getting the lineages of the
@@ -3431,7 +3431,7 @@ class Asset_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 		$sql .= $where.'
-				ORDER BY cl.linkid, ct.treeid, pt.treeid';
+			ORDER BY cl.linkid, ct.treeid, pt.treeid';
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
@@ -8661,14 +8661,20 @@ class Asset_Manager extends MySource_Object
                         $bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
 
                         if (MatrixDAL::getDbType() === 'oci') {
-                                $in_sql = 'SELECT DISTINCT(column_value) FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
+                                $in_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
                         } else {
-                                $in_sql = 'SELECT * FROM '.$in_sql;
-                        }
+                                $in_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$in_sql;
+						}
 
-			$where = 't.treeid IN (
-						'.$in_sql.'
-					  )';
+			$from .= ', (' . $in_sql . ') tree_linkids';
+
+			/**
+			* end up with
+			* select treeid from
+			* sq_ast_lnk_tree t, ($in_sql) tree_linkids
+			* where t.treeid=tree_linkids.treeid
+			*/
+			$where = 't.treeid=tree_linkids.treeid';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -8841,7 +8847,7 @@ class Asset_Manager extends MySource_Object
 		$ret_val = Array(
 					'bind_vars'	=> $bind_vars,
 					'sql_array'	=> $sql_array,
-				   );
+				);
 
 		return $ret_val;
 
