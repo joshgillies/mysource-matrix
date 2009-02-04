@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.15 2008/11/26 05:45:49 lwright Exp $
+* $Id: search_manager.inc,v 1.164.2.16 2009/02/04 22:51:26 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.15 $
+* @version $Revision: 1.164.2.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2407,7 +2407,11 @@ class Search_Manager extends Asset
 					$treeid_wheres[] = '(t.treeid LIKE '.MatrixDAL::quote($treeid[0]['treeid'].'%').')';
 				}
 				if (!empty($treeid_wheres)) {
-					$query['where'][] = implode(' OR ', $treeid_wheres);
+					if (count($treeid_wheres) > 1 ) {
+						$subquery['where'][] = '('.implode(' OR ', $treeid_wheres).')';
+					} else {
+						$subquery['where'][] = implode(' OR ', $treeid_wheres);
+					}	
 				}
 			}
 		}//end if !empty($search_info['roots'])
