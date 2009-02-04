@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2008/11/23 23:42:15 mbrydon Exp $
+* $Id: asset.xml,v 1.1.4.1 2009/02/04 06:54:10 mbrydon Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger_action_remove_links</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Remove Links</name>
 	<description>
 		Remove links from the broadcasting asset, as determined from one or more of: Root Node, Asset Type, Link Type and Link Value.

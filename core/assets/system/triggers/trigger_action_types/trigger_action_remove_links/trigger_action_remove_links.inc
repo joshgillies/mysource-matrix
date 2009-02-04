@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_remove_links.inc,v 1.3 2008/11/25 23:36:01 mbrydon Exp $
+* $Id: trigger_action_remove_links.inc,v 1.3.2.1 2009/02/04 06:54:10 mbrydon Exp $
 *
 */
 
@@ -28,9 +28,10 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * 	- Linked Asset Type
 * 	- Link Type
 * 	- Link Value
+*	- Direct Links Only
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,6 +51,8 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 	*       'link_type'						=> string, // the type of link (or 'ANY' for all),
 	*       'link_value'					=> string, // the link value,
 	*       'any_link_value'				=> boolean,// whether we are interested in any link value as opposed to a blank one,
+	*       'direct_links_only'				=> boolean,// whether to look for and remove links directly under the root node (TRUE)
+	*												   // or to look under the root asset (FALSE) for candidate links
 	*       'asset_types'					=> array,  // the matching asset types of the linked asset
 	*       'parameter_map_target_asset'	=> string, // serialisation of parameter map settings (trigger view only)
 	*       );
@@ -71,6 +74,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$parameter_map_value = array_get_index($settings, 'parameter_map_target_asset', serialize(Array()));
 		$attr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$map_assetid = $attr_parameter_map->getParameterValue('asset');
+		$direct_links_only = $attr_parameter_map->getParameterValue('direct_links_only');
 
 		if (empty($settings['assetid']) && empty($map_assetid)) {
 			return FALSE;
@@ -130,31 +134,48 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$broadcasting_asset_id = $state['assetid'];
 		$root_node_asset_id = $assetid;
 
-		// Select candidate links from under the Root Node
-		// Get the Tree ID of our Root Node
-		$tree_id_sql = 'SELECT
-							t.treeid
-						FROM
-							sq_ast_lnk l, sq_ast_lnk_tree t
-						WHERE
-							t.linkid = l.linkid AND
-							l.minorid = '.MatrixDAL::quote($root_node_asset_id);
-
-		$root_node_tree_id = MatrixDAL::executeSqlOne($tree_id_sql);
-
-		// Ok, any matching assets should be linked under the Broadcasting Asset back to underneath our Root Node (ie; share a common Tree ID)
-		// Let's climb the tree...
+		// Compile a list of candidate links which reside DIRECTLY under our Root Node (default operation)
 		$assets = 'SELECT DISTINCT 
 						a.assetid
 					FROM
-						sq_ast a, sq_ast_lnk l, sq_ast_lnk_tree t
+						sq_ast a, sq_ast_lnk l
 					WHERE
-						t.linkid = l.linkid AND
-						t.treeid LIKE '.MatrixDAL::quote($root_node_tree_id.'%').' AND
-						t.treeid != '.MatrixDAL::quote($root_node_tree_id).' AND
+						l.majorid = '.MatrixDAL::quote($root_node_asset_id).' AND
 						a.assetid = l.minorid AND
 						a.assetid != '.MatrixDAL::quote($broadcasting_asset_id).' '.
 						$link_asset_type_codes_sql;
+
+		// Find out whether the Parameter Map was used to populate the "Direct Links Only" option - if so, populate our retrieved value
+		$direct_links_only = is_null($direct_links_only) ? $settings['direct_links_only'] : ($direct_links_only == 1);
+
+		// If we are looking in the entire tree (ie; not "Direct Links Only"), generate a query to compile a list of candidate links which reside anywhere under our Root Node
+		if (!$direct_links_only) {
+			// Select candidate links from under the Root Node
+			// Get the Tree ID of our Root Node
+			$tree_id_sql = 'SELECT
+								t.treeid
+							FROM
+								sq_ast_lnk l, sq_ast_lnk_tree t
+							WHERE
+								t.linkid = l.linkid AND
+								l.minorid = '.MatrixDAL::quote($root_node_asset_id);
+
+			$root_node_tree_id = MatrixDAL::executeSqlOne($tree_id_sql);
+
+			// Ok, any matching assets should be linked under the Broadcasting Asset back to underneath our Root Node (ie; share a common Tree ID)
+			// Let's climb the tree...
+			$assets = 'SELECT DISTINCT 
+							a.assetid
+						FROM
+							sq_ast a, sq_ast_lnk l, sq_ast_lnk_tree t
+						WHERE
+							t.linkid = l.linkid AND
+							t.treeid LIKE '.MatrixDAL::quote($root_node_tree_id.'%').' AND
+							t.treeid != '.MatrixDAL::quote($root_node_tree_id).' AND
+							a.assetid = l.minorid AND
+							a.assetid != '.MatrixDAL::quote($broadcasting_asset_id).' '.
+							$link_asset_type_codes_sql;
+		}
 
 		// Abort if we're about to remove the last significant link!
 		if ($settings['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
@@ -228,6 +249,7 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$link_value         = array_get_index($settings, 'link_value', '');
 		$is_exclusive       = array_get_index($settings, 'is_exclusive', 0);
 		$any_link_value     = array_get_index($settings, 'any_link_value', TRUE);
+		$direct_links_only	= array_get_index($settings, 'direct_links_only', TRUE);
 
 		// check if the selected asset is valid
 		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
@@ -326,7 +348,8 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		ob_start();
 			$parameter_map_value = array_get_index($settings, 'parameter_map_target_asset', serialize(Array()));
 			$attr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
-			$attr_parameter_map->setParameter('asset', 'Candidate Asset Links');
+			$attr_parameter_map->setParameter('asset', 'Candidate Assets');
+			$attr_parameter_map->setParameter('direct_links_only', 'Where Candidate Assets are Directly Linked to the Root Node (1 = TRUE)');
 			echo $attr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
 			$basic_part_4 = ob_get_contents();
 		ob_end_clean();
@@ -342,14 +365,18 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 
 			text_box($prefix.'[link_value]', $link_value, '', '', FALSE, $form_element_extras.' '.$link_value_onkeypress.' id="link_value"');
 			check_box($prefix.'[any_link_value]', '1', $any_link_value, '', $form_element_extras.' '.$any_link_value_onclick.' id="any_link_value"');
-			echo 'Any Link Value';
+			echo translate('trigger_remove_link_any_link_value');
+
+			echo '<p>'.translate('trigger_remove_link_direct_links_only');
+			check_box($prefix.'[direct_links_only]', '1', $direct_links_only, '', $form_element_extras);
+			echo '</p>';
 
 			$advanced_part_1 = ob_get_contents();
 		ob_end_clean();
 
 		$contents = translate('trigger_remove_link_basic', $basic_part_2).'<br />'.
 					translate('trigger_remove_link_advanced', $basic_part_3, $advanced_part_1).'<br /><br />'.
-					$asset_types_combo_box.'<br />'.
+					$asset_types_combo_box.
 					$basic_part_4;
 
 		return $contents;
@@ -406,8 +433,9 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		}
 
 		// optional fields
-		$settings['link_value']     = array_get_index($request_data, 'link_value', '');
-		$settings['any_link_value']	= array_get_index($request_data, 'any_link_value', FALSE);
+		$settings['link_value']			= array_get_index($request_data, 'link_value', '');
+		$settings['any_link_value']		= array_get_index($request_data, 'any_link_value', FALSE);
+		$settings['direct_links_only']	= array_get_index($request_data, 'direct_links_only', FALSE);
 
 		return FALSE;
 
