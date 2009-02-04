@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.33 2009/01/22 23:53:43 ewang Exp $
+* $Id: asset_manager.inc,v 1.655.2.34 2009/02/04 02:05:02 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.33 $
+* @version $Revision: 1.655.2.34 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8581,13 +8581,22 @@ class Asset_Manager extends MySource_Object
 			$bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
 
 			if (MatrixDAL::getDbType() === 'oci') {
-					$in_sql = 'SELECT DISTINCT(column_value) FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
+				$in_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
 			} else {
-					$in_sql = 'SELECT * FROM '.$in_sql;
+				$in_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$in_sql;
 			}
-			$where  ='t.treeid IN (
-						'.$in_sql.'
-					  )';
+
+			$from .= ', (' . $in_sql . ') tree_linkids';
+
+			 /**
+			 * end up with
+			 * select treeid from
+			 * sq_ast_lnk_tree t, ($in_sql)
+			 * tree_linkids
+			 * where
+			 * t.treeid=tree_linkids.treeid
+			 */
+			 $where = 't.treeid=tree_linkids.treeid';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
