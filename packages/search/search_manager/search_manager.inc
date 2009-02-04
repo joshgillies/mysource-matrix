@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.191 2009/02/02 02:40:45 csmith Exp $
+* $Id: search_manager.inc,v 1.192 2009/02/04 22:53:07 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2509,7 +2509,11 @@ class Search_Manager extends Asset
 					$treeid_wheres[] = '(t.treeid LIKE '.MatrixDAL::quote($treeid[0]['treeid'].'%').')';
 				}
 				if (!empty($treeid_wheres)) {
-					$subquery['where'][] = implode(' OR ', $treeid_wheres);
+					if (count($treeid_wheres) > 1 ) {
+						$subquery['where'][] = '('.implode(' OR ', $treeid_wheres).')';
+					} else {
+						$subquery['where'][] = implode(' OR ', $treeid_wheres);
+					}
 				}
 			}
 		}//end if !empty($search_info['roots'])
