@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ipb.inc,v 1.11 2008/02/18 04:59:51 lwright Exp $
+* $Id: ipb.inc,v 1.12 2009/02/04 05:41:05 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * from Invision Power Board database
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package Fudge
 * @subpackage ipb
 */
@@ -274,7 +274,7 @@ class Ipb
 					FROM
 						'.$this->db->obj['sql_tbl_prefix'].'members
 					WHERE
-						name=\''.$username.'\';
+						name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\';
 			';
 			$db_result = $this->db->query($sql);
 			$this->_assertValidResult($this->db, 'Could not authenticate IPB user');
@@ -707,7 +707,7 @@ class Ipb
 					'.$this->db->obj['sql_tbl_prefix'].'groups g
 				WHERE
 					m.mgroup=g.g_id and
-					m.name=\''.$username.'\'
+					m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($username, ENT_QUOTES)).'\'
 				;';
 		return $this->_getResult($sql, Array(), TRUE);
 
@@ -746,7 +746,7 @@ class Ipb
 	*/
 	function getMemberInfoByName($member_name)
 	{
-		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.htmlspecialchars($member_name, ENT_QUOTES).'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
+		$sql = $this->_buildQuery('*', 'members', 'm', ' WHERE m.name=\''.str_replace('&#039', '&#39', htmlspecialchars($member_name, ENT_QUOTES)).'\'', ' LEFT JOIN '.$this->db->obj['sql_tbl_prefix'].'member_extra me ON me.id=m.id');
 
 		return $this->_getResult($sql, Array(), TRUE);
 
