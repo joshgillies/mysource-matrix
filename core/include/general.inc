@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.208 2009/01/23 12:34:00 ata Exp $
+* $Id: general.inc,v 1.209 2009/02/04 04:48:42 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.208 $
+* @version $Revision: 1.209 $
 * @package MySource_Matrix
 */
 
@@ -1583,11 +1583,12 @@ function get_available_global_keywords()
 					'globals_post_' 	=> 'Global Keywords - Post Parameters',
 					'globals_session_' 	=> 'Global Keywords - Session',
 					'globals_server_' 	=> 'Global Keywords - Server',
+					'globals_date'	 	=> 'Global Keywords - Current Date and Time',
 					'globals_site_' 	=> 'Global Keywords - Current Site',
 					'globals_asset_' 	=> 'Global Keywords - Front End Asset',
 					'globals_snippet_' 	=> 'Global Keywords - Snippet',
 				);
-	
+
 	return $ret;
 
 }//end get_available_global_keywords()
@@ -1636,6 +1637,20 @@ function replace_global_keywords(&$text)
 					if (!is_scalar($replacements[$keyword])) {
 						$replacements[$keyword] = '';
 					}
+				}
+				if (0 === strpos($keyword, 'globals_date')) {
+					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+					$date_keyword = readable_datetime();
+					$formatting = substr($keyword, 12);
+					$format = ltrim($formatting, '_');
+					if ($format == 'readable') {
+						$date_keyword = readable_datetime();
+					} else {
+						if (!empty($format)) {
+							$date_keyword = date($format);
+						}//end if
+					}//end if
+					$replacements[$keyword] = $date_keyword;
 				}
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
@@ -1915,5 +1930,6 @@ the GPL.
 	trigger_error($licence_error, E_USER_ERROR);
 
 }//end check_ssv_licence()
+
 
 ?>
