@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.308 2009/01/14 16:42:54 ata Exp $
+* $Id: lang_strings.xml,v 1.309 2009/02/05 18:02:57 ata Exp $
 *
 */
 
@@ -1259,6 +1259,16 @@
 
 	<string source="trigger_action_redirect_redirect_url">Redirect URL</string>
 	<string source="trigger_action_redirect_url_instructions">You may use asset based keywords to construct the redirect URL.</string>
+	
+	<string source="trigger_action_set_cookie_set_name_value">Set cookie name %1$s to value %2$s</string>
+	<string source="trigger_action_set_cookie_set_expire_time">Expire time %1$s (in seconds)</string>
+	<string source="trigger_action_set_cookie_expire_time_note">Note: How long will the cookie expire since this trigger is fired (The default value 0 means the cookie expires when the client browser is closed)</string>
+	<string source="trigger_action_set_cookie_set_path">Path %1$s</string>
+	<string source="trigger_action_set_cookie_path_note">Note: An empty string will set the cookie path to the path that Matrix uses for session cookie</string>
+	<string source="trigger_action_set_cookie_set_domain">Domain %1$s</string>
+	<string source="trigger_action_set_cookie_domain_note">Note: An empty string will set the cookie domain to the domain that Matrix uses for session cookie</string>
+	<string source="trigger_action_set_cookie_set_secure">Secure? %1$s (If %2$s is set, the cookie will only be sent to the client when there is a secure connection HTTPS)</string>
+	<string source="trigger_action_set_cookie_set_http_only">HTTP only? %1$s (If %2$s is set, the cookie will only be accessible through HTTP protocol, but not scripting language like Javascript)</string>
 	<!-- common single word strings -->
 
 	<string source="all">All</string>
@@ -1338,6 +1348,7 @@
 	<string source="upload">Upload</string>
 	<string source="matches">Matches</string>
 	<string source="does_not_match">Does Not Match</string>
+	<string source="add">Add</string>
 	<string source="remove">Remove</string>
 	<string source="details">Details</string>
 	<string source="info">Info</string>
@@ -1378,6 +1389,8 @@
 	<string source="after">after</string>
 	<string source="under">under</string>
 	<string source="set">Set</string>
+	<string source="has">has</string>
+	<string source="does_not_have">does not have</string>
 
 	<!-- priority level strings -->
 
