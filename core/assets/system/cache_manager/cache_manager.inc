@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.71 2009/01/14 00:54:03 bshkara Exp $
+* $Id: cache_manager.inc,v 1.72 2009/02/05 23:54:41 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -199,16 +199,17 @@ class Cache_Manager extends Asset
 	* If cache entry already exists, it will be overwritten with the new contents
 	* and expiry time
 	*
-	* @param string		$assetid	id of the the asset that owns the cache file
-	* @param string		$asset_type	type_code of that asset
-	* @param string		$cache_key	the cache key for this entry
-	* @param string		$contents	the contents to save to cache
-	* @param boolean	$use_url	whether to use the current url
+	* @param string		$assetid			id of the the asset that owns the cache file
+	* @param string		$asset_type			type_code of that asset
+	* @param string		$cache_key			the cache key for this entry
+	* @param string		$contents			the contents to save to cache
+	* @param boolean	$use_url			whether to use the current url
+	* @param int		$expiry_override	override expiry length in seconds
 	*
 	* @return boolean
 	* @access public
 	*/
-	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE)
+	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE, $expiry_override='')
 	{
 		if (!$this->cacheEnabled($asset_type, $assetid)) return FALSE;
 
@@ -229,7 +230,13 @@ class Cache_Manager extends Asset
 		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
 		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
 		$file_path = $group.'/'.$file_name;
-		$expiry = time() + $this->getExpiry($asset_type, $assetid);
+
+		$now = time();
+		if (is_int($expiry_override) && ($expiry_override >= 0) && ($expiry_override + $now > $now)) {
+			$expiry = $expiry_override + $now;
+		} else {
+			$expiry = $now + $this->getExpiry($asset_type, $assetid);
+		}
 
 		// replace/update existing cache entry
 		// warning: will NOT cause duplicate primary key db error
