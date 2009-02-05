@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.70.2.1 2009/02/05 23:57:15 bshkara Exp $
+* $Id: cache_manager.inc,v 1.70.2.2 2009/02/05 23:58:51 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.1 $
+* @version $Revision: 1.70.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -235,7 +235,7 @@ class Cache_Manager extends Asset
 		if (is_int($expiry_override) && ($expiry_override >= 0) && ($expiry_override + $now > $now)) {
 			$expiry = $expiry_override + $now;
 		} else {
-			$expiry = $now + $this->getExpiry($asset_type, $assetid);
+			$expiry = $now + $this->getExpiry($asset_type);
 		}
 
 		// replace/update existing cache entry
