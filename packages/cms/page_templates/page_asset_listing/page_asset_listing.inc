@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.129 2008/10/13 23:48:41 akarelia Exp $
+* $Id: page_asset_listing.inc,v 1.129.2.1 2009/02/05 22:08:27 bshkara Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.129.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -260,11 +260,17 @@ class Page_Asset_Listing extends Listing_Engine
 			}//end switch
 
 		} else {
+			$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
+			$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
+
+			// if the min/max are both set to 0, return only the root nodes and forego any other processing
+			if ($min_depth === '0' && $max_depth === '0') {
+				$assets_to_list = $this->_combineRootNodes(Array(), $root_asset_ids, $wanted_types);
+				return empty($assets_to_list) ? Array() : $assets_to_list;
+			}
 
 			switch ($group_by) {
 				case 'letter' :
-					$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
-					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
 							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
@@ -289,7 +295,6 @@ class Page_Asset_Listing extends Listing_Engine
 						// number of columns in both sides of the union
 						$sql_array['union_select'] .= ', null AS first_letter';
 
-						$db = MatrixDAL::getDb();
 						$new_assets_to_list = Array();
 						try {
 								$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_array));
@@ -313,15 +318,10 @@ class Page_Asset_Listing extends Listing_Engine
 					// groupAssetsRecursively() in Listing Engine can use them,
 					// instead of calculating the parents once for each asset
 
-					$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
-					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
-
 					$grouping_attr = $this->attr('asset_grouping');
 
 					if ((count($grouping_attr) == 1) && ($grouping_attr[0]['group_type'] == 'parent_asset') && array_get_index($grouping_attr[0], 'direct_parent_only', FALSE)) {
 						$group = $grouping_attr[0];
-
-						$db = MatrixDal::getDb();
 
 						$links_sql = 'SELECT DISTINCT
 											minorid, majorid
@@ -428,9 +428,6 @@ class Page_Asset_Listing extends Listing_Engine
 
 				case 'number' :
 				case 'random' :
-					$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
-					$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
-
 					if ($this->attr('direction') == 'down') {
 						foreach ($root_asset_ids as $root_asset_id) {
 							$asset_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), FALSE, NULL, NULL, $list_permission, $list_effective, $min_depth, $max_depth, FALSE, $link_value_wanted);
@@ -442,7 +439,6 @@ class Page_Asset_Listing extends Listing_Engine
 							// we are now formating the asset_list the way it should be
 							// the function getParents is used at many places in Matrix therefore we are adding the following code to format
 							// the returned array. This might affect the performances of the asset listing.
-							// $asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
 							$asset_list = Array();
 							$new_asset_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), FALSE, NULL, $list_permission, $list_effective, $min_depth, $max_depth, TRUE, $link_value_wanted);
 							foreach ($new_asset_list as $k => $v) {
@@ -455,17 +451,10 @@ class Page_Asset_Listing extends Listing_Engine
 				break;
 			}//end switch
 
-			// If the min/max both set to 0, show only the root nodes
-			// If the min set to 0, show asset list with root nodes
-			$min_depth = ($this->attr('min_depth') === '') ? NULL : $this->attr('min_depth');
-			$max_depth = ($this->attr('max_depth') === '') ? NULL : $this->attr('max_depth');
-			$root_nodes = $this->getRootNodes();
-
+			// if the min set to 0, show asset list with root nodes
 			if ($min_depth === '0' && $max_depth !== '0') {
-				$assets_to_list = $this->_combineRootNodes($assets_to_list, $root_nodes, $wanted_types);
-			} else if ($min_depth === '0' && $max_depth === '0') {
-				$assets_to_list = $this->_combineRootNodes(Array(), $root_nodes, $wanted_types);
-			}//end if
+				$assets_to_list = $this->_combineRootNodes($assets_to_list, $root_asset_ids, $wanted_types);
+			}
 
 		}//end else subs_only
 
