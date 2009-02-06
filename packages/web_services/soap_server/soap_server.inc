@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.2.2.2 2008/05/27 00:00:31 hnguyen Exp $
+* $Id: soap_server.inc,v 1.2.2.3 2009/02/06 01:21:16 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.2.2.2 $
+* @version $Revision: 1.2.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -111,6 +111,9 @@ class Soap_Server extends Page
 
 			$logged_in = $this->authenticateHttpUser();
 			if (!$this->readAccess()) {
+				$error_string	= '<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body><SOAP-ENV:Fault><faultcode>SERVER</faultcode><faultstring>Either the credentials provided are invalid or this user does not have access to perform this action.</faultstring></SOAP-ENV:Fault></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+				echo $error_string;
 				// Just return nothing so the SoapClient will be like, wth?
 				return;
 
@@ -244,7 +247,7 @@ class Soap_Server extends Page
 		$available_operations = $this->getAvailableOperations(TRUE);
 		$list_api = $this->attr('list_api');
 		if (!isset($_GET['desc'])) {
-				echo '<ul>';
+				echo '<ul style="list-style: circle;">';
 				foreach ($available_operations as $func_name => $class_info) {
 					?>
 					<li style="padding-bottom:10px;">
