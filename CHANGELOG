@@ -129,6 +129,15 @@ PEAR requirements for two packages changed
 		- Net_URL 1.0.15 (latest version)
 
 
+Memcache Session Handler and path option
+	A session handler to handle sessions within Memcache has been added. The Memcache PECL module must be installed in order to interface with a Memcache server.
+
+The connection information to the Memcache server (host or IP address) and port, must be supplied in the SQ_CONF_CUSTOM_SESSION_SAVE_PATH value in the main.inc configuration file in the format "aaa.bbb.ccc.ddd:11211" (11211 is the standard Memcache port). If the default Matrix session handler is to be used rather than Memcache, a directory can be specified as the SQ_CONF_CUSTOM_SESSION_SAVE_PATH value to determine where these session files are stored (current default is the "cache" directory).
+
+The main.inc configuration file contains a new constant "SQ_CONF_SESSION_HANDLER". This is set to "default" to use the standard Matrix Session Handler. In order to use MemCache, this line must be changed as follows:  define('SQ_CONF_SESSION_HANDLER', 'memcache');
+
+The "Use Default PHP session file save path" setting in "System Configuration" must be set to "False" if session files are to be stored in a location other than the "cache" directory of MySource Matrix.
+
 Bulkmail scripts location changed
 	The reset_bulkmail_job.php, run.php and schedule_bulkmail_job.php scripts have been moved to a new "scripts" directory under the Bulkmail Package directory.
 
