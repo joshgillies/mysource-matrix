@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.2 2009/01/18 23:47:54 lwright Exp $
+* $Id: form.inc,v 1.207.2.3 2009/02/09 23:20:04 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.2 $
+* @version $Revision: 1.207.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3804,11 +3804,13 @@ class Form extends Asset implements Bridge
 		$keyword_assetid = str_replace(':', '_', $question->id);
 
 		if ($parent instanceof Form_Section) {
+			$keywords['question_field_' .$keyword_assetid] = translate('cms_form_section_q_field',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_name_' .$keyword_assetid] = translate('cms_form_section_q_name',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_id_'   .$keyword_assetid] = translate('cms_form_section_q_id',    $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_section_q_note',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_label_'.$keyword_assetid] = translate('cms_form_section_q_label', $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 		} else {
+			$keywords['question_field_' .$keyword_assetid] = translate('cms_form_question_field',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_name_' .$keyword_assetid] = translate('cms_form_question_name',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_id_'   .$keyword_assetid] = translate('cms_form_question_id',    ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_question_note',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
@@ -3923,11 +3925,15 @@ class Form extends Asset implements Bridge
 				case 'field' :
 					$replacement = $question_asset->getHtmlField();
 				break;
-
+				
+				case 'name' :
+					$replacement = $question_asset->attr('name');
+				break;
+				
 				case 'id' :
 					$replacement = 'q'.str_replace(':', '_', $assetid);
 				break;
-
+				
 				case 'note' :
 					$replacement = $question_asset->attr('note');
 				break;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.69 2008/11/12 06:52:25 lwright Exp $
+* $Id: form_section.inc,v 1.69.2.1 2009/02/09 23:20:34 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.69.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1395,6 +1395,7 @@ class Form_Section extends Asset implements Bridge
 
 		foreach ($questions as $shadowid => $question) {
 			$keywords['question_field_'.$this->id.'_q'.$shadowid] = 'Question Field: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_name_'.$this->id.'_q'.$shadowid]    = 'Question Name: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords['question_id_'.$this->id.'_q'.$shadowid]    = 'Question ID: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = 'Question Note: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords['question_label_'.$this->id.'_q'.$shadowid] = 'Question Label: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
@@ -1487,11 +1488,13 @@ class Form_Section extends Asset implements Bridge
 			if ($generating) {
 				$keywords['question_field_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlField(); ?'.'>';
 				$keywords['question_note_'.$this->id.'_q'.$shadowid]  = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->attr(\'note\'); ?'.'>';
+				$keywords['question_name_'.$this->id.'_q'.$shadowid]  = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->attr(\'name\'); ?'.'>';
 				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
 				$keywords['question_label_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlLabel(); ?'.'>';
 			} else {
 				$keywords['question_field_'.$this->id.'_q'.$shadowid] = $q->getHtmlField();
 				$keywords['question_note_'.$this->id.'_q'.$shadowid]  = $q->attr('note');
+				$keywords['question_name_'.$this->id.'_q'.$shadowid]  = $q->attr('name');
 				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
 				$keywords['question_label_'.$this->id.'_q'.$shadowid] = $q->getHtmlLabel();
 			}
