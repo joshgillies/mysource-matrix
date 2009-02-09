@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.282 2008/12/23 23:50:19 bpearson Exp $
+* $Id: asset_map.inc,v 1.283 2009/02/09 06:01:30 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.282 $
+* @version $Revision: 1.283 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -777,7 +777,7 @@ class Asset_Map
 					$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 					array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 					for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-						$userids[$k] = '\''.((string) $userids[$k]).'\'';
+						$userids[$k] = MatrixDAL::quote((string) $userids[$k]);
 					}
 					$userids_str = implode(',', $userids);
 					$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
@@ -997,7 +997,7 @@ class Asset_Map
 				$public_userid = (String)$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 				array_push($userids, $public_userid, (String)$GLOBALS['SQ_SYSTEM']->user->id);
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
-					$userids[$k] = '\''.((string) $userids[$k]).'\'';
+					$userids[$k] = MatrixDAL::quote((string) $userids[$k]);
 				}
 				$userids_str = implode(',', $userids);
 				$userid_cond = ' AND (p.userid IN ('.$userids_str.')';
