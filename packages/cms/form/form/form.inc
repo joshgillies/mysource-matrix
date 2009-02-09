@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178.2.12 2008/08/18 05:33:12 bpearson Exp $
+* $Id: form.inc,v 1.178.2.13 2009/02/09 23:21:02 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178.2.12 $
+* @version $Revision: 1.178.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1379,6 +1379,7 @@ class Form extends Asset implements Bridge
 				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
 				$replacements['question_field_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlField();
+				$replacements['question_name_'.$this->id.'_q'.$q_id] = $q_asset->attr('name');
 				$replacements['question_id_'.$this->id.'_q'.$q_id] = 'q'.$this->id.'_q'.$q_id;
 				$replacements['question_note_'.$this->id.'_q'.$q_id] = $q_asset->attr('note');
 				$replacements['question_label_'.$this->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
@@ -1391,6 +1392,7 @@ class Form extends Asset implements Bridge
 					$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 					$q_name = $section->attr('name').': '.$q_asset->attr('name');
 					$replacements['question_field_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlField();
+					$replacements['question_name_'.$section->id.'_q'.$q_id] = $q_asset->attr('name');
 					$replacements['question_id_'.$section->id.'_q'.$q_id] = 'q'.$section->id.'_q'.$q_id;
 					$replacements['question_note_'.$section->id.'_q'.$q_id] = $q_asset->attr('note');
 					$replacements['question_label_'.$section->id.'_q'.$q_id] = $q_asset->getHtmlLabel();
@@ -2285,6 +2287,7 @@ class Form extends Asset implements Bridge
 			$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_name = $q_asset->attr('name');
 			$keywords['question_field_'.$this->id.'_q'.$q_id] = translate('cms_form_question_field', ellipsisize($q_name,30));
+			$keywords['question_name_'.$this->id.'_q'.$q_id] = translate('cms_form_question_name', ellipsisize($q_name,30));
 			$keywords['question_id_'.$this->id.'_q'.$q_id] = translate('cms_form_question_id', ellipsisize($q_name,30));
 			$keywords['question_note_'.$this->id.'_q'.$q_id] = translate('cms_form_question_note', ellipsisize($q_name,30));
 			$keywords['question_label_'.$this->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
@@ -2297,6 +2300,7 @@ class Form extends Asset implements Bridge
 				$q_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 				$q_name = $q_asset->attr('name');
 				$keywords['question_field_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_field', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
+				$keywords['question_name_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_name', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 				$keywords['question_id_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_id', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 				$keywords['question_note_'.$section->id.'_q'.$q_id] = translate('cms_form_section_q_note', ellipsisize($section->attr('name'),20), ellipsisize($q_name,30));
 				$keywords['question_label_'.$section->id.'_q'.$q_id] = 'Question label for '.ellipsisize($q_name,30);
