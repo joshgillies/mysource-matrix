@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.38.2.1 2008/12/22 23:47:49 bpearson Exp $
+* $Id: option_list.inc,v 1.38.2.2 2009/02/10 01:08:03 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38.2.1 $
+* @version $Revision: 1.38.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -127,7 +127,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					<input type="text" name="<?php echo $prefix; ?>_options[<?php echo $i; ?>]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
 						$this->_printMoveUpButton($order, $prefix);
-						if ($i < 1) {
+						if ($i < ($next_number + 1)) {
 							$this->_printMoveDownButton($order, $prefix);
 						}
 					?>
