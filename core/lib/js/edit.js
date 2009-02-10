@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.51 2008/11/13 23:26:08 ewang Exp $
+* $Id: edit.js,v 1.52 2009/02/10 01:09:26 bpearson Exp $
 *
 */
 
@@ -224,9 +224,6 @@ function textboxReplaceSelect(input, text)
 var expandListFn = new Function('expandOptionList(this)');
 var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
 
-
-
-
 function expandOptionList(input)
 {
 	// abort if we are not the last input in the lit
@@ -258,27 +255,25 @@ function expandOptionList(input)
 	var moveDownButton = lastInput.nextSibling;
 	while (moveDownButton != null) {
 		moveDownButton = moveDownButton.nextSibling;
-		if (moveDownButton.tagName == 'A' && moveDownButton.name=="movedown") {
+		if (moveDownButton.tagName == 'A' && moveDownButton.name == "movedown") {
 			break;
 		}
 	}
-	moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-2)+']';
 	moveDownButton = moveDownButton.cloneNode(true);
+	// Cloned button, so we *must* give it a different id
+	moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 
-
-	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+	//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
 	var buttonScript =  moveDownButton.getElementsByTagName("script")[0]; 
-	if (HTMLArea.is_safari  && buttonScript != null) {
-			moveDownButton.removeChild(buttonScript);
+	var browserAgent = navigator.userAgent.toLowerCase();
+	if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
+		moveDownButton.removeChild(buttonScript);
 	}
-
 
 	var brElements = lastInput.parentNode.getElementsByTagName('BR');
 	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
- 	input.parentNode.appendChild(moveDownButton);
+	input.parentNode.appendChild(moveDownButton);
 	input.parentNode.appendChild(document.createElement('BR'));
-
-
 
 	// add the extra field
 	var newInput = input.cloneNode(true);
@@ -294,7 +289,6 @@ function expandOptionList(input)
 	delButton.onclick = deleteRowFn;
 	input.parentNode.appendChild(delButton);
 
-
 	// add the move up button to the new input
 	var moveUpButton = input.nextSibling;
 	while (moveUpButton != null) {
@@ -306,16 +300,15 @@ function expandOptionList(input)
 	moveUpButton = moveUpButton.cloneNode(true);
 	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 
-	//If it's safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+	//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
 	var buttonScript =  moveUpButton.getElementsByTagName("script")[0]; 
-	if (HTMLArea.is_safari  && buttonScript != null) {
+	var browserAgent = navigator.userAgent.toLowerCase();
+	if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
 			moveUpButton.removeChild(buttonScript);
 	}
-
-
-
- 	input.parentNode.appendChild(moveUpButton);
+	input.parentNode.appendChild(moveUpButton);
 	input.parentNode.appendChild(document.createElement('BR'));
+
 }
 
 // move up a row
@@ -388,8 +381,6 @@ function deleteOptionListRow(button)
 		}
 		moveUpBut = moveUpBut.nextSibling;
 	}
-
-
 
 	var moveDownBut = button.nextSibling;
 	while (moveDownBut != null) {
@@ -480,7 +471,7 @@ function expandDateList(input)
 	delButton.onclick = deleteDateRowFn;
 	input.parentNode.parentNode.appendChild(newSpan);
 	input.parentNode.parentNode.appendChild(delButton);
- 	input.parentNode.parentNode.appendChild(document.createElement('BR'));
+	input.parentNode.parentNode.appendChild(document.createElement('BR'));
 }
 
 function deleteDateListRow(button)
