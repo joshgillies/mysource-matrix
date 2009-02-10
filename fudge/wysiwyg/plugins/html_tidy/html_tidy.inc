@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.66 2008/10/19 21:33:36 bpearson Exp $
+* $Id: html_tidy.inc,v 1.67 2009/02/10 02:32:11 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -61,6 +61,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 	var $htmltidy_status = 'pass';
 
 	var $htmltidy_errors = NULL;
+
 
 
 	/**
@@ -191,20 +192,38 @@ class HTML_Tidy extends Wysiwyg_Plugin
 						'.$html.'
 						</body></html>';
 
-				// HTML Tidy logs the errors to stderr
-				$command = '/bin/echo '.escapeshellarg($complete_html)." | $path_to_tidy $args 2>&1";
+				$descriptorspec = array(
+					0 => Array("pipe", "r"),  // stdin is a pipe that the child will read fromi
+					1 => Array("pipe", "w"),  // stdout is a pipe that the child will write to
+					2 => Array("pipe", "w"),  // stderr is a file to write to
+				);
 
-				$tidy = Array();
-				exec($command, $tidy, $return);
+				$process = proc_open("$path_to_tidy $args ", $descriptorspec, $pipes);
 
-				// Find the errors
-				$error = '';
-				foreach ($tidy as $line_no => $line) {
-					if (preg_match('/line \d+ column \d+/i', $line)) {
-						$error .= $line."\n";
-						unset($tidy[$line_no]);
-					}//end if
-				}//end foreach
+				if (is_resource($process)) {
+					$STDIN = $pipes[0];
+					$STDOUT = $pipes[1];
+					$STDERR = $pipes[2];
+
+					// Send html data and receive tidied html data.
+					fwrite($STDIN, $complete_html);
+					fclose($STDIN);
+					$tidy = stream_get_contents($STDOUT);
+					fclose($STDOUT);
+					
+					// Find the errors
+					$errors = Array($STDERR);
+					$error = '';
+					foreach ($errors as $key => $err) {
+						switch ($err) {
+							case $STDERR:
+								$error = stream_get_contents($STDERR)."\n";
+								break;
+						}
+					}
+					fclose($STDERR);
+					$return = proc_close($process);
+				}
 
 				// First ignore anything we don't want to show for whatever reason
 				$ignore_errors_list = $this->getIgnoredErrors();
@@ -219,11 +238,13 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 				$this->htmltidy_errors = trim($error);
 
-				if (!empty($return) || empty($tidy) || empty($tidy_char_set)) {
+				// A return of 2 from tidy indicates there were fatal errors.
+				// (0 = no messages; 1 = only warnings, which we allow)
+				if (($return >= 2) || empty($tidy) || empty($tidy_char_set)) {
 					$this->htmltidy_status = 'fail';
 				} else {
 					// Only now we update the HTML
-					$html = implode("\n", $tidy);
+					$html = $tidy;
 
 					// HTML Tidy adds a new line character after <pre> and beofre </pre> tag
 					// which causes problem when the content is put back to WYSIWYG, replaced with a space
