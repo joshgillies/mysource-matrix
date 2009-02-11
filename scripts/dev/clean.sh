@@ -11,7 +11,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.16 2008/09/08 00:25:23 csmith Exp $
+#* $Id: clean.sh,v 1.16.2.1 2009/02/11 05:23:55 bpearson Exp $
 #*/
 
 # Creates a clean system by removing data and cache directories
@@ -34,6 +34,36 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/private/conf/system_assets.inc"
 
 cvs up -dP cache data/public data/private
+
+# Build the directory structure
+dir_map="cache \
+		data \
+		data/private \
+		data/public \
+		data/temp \
+		data/private/asset_map \
+		data/private/asset_types \
+		data/private/assets \
+		data/private/conf \
+		data/private/db \
+		data/private/events \
+		data/private/logs \
+		data/private/maps \
+		data/private/maps/downloaded_patches \
+		data/private/maps/installed_patches \
+		data/private/packages \
+		data/private/system \
+		data/public/asset_types \
+		data/public/assets \
+		data/public/system \
+		data/public/temp";
+for dir in $dir_map;
+do
+if !([ -e $dir ]);
+then
+	mkdir $dir;
+fi
+done
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
 php_code="<?php
