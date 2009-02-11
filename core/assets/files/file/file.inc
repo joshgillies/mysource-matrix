@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.170.2.1 2009/01/14 02:17:24 akarelia Exp $
+* $Id: file.inc,v 1.170.2.2 2009/02/11 23:16:31 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.170.2.1 $
+* @version $Revision: 1.170.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,6 +117,16 @@ class File extends Asset
 		if (!isset($info['filename'])) {
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
+
+		// Check for a virus
+		if (isset($info['path']) && !empty($info['path'])) {
+			$status = $this->scanFile($info['path']);
+			// If infected, remove and warn the user
+			if (!$status) {
+				trigger_localised_error('CORE0300', E_USER_WARNING, $info['filename']);
+				return FALSE;
+			}//end if
+		}//end if
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			if (!$this->validFile($info)) return FALSE;
@@ -1384,6 +1394,37 @@ class File extends Asset
 		return TRUE;
 
 	}//end delete()
+
+
+	/**
+	* Scan this asset using the external tools virus checker
+	*
+	* @param string		$path			If no path set, check the current file
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function scanFile($path='')
+	{
+		// Default to not scanned
+		$status = TRUE;
+
+		// Load the virus checker
+		require_once SQ_FUDGE_PATH.'/antivirus/antivirus.inc';
+
+		if (empty($path)) {
+			$file_to_scan = $this->data_path.'/'.$this->attr('name');
+		} else {
+			$file_to_scan = $path;
+		}//end if
+
+		$report = '';
+		$status = Antivirus::scan_file($file_to_scan, $report);
+
+		// Return
+		return $status;
+
+	}//end scanFile()
 
 
 }//end class
