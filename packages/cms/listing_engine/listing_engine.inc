@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.271 2009/02/11 05:51:56 akarelia Exp $
+* $Id: listing_engine.inc,v 1.272 2009/02/11 23:12:08 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.271 $
+* @version $Revision: 1.272 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2289,11 +2289,7 @@ class Listing_Engine extends Page
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) return;
 				foreach ($bc_keywords as $keyword) {
-					//we are taken care of metadata outside if/else block of ($is_shadow)  
-					// so lets skip them for now to increase speed :)
-					if (!substr($keyword, 0, 15) == 'asset_metadata_') {
-						$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
-					}
+					$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
 				}
 
 				// Body with paint layout applied, if any (inherited from the
@@ -2412,24 +2408,6 @@ class Listing_Engine extends Page
 					}
 				}
 			}//end if
-		}
-
-		$metadata_keywords = Array();
-		foreach ($bc_keywords as $keyword) {
-			if (substr($keyword, 0, 15) == 'asset_metadata_') {
-				$metadata_keywords[] = substr($keyword, 15);
-			}
-		}
-		if (!empty($metadata_keywords)) {
-			if (is_null($mm)) {
-				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			}
-			// get all the metadata keywords for this asset
-			$metadata_values = $mm->getMetadataFieldValues($assetid, $metadata_keywords);
-
-			foreach ($metadata_values as $field => $value) {
-				$keywords['asset_metadata_'.$field] = $value;
-			}
 		}
 
 		$keywords['page_href'] = $this->getHref();
