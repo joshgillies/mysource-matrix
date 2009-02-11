@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.309 2009/02/05 18:02:57 ata Exp $
+* $Id: lang_strings.xml,v 1.310 2009/02/11 23:26:15 bpearson Exp $
 *
 */
 
@@ -156,6 +156,12 @@
 	<string source="enable_markdown">Enable Markdown</string>
 	<string source="enable_markdownify">Enable Markdownify</string>
 	<string source="html_tidy_accessibility_level">HTML Tidy Accessibility Check Level</string>
+	<string source="enable_virus_checker">Enable Virus Checker</string>
+	<string source="virus_checker">Virus Checker</string>
+	<string source="virus_checker_type">Virus Checker Type</string>
+	<string source="virus_checker_type_fprot">F-Prot Antivirus</string>
+	<string source="virus_checker_type_clam">Clam Antivirus</string>
+	<string source="path_to_virus_checker">Path to Virus Checker</string>
 	<string source="tidy_unsupported_char_set_warning">Your current System Default Character Set is not supported by HTML Tidy.</string>
 	<string source="enable_pdftohtml">Enable pdftohtml</string>
 	<string source="error/debug_settings">Error/Debug Settings</string>

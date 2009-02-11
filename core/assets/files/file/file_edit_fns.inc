@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.91 2008/06/13 07:03:19 bpearson Exp $
+* $Id: file_edit_fns.inc,v 1.92 2009/02/11 23:26:35 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -288,6 +288,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}//end if
 
 		if (!$asset->validFile($info)) return FALSE;
+
+		// Check for a virus
+		if (isset($info['path']) && !empty($info['path'])) {
+			$status = $asset->scanFile($info['path']);
+			// If infected, remove and warn the user
+			if (!$status) {
+				trigger_localised_error('CORE0300', E_USER_WARNING, $info['filename']);
+				return FALSE;
+			}//end if
+		}//end if
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$name = current(make_valid_web_paths(Array($info['name'])));
