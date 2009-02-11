@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.270 2009/01/29 22:17:31 ewang Exp $
+* $Id: listing_engine.inc,v 1.271 2009/02/11 05:51:56 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.270 $
+* @version $Revision: 1.271 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2289,7 +2289,11 @@ class Listing_Engine extends Page
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) return;
 				foreach ($bc_keywords as $keyword) {
-					$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
+					//we are taken care of metadata outside if/else block of ($is_shadow)  
+					// so lets skip them for now to increase speed :)
+					if (!substr($keyword, 0, 15) == 'asset_metadata_') {
+						$keywords[$keyword] = $asset->getKeywordReplacement($keyword);
+					}
 				}
 
 				// Body with paint layout applied, if any (inherited from the
