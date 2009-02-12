@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.71 2008/02/28 22:31:14 colivar Exp $
+* $Id: image.inc,v 1.71.2.1 2009/02/12 04:22:32 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.71.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -824,6 +824,8 @@ class Image extends File implements Bridge
 				if (is_null($variety)) continue;
 				$keywords['image_v_'.$variety->name] = 'Image variety '.$variety->name;
 				$keywords['image_v_'.$variety->name.'_url'] = 'Image variety '.$variety->name.' URL';
+				$keywords['image_v_'.$variety->name.'_width'] = 'Image variety '.$variety->name.' Width';
+				$keywords['image_v_'.$variety->name.'_height'] = 'Image variety '.$variety->name.' Height';
 			}
 		}
 		$keywords['image_width']	= 'Width of the image in pixels';
@@ -908,6 +910,16 @@ class Image extends File implements Bridge
 				$variety_name = substr($variety_name, 0, strlen($variety_name) - 4);
 				$url_only = TRUE;
 			}
+			if (substr($variety_name, -6) == '_width') {
+				$variety_name = substr($variety_name, 0, strlen($variety_name) - 6);
+				$size = $this->_varietyImageSize($variety_name);
+				if (isset($size[0])) return $size[0];
+			}
+			if (substr($variety_name, -7) == '_height') {
+				$variety_name = substr($variety_name, 0, strlen($variety_name) - 7);
+				$size = $this->_varietyImageSize($variety_name);
+				if (isset($size[1])) return $size[1];
+			}
 			$variety_id = array_get_index($varieties['lookups'], $variety_name);
 			if (!empty($variety_id)) {
 				$variety = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':'.$variety_id);
@@ -927,6 +939,26 @@ class Image extends File implements Bridge
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKeywordReplacement()
+
+
+	/**
+	* Get the image size of an image variety
+	*
+	* @param string	$variety_name	Asset name of the variety
+	*
+	* @return string
+	* @access private
+	*/
+	function _varietyImageSize($variety_name)
+	{
+		$varieties = $this->attr('varieties');
+		if (isset($varieties['data'][$varieties['lookups'][$variety_name]]['filename'])) {
+			$filename = $varieties['data'][$varieties['lookups'][$variety_name]]['filename'];
+			$size = getimagesize($this->data_path.'/varieties/'.$filename);
+			return $size;
+		}
+
+	}//end _varietyImageSize()
 
 
 	/**
