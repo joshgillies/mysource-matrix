@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.3 2009/02/09 23:20:04 ewang Exp $
+* $Id: form.inc,v 1.207.2.4 2009/02/12 05:21:06 bshkara Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.3 $
+* @version $Revision: 1.207.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4132,7 +4132,7 @@ class Form extends Asset implements Bridge
 	function getFormCaptchaImageKeywordReplacement()
 	{
 		ob_start();
-			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
+			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'), trim($this->attr('captcha_bgcolour'), '#'), trim($this->attr('captcha_textcolour'), '#'), trim($this->attr('captcha_bordercolour'), '#'));
 		return ob_get_clean();
 
 	}//end getFormCaptchaImageKeywordReplacement()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.56 2008/10/31 05:16:40 lwright Exp $
+* $Id: form_management.inc,v 1.56.2.1 2009/02/12 05:21:06 bshkara Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -266,6 +266,21 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.13',
 														'type'		=> 'email_format',
 														'default'	=> Array(),
+													   ),
+						'captcha_bgcolour'			=> Array(
+														'added'		=> '0.14',
+														'type'		=> 'colour',
+														'default'	=> 'FFFFFF',
+													   ),
+						'captcha_textcolour'		=> Array(
+														'added'		=> '0.14',
+														'type'		=> 'colour',
+														'default'	=> '000000',
+													   ),
+						'captcha_bordercolour'		=> Array(
+														'added'		=> '0.14',
+														'type'		=> 'colour',
+														'default'	=> '000000',
 													   ),
 					  );
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.28 2008/10/31 05:16:40 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.28.2.1 2009/02/12 05:21:06 bshkara Exp $
 *
 */
 -->
@@ -84,6 +84,15 @@
 		</field>
 		<field attribute="captcha_link_text">
 			<text width="50" />
+		</field>
+		<field attribute="captcha_bgcolour">
+			<colour />
+		</field>
+		<field attribute="captcha_textcolour">
+			<colour />
+		</field>
+		<field attribute="captcha_bordercolour">
+			<colour />
 		</field>
 	</section>
 	<section name="Multiple Page Form Options">
