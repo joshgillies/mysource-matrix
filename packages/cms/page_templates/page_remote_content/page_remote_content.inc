@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.80 2008/11/18 04:18:08 hnguyen Exp $
+* $Id: page_remote_content.inc,v 1.81 2009/02/12 15:57:35 ata Exp $
 *
 */
 
@@ -26,6 +26,7 @@ require_once 'persistent_cookie_manager.inc';
 // Consider making these constants into attributes of this asset
 define ('SQ_REMOTE_MAX_REDIRECTS', 10);
 define ('SQ_REMOTE_SOURCE', 'sq_content_src');
+define('SQ_REMOTE_INPUT_FILE_NAMES', 'sq_remote_input_file_names');
 define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 
 
@@ -36,7 +37,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -369,25 +370,38 @@ class Page_Remote_Content extends Page
 		$HTTP_Client->setRequestParameter('useBrackets', FALSE);
 
 		if ($is_post) {
+			$hidden_field_file_name = $this->getPrefix().'_'.SQ_REMOTE_INPUT_FILE_NAMES;
+			if (!empty($_POST[$hidden_field_file_name])) {
+				$input_file_names = unserialize($_POST[$hidden_field_file_name]);
+			} else {
+				$input_file_names = Array();
+			}
+			 
 			// Pass on uploaded files if necessary
 			$files = Array();
-			foreach ($_FILES as $name => $details) {
-				if (is_array($details['tmp_name'])) {
-					foreach ($details['tmp_name'] as $i => $tn) {
-						if ($details['error'][$i] != UPLOAD_ERR_OK) continue;
-						$new_name = SQ_TEMP_PATH.'/'.basename($details['name'][$i]);
-						if (move_uploaded_file($tn, $new_name)) {
-							$files[] = Array($name.'['.$i.']', $new_name, $details['type'][$i]);
+			// Only send files to the remote URL if those files are in the remote content page
+			if (!empty($input_file_names)) {
+				foreach ($_FILES as $name => $details) {
+					if (in_array($name, $input_file_names)) {
+						if (is_array($details['tmp_name'])) {
+							foreach ($details['tmp_name'] as $i => $tn) {
+								if ($details['error'][$i] != UPLOAD_ERR_OK) continue;
+								$new_name = SQ_TEMP_PATH.'/'.basename($details['name'][$i]);
+								if (move_uploaded_file($tn, $new_name)) {
+									$files[] = Array($name.'['.$i.']', $new_name, $details['type'][$i]);
+								}
+							}
+						} else {
+							if ($details['error'] != UPLOAD_ERR_OK) continue;
+							$new_name = SQ_TEMP_PATH.'/'.basename($details['name']);
+							if (move_uploaded_file($details['tmp_name'], $new_name)) {
+								$files[] = Array($name, $new_name, $details['type']);
+							}
 						}
-					}
-				} else {
-					if ($details['error'] != UPLOAD_ERR_OK) continue;
-					$new_name = SQ_TEMP_PATH.'/'.basename($details['name']);
-					if (move_uploaded_file($details['tmp_name'], $new_name)) {
-						$files[] = Array($name, $new_name, $details['type']);
-					}
-				}
-			}
+					}//end if
+				}//end for
+			}//end if
+			
 			// a workaround for HTTP_Client's inability to handle empty post data
 			if (empty($post_data) && empty($files)) {
 				if ($post_is_encoded) {
@@ -495,9 +509,42 @@ class Page_Remote_Content extends Page
 				$content = str_replace($matches[0][$key], $rep, $content);
 			}
 		}
+		
+		// Store the input file type's names if they exist
+		$this->_addInputFileNames($content);
 
 	}//end _transformContent()
 
+	
+	/*
+	 * Add the names of file inputs (<input type="file">) into the HTML content under an hidden field SQ_REMOTE_INPUT_FILE_NAMES
+	 * 
+	 * @param string	&$content	The HTML content this remote content page will display
+	 * 
+	 */
+	function _addInputFileNames(&$content) {
+		$pattern = '/<input\s+[^>]*type\s*=\s*(?:"|\')?file(?:"|\')?[^>]*>/i';
+		$file_names = Array();
+		if (preg_match_all($pattern, $content, $matches)) {
+			//the following pattern can not get names with space inside like name="hello world" => it only extracts "hello"
+			$name_pattern = '/\s+name\s*=\s*(?:"|\')?([^>"\'\s]+)/i';
+			foreach($matches[0] as $match) {
+				if (preg_match($name_pattern, $match, $name_matches)) {
+					$file_names[] = $name_matches[1];
+				}
+			}
+		}
+		if (!empty($file_names)) {
+			$serialized_names = serialize($file_names);
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+			ob_start();
+			hidden_field($this->getPrefix().'_'.SQ_REMOTE_INPUT_FILE_NAMES, $serialized_names);
+			$hidden_field = ob_get_clean();
+			//put the hidden field right after the first input file type
+			$content = str_replace($matches[0][0], $matches[0][0].$hidden_field, $content);
+		}
+		
+	}//end _addInputFileNames()
 
 	/**
 	* Returns whether the content should be treated as binary, given the headers supplied
