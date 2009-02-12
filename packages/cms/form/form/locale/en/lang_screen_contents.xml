@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.10 2008/10/31 05:16:40 lwright Exp $
+* $Id: lang_screen_contents.xml,v 1.11 2009/02/12 05:09:06 bshkara Exp $
 *
 */
 -->
@@ -108,6 +108,18 @@
 		<field attribute="captcha_link_text">
 			<display_name>CAPTCHA Regen Link Text</display_name>
 			<note>This text will appear when the %form_captcha_link% keyword is used.</note>
+		</field>
+		<field attribute="captcha_bgcolour">
+			<display_name>CAPTCHA Background Colour</display_name>
+			<note>This background colour is only used when the contents bodycopy is customised with captcha keywords.</note>
+		</field>
+		<field attribute="captcha_textcolour">
+			<display_name>CAPTCHA Text Colour</display_name>
+			<note>This text colour is only used when the contents bodycopy is customised with captcha keywords.</note>
+		</field>
+		<field attribute="captcha_bordercolour">
+			<display_name>CAPTCHA Border Colour</display_name>
+			<note>This border colour is only used when the contents bodycopy is customised with captcha keywords.</note>
 		</field>
 	</section>
 
