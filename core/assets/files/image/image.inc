@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.72 2009/02/12 04:21:53 bshkara Exp $
+* $Id: image.inc,v 1.73 2009/02/12 04:24:39 bshkara Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -962,6 +962,15 @@ class Image extends File implements Bridge
 
 
 	/**
+	* Get replacement for an embedded keyword
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function _getEmbeddedKeywordReplacement($keyword)
+	{
 		$replacement = '';
 
 		$embedded_data = $this->attr('embedded_data');
