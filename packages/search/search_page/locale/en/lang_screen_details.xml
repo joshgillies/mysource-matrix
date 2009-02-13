@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.27 2009/01/14 00:14:50 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.28 2009/02/13 01:42:18 ewang Exp $
 *
 */
 -->
@@ -33,6 +33,10 @@
 				<paint_function   name="paintRootNode"  />
 				<process_function name="processRootNode" />
 			</function_call>
+		</field>
+		<field attribute="exclude_self">
+			<display_name>Exclude Root Nodes</display_name>
+			<note>If selected, above root nodes will be excluded from search results.</note>
 		</field>
 		<field>
 			<display_name>Asset Types to Search for</display_name>

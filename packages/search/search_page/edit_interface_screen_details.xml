@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.48 2009/02/13 01:38:43 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.49 2009/02/13 01:41:43 ewang Exp $
 *
 */
 -->
@@ -30,6 +30,7 @@
 				<process_function name="processRootNode" />
 			</function_call>
 		</field>
+		
 		<field attribute="exclude_self" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
