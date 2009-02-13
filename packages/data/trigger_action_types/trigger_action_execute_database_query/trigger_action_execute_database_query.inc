@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_execute_database_query.inc,v 1.1.2.1 2009/01/09 03:21:43 bpearson Exp $
+* $Id: trigger_action_execute_database_query.inc,v 1.1.2.2 2009/02/13 03:07:13 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -177,18 +177,26 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		}//end foreach
 
 		try {
-			MatrixDAL::changeDb('trigger_action_db');
+			if (!isset($GLOBALS['SQ_SYSTEM']->tm) || !($GLOBALS['SQ_SYSTEM']->tm instanceof Transaction_Manager)) {
+				require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
+				$GLOBALS['SQ_SYSTEM']->tm = new Transaction_Manager();
+			}
+			$GLOBALS['SQ_SYSTEM']->tm->begin('trigger_action_db');
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach ($bind_vars as $bind_var => $bind_value) {
 				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 			}
 			MatrixDAL::execPdoQuery($query);
-			MatrixDAL::restoreDb();
-			MatrixDAL::dbClose('trigger_action_db');
 		} catch (Exception $e) {
+			$GLOBALS['SQ_SYSTEM']->tm->rollback('trigger_action_db');
+			MatrixDAL::restoreDb();
 			trigger_localised_error('DATA0001', E_USER_WARNING, $e->getMessage(), $sql);
 			return FALSE;
 		}
+
+		// commit the transaction
+		$GLOBALS['SQ_SYSTEM']->tm->commit('trigger_action_db');
+		MatrixDAL::restoreDb();
 
 		// Return a response
 		return TRUE;
