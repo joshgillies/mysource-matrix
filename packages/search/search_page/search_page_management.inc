@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.62.2.1 2009/01/14 00:35:15 mbrydon Exp $
+* $Id: search_page_management.inc,v 1.62.2.2 2009/02/13 01:46:54 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.62.2.1 $
+* @version $Revision: 1.62.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -267,7 +267,13 @@ class Search_Page_Management extends Asset_Management
 																'parameters'	=> Array('allow_empty'	=> FALSE),
 															  );
 
-
+		$this->vars['exclude_self']	= Array(
+													'added'			=> '0.23',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'If true, only look for assets underneath root nodes',
+													'parameters'	=> Array('allow_empty' => FALSE),
+												  );
 	}//end constructor
 
 

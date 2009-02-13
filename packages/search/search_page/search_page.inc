@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.230.2.1 2009/01/14 00:35:15 mbrydon Exp $
+* $Id: search_page.inc,v 1.230.2.2 2009/02/13 01:45:40 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.230.2.1 $
+* @version $Revision: 1.230.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -454,6 +454,17 @@ class Search_Page extends Listing_Engine
 	function printResultsBody($search=Array())
 	{
 		$results = $this->processSearch($search);
+
+		// exclude root nodes themselves if it is required
+		if ($this->attr('exclude_self')) {
+			$root_nodes = $this->getRootNodes();
+			foreach ($root_nodes as $exclude_assetid) {
+				if (isset($results[$exclude_assetid])) {
+					unset($results[$exclude_assetid]);
+				}
+			}
+		}
+		
 		$this->_tmp['initial_results'] = $results;
 		$results =& $this->convertProxyAssetTypes($results);
 		$this->_tmp['search_results'] =& $results;
