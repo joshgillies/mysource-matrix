@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.99.2.1 2009/01/22 00:58:17 ewang Exp $
+* $Id: design_area_menu_type.inc,v 1.99.2.2 2009/02/15 22:42:58 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.99.2.1 $
+* @version $Revision: 1.99.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -293,7 +293,7 @@ class Design_Area_Menu_Type extends Design_Area
 			$null = NULL;
 			return $null;
 		} else {
-			$pmenu = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['major_type_code'], TRUE)    ;
+			$pmenu = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['major_type_code'], TRUE);
 			return $pmenu;
 		}
 
@@ -861,6 +861,37 @@ class Design_Area_Menu_Type extends Design_Area
 			case 'sub' :
 				$sub = $this->getSubMenu();
 				if (is_null($sub)) return TRUE;
+
+				// See if this menu has a customisation underneath it
+				// If does, use the customised settings in this asset
+				$current_designs = $sub->getDesigns();
+				foreach ($current_designs as $current_design) {
+					if (is_null($current_design)) continue;
+
+					// Find the current customisations
+					$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($current_design->id, SQ_LINK_TYPE_2, 'design_customisation', TRUE, 'major', 'customisation');
+					$am =& $GLOBALS['SQ_SYSTEM']->am;
+					foreach ($customisation_links as $link) {
+						$customisation = $am->getAsset($link['minorid'], $link['minor_type_code']);
+						if (is_null($customisation)) continue;
+
+						// Do something
+						$custom_das = $customisation->getCustomisedAreas();
+						foreach ($custom_das as $custom_da) {
+							if ($custom_da['minorid'] != $sub->id) {
+								$new_da = $am->getAsset($custom_da['minorid'], $custom_da['minor_type_code']);
+								if (is_null($new_da)) continue;
+								if ($new_da->name == $sub->name) {
+									foreach ($new_da->vars as $name => $details) {
+										if (in_array($name, Array('unwanted_asset_types', 'self_link'))) {
+											$sub->vars[$name] = $new_da->vars[$name];
+										}
+									}
+								}//end if
+							}//end if
+						}//end foreach
+					}//end foreach
+				}//end foreach
 				return $sub->printAreaCode();
 
 			default :
