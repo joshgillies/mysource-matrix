@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.92.2.4 2008/08/04 23:13:42 bpearson Exp $
+* $Id: form_email_edit_fns.inc,v 1.92.2.5 2009/02/15 23:39:14 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.92.2.4 $
+* @version $Revision: 1.92.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -814,7 +814,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		echo "<submissions>\n";
 		foreach ($result as $asset_info) {
-
+			$assetid = $asset_info['assetid'];
 			$type_code = $asset_info['type_code'];
 
 			$sub_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
