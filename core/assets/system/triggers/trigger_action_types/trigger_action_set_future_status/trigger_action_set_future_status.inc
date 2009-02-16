@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.22 2009/02/16 00:53:22 mbrydon Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.23 2009/02/16 03:38:06 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,12 +266,16 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
             if ($write_access) {
                 asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
             } else {
-				$metadata_field = TRUE; // STUB
+				if ($metadata_field_id) {
+					$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 
-                if ($metadata_field_id) {
-                    echo get_asset_tag_line($metadata_field_id);
-                } else if ($metadata_field_id  && !$metadata_field) {
-                    echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_field_id.')</span>';
+					// Found the associated Metadata Field asset
+					if ($metadata_field) {
+                    	echo get_asset_tag_line($metadata_field_id);
+					} else {
+						// Looks like we have an ex-asset...
+                    	echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_field_id.')</span>';
+					}
                 } else {
                     echo '<b>No metadata field specified</b>';
                 }
