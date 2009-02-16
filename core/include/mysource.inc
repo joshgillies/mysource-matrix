@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.285 2009/01/16 00:03:04 bpearson Exp $
+* $Id: mysource.inc,v 1.286 2009/02/16 02:49:57 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285 $
+* @version $Revision: 1.286 $
 * @package MySource_Matrix
 */
 class MySource
@@ -435,7 +435,7 @@ class MySource
 							header('HTTP/1.0 404 Not Found');
 
 							// Send Cacheable Header based on cache manager default setting
-							if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER) {
+							if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && current_protocol() != 'https') {
 								$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 								header('Pragma: cache');
 
@@ -538,7 +538,7 @@ class MySource
 					}//end if
 
 					// Finally recache
-					if (SQ_CONF_SEND_CACHEABLE_HEADER) {
+					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
 						$this->_sendHTTPHeaders($asset);
 					} else {
 						$asset->printFrontend();
@@ -546,7 +546,7 @@ class MySource
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)
-					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER) {
+					&& $asset->effectiveUnrestricted() && empty($_POST) && SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
 					$this->_sendHTTPHeaders($asset);
 				} else {
 					$asset->printFrontend();
