@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_permission.inc,v 1.1 2008/09/15 04:45:19 ata Exp $
+* $Id: trigger_action_set_future_permission.inc,v 1.1.4.1 2009/02/16 05:20:17 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,8 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +63,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		if (!isset($settings['permission'])) return FALSE;
 		if (!isset($settings['dependants_only'])) return FALSE;
 		if (!isset($settings['cascade_to_new'])) return FALSE;
-		
+
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$userid = $atr_parameter_map->getParameterValue('user');
@@ -77,7 +78,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			$userid = $settings['userid'];
 		}
 
-		
+
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
@@ -98,7 +99,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		$fp->setAttrValue('cascade_to_new', $settings['cascade_to_new']);
 		$fp->setAttrValue('dependants_only', $settings['dependants_only']);
 
-		if (in_array($settings['when_type'], Array('attr_interval', 'attr_exact'))) {
+		if ($settings['when_type'] == 'by_attr_value') {
 			// need to try to consult an attribute value
 			if (empty($settings['when_attr_name'])) return FALSE; // incomplete config
 			if (!($state['asset'] instanceof $settings['when_asset_type'])) {
@@ -106,7 +107,34 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			}
 			$val = @$state['asset']->attr($settings['when_attr_name']);
 			if (empty($val)) return FALSE; // empty date time attr
-			if ($settings['when_type'] == 'attr_interval') {
+			if ($settings['offset_used']) {
+				$offset = (int)substr($settings['when'], 4) * 60;
+				$when = iso8601_ts($val) + $offset;
+				if ($when < time()) return FALSE;  // it's in the past
+				$fp->setAttrValue('when', 'OO='.substr(ts_iso8601($when), 0, 16));
+			} else {
+				// just the straight value
+				$ts = iso8601_ts($val);
+				if ($ts < time()) return FALSE; // in the past
+				$fp->setAttrValue('when', 'OO='.substr(ts_iso8601($ts), 0, 16));
+			}
+		} else if ($settings['when_type'] == 'by_meta_value') {
+			// need to try to consult a metadata value
+			if (empty($settings['when_meta_field_id'])) {
+				return FALSE; // incomplete config
+			}
+
+			// Grab the Metadata for the asset which fired this trigger
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$val = $mm->getMetadataValueByAssetid($state['assetid'], $settings['when_meta_field_id'], FALSE, TRUE);
+
+			// Now attempt to find our relevant Metadata Field
+			// If everything is fine then we should have a date value of some sort - otherwise fail
+			if (!isset($val)) return FALSE; // Expected Metadata Field not assigned
+
+			if (empty($val)) return FALSE; // empty date time attr
+
+			if ($settings['offset_used']) {
 				$offset = (int)substr($settings['when'], 4) * 60;
 				$when = iso8601_ts($val) + $offset;
 				if ($when < time()) return FALSE;  // it's in the past
@@ -157,12 +185,12 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		}
 
 		return Array(
-				'jobid'			=> $fp->id,
-				'userid'		=> $user_for_permission_change->id,
-				'granted'		=> $settings['granted'],
-				'permission'	=> $fp->attr('permission'),
-				'granted_userid'=> $userid,
-				'when'			=> $fp->attr('when'),
+				'jobid'				=> $fp->id,
+				'userid'			=> $user_for_permission_change->id,
+				'granted'			=> $settings['granted'],
+				'permission'		=> $fp->attr('permission'),
+				'granted_userid'	=> $userid,
+				'when'				=> $fp->attr('when'),
 			   );
 
 	}//end execute()
@@ -189,6 +217,8 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		$settings['when']				= array_get_index($settings, 'when');
 		$settings['when_asset_type']	= array_get_index($settings, 'when_asset_type', '');
 		$settings['when_attr_name']		= array_get_index($settings, 'when_attr_name', '');
+		$settings['when_meta_field_id'] = array_get_index($settings, 'when_meta_field_id', '');
+
 		if (!isset($settings['when_type'])) {
 			if (empty($settings['when'])) {
 				$settings['when_type'] = 'explicit_exact';
@@ -197,7 +227,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 				if (FALSE === strpos($settings['when'], 'OO!')) {
 					$settings['when_type'] = 'explicit_exact';
 				} else {
-					$settings['when_type'] = 'explicit_interval';
+					$settings['when_type'] = 'on_trigger_fire';
 					$weights = Array('i' => 1, 'h' => 60, 'd' => 1440, 'w' => 10080, 'm' => 43200, 'y' => 535600);
 					$settings['when'] = 'OO!i'.($weights[$settings['when'][3]] * substr($settings['when'], 4));
 				}
@@ -233,10 +263,11 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 		// print the grant/deny selection
 		if ($write_access) {
-			combo_box($prefix.'_granted', Array(
-											'1'	=> strtolower(translate('grant')),
-											'0'	=> strtolower(translate('deny')),
-										   ), FALSE, $settings['granted']);
+			$permission_options = Array(
+									'1'	=> strtolower(translate('grant')),
+									'0'	=> strtolower(translate('deny')),
+								  );
+			combo_box($prefix.'_granted', $permission_options, FALSE, $settings['granted']);
 		} else {
 			echo '<b>';
 			echo ($settings['granted']) ? strtolower(translate('grant')) : strtolower(translate('deny'));
@@ -251,7 +282,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			echo '<b>'.$permissions[$settings['permission']].'</b>';
 		}
 		echo ' '.translate('access_for').' ';
-		
+
 		// print the asset finder
 		if ($write_access) {
 			asset_finder(
@@ -273,9 +304,13 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 				echo '<b>'.$user->name.'</b> ';
 			}
 		}
-		
-		//print the time to add a cron job
+
+		// print the time to add a cron job
 		$formats = Array();
+
+		ob_start();
+			label(translate('immediately_when_trigger_fired'), $prefix.'_when_type_on_trigger_fire');
+		$formats['on_trigger_fire'] = ob_get_clean();
 
 		ob_start();
 			label(translate('trigger_action_future_permission_explicit_exact').' ', $prefix.'_when_type_explicit_exact');
@@ -283,26 +318,31 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		$formats['explicit_exact'] = ob_get_clean();
 
 		ob_start();
-			$duration->paint($prefix.'_explicit_interval', !$write_access);
-			label(' '.translate('trigger_action_future_permission_explicit_interval'), $prefix.'_when_type_explicit_interval');
-		$formats['explicit_interval'] = ob_get_clean();
-
-		ob_start();
-			label(translate('trigger_action_future_permission_attr_exact').' ', $prefix.'_when_type_attr_exact');
+			label(translate('as_determined_from_asset_attribute').'&nbsp;', $prefix.'_as_determined_from_attr');
 			echo self::getAttributeChooser($prefix.'_exact_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
-		$formats['attr_exact'] = ob_get_clean();
+		$formats['by_attr_value'] = ob_get_clean();
 
 		ob_start();
-			$duration->paint($prefix.'_attr_interval', !$write_access);
-			echo ' ';
+			label(translate('as_determined_from_metadata_field').'&nbsp;&nbsp;&nbsp;', $prefix.'_as_determined_from_meta');
+			$metadata_field_id = $settings['when_meta_field_id'];
 			if ($write_access) {
-				combo_box($prefix.'_attr_interval_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
+				asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
 			} else {
-				echo translate(($mins < 0) ? 'before' : 'after');
+				if ($metadata_field_id) {
+					$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+
+					// Found the associated Metadata Field asset
+					if ($metadata_field) {
+						echo get_asset_tag_line($metadata_field_id);
+					} else {
+						// Looks like we have an ex-asset...
+						echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_field_id.')</span>';
+					}
+				} else {
+					echo '<b>No metadata field specified</b>';
+				}
 			}
-			label(' '.translate('trigger_action_future_permission_attr_interval').' ', $prefix.'_when_type_attr_interval');
-			echo self::getAttributeChooser($prefix.'_interval_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
-		$formats['attr_interval'] = ob_get_clean();
+		$formats['by_meta_value'] = ob_get_clean();
 
 		if ($write_access) {
 			$GLOBALS['SQ_SYSTEM']->backend->out->addOnLoad('initEnableFieldLists();');
@@ -325,6 +365,17 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			echo preg_replace('/<label([^>]*)>/', '', $formats[$settings['when_type']]);
 		}
 
+		echo '<p>';
+		label(translate('offset_for_above_fields').': ', $prefix.'_offset');
+		$duration->paint($prefix.'_offset_value', !$write_access);
+		echo ' ';
+		if ($write_access) {
+			combo_box($prefix.'_offset_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
+		} else {
+			echo translate(($mins < 0) ? 'before' : 'after');
+		}
+		echo ' '.translate('specified_value').'<br /><br /></p>';
+
 		// Update to dependants only
 		if ($write_access) {
 			echo '<br />';
@@ -335,7 +386,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['dependants_only'] ? 'tick' : 'cross').'.gif" alt="'.($settings['dependants_only'] ? translate('yes') : translate('no')).'" /> ';
 			echo translate('trigger_set_permission_dependants_only');
 		}
-		
+
 		// Cascade to new children
 		if ($write_access) {
 			echo '<br />';
@@ -346,16 +397,16 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_to_new'] ? 'tick' : 'cross').'.gif" alt="'.($settings['cascade_to_new'] ? translate('yes') : translate('no')).'" /> ';
 			echo translate('cascade_schema_changes_to_new_children');
 		}
-		
-		//print the parameter map
+
+		// print the parameter map
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 
 		$atr_parameter_map->setParameter('user', 'Userid or Groupid');
 		echo $atr_parameter_map->paint($prefix.'_parameter_map', !$write_access);
-		
-		
+
+
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -380,16 +431,18 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 		$settings['when_type'] = $_POST[$prefix.'_when_type'];
 
-		//process granted
+		// process granted
 		$granted = array_get_index($_POST, $prefix.'_granted', '');
 		if ($granted != '1' && $granted != '0') {
 			return 'Grant parameter is invalid';
 		}
 		$settings['granted'] = $granted;
-		
-		//process permission
+
+		// process permission
 		$permission = array_get_index($_POST, $prefix.'_permission', '');
-		if ($permission === '') return 'Permission not specified';
+		if ($permission === '') {
+			return 'Permission not specified';
+		}
 
 		$valid_permissions = self::_getPermissionList();
 		if (isset($valid_permissions[$permission])) {
@@ -397,12 +450,12 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		} else {
 			return 'Specified permission is invalid';
 		}
-		
-		//process selected userid
+
+		// process selected userid
 		$user_data = array_get_index($_POST, $prefix.'_userid', Array('assetid' => ''));
 		$userid = $user_data['assetid'];
 
-		if (!empty($userid)) { //check if userid is a valid userid
+		if (!empty($userid)) { // check if userid is a valid userid
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			if (is_null($user)) {
 				return 'Specified userid is not a valid userid';
@@ -410,22 +463,22 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 				$settings['userid'] = $userid;
 			}
 		}
-		
+
 		// dependants_only
 		$dependants_only = array_get_index($_POST, $prefix.'_dependants_only', '0');
 		$settings['dependants_only'] = ($dependants_only == '1') ? TRUE : FALSE;
-		
+
 		// cascade to new
 		$cascade_to_new = array_get_index($_POST, $prefix.'_cascade_to_new', '0');
 		$settings['cascade_to_new'] = ($cascade_to_new == '1') ? TRUE : FALSE;
-		
-		//process parameter map
+
+		// process parameter map
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 		$atr_parameter_map->process($prefix.'_parameter_map');
 
 		$settings['user_map'] = $atr_parameter_map->value;
 
-		//process time
+		// process time
 		include_once SQ_ATTRIBUTES_PATH.'/duration/duration.inc';
 		$duration = new Asset_Attribute_Duration();
 		$duration->setEditParam('biggest_units', $duration->units['days']);
@@ -444,30 +497,41 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 				$settings['when'] = 'OO='.substr($datetime->value, 0, 16);
 			break;
 
-			case 'explicit_interval':
+			case 'on_trigger_fire':
 				$settings['when_asset_type'] = '';
 				$settings['when_attr_name'] = '';
-				$duration->process($prefix.'_explicit_interval');
-				$settings['when'] = 'OO!i'.((int)$duration->value/60);
+				$settings['when'] = '';
 			break;
 
-			case 'attr_exact':
+			case 'by_attr_value':
 				$settings['when_asset_type'] = $_POST[$prefix.'_exact_attr']['asset_type'];
 				$settings['when_attr_name'] = array_get_index($_POST[$prefix.'_exact_attr'], 'attribute');
 				$settings['when'] = '';
 			break;
 
-			case 'attr_interval':
-				$settings['when_asset_type'] = $_POST[$prefix.'_interval_attr']['asset_type'];
-				$settings['when_attr_name'] = array_get_index($_POST[$prefix.'_interval_attr'], 'attribute');
-				$duration->process($prefix.'_attr_interval');
-				$mins = ((int)$duration->value/60);
-				if ($_POST[$prefix.'_attr_interval_operator'] == '-') {
-					$mins = $mins * -1;
+
+			case 'by_meta_value':
+				$settings['when_meta_field_id'] = 0;
+				if (isset($_POST[$prefix.'_when_meta_field_id']['assetid'])) {
+					$settings['when_meta_field_id'] = $_POST[$prefix.'_when_meta_field_id']['assetid'];
 				}
-				$settings['when'] = 'OO!i'.$mins;
-			break;
+				$settings['when'] = '';
 		}//end switch
+
+		// Add or subtract any applicable offset when the "when_type" is not exact (ie; an absolute time)
+		$settings['offset_used'] = FALSE;
+		if ($settings['when_type'] != 'explicit_exact') {
+			$duration->process($prefix.'_offset_value');
+			$mins = ((int)$duration->value/60);
+
+			// Only allow a "before" offset if we are not using an exact time or the Trigger Fire time as a reference
+			if (($settings['when_type'] != 'on_trigger_fire') && ($_POST[$prefix.'_offset_operator'] == '-')) {
+				$mins *= -1;
+			}
+
+			$settings['when'] = 'OO!i'.$mins;
+			$settings['offset_used'] = TRUE;
+		}
 
 		return FALSE;
 
@@ -507,7 +571,9 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 					if ($write_access) {
 						$attr_options = Array('' => '');
 						foreach ($attrs as $name => $type) {
-							if ($type['type'] == 'datetime') $attr_options[$name] = $name;
+							if ($type['type'] == 'datetime') {
+								$attr_options[$name] = $name;
+							}
 						}
 						combo_box($prefix.'[attribute]', $attr_options, FALSE, $attr);
 					} else {
@@ -522,7 +588,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 	}//end getAttributeChooser()
 
-	
+
 	/**
 	* Returns an array containing all the valid permission levels array(int => string)
 	*
@@ -539,7 +605,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 	}//end _getPermissionList()
 
-	
+
 }//end class
 
 ?>

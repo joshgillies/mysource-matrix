@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2008/09/15 04:45:19 ata Exp $
+* $Id: asset.xml,v 1.1.4.1 2009/02/16 05:20:17 mbrydon Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger_action_set_future_permission</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Set Future Permission</name>
 	<description>Sets a future permission change after a specified period.</description>
 	<instantiable>no</instantiable>
