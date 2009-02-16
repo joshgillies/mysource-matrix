@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2006/12/06 00:02:01 bcaldwell Exp $
+* $Id: asset.xml,v 1.5 2009/02/16 00:53:22 mbrydon Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger_action_set_future_status</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Set Future Status</name>
 	<description>Sets a future status change after a specified period.</description>
 	<instantiable>no</instantiable>

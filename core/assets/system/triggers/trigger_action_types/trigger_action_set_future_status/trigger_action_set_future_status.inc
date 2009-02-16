@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.21 2008/08/20 00:56:46 ewang Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.22 2009/02/16 00:53:22 mbrydon Exp $
 *
 */
 
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
@@ -22,9 +23,10 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * A trigger action that sets a future status for an asset
 *
 *
-* @author   Avi Miller <amiller@squiz.net>
-* @author   Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $
+* @author  Avi Miller <amiller@squiz.net>
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @author  Mark Brydon <mbrydon@squiz.net>
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,7 +78,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$fs->setAttrValue('status', $settings['status']);
 		$fs->setAttrValue('dependants_only', !$settings['cascade']);
 
-		if (in_array($settings['when_type'], Array('attr_interval', 'attr_exact'))) {
+		if ($settings['when_type'] == 'by_attr_value') {
 			// need to try to consult an attribute value
 			if (empty($settings['when_attr_name'])) return FALSE; // incomplete config
 			if (!($state['asset'] instanceof $settings['when_asset_type'])) {
@@ -84,7 +86,34 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 			}
 			$val = @$state['asset']->attr($settings['when_attr_name']);
 			if (empty($val)) return FALSE; // empty date time attr
-			if ($settings['when_type'] == 'attr_interval') {
+			if ($settings['offset_used']) {
+				$offset = (int)substr($settings['when'], 4) * 60;
+				$when = iso8601_ts($val) + $offset;
+				if ($when < time()) return FALSE;  // it's in the past
+				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($when), 0, 16));
+			} else {
+				// just the straight value
+				$ts = iso8601_ts($val);
+				if ($ts < time()) return FALSE; // in the past
+				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($ts), 0, 16));
+			}
+		} else if ($settings['when_type'] == 'by_meta_value') {
+			// need to try to consult a metadata value
+			if (empty($settings['when_meta_field_id'])) {
+				return FALSE; // incomplete config
+			}
+
+			// Grab the Metadata for the asset which fired this trigger
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$val = $mm->getMetadataValueByAssetid($state['assetid'], $settings['when_meta_field_id'], FALSE, TRUE);
+
+			// Now attempt to find our relevant Metadata Field
+			// If everything is fine then we should have a date value of some sort - otherwise fail
+			if (!isset($val)) return FALSE; // Expected Metadata Field not assigned
+
+			if (empty($val)) return FALSE; // empty date time attr
+
+			if ($settings['offset_used']) {
 				$offset = (int)substr($settings['when'], 4) * 60;
 				$when = iso8601_ts($val) + $offset;
 				if ($when < time()) return FALSE;  // it's in the past
@@ -96,6 +125,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 				$fs->setAttrValue('when', 'OO='.substr(ts_iso8601($ts), 0, 16));
 			}
 		} else {
+			// just the straight value
 			// the simple, and backwards-compatible case:
 			$fs->setAttrValue('when', $settings['when']);
 		}
@@ -163,6 +193,8 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$settings['when']				= array_get_index($settings, 'when');
 		$settings['when_asset_type']	= array_get_index($settings, 'when_asset_type', '');
 		$settings['when_attr_name']		= array_get_index($settings, 'when_attr_name', '');
+		$settings['when_meta_field_id']	= array_get_index($settings, 'when_meta_field_id', '');
+
 		if (!isset($settings['when_type'])) {
 			if (empty($settings['when'])) {
 				$settings['when_type'] = 'explicit_exact';
@@ -171,7 +203,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 				if (FALSE === strpos($settings['when'], 'OO!')) {
 					$settings['when_type'] = 'explicit_exact';
 				} else {
-					$settings['when_type'] = 'explicit_interval';
+					$settings['when_type'] = 'on_trigger_fire';
 					$weights = Array('i' => 1, 'h' => 60, 'd' => 1440, 'w' => 10080, 'm' => 43200, 'y' => 535600);
 					$settings['when'] = 'OO!i'.($weights[$settings['when'][3]] * substr($settings['when'], 4));
 				}
@@ -215,31 +247,36 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$formats = Array();
 
 		ob_start();
+			label(translate('immediately_when_trigger_fired'), $prefix.'_when_type_on_trigger_fire');
+		$formats['on_trigger_fire'] = ob_get_clean();
+
+		ob_start();
 			label(translate('trigger_action_future_status_explicit_exact').' ', $prefix.'_when_type_explicit_exact');
 			$datetime->paint($prefix.'_explicit_exact', !$write_access);
 		$formats['explicit_exact'] = ob_get_clean();
 
 		ob_start();
-			$duration->paint($prefix.'_explicit_interval', !$write_access);
-			label(' '.translate('trigger_action_future_status_explicit_interval'), $prefix.'_when_type_explicit_interval');
-		$formats['explicit_interval'] = ob_get_clean();
-
-		ob_start();
-			label(translate('trigger_action_future_status_attr_exact').' ', $prefix.'_when_type_attr_exact');
+			label(translate('as_determined_from_asset_attribute').'&nbsp', $prefix.'_as_determined_from_attr');
 			echo Trigger_Action_Set_Future_Status::getAttributeChooser($prefix.'_exact_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
-		$formats['attr_exact'] = ob_get_clean();
+		$formats['by_attr_value'] = ob_get_clean();
 
 		ob_start();
-			$duration->paint($prefix.'_attr_interval', !$write_access);
-			echo ' ';
-			if ($write_access) {
-				combo_box($prefix.'_attr_interval_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
-			} else {
-				echo translate(($mins < 0) ? 'before' : 'after');
-			}
-			label(' '.translate('trigger_action_future_status_attr_interval').' ', $prefix.'_when_type_attr_interval');
-			echo Trigger_Action_Set_Future_Status::getAttributeChooser($prefix.'_interval_attr', $write_access, $settings['when_asset_type'], $settings['when_attr_name']);
-		$formats['attr_interval'] = ob_get_clean();
+			label(translate('as_determined_from_metadata_field').'&nbsp;&nbsp;&nbsp;', $prefix.'_as_determined_from_meta');
+			$metadata_field_id = $settings['when_meta_field_id'];
+            if ($write_access) {
+                asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
+            } else {
+				$metadata_field = TRUE; // STUB
+
+                if ($metadata_field_id) {
+                    echo get_asset_tag_line($metadata_field_id);
+                } else if ($metadata_field_id  && !$metadata_field) {
+                    echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_field_id.')</span>';
+                } else {
+                    echo '<b>No metadata field specified</b>';
+                }
+            }
+		$formats['by_meta_value'] = ob_get_clean();
 
 		if ($write_access) {
 			$GLOBALS['SQ_SYSTEM']->backend->out->addOnLoad('initEnableFieldLists();');
@@ -255,12 +292,25 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 				</li>
 				<?php
 			}
+
+
 			?>
 			</ul>
 			<?php
 		} else {
 			echo preg_replace('/<label([^>]*)>/', '', $formats[$settings['when_type']]);
 		}
+
+		echo '<p>';
+		label(translate('offset_for_above_fields').': ', $prefix.'_offset');
+		$duration->paint($prefix.'_offset_value', !$write_access);
+		echo ' ';
+		if ($write_access) {
+			combo_box($prefix.'_offset_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
+		} else {
+			echo translate(($mins < 0) ? 'before' : 'after');
+		}
+		echo ' '.translate('specified_value').'<br /><br /></p>';
 
 		if ($write_access) {
 			check_box($prefix.'_cascade_all', '1', $settings['cascade']);
@@ -322,30 +372,41 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 				$settings['when'] = 'OO='.substr($datetime->value, 0, 16);
 			break;
 
-			case 'explicit_interval':
+			case 'on_trigger_fire':
 				$settings['when_asset_type'] = '';
 				$settings['when_attr_name'] = '';
-				$duration->process($prefix.'_explicit_interval');
-				$settings['when'] = 'OO!i'.((int)$duration->value/60);
+				$settings['when'] = '';
 			break;
 
-			case 'attr_exact':
+			case 'by_attr_value':
 				$settings['when_asset_type'] = $_POST[$prefix.'_exact_attr']['asset_type'];
 				$settings['when_attr_name'] = array_get_index($_POST[$prefix.'_exact_attr'], 'attribute');
 				$settings['when'] = '';
 			break;
 
-			case 'attr_interval':
-				$settings['when_asset_type'] = $_POST[$prefix.'_interval_attr']['asset_type'];
-				$settings['when_attr_name'] = array_get_index($_POST[$prefix.'_interval_attr'], 'attribute');
-				$duration->process($prefix.'_attr_interval');
-				$mins = ((int)$duration->value/60);
-				if ($_POST[$prefix.'_attr_interval_operator'] == '-') {
-					$mins = $mins * -1;
+			case 'by_meta_value':
+				$settings['when_meta_field_id'] = 0;
+				if (isset($_POST[$prefix.'_when_meta_field_id']['assetid'])) {
+					$settings['when_meta_field_id'] = $_POST[$prefix.'_when_meta_field_id']['assetid'];
 				}
-				$settings['when'] = 'OO!i'.$mins;
-			break;
+
+				$settings['when'] = '';
 		}//end switch
+
+		// Add or subtract any applicable offset when the "when_type" is not exact (ie; an absolute time)
+		$settings['offset_used'] = FALSE;
+		if ($settings['when_type'] != 'explicit_exact') {
+			$duration->process($prefix.'_offset_value');
+			$mins = ((int)$duration->value/60);
+
+			// Only allow a "before" offset if we are not using an exact time or the Trigger Fire time as a reference
+			if (($settings['when_type'] != 'on_trigger_fire') && ($_POST[$prefix.'_offset_operator'] == '-')) {
+				$mins *= -1;
+			}
+
+			$settings['when'] = 'OO!i'.$mins;
+			$settings['offset_used'] = TRUE;
+		}
 
 		return FALSE;
 
@@ -404,7 +465,9 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 					if ($write_access) {
 						$attr_options = Array('' => '');
 						foreach ($attrs as $name => $type) {
-							if ($type['type'] == 'datetime') $attr_options[$name] = $name;
+							if ($type['type'] == 'datetime') {
+								$attr_options[$name] = $name;
+							}
 						}
 						combo_box($prefix.'[attribute]', $attr_options, FALSE, $attr);
 					} else {
