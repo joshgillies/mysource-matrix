@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.713 2009/02/04 02:00:08 csmith Exp $
+* $Id: asset_manager.inc,v 1.714 2009/02/17 03:45:56 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.713 $
+* @version $Revision: 1.714 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2377,7 +2377,7 @@ class Asset_Manager extends MySource_Object
 		$success = TRUE;
 
 		foreach (array_keys($current_locks) as $lock_type) {
-			if (empty($lock_type)) {
+			if (!empty($lock_type)) {
 				if (TRUE !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
 					trigger_localised_error('SYS0122', E_USER_NOTICE, $assetid, $err_msg);
 					$success = FALSE;
