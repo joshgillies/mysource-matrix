@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.211 2009/02/12 05:09:05 bshkara Exp $
+* $Id: form.inc,v 1.212 2009/02/17 05:28:20 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.211 $
+* @version $Revision: 1.212 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3926,28 +3926,30 @@ class Form extends Asset implements Bridge
 
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-			switch ($sub_keyword) {
-				case 'field' :
-					$replacement = $question_asset->getHtmlField();
-				break;
-				
-				case 'name' :
-					$replacement = $question_asset->attr('name');
-				break;
+			if (!empty($question_asset)) {
+				switch ($sub_keyword) {
+					case 'field' :
+						$replacement = $question_asset->getHtmlField();
+					break;
+	
+					case 'name' :
+						$replacement = $question_asset->attr('name');
+					break;
 
-				case 'id' :
-					$replacement = 'q'.str_replace(':', '_', $assetid);
-				break;
+					case 'id' :
+						$replacement = 'q'.str_replace(':', '_', $assetid);
+					break;
 
-				case 'note' :
-					$replacement = $question_asset->attr('note');
-				break;
+					case 'note' :
+						$replacement = $question_asset->attr('note');
+					break;
 
-				case 'label' :
-					$replacement = $question_asset->getHtmlLabel();
-				break;
+					case 'label' :
+						$replacement = $question_asset->getHtmlLabel();
+					break;
 
-			}//end switch
+				}//end switch
+			}
 
 		} else if ($is_section_keyword) {
 			// Sub keyword in $matches[1] - eg. 'title' or 'contents'
