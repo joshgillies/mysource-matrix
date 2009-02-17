@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.5 2009/02/17 05:31:33 akarelia Exp $
+* $Id: form.inc,v 1.207.2.6 2009/02/17 05:34:19 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.5 $
+* @version $Revision: 1.207.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3927,7 +3927,9 @@ class Form extends Asset implements Bridge
 					case 'field' :
 						$replacement = $question_asset->getHtmlField();
 					break;
-
+					case 'name' : 	 
+                        $replacement = $question_asset->attr('name'); 	 
+                    break;
 					case 'id' :
 						$replacement = 'q'.str_replace(':', '_', $assetid);
 					break;
