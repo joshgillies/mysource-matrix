@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.5 2009/02/06 01:19:58 hnguyen Exp $
+* $Id: soap_server.inc,v 1.6 2009/02/18 00:09:00 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -45,10 +45,11 @@ class Soap_Server extends Page
 	const SCHEMA_WSDL = 'http://schemas.xmlsoap.org/wsdl/';
 	const XML_CONTENT_TYPE = 'Content-Type: text/xml; charset=utf-8';
 
-	private $function_list		= Array();
-	private $complex_types		= Array();
-	private $complex_elements	= Array();
-	private $simple_types		= Array ('float', 'int', 'string', 'boolean');
+	private $function_list				= Array();
+	private $complex_types				= Array();
+	private $complex_elements			= Array();
+	private $simple_types				= Array ('float', 'int', 'string', 'boolean');
+	private	$simple_restricted_types	= Array();
 
 	private $message_node;
 	private $portType_node;
@@ -220,7 +221,7 @@ class Soap_Server extends Page
 		}//end while
 
 		$operations = $this->getAvailableOperations();
-		for ($i=0; $i<count($function_names); $i++) {
+		for ($i=0; $i < count($function_names); $i++) {
 			if (isset($operations[$function_names[$i]])) {
 				$class_name = $operations[$function_names[$i]]['class_name'];
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($class_name);
@@ -397,9 +398,10 @@ class Soap_Server extends Page
 
 			$available_operations = array_merge($available_operations, $functions);
 			if ($saveToObject) {
-				$this->complex_elements = array_merge($this->complex_elements, $child->getComplexElements($functions));
-				$this->complex_types	= array_merge($this->complex_types, $child->getComplexTypes($functions));
-				$this->function_list	= $available_operations;
+				$this->complex_elements 		= array_merge($this->complex_elements, $child->getComplexElements($functions));
+				$this->complex_types			= array_merge($this->complex_types, $child->getComplexTypes($functions));
+				$this->simple_restricted_types	= array_merge($this->simple_restricted_types, $child->getSimpleRestrictedTypes($functions));
+				$this->function_list			= $available_operations;
 			}//end if
 
 		}//end foreach
@@ -493,15 +495,23 @@ class Soap_Server extends Page
 		foreach ($args_info as $key => $arg_info) {
 			$io_type	= (is_array($arg_info)) ? $arg_info['type'] : '';
 			// We have a recursive complex type here
-			if ($io_type !== '' && isset($this->complex_types[$io_type])) $io_type = '';
+			if ($io_type !== '' && isset($this->complex_elements[$io_type])) $io_type = '';
 			?><div style="padding-left:10px">
-			&lt;<?php echo $key ?>&gt;<?php echo $this->_placeholder($io_type);
+			&lt;<?php echo $key ?>&gt;<?php if (!empty($io_type)) echo $this->_placeholder($io_type);
 
 				// If we have a complex type inside
-				if (!is_array($arg_info) && isset($this->complex_types[$arg_info])) {
-					$this->printRequestResponseRecursive($this->complex_types[$arg_info]);
-				} else if (is_array($arg_info) && (!in_array($arg_info['type'], $this->simple_types))) {
-					$this->printRequestResponseRecursive($this->complex_types[$arg_info['type']]);
+				if (!is_array($arg_info)) {
+					if (isset($this->complex_elements[$arg_info])) {
+						$this->printRequestResponseRecursive($this->complex_elements[$arg_info]);
+					} else if (isset($this->simple_restricted_types[$arg_info])) {
+						echo $this->_placeholder($arg_info);
+					}//end if
+				} else if (is_array($arg_info)) {
+					if (!in_array($arg_info['type'], $this->simple_types)) {
+						$this->printRequestResponseRecursive($this->complex_elements[$arg_info['type']]);
+					} else if (TRUE) {
+
+					}//end if
 				}//end else
 			?>&lt;/<?php echo $key ?>&gt;
 			</div>
@@ -714,6 +724,7 @@ class Soap_Server extends Page
 		$this->getAPIsOperations();
 
 		// Append the type to SCHEMA node
+		$this->appendSimpleRestrictedTypes();
 		$this->appendComplexTypes();
 		$this->appendComplexElements();
 
@@ -885,9 +896,12 @@ class Soap_Server extends Page
 									$subelement_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
 									$subelement_node->setAttribute('name', $sub_arg_name);
 
-									$subelement_node->setAttribute('type', (!is_array($info)) ? 'tns:'.$info : 's:'.$info['type']);
+									$subelement_node->setAttribute('type', (!in_array($info['type'], $this->simple_types) ? 'tns:' : 's:' ).$info['type']);
 									$subelement_node->setAttribute('minOccurs', (!is_array($info)) ? '1': $info['min']);
 									$subelement_node->setAttribute('maxOccurs', (!is_array($info)) ? '1': $info['max']);
+									if ($info['nillable']) {
+										$subelement_node->setAttribute('nillable', strtolower((string) $info['nillable']));
+									}//end if
 
 									$sequence_main_node->appendChild($subelement_node);
 							}//end foreach
@@ -928,6 +942,9 @@ class Soap_Server extends Page
 							$subelement_node->setAttribute('type', (!in_array($info['type'], $this->simple_types) ? 'tns:' : 's:' ).$info['type']);
 							$subelement_node->setAttribute('minOccurs', $info['min']);
 							$subelement_node->setAttribute('maxOccurs', $info['max']);
+							if ($info['nillable']) {
+								$subelement_node->setAttribute('nillable', strtolower((string) $info['nillable']));
+							}//end if
 							$sequence_node->appendChild($subelement_node);
 					}//end foreach
 				$complex_type_node->appendChild($sequence_node);
@@ -938,10 +955,52 @@ class Soap_Server extends Page
 
 			// This is the complex type definition
 			$this->schema_node->appendChild($complex_type_node);
-
 		}//end foreach
 
 	}//end appendComplexTypes()
+
+
+	/**
+	* This function append the Complex Types defined in each API to the TYPES nodes. The complex types are required
+	* to pass multiple argument to a function.
+	*
+	* @return void
+	* @access public
+	*/
+	private function appendSimpleRestrictedTypes()
+	{
+		// Loop through the complex types came from all the APIs.
+		foreach ($this->simple_restricted_types as $simple_restricted_type_name => $sub_args_info) {
+			// Definition of the simple type (whether it is a string, int or float)
+			$simple_restricted_type_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'simpleType');
+			$simple_restricted_type_node->setAttribute('name', $simple_restricted_type_name);
+			if (is_array($sub_args_info)) {
+				$restriction_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'restriction');
+				$restriction_base = in_array($sub_args_info['restriction_base'], $this->simple_types) ? 's:'.$sub_args_info['restriction_base'] : $sub_args_info['restriction_base'];
+				$restriction_node->setAttribute('base', $restriction_base);
+				if (isset($sub_args_info['enumeration']) && is_array($sub_args_info['enumeration'])) {
+					foreach ($sub_args_info['enumeration'] as $enum_val) {
+						$enum_node	= $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'enumeration');
+						$enum_node->setAttribute('value', $enum_val);
+						$restriction_node->appendChild($enum_node);
+					}//end foreach
+				} else if (isset($sub_args_info['pattern'])) {
+					$pattern_node	= $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'pattern');
+					$pattern_node->setAttribute('value', $sub_args_info['pattern']);
+					$restriction_node->appendChild($pattern_node);
+				}//end else
+				$simple_restricted_type_node->appendChild($restriction_node);
+				// End complex type definition
+			} else {
+				$simple_restricted_type_node->setAttribute('type', 'tns:'.$sub_args_info);
+			}//end else
+
+			// This is the complex type definition
+			$this->schema_node->appendChild($simple_restricted_type_node);
+
+		}//end foreach
+
+	}//end appendSimpleRestrictedTypes()
 
 
 	/**
