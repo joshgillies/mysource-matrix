@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.116.2.7 2008/10/13 23:22:41 bshkara Exp $
+* $Id: page_asset_listing.inc,v 1.116.2.8 2009/02/18 03:08:50 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116.2.7 $
+* @version $Revision: 1.116.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -92,10 +92,6 @@ class Page_Asset_Listing extends Listing_Engine
 		}
 
 		$assets_to_list = $this->_getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info, $link_value_wanted);
-
-		if ($group_by == 'number') {
-			$assets_to_list = $this->_getSortedAssetLists($assets_to_list, $sort_info);
-		}
 
 		return $assets_to_list;
 
