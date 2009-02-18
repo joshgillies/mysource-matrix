@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server_error_handler.inc,v 1.2 2008/05/21 00:23:10 bshkara Exp $
+* $Id: soap_server_error_handler.inc,v 1.3 2009/02/18 00:09:25 hnguyen Exp $
 *
 */
 
@@ -27,6 +27,7 @@
 	*/
 	function soap_server_error_handler($err_no, $err_msg, $err_file, $err_line)
 	{
+		log_dump("SOAP SERVER ERROR: ".$err_msg .'. Error Number:'.$err_no .'. Error File:'.$err_file.'. Error Line:'.$err_line);
 		throw new SoapFault("SERVER", $err_msg);
 
 	}//end soap_server_error_handler()
