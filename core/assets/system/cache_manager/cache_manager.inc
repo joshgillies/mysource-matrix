@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.72 2009/02/05 23:54:41 bshkara Exp $
+* $Id: cache_manager.inc,v 1.73 2009/02/18 02:28:51 bshkara Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,7 +147,9 @@ class Cache_Manager extends Asset
 	*/
 	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=TRUE)
 	{
-		if (!$this->cacheEnabled($asset_type, $assetid)) return FALSE;
+		// this will not check specifically set root node options
+		// if any root node specific options are configured, it will return TRUE blindly and the DB will be checked for a cache entry
+		if (!$this->cacheEnabled($asset_type)) return FALSE;
 
 		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		if (empty($perm_key)) return FALSE;
@@ -604,6 +606,9 @@ class Cache_Manager extends Asset
 		}
 
 		// check type code and root node specific settings
+		// these take priority over the global setting
+		// in order for a cache entry to be saved and therefore loaded, a valid perm key must be attained
+		// this perm key is only attainable if a cache level is specified
 		$specific = $this->_specificCacheManagementSettings($type_code, $assetid, 'enabled');
 		if ($specific !== FALSE) {
 			return $specific;
@@ -682,14 +687,18 @@ class Cache_Manager extends Asset
 			return $type_codes[$type_code][$value];
 		}
 
-		// check for root node specific settings
 		$root_nodes = $this->attr('root_nodes');
-		if (isset($root_nodes[$assetid][$value])) {
-			return $root_nodes[$assetid][$value];
-		} else {
-			// before checking parents of provided assetid, check to see if an assetid was actually passed in
-			if (!empty($assetid)) {
-				// ok so retrieve the parents of this assetid
+
+		// an empty assetid indicates the caller does not want to perform the search for possible tree locations
+		// if there are configured root node specific options return TRUE blindly
+		if (empty($assetid) && !empty($root_nodes)) {
+			return TRUE;
+		} else if (!empty($root_nodes)) {
+			// check for root node specific settings
+			if (isset($root_nodes[$assetid][$value])) {
+				return $root_nodes[$assetid][$value];
+			} else {
+				// there are possible tree locations set so search for them because an exact match was not found
 				$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid));
 				foreach ($parents as $parentid) {
 					// check that this entry actually manages child entries
