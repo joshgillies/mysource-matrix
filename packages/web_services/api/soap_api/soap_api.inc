@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.5 2008/05/26 00:48:11 hnguyen Exp $
+* $Id: soap_api.inc,v 1.6 2009/02/18 00:06:32 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -101,12 +101,13 @@ class SOAP_Api extends Asset
     }//end getFunctionList()
 
 
-	public static function getArgType($type, $min=0, $max=1)
+	public static function getArgType($type, $min=0, $max=1, $nillable=FALSE)
 	{
         $arg_type	= Array (
 						'type'      => $type,
         				'min'		=> $min,
         				'max'		=> $max,
+        				'nillable'	=> $nillable,
 					  );
 		return $arg_type;
 
@@ -131,6 +132,29 @@ class SOAP_Api extends Asset
         return $complex_elements_available;
 
 	}//end getComplexElements()
+
+
+	/**
+	*
+	*/
+	public static function getSimpleRestrictedTypes($simple_types=Array())
+	{
+        $simple_types_available = Array();
+        if (empty($func_list)) {
+            // So sick, this is dodgy, it wouldnt hurt performance though.
+            $func_list = $simple_types;
+        }//end if
+            foreach ($func_list as $func_name => $switch) {
+                if (isset($simple_types[$func_name])) {
+                    if ($switch) {
+                        $simple_types_available = array_merge($simple_types_available, $simple_types[$func_name]);
+                    }//end if
+                }//end if
+            }//end foreach
+
+		return $simple_types_available;
+
+	}//end getSimpleRestrictedTypes()
 
 
 	/**
