@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.242.2.21 2009/01/29 04:18:39 akarelia Exp $
+* $Id: listing_engine.inc,v 1.242.2.22 2009/02/19 00:31:05 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.242.2.21 $
+* @version $Revision: 1.242.2.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -734,6 +734,7 @@ class Listing_Engine extends Page
 			}
 			return;
 		}
+
 
 		// the global replacement to print the asset listing
 		$replacements['asset_listing'] = $global_contents;
@@ -1840,7 +1841,7 @@ class Listing_Engine extends Page
 
 		if ($this->attr('group_by') == 'grouped') {
 			$this->_printGroups($todo, $this->attr('asset_grouping'));
-		} else {
+		} else {	
 			$this->_printAssetList($todo);
 		}
 
@@ -2113,7 +2114,7 @@ class Listing_Engine extends Page
 	function _printAsset($assetid, $list_position, $num_items=0)
 	{
 		// allows for asset listings within asset listings, see #2727
-		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {;
+		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {
 			$prev_list_current_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
 		} else {
 			$prev_list_current_asset_id = null;
@@ -2366,24 +2367,6 @@ class Listing_Engine extends Page
 			}//end if
 		}
 
-		$metadata_keywords = Array();
-		foreach ($bc_keywords as $keyword) {
-			if (substr($keyword, 0, 15) == 'asset_metadata_') {
-				$metadata_keywords[] = substr($keyword, 15);
-			}
-		}
-		if (!empty($metadata_keywords)) {
-			if (is_null($mm)) {
-				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			}
-			// get all the metadata keywords for this asset
-			$metadata_values = $mm->getMetadataFieldValues($assetid, $metadata_keywords);
-
-			foreach ($metadata_values as $field => $value) {
-				$keywords['asset_metadata_'.$field] = $value;
-			}
-		}
-
 		$keywords['page_href'] = $this->getHref();
 
 		if ($this->attr('group_by') == 'letter') {
@@ -2518,7 +2501,6 @@ class Listing_Engine extends Page
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
-
 		if ($prev_list_current_asset_id) {
 			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $prev_list_current_asset_id;
 		} else {
