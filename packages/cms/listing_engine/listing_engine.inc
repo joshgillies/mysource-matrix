@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.266.2.4 2009/01/29 22:15:29 ewang Exp $
+* $Id: listing_engine.inc,v 1.266.2.5 2009/02/19 00:32:11 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.266.2.4 $
+* @version $Revision: 1.266.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2405,24 +2405,6 @@ class Listing_Engine extends Page
 					}
 				}
 			}//end if
-		}
-
-		$metadata_keywords = Array();
-		foreach ($bc_keywords as $keyword) {
-			if (substr($keyword, 0, 15) == 'asset_metadata_') {
-				$metadata_keywords[] = substr($keyword, 15);
-			}
-		}
-		if (!empty($metadata_keywords)) {
-			if (is_null($mm)) {
-				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			}
-			// get all the metadata keywords for this asset
-			$metadata_values = $mm->getMetadataFieldValues($assetid, $metadata_keywords);
-
-			foreach ($metadata_values as $field => $value) {
-				$keywords['asset_metadata_'.$field] = $value;
-			}
 		}
 
 		$keywords['page_href'] = $this->getHref();
