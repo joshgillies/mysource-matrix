@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.34 2009/02/04 02:05:02 csmith Exp $
+* $Id: asset_manager.inc,v 1.655.2.35 2009/02/24 00:54:19 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.34 $
+* @version $Revision: 1.655.2.35 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7753,7 +7753,7 @@ class Asset_Manager extends MySource_Object
 				foreach (array_values($url_bits) as $bit) {
 					$str .= $bit.'/';
 					$sql .= ' +
-					(CASE WHEN SUBSTR(l.url || \'/\', 1, '.strlen($str).') = \''.$str.'\' THEN 1 ELSE 0 END)';
+					(CASE WHEN SUBSTR(l.url || \'/\', 1, '.strlen($str).') = '.MatrixDAL::quote($str).' THEN 1 ELSE 0 END)';
 				}
 
 				$sql .= '
