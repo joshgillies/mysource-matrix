@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.65.2.5 2008/11/21 04:01:46 lwright Exp $
+* $Id: cache_manager.inc,v 1.65.2.6 2009/02/24 04:22:10 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.65.2.5 $
+* @version $Revision: 1.65.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,10 +173,10 @@ class Cache_Manager extends Asset
 			} else {
 				if (file_exists(SQ_CACHE_PATH.'/'.$cached['path'])) {
 					$contents = file_to_string(SQ_CACHE_PATH.'/'.$cached['path']);
-					if (!$contents) {
+					if ($contents === FALSE) {
 						// if we cannot read from the cache file, remove this cache entry
 						$this->_deleteCache($cache_key, $perm_key, $url);
-						// trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
+						trigger_localised_error('CORE0244', E_USER_WARNING, SQ_CACHE_PATH.'/'.$cached['path']);
 						return FALSE;
 					}
 					return $contents;
