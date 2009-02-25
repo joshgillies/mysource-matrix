@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.168.2.15 2008/11/05 09:55:26 gnoel Exp $
+* $Id: metadata_manager.inc,v 1.168.2.16 2009/02/25 22:17:33 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.168.2.15 $
+* @version $Revision: 1.168.2.16 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -665,70 +665,6 @@ class Metadata_Manager extends MySource_Object
 
 		$schemas = $this->getSchemas($asset->id, TRUE);
 		if (empty($schemas)) return $field_values;
-
-		// get the values without any replacements or special processing
-		$db = DAL::getDb();
-
-		$values = $this->getMetadata($asset->id);
-		foreach ($schemas as $schemaid) {
-			$schema = $am->getAsset($schemaid);
-			if (is_null($schema)) {
-				trigger_localised_error('SYS0039', E_USER_WARNING, $schemaid);
-				return $field_values;
-			}
-
-			if (!($schema instanceof Metadata_Schema)) {
-				trigger_localised_error('SYS0037', E_USER_WARNING, $schema->name, $schemaid);
-				return $field_values;
-			}
-
-			// Get all the fields that are in this schema (optionally restricted to the passed named fields)
-			$child_query = $am->generateGetChildrenQuery($schema, 'metadata_field', FALSE);
-			$sql_parts = $child_query['sql_array'];
-			$bind_vars = $child_query['bind_vars'];
-
-			// if they only want specific fields, then restrict the search to those
-			if (!empty($field_names)) {
-				$sql_parts['where'] .= ' AND a.name IN (:field_name_0';
-				$bind_vars['field_name_0'] = $field_names[0];
-				for ($i = 1; $i < count($field_names); $i++) {
-					$sql_parts['where'] .= ', :field_name_'.$i;
-					$bind_vars['field_name_'.$i] = $field_names[$i];
-				}
-				$sql_parts['where'] .= ')';
-			}
-
-
-			try {
-				$query = MatrixDAL::preparePdoQuery(implode(' ', $sql_parts));
-				foreach ($bind_vars as $bind_var => $bind_value) {
-					MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-				}
-				$fields = MatrixDAL::executePdoGroupedAssoc($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get metadata field values for assetid #'.$assetid.' due to the following database error:'.$e->getMessage());
-			}//end try catch
-
-
-			foreach ($fields as $fieldid => $type_code) {
-
-				$field = $am->getAsset($fieldid, $type_code['0']['type_code']);
-
-				if (is_null($field)) {
-					trigger_localised_error('SYS0041', E_USER_WARNING, $schemaid);
-					continue;
-				}
-
-				$am->forgetAsset($field);
-				unset($field);
-
-			}// end for
-
-			$am->forgetAsset($schema);
-			unset($schema);
-
-		}//end foreach schema
-
 
 		// we suppose that the metadata values are stored in the file called metadata.php
 		// if the file does not exists it means that not metadata was generated because
