@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.61.2.1 2008/11/21 04:05:02 lwright Exp $
+* $Id: design_area.inc,v 1.61.2.2 2009/02/25 23:34:26 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61.2.1 $
+* @version $Revision: 1.61.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -408,7 +408,7 @@ class Design_Area extends Asset
 		if ($this->attr('cache') && $this->_canBeCached()) {
 			echo '
 			<?php
-				if (empty($asset_contents'.$instance_id.')) {
+				if ($asset_contents'.$instance_id.' === FALSE) {
 					ob_start();
 			?>
 			';
