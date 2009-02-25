@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.17 2008/09/22 01:57:21 ata Exp $
+* $Id: lang_strings.xml,v 1.17.2.1 2009/02/25 03:31:22 bpearson Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -91,6 +91,12 @@
 <string source="html_code_classes">HTML Code Highlighting Classes</string>
 <string source="javascript_code_classes">Javascript Code Highlighting Classes</string>
 <string source="line_numbers">Line Numbers</string>
+<string source="location">Location</string>
+<string source="location_warning">Location does not exist or is not writable</string>
+<string source="xml_detail">XML Detail</string>
+<string source="xml_detail_note">Toggle the level of detail in the submission XML</string>
+<string source="xml_key">XML Value to Store</string>
+<string source="xml_key_note">Use which value from lists in the submission XML</string>
 <string source="cms_current_url">The current URL</string>
 <string source="cms_this_page_own_url">This page's own URL</string>
 <string source="cms_ct_nest_content_currently_nesting">Currently nesting the contents of "<![CDATA[<i>%s</i>]]>"</string>
