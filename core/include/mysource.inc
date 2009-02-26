@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.279.2.5 2009/02/16 02:50:06 bpearson Exp $
+* $Id: mysource.inc,v 1.279.2.6 2009/02/26 23:05:49 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.279.2.5 $
+* @version $Revision: 1.279.2.6 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1236,12 +1236,11 @@ class MySource
 					$this->_loginAsUser($invoker_username, $invoker_user_id, TRUE);
 				} else {
 					$this->_clearSession();
-
-					$this->loginPublicUser();
-					$this->generateLoginKey(TRUE);
 					if ($for_real) {
 						$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 					}
+					$this->loginPublicUser();
+					$this->generateLoginKey(TRUE);
 				}
 			break;
 			case 'real_logout' :
@@ -1252,11 +1251,11 @@ class MySource
 				}
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$this->_clearSession();
-				$this->loginPublicUser();
-				$this->generateLoginKey(TRUE);
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 				}
+				$this->loginPublicUser();
+				$this->generateLoginKey(TRUE);
 			break;
 			case 'login_as' :
 				$username = '';
