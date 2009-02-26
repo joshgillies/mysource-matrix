@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_management.inc,v 1.3.8.1 2008/12/22 23:42:44 bpearson Exp $
+* $Id: form_question_type_tickbox_list_management.inc,v 1.3.8.2 2009/02/26 23:55:46 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3.8.1 $
+* @version $Revision: 1.3.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Form_Question_Type_Tickbox_List_Management extends Asset_Management
 		// first do things as normal
 		$res = parent::_upgrade($current_version);
 
-		if (version_compare($current_version, '0.5', '<')) {
+		if (version_compare($current_version, '0.6', '<')) {
 			echo('UPGRADING FORM QUESTION TYPE TICKBOX LIST FROM '.$current_version."\n");
 			// Upgrade the option list
 			// The option list in form_questions that use the option list (option_list, select and tickbox_list)
@@ -113,7 +113,15 @@ class Form_Question_Type_Tickbox_List_Management extends Asset_Management
 			foreach ($question_assets as $id => $type) {
 				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
 				$options = $q->attr('options');
-				if (strpos($options, "\n") !== FALSE) {
+
+				// Verify that the seralised options are not in array format before upgradinga
+				// Don't report PHP Notice errors for the next block in case unserialize() fails
+				$orig_error_reporting = error_reporting();
+				error_reporting($orig_error_reporting ^ E_NOTICE);
+					$options_array_format = is_array(unserialize($options));
+				error_reporting($orig_error_reporting);
+
+				if (!$options_array_format) {
 					$options = str_replace("\r", '', $options);
 					$opts = explode("\n", $options);
 					$q->setAttrValue('options', serialize($opts));
