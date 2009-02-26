@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.14 2009/02/16 02:50:15 bpearson Exp $
+* $Id: mysource.inc,v 1.258.2.15 2009/02/26 23:05:31 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.14 $
+* @version $Revision: 1.258.2.15 $
 * @package MySource_Matrix
 */
 class MySource
@@ -338,7 +338,7 @@ class MySource
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
-		}
+		} 
 
 	}//end init()
 
@@ -1235,22 +1235,22 @@ class MySource
 				if (isset($_SERVER['PHP_AUTH_PW'])) { unset ($_SERVER['PHP_AUTH_PW']); }
 
 				$this->_clearSession();
-				$this->loginPublicUser();
-				$this->generateLoginKey(TRUE);
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 				}
+				$this->loginPublicUser();
+				$this->generateLoginKey(TRUE);
 			break;
 			case 'real_logout' :
 				$for_real = ($this->user && !($this->user instanceof Public_User));
 				$old_user = &$this->user;
 				$this->_logSecurityMsg('system.security.logout.manual');
 				$this->_clearSession();
-				$this->loginPublicUser();
-				$this->generateLoginKey(TRUE);
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 				}
+				$this->loginPublicUser();
+				$this->generateLoginKey(TRUE);
 			break;
 			case 'send_security_key' :
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
