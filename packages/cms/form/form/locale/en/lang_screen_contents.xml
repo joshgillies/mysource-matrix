@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.10.2.1 2009/02/12 05:21:06 bshkara Exp $
+* $Id: lang_screen_contents.xml,v 1.10.2.2 2009/02/26 05:44:01 lwright Exp $
 *
 */
 -->
@@ -136,8 +136,16 @@
 			<display_name>Answer Width</display_name>
 			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
 		</field>
+		<field attribute="submit_button_extras">
+			<display_name>Submit Button Extras</display_name>
+			<note>Allows you to add extra HTML attributes to the Submit button, such as JavaScript code or custom CSS classes. Note that if a custom class is specified (eg. <![CDATA[<em>class="css-class-name"</em>]]>), it will override any default styling for form fields.</note>
+		</field>
+		<field attribute="reset_button_extras">
+			<display_name>Reset Button Extras</display_name>
+			<note>Allows you to add extra HTML attributes to the Reset button, such as JavaScript code or custom CSS classes. Note that if a custom class is specified (eg. <![CDATA[<em>class="css-class-name"</em>]]>), it will override any default styling for form fields.</note>
+		</field>
 		<note>
-			These options apply only if you use the 'Form Contents' <![CDATA[(<b>%form_contents%</b>)]]> keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.
+			The width options apply only if you use the 'Form Contents' <![CDATA[(<b>%form_contents%</b>)]]> keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.
 		</note>
 	</section>
 	<section name="Multiple Page Form Options">

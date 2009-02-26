@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.28.2.1 2009/02/12 05:21:06 bshkara Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.28.2.2 2009/02/26 05:44:01 lwright Exp $
 *
 */
 -->
@@ -133,6 +133,12 @@
 		</field>
 		<field attribute="answer_col_width">
 			<html_width />
+		</field>
+		<field attribute="submit_button_extras">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="reset_button_extras">
+			<text width="30" height="1" />
 		</field>
 	</section>
 	<section name="Complex Formatting">

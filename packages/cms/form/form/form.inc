@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.6 2009/02/17 05:34:19 akarelia Exp $
+* $Id: form.inc,v 1.207.2.7 2009/02/26 05:44:01 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.6 $
+* @version $Revision: 1.207.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4220,7 +4220,7 @@ class Form extends Asset implements Bridge
 		}
 
 		ob_start();
-			submit_button($this->getPrefix().'_submit', $button_name);
+			submit_button($this->getPrefix().'_submit', $button_name, '', $this->attr('submit_button_extras'));
 		return ob_get_clean();
 
 	}//end getSubmitButtonKeywordReplacement()
@@ -4237,7 +4237,7 @@ class Form extends Asset implements Bridge
 		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('save');
 
 		ob_start();
-			submit_button($this->getPrefix().'_save', $button_name);
+			submit_button($this->getPrefix().'_save', $button_name, '', $this->attr('reset_button_extras'));
 		return ob_get_clean();
 
 	}//end getSaveButtonKeywordReplacement()

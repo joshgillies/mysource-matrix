@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.23.2.1 2009/02/12 05:21:06 bshkara Exp $
+* $Id: asset.xml,v 1.23.2.2 2009/02/26 05:44:01 lwright Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../asset.xsd">
 	<package>cms</package>
 	<type_code>form</type_code>
-	<version>0.14</version>
+	<version>0.15</version>
 	<name>Form</name>
 	<description>Form Template</description>
 	<instantiable>yes</instantiable>
