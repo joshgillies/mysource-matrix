@@ -13,14 +13,14 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2008/12/22 23:53:29 bpearson Exp $
+* $Id: asset.xml,v 1.5 2009/02/27 04:39:15 mbrydon Exp $
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>form_question_type_tickbox_list</type_code>
-	<version>0.5</version>
+	<version>0.6</version>
 	<name>Form Question - Tickbox List</name>
 	<description>Tickbox question for Form</description>
 	<instantiable>yes</instantiable>
