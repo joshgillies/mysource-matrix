@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.715 2009/02/24 00:54:35 mbrydon Exp $
+* $Id: asset_manager.inc,v 1.716 2009/02/27 00:04:47 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.715 $
+* @version $Revision: 1.716 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3292,15 +3292,16 @@ class Asset_Manager extends MySource_Object
 	* Also returns basic information about the last link (linkid and link type)
 	* linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	*
-	* @param string			$assetid		ID of the asset whose linages we want
-	* @param int			$result_limit	limits the number of results returned
-	* @param string|array	$from_treeid	Uses this/these treeid(s) as the root node
-	* @param string|array	$fields			Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param string			$assetid			ID of the asset whose linages we want
+	* @param int			$result_limit		limits the number of results returned
+	* @param string|array	$from_treeid		Uses this/these treeid(s) as the root node
+	* @param string|array	$fields				Returns these asset field(s) in lineage details (e.g name, type_code)
+	* @param boolean		$only_significant	Only return the significant links, and ignore notice links
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinkLineages($assetid, $result_limit=0, $from_treeid=NULL, $fields='name')
+	function getLinkLineages($assetid, $result_limit=0, $from_treeid=NULL, $fields='name', $only_significant=FALSE)
 	{
 		assert_valid_assetid($assetid);
 
@@ -3443,7 +3444,14 @@ class Asset_Manager extends MySource_Object
 			throw $e;
 		}
 
-		$asset_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
+		if ($only_significant) {
+			$link_types = SQ_SC_LINK_SIGNIFICANT;
+		} else {
+			$link_types = SQ_SC_LINK_ALL;
+		}//end if
+
+		$asset_links = $this->getLinks($assetid, $link_types, '', TRUE, 'minor');
 
 		$link_info = Array();
 		foreach ($asset_links as $link_data) {
