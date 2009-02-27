@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.203.2.1 2009/02/04 04:46:48 bpearson Exp $
+* $Id: general.inc,v 1.203.2.2 2009/02/27 00:03:02 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.203.2.1 $
+* @version $Revision: 1.203.2.2 $
 * @package MySource_Matrix
 */
 
@@ -1335,7 +1335,7 @@ function get_asset_tag_line($assetid, $screen='')
 
 		<?php
 		// LINEAGES BOX
-		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 5);
+		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 5, NULL, 'name', TRUE);
 
 		// start an inner buffer for the lineages popup
 		ob_start();
