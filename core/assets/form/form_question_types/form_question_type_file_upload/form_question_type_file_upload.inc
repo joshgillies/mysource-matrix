@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.33 2008/11/11 22:54:59 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.33.2.1 2009/02/27 04:43:47 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -464,7 +464,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					case 'R' :
 						// R = Rename the uploaded file
 						// Use webPathsInUse() to help us here.
-						$suggested_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($create_location, $name, 0, TRUE);
+						$suggested_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($create_location, Array($name), 0, TRUE);
 						$name = array_shift($suggested_paths);
 					break;
 				}
