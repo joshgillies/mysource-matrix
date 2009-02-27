@@ -1207,45 +1207,28 @@ class DAL
 				$pass = $dsn['password'];
 			}
 
-			$persistent = false;
-			if (isset($dsn['persistent']) && $dsn['persistent'] == true) {
-				$persistent = true;
-			}
-
 			if ($dsn['type'] === 'oci') {
 				// OCI: Oracle in PDO is far too buggy to be considered usable (tested
 				// in 5.1.x to 5.3dev). Therefore we'll be resigned to using
 				// legacy OCI8 extension functions.
 				// use @ to suppress warning/error messages, it will be handled by ourself.
 
-				$oci_connect_fn = 'oci_connect';
-				if ($persistent) {
-					$oci_connect_fn = 'oci_pconnect';
-				}
-
 				// Connect to the database with the specified character encoding (if supplied).
 				$new_dbh = FALSE;
 				if (isset($dsn['encoding'])) {
-					$new_dbh = @$oci_connect_fn($dsn['user'], $dsn['password'], $dsn['DSN'], $dsn['encoding']);
+					$new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN'], $dsn['encoding']);
 				} else {
-					$new_dbh = @$oci_connect_fn($dsn['user'], $dsn['password'], $dsn['DSN']);
+					$new_dbh = @oci_connect($dsn['user'], $dsn['password'], $dsn['DSN']);
 				}
-
+	 
 				if ($new_dbh === FALSE) {
 					$oci_error = oci_error();
-
+					
 					throw new Exception('Unable to connect to database "'.$conn_id.'": '.$oci_error['code'].' '.$oci_error['message']);
 				}
 			} else {
 
-				$extra_params = array();
-
-				if ($persistent) {
-					$extra_params[PDO::ATTR_PERSISTENT] = true;
-				}
-
-				$new_dbh = new PDO($dsn['DSN'], $user, $pass, $extra_params);
-
+				$new_dbh = new PDO($dsn['DSN'], $user, $pass);
 				$new_dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 				$new_dbh->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 				$new_dbh->setAttribute(PDO::ATTR_ORACLE_NULLS, PDO::NULL_EMPTY_STRING);
@@ -1574,12 +1557,7 @@ class DAL
 			$dbInfo = self::$_dbhPool[$conn_id];
 			$dbh = $dbInfo['dbh'];
 
-			$oci_connection_types = array (
-				'oci8 connection',
-				'oci8 persistent connection'
-			);
-
-			if (is_resource($dbh) && in_array(get_resource_type($dbh), $oci_connection_types, true)) {
+			if (is_resource($dbh) && (get_resource_type($dbh) === 'oci8 connection')) {
 				// OCI: The connection handle for OCI is a resource and not an object
 				$dbType = 'oci';
 			} else {
