@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_management.inc,v 1.4.8.2 2009/02/26 23:55:45 mbrydon Exp $
+* $Id: form_question_type_option_list_management.inc,v 1.4.8.3 2009/03/02 04:41:13 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4.8.2 $
+* @version $Revision: 1.4.8.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -152,7 +152,7 @@ class Form_Question_Type_Option_List_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			pre_echo('OPTION LIST QUESTION TYPES SUCCESSFULLY UPGRADED TO VERSION 0.4');
+			pre_echo('OPTION LIST QUESTION TYPES SUCCESSFULLY UPGRADED TO VERSION 0.5');
 		}//end if
 		return TRUE;
 

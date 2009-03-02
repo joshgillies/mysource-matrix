@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_management.inc,v 1.3.8.2 2009/02/26 23:55:46 mbrydon Exp $
+* $Id: form_question_type_tickbox_list_management.inc,v 1.3.8.3 2009/03/02 04:41:14 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3.8.2 $
+* @version $Revision: 1.3.8.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,7 +151,7 @@ class Form_Question_Type_Tickbox_List_Management extends Asset_Management
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			pre_echo('TICKBOX LIST QUESTION TYPES SUCCESSFULLY UPGRADED TO VERSION 0.5');
+			pre_echo('TICKBOX LIST QUESTION TYPES SUCCESSFULLY UPGRADED TO VERSION 0.6');
 		}//end if
 		return TRUE;
 
