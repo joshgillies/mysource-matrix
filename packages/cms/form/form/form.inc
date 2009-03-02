@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.213 2009/02/26 05:27:22 lwright Exp $
+* $Id: form.inc,v 1.214 2009/03/02 22:09:03 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3054,11 +3054,13 @@ class Form extends Asset implements Bridge
 				$extra_data = $file_upload->getExtraData();
 				$uploaded_assetid = array_get_index($extra_data, 'existing_file_assetid', array_get_index($extra_data, 'new_file_assetid', NULL));
 
-				$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
+				if (!empty($uploaded_assetid)) {
+					$uploaded_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($uploaded_assetid);
 
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				$this->submission_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$this->submission_asset->createLink($uploaded_file, SQ_LINK_NOTICE, 'file_submission');
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				}
 			}
 		}
 
