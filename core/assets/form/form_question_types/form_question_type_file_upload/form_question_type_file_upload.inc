@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.34 2009/02/27 04:44:14 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.35 2009/03/02 22:10:03 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -403,8 +403,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$question_create_loc = $this->attr('create_location');
 		$ok = TRUE;
 		$mime_type = array_get_index($this->extra_data, 'mime_type', '');
+		$temp_path = array_get_index($this->extra_data, 'temp_filesystem_path', '');
 
-		if (!empty($question_create_loc)) {
+		if (!empty($question_create_loc) && !empty($temp_path)) {
 			// If we are creating a File asset, we need to check whether we need
 			// to handle a web path conflict
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -474,14 +475,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 			if ($ok) {
 				if ($existing_asset) {
 					// update the existing file asset
-					$filepath = $this->getTempFileUploadPath($parent).'/'.$this->getValue();
-
 					$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($existing_asset->id, 'attributes');
 					$edit_fns = $existing_asset->getEditFns();
 
 					$file_info = Array(
-									'tmp_name'			=> $filepath,
-									'name'				=> basename($filepath),
+									'tmp_name'			=> $temp_path,
+									'name'				=> $name,
 									'non_uploaded_file'	=> TRUE,
 								 );
 
@@ -502,7 +501,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 										);
 
 				} else {
-
 					$file_ext = get_file_type($this->getValue());
 
 					// Switch based on the file extension
@@ -552,11 +550,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 								'link_type'	=> SQ_LINK_TYPE_2,
 							);
 
-					$filepath = $this->getTempFileUploadPath($parent).'/'.$this->getValue();
-
 					$file_info = Array(
-									'tmp_name'			=> $filepath,
-									'name'				=> basename($filepath),
+									'tmp_name'			=> $temp_path,
+									'name'				=> $name,
 									'non_uploaded_file'	=> TRUE,
 								 );
 
@@ -720,3 +716,4 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 }//end class
 ?>
+
