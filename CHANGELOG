@@ -74,6 +74,22 @@ Custom Form: Extra HTML Attributes option for Submit and Reset buttons
 	Extra HTML attributes (eg; for custom styling, JavaScript code) can now be added to the Submit or Reset buttons in Custom Form assets. This optional HTML text can be added from the "Simple Formatting" section of the "Contents" screen.
 
 
+Support for Persistent Database Connections
+	Persistent database connections may now be used for both PostGres and Oracle databases. The 'persistent' option should be added to the DSN array for connections in the db.inc configuration file to enable this functionality, as demonstrated below:
+
+'db' => array (
+			'DSN'        => 'pgsql:dbname=my_db;host=my_host',
+			'user'       => 'db_user',
+			'password'   => '',
+			'type'       => 'pgsql',
+			'persistent' => true,
+		),
+...
+
+If this option is not specified or set to 0 or false, non-persistent connections will be used as per normal operation.
+
+
+
 Additional Changes and Bug Fixes
 -----------------------------------
 
@@ -84,6 +100,7 @@ Core
 * Fixed Bug #3528: Accessing URL with apostrophe Gives DAL error without 404 page
 * Fixed Bug #3533: Form question type tickbox list not upgraded when there is only one option set
 * Fixed Bug #3535: Missing Binoculars Icon
+* Fixed Bug #3536: Metadata can not be edited in simple edit layout by root node
 
 CMS
 * Fixed Bug #3507: Custom Form - keyword for non existent question causes blank page
