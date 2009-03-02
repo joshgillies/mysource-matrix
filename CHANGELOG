@@ -1,5 +1,45 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.11
+
+Featured Changes
+-----------------------------------
+
+Asset Manager Database Query Optimisation
+
+	The query to retrieve parent assets has been optimised by using a "JOIN" operation instead of a subquery. This results in a great performance increase on systems with large tree structures.
+
+
+Regenerate Metadata by Root Nodes script
+
+	A new command line script - regen_metadata_by_root_nodes.php - has been added to the "scripts" directory. This script takes the Matrix Root Directory and a comma-separated list of Root Node asset IDs. Metadata is then regenerated for each child asset under the specified Root Nodes.
+
+The script is multi-threaded and takes two further optional parameters to control the processor utilisation of the script. These parameters are the maximum thread count and a number of assets to process per batch. The default values of each are set at 3 and 50 respectively.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+* Fixed Bug #3511: Trigger to release all locks on logging out
+* Fixed Bug #3513: Locks not being update by the Top Frame 
+* Fixed Bug #3528: Accessing URL with apostrophe Gives DAL error without 404 page
+* Fixed Bug #3533: Form question type tickbox list not upgraded when there is only one option set
+* Fixed Bug #3535: Missing Binoculars Icon 
+* Fixed Bug #3504: Moving Custom Form Sections 
+
+IPB
+* Fixed Bug #3491: IPB username with single quote will fail to login 
+
+Search
+* Fixed Bug #3489: Search finding bodycopies when used with multiple root nodes
+* Fixed Bug #3494: Question Field option missing
+
+Web Services
++ SOAP Server Page: XML response upon authentication failure
+
+
+
 VERSION 3.18.10
 
 Featured Changes
