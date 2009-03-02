@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.33.2.1 2009/02/27 04:43:47 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.33.2.2 2009/03/02 03:21:28 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33.2.1 $
+* @version $Revision: 1.33.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -481,7 +481,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 					$file_info = Array(
 									'tmp_name'			=> $filepath,
-									'name'				=> basename($filepath),
+									'name'				=> $name,
 									'non_uploaded_file'	=> TRUE,
 								 );
 
@@ -502,7 +502,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 										);
 
 				} else {
-
 					$file_ext = get_file_type($this->getValue());
 
 					// Switch based on the file extension
@@ -556,7 +555,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 					$file_info = Array(
 									'tmp_name'			=> $filepath,
-									'name'				=> basename($filepath),
+									'name'				=> $name,
 									'non_uploaded_file'	=> TRUE,
 								 );
 
