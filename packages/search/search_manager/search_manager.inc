@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.164.2.16 2009/02/04 22:51:26 akarelia Exp $
+* $Id: search_manager.inc,v 1.164.2.17 2009/03/03 23:16:21 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.164.2.16 $
+* @version $Revision: 1.164.2.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2017,7 +2017,19 @@ class Search_Manager extends Asset
 			// DONT remove unindexable words (then you cannot search for part of it)
 			$words = Array();
 
-			foreach ($this->generateWordList($field_details['words']) as $word) {
+			// Multiple selections are passed in as an array, so filter those out to a string
+			$word_list = '';
+			if (is_array($field_details['words'])) {
+				foreach ($field_details['words'] as $selected_word) {
+					$word_list .= $selected_word;
+					$word_list .= ' ';
+				}//end foreach
+				$word_list = trim($word_list);
+			} else {
+				$word_list = $field_details['words'];
+			}//end if
+
+			foreach ($this->generateWordList($word_list) as $word) {
 				$words[] = strtolower($word);
 			}
 			$field_details['words'] = $words;
