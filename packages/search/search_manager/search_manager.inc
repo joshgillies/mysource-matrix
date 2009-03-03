@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.189.2.3 2009/02/04 22:52:05 akarelia Exp $
+* $Id: search_manager.inc,v 1.189.2.4 2009/03/03 23:20:23 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.189.2.3 $
+* @version $Revision: 1.189.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2063,7 +2063,19 @@ class Search_Manager extends Asset
 				$mb_support = TRUE;
 			}
 
-			foreach ($this->generateWordList($field_details['words']) as $word) {
+			// Multiple selections are passed in as an array, so filter those out to a string
+			$word_list = '';
+			if (is_array($field_details['words'])) {
+				foreach ($field_details['words'] as $selected_word) {
+					$word_list .= $selected_word;
+					$word_list .= ' ';
+				}//end foreach
+				$word_list = trim($word_list);
+			} else {
+				$word_list = $field_details['words'];
+			}//end if
+
+			foreach ($this->generateWordList($word_list) as $word) {
 				if ($mb_support) {
 					$words[] = mb_strtolower($word, SQ_CONF_DEFAULT_CHARACTER_SET);
 				} else {
