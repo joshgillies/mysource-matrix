@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.266.2.5 2009/02/19 00:32:11 akarelia Exp $
+* $Id: listing_engine.inc,v 1.266.2.6 2009/03/04 04:17:35 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.266.2.5 $
+* @version $Revision: 1.266.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -843,7 +843,7 @@ class Listing_Engine extends Page
 		if ($cache_key) {
 			// as per bug #2918, nested asset lists cache too much, so here is the workaround
 			$pmap = unserialize($this->attr('parameter_map'));
-			if (isset($pmap['root_node'][0]['index']) && ($pmap['root_node'][0]['index'] == 'list_current_asset_id')) {
+			if (isset($pmap['root_node'])) {
 				$parameter_map = $this->getAttribute('parameter_map');
 				$nodes = $parameter_map->getParameterValue('root_node');
 				if (is_array($nodes)) {
@@ -851,7 +851,7 @@ class Listing_Engine extends Page
 				} else {
 					$root_nodes[] = $nodes;
 				}
-			} else {
+			} else { 
 				// because the root nodes can be dynamic we need to cache the results based upon root node
 				$root_nodes = $this->getRootNodes(FALSE);
 			}
@@ -2154,7 +2154,7 @@ class Listing_Engine extends Page
 	function _printAsset($assetid, $list_position, $num_items=0)
 	{
 		// allows for asset listings within asset listings, see #2727
-		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {;
+		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {
 			$prev_list_current_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
 		} else {
 			$prev_list_current_asset_id = null;
@@ -2632,7 +2632,7 @@ class Listing_Engine extends Page
 
 			$parameter_map = $this->getAttribute('parameter_map');
 			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
-
+			
 			// check if we have a dynamic parameter -- if so, let's do some security checks
 			if (!empty($raw_dynamic_root_nodes)) {
 
