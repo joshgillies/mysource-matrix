@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.57 2008/11/18 23:49:07 ewang Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.57.2.1 2009/03/04 02:34:14 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.57.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -394,6 +394,10 @@ $asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 				$nested_asset_matches = $set_matches[1];
 
 				foreach ($nested_asset_matches as $nested_asset_keyword) {
+					if (0 === strpos($nested_asset_keyword, 'nested_')) {
+						$nested_asset_keyword = str_replace('nested_','',$nested_asset_keyword);
+						$get_value = str_replace('nested_','',$get_value);
+					}
 					$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
 					if (!is_null($replacement)) {
 						$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
@@ -488,8 +492,12 @@ $asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 	*/
 	function _processAdditionalGetVars(&$asset, &$nested_asset)
 	{
-		$additional_get_vars = $asset->attr('additional_get');
 		$processed_get_vars = Array();
+		if (isset($asset->vars['additional_get'])) {
+			$additional_get_vars = $asset->attr('additional_get');
+		} else {
+			return $processed_get_vars;
+		}
 		foreach ($additional_get_vars as $get_var) {
 			$get_name = $get_var['name'];
 			$get_value = $get_var['value'];
@@ -501,6 +509,10 @@ $asset_link = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($nested_asset->id);
 			$nested_asset_matches = $set_matches[2];
 
 			foreach ($nested_asset_matches as $na_id => $nested_asset_keyword) {
+				if (0 === strpos($nested_asset_keyword, 'nested_')) {
+					$nested_asset_keyword = str_replace('nested_','',$nested_asset_keyword);
+					$get_value = str_replace('nested_','',$get_value);
+				}
 				$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
 				if (!is_null($replacement)) {
 					$get_value = str_replace('%'.$nested_asset_orig_matches[$na_id].'%', $replacement, $get_value);
