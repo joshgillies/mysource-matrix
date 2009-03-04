@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.272 2009/02/11 23:12:08 akarelia Exp $
+* $Id: listing_engine.inc,v 1.273 2009/03/04 04:05:09 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.272 $
+* @version $Revision: 1.273 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -842,7 +842,7 @@ class Listing_Engine extends Page
 		if ($cache_key) {
 			// as per bug #2918, nested asset lists cache too much, so here is the workaround
 			$pmap = unserialize($this->attr('parameter_map'));
-			if (isset($pmap['root_node'][0]['index']) && ($pmap['root_node'][0]['index'] == 'list_current_asset_id')) {
+			if (isset($pmap['root_node'])) {
 				$parameter_map = $this->getAttribute('parameter_map');
 				$nodes = $parameter_map->getParameterValue('root_node');
 				if (is_array($nodes)) {
