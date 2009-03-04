@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.52.2.3 2008/11/18 23:47:29 ewang Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.52.2.4 2009/03/04 02:36:45 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.3 $
+* @version $Revision: 1.52.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -148,7 +148,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 									 */
 									removeGetRow: function(prefix, index) {
 										node = document.getElementById(prefix + '_additional_get_row_' + index);
-										node.parentNode.removeChild(node);	
+										node.parentNode.removeChild(node);
 										this.updateNoVarStatus(prefix);
 									},
 
@@ -384,6 +384,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$nested_asset_matches = $set_matches[1];
 
 				foreach ($nested_asset_matches as $nested_asset_keyword) {
+					if (0 === strpos($nested_asset_keyword, 'nested_')) {
+                        $nested_asset_keyword = str_replace('nested_','',$nested_asset_keyword);
+						$get_value = str_replace('nested_','',$get_value);
+                    }
 					$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
 					if (!is_null($replacement)) {
 						$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
@@ -478,8 +482,13 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function _processAdditionalGetVars(&$asset, &$nested_asset)
 	{
-		$additional_get_vars = $asset->attr('additional_get');
 		$processed_get_vars = Array();
+		if (isset($asset->vars['additional_get'])) {
+			$additional_get_vars = $asset->attr('additional_get');
+		} else {
+			return $processed_get_vars;
+		}
+		
 		foreach ($additional_get_vars as $get_var) {
 			$get_name = $get_var['name'];
 			$get_value = $get_var['value'];
@@ -491,6 +500,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			$nested_asset_matches = $set_matches[2];
 
 			foreach ($nested_asset_matches as $na_id => $nested_asset_keyword) {
+				if (0 === strpos($nested_asset_keyword, 'nested_')) {
+					$nested_asset_keyword = str_replace('nested_','',$nested_asset_keyword);
+					$get_value = str_replace('nested_','',$get_value);
+				}
 				$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
 				if (!is_null($replacement)) {
 					$get_value = str_replace('%'.$nested_asset_orig_matches[$na_id].'%', $replacement, $get_value);
@@ -544,6 +557,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		$nested_asset = $this->_getNestedAsset($asset);
 		$current_assetid = (!is_null($nested_asset)) ? $nested_asset->id : 0;
+		$current_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_assetid);
 
 		$arbitrary_paint_layout = $this->_getArbitraryPaintLayout($asset);
 		$current_apl_assetid = (!is_null($arbitrary_paint_layout)) ? $arbitrary_paint_layout->id : 0;
@@ -553,6 +567,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			$var_value['name'] = trim($var_value['name']);
 			if (empty($var_value['name'])) {
 				unset($additional_get[$var_index]);
+			} else {
+				$this->_processAdditionalGetVars($nested_asset, $current_asset);
 			}
 		}
 
