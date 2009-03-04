@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.273 2009/03/04 04:05:09 ewang Exp $
+* $Id: listing_engine.inc,v 1.274 2009/03/04 04:24:10 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.273 $
+* @version $Revision: 1.274 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2153,7 +2153,7 @@ class Listing_Engine extends Page
 	function _printAsset($assetid, $list_position, $num_items=0)
 	{
 		// allows for asset listings within asset listings, see #2727
-		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {;
+		if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {
 			$prev_list_current_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
 		} else {
 			$prev_list_current_asset_id = null;
