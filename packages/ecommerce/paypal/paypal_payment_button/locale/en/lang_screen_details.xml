@@ -1,0 +1,97 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1 2009/03/05 18:34:14 ata Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Button details">
+		<field attribute="button_type">
+			<display_name>Button Type</display_name>
+			<note>The type of button supported by Paypal includes Buy Now, Donate, Subscribe and shopping cart buttons.</note>
+		</field>
+		<field attribute="item_name">
+			<display_name>Item name</display_name>
+			<note />
+		</field>
+		<field attribute="item_id">
+			<display_name>Item ID</display_name>
+			<note>Pass-through variable that will return to Matrix after Paypal finishes processing. This value is usually an asset ID and can be viewed by customers. Thus, it should not be used if the asset ID is secret to customers.</note>
+		</field>
+		<field attribute="price">
+			<display_name>Price</display_name>
+			<note />
+		</field>
+		<field attribute="currency">
+			<display_name>Currency</display_name>
+			<note />
+		</field>
+		<field attribute="undefined_quantity">
+			<display_name>Undefined quantity?</display_name>
+			<note>Yes, if buyers can update the item quantity in payment process</note>
+		</field>
+		<field attribute="merchant_id">
+			<display_name>Merchant ID</display_name>
+			<note>Paypal merchant email address or merchant ID.</note>
+		</field>
+		<field attribute="custom_var">
+			<display_name>Custom variable</display_name>
+			<note>Pass-through variable that will return to Matrix after Paypal finishes processing. This value can be any extra information that Paypal will send back after a customer purchases an item. This value is never presented to customers so it can be used to send secret data under the format var1=value1,var2=value2. These values can be extracted by an IPN Receiver asset later. Globals keywords like %globals_user_assetid% can be used.</note>
+		</field>
+		<field attribute="notify_url">
+			<display_name>Notify URL</display_name>
+			<note>This is the URL that Paypal will POST an Instant Payment Notification (IPN) to. It must be the URL of an IPN Receiver asset.</note>
+		</field>
+		<field attribute="return_url">
+			<display_name>Return URL</display_name>
+			<note>The URL of the page that the user will be returned after completing a payment.</note>
+		</field>
+		<field attribute="cancel_return_url">
+			<display_name>Cancel URL</display_name>
+			<note>The URL of the page that the user will be returned if a payment is cancelled.</note>
+		</field>
+		<field attribute="post_url">
+			<display_name>POST URL</display_name>
+			<note />
+		</field>
+		<field attribute="image_url">
+			<display_name>Image URL</display_name>
+			<note />
+		</field>
+		<field>
+			<display_name>Extra variables</display_name>
+			<note>The variables and values of Paypal buttons in the format of variable_name=variable_value.</note>
+			<function_call>
+				<paint_function   name="paintExtraVars"   />
+				<process_function name="processExtraVars" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Testing Mode">
+		<field attribute="test_mode">
+			<display_name>Test Mode</display_name>
+			<note>Turn this switch ON for testing purposes. It will use the Paypal public certificate of Sandbox as well as the site's testing certificate specified in the paypal configuration file to encrypt this button. However, you still have to set the POST URL to the sandbox URL (https://www.sandbox.paypal.com/cgi-bin/webscr) for testing.</note>
+		</field>
+	</section>
+</contents>
