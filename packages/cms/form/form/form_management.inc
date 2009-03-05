@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.58 2009/02/26 05:27:22 lwright Exp $
+* $Id: form_management.inc,v 1.59 2009/03/05 05:51:07 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -291,6 +291,85 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.15',
 														'type'		=> 'text',
 														'default'	=> '',
+													   ),
+						'captcha_usefont'			=> Array(
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'captcha_ttf'				=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'assetid',
+														'default'	=> '',
+														'description' => 'The asset id of the font file.',
+													   ),
+						'captcha_font_size'			=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 20,
+													   ),
+						'captcha_min_angle'			=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> -20,
+													   ),
+						'captcha_max_angle'			=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 20,
+													   ),
+						'captcha_x_start'			=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 10,
+													   ),
+						'captcha_min_distance'		=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 10,
+													   ),
+						'captcha_max_distance'		=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 20,
+													   ),
+						'captcha_width'				=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 200,
+													   ),
+						'captcha_height'			=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'int',
+														'default'	=> 36,
+													   ),
+						'captcha_arc'				=> Array(
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'captcha_arc_colour'		=> Array(
+														'added'		=> '0.9',
+														'type'		=> 'colour',
+														'default'	=> 'D20A0A',
+													   ),
+						'captcha_include_uppercase'	=> Array(
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
+						'captcha_include_numbers'	=> Array(
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
 													   ),
 					  );
 

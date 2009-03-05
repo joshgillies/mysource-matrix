@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.41 2008/05/19 05:18:20 bshkara Exp $
+* $Id: general.inc,v 1.42 2009/03/05 05:51:03 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package Fudge
 * @subpackage General
 */
@@ -356,29 +356,102 @@ function dal_array_flatten($array, $column='')
 /**
 * Generates a random password from letters/digits
 *
-* @param int	$length	the length of the password
+* @param int		$length				the length of the password
+* @param boolean	$include_uppercase	include uppercase characters in the generated password
+* @param boolean	$include_numbers	include numbers in the generated password
 *
 * @return array
 * @access public
 */
-function random_password($length)
+function random_password($length, $include_uppercase=FALSE, $include_numbers=FALSE)
 {
 	if (!$length) $length = 8;
-	$consonants = 'bcdfghjklmnpqrstvwyz';
-	$vowels     = 'aeiou';
+	$consonants			= 'bcdfghjklmnpqrstvwyz';
+	$vowels				= 'aeiou';
+
+	// Please note that certain letters and numbers are missing due to being represented in a similar manner to lowercase chars in some fonts
+	$numbers			= '2346789';
+	$upper_consonants	= 'DFGHLMNQRT';
+	$upper_vowels		= 'AEU';
+
 	$password   = '';
 	global $RANDOM_PASSWORD_SEED;
+
+	// If we are including uppercase characters, ensure at least one is present
+	$uppercase_indexes = Array();
+	$chosen_default_uppercase_index = -1;
+	$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
+	if (($include_uppercase) && ($length > 1)) {
+		srand($seed);
+
+		$uppercase_indexes[$chosen_default_uppercase_index] = 1;
+		$num_added = 1;
+
+		// Make between 1 character and 1/2 of the string an uppercase letter
+		for ($n=0; $n<$length; $n++) {
+			if ((rand(0,3) == 0) && ($num_added < ($length/2))) {
+				$uppercase_indexes[$n] = 1;
+				$num_added++;
+			}
+		}
+	}
+
+	// If we are including numbers, ensure at least one is present
+	$number_indexes = Array();
+	if (($include_numbers) && ($length > 2)) {
+		srand($seed);
+
+		// Ensure that we don't place our initial inserted number over the top of an uppercase letter
+		$chosen_default_number_index = rand(0, $length-1);
+		while (isset($uppercase_indexes[$chosen_default_number_index])) {
+			$chosen_default_number_index = rand(0, $length-1);
+		}
+
+		$number_indexes[$chosen_default_number_index] = 1;
+		$num_added = 1;
+
+		// Make between 1 character and 1/3 of the string a number
+		for ($n=0; $n<$length; $n++) {
+			if ((rand(0,4) == 0) && ($num_added < ($length/3))) {
+				$number_indexes[$n] = 1;
+				$num_added++;
+			}
+		}
+	}
+
+	$current_index = 0;
 	while ($length > 0) {
 		$RANDOM_PASSWORD_SEED += $length;
 		$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
 		srand($seed);
-		$password .= $consonants[rand(0,strlen($consonants)-1)];
+		$appended_characters = $consonants[rand(0,strlen($consonants)-1)];
+
+		// Assign either an uppercase consonant or a number if we are destined to do so
+		if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
+			$appended_characters = $upper_consonants[rand(0,strlen($upper_consonants)-1)];
+		} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
+			$appended_characters = $numbers[rand(0,strlen($numbers)-1)];
+		}
+		$current_index++;
+
 		if ($length > 1) {
 			srand($seed);
-			$password .= $vowels[rand(0,strlen($vowels)-1)];
+			$appended_character = $vowels[rand(0,strlen($vowels)-1)];
+
+			// Assign either an uppercase vowel or a number if we are destined to do so
+			if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
+				$appended_character = $upper_vowels[rand(0,strlen($upper_vowels)-1)];
+			} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
+				$appended_character = $numbers[rand(0,strlen($numbers)-1)];
+			}
+
+			$appended_characters .= $appended_character;
+			$current_index++;
 		}
+
+		$password .= $appended_characters;
 		$length -= 2;
-	}
+	}//end while
 	$RANDOM_PASSWORD_SEED++;
 	return $password;
 
@@ -500,14 +573,16 @@ function increment_name($name='', $spacer='')
 /**
 * Generates a string to be used for a security key
 *
-* @param int	$key_len	the lenght of the random string to display in the image
+* @param int		$key_len			the length of the random string to display in the image
+* @param boolean	$include_uppercase	include uppercase characters in the generated password
+* @param boolean	$include_numbers	include numbers in the generated password
 *
 * @return string
 * @access public
 */
-function generate_security_key($key_len)
+function generate_security_key($key_len, $include_uppercase=FALSE, $include_numbers=FALSE)
 {
-	$k = random_password($key_len);
+	$k = random_password($key_len, $include_uppercase, $include_numbers);
 	if ($key_len>10) {
 		$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
 		$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
@@ -523,19 +598,32 @@ function generate_security_key($key_len)
 * The letters are each displayed in a random font and are zoomed to a random size
 * based on the zoom factor entered
 *
-* @param string	$word	the word to display in the image
-* @param int	$w		the width of the image (final width will be $w * $zoom)
-* @param int	$h		the height of the image (final height will be $h * $zoom)
-* @param string	$bg		the background colour of the image (eg FFFFFF)
-* @param string	$text	the colour of the text in the image (eg 000000)
-* @param string	$border	the colour of the border image (eg 000000)
-*						for no border, set to the same colour as the background
-* @param int	$zoom	each character will be randomly zoomed between x1 and this figure
+* @param int		$key_len	the length of the CAPTCHA key
+* @param string		$word		the word to display in the image
+* @param int		$w			the width of the image (final width will be $w * $zoom)
+* @param int		$h			the height of the image (final height will be $h * $zoom)
+* @param string		$bg			the background colour of the image (eg FFFFFF)
+* @param string		$text		the colour of the text in the image (eg 000000)
+* @param string		$border		the colour of the border image (eg 000000)
+*								for no border, set to the same colour as the background
+* @param int		$zoom		each character will be randomly zoomed between x1 and this figure
+* @param boolean	$use_font	whether to use a user-specified TrueType Font for the CAPTCHA text
+* @param string		$font		the TrueType Font to use for the CAPTCHA text
+* @param int		$font_size	the font point size to use
+* @param int		$min_angle	the minimum rotation angle for characters
+* @param int		$max_angle	the maximum rotation angle for characters
+* @param int		$x_start	the X ordinate location from which to start rendering the CAPTCHA
+* @param int		$min_dist	the minimum pixel distance between characters
+* @param int		$max_dist	the maximum pixel distance between characters
+* @param int		$ttf_width	the pixel width of the TrueType Font image
+* @param int		$ttf_height	the pixel height of the TrueType Font image
+* @param boolean	$use_arc	whether to overlay arcs across the CAPTCHA text
+* @param string		$arc_colour	the RGB colour of the arc elements
 *
 * @return void
 * @access public
 */
-function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1)
+function security_key_image($key_len, $word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_color='D20A0A')
 {
 	if (!empty($word)) {
 		// cache control for this image
@@ -557,6 +645,11 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 			return FALSE;
 		}
 
+		if (!$ttf_im = @imagecreate($ttf_width, $ttf_height)) {
+			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+			return FALSE;
+		}
+
 		// create some colours we will use in the image
 		// NOTE: The first colour allocated is used for the background
 		$r = hexdec(substr($bg, 0, 2));
@@ -564,18 +657,26 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		$b = hexdec(substr($bg, 4, 2));
 		$bg_colour = imagecolorallocate($test_im, $r, $g, $b);
 		$bg_colour = imagecolorallocate($final_im, $r, $g, $b);
+		$bg_colour = imagecolorallocate($ttf_im, $r, $g, $b);
 
 		$r = hexdec(substr($text, 0, 2));
 		$g = hexdec(substr($text, 2, 2));
 		$b = hexdec(substr($text, 4, 2));
 		$text_colour = imagecolorallocate($test_im, $r, $g, $b);
 		$text_colour = imagecolorallocate($final_im, $r, $g, $b);
+		$text_colour = imagecolorallocate($ttf_im, $r, $g, $b);
 
 		$r = hexdec(substr($border, 0, 2));
 		$g = hexdec(substr($border, 2, 2));
 		$b = hexdec(substr($border, 4, 2));
 		$border_colour = imagecolorallocate($test_im, $r, $g, $b);
 		$border_colour = imagecolorallocate($final_im, $r, $g, $b);
+		$border_colour = imagecolorallocate($ttf_im, $r, $g, $b);
+
+		$r = hexdec(substr($arc_color, 0, 2));
+		$g = hexdec(substr($arc_color, 2, 2));
+		$b = hexdec(substr($arc_color, 4, 2));
+		$arc_color_final = imagecolorallocate($ttf_im, $r, $g, $b);
 
 		$x_pos = 5;
 		$y_pos = 5;
@@ -591,21 +692,90 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 
 			// copy the character we printed above and resize it onto the final
 			// image to zoom the characet randomly in width and height based on $zoom
-			imagecopyresized($final_im, $test_im, ($x_pos * $zoom), ($y_pos * $zoom), $x_pos, $y_pos, $new_w, $new_h, 10, 15);
+			if ($use_font) {
 
-			// increase the x position
-			$x_pos += 10;
+				// Trigger an error if no font file is set
+				if ($font == '') {
+					trigger_error('You must select a true type font file to use', E_USER_WARNING);
+					return FALSE;
+				}
+
+				// Set some vars for our TTF image
+				$angle = rand($min_angle, $max_angle);
+
+				// Create the image
+				imagettftext($ttf_im, $font_size, $angle, $x_start, $font_size + 10, $text_colour, $font, $char);
+				// increase the x position
+				$x_start += rand($min_dist, $max_dist);
+			} else {
+				imagecopyresized($final_im, $test_im, ($x_pos * $zoom), ($y_pos * $zoom), $x_pos, $y_pos, $new_w, $new_h, 10, 15);
+				// increase the x position
+				$x_pos += 10;
+			}
+
+		}//end foreach
+
+		// Check to see if we are using arcs
+		if ($use_arc && $use_font) {
+			imagesetthickness($ttf_im, 3);
+
+			// Create the first arc on our image
+			$xpos   = 5 + ($font_size * 2) + rand(-5, 5);
+			$arc_width  = $ttf_width / 4.66 + rand(3, 10);
+			$arc_height = $font_size * 2.14 - rand(3, 10);
+
+			if ( rand(0,100) % 2 == 0 ) {
+			  $start = rand(0,66);
+			  $ypos  = $ttf_height / 2 - rand(5, 15);
+			  $xpos += rand(5, 10);
+			} else {
+			  $start = rand(180, 246);
+			  $ypos  = $ttf_height / 2 + rand(5, 15);
+			}
+
+			$end = $start + rand(75, 110);
+			imagearc($ttf_im, $xpos, $ypos, $arc_width, $arc_height, $start, $end, $arc_color_final);
+			//end first arc
+
+			// Create the second arc on our image
+			$arc_color = imagecolorallocate($ttf_im,   0,   0, 255);
+			$xpos   = 5 + ($font_size * 2) + rand(-5, 5);
+			$arc_width  = $ttf_width / 4.66 + rand(3, 10);
+			$arc_height = $font_size * 2.14 - rand(3, 10);
+
+			if ( rand(1,75) % 2 == 0 ) {
+			  $start = rand(45,110);
+			  $ypos  = $ttf_height / 2 - rand(5, 15);
+			  $xpos += rand(5, 15);
+			} else {
+			  $start = rand(200, 250);
+			  $ypos  = $ttf_height / 2 + rand(5, 15);
+			}
+
+			$end = $start + rand(75, 100);
+			imagearc($ttf_im, $ttf_width * .75, $ypos, $arc_width, $arc_height, $start, $end, $arc_color_final);
+			//end second arc
+
+		}//end if
+
+
+		if ($use_font) {
+			imagerectangle($ttf_im, 0, 0, imagesx($ttf_im) -1, imagesy($ttf_im) -1, $border_colour);
+			// Create our image as a png then destroy
+			imagepng($ttf_im);
+			imagedestroy($ttf_im);
+		} else {
+			// draw a border around the outside
+			imagerectangle($final_im, 0, 0, ($w * $zoom) -1, ($h * $zoom) -1, $border_colour);
+
+			// output the image
+			imagepng($final_im);
+
+			// cleanup
+			imagedestroy($test_im);
+			imagedestroy($final_im);
 		}
 
-		// draw a border around the outside
-		imagerectangle($final_im, 0, 0, ($w * $zoom) -1, ($h * $zoom) -1, $border_colour);
-
-		// output the image
-		imagepng($final_im);
-
-		// cleanup
-		imagedestroy($test_im);
-		imagedestroy($final_im);
 	}//end if empty($word)
 
 }//end security_key_image()

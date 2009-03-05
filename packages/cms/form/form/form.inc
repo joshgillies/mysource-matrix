@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.214 2009/03/02 22:09:03 lwright Exp $
+* $Id: form.inc,v 1.215 2009/03/05 05:51:07 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.214 $
+* @version $Revision: 1.215 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1637,7 +1637,7 @@ class Form extends Asset implements Bridge
 	{
 
 		// Pick up the current submission, if any.
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {			
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
 			$this->restoreFromSubmissionCookie();
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 		} else {
@@ -1698,7 +1698,7 @@ class Form extends Asset implements Bridge
 					// If the submission has not yet been created, create the submission
 					// in the "Incomplete Submissions" folder - but if there was only
 					// one page, we can fudge it
-				
+
 					if (!isset($submission_var) && !$submission) {
 						$create_in_completed = ($total_pages == 1) ? TRUE : FALSE;
 
@@ -2010,7 +2010,7 @@ class Form extends Asset implements Bridge
 	* @access public
 	*/
 	function printForm($replacements=Array())
-	{		
+	{
 		$bodycopy = $this->getBodycopy('Page Contents');
 
 		// check to see if the bodycopy attached to this form has any content
@@ -2496,7 +2496,7 @@ class Form extends Asset implements Bridge
 	public function processPage($page_number, $validate_page=TRUE)
 	{
 		$ok = TRUE;
-		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status. 
+		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.
 		// this var is used to make sure captcha status is processed correctly in this case
 		$one_page_captcha_status = FALSE;
 
@@ -2508,7 +2508,7 @@ class Form extends Asset implements Bridge
 		if ($validate_page && isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
 			if (validate_security_key()) {
 				$submission = $this->getSubmissionAsset();
-			
+
 				if (!empty($submission)) {
 					$submission->setAttrValue('captcha_status', TRUE);
 					$submission->saveAttributes();
@@ -2518,7 +2518,7 @@ class Form extends Asset implements Bridge
 				} else if ($this->getTotalPages() == 1) {
 					$one_page_captcha_status = TRUE;
 				}
-		
+
 			} else {
 				if (is_null($this->submission_errors)) $this->submission_errors = Array();
 				$this->submission_errors = array_merge($this->submission_errors, Array(translate('security_key_incorrect')));
@@ -2539,7 +2539,7 @@ class Form extends Asset implements Bridge
 			$captcha_status = FALSE;
 		}
 
-		
+
 
 		if (($page_number == $this->getTotalPages()) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {
 			if (is_null($this->submission_errors)) $this->submission_errors = Array();
@@ -3319,7 +3319,7 @@ class Form extends Asset implements Bridge
 	*/
 	function &getSubmissionAsset()
 	{
-	
+
 		if (!$this->submission_asset) {
 			// Find the submission asset, but ensure we are getting it from _POST first
 			$submission_assetid = array_get_index($_POST, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
@@ -3933,7 +3933,7 @@ class Form extends Asset implements Bridge
 					case 'field' :
 						$replacement = $question_asset->getHtmlField();
 					break;
-	
+
 					case 'name' :
 						$replacement = $question_asset->attr('name');
 					break;
@@ -4140,8 +4140,35 @@ class Form extends Asset implements Bridge
 	*/
 	function getFormCaptchaImageKeywordReplacement()
 	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
 		ob_start();
-			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'), trim($this->attr('captcha_bgcolour'), '#'), trim($this->attr('captcha_textcolour'), '#'), trim($this->attr('captcha_bordercolour'), '#'));
+			security_key_image_box(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers')
+			);
 		return ob_get_clean();
 
 	}//end getFormCaptchaImageKeywordReplacement()

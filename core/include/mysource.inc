@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.287 2009/02/26 23:07:09 akarelia Exp $
+* $Id: mysource.inc,v 1.288 2009/03/05 05:50:57 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.287 $
+* @version $Revision: 1.288 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1279,10 +1279,33 @@ class MySource
 
 				// are we regenerating the security key?
 				if (isset($_GET['regen_key']) && $_GET['regen_key'] == 1) {
-					$vars['key'] = generate_security_key(strlen($vars['key']));
+					$vars['key'] = generate_security_key(strlen($vars['key']), $vars['include_uppercase'], $vars['include_numbers']);
 				}
 
-				security_key_image($vars['key'], $vars['width'], $vars['height'], $vars['bg_colour'], $vars['text_colour'], $vars['border_colour'], $vars['zoom']);
+				security_key_image(
+									$vars['key_len'],
+									$vars['key'],
+									$vars['width'],
+									$vars['height'],
+									$vars['bg_colour'],
+									$vars['text_colour'],
+									$vars['border_colour'],
+									$vars['zoom'],
+									$vars['use_font'],
+									$vars['font'],
+									$vars['font_size'],
+									$vars['min_angle'],
+									$vars['max_angle'],
+									$vars['x_start'],
+									$vars['min_dist'],
+									$vars['max_dist'],
+									$vars['ttf_width'],
+									$vars['ttf_height'],
+									$vars['use_arc'],
+									$vars['arc_colour'],
+									$vars['include_uppercase'],
+									$vars['include_numbers']
+								  );
 				exit(1);
 			break;
 			case 'rollback_view_start' :
