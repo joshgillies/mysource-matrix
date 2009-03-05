@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.134.2.4 2008/09/17 04:12:42 bpearson Exp $
+* $Id: html_form.inc,v 1.134.2.5 2009/03/05 05:54:26 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.134.2.4 $
+* @version $Revision: 1.134.2.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1301,18 +1301,33 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		$asset_info_ids[] = $data['assetid'];
 
 		if (!in_array($data['type_code'], $type_codes) && !empty($type_codes)) {
+			$invalid_type[] = $child_links[$treeid]['assetid']; //we need this
+			unset($child_links[$treeid]);
+			// need to take this bit off as it is storing the treeid of the asset which has invalid type_code match
+			// by doing so we are not looking under this tree id. But what if i have a Folder under a Standard Page
+			// and i have restricted type to "Folder" ???
+			// below code will result id not looking under the standard page all together since it is a type_code mismatch
+			//$invalid[] = $treeid;
+			continue;
+		}
+
+		if ($child_links[$treeid]['is_dependant']) {
+			$invalid_type[] = $child_links[$treeid]['assetid']; //we need this
 			unset($child_links[$treeid]);
 			$invalid[] = $treeid;
 			continue;
 		}
 
-		// Bug #2914 - Returning folders that are listed under assets which should not be printed
-		// This had an if statement here to test for structured=TRUE which did not filter all out properly
-		foreach ($invalid as $banned) {
-			if (strlen($banned) > strlen($treeid)) continue;
-			if (substr($treeid, 0, strlen($banned)) == $banned) {
-				unset($child_links[$treeid]);
-				continue 1;
+		if ($structured) {
+			// Bug #2914 - Returning folders that are listed under assets which should not be printed
+			// This had an if statement here to test for structured=TRUE which did not filter all out properly
+			// Bug Fix #3534. This need to be put back from the previous bug fix. Just the logic was wrong
+			foreach ($invalid as $banned) {
+				if (strlen($banned) > strlen($treeid)) continue;
+				if (substr($treeid, 0, strlen($banned)) == $banned) {
+					unset($child_links[$treeid]);
+					continue 1;
+				}
 			}
 		}
 
@@ -1359,6 +1374,15 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		id_list_to_tree($treeid, $search_tree);
 	}
 	draw_tree($search_tree, $all_child_links, $options, '', $level, $seperator, $max_depth, $structured);
+
+	// some how while in draw_tree function, matrix is putting back the assets that were removed in the 
+	// very first foreach() method call in the function. so we have to get rid of them
+	foreach ($options as $key_id => $name_value) {
+		if (in_array($key_id,$invalid_type)) {
+			unset($options[$key_id]);
+		}
+	}
+
 	if ($check_boxes) {
 		foreach ($options as $id => $output) {
 			if ($allow_multiple) {
