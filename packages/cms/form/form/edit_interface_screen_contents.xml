@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.31 2009/03/05 05:51:07 mbrydon Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.32 2009/03/05 22:47:42 mbrydon Exp $
 *
 */
 -->
@@ -84,6 +84,9 @@
 		</field>
 		<field attribute="captcha_link_text">
 			<text width="50" />
+		</field>
+		<field attribute="captcha_use_colours">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="captcha_bgcolour">
 			<colour />

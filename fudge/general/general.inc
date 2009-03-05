@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.42 2009/03/05 05:51:03 mbrydon Exp $
+* $Id: general.inc,v 1.43 2009/03/05 22:47:40 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package Fudge
 * @subpackage General
 */
@@ -598,34 +598,42 @@ function generate_security_key($key_len, $include_uppercase=FALSE, $include_numb
 * The letters are each displayed in a random font and are zoomed to a random size
 * based on the zoom factor entered
 *
-* @param int		$key_len	the length of the CAPTCHA key
-* @param string		$word		the word to display in the image
-* @param int		$w			the width of the image (final width will be $w * $zoom)
-* @param int		$h			the height of the image (final height will be $h * $zoom)
-* @param string		$bg			the background colour of the image (eg FFFFFF)
-* @param string		$text		the colour of the text in the image (eg 000000)
-* @param string		$border		the colour of the border image (eg 000000)
-*								for no border, set to the same colour as the background
-* @param int		$zoom		each character will be randomly zoomed between x1 and this figure
-* @param boolean	$use_font	whether to use a user-specified TrueType Font for the CAPTCHA text
-* @param string		$font		the TrueType Font to use for the CAPTCHA text
-* @param int		$font_size	the font point size to use
-* @param int		$min_angle	the minimum rotation angle for characters
-* @param int		$max_angle	the maximum rotation angle for characters
-* @param int		$x_start	the X ordinate location from which to start rendering the CAPTCHA
-* @param int		$min_dist	the minimum pixel distance between characters
-* @param int		$max_dist	the maximum pixel distance between characters
-* @param int		$ttf_width	the pixel width of the TrueType Font image
-* @param int		$ttf_height	the pixel height of the TrueType Font image
-* @param boolean	$use_arc	whether to overlay arcs across the CAPTCHA text
-* @param string		$arc_colour	the RGB colour of the arc elements
+* @param int		$key_len		the length of the CAPTCHA key
+* @param string		$word			the word to display in the image
+* @param int		$w				the width of the image (final width will be $w * $zoom)
+* @param int		$h				the height of the image (final height will be $h * $zoom)
+* @param string		$bg				the background colour of the image (eg FFFFFF)
+* @param string		$text			the colour of the text in the image (eg 000000)
+* @param string		$border			the colour of the border image (eg 000000)
+*									for no border, set to the same colour as the background
+* @param int		$zoom			each character will be randomly zoomed between x1 and this figure
+* @param boolean    $use_colours	whether to use the supplied CAPTCHA background, text and border colours
+* @param boolean	$use_font		whether to use a user-specified TrueType Font for the CAPTCHA text
+* @param string		$font			the TrueType Font to use for the CAPTCHA text
+* @param int		$font_size		the font point size to use
+* @param int		$min_angle		the minimum rotation angle for characters
+* @param int		$max_angle		the maximum rotation angle for characters
+* @param int		$x_start		the X ordinate location from which to start rendering the CAPTCHA
+* @param int		$min_dist		the minimum pixel distance between characters
+* @param int		$max_dist		the maximum pixel distance between characters
+* @param int		$ttf_width		the pixel width of the TrueType Font image
+* @param int		$ttf_height		the pixel height of the TrueType Font image
+* @param boolean	$use_arc		whether to overlay arcs across the CAPTCHA text
+* @param string		$arc_colour		the RGB colour of the arc elements
 *
 * @return void
 * @access public
 */
-function security_key_image($key_len, $word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_color='D20A0A')
+function security_key_image($key_len, $word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1, $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_color='D20A0A')
 {
 	if (!empty($word)) {
+		// Reset colours to defaults if we are not using them
+		if (!$use_colours) {
+			$bg		= 'FFFFFF'; // White background
+			$text	= '000000'; // Black text
+			$border	= '000000'; // Black border
+		}
+
 		// cache control for this image
 		header('Cache-Control:');
 		header('Pragma: cache');
