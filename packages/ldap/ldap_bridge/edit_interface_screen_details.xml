@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.12 2007/08/14 01:39:15 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12.4.1 2009/03/06 05:34:26 bpearson Exp $
 *
 */
 -->
@@ -59,6 +59,9 @@
 			<password width="15" min_length="1" />
 		</field>
 		<field attribute="auth_dn">
+			<text width="40" height="1" />
+		</field>		
+		<field attribute="auth_filter">
 			<text width="40" height="1" />
 		</field>		
 	</section>

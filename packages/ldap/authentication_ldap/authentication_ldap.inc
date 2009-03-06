@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.19 2007/12/04 05:08:48 gsherwood Exp $
+* $Id: authentication_ldap.inc,v 1.19.4.1 2009/03/06 05:34:26 bpearson Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -87,7 +87,16 @@ class Authentication_LDAP extends Authentication
 			} else {
 				$auth_base_dn = $bridge->attr('root_dn');
 			}
-			$result = $ldap->search($auth_base_dn,'('.$attrs['uid'].'='.$username.')');
+
+			// Check for extra LDAP filtering
+			$auth_filter = trim($bridge->attr('auth_filter'));
+			if (!empty($auth_filter)) {
+				$filter = '(&('.$auth_filter.')('.$attrs['uid'].'='.$username.'))';
+			} else {
+				$filter = '('.$attrs['uid'].'='.$username.')';
+			}//end if
+
+			$result = $ldap->search($auth_base_dn, $filter);
 			if (!$result) continue;
 
 			$entry = $ldap->getEntries($result);
