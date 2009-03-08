@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.216 2009/03/05 22:47:42 mbrydon Exp $
+* $Id: form.inc,v 1.217 2009/03/08 22:57:49 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4157,6 +4157,7 @@ class Form extends Asset implements Bridge
 				$this->attr('captcha_include_uppercase'),
 				$this->attr('captcha_include_numbers')
 			);
+		return ob_get_clean();
 
 	}//end getFormCaptchaKeywordReplacement()
 
