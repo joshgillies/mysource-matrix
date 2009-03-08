@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.178.2.13 2009/02/09 23:21:02 ewang Exp $
+* $Id: form.inc,v 1.178.2.14 2009/03/08 23:43:32 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.178.2.13 $
+* @version $Revision: 1.178.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -614,6 +614,14 @@ class Form extends Asset implements Bridge
 				}
 			}
 		}
+
+		foreach ($children as $child_id => $details) {
+           	foreach ($type_code as $index => $code) {
+				if ($details[0]['type_code'] != $code) {
+					unset($children[$child_id]);
+				}
+			}
+        }
 
 		if (!is_null($sort_by)) {
 			uasort($children, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"]'));
