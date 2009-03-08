@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.8 2009/03/02 04:01:15 lwright Exp $
+* $Id: form.inc,v 1.207.2.9 2009/03/08 22:44:00 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.8 $
+* @version $Revision: 1.207.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4135,8 +4135,35 @@ class Form extends Asset implements Bridge
 	*/
 	function getFormCaptchaImageKeywordReplacement()
 	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
 		ob_start();
-			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'), trim($this->attr('captcha_bgcolour'), '#'), trim($this->attr('captcha_textcolour'), '#'), trim($this->attr('captcha_bordercolour'), '#'));
+			security_key_image_box(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers')
+			);
 		return ob_get_clean();
 
 	}//end getFormCaptchaImageKeywordReplacement()

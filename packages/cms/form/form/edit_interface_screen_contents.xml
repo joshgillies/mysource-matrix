@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.28.2.2 2009/02/26 05:44:01 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.28.2.3 2009/03/08 22:44:00 mbrydon Exp $
 *
 */
 -->
@@ -93,6 +93,48 @@
 		</field>
 		<field attribute="captcha_bordercolour">
 			<colour />
+		</field>
+		<field attribute="captcha_usefont">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_ttf">
+			<assetid type_codes="file:D" />
+		</field>
+		<field attribute="captcha_font_size">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_width">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_height">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_min_angle">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_max_angle">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_x_start">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_min_distance">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_max_distance">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_arc">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_arc_colour">
+			<colour />
+		</field>
+		<field attribute="captcha_include_uppercase">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_include_numbers">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Multiple Page Form Options">

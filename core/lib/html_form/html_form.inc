@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.140.2.1 2009/03/05 05:54:09 akarelia Exp $
+* $Id: html_form.inc,v 1.140.2.2 2009/03/08 22:43:35 mbrydon Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.1 $
+* @version $Revision: 1.140.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -866,16 +866,30 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 * @param string		$text			the colour of the text in the image (eg 000000)
 * @param string		$border			the colour of the border image (eg 000000)
 *									for no border, set to the same colour as the background
+* @param boolean	$use_font		whether to use a user-specified TrueType Font for the CAPTCHA text
+* @param string		$font			the TrueType Font to use for the CAPTCHA text
+* @param int		$font_size		the font point size to use
+* @param int		$min_angle		the minimum rotation angle for characters
+* @param int		$max_angle		the maximum rotation angle for characters
+* @param int		$x_start		the X ordinate location from which to start rendering the CAPTCHA
+* @param int		$min_dist		the minimum pixel distance between characters
+* @param int		$max_dist		the maximum pixel distance between characters
+* @param int		$ttf_width		the pixel width of the TrueType Font image
+* @param int		$ttf_height		the pixel height of the TrueType Font image
+* @param boolean	$use_arc		whether to overlay arcs across the CAPTCHA text
+* @param string		$arc_colour		the RGB colour of the arc elements
+* @param boolean	$include_uppercase	whether to include uppercase characters in the CAPTCHA text
+* @param boolean	$include_numbers	whether to include numbers in the CAPTCHA text
 *
 * @return void
 * @access public
 */
-function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000')
+function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000', $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
 {
 
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
-	$password = generate_security_key($key_len);
+	$password = generate_security_key($key_len, $include_uppercase, $include_numbers);
 
 	// work out the width and height of the image
 	$img_width  = $key_len * 10.5;
@@ -884,13 +898,28 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 	// we need to store these vars in the session so we can get the
 	// system to print the security image for us
 	$security_vars = Array(
-						'key'			=> $password,
-						'width'			=> $img_width,
-						'height'		=> $img_height,
-						'bg_colour'		=> $bg,
-						'text_colour'	=> $text,
-						'border_colour'	=> $border,
-						'zoom'			=> $zoom,
+						'key_len'			=> $key_len,
+						'key'				=> $password,
+						'width'				=> $img_width,
+						'height'			=> $img_height,
+						'bg_colour'			=> $bg,
+						'text_colour'		=> $text,
+						'border_colour'		=> $border,
+						'zoom'				=> $zoom,
+						'use_font'			=> $use_font,
+						'font'				=> $font,
+						'font_size'			=> $font_size,
+						'min_angle'			=> $min_angle,
+						'max_angle'			=> $max_angle,
+						'x_start'			=> $x_start,
+						'min_dist'			=> $min_dist,
+						'max_dist'			=> $max_dist,
+						'ttf_width'			=> $ttf_width,
+						'ttf_height'		=> $ttf_height,
+						'use_arc'			=> $use_arc,
+						'arc_colour'		=> $arc_colour,
+						'include_uppercase'	=> $include_uppercase,
+						'include_numbers'	=> $include_numbers,
 					 );
 	$_SESSION['SQ_SYSTEM_SECURITY_KEY'] = $security_vars;
 
@@ -928,21 +957,35 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 /**
 * Prints an security key generated inside an image and sets the security key session vars
 *
-* @param int	$key_len	the lenght of the random string to display in the image
-* @param float	$zoom		each character will be randomly zoomed between x1 and this figure
-* @param string	$bg			the background colour of the image (eg FFFFFF)
-* @param string	$text		the colour of the text in the image (eg 000000)
-* @param string	$border		the colour of the border image (eg 000000)
-*							for no border, set to the same colour as the background
+* @param int		$key_len		the lenght of the random string to display in the image
+* @param float		$zoom			each character will be randomly zoomed between x1 and this figure
+* @param string		$bg				the background colour of the image (eg FFFFFF)
+* @param string		$text			the colour of the text in the image (eg 000000)
+* @param string		$border			the colour of the border image (eg 000000)
+*									for no border, set to the same colour as the background
+* @param boolean	$use_font		whether to use a user-specified TrueType Font for the CAPTCHA text
+* @param string		$font			the TrueType Font to use for the CAPTCHA text
+* @param int		$font_size		the font point size to use
+* @param int		$min_angle		the minimum rotation angle for characters
+* @param int		$max_angle		the maximum rotation angle for characters
+* @param int		$x_start		the X ordinate location from which to start rendering the CAPTCHA
+* @param int		$min_dist		the minimum pixel distance between characters
+* @param int		$max_dist		the maximum pixel distance between characters
+* @param int		$ttf_width		the pixel width of the TrueType Font image
+* @param int		$ttf_height		the pixel height of the TrueType Font image
+* @param boolean	$use_arc		whether to overlay arcs across the CAPTCHA text
+* @param string		$arc_colour		the RGB colour of the arc elements
+* @param boolean	$include_uppercase	whether to include uppercase characters in the CAPTCHA text
+* @param boolean	$include_numbers	whether to include numbers in the CAPTCHA text
 *
 * @return void
 * @access public
 */
-function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000')
+function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000', $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=false, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
 {
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
-	$password = generate_security_key($key_len);
+	$password = generate_security_key($key_len, $include_uppercase, $include_numbers);
 
 	// work out the width and height of the image
 	$img_width  = $key_len * 10.5;
@@ -951,6 +994,7 @@ function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000',
 	// we need to store these vars in the session so we can get the
 	// system to print the security image for us
 	$security_vars = Array(
+						'key_len'		=> $key_len,
 						'key'			=> $password,
 						'width'			=> $img_width,
 						'height'		=> $img_height,
@@ -958,6 +1002,20 @@ function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000',
 						'text_colour'	=> $text,
 						'border_colour'	=> $border,
 						'zoom'			=> $zoom,
+						'use_font'		=> $use_font,
+						'font'			=> $font,
+						'font_size'		=> $font_size,
+						'min_angle'		=> $min_angle,
+						'max_angle'		=> $max_angle,
+						'x_start'		=> $x_start,
+						'min_dist'		=> $min_dist,
+						'max_dist'		=> $max_dist,
+						'ttf_width'		=> $ttf_width,
+						'ttf_height'	=> $ttf_height,
+						'use_arc'		=> $use_arc,
+						'arc_colour'	=> $arc_colour,
+						'include_uppercase'	=> $include_uppercase,
+						'include_numbers'	=> $include_numbers,
 					 );
 	$_SESSION['SQ_SYSTEM_SECURITY_KEY'] = $security_vars;
 
