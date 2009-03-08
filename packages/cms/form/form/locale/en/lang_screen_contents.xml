@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.10.2.3 2009/03/08 22:44:00 mbrydon Exp $
+* $Id: lang_screen_contents.xml,v 1.10.2.4 2009/03/08 23:32:13 mbrydon Exp $
 *
 */
 -->
@@ -108,6 +108,10 @@
 		<field attribute="captcha_link_text">
 			<display_name>CAPTCHA Regen Link Text</display_name>
 			<note>This text will appear when the %form_captcha_link% keyword is used.</note>
+		</field>
+		<field attribute="captcha_use_colours">
+			<display_name>Use CAPTCHA Colours</display_name>
+			<note>If this option is enabled, the CAPTCHA Background, Text and Border colours specified below will be used when rendering the CAPTCHA element.</note>
 		</field>
 		<field attribute="captcha_bgcolour">
 			<display_name>CAPTCHA Background Colour</display_name>

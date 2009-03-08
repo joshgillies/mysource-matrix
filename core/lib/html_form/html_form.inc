@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.140.2.2 2009/03/08 22:43:35 mbrydon Exp $
+* $Id: html_form.inc,v 1.140.2.3 2009/03/08 23:32:07 mbrydon Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.2 $
+* @version $Revision: 1.140.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -866,6 +866,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 * @param string		$text			the colour of the text in the image (eg 000000)
 * @param string		$border			the colour of the border image (eg 000000)
 *									for no border, set to the same colour as the background
+* @param boolea		$use_colours	whether to use the supplied CAPTCHA background, text and border colours
 * @param boolean	$use_font		whether to use a user-specified TrueType Font for the CAPTCHA text
 * @param string		$font			the TrueType Font to use for the CAPTCHA text
 * @param int		$font_size		the font point size to use
@@ -884,7 +885,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 * @return void
 * @access public
 */
-function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000', $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
+function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
 {
 
 	// generate a random security key string
@@ -902,6 +903,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 						'key'				=> $password,
 						'width'				=> $img_width,
 						'height'			=> $img_height,
+						'use_colours'		=> $use_colours,
 						'bg_colour'			=> $bg,
 						'text_colour'		=> $text,
 						'border_colour'		=> $border,
@@ -963,6 +965,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 * @param string		$text			the colour of the text in the image (eg 000000)
 * @param string		$border			the colour of the border image (eg 000000)
 *									for no border, set to the same colour as the background
+* @param boolean	$use_colours	whether to use the supplied CAPTCHA background, text and border colours
 * @param boolean	$use_font		whether to use a user-specified TrueType Font for the CAPTCHA text
 * @param string		$font			the TrueType Font to use for the CAPTCHA text
 * @param int		$font_size		the font point size to use
@@ -981,7 +984,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 * @return void
 * @access public
 */
-function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000', $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=false, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
+function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=false, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
 {
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
@@ -998,6 +1001,7 @@ function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000',
 						'key'			=> $password,
 						'width'			=> $img_width,
 						'height'		=> $img_height,
+						'use_colours'	=> $use_colours,
 						'bg_colour'		=> $bg,
 						'text_colour'	=> $text,
 						'border_colour'	=> $border,

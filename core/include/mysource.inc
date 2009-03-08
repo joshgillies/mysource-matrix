@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.279.2.7 2009/03/08 22:43:35 mbrydon Exp $
+* $Id: mysource.inc,v 1.279.2.8 2009/03/08 23:32:08 mbrydon Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.279.2.7 $
+* @version $Revision: 1.279.2.8 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1291,6 +1291,7 @@ class MySource
 									$vars['text_colour'],
 									$vars['border_colour'],
 									$vars['zoom'],
+									$vars['use_colours'],
 									$vars['use_font'],
 									$vars['font'],
 									$vars['font_size'],

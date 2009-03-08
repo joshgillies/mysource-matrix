@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.41.2.1 2009/03/08 22:43:52 mbrydon Exp $
+* $Id: general.inc,v 1.41.2.2 2009/03/08 23:32:11 mbrydon Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41.2.1 $
+* @version $Revision: 1.41.2.2 $
 * @package Fudge
 * @subpackage General
 */
@@ -607,6 +607,7 @@ function generate_security_key($key_len, $include_uppercase=FALSE, $include_numb
 * @param string		$border		the colour of the border image (eg 000000)
 *								for no border, set to the same colour as the background
 * @param int		$zoom		each character will be randomly zoomed between x1 and this figure
+* @param boolean	$use_colours	whether to use the supplied CAPTCHA background, text and border colours
 * @param boolean	$use_font	whether to use a user-specified TrueType Font for the CAPTCHA text
 * @param string		$font		the TrueType Font to use for the CAPTCHA text
 * @param int		$font_size	the font point size to use
@@ -623,9 +624,16 @@ function generate_security_key($key_len, $include_uppercase=FALSE, $include_numb
 * @return void
 * @access public
 */
-function security_key_image($key_len, $word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_color='D20A0A')
+function security_key_image($key_len, $word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1, $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_color='D20A0A')
 {
 	if (!empty($word)) {
+		// Reset colours to defaults if we are not using them
+		if (!$use_colours) {
+			$bg             = 'FFFFFF'; // White background
+			$text   = '000000'; // Black text
+			$border = '000000'; // Black border
+		}
+
 		// cache control for this image
 		header('Cache-Control:');
 		header('Pragma: cache');
