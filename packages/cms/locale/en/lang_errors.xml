@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.21 2008/10/10 03:48:51 lwright Exp $
+* $Id: lang_errors.xml,v 1.22 2009/03/09 04:28:03 mbrydon Exp $
 *
 */
 -->
@@ -217,5 +217,8 @@
 
 	<!-- Custom Form -->
 	<error code="CMS0108">Unable to create nested section "%1$s" underneath "%2$s"</error>
+
+	<!-- Custom Form and Asset Builder -->
+	<error code="CMS0109">The CAPTCHA Font specified was not a TrueType Font File (ie; did not have a .ttf extension)</error>
 
 </errors>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.32 2009/03/05 22:47:42 mbrydon Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.33 2009/03/09 04:28:03 mbrydon Exp $
 *
 */
 -->
@@ -100,8 +100,11 @@
 		<field attribute="captcha_usefont">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="captcha_ttf">
-			<assetid type_codes="file:D" />
+		<field>
+			<function_call>
+				<paint_function   name="paintCaptchaFontField" />
+				<process_function name="processCaptchaFontField" />
+			</function_call>
 		</field>
 		<field attribute="captcha_font_size">
 			<int width="5" />
