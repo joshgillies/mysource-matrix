@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.82 2008/10/10 04:25:25 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.82.2.1 2009/03/09 04:49:29 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.82.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -711,6 +711,74 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end processComplexFormatting()
+
+
+	/**
+	* Paints the interface for the CAPTCHA Font field
+	*
+	* @param object &$asset the asset to which we belong
+	* @param object &$o             the outputter class
+	* @param string $prefix prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCaptchaFontField(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			asset_finder($prefix.'_captcha_ttf', $asset->attr('captcha_ttf'), Array('file' => 'D'));
+		} else {
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset->attr('captcha_ttf'));
+			$ttf_file_id = $asset->attr('captcha_ttf');
+			if ($ttf_file_id > 0) {
+				echo get_asset_tag_line($ttf_file_id);
+			} else {
+				echo translate('none_selected');
+			}
+		}
+		return TRUE;
+
+	}//end paintCaptchaFontField()
+
+
+	/**
+	* Processes the interface for the CAPTCHA Font field
+	*
+	* @param object &$asset the asset to which we belong
+	* @param object &$o             the outputter class
+	* @param string $prefix prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCaptchaFontField(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_captcha_ttf'])) {
+			$ttf_file_id = $_POST[$prefix.'_captcha_ttf']['assetid'];
+
+			if ($ttf_file_id != $asset->attr('captcha_ttf')) {
+				if ($ttf_file_id > 0) {
+					// Grab the specified asset - it should be a File - and ensure that it is a TrueType Font
+					$ttf_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($ttf_file_id);
+
+					$ttf_file_info = $ttf_file->getExistingFile();
+					$filename = strtolower($ttf_file_info['filename']);
+
+					$extension_index = strpos($filename, '.ttf');
+					if (($extension_index !== FALSE) && ($extension_index == strlen($filename)-4)) {
+						return $asset->setAttrValue('captcha_ttf', $ttf_file_id);
+					} else {
+						trigger_localised_error('CMS0109', E_USER_WARNING);
+					}
+				} else {
+					return $asset->setAttrValue('captcha_ttf', NULL);
+				}
+			}
+		}
+
+		return FALSE;
+
+	}//end processCaptchaFontField()
 
 
 	/**
