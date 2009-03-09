@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.16 2008/07/03 02:19:36 bshkara Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17 2009/03/09 01:25:54 mbrydon Exp $
 *
 */
 -->
@@ -67,7 +67,7 @@
 			</function_call>
 		</field>
 	</section>
-		<section name="CAPTCHA" write_access="write:attributes">
+	<section name="CAPTCHA" write_access="write:attributes">
 		<field attribute="require_captcha">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -79,6 +79,60 @@
 		</field>
 		<field attribute="captcha_link_text">
 			<text width="50" />
+		</field>
+		<field attribute="captcha_use_colours">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_bgcolour">
+			<colour />
+		</field>
+		<field attribute="captcha_textcolour">
+			<colour />
+		</field>
+		<field attribute="captcha_bordercolour">
+			<colour />
+		</field>
+		<field attribute="captcha_usefont">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_ttf">
+			<assetid type_codes="file:D" />
+		</field>
+		<field attribute="captcha_font_size">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_width">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_height">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_min_angle">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_max_angle">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_x_start">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_min_distance">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_max_distance">
+			<int width="5" />
+		</field>
+		<field attribute="captcha_arc">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_arc_colour">
+			<colour />
+		</field>
+		<field attribute="captcha_include_uppercase">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="captcha_include_numbers">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 </contents>

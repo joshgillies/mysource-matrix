@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.144 2009/01/19 05:00:08 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.145 2009/03/09 01:25:54 mbrydon Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -331,8 +331,38 @@ class Page_Asset_Builder extends Page
 	*/
 	function getFormCaptchaKeywordReplacement()
 	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
 		ob_start();
-			security_key($this->attr('captcha_length'), $this->attr('captcha_length'), $this->attr('captcha_zoom'));
+			security_key(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				FALSE,
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_use_colours'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers')
+			);
 		return ob_get_clean();
 
 	}//end getFormCaptchaKeywordReplacement()
@@ -346,8 +376,36 @@ class Page_Asset_Builder extends Page
 	*/
 	function getFormCaptchaImageKeywordReplacement()
 	{
+		if (!$this->attr('captcha_ttf') == '') {
+			$font = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('captcha_ttf'));
+			$file_path = $font->data_path.'/'.$font->attr('name');
+		} else {
+			$file_path = '';
+		}
+
 		ob_start();
-			security_key_image_box($this->attr('captcha_length'), $this->attr('captcha_zoom'));
+			security_key_image_box(
+				$this->attr('captcha_length'),
+				$this->attr('captcha_zoom'),
+				trim($this->attr('captcha_bgcolour'), '#'),
+				trim($this->attr('captcha_textcolour'), '#'),
+				trim($this->attr('captcha_bordercolour'), '#'),
+				$this->attr('captcha_use_colours'),
+				$this->attr('captcha_usefont'),
+				$file_path,
+				$this->attr('captcha_font_size'),
+				$this->attr('captcha_min_angle'),
+				$this->attr('captcha_max_angle'),
+				$this->attr('captcha_x_start'),
+				$this->attr('captcha_min_distance'),
+				$this->attr('captcha_max_distance'),
+				$this->attr('captcha_width'),
+				$this->attr('captcha_height'),
+				$this->attr('captcha_arc'),
+				trim($this->attr('captcha_arc_colour'), '#'),
+				$this->attr('captcha_include_uppercase'),
+				$this->attr('captcha_include_numbers')
+			);
 		return ob_get_clean();
 
 	}//end getFormCaptchaImageKeywordReplacement()
