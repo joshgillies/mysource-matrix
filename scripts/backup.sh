@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.15 2009/01/27 23:53:57 csmith Exp $
+#* $Id: backup.sh,v 1.16 2009/03/09 02:48:58 csmith Exp $
 #*
 #*/
 #
@@ -78,11 +78,11 @@ function pg_dbdump()
 		schema_only=1
 	fi
 
-	if [[ "${host}" = "" ]]; then
+	if [[ "${host}" == "" ]]; then
 		host='localhost'
 	fi
 
-	if [[ "${port}" = "" ]]; then
+	if [[ "${port}" == "" ]]; then
 		port=5432
 	fi
 
@@ -120,7 +120,11 @@ function pg_dbdump()
 
 	print_verbose "Finished creating pgpass file."
 
-	args="-i -h ${host} -p ${port} -U ${username}";
+	args="-i "
+	if [[ "${host}" != "localhost" ]]; then
+		args="${args} -h ${host} "
+	fi
+	args="${args} -p ${port} -U ${username}"
 
 	dumpfileprefix=${db}
 
@@ -133,6 +137,8 @@ function pg_dbdump()
 	fi
 
 	dumpfile=${SYSTEM_ROOT}/${dumpfileprefix}-`date +%Y-%m-%d_%H-%M`.dump
+
+	echo "${dumpfile}" >> "${SYSTEM_ROOT}/.extra_backup_files"
 
 	echo $pgpass_string > ${pgpass_filename}
 
@@ -224,6 +230,11 @@ if [[ $? -gt 0 ]]; then
 	CRON_RUN=1
 fi
 
+if [[ -f "${SYSTEM_ROOT}/.extra_backup_files" ]]; then
+	rm -f "${SYSTEM_ROOT}/.extra_backup_files"
+fi
+
+touch "${SYSTEM_ROOT}/.extra_backup_files"
 
 if [[ -n ${PHP} ]] && [[ -e ${PHP} ]];then
 	PHP=${PHP}
@@ -407,6 +418,8 @@ function oracle_dbdump()
 
 	dumpfile=${dumpfilepath}/${dumpfileprefix}-`date +%Y-%m-%d_%H-%M`.dump
 
+	echo "${dumpfile}" >> "${SYSTEM_ROOT}/.extra_backup_files"
+
 	print_verbose "Dumping database out to ${dumpfile} .. "
 
 	oracle_args="consistent=y"
@@ -504,10 +517,13 @@ cd "${sysroot_dir}/"
 
 print_verbose "Creating an exclude file .. "
 echo "${sysroot_base}/${backupfilename}" > ${mydir}/tar_exclude_list
+echo "${sysroot_base}/.extra_backup_files" >> ${mydir}/tar_exclude_list
 echo "${backupdir}/${backupfilename}" >> ${mydir}/tar_exclude_list
-for file in $(find "${sysroot_base}" -name '*-backup.tar*'); do
+
+for file in $(find "${sysroot_base}" \( -path "${sysroot_base}/cache" -o -path "${sysroot_base}/data" \) -prune -o -type f -name '*-backup.tar*' -print); do
 	echo "${file}" >> ${mydir}/tar_exclude_list
 done
+
 echo "${sysroot_base}/cache" >> ${mydir}/tar_exclude_list
 print_verbose "Done"
 print_verbose ""
@@ -531,7 +547,7 @@ print_verbose "Finished Tar'ing up the ${SYSTEM_ROOT} folder to ${backupdir}/${b
 
 print_verbose ""
 print_verbose "Removing tar exclude list .. "
-rm -f ./tar_exclude_list
+rm -f ${mydir}/tar_exclude_list
 print_verbose "Done"
 print_verbose ""
 
@@ -547,10 +563,21 @@ fi
 print_verbose "Finished gzipping up ${backupdir}/${backupfilename}."
 print_verbose "Cleaning up .. "
 
-rm -f ${dumpfile}
+files=$(cat ${SYSTEM_ROOT}/.extra_backup_files)
+for file in $files; do
+	rm -f "${file}"
+	if [[ $? -gt 0 ]]; then
+		print_verbose ""
+		echo "Unable to clean up file ${file}."
+		print_verbose ""
+	fi
+done
+
+file="${SYSTEM_ROOT}/.extra_backup_files"
+rm -f "${file}"
 if [[ $? -gt 0 ]]; then
 	print_verbose ""
-	echo "Unable to clean up dumpfile ${dumpfile}."
+	echo "Unable to clean up file ${file}."
 	print_verbose ""
 fi
 
