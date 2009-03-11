@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.62.2.2 2009/02/13 01:46:54 ewang Exp $
+* $Id: search_page_management.inc,v 1.62.2.3 2009/03/11 23:05:00 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.62.2.2 $
+* @version $Revision: 1.62.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -274,6 +274,36 @@ class Search_Page_Management extends Asset_Management
 													'description'	=> 'If true, only look for assets underneath root nodes',
 													'parameters'	=> Array('allow_empty' => FALSE),
 												  );
+		$this->vars['restrict_date_field'] = Array(
+												'added'			=> '0.24',
+												'type'			=> 'selection',
+												'default'		=> 'updated',
+												'parameters'	=> Array(
+																	'options'	=> Array(
+																					'created'	=> 'Created Date',
+																					'updated'	=> 'Last Updated Date',
+																					'published'	=> 'Last Published Date',
+																					),
+																   ),
+												'multiple'		=> FALSE,
+												'allow_empty'	=> FALSE,
+											   );
+		$this->vars['restrict_date_range_from'] = Array(
+												'added'			=> '0.24',
+												'type'			=> 'datetime',
+												'default'		=> '---------- --:--:--',
+												'parameters'	=> Array(
+																	'allow_null'	=> TRUE,
+																   ),
+											   );
+		$this->vars['restrict_date_range_to'] = Array(
+												'added'			=> '0.24',
+												'type'			=> 'datetime',
+												'default'		=> '---------- --:--:--',
+												'parameters'	=> Array(
+																	'allow_null'	=> TRUE,
+																   ),
+											   );
 	}//end constructor
 
 

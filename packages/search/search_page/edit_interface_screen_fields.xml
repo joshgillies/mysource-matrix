@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.24 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.24.2.1 2009/03/11 23:05:08 ewang Exp $
 *
 */
 -->
@@ -47,6 +47,35 @@
 				<paint_function name="paintStyles" />
 				<process_function name="processStyles" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Restrict Results Date Range" write_access="write:attributes">
+		<field attribute="restrict_date_field">
+			<selection style="list" />
+		</field>
+		<field attribute="restrict_date_range_from">
+			 <datetime default="2009-01-01 00:00:00" min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="1" use_picker="1">
+				<show>
+					<y style="t" allow_null="1" />
+					<m style="s" allow_null="1" />
+					<d style="s" allow_null="1" />
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+					<s style="s" allow_null="1" />
+				</show>
+			</datetime>
+		</field>
+		<field attribute="restrict_date_range_to">
+			 <datetime default="2009-01-01 00:00:00" min="1970-01-01 00:00:00" max="2030-12-31 23:59:59" allow_circa="0" allow_period="1" use_picker="1">
+				<show>
+					<y style="t" allow_null="1" />
+					<m style="s" allow_null="1" />
+					<d style="s" allow_null="1" />
+					<h style="s" allow_null="1" />
+					<i style="s" allow_null="1" />
+					<s style="s" allow_null="1" />
+				</show>
+			</datetime>
 		</field>
 	</section>
 </contents>
