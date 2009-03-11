@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.193 2009/03/03 23:21:48 bpearson Exp $
+* $Id: search_manager.inc,v 1.194 2009/03/11 23:00:13 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.193 $
+* @version $Revision: 1.194 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1904,8 +1904,13 @@ class Search_Manager extends Asset
 			} else {
 				$field_results = $field_results + $cross_source_results;
 			}
-
-			$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
+			// if this search field has its own logic, use it first
+			if(isset($field_details['specific_field_logic'])) {
+				$final_results = $this->_combineResults($final_results, $field_results, $field_details['specific_field_logic']);
+			}
+			else {
+				$final_results = $this->_combineResults($final_results, $field_results, $field_logic);
+			}
 		}//end foreach $search_info['fields']
 
 		  //////////////////////////////

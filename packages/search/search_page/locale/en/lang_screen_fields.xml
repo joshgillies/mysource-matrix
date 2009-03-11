@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_fields.xml,v 1.8 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: lang_screen_fields.xml,v 1.9 2009/03/11 23:00:56 ewang Exp $
 *
 */
 -->
@@ -55,6 +55,20 @@
 				<paint_function name="paintStyles" />
 				<process_function name="processStyles" />
 			</function_call>
+		</field>
+	</section>
+	<section name="Restrict Results Date Range">
+		<field attribute="restrict_date_field">
+			<display_name>Date Field</display_name>
+			<note>This is the date used to determine which date range to restrict</note>
+		</field>
+		<field attribute="restrict_date_range_from">
+			<display_name>Oldest Date</display_name>
+			<note>Restrict search results that are newer than this date</note>
+		</field>
+		<field attribute="restrict_date_range_to">
+			<display_name>Newest Date</display_name>
+			<note>Restrict search results that are older than this date</note>
 		</field>
 	</section>
 </contents>

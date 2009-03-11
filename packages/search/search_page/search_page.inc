@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.232 2009/02/13 01:42:34 ewang Exp $
+* $Id: search_page.inc,v 1.233 2009/03/11 22:59:02 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.232 $
+* @version $Revision: 1.233 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2238,6 +2238,86 @@ class Search_Page extends Listing_Engine
 
 
 	/**
+	*
+	* Add date range restriction to search results by adding a date range search field with
+	* special name 'matrix_search_page_date_range'
+	*
+	* @param array	$fields	Details fields from fields attr
+	* @param array	$queries Details of search queries
+	*
+	* @return void
+	* @access private
+	*/
+	function _addDateRangeRestriction (&$fields, &$queries)
+	{
+		$restrict_date_field = $this->attr('restrict_date_field');
+		$to = $this->getAttribute('restrict_date_range_to');
+		$from = $this->getAttribute('restrict_date_range_from');
+
+		// return if restriction is not set
+		if(empty($restrict_date_field) || ( $to->value === '---------- --:--:--' && $from->value === '---------- --:--:--')) {
+			return;
+		}
+		$from = $from->getISO8601();
+		$from_date = iso8601_date_component($from);
+		if (!empty($from_date)) {
+			// invalid FROM date?
+			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $from_date, $matches)) {
+				trigger_localised_error('CMS0053', E_USER_WARNING, $from_date);
+				return;
+			}
+
+			$from_time = iso8601_time_component($from);
+			if (empty($from_time)) $from_time = '00:00:00';
+
+			// invalid FROM time?
+			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $from_time, $matches)) {
+				trigger_localised_error('CMS0054', E_USER_WARNING, $from_time);
+				return;
+			}
+			$restrict_date_range_from = $from_date.' '.$from_time;
+		}
+
+		$to = $to->getISO8601();
+		$to_date = iso8601_date_component($to);
+		if (!empty($to_date)) {
+			// invalid TO date?
+			if (!preg_match_all('|^\d{4}-\d{2}-\d{2}$|', $to_date, $matches)) {
+				trigger_localised_error('CMS0055', E_USER_WARNING, $to_date);
+				return;
+			}
+
+			$to_time = iso8601_time_component($to);
+			if (empty($to_time)) $to_time = '23:59:59';
+
+			// invalid TO time?
+			if (!preg_match_all('|^\d{2}:\d{2}:\d{2}$|', $to_time, $matches)) {
+				trigger_localised_error('CMS0056', E_USER_WARNING, $to_time);
+				return;
+			}
+			$restrict_date_range_to = $to_date.' '.$to_time;
+		}
+
+			$content = Array();
+			$content['name'] = 'matrix_search_page_date_range';
+			$content['word_logic'] = 'AND';
+			$content['specific_field_logic'] = 'AND';
+			$content['data_sources'] = Array (
+											0 => Array (
+													'type' => 'standard',
+													'params' => Array ('field' => $restrict_date_field)
+												)
+									);
+			$fields['matrix_search_page_date_range'] = $content;
+			$queries['matrix_search_page_date_range'] = Array (
+													'from' => isset($restrict_date_range_from) ? $restrict_date_range_from : '---------- --:--:--',
+													'to' => isset($restrict_date_range_to) ? $restrict_date_range_to : '---------- --:--:--'
+												);
+	}//end _addDateRangeRestriction()
+
+
+
+	/**
 	* Processes a search request
 	*
 	* Note that all search queries are constructed and run in the Search Manager
@@ -2256,6 +2336,9 @@ class Search_Page extends Listing_Engine
 		$fields = $this->attr('fields');
 
 		$queries = $this->_getSearchedQueries();
+
+		// Add date range restriction as a search field and query.
+		$this->_addDateRangeRestriction($fields,$queries);
 
 		// If the search params were passed, get them and use them, if the search queries are empty
 		if (!empty($search) || count($search)>0) {
@@ -2428,6 +2511,13 @@ class Search_Page extends Listing_Engine
 		}//end if
 
 		if ($query_fields_exist) {
+
+			// If date range restriction is the only query field set, it's actually an empty search.
+			// Return empty array if empty search is not allowed.
+			if(!$this->attr('allow_empty_search') && count($search_info['fields']) == 1 && isset($search_info['fields']['matrix_search_page_date_range'])){
+				return Array();
+			}
+
             $auto_ss_field = $this->attr('auto_synonym_search_field');
 
 			$search_results = $sm->processSearch($search_info);
