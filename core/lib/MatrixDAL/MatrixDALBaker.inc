@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDALBaker.inc,v 1.10 2008/02/20 22:41:04 lwright Exp $
+* $Id: MatrixDALBaker.inc,v 1.11 2009/03/12 05:44:16 mbrydon Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_LIB_PATH.'/XML/XML.inc';
 *
 * @since   MySource 3.18.0 RC1
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class MatrixDALBaker extends DALBaker
@@ -448,13 +448,21 @@ class MatrixDALBaker extends DALBaker
 
         // If no packages have been installed yet, we want to at least include
         // the core package.
-        if (empty($packages)) {
-            $packages[] = '__core__';
-        }
+		//
+		// This is a multi-dimensional array because that's what getInstalledPackages
+		// returns later. We only care about including the code_name when we install.
 
-        // Loop through each tables.xml file, see if we can find a table entry
-        // for this table that requires rollback.
-        foreach ($packages as $package_name) {
+		if (empty($packages)) {
+			$packages[] = array(
+							'code_name'	=> '__core__',
+						  );
+		}
+
+		// Loop through each tables.xml file, see if we can find a table entry
+		// for this table that requires rollback.
+		foreach ($packages as $_key => $package_details) {
+			$package_name = $package_details['code_name'];
+
             if ($package_name === '__core__') {
                 $dir = SQ_CORE_PACKAGE_PATH;
             } else {
@@ -469,7 +477,7 @@ class MatrixDALBaker extends DALBaker
                 $xpath = new DOMXPath($doc);
                 $count = $xpath->evaluate('count(/schema/tables/table[@name="'.$table.'" and @require_rollback="1"])');
                 if ($count > 0) return TRUE;
-            }
+			}
         }
 
         // could not find a table, so return FALSE
