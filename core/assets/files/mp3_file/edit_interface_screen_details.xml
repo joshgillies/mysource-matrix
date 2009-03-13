@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2.2.3 2009/01/13 03:38:15 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.2.4 2009/03/13 03:20:07 akarelia Exp $
 *
 */
 -->
@@ -65,10 +65,10 @@
 			<duration biggest_units="minutes" smallest_units="seconds" />
 		</field>
 		<field attribute="bitrate">
-			<int width="4" />
+			<float width="4" />
 		</field>
 		<field attribute="samplerate">
-			<int width="7" />
+			<float width="7" />
 		</field>
 	</section>
 </contents>
