@@ -19,7 +19,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * MP3_File_Management
 *
 * @author  Nicholas Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,8 +83,8 @@ class MP3_File_Management extends Asset_Management
                                                    ),
 					 	'bitrate'				=> Array(
                                                     'added'         => '0.1',
-                                                    'type'          => 'int',
-                                                    'default'       => '',
+                                                    'type'          => 'float',
+                                                    'default'       => 0,
                                                     'is_admin'      => '0',
                                                     'description'   => 'Bitrate of encoded file',
                                                    ),
@@ -104,8 +104,8 @@ class MP3_File_Management extends Asset_Management
 						   							),
 					  'samplerate'				=> Array(
 						   							'added'         => '0.1',
-						   							'type'          => 'int',
-						   							'default'       => '',
+						   							'type'          => 'float',
+						   							'default'       => 0,
 						   							'is_admin'      => '0',
 						   							'description'   => 'Sample Rate of this audio file',
 						   							),
