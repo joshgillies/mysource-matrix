@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.11 2009/03/08 23:44:54 akarelia Exp $
+* $Id: form.inc,v 1.207.2.12 2009/03/16 05:58:02 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.11 $
+* @version $Revision: 1.207.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1643,13 +1643,13 @@ class Form extends Asset implements Bridge
 	**/
 	function printBody()
 	{
+
 		// Pick up the current submission, if any.
 		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
 			$this->restoreFromSubmissionCookie();
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 		} else {
 			$submission = $this->getSubmissionAsset();
-
 		}
 
 		if (isset($submission)) {
@@ -1706,6 +1706,7 @@ class Form extends Asset implements Bridge
 					// If the submission has not yet been created, create the submission
 					// in the "Incomplete Submissions" folder - but if there was only
 					// one page, we can fudge it
+
 					if (!isset($submission_var) && !$submission) {
 						$create_in_completed = ($total_pages == 1) ? TRUE : FALSE;
 
@@ -2503,7 +2504,7 @@ class Form extends Asset implements Bridge
 	public function processPage($page_number, $validate_page=TRUE)
 	{
 		$ok = TRUE;
-		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.  
+		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.
 		// this var is used to make sure captcha status is processed correctly in this case
 		$one_page_captcha_status = FALSE;
 
@@ -2515,6 +2516,7 @@ class Form extends Asset implements Bridge
 		if ($validate_page && isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
 			if (validate_security_key()) {
 				$submission = $this->getSubmissionAsset();
+
 				if (!empty($submission)) {
 					$submission->setAttrValue('captcha_status', TRUE);
 					$submission->saveAttributes();
@@ -2523,8 +2525,8 @@ class Form extends Asset implements Bridge
 					$submission_var['captcha_status'] = TRUE;
 				} else if ($this->getTotalPages() == 1) {
 					$one_page_captcha_status = TRUE;
-					
 				}
+
 			} else {
 				if (is_null($this->submission_errors)) $this->submission_errors = Array();
 				$this->submission_errors = array_merge($this->submission_errors, Array(translate('security_key_incorrect')));
@@ -2544,6 +2546,8 @@ class Form extends Asset implements Bridge
 		} else {
 			$captcha_status = FALSE;
 		}
+
+
 
 		if (($page_number == $this->getTotalPages()) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {
 			if (is_null($this->submission_errors)) $this->submission_errors = Array();
@@ -3323,6 +3327,7 @@ class Form extends Asset implements Bridge
 	*/
 	function &getSubmissionAsset()
 	{
+
 		if (!$this->submission_asset) {
 			// Find the submission asset, but ensure we are getting it from _POST first
 			$submission_assetid = array_get_index($_POST, 'SQ_FORM_'.$this->id.'_SUBMISSION', NULL);
@@ -3931,15 +3936,16 @@ class Form extends Asset implements Bridge
 
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-
 			if (!empty($question_asset)) {
 				switch ($sub_keyword) {
 					case 'field' :
 						$replacement = $question_asset->getHtmlField();
 					break;
-					case 'name' : 	 
-                        $replacement = $question_asset->attr('name'); 	 
-                    break;
+
+					case 'name' :
+						$replacement = $question_asset->attr('name');
+					break;
+
 					case 'id' :
 						$replacement = 'q'.str_replace(':', '_', $assetid);
 					break;
@@ -3956,6 +3962,7 @@ class Form extends Asset implements Bridge
 			} else {
 				$replacement = NULL;
 			}
+
 		} else if ($is_section_keyword) {
 			// Sub keyword in $matches[1] - eg. 'title' or 'contents'
 			// Section assetid in $matches[2]
@@ -4158,7 +4165,8 @@ class Form extends Asset implements Bridge
 				$this->attr('captcha_arc'),
 				trim($this->attr('captcha_arc_colour'), '#'),
 				$this->attr('captcha_include_uppercase'),
-				$this->attr('captcha_include_numbers')
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha')
 			);
 		return ob_get_clean();
 
@@ -4201,7 +4209,8 @@ class Form extends Asset implements Bridge
 				$this->attr('captcha_arc'),
 				trim($this->attr('captcha_arc_colour'), '#'),
 				$this->attr('captcha_include_uppercase'),
-				$this->attr('captcha_include_numbers')
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha')
 			);
 		return ob_get_clean();
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.142.2.3 2009/03/09 03:16:04 mbrydon Exp $
+* $Id: page_asset_builder.inc,v 1.142.2.4 2009/03/16 05:58:02 mbrydon Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.142.2.3 $
+* @version $Revision: 1.142.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -361,7 +361,8 @@ class Page_Asset_Builder extends Page
 				$this->attr('captcha_arc'),
 				trim($this->attr('captcha_arc_colour'), '#'),
 				$this->attr('captcha_include_uppercase'),
-				$this->attr('captcha_include_numbers')
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha')
 			);
 		return ob_get_clean();
 
@@ -404,7 +405,8 @@ class Page_Asset_Builder extends Page
 				$this->attr('captcha_arc'),
 				trim($this->attr('captcha_arc_colour'), '#'),
 				$this->attr('captcha_include_uppercase'),
-				$this->attr('captcha_include_numbers')
+				$this->attr('captcha_include_numbers'),
+				$this->attr('provide_accessible_captcha')
 			);
 		return ob_get_clean();
 
@@ -531,7 +533,7 @@ class Page_Asset_Builder extends Page
 										}//end if
 									}//end if
 
-									
+
 
 									if (!$valid_value) {
 										if (empty($error_text)) {

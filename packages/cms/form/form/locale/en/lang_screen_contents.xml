@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.10.2.5 2009/03/09 04:49:29 mbrydon Exp $
+* $Id: lang_screen_contents.xml,v 1.10.2.6 2009/03/16 05:58:02 mbrydon Exp $
 *
 */
 -->
@@ -96,6 +96,10 @@
 		<field attribute="require_captcha">
 			<display_name>Require CAPTCHA</display_name>
 			<note>CAPTCHA attempts to assert that the form has been submitted by a human, not an automated agent. If require CAPTCHA is set to 'yes' and the default bodycopy is not used, the %form_captcha% keyword or %form_captcha_image% plus %form_captcha_field% keywords must be included on one page for form submissions to be accepted. If no bodycopies are customised, it will appear on the last page of the form.</note>
+		</field>
+		<field attribute="provide_accessible_captcha">
+			<display_name>Provide Accessible CAPTCHA</display_name>
+			<note>If this option is enabled, an interface will be provided for an accessible CAPTCHA which requires the input of an email address to provide a validation email.</note>
 		</field>
 		<field attribute="captcha_length">
 			<display_name>CAPTCHA Key Length</display_name>
