@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.1 2009/03/12 04:55:00 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.2 2009/03/16 01:21:58 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -142,6 +142,16 @@ foreach ($packages as $_pkgid => $pkg_details) {
 
 		if (!empty($table_info['indexes'])) {
 			foreach ($table_info['indexes'] as $index_col => $index_info) {
+				/**
+				 * If the index is for a specific db type (eg the oracle search index),
+				 * check the index db type & current db type match.
+				 */
+				if (isset($index_info['db_type'])) {
+					if ($index_info['db_type'] !== $db_conf['db']['type']) {
+						continue;
+					}
+				}
+
 				foreach ($tables as $tablename) {
 					$full_idx_name = 'sq_' . $tablename . '_' . $index_info['name'];
 					printName('Checking for index ' . $full_idx_name);
@@ -172,11 +182,11 @@ if (!empty($sql_commands)) {
  * Parse the appropriate xml file based on the type of db we're dealing with.
  *
  * @param String $xml_file The name of the xml file to parse
- * @param String $dest_db The destination db type ('pgsql', 'oci').
+ * @param String $db_type The db type ('pgsql', 'oci').
  *
  * @return Array Returns a large array of the tables, sequences, indexes appropriate for that db type.
  */
-function parse_tables_xml($xml_file, $dest_db)
+function parse_tables_xml($xml_file, $db_type)
 {
 	try {
 		$root = new SimpleXMLElement($xml_file, LIBXML_NOCDATA, TRUE);
@@ -226,7 +236,7 @@ function parse_tables_xml($xml_file, $dest_db)
 					case 'type_variations' :
 						// check for varitions of the column type for his database
 						foreach ($column_var->children() as $variation) {
-							if ($variation->getName() == _getDbType(false, $dest_db)) {
+							if ($variation->getName() == _getDbType(false, $db_type)) {
 								$type = (string)$variation;
 								break;
 							}
@@ -253,7 +263,7 @@ function parse_tables_xml($xml_file, $dest_db)
 			if (isset($table->keys) && (count($table->keys->children()) > 0)) {
 				foreach ($table->keys->children() as $table_key) {
 					$index_db_type = $table_key->attributes()->db;
-					if (!is_null($index_db_type) && ((string)$index_db_type != _getDbType(false, $dest_db))) {
+					if (!is_null($index_db_type) && ((string)$index_db_type != _getDbType(false, $db_type))) {
 						continue;
 					}
 
