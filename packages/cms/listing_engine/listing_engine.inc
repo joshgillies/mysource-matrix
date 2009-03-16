@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.274 2009/03/04 04:24:10 ewang Exp $
+* $Id: listing_engine.inc,v 1.275 2009/03/16 22:20:39 mbrydon Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.274 $
+* @version $Revision: 1.275 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1963,16 +1963,8 @@ class Listing_Engine extends Page
 						ob_end_clean();
 					}
 
-					$group_immed_child_group_count = 0;
-					foreach ($value as $child_asset_id => $result_values) {
-						$parentid = $GLOBALS['SQ_SYSTEM']->am->getParents($child_asset_id,'',TRUE,NULL,NULL,TRUE,1,1);
-						if (array_key_exists($group_level,$parentid)) {
-							$group_immed_child_group_count++;
-						}						
-					}
-					$replacements['group_immed_child_group_count'] = $group_immed_child_group_count;
-					$replacements['group_total_child_asset_count'] = count($todo[$group_level]);
-
+					$replacements['group_immed_child_group_count'] = count($todo[$group_level]);
+					$replacements['group_total_child_asset_count'] = count(dal_array_flatten($todo[$group_level], 'type_code'));
 
 					// only print the 'check all' checkbox if we're only dealing with checkboxes
 					$selections = $this->attr('asset_selections');
