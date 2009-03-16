@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.143 2009/03/05 22:47:37 mbrydon Exp $
+* $Id: html_form.inc,v 1.144 2009/03/16 05:59:18 mbrydon Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -858,34 +858,35 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 * Prints an interface for entering a security key generated inside an image
 * Call validate_security_key() to check if the value entered was correct
 *
-* @param int		$key_len		the lenght of the random string to display in the image
-* @param int		$box_len		the width of the text box used to enter the security key shown
-* @param float		$zoom			each character will be randomly zoomed between x1 and this figure
-* @param boolean	$img_on_newline	whether the img should appear under the box or not
-* @param string		$bg				the background colour of the image (eg FFFFFF)
-* @param string		$text			the colour of the text in the image (eg 000000)
-* @param string		$border			the colour of the border image (eg 000000)
-*									for no border, set to the same colour as the background
-* @param boolean	$use_colours	whether to use the supplied CAPTCHA background, text and border colours
-* @param boolean	$use_font		whether to use a user-specified TrueType Font for the CAPTCHA text
-* @param string		$font			the TrueType Font to use for the CAPTCHA text
-* @param int		$font_size		the font point size to use
-* @param int		$min_angle		the minimum rotation angle for characters
-* @param int		$max_angle		the maximum rotation angle for characters
-* @param int		$x_start		the X ordinate location from which to start rendering the CAPTCHA
-* @param int		$min_dist		the minimum pixel distance between characters
-* @param int		$max_dist		the maximum pixel distance between characters
-* @param int		$ttf_width		the pixel width of the TrueType Font image
-* @param int		$ttf_height		the pixel height of the TrueType Font image
-* @param boolean	$use_arc		whether to overlay arcs across the CAPTCHA text
-* @param string		$arc_colour		the RGB colour of the arc elements
-* @param boolean	$include_uppercase	whether to include uppercase characters in the CAPTCHA text
-* @param boolean	$include_numbers	whether to include numbers in the CAPTCHA text
+* @param int		$key_len					the lenght of the random string to display in the image
+* @param int		$box_len					the width of the text box used to enter the security key shown
+* @param float		$zoom						each character will be randomly zoomed between x1 and this figure
+* @param boolean	$img_on_newline				whether the img should appear under the box or not
+* @param string		$bg							the background colour of the image (eg FFFFFF)
+* @param string		$text						the colour of the text in the image (eg 000000)
+* @param string		$border						the colour of the border image (eg 000000)
+*												for no border, set to the same colour as the background
+* @param boolean	$use_colours				whether to use the supplied CAPTCHA background, text and border colours
+* @param boolean	$use_font					whether to use a user-specified TrueType Font for the CAPTCHA text
+* @param string		$font						the TrueType Font to use for the CAPTCHA text
+* @param int		$font_size					the font point size to use
+* @param int		$min_angle					the minimum rotation angle for characters
+* @param int		$max_angle					the maximum rotation angle for characters
+* @param int		$x_start					the X ordinate location from which to start rendering the CAPTCHA
+* @param int		$min_dist					the minimum pixel distance between characters
+* @param int		$max_dist					the maximum pixel distance between characters
+* @param int		$ttf_width					the pixel width of the TrueType Font image
+* @param int		$ttf_height					the pixel height of the TrueType Font image
+* @param boolean	$use_arc					whether to overlay arcs across the CAPTCHA text
+* @param string		$arc_colour					the RGB colour of the arc elements
+* @param boolean	$include_uppercase			whether to include uppercase characters in the CAPTCHA text
+* @param boolean	$include_numbers			whether to include numbers in the CAPTCHA text
+* @param boolean	$provide_accessible_captcha	whether to display a link and interface to enter an email address for an accessible CAPTCHA
 *
 * @return void
 * @access public
 */
-function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
+function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE, $provide_accessible_captcha = FALSE)
 {
 
 	// generate a random security key string
@@ -922,6 +923,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 						'arc_colour'		=> $arc_colour,
 						'include_uppercase'	=> $include_uppercase,
 						'include_numbers'	=> $include_numbers,
+						'provide_accessible_captcha'	=> $provide_accessible_captcha,
 					 );
 	$_SESSION['SQ_SYSTEM_SECURITY_KEY'] = $security_vars;
 
@@ -939,7 +941,14 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 	<?php
 	}//end if
 	?>
-			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" alt="Security key" border="0" /></td>
+			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" alt="Security key" border="0" />
+	<?php
+
+	if ($provide_accessible_captcha) {
+		print_accessible_captcha_interface();
+	}
+?>
+</td>
 		</tr>
 		<tr>
 		<?php
@@ -948,7 +957,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 				$replacements_link = ob_get_contents();
 			ob_end_clean()
 		?>
-			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i><?php echo translate('security_key_question', $replacements_link); ?></i></td>
+			<td class="sq-backend-data" id="sq_regen_captcha" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i><?php echo translate('security_key_question', $replacements_link); ?></i></td>
 		</tr>
 	</table>
 	<?php
@@ -984,7 +993,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 * @return void
 * @access public
 */
-function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=false, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE)
+function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=false, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE, $provide_accessible_captcha = FALSE)
 {
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
@@ -1020,6 +1029,7 @@ function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000',
 						'arc_colour'	=> $arc_colour,
 						'include_uppercase'	=> $include_uppercase,
 						'include_numbers'	=> $include_numbers,
+						'provide_accessible_captcha'	=> $provide_accessible_captcha,
 					 );
 	$_SESSION['SQ_SYSTEM_SECURITY_KEY'] = $security_vars;
 
@@ -1029,7 +1039,43 @@ function security_key_image_box($key_len, $zoom=1, $bg='FFFFFF', $text='000000',
 		<img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" alt="Security key" />
 	<?php
 
+	if ($provide_accessible_captcha) {
+		print_accessible_captcha_interface();
+	}
+
 }//end security_key_image_box()
+
+
+/**
+* Prints the hidden SPAN and JS magic for the Accessible CAPTCHA field
+*
+* @return void
+* @access public
+*/
+function print_accessible_captcha_interface()
+{
+    ?>
+    <script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script>
+    <script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/captcha.js"></script>
+	<noscript>
+		Please enable JavaScript to access the Accessible CAPTCHA interface.
+	</noscript>
+    <?php
+
+        // The following flag is used to verify that the AJAX request originated from Matrix - it does not indicate a CAPTCHA "pass"
+        $_SESSION['SQ_ACCESSIBLE_CAPTCHA_GENERATED'] = 1;
+    ?>
+<span style="display: none; visibility: hidden;" id="sq_accessible_captcha">
+<?php
+    echo 'Please enter your email address: ';
+    echo text_box('SQ_SYSTEM_SECURITY_KEY_EMAIL', '', 40, '', FALSE, 'onkeypress="enable_submission_button();"');
+?>
+	<input type="button" id="sq_submit_accessible_captcha" value="Submit address" onclick="submit_email_captcha('<?php echo sq_web_path('lib'); ?>');" />
+</span>
+<span id="sq_accessible_validation_link">&nbsp;<a href="javascript:show_accessible_captcha();">Use accessible validation</a></span>
+    <?php
+
+}//end print_accessible_captcha_interface()
 
 
 /**
@@ -1059,7 +1105,7 @@ function security_key_image_link($link_text)
 {
 	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
 	ob_start();
-		?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1&t=' + new Date().getTime(); return false;"><?php echo $link_text; ?></a><?php
+		?><span id="sq_regen_captcha"><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1&t=' + new Date().getTime(); return false;"><?php echo $link_text; ?></a></span><?php
 		$replacement_link = ob_get_contents();
 	ob_end_clean();
 
@@ -1076,6 +1122,15 @@ function security_key_image_link($link_text)
 */
 function validate_security_key()
 {
+	// If we are using an Accessible CAPTCHA, have received a verification link and clicked it,
+	// and there's a grin from the man upstairs, then I think we're golden
+	if ((isset($_SESSION['SQ_ACCESSIBLE_CAPTCHA_PASSED'])) && ($_SESSION['SQ_ACCESSIBLE_CAPTCHA_PASSED'] === 1)) {
+		// The actual key comparison is done upon the secondary page request at core/lib/accessible_captcha.php
+		unset($_SESSION['SQ_ACCESSIBLE_CAPTCHA_PASSED']);
+
+		return TRUE;
+	}
+
 	if (!isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) {
 		return FALSE;
 	}

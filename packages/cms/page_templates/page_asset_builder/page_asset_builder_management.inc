@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.37 2009/03/09 01:25:55 mbrydon Exp $
+* $Id: page_asset_builder_management.inc,v 1.38 2009/03/16 05:59:23 mbrydon Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -371,6 +371,14 @@ class Page_Asset_Builder_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												 );
+
+		$this->vars['provide_accessible_captcha'] = Array(
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													 );
 
 		$this->vars['layout_to_apply'] = Array(
 											'added'		=> '0.9',
