@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.53 2008/10/10 04:30:14 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.54 2009/03/16 00:46:26 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -568,6 +568,10 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateContentFile(&$asset)
 	{
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
+		if(isset($form_link['majorid'])){
+			$output = '<'.'?php if(!isset($form_asset)) $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$form_link['majorid'].'); ?'.'>'."\n";
+		}
 		if ($asset->isFormatBodycopyEnabled()) {
 			$format_bodycopy = $asset->getFormatBodycopy(TRUE);
 
@@ -575,10 +579,10 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				$replacements = $asset->getDisplayKeywordReplacements(TRUE);
 				$format_bodycopy->setKeywordReplacements($replacements);
 				$format_bodycopy->printBody();
-			$output = ob_get_clean();
+			$output .= ob_get_clean();
 		} else {
 			// No custom format, so generate a default format
-			$output = $this->generateGenericSection($asset);
+			$output .= $this->generateGenericSection($asset);
 		}
 
 		// if there are any tags left that haven't been replaced,
