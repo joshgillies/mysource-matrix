@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.4.2.1 2008/06/13 04:31:23 mbrydon Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.4.2.2 2009/03/17 04:40:38 ewang Exp $
 *
 */
 
@@ -232,13 +232,20 @@ function createAsset($asset_spec, $asset_type_code, &$parent_asset, $schema_id, 
 	printStdErr('.');
 
 	// Assign metadata schema and values to the asset
-	$GLOBALS['SQ_SYSTEM']->mm->setSchema($asset->id, $schema_id, TRUE);
+	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+	$mm->setSchema($asset->id, $schema_id, TRUE);
 
 	foreach ($metadata_mapping as $supplied_field_name => $metadata_field_id) {
 		if (isset($asset_spec[$supplied_field_name])) {
-			$metadata = Array($metadata_field_id => Array('value' => $asset_spec[$supplied_field_name]));
+			$metadata = Array($metadata_field_id => Array (
+															0 => Array(
+																	'value' => $asset_spec[$supplied_field_name],
+																	'name' => $supplied_field_name
+																)
+													)
+							);
 
-			$GLOBALS['SQ_SYSTEM']->mm->setMetadata($asset->id, $metadata);
+			$mm->setMetadata($asset->id, $metadata);
 		}
 	}
 	printStdErr('.');
