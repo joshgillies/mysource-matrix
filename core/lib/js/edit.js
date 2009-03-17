@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.51.2.1 2009/02/10 01:08:45 bpearson Exp $
+* $Id: edit.js,v 1.51.2.2 2009/03/17 05:56:11 bpearson Exp $
 *
 */
 
@@ -280,6 +280,7 @@ function expandOptionList(input)
 	newInput.onfocus = expandListFn;
 	newInput.value = '';
 	newInput.id = optionItemPrefix+'_options['+inputs.length+']';
+	newInput.name = optionItemPrefix+'_options['+inputs.length+']';
 	input.parentNode.appendChild(newInput);
 	var delButton = input.nextSibling;
 	while (delButton.tagName != 'BUTTON') {
