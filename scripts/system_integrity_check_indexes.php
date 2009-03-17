@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.3 2009/03/16 01:43:13 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.4 2009/03/17 05:54:49 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -65,14 +65,35 @@ if ($db_error) {
 MatrixDAL::changeDb('db');
 
 /**
- * flip the array so we can just do an isset check
- * instead of doing an in_array check - slightly quicker :)
+ * A couple of indexes for postgres do some automatic casting
+ * - sq_ast_attr_val_concat
+ * - sq_rb_ast_attr_val_concat
+ *
+ * Postgres does this automatically.
+ *
+ * It changes this:
+ * ((assetid || '~' || attrid));
+ * to
+ * ((((assetid)::text||'~'::text)||attrid))
+ *
+ * So just skip checking those definitions.
  */
-$index_list = array_flip(getIndexes());
+
+$skip_definition_checks = array (
+	'sq_ast_attr_val_concat',
+	'sq_rb_ast_attr_val_concat',
+);
+
+
+/**
+ * Keep this here so we can reference the index definition if necessary
+ */
+$full_index_list = getIndexes();
 
 bam('Checking Indexes');
 
 $sql_commands = array();
+$bad_indexes = array();
 
 $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
@@ -94,6 +115,7 @@ foreach ($packages as $_pkgid => $pkg_details) {
 	$info = parse_tables_xml($file, $db_conf['db']['type']);
 
 	foreach($info['tables'] as $tablename => $table_info) {
+
 		$tables = array ($tablename);
 		if ($table_info['rollback']) {
 			$tables[] = 'rb_' . $tablename;
@@ -118,24 +140,52 @@ foreach ($packages as $_pkgid => $pkg_details) {
 					'sq_' . $tablename . '_pk',
 				);
 
+				$tablename = 'sq_' . $tablename;
+
 				printName('Checking table ' . $tablename . ' for a primary key');
 				$error = true;
-				foreach ($full_idx_names as $idx_name) {
-					if (isset($index_list[$idx_name])) {
+				$idx_name = null;
+				foreach ($full_idx_names as $_idx_pos => $idx_name) {
+					if (in_array($idx_name, $full_index_list[$tablename])) {
+						$error = false;
+						break;
+					}
+				}
+
+				$idx_columns = $table_info['primary_key'];
+				if (substr($tablename, 3, 3) == 'rb_') {
+					array_unshift($idx_columns, 'sq_eff_from');
+				}
+
+				/**
+				 * Oracle has different semantics.
+				 * You can have unnamed keys, in which case it gives it a random name.
+				 * Eg 'sys_c0013508'
+				 * So we have to basically trawl through "unnamed" keys to see if they match.
+				 */
+				if ($error) {
+					$temp_idx_cols = implode(',', $idx_columns);
+					if (in_array($temp_idx_cols, $full_index_list[$tablename])) {
+						$idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
 						$error = false;
 					}
 				}
 
+				$create_index_statement = create_index_sql($tablename, $idx_columns, $tablename . '_pkey', NULL, true);
+
 				if ($error) {
 					printUpdateStatus('Missing');
-
-					$idx_columns = $table_info['primary_key'];
-					if (substr($tablename, 0, 3) == 'rb_') {
-						array_unshift($idx_columns, 'sq_eff_from');
-					}
-					$sql_commands[] = create_index_sql($tablename, $idx_columns, 'sq_' . $tablename . '_pkey', $index_info['type'], true);
+					$sql_commands[] = $create_index_statement;
 				} else {
-					printUpdateStatus('OK');
+					$index_definition = $full_index_list[$tablename][$idx_name];
+					$found_index_columns = explode(',', $index_definition);
+					if ($found_index_columns === $idx_columns) {
+						printUpdateStatus('OK');
+					} else {
+						printUpdateStatus('Incorrect');
+						$bad_indexes[] = array('table_name' => $tablename, 'index_name' => $idx_name, 'expected' => implode(',', $idx_columns), 'found' => $index_definition, 'primary_key' => true);
+						$sql_commands[] = $create_index_statement;
+					}
 				}
 			}
 		}
@@ -153,29 +203,144 @@ foreach ($packages as $_pkgid => $pkg_details) {
 				}
 
 				foreach ($tables as $tablename) {
-					$full_idx_name = 'sq_' . $tablename . '_' . $index_info['name'];
+					$tablename = 'sq_' . $tablename;
+					$full_idx_name = $tablename . '_' . $index_info['name'];
 					printName('Checking for index ' . $full_idx_name);
 
-					if (!isset($index_list[$full_idx_name])) {
+					$error = true;
+					if (isset($full_index_list[$tablename][$full_idx_name])) {
+						$error = false;
+					} else {
+						/**
+						 * Oracle has different semantics.
+						 * You can have unnamed keys, in which case it gives it a random name.
+						 * Eg 'sys_c0013508'
+						 * So we have to basically trawl through "unnamed" keys to see if they match.
+						 */
+						$temp_idx_cols = implode(',', $index_info['columns']);
+						if (in_array($temp_idx_cols, $full_index_list[$tablename])) {
+							$idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
+							$error = false;
+						}
+					}
+
+					if ($error) {
 						printUpdateStatus('Missing');
 					} else {
-						printUpdateStatus('OK');
-						continue;
+						if (in_array($full_idx_name, $skip_definition_checks)) {
+							printUpdateStatus('OK');
+							continue;
+						}
+
+						$index_definition = $full_index_list[$tablename][$full_idx_name];
+						$found_index_columns = explode(',', $index_definition);
+
+						if ($found_index_columns === $index_info['columns']) {
+							printUpdateStatus('OK');
+							continue;
+						} else {
+							printUpdateStatus('Incorrect');
+							$bad_indexes[] = array('index_name' => $full_idx_name, 'expected' => implode(',', $index_info['columns']), 'found' => $index_definition);
+							continue;
+						}
 					}
 
 					$sql_commands[] = create_index_sql($tablename, $index_info['columns'], $index_info['name'], $index_info['type']);
 				}
-
 			}// end foreach
 		}//end if
+
+		if (!empty($table_info['unique_key'])) {
+			foreach ($tables as $tablename) {
+
+				$tablename = 'sq_' . $tablename;
+
+				$idx_columns = $table_info['unique_key'];
+				if (substr($tablename, 3, 3) == 'rb_') {
+					array_unshift($idx_columns, 'sq_eff_from');
+				}
+
+				/**
+				 * Indexes are named after the tablename _ first_col _key
+				 * eg
+				 * "sq_rb_ast_lnk_sq_eff_from_key" => (sq_eff_from, minorid, majorid, link_type, value)
+				 */
+				$full_idx_name = $tablename . '_' . $idx_columns[0] . '_key';
+				printName('Checking for index ' . $full_idx_name);
+
+				$create_index_statement = create_index_sql($tablename, $idx_columns, $full_idx_name, NULL, false, true);
+
+				$error = true;
+				if (isset($full_index_list[$tablename][$full_idx_name])) {
+					$error = false;
+				} else {
+					/**
+					 * Oracle has different semantics.
+					 * You can have unnamed keys, in which case it gives it a random name.
+					 * Eg 'sys_c0013508'
+					 * So we have to basically trawl through "unnamed" keys to see if they match.
+					 */
+					$temp_idx_cols = implode(',', $idx_columns);
+					if (in_array($temp_idx_cols, $full_index_list[$tablename])) {
+						$full_idx_name = array_search($temp_idx_cols, $full_index_list[$tablename]);
+						$error = false;
+					}
+				}
+
+				if ($error) {
+					printUpdateStatus('Missing');
+					$sql_commands[] = $create_index_statement;
+					continue;
+				} else {
+					if (in_array($full_idx_name, $skip_definition_checks)) {
+						printUpdateStatus('OK');
+						continue;
+					}
+
+					$index_definition = $full_index_list[$tablename][$full_idx_name];
+					$found_index_columns = explode(',', $index_definition);
+
+					if ($found_index_columns === $idx_columns) {
+						printUpdateStatus('OK');
+						continue;
+					}
+
+					printUpdateStatus('Incorrect');
+
+					$bad_indexes[] = array('index_name' => $full_idx_name, 'expected' => implode(',', $idx_columns), 'found' => $index_definition);
+					$sql_commands[] = $create_index_statement;
+				}
+			}
+		}// end foreach
 	}
 }
 
 bam('Check complete');
 
-if (!empty($sql_commands)) {
-	bam("Some expected indexes were missing.\nTo fix the database, please run the following queries:\n\n" . implode("\n", $sql_commands));
+if (!empty($bad_indexes)) {
+	$msg = "Some indexes had incorrect definitions.\n";
+	$msg .= "To fix these, you will need to drop the old indexes before re-adding them:\n\n";
+	foreach ($bad_indexes as $details) {
+		if (isset($details['primary_key'])) {
+			$tablename = $details['table_name'];
+			if (substr($tablename, 0, 3) != 'sq_') {
+				$tablename = 'sq_' . $tablename;
+			}
+			$msg .= "ALTER TABLE " . $details['table_name'] . " DROP CONSTRAINT " . $details['index_name'] . ";\n";
+			continue;
+		}
+		$msg .= "DROP INDEX " . $details['index_name'] . ";\n";
+	}
+
+	bam($msg);
 }
+
+if (!empty($sql_commands)) {
+	$msg = "Some expected indexes were missing or incorrect.\n";
+	$msg .= "To fix the database, please run the following queries:\n\n" . implode("\n", $sql_commands);
+	bam($msg);
+}
+
 
 /**
  * parse_tables_xml
@@ -331,11 +496,16 @@ function parse_tables_xml($xml_file, $db_type)
  * @param String $index_name Name of the index if you want a specific name. Defaults to the name of the column
  * @param String $index_type Used only by oracle in case it needs a specific index type.
  * @param Boolean $primary_key Whether this should be a primary key index. Defaults to no.
+ * @param Boolean $unique_key Whether this should be a unique index. Defaults to no.
  *
  * @return String Returns a 'CREATE INDEX' statement ready to run.
  */
-function create_index_sql($tablename, $column, $index_name=null, $index_type=null, $primary_key=false)
+function create_index_sql($tablename, $column, $index_name=null, $index_type=null, $primary_key=false, $unique_key=false)
 {
+	if (substr($tablename, 0, 3) != 'sq_') {
+		$tablename = 'sq_' . $tablename;
+	}
+
 	if (is_array($column)) {
 		$column = implode(',', $column);
 	}
@@ -344,8 +514,8 @@ function create_index_sql($tablename, $column, $index_name=null, $index_type=nul
 		$index_name = str_replace(',', '_', $column);
 	}
 
-	if (!$primary_key) {
-		$sql = 'CREATE INDEX sq_'.$tablename.'_'.$index_name.' ON sq_'.$tablename;
+	if (!$primary_key && !$unique_key) {
+		$sql = 'CREATE INDEX '.$tablename.'_'.$index_name.' ON '.$tablename;
 		if (!empty($index_type)) {
 				$sql .= '('.$column.') indextype is '.$index_type;
 		} else {
@@ -354,9 +524,13 @@ function create_index_sql($tablename, $column, $index_name=null, $index_type=nul
 		return $sql.';';
 	}
 
-	$sql = 'ALTER TABLE sq_' . $tablename . ' ADD CONSTRAINT ' . $tablename . '_pk PRIMARY KEY (' . $column . ');';
+	if ($primary_key) {
+		return 'ALTER TABLE ' . $tablename . ' ADD CONSTRAINT ' . $tablename . '_pk PRIMARY KEY (' . $column . ');';
+	}
 
-	return $sql;
+	if ($unique_key) {
+		return 'CREATE UNIQUE INDEX ' . $index_name . ' ON ' . $tablename . '(' . $column . ');';
+	}
 
 }//end create_index_sql()
 
@@ -386,14 +560,16 @@ function printUpdateStatus($status)
  */
 function getIndexes()
 {
+	global $db_conf;
+
 	$dbtype = _getDbType();
 
 	switch ($dbtype) {
 		case 'oci':
-			$sql = 'SELECT index_name FROM user_indexes';
+			$sql = "SELECT u.table_name as tablename, u.index_name as indexname, DBMS_METADATA.GET_DDL('INDEX',u.index_name) AS indexdef FROM USER_INDEXES u WHERE TABLE_NAME LIKE 'SQ_%' ORDER BY table_name";
 		break;
 		case 'pgsql':
-			$sql = 'SELECT indexname from pg_indexes where tablename like \'sq_%\'';
+			$sql = 'SELECT tablename, indexname, indexdef from pg_indexes where tablename like \'sq_%\'';
 		break;
 	}
 
@@ -401,7 +577,49 @@ function getIndexes()
 	if ($sql !== false) {
 		$indexes = MatrixDAL::executeSqlAll($sql);
 		foreach($indexes as $key => $value) {
-			$idx_list[] = strtolower($value[0]);
+			$tablename = strtolower($value['tablename']);
+			if (!isset($idx_list[$tablename])) {
+				$idx_list[$tablename] = array();
+			}
+			switch ($dbtype) {
+				case 'oci':
+					$idx_def = $value['indexdef'];
+					$idx_columns = '';
+
+					$idx_name = $value['indexname'];
+
+					/**
+					 * Indexes in oracle look like this
+						CREATE [UNIQUE] INDEX "username"."SQ_AST_PUBLISHED" ON "username"."SQ_AST" ("PUBLISHED") ..
+					 */
+					preg_match('/index "' . $db_conf['db']['user'] . '"."' . $idx_name . '" on "' . $db_conf['db']['user'] . '"."(.*?)" \((.*?)\)/i', $idx_def, $matches);
+
+					if (!empty($matches) && !empty($matches[2])) {
+						$idx_columns = str_replace(array(' ', '"'), '', strtolower($matches[2]));
+					}
+
+					$idx_list[$tablename][strtolower($idx_name)] = $idx_columns;
+				break;
+
+				case 'pgsql':
+					$idx_def = $value['indexdef'];
+					$idx_columns = '';
+
+					/**
+					 * All postgres indexes are btree indexes,
+					 * we don't use any other types in matrix.
+					 *
+					 * The format of which is:
+					 * CREATE [UNIQUE] INDEX thes_term_note_pk ON sq_thes_term_note USING btree (termid, name, thesid, value);
+					 * ("UNIQUE" is optional)
+					 */
+					preg_match('/USING btree \((.*?)\)$/i', $idx_def, $matches);
+					if (!empty($matches[1])) {
+						$idx_columns = str_replace(' ', '', $matches[1]);
+					}
+					$idx_list[$tablename][strtolower($value['indexname'])] = $idx_columns;
+				break;
+			}
 		}
 	}
 	return $idx_list;
