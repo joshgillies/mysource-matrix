@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.58.4.2 2009/01/14 00:31:04 akarelia Exp $
+* $Id: hipo_job_edit_status.inc,v 1.58.4.3 2009/03/17 00:54:37 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58.4.2 $
+* @version $Revision: 1.58.4.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -415,13 +415,13 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 			$this->_running_vars['done_assetids'][] = $assetid;
 		}//end if empty done ids and not done root
 
-		if(!empty($this->_running_vars['process_dependants']) && isset($assetid)) {
+		if(empty($this->_running_vars['process_dependants']) && isset($assetid)) {
 			$this->_running_vars['messages'] = array_merge($this->_running_vars['messages'], $ms->queueContents());
 		}
 		$ms->abortQueue();	// we don't need the messages anymore, dump them
 
 		if (empty($this->_running_vars['todo_assetids']) ) {
-			if (!empty($this->_running_vars['process_dependants']) && isset($assetid)) {
+			if (empty($this->_running_vars['process_dependants']) && isset($assetid)) {
 				// send workflow email at this point
 				// there might still be a dependant job waiting to be processed
 				$ms->send($this->_running_vars['messages']);
