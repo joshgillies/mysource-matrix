@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.40 2009/02/10 01:10:49 bpearson Exp $
+* $Id: option_list.inc,v 1.41 2009/03/18 03:22:19 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -112,7 +112,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				foreach ($value as $k => $v) {
 					$v = htmlspecialchars($v);
 					?>
-					<input type="text"  name="<?php echo $prefix; ?>_options[<?php echo $k; ?>]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
+					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
 						if ($order !=0) {
 							$this->_printMoveUpButton($order, $prefix);
@@ -124,7 +124,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				}
 				for ($i = $next_number; $i < ($next_number + 2); $i++) {
 					?>
-					<input type="text" name="<?php echo $prefix; ?>_options[<?php echo $i; ?>]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
+					<input type="text" name="<?php echo $prefix; ?>_options[]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
 						$this->_printMoveUpButton($order, $prefix);
 						if ($i < ($next_number + 1)) {
