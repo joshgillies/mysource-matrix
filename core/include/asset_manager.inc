@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.36 2009/02/26 23:54:49 bpearson Exp $
+* $Id: asset_manager.inc,v 1.655.2.37 2009/03/18 23:19:41 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.36 $
+* @version $Revision: 1.655.2.37 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7462,26 +7462,39 @@ class Asset_Manager extends MySource_Object
 		* we can just join the ast_lookup_value table to ast directly.
 		*/
 		$sql = 'SELECT lv.value as designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
-				';
-		$where = 'lv.name = \''.$design_name.'\' AND '.
-					'((\''.$url.'\' = lv.url)
-						OR ((\''.$url.'\' LIKE lv.url || \'/%\')
-						AND (\''.$url.'\' NOT LIKE lv.url || \'%/$\'))
-						OR ((\''.$url.'/\' = lv.url)))';
+			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
+			INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
+			';
+		$where = 'lv.name = :design_name AND ' .
+					'((:url1 = lv.url)
+						OR ((:url2 LIKE lv.url || \'/%\')
+						AND (:url3 NOT LIKE lv.url || \'%/$\'))
+						OR ((:url4 = lv.url)))';
 
 		$order_by = ' ORDER BY depth DESC';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql .= $where;
+		$sql .= $where . $order_by;
 
-		$result = MatrixDAL::executeSqlAll($sql.$order_by);
+		$query = MatrixDAL::preparePdoQuery($sql);
+
+		// it's the same url but we have to bind it 4 times to the different variables.
+		$bind_vars = array(
+			'design_name' => $design_name,
+			'url1' => $url,
+			'url2' => $url,
+			'url3' => $url,
+			'url4' => $url,
+		);
+		foreach ($bind_vars as $bind_var => $bind_value) {
+			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
+		}
+
+		$result = MatrixDAL::executePdoAll($query);
 		return empty($result) ? NULL : $result[0];
 
 	}//end getDesignFromURL()
-
 
 	/**
 	* Return an inheritable design value, given a URL
