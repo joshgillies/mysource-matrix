@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_paint_layout.inc,v 1.3 2008/07/03 01:25:33 bshkara Exp $
+* $Id: trigger_action_set_paint_layout.inc,v 1.4 2009/03/19 23:23:43 ewang Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 
 
 /**
@@ -25,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +71,7 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
-		if ($settings['layout_map']) {
+		if (isset($settings['layout_map'])) {
 			// parameter map
 			$parameter_map_value = array_get_index($settings, 'layout_map', serialize(Array()));
 			$attr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
@@ -88,8 +89,8 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 
 		return Array(
 				'assetid'			=> $state['asset']->id,
-				'layout'			=> $settings['layout_assetid'],
-				'override_layout'	=> $settings['override_layout_assetid'],
+				'layout'			=> isset($settings['layout_assetid']) ? $settings['layout_assetid'] : '',
+				'override_layout'	=> isset($settings['override_layout_assetid']) ? $settings['override_layout_assetid'] : '',
 			   );
 
 	}//end execute()
