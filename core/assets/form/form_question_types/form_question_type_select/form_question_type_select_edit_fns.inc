@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.8 2008/11/12 05:11:24 lwright Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.8.2.1 2009/03/19 04:11:53 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -333,6 +333,15 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				var newMoveDownButton = moveDownButton.cloneNode(true);
 				newMoveDownButton.id = optionItemPrefix+'_options['+(inputs.length/2)+']';
 				newMoveDownButton.onclick = doMoveDn;
+
+				//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+				var buttonScript =  newMoveDownButton.getElementsByTagName("script")[0];
+				var browserAgent = navigator.userAgent.toLowerCase();
+				if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
+					newMoveDownButton.removeChild(buttonScript);
+				}
+
+	
 				var brElements = lastInput.parentNode.getElementsByTagName('BR');
 				input.parentNode.removeChild(brElements[brElements.length-1]);
 				input.parentNode.appendChild(document.createTextNode(' '));
@@ -374,6 +383,13 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				moveUpButton = moveUpButton.cloneNode(true);
 				moveUpButton.id = optionItemPrefix+'_options['+((inputs.length/2)-1)+']';
 				moveUpButton.onclick = doMoveUp;
+
+				//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+				var buttonScript =  moveUpButton.getElementsByTagName("script")[0];
+				var browserAgent = navigator.userAgent.toLowerCase();
+				if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
+						moveUpButton.removeChild(buttonScript);
+				}
 
 				input.parentNode.appendChild(moveUpButton);
 				input.parentNode.appendChild(document.createTextNode(' '));
