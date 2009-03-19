@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.25 2008/11/04 22:08:44 mbrydon Exp $
+* $Id: lang_messages.xml,v 1.26 2009/03/19 03:42:51 hnguyen Exp $
 *
 * Core Internal Messages File
 */
@@ -290,8 +290,9 @@ You can view the asset <![CDATA[<a href="%asset_url%">here</a>]]>.</body>
 You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.
 
 You can <![CDATA[<SQ_MSG_LINK href="%accept_url%">Accept</SQ_MSG_LINK>]]> or <![CDATA[<SQ_MSG_LINK href="%reject_url%">Reject</SQ_MSG_LINK>]]> the changes.
-A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]></body>
-You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>
+
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body>
 <!--  asset-type, asset-name, old_step, new_step, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.invitation.progress">
@@ -300,8 +301,9 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 You are now required to approve or reject the changes made to "%asset_name%" so the workflow process can continue.
 
 You can <![CDATA[<SQ_MSG_LINK href="%accept_url%">Accept</SQ_MSG_LINK>]]> or <![CDATA[<SQ_MSG_LINK href="%reject_url%">Reject</SQ_MSG_LINK>]]> the changes.
-A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.</body>
-You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
+
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body>
 
 <!--  asset-type, asset-name, old_step, new_step, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
