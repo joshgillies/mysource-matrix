@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.1 2009/02/10 05:53:04 bshkara Exp $
+* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.2 2009/03/22 21:51:03 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,6 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		echo '<div id="'.$prefix.'_wysiwyg_container'.'" style='.$wysiwyg_container_styles.'>';
 		$wysiwyg->paint($prefix, !$write_access);
 		echo '</div>';
-
 		$default_html_container_styles = $is_default ? $styles_common.'display:block"' : $styles_common.'display:none"';
 		echo '<div id="'.$prefix.'_default_html_container'.'" style='.$default_html_container_styles.'>';
 		echo $asset->attr('default_html');
