@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_permission_management.inc,v 1.1 2008/09/15 04:43:05 ata Exp $
+* $Id: cron_job_future_permission_management.inc,v 1.2 2009/03/23 10:03:44 ata Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,6 +44,15 @@ class Cron_Job_Future_Permission_Management extends Asset_Management
 		$this->vars = Array(
 						'type'				=> Array(
 												'default'	=> 'one_off',
+											   ),
+						'add'				=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> TRUE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+												'description'	=> 'The flag to indicate adding or removing the permission',
 											   ),
 						'permission'		=> Array(
 												'added'			=> '0.1',

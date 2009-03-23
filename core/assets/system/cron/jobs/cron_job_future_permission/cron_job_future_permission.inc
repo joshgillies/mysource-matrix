@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_permission.inc,v 1.1 2008/09/15 04:43:05 ata Exp $
+* $Id: cron_job_future_permission.inc,v 1.2 2009/03/23 10:03:32 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -254,6 +254,17 @@ class Cron_Job_Future_Permission extends Cron_Job
 		
 	}//end getGrantedUsers()
 	
+	/**
+	 * Return the name of the action of the cron job. It is either 'Add' or 'Remove'.
+	 * 
+	 * @return string
+	 * @access public
+	 */
+	public function actionName()
+	{
+		return ($this->attr('add')? translate('add') : translate('remove'));
+		
+	}//end actionName()
 	
 	/**
 	* Sets the asset that this cron job will be altering the permission on
@@ -329,19 +340,25 @@ class Cron_Job_Future_Permission extends Cron_Job
 	{
 		$asset = $this->getAssetToUpdate();
 		if (!is_null($asset)) {
+			$add_permissions = $this->attr('add');
 			$permission = $this->attr('permission');
 			$userid_grant_list = $this->attr('userids');
 			$cascade_to_new = $this->attr('cascade_to_new');
+			$previous_access = NULL;
 			$dependants_only = $this->attr('dependants_only');
 			$permission_vars = Array();
 			foreach ($userid_grant_list as $userid => $user_grant) {
+				$granted = $add_permissions? $user_grant : -1;
+				if (!$add_permissions) {
+					$previous_access = $user_grant;
+				}
 				$permission_vars[] = Array(
 												'permission'		=> $permission,
 												'assetids'			=> Array($asset->id),
-												'granted'			=> $user_grant,
+												'granted'			=> $granted,
 												'userid'			=> $userid,
 												'cascades'			=> $cascade_to_new,
-												'previous_access'	=> NULL,
+												'previous_access'	=> $previous_access,
 												'dependants_only'	=> !(!$dependants_only && $cascade_to_new), //consistency with the permission screen logic
 											);
 			}

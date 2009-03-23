@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_permission_edit_fns.inc,v 1.1 2008/09/15 04:43:05 ata Exp $
+* $Id: cron_job_future_permission_edit_fns.inc,v 1.2 2009/03/23 10:03:58 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,8 +60,6 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	public function paintInLineBackend(Cron_Job_Future_Permission $asset, Backend_Outputter $o, $prefix, $when='', $cascade_to_new=FALSE, $dependants_only=TRUE, $form_extra_elements='', Array $exclude_permission=Array())
 	{
-		echo translate('set').'&nbsp;';
-
 		$descs = $asset->getAllPermissionDescs();
 		foreach ($exclude_permission as $permission) {
 			unset($descs[$permission]);
@@ -69,15 +67,17 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 
 		$write_access = $asset->writeAccess('attributes');
 		if ($write_access) {
+			combo_box($prefix.'_add_future_permissions', Array('1' => translate('add'), '0' => translate('remove')), FALSE, '1');
+			echo '&nbsp;'.translate('the_following').'&nbsp;';
 			combo_box($prefix.'_future_permission', $descs, FALSE, $asset->attr('permission'), NULL, $form_extra_elements);
 		} else {
+			echo $asset->attr('add')? translate('add') : translate('remove');
 			echo $descs[$asset->attr('permission')];
 		}
 		
-		echo translate('permission').'&nbsp;<br /><br />';
+		echo translate('permission').'<br /><br /><br />';
 		
 		if ($write_access) {
-			echo '<b>'.translate('new').'</b>';
 				?>
 				<table cellspacing="0">
 					<tr>
@@ -135,6 +135,11 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 		}
 		
 		if (!empty($_POST[$prefix.'_future_permission']) && $asset->setAttrValue('permission', $_POST[$prefix.'_future_permission'])) {
+			$add_permissions = (!isset($_POST[$prefix.'_add_future_permissions']) || $_POST[$prefix.'_add_future_permissions']) ? TRUE : FALSE;
+			if (!$asset->setAttrValue('add', $add_permissions)) {
+				return FALSE;
+			}
+			
 			$userids = Array();
 			$permission_access = $_POST[$prefix.'_future_permissions_access'];
 			$permission_set = FALSE; //FLAG TO MARK IF PERMISSION IS GRANTED OR DENIED TO AT LEAST ONE USER OR NOT
