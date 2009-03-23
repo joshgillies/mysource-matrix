@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_permission_edit_fns.inc,v 1.2 2009/03/23 10:03:58 ata Exp $
+* $Id: cron_job_future_permission_edit_fns.inc,v 1.3 2009/03/23 23:46:24 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,7 +75,7 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 			echo $descs[$asset->attr('permission')];
 		}
 		
-		echo translate('permission').'<br /><br /><br />';
+		echo '&nbsp;'.translate('permission').'<br /><br /><br />';
 		
 		if ($write_access) {
 				?>
