@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.310 2009/02/11 23:26:15 bpearson Exp $
+* $Id: lang_strings.xml,v 1.311 2009/03/23 10:21:24 ata Exp $
 *
 */
 
@@ -1548,6 +1548,7 @@
 	<string source="permission_section">%1$s Permission</string>
 	<string source="specific_permission">Specific Permission</string>
 	<string source="public_permission">Public Permission</string>
+	<string source="the_following">the following</string>
 
 	<string source="cascade_roles">Cascade Changes to Role Assignments?</string>
 	<string source="cascade_roles_option">Yes, cascade role assignment changes</string>
