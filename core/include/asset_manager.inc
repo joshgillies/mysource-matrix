@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.655.2.37 2009/03/18 23:19:41 csmith Exp $
+* $Id: asset_manager.inc,v 1.655.2.38 2009/03/23 00:53:54 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.655.2.37 $
+* @version $Revision: 1.655.2.38 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7485,7 +7485,7 @@ class Asset_Manager extends MySource_Object
 			'url1' => $url,
 			'url2' => $url,
 			'url3' => $url,
-			'url4' => $url,
+			'url4' => $url.'/',
 		);
 		foreach ($bind_vars as $bind_var => $bind_value) {
 			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
