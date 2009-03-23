@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.39 2008/10/16 02:22:53 bpearson Exp $
+* $Id: permissions.inc,v 1.40 2009/03/23 10:06:01 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 
@@ -145,6 +145,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		?>
 		<table class="sq-backend-table">
 			<tr>
+				<td class="sq-backend-table-header"><?php echo translate('action'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('permission'); ?></td>
 				<td class="sq-backend-table-header">
 					<span style="color:green"><?php echo translate('granted'); ?></span>
@@ -170,6 +171,9 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 			foreach ($sorted_fp_jobs as $fp_job) {
 				?>
 				<tr>
+					<td class="sq-backend-table-cell">
+						<?php echo $fp_job->actionName(); ?>
+					</td>
 					<td class="sq-backend-table-cell">
 						<?php echo $fp_job->permissionName(); ?>
 					</td>

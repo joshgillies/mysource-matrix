@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_permission.inc,v 1.2 2009/02/16 04:48:02 mbrydon Exp $
+* $Id: trigger_action_set_future_permission.inc,v 1.3 2009/03/23 10:08:35 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author  Anh Ta <ata@squiz.co.uk>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,6 +41,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
+	* 		'add' => bool, // add or remove the permission
 	* 		'granted' => bool, // grant or deny the permission
 	* 		'permission' => int, // the permission value to set the asset to
 	* 		'userid' => string, // the userid of the user that is granted permission to
@@ -59,6 +60,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 	public static function execute($settings, &$state)
 	{
 		// check required settings
+		if (!isset($settings['add'])) return FALSE;
 		if (!isset($settings['granted'])) return FALSE;
 		if (!isset($settings['permission'])) return FALSE;
 		if (!isset($settings['dependants_only'])) return FALSE;
@@ -94,6 +96,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
 
 		$fp = new Cron_Job_Future_Permission();
+		$fp->setAttrValue('add', $settings['add']);
 		$fp->setAttrValue('permission', $settings['permission']);
 		$fp->setAttrValue('userids', Array($userid => $settings['granted']));
 		$fp->setAttrValue('cascade_to_new', $settings['cascade_to_new']);
@@ -187,6 +190,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		return Array(
 				'jobid'				=> $fp->id,
 				'userid'			=> $user_for_permission_change->id,
+				'add'				=> $settings['add'],
 				'granted'			=> $settings['granted'],
 				'permission'		=> $fp->attr('permission'),
 				'granted_userid'	=> $userid,
@@ -209,6 +213,7 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		// set defaults
+		$settings['add']				= array_get_index($settings, 'add', TRUE);
 		$settings['granted']			= array_get_index($settings, 'granted', 1);
 		$settings['permission']			= array_get_index($settings, 'permission', SQ_PERMISSION_READ);
 		$settings['userid']				= array_get_index($settings, 'userid', 0);
@@ -260,20 +265,19 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 		echo translate('trigger_action_future_permission_add_cron_job_to').' ';
 
-
-		// print the grant/deny selection
+		// print the add/remove selection
 		if ($write_access) {
-			$permission_options = Array(
-									'1'	=> strtolower(translate('grant')),
-									'0'	=> strtolower(translate('deny')),
-								  );
-			combo_box($prefix.'_granted', $permission_options, FALSE, $settings['granted']);
+			$action_options = Array(
+									'1'	=> strtolower(translate('add')),
+									'0'	=> strtolower(translate('remove')),
+								   );
+			combo_box($prefix.'_add', $action_options, FALSE, ($settings['add'] ? '1' : '0'));
 		} else {
 			echo '<b>';
-			echo ($settings['granted']) ? strtolower(translate('grant')) : strtolower(translate('deny'));
+			echo ($settings['add']) ? strtolower(translate('add')) : strtolower(translate('remove'));
 			echo '</b> ';
 		}
-
+		
 		// print the permission level selection
 		$permissions = self::_getPermissionList();
 		if ($write_access) {
@@ -281,6 +285,21 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		} else {
 			echo '<b>'.$permissions[$settings['permission']].'</b>';
 		}
+		echo ' permission to ';
+		
+		// print the grant/deny selection
+		if ($write_access) {
+			$permission_options = Array(
+										'1'	=> strtolower(translate('grant')),
+										'0'	=> strtolower(translate('deny')),
+									   );
+			combo_box($prefix.'_granted', $permission_options, FALSE, $settings['granted']);
+		} else {
+			echo '<b>';
+			echo ($settings['granted']) ? strtolower(translate('grant')) : strtolower(translate('deny'));
+			echo '</b> ';
+		}
+
 		echo ' '.translate('access_for').' ';
 
 		// print the asset finder
@@ -431,13 +450,13 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 
 		$settings['when_type'] = $_POST[$prefix.'_when_type'];
 
-		// process granted
-		$granted = array_get_index($_POST, $prefix.'_granted', '');
-		if ($granted != '1' && $granted != '0') {
-			return 'Grant parameter is invalid';
+		//process add/remove
+		$add = array_get_index($_POST, $prefix.'_add', '1');
+		if ($add != '1' && $add != '0') {
+			return 'Add/Remove parameter is invalid';
 		}
-		$settings['granted'] = $granted;
-
+		$settings['add'] = ($add == '1') ? TRUE : FALSE;
+		
 		// process permission
 		$permission = array_get_index($_POST, $prefix.'_permission', '');
 		if ($permission === '') {
@@ -450,6 +469,13 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		} else {
 			return 'Specified permission is invalid';
 		}
+
+		// process granted
+		$granted = array_get_index($_POST, $prefix.'_granted', '');
+		if ($granted != '1' && $granted != '0') {
+			return 'Grant parameter is invalid';
+		}
+		$settings['granted'] = $granted;
 
 		// process selected userid
 		$user_data = array_get_index($_POST, $prefix.'_userid', Array('assetid' => ''));
