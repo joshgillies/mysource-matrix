@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711.2.8 2009/03/23 00:54:32 hnguyen Exp $
+* $Id: asset_manager.inc,v 1.711.2.9 2009/03/24 22:45:30 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711.2.8 $
+* @version $Revision: 1.711.2.9 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7657,46 +7657,105 @@ class Asset_Manager extends MySource_Object
 		$value_operator = $use_like_for_value ? 'LIKE' : '=';
 		$db = MatrixDAL::getDb();
 
-		$sql = '';
-		for ($i=0; $i<2; $i++) {
-			// first sub query collects all override values
-			if ($i === 0) {
-				$sql .= '
-						SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'override\' as override';
-			} else {
-				$sql .= '
-						SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'not_override\' as override';
-			}
+		/**
+		* There are two possible queries here.
+		*
+		* If we include treeid's, we end up with something like this
+		* in simplified form:
+		*
+		* select minorid as assetid, treeid, 'override' from
+		* sq_ast_lnk al join sq_ast_lnk_tree lt
+		* where al.minorid in
+		* (
+		*    select assetid from sq_ast_lookup l join sq_ast_lookup_value lv
+		*    where name='X' and value='Y'
+		* )
+		*
+		* This performs a lot better than joining all of the tables together
+		* when you have a lot of urls in ast_lookup
+		*
+		* We need to do this because there's no way to get the treeid's from
+		* just the lookup & lookup_value tables. It has to come from the lnk_tree table
+		*
+		*
+		* If we don't include treeid's, we don't bother with the whole subquery,
+		* we can just get the assetid's from the lookup & lookup_values tables
+		* and end up with something like this in simplified form:
+		*
+		* select assetid, treeid, 'override' from
+		* sq_ast_lookup l join sq_ast_lookup_value lv
+		* where name='X' and value='Y'
+		*/
+		if ($include_treeids) {
+			$select = array(
+				'minorid AS assetid',
+				'lt.treeid',
+			);
+			$query_one_select = "l.assetid";
+			$query_two_select = "l.assetid";
+		}
 
-			if ($i === 0) {
-				// first loop concerned with override values, so inherited values are ignored
-				$sql .= '
-						FROM sq_ast_lookup l
-							JOIN sq_ast_lookup_value lv ON l.url = lv.url';
-			} else {
-				// for inherited values
-				$sql .= '
-						FROM sq_ast_lookup l
-							JOIN sq_ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')';
-			}
+		if (!$include_treeids) {
+			$select = array(
+				'l.assetid',
+			);
+			$query_one_select = implode(',', $select) . ", 'override' AS override";
+			$query_two_select = implode(',', $select) . ", 'not_override' AS override";
+		}
 
-			if ($i === 0) {
-				$sql .= ' OR (l.url || \'/\' = lv.url)';
-			}
+		$where_clause = "
+			lv.name ".$name_operator." ".MatrixDAL::quote($lookup_name_exp) . "
+			AND lv.value ".$value_operator." ".MatrixDAL::quote($lookup_value_exp);
 
-			if ($include_treeids) {
-				$sql .= '
-						JOIN sq_ast_lnk al ON l.assetid = al.minorid
-						JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid';
-			}
+		/**
+		* first query is concerned with override values, so inherited values are ignored
+		*/
+		$query_one = "
+			SELECT
+				" . $query_one_select . "
+			FROM
+				sq_ast_lookup l
+				JOIN sq_ast_lookup_value lv ON (lv.url = l.url OR (lv.url = l.url || '/'))
+				WHERE
+				" . $where_clause;
 
-			$sql .= '
-					WHERE lv.name '.$name_operator.' '.MatrixDAL::quote($lookup_name_exp).'
-						AND lv.value '.$value_operator.' '.MatrixDAL::quote($lookup_value_exp);
+		/**
+		* for inherited values
+		*/
+		$query_two = "
+			SELECT
+				" . $query_two_select . "
+			FROM
+				sq_ast_lookup l
+				JOIN sq_ast_lookup_value lv ON (l.url LIKE lv.url || '/%')
+			WHERE
+				" . $where_clause;
 
-			if ($i === 0) {
-				$sql .= ' UNION ALL';
-			}
+		if ($include_treeids) {
+			$from_clause = "
+				FROM
+					sq_ast_lnk al
+					JOIN sq_ast_lnk_tree lt ON lt.linkid=al.linkid
+				WHERE
+					al.minorid in
+			";
+			$sql = "
+				SELECT " . implode(',', $select) . ",
+					'override' AS override
+					" . $from_clause . "
+					(
+						" . $query_one . "
+					)
+				UNION ALL
+				SELECT " . implode(',', $select) . ",
+					'not_override' AS override
+					" . $from_clause . "
+					(
+						" . $query_two . "
+					)
+			";
+		} else {
+			$sql = $query_one . " UNION ALL " . $query_two;
 		}
 
 		$res = NULL;
