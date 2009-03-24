@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.43.2.1 2008/12/16 06:04:14 mbrydon Exp $
+* $Id: metadata.inc,v 1.43.2.2 2009/03/24 06:15:57 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43.2.1 $
+* @version $Revision: 1.43.2.2 $
 * @package MySource_Matrix
 */
 
@@ -59,11 +59,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 	foreach ($root->section as $section) {
 		// only do this if we are not painting a layout
-		if (is_null($keywords)) {
-			// if we are in limbo and this section is not to be printed in limbo - dont print it
-			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
-				continue;
-			}
+		// if we are in limbo and this section is not to be printed in limbo - dont print it
+		if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
+			continue;
 		}
 
 		$section_access = $ei->_getAccess($owner, $section, $prefix);
