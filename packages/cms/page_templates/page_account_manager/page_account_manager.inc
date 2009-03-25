@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.67 2008/07/31 04:15:53 ewang Exp $
+* $Id: page_account_manager.inc,v 1.67.2.1 2009/03/25 02:53:48 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.67.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1123,6 +1123,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		$keywords['logout_form']				= translate('cms_asset_builder_keyword_logout_form');
 
+		// Exclude CAPTCHA keywords from the "Logged In" form. Presume if the user has logged in, that they are not an artificial intelligence
+		if ($this->attr('require_captcha')) {
+			unset($keywords['form_captcha']);
+			unset($keywords['form_captcha_image']);
+			unset($keywords['form_captcha_field']);
+			unset($keywords['form_captcha_link']);
+		}
 
 		return $keywords;
 
@@ -1162,6 +1169,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords['resend_validation_error']	= translate('cms_account_manager_keyword_resend_validation_error');
 		$keywords['resend_validation_form'] 	= translate('cms_account_manager_keyword_resend_validation_form');
 		$keywords['resend_validation_success'] 	= translate('cms_account_manager_keyword_resend_validation_success');
+
+		if ($this->attr('require_captcha')) {
+			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
+			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
+			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
+			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+		}
 
 		return $keywords;
 
