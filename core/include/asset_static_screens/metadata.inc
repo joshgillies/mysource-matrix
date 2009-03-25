@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.43.2.2 2009/03/24 06:15:57 akarelia Exp $
+* $Id: metadata.inc,v 1.43.2.3 2009/03/25 03:55:20 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43.2.2 $
+* @version $Revision: 1.43.2.3 $
 * @package MySource_Matrix
 */
 
@@ -28,16 +28,17 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Paint the interface for managing metadata values
 *
-* @param object		&$owner			the asset whose interface we are painting
-* @param object		&$o				the outputter class
+* @param object		&$owner		the asset whose interface we are painting
+* @param object		&$o			the outputter class
 * @param object		&$ei			the edit interface
-* @param boolean	$keywords		the keywords to replace
+* @param boolean		$keywords		the keywords to replace
 * @param Array		$layout_options	the Simple Edit layout options
+* @param boolean		$full_screen		if TRUE the entire screen will be captured into a replacement
 *
 * @return boolean
 * @access public
 */
-function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options=Array())
+function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options=Array(), $full_screen=TRUE)
 {
 	$root = $ei->findScreen('static_screen_metadata');
 	if (is_null($root)) return FALSE;
@@ -59,9 +60,11 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 	foreach ($root->section as $section) {
 		// only do this if we are not painting a layout
-		// if we are in limbo and this section is not to be printed in limbo - dont print it
-		if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
-			continue;
+		if (is_null($keywords) || !$full_screen) {
+			// if we are in limbo and this section is not to be printed in limbo - dont print it
+			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
+				continue;
+			}
 		}
 
 		$section_access = $ei->_getAccess($owner, $section, $prefix);
