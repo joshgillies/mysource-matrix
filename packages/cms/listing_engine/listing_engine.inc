@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.266.2.8 2009/03/18 22:33:30 mbrydon Exp $
+* $Id: listing_engine.inc,v 1.266.2.9 2009/03/25 23:19:09 csmith Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.266.2.8 $
+* @version $Revision: 1.266.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -851,7 +851,7 @@ class Listing_Engine extends Page
 				} else {
 					$root_nodes[] = $nodes;
 				}
-			} else { 
+			} else {
 				// because the root nodes can be dynamic we need to cache the results based upon root node
 				$root_nodes = $this->getRootNodes(FALSE);
 			}
@@ -2031,7 +2031,7 @@ class Listing_Engine extends Page
 	{
 		$allowed_types = $this->getAllowedAssetTypeMap();
 		$column_layout = $this->attr('column_layout');
-        $column_layout_type = $this->attr('column_layout_type');     
+        $column_layout_type = $this->attr('column_layout_type');
 		$using_groups = $this->attr('group_by') == 'grouped';
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 		$num_items = count($todo);
@@ -2082,11 +2082,11 @@ class Listing_Engine extends Page
 			$num_columns = max(array_values($column_layout));
             $row_class = $this->attr('div_row_class');
 			$current_row = 1;
-           
+
             for (reset($todo); NULL !== ($assetid = key($todo));) {
                 echo empty($row_class) ? '<div>' : '<div class="'.$row_class.'">';
                 $cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
-     
+
                 for ($c = 1; $c <= $cols_in_row; $c++) {
                     if ($assetid != NULL) {
                         $this->_printAsset($assetid, $list_position, $num_items);
@@ -2099,7 +2099,7 @@ class Listing_Engine extends Page
                  echo '</div>';
                  echo "\n\n";
 			}//end for
-           
+
         }
         else {
 			foreach ($todo as $assetid => $type_code) {
@@ -2625,7 +2625,7 @@ class Listing_Engine extends Page
 
 			$parameter_map = $this->getAttribute('parameter_map');
 			$raw_dynamic_root_nodes = $parameter_map->getParameterValue('root_node');
-			
+
 			// check if we have a dynamic parameter -- if so, let's do some security checks
 			if (!empty($raw_dynamic_root_nodes)) {
 
@@ -2894,12 +2894,25 @@ class Listing_Engine extends Page
 						// to what is set for leaf nodes
 						if (!is_null($min_depth) || !is_null($max_depth)) {
 
+							if (!isset($this->_tmp['grouping_treeids'])) {
+								$this->_tmp['grouping_treeids'] = array();
+							}
+
 							foreach ($value as $key => $parent_assetid) {
-								if ($this->attr('direction') == 'down') {
-									$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', FALSE, NULL, NULL, TRUE, $min_depth, $max_depth);
-								} else {
-									$parents = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, TRUE, $min_depth, $max_depth);
+								/**
+								* If we haven't grabbed the assetid's from the tree before,
+								* do it - then cache the results.
+								* Saves hitting the db for the same info for each asset
+								* that we're grouping
+								*/
+								if (!isset($this->_tmp['grouping_treeids'][$parent_assetid])) {
+									if ($this->attr('direction') == 'down') {
+										$this->_tmp['grouping_treeids'][$parent_assetid] = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', FALSE, NULL, NULL, TRUE, $min_depth, $max_depth);
+									} else {
+										$this->_tmp['grouping_treeids'][$parent_assetid] = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, TRUE, $min_depth, $max_depth);
+									}
 								}
+								$parents = $this->_tmp['grouping_treeids'][$parent_assetid];
 
 								$intersection = array_intersect(array_keys($parents), $root_nodes);
 								if (empty($intersection)) unset($value[$key]);
