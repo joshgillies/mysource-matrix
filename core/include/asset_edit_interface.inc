@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.353 2008/12/16 06:04:00 mbrydon Exp $
+* $Id: asset_edit_interface.inc,v 1.354 2009/03/25 03:50:33 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.353 $
+* @version $Revision: 1.354 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1472,11 +1472,11 @@ class Asset_Edit_Interface extends MySource_Object
 	/**
 	* Gets a keyword replacement for static screens.
 	*
-	* @param object		&$owner				the owner of this asset
-	* @param object		&$o					the backend outputter object
-	* @param string		$screen				the static screen to get a replacement for
+	* @param object		&$owner			the owner of this asset
+	* @param object		&$o			the backend outputter object
+	* @param string		$screen			the static screen to get a replacement for
 	* @param array|NULL	$static_keywords	the wantedkeyowrd of this static screen
-	* @param boolean	$get_screen			if TRUE the entire screen will be captured into a replacement
+	* @param boolean	$get_screen		if TRUE the entire screen will be captured into a replacement
 	* @param Array		$layout_options		the Simple Edit layout options
 	*
 	* @return boolean
@@ -1490,8 +1490,16 @@ class Asset_Edit_Interface extends MySource_Object
 		ob_start();
 			$paint_function = 'paint'.$screen;
 
-			if ($paint_function($owner, $o, $this, $static_keywords, $layout_options)) {
-				$print_commit_button = TRUE;
+			if ($screen == 'metadata') {
+				// if we printing metadata screen we pass an extra parameter, to make sure the 'full' JS needed
+				// for porper working of wysiwyg field is printed.
+				if ($paint_function($owner, $o, $this, $static_keywords, $layout_options, $get_screen)) {
+					$print_commit_button = TRUE;
+				}
+			} else {
+				if ($paint_function($owner, $o, $this, $static_keywords, $layout_options)) {
+					$print_commit_button = TRUE;
+				}
 			}
 
 			if ($get_screen) {
