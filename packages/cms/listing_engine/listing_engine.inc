@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.276 2009/03/18 04:35:30 mbrydon Exp $
+* $Id: listing_engine.inc,v 1.277 2009/03/25 22:50:26 csmith Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.276 $
+* @version $Revision: 1.277 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,7 +50,6 @@ class Listing_Engine extends Page
 	* @var boolean
 	*/
 	var $requires_form = FALSE;
-
 
 	function __construct($assetid=0)
 	{
@@ -2896,12 +2895,26 @@ class Listing_Engine extends Page
 						// to what is set for leaf nodes
 						if (!is_null($min_depth) || !is_null($max_depth)) {
 
+							if (!isset($this->_tmp['grouping_treeids'])) {
+								$this->_tmp['grouping_treeids'] = array();
+							}
+
 							foreach ($value as $key => $parent_assetid) {
-								if ($this->attr('direction') == 'down') {
-									$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', FALSE, NULL, NULL, TRUE, $min_depth, $max_depth);
-								} else {
-									$parents = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, TRUE, $min_depth, $max_depth);
+
+								/**
+								* If we haven't grabbed the assetid's from the tree before,
+								* do it - then cache the results.
+								* Saves hitting the db for the same info for each asset
+								* that we're grouping
+								*/
+								if (!isset($this->_tmp['grouping_treeids'][$parent_assetid])) {
+									if ($this->attr('direction') == 'down') {
+										$this->_tmp['grouping_treeids'][$parent_assetid] = $GLOBALS['SQ_SYSTEM']->am->getParents($parent_assetid, '', FALSE, NULL, NULL, TRUE, $min_depth, $max_depth);
+									} else {
+										$this->_tmp['grouping_treeids'][$parent_assetid] = $GLOBALS['SQ_SYSTEM']->am->getChildren($parent_assetid, '', FALSE, NULL, NULL, NULL, TRUE, $min_depth, $max_depth);
+									}
 								}
+								$parents = $this->_tmp['grouping_treeids'][$parent_assetid];
 
 								$intersection = array_intersect(array_keys($parents), $root_nodes);
 								if (empty($intersection)) unset($value[$key]);
