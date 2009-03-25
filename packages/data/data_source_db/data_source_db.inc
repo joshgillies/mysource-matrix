@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.35 2009/03/25 05:35:05 mbrydon Exp $
+* $Id: data_source_db.inc,v 1.36 2009/03/25 05:47:38 mbrydon Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -278,6 +278,7 @@ class Data_Source_DB extends Data_Source
 
 			// Also we may have arrived from the separate fields interface or manually entered a "dbname=" PDO_OCI-type DSN
 			// In such cases we will be nice and strip the leading "dbname=" for a simple PHP OCI-friendly format
+			$dsn_lower = strtolower($dsn['DSN']);
 			if (substr($dsn_lower, 0, 7) == 'dbname=') {
 				$dsn['DSN'] = substr($dsn['DSN'], 7);
 			} 
