@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711.2.11 2009/03/25 02:53:21 csmith Exp $
+* $Id: asset_manager.inc,v 1.711.2.12 2009/03/25 21:52:56 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711.2.11 $
+* @version $Revision: 1.711.2.12 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3621,7 +3621,7 @@ class Asset_Manager extends MySource_Object
 
 		$parents = Array();
 		foreach ($result as $assetid => $row) {
-			$parents[$assetid] = $row[0];
+			$parents[$assetid] = $row[0]['type_code'];
 		}
 		unset($result);
 
