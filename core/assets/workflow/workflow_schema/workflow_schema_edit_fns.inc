@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.29 2009/03/25 01:00:54 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.30 2009/03/25 04:45:48 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,7 +179,11 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						hidden_field($prefix.'_step_order[]', $step_assetid);
 					}
 
-					echo '<div class="sq-workflow-step-drag">Step '.implode('.', $step_nums).'</div>';
+					echo '<div class="sq-workflow-step-drag">';
+					if ($write_access) {
+						sq_print_icon(sq_web_path('data').'/asset_types/'.$asset->type().'/files/wf_drag_handle.png', 16, 16, 'Re-Order', 'Re-Order Step', 'align="absmiddle" class="sq-workflow-step-drag-handle"');
+					}
+					echo 'Step '.implode('.', $step_nums).'</div>';
 					echo '<div class="sq-workflow-step-tag-line">'.$step_asset->name.'</div>';
 					echo '<div class="sq-workflow-step-condition"><strong>Conditions:</strong> ';
 						$conditions = $am->getLinks($step_assetid, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE);
@@ -224,6 +228,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						$step_url = $step_asset->getBackendHref('details');
 					}
 					echo '<div class="sq-workflow-step-edit-link">[ <a href="'.$step_url.'">Edit this step</a> ]</div>';
+					echo '<div style="clear: both"></div>';
 					echo '</div>';
 				}
 

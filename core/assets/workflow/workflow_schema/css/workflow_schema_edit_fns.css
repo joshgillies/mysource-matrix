@@ -1,7 +1,8 @@
 .sq-workflow-step {margin: 2px; border: 1px solid #ccc; background-color: #eee; clear: left}
 
 
-.sq-workflow-step-drag {float: left; min-width: 5%; font-weight: bold; white-space: nowrap; border-right: 1px solid #ccc; padding: 5px; margin-right: 5px; background-color: white; cursor: pointer}
+.sq-workflow-step-drag {float: left; min-width: 7%; font-weight: bold; white-space: nowrap; border-right: 1px solid #ccc; padding: 5px; margin-right: 5px; background-color: white;}
+.sq-workflow-step-drag-handle {pointer: cursor}
 .sq-workflow-step-escalation-indent {margin-left: 2em}
 .sq-workflow-step-escalation-indent .sq-workflow-step-drag, .sq-workflow-step-escalation-indent .sq-workflow-step-tag-line {color: red}
 .sq-workflow-step-tag-line {float: left; width: 30%; padding: 5px 0; font-weight: bold}

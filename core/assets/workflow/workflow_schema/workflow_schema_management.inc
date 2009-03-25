@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_management.inc,v 1.13 2009/03/25 01:00:54 lwright Exp $
+* $Id: workflow_schema_management.inc,v 1.14 2009/03/25 04:45:48 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,6 +61,7 @@ class Workflow_Schema_Management extends Asset_Management
 		return Array(
 				'css/workflow_schema_edit_fns.css',
 				'js/workflow_schema_edit_fns.js',
+				'files/wf_drag_handle.png',
 			   );
 
 	}//end _getFiles()

@@ -100,16 +100,20 @@ var MatrixWorkflowSchema = {
 
 	makeDraggable: function(step_div)
 	{
-		var drag_div = this.getElementsByClassName(step_div, 'sq-workflow-step-drag');
+		var drag_div = this.getElementsByClassName(step_div, 'sq-workflow-step-drag-handle');
 		var self = this;
 
 		drag_div = drag_div[0];
+
+		if (drag_div.parentNode.parentNode.validDrops.length == 0) {
+			drag_div.style.visibility = 'hidden';
+		}
 
 		drag_div.onmousedown = function(event) {
 			var event = event ? event : window.event;
 			
 			if (event.button == (self.isIE() ? 1 : 0)) {
-				var step_div = drag_div.parentNode;
+				var step_div = drag_div.parentNode.parentNode;
 				var parent_div = step_div.parentNode;
 
 				if (!self.currentDiv && (step_div.validDrops.length > 0)) {
@@ -218,8 +222,8 @@ var MatrixWorkflowSchema = {
 		workflow_steps = this.getElementsByClassName(document, 'sq-workflow-step');
 		for (var x = 0; x < workflow_steps.length; x++) {
 			var workflow_step = workflow_steps[x];
-			this.makeDraggable(workflow_step);
 			this.activateDropPoints(workflow_step);
+			this.makeDraggable(workflow_step);
 		}
 	},
 
