@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.28 2008/03/27 23:23:09 hnguyen Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.28.2.1 2009/03/25 05:01:29 lwright Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
 * Workflow_Schema_Edit_Fns
@@ -23,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,6 +96,212 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		return TRUE;
 
 	}//end processNewStep()
+
+
+	/**
+	* Paint the interface for printing the workflow summary,
+	* which will also allow re-ordering of the page.
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintWorkflowSummary(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
+	{
+		$o->addCssInclude(sq_web_path('data').'/asset_types/'.$asset->type().'/css/workflow_schema_edit_fns.css');
+		$o->addJsInclude(sq_web_path('data').'/asset_types/'.$asset->type().'/js/workflow_schema_edit_fns.js');
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		$write_access = $asset->writeAccess('links');
+		if ($write_access) {
+			$o->addOnLoad('MatrixWorkflowSchema.onLoad();');
+		}
+			// show the workflow summary, and allow us to reorder it
+
+			$steps_to_process = Array(
+									Array(
+										'assetid'	=> $asset->id,
+										'depth' 	=> -1,
+									)
+								);
+
+			$step_order = Array();
+
+			while (count($steps_to_process) > 0) {
+				$current_step = array_shift($steps_to_process);
+				if ($current_step['depth'] >= 0) {
+					$step_order[] = $current_step;
+				}
+				$current_links = array_reverse($am->getLinks($current_step['assetid'], SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE));
+				foreach ($current_links as $current_link) {
+					$new_step = Array(
+									'assetid'	=> $current_link['minorid'],
+									'depth'		=> $current_step['depth'] + 1,
+								);
+					array_unshift($steps_to_process, $new_step);
+				}
+			}
+
+			if (count($step_order) > 0) {
+				$step_nums = Array(0);
+				$current_depth = 0;
+				foreach ($step_order as $step) {
+					if ($step['depth'] > $current_depth) {
+						// This step is deeper, ie. starting a new escalation step
+						array_push($step_nums, 0);
+						echo '<div class="sq-workflow-step-escalation-indent">';
+						$current_depth = $step['depth'];
+					}
+				
+					while ($step['depth'] < $current_depth) {
+						// exiting an escalation step... but we need to be able to exit more than one at once
+						array_pop($step_nums);
+						$current_depth--;
+						echo '<div class="sq-workflow-step-divider"></div>';
+						echo '</div>';
+					}
+				
+					echo '<div class="sq-workflow-step-divider"></div>';
+					
+					// Okay, now at current depth, so increment step number;
+					$current_step_num = array_pop($step_nums);
+					$current_step_num++;
+					array_push($step_nums, $current_step_num);
+
+					$step_assetid = $step['assetid'];
+					$step_asset =& $am->getAsset($step_assetid);
+
+					echo '<div id="'.$prefix.'workflow-step-'.$step_assetid.'" class="sq-workflow-step">';
+					if ($write_access) {
+						hidden_field($prefix.'_step_order[]', $step_assetid);
+					}
+
+					echo '<div class="sq-workflow-step-drag">';
+					if ($write_access) {
+						sq_print_icon(sq_web_path('data').'/asset_types/'.$asset->type().'/files/wf_drag_handle.png', 16, 16, 'Re-Order', 'Re-Order Step', 'align="absmiddle" class="sq-workflow-step-drag-handle"');
+					}
+					echo 'Step '.implode('.', $step_nums).'</div>';
+					echo '<div class="sq-workflow-step-tag-line">'.$step_asset->name.'</div>';
+					echo '<div class="sq-workflow-step-condition"><strong>Conditions:</strong> ';
+						$conditions = $am->getLinks($step_assetid, SQ_LINK_TYPE_2, 'workflow_step_condition', TRUE, 'major', NULL, TRUE);
+						if (count($conditions) === 1) {
+							$condition = reset($conditions);
+							$userids = $am->getAttributeValuesByName('userid', 'workflow_step_condition', Array($condition['minorid']));
+							$userid = $userids[$condition['minorid']];
+							echo get_asset_tag_line($userid);
+						} else if (count($conditions) === 0) {
+							echo '<span class="sq-backend-warning">None selected</span>';
+						} else {
+							if (($step->attr('logic') === 'all') || ($step->attr('logic_num') == count($conditions))) {
+								echo 'All '.count($conditions);
+							} else {
+								echo 'At least '.$step->attr('logic_num').' of '.count($conditions);
+							}
+						}
+					echo '</div>';
+
+					echo '<div class="sq-workflow-step-expiry"><strong>Expiry:</strong> ';
+						$expiry = (int)$step_asset->attr('expiry_time');
+						if ($expiry === 0) {
+							echo 'None set';
+						} else {
+							if ($step_asset->attr('escalate')) {
+								echo '<span class="sq-backend-warning">Escalates</span>';
+							} else {
+								echo 'Reminder';
+							}
+							echo ' after ';
+
+							$hours = ($expiry / 3600);
+
+							echo easy_time_total($expiry);
+						}
+
+					echo '</div>';
+
+					if ($step['depth'] === 0) {
+						$step_url = '#step-'.$step_assetid;
+					} else {
+						$step_url = $step_asset->getBackendHref('details');
+					}
+					echo '<div class="sq-workflow-step-edit-link">[ <a href="'.$step_url.'">Edit this step</a> ]</div>';
+					echo '<div style="clear: both"></div>';
+					echo '</div>';
+				}
+
+				// Do we have any overhanging escalation steps for the last main step?
+				while ($current_depth > 0) {
+					echo '<div class="sq-workflow-step-divider"></div>';
+					echo '</div>';
+					$current_depth--;
+				}
+
+				// Add a drop point after the last main step
+				echo '<div class="sq-workflow-step-divider"></div>';
+			}
+			
+
+		return $write_access;
+
+	}//end paintWorkflowSummary()
+
+
+	/**
+	* Paint the interface for printing the workflow summary,
+	* which will also allow re-ordering of the page.
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processWorkflowSummary(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return FALSE;
+		$new_step_order = array_get_index($_POST, $prefix.'_step_order', Array());
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+
+		$links_to_build = Array($asset->id);
+		$link_assetids = Array();
+
+		while (count($links_to_build) > 0) {
+			$assetid = array_shift($links_to_build);
+			$current_links = $am->getLinks($assetid, SQ_LINK_TYPE_2, 'workflow_step', TRUE, 'major', NULL, TRUE, FALSE);
+
+			// If we have at least 2 links, we can at least move it
+			// Even if only 1 though, we need to see if it has multiple
+			// escalation steps
+			foreach ($current_links as $link) {
+				$links_to_build[] = $link['minorid'];
+				if (count($current_links) >= 2) {
+					$new_index = array_search($link['minorid'], $new_step_order);
+					$link_assetids[$assetid][$new_index] = $link['minorid'];
+				}
+			}
+		}
+
+		foreach (array_keys($link_assetids) as $link_key) {
+			// Sort keys, then use PHP's rule about numeric indices to get the
+			// proper sort order for each parent
+			ksort($link_assetids[$link_key]);
+			$link_assetids[$link_key] = array_values($link_assetids[$link_key]);
+			foreach ($link_assetids[$link_key] as $sort_order => $minor_assetid) {
+				$link = $am->getLinkByAsset($link_key, $minor_assetid, SQ_LINK_TYPE_2);
+				if ($sort_order != $link['sort_order']) {
+					// If the sort order is different, then update it
+					$am->moveLinkPos($link['linkid'], $sort_order);
+				}
+			}
+		}
+
+		return TRUE;
+
+	}//end processWorkflowSummary()
 
 
 	/**

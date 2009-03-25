@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2006/12/05 05:49:59 bcaldwell Exp $
+* $Id: lang_screen_details.xml,v 1.2.10.1 2009/03/25 05:01:30 lwright Exp $
 *
 */
 -->
@@ -20,6 +20,16 @@
 		<field attribute="name">
 			<display_name>Schema Name</display_name>
 			<note />
+		</field>
+	</section>
+	<section name="Workflow Summary">
+		<field>
+			<display_name></display_name>
+			<note><![CDATA[When you have the lock for this schema, you can re-order the by dragging the drag handle (the double-headed arrow button) up and down. Available drop points for that step will be highlighted. If a drag handle does not appear for a step, it is a single step and so there is nothing to be re-ordered. <strong>NOTE: The changes you make will not take effect until you commit the screen.</strong>]]></note>
+			<function_call>
+				<paint_function   name="paintWorkflowSummary"   />	
+				<process_function name="processWorkflowSummary" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Steps Defined For This Workflow">
