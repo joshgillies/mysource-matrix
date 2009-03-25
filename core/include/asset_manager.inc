@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711.2.10 2009/03/25 00:26:28 ewang Exp $
+* $Id: asset_manager.inc,v 1.711.2.11 2009/03/25 02:53:21 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711.2.10 $
+* @version $Revision: 1.711.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3617,19 +3617,15 @@ class Asset_Manager extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 		}
 
-		$result_x = MatrixDAL::executePdoGroupedAssoc($query);
-		$result = Array();
-		foreach	($result_x as $key => $row) {
-			$result[$key] = $row[0];
-		}
-		unset($result_x);
+		$result = MatrixDAL::executePdoGroupedAssoc($query);
 
 		$parents = Array();
-		foreach ($result as $assetid => $asset_info) {
-			$parents[$assetid] = $asset_info['type_code'];
+		foreach ($result as $assetid => $row) {
+			$parents[$assetid] = $row[0];
 		}
-		return $parents;
+		unset($result);
 
+		return $parents;
 	}//end getParents()
 
 
@@ -7462,10 +7458,10 @@ class Asset_Manager extends MySource_Object
 					$this->forgetAsset($asset);
 					return;
 				}
-				
+
 				$data_object = get_object_vars(unserialize(file_to_string($asset->data_path.'/.object_data')));
 				$result[$key]['name']			= $data_object['name'];
-				$result[$key]['short_name']	= $data_object['short_name'];				
+				$result[$key]['short_name']	= $data_object['short_name'];
 			}
 			$this->forgetAsset($asset);
 		}
