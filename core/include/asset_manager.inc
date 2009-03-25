@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.720 2009/03/25 00:27:52 ewang Exp $
+* $Id: asset_manager.inc,v 1.721 2009/03/25 02:50:35 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.720 $
+* @version $Revision: 1.721 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3617,17 +3617,14 @@ class Asset_Manager extends MySource_Object
 			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 		}
 
-		$result_x = MatrixDAL::executePdoGroupedAssoc($query);
-		$result = Array();
-		foreach	($result_x as $key => $row) {
-			$result[$key] = $row[0];
-		}
-		unset($result_x);
+		$result = MatrixDAL::executePdoGroupedAssoc($query);
 
 		$parents = Array();
-		foreach ($result as $assetid => $asset_info) {
-			$parents[$assetid] = $asset_info['type_code'];
+		foreach ($result as $assetid => $row) {
+			$parents[$assetid] = $row[0];
 		}
+		unset($result);
+
 		return $parents;
 
 	}//end getParents()
