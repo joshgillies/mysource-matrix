@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.719 2009/03/24 22:31:01 csmith Exp $
+* $Id: asset_manager.inc,v 1.720 2009/03/25 00:27:52 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.719 $
+* @version $Revision: 1.720 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7456,18 +7456,16 @@ class Asset_Manager extends MySource_Object
 			$asset = $this->getAsset($entry['assetid']);
 			if ($asset->useSystemVersion()) {
 				$asset->_loadDataPaths();
-				$original_asset = $asset;
-				if (!$asset->loadSystemVersion()) {
+				// make sure our data directory exists
+				if (!file_exists($asset->data_path.'/.object_data')) {
 					trigger_localised_error('SYS0088', E_USER_WARNING, $asset->id);
 					$this->forgetAsset($asset);
 					return;
 				}
 
-				$result[$key]['name']			= $asset->name;
-				$result[$key]['short_name']	= $asset->short_name;
-
-				// Restore the original state of the asset - it should be left untouched as we were only after keywords
-				$asset = $original_asset;
+				$data_object = get_object_vars(unserialize(file_to_string($asset->data_path.'/.object_data')));
+				$result[$key]['name']			= $data_object['name'];
+				$result[$key]['short_name']	= $data_object['short_name'];
 			}
 			$this->forgetAsset($asset);
 		}
