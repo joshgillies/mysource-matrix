@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db_edit_fns.inc,v 1.34.2.2 2008/04/03 03:45:30 lwright Exp $
+* $Id: data_source_db_edit_fns.inc,v 1.34.2.3 2009/03/25 22:51:26 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34.2.2 $
+* @version $Revision: 1.34.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -239,9 +239,31 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				case 'mysql':
 					$new_dsn_string = "mysql:";
 				break;
+				case 'oracle':
+					$new_dsn_string = "oci:";
+				break;
 			}
-			$new_dsn_string .= "dbname=$new_dsn[database];host=$new_dsn[host]";
+
+			if ($new_dsn['db_type'] == 'oracle') {
+				// PDO_OCI compatible DSN is either:
+				// oci:dbname=[db]...
+				// oci:dbname=[hostname]/[db]...
+
+				// Let's provide a PDO_OCI-like DSN and work it for PHP OCI out when connecting
+				$new_dsn_string .= 'dbname=';
+
+				// Start with the hostname...
+				if (!empty($new_dsn['host'])) {
+					$new_dsn_string .= "$new_dsn[host]/";
+				}
+
+				// Unless that isn't supplied, in which case we will be using a tnsnames-defined DB only
+				$new_dsn_string .= "$new_dsn[database]";
+			} else {
+				$new_dsn_string .= "dbname=$new_dsn[database];host=$new_dsn[host]";
+			}
 		}
+
 		if (strcasecmp($dsn, $new_dsn_string) != 0) {
 			foreach ($new_dsn as $key => $value) {
 				$asset->setAttrValue($key, $value);
