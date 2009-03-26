@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.87 2009/01/22 23:36:32 lwright Exp $
+* $Id: general_occasional.inc,v 1.88 2009/03/26 23:36:22 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 
@@ -490,18 +490,20 @@ function addProxyInfo(&$request_parameters, &$default_headers, $page_url)
 /**
 * Open a socket connection to specified url. Returns connection resource
 *
-* @param array|string	$url_parts	Url to connect to. Can be a full url string or parse_url style array
-* @param string			&$errno		Error number when proxy is used
-* @param string			&$errstr	Error string when proxy is used
+* @param array|string	$url_parts			Url to connect to. Can be a full url string or parse_url style array
+* @param string			&$errno				Error number when proxy is used
+* @param string			&$errstr			Error string when proxy is used
+* @param boolean		$force_fsockopen	Use fsockopen rather than fopen
+* @param int			$timeout			Timeout for fsockopen to work
 *
 * @deprecated
 * @return mixed object|boolean
 * @access public
 * @see open_socket_connection
 */
-function openSocketConnection($url_parts, &$errno, &$errstr)
+function openSocketConnection($url_parts, &$errno, &$errstr, $force_fsockopen=FALSE, $timeout=60)
 {
-	return open_socket_connection($url_parts, $errno, $errstr);
+	return open_socket_connection($url_parts, $errno, $errstr, $force_fsockopen, $timeout);
 
 }//end openSocketConnection()
 
@@ -509,14 +511,16 @@ function openSocketConnection($url_parts, &$errno, &$errstr)
 /**
 * Open a socket connection to specified url. Returns connection resource
 *
-* @param array|string	$url_parts	Url to connect to. Can be a full url string or parse_url style array
-* @param string			&$errno		Error number when proxy is used
-* @param string			&$errstr	Error string when proxy is used
+* @param array|string	$url_parts			Url to connect to. Can be a full url string or parse_url style array
+* @param string			&$errno				Error number when proxy is used
+* @param string			&$errstr			Error string when proxy is used
+* @param boolean		$force_fsockopen	Use fsockopen rather than fopen
+* @param int			$timeout			Timeout for fsockopen to work
 *
 * @return mixed object|boolean
 * @access public
 */
-function open_socket_connection($url_parts, &$errno, &$errstr)
+function open_socket_connection($url_parts, &$errno, &$errstr, $force_fsockopen=FALSE, $timeout=60)
 {
 	include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
 	$page_url = '';
@@ -541,7 +545,11 @@ function open_socket_connection($url_parts, &$errno, &$errstr)
 		fputs($con, "Host: ".$proxy['host']."\r\n");
 		fputs($con, 'Proxy-Authorization: Basic '.base64_encode($proxy['user'].':'.$proxy['password'])."\r\n\r\n");
 	} else {
-		$con = @fopen($page_url, 'r');
+		if ($force_fsockopen && is_array($url_parts)) {
+			$con = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, $timeout);
+		} else {
+			$con = @fopen($page_url, 'r');
+		}//end if
 	}
 
 	return $con;
