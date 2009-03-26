@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2.10.1 2009/03/25 05:01:30 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.2.10.2 2009/03/26 22:36:51 lwright Exp $
 *
 */
 -->
@@ -25,7 +25,9 @@
 	<section name="Workflow Summary">
 		<field>
 			<display_name></display_name>
-			<note><![CDATA[When you have the lock for this schema, you can re-order the by dragging the drag handle (the double-headed arrow button) up and down. Available drop points for that step will be highlighted. If a drag handle does not appear for a step, it is a single step and so there is nothing to be re-ordered. <strong>NOTE: The changes you make will not take effect until you commit the screen.</strong>]]></note>
+			<note><![CDATA[When you have the lock for this schema, you can change the order of the workflow by dragging the drag handle (the double-headed arrow button) of a workflow step up and down.<br/>
+			You may only move a step up and down within the same level - ie. you cannot change a top-level workflow step into an escalation step, or vice versa.  Available drop points will be highlighted when you start dragging.<br/>
+			If a drag handle does not appear for a step, there is nothing that can be re-ordered. <strong>NOTE: The changes you make will not take effect until you commit the screen.</strong>]]></note>
 			<function_call>
 				<paint_function   name="paintWorkflowSummary"   />	
 				<process_function name="processWorkflowSummary" />
