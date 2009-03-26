@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.12 2008/10/20 03:58:29 ewang Exp $
+* $Id: lang_strings.xml,v 1.13 2009/03/26 23:36:05 bpearson Exp $
 *
 *
 * CMS Package: Report Links Asset Localised Strings File
@@ -30,12 +30,21 @@
 <string source="cms_report_links_missing_hostname">The URL is missing a hostname</string>
 <string source="cms_report_links_cannot_test_protocol">The URL uses a protocol that cannot be tested</string>
 <string source="cms_report_links_invalid_url">The host specified in this URL cannot be contacted, or is not responding on the specified port</string>
+<string source="cms_report_links_400">The URL had a bad request</string>
+<string source="cms_report_links_401">Access was denied to this URL</string>
+<string source="cms_report_links_403">Access was forbidden to this URL</string>
 <string source="cms_report_links_404">The URL was not found</string>
+<string source="cms_report_links_405">HTTP Verb is not allowed</string>
+<string source="cms_report_links_406">Client browser does not accept the MIME type of the requested page</string>
+<string source="cms_report_links_408">Request timed out</string>
+<string source="cms_report_links_412">The URL had a precondition that failed</string>
 <string source="cms_report_links_407">Proxy Authentication Required</string>
 <string source="cms_report_links_301">The URL has been permanently moved</string>
 <string source="cms_report_links_301_with_new_link">The URL has been permanently moved to "%s"</string>
 <string source="cms_report_links_302">The URL has been temporarily moved</string>
 <string source="cms_report_links_302_with_new_link">The URL has been temporarily moved to "%s"</string>
+<string source="cms_report_links_307">The URL has been temporarily moved</string>
+<string source="cms_report_links_307_with_new_link">The URL has been temporarily moved to "%s"</string>
 <string source="cms_report_links_unknown_response">The URL returned response "%s"</string>
 <string source="cms_report_links_invalid_email">The email address does not appear to be valid</string>
 <string source="cms_report_links_current"><![CDATA[<b>Note</b>]]> The current links report is shown below. You can regenerate this report on the details screen.</string>

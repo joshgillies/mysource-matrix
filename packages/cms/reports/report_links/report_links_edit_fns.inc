@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.45 2008/10/20 03:57:18 ewang Exp $
+* $Id: report_links_edit_fns.inc,v 1.46 2009/03/26 23:36:05 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -423,7 +423,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 
 			require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-			$socket = openSocketConnection($url_parts, $errno, $errstr);
+			$socket = openSocketConnection($url_parts, $errno, $errstr, TRUE, 15);
 			if (!SQ_PA_ENABLED || !$socket) {
 				// if proxy authentication is not enabled, or fopen fails, do the old trick
 				$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
@@ -441,7 +441,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$headers = fread($socket, 2000);
 				$info = stream_get_meta_data($socket);
 
-				if (preg_match('|405 method not allowed|i', $response)) {
+				if (preg_match('|405 method not allowed|i', $response) || preg_match('|404 not found|i', $response)) {
 					// Special case need a GET to double check
 					$newsocket = fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
 					if ($newsocket) {
@@ -514,6 +514,70 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			} else {
 				$description = translate('cms_report_links_302');
 			}
+		// IIS Specific error codes
+		} else if (preg_match('|202 accepted|i', $response)) {
+			$description = '';
+			$valid = '1';
+		} else if (preg_match('|301 moved permanently|i', $response)) {
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_301');
+			}
+		} else if (preg_match('|301 permanent redirect|i', $response)) {
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_301_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_301');
+			}
+		} else if (preg_match('|302 object moved|i', $response)) {
+			// should this
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_302_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_302');
+			}
+		} else if (preg_match('|307 temporary redirect|i', $response)) {
+			$valid = '1';
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+				$description = translate('cms_report_links_307_with_new_link', $matches[1]);
+			} else {
+				$description = translate('cms_report_links_307');
+			}
+		} else if (preg_match('|400 bad request|i', $response)) {
+			$description = translate('cms_report_links_400');
+			$valid = '0';
+		} else if (preg_match('|401 access denied|i', $response)) {
+			$description = translate('cms_report_links_401');
+			$valid = '0';
+		} else if (preg_match('|401 unauthorized|i', $response)) {
+			$description = translate('cms_report_links_401');
+			$valid = '0';
+		} else if (preg_match('|403 forbidden|i', $response)) {
+			$description = translate('cms_report_links_403');
+			$valid = '0';
+		} else if (preg_match('|403 forbidden|i', $response)) {
+			$description = translate('cms_report_links_403');
+			$valid = '0';
+		} else if (preg_match('|404 page not available|i', $response)) {
+			$description = translate('cms_report_links_404');
+			$valid = '0';
+		} else if (preg_match('|406 client browser does not|i', $response)) {
+			$description = translate('cms_report_links_406');
+			$valid = '0';
+		} else if (preg_match('|408 request timed out|i', $response)) {
+			$description = translate('cms_report_links_408');
+			$valid = '0';
+		} else if (preg_match('|412 precondition failed|i', $response)) {
+			$description = translate('cms_report_links_412');
+			$valid = '0';
 		} else if ($info['timed_out']) {
 			$description = translate('cms_report_links_server_timeout');
 			$valid = '0';
