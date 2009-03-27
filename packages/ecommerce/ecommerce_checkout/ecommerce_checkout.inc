@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.64 2008/12/01 22:57:37 bshkara Exp $
+* $Id: ecommerce_checkout.inc,v 1.65 2009/03/27 00:50:54 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -566,7 +566,12 @@ class Ecommerce_Checkout extends Page
 
 			if (!$payment_response) {
 				// process the payment gateway if one is present and if we haven't done so already
-				$payment_gateway_id = $delivery_method->attr('payment_gateway');
+				$payment_gateway_attr   =& $delivery_method->getAttribute('payment_gateway', TRUE);
+				$payment_gateway_id     = NULL;
+				// Only try to find payment gateway if this delivery method support payment gateway, some methods might not.
+				if (!is_null($payment_gateway_attr)) {
+						$payment_gateway_id = $delivery_method->attr('payment_gateway');
+				}//end if
 				if (!empty($payment_gateway_id)) {
 					// get cart total cost
 					$cart = new Ecommerce_Cart_Processor();
