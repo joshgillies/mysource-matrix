@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.203.2.2 2009/02/27 00:03:02 bpearson Exp $
+* $Id: general.inc,v 1.203.2.3 2009/03/27 04:52:23 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.203.2.2 $
+* @version $Revision: 1.203.2.3 $
 * @package MySource_Matrix
 */
 
@@ -1759,7 +1759,7 @@ function clean_keyword_value($keyword_value)
 	} else {
 		// whitelist of characters that will not be stripped out,
 		// for some security
-		$safe_list = 'A-Za-z0-9\.\-\_\%\$\(\)\=';
+		$safe_list = 'A-Za-z0-9\.\-\_\%\$\(\)\= ';
 		$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
 	}
 
