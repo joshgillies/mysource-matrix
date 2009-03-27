@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.54.2.11 2009/03/27 00:46:53 hnguyen Exp $
+* $Id: ecommerce_checkout.inc,v 1.54.2.12 2009/03/27 00:49:26 hnguyen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.54.2.11 $
+* @version $Revision: 1.54.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -574,8 +574,6 @@ class Ecommerce_Checkout extends Page
 						$payment_gateway_id = $delivery_method->attr('payment_gateway');
 				}//end if
 				if (!empty($payment_gateway_id)) {
-
-
 					// get cart total cost
 					$cart = new Ecommerce_Cart_Processor();
 					$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
