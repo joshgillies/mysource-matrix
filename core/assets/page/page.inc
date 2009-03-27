@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.18 2008/07/02 14:13:54 gnoel Exp $
+* $Id: page.inc,v 1.18.2.1 2009/03/27 00:40:46 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,6 +115,8 @@ class Page extends Asset
 		$allowed[SQ_LINK_TYPE_2]['data_source'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		$allowed[SQ_LINK_TYPE_3]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
+		
+		$allowed[SQ_LINK_NOTICE]['page'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		return $allowed;
 
