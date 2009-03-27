@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_management.inc,v 1.5 2008/04/01 04:21:24 bpearson Exp $
+* $Id: form_question_type_select_management.inc,v 1.5.2.1 2009/03/27 05:31:35 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DELIMITER_MAC', "\n");
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,6 +122,7 @@ class Form_Question_Type_Select_Management extends Asset_Management
 			// Get a list of questions
 			$form_email = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_email', FALSE, TRUE);
 			$form_email += $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_section', FALSE, TRUE);
+			$form_email += $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('simple_form', FALSE, TRUE);
 			foreach ($form_email as $fe_id => $fe_blank) {
 				$fe = $GLOBALS['SQ_SYSTEM']->am->getAsset($fe_id, $fe_blank['type_code']);
 
@@ -129,7 +130,14 @@ class Form_Question_Type_Select_Management extends Asset_Management
 
 				// Cycle thru the questions
 				foreach ($q_value as $q_place_id => $q_id) {
-					if ($q_id['question_type_code'] == 'form_question_type_select') {
+					if (isset($q_id['type_code'])) {
+						$type_code_index	= 'type_code';
+					} else if (isset($q_id['question_type_code'])) {
+						$type_code_index	= 'question_type_code';
+					} else {
+						continue;
+					}//end else
+					if ($q_id[$type_code_index] == 'form_question_type_select') {
 						$options = $q_id['attributes']['options'];
 
 						// Check the format stored in, and grab the options as an array
