@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.63.2.5 2008/07/31 04:05:03 ewang Exp $
+* $Id: page_account_manager.inc,v 1.63.2.6 2009/03/30 05:44:02 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.63.2.5 $
+* @version $Revision: 1.63.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -408,6 +408,34 @@ class Page_Account_Manager extends Page_Asset_Builder
 							// notice link the newly-created asset underneath the selected create locations,
 							// so when we validate we know which create locations were selected
 							$new_asset =& $this->_tmp['created_asset'];
+		
+							// Remove all permission from the created user, apart from the admin permission the
+							// user is allowed to hold on itself. This means the user will not inherit permissions
+							// from the Pending Accounts folder.
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+							$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+							$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+							foreach (get_constant_values('SQ_PERMISSION_') as $permission_name => $permission) {
+								$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_asset->id, $permission, NULL, FALSE);
+								foreach ($permissions as $userid) {
+									if (!(($permission == SQ_PERMISSION_ADMIN) && ($userid == $new_asset->id))) {
+										if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($new_asset->id, $userid, $permission)) {
+											$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+											$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+											$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+											return FALSE;
+										}
+									}
+								}
+								$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_asset->id, $permission, NULL, FALSE);
+								minibam($permissions, $permission_name.' AFTER DELETION');
+							}
+
+							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 							// manually parse the create locations, format into an array in the format Array(locationid => Array('name'=>code_name, 'link_type'=>link_type), ...)
 							$selected_create_locations = Array();
@@ -953,7 +981,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	/**
 	* Create the pending accounts user group
 	*
-	* @return void
+	* @return boolean
 	* @access protected
 	*/
 	function _createPendingAccountsGroup()
@@ -964,10 +992,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$group = new User_Group();
 		$group->setAttrValue('name', 'Pending Accounts');
 		if (!$group->create($group_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
+
+		return TRUE;
 
 	}//end _createPendingAccountsGroup()
 
