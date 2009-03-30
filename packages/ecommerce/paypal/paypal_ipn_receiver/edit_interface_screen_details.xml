@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2009/03/05 18:29:54 ata Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2009/03/30 18:03:58 ata Exp $
 *
 */
 -->
@@ -24,7 +24,7 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Button details" write_access="write:attributes" limbo_access="1">
+	<section name="IPN Receiver details" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintTargetAsset"   />
