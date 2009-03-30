@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_payment_button_edit_fns.inc,v 1.1 2009/03/05 18:33:12 ata Exp $
+* $Id: paypal_payment_button_edit_fns.inc,v 1.2 2009/03/30 18:11:23 ata Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -38,7 +38,8 @@ class Paypal_Payment_Button_Edit_Fns extends Page_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
-
+		$this->static_screens['details']['force_unlock'] = FALSE;
+		
 	}//end constructor
 
 	

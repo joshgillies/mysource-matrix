@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2009/03/05 18:33:12 ata Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2009/03/30 18:11:22 ata Exp $
 *
 */
 -->
@@ -35,7 +35,7 @@
 			<text width="10" height="1" />
 		</field>
 		<field attribute="price">
-			<text width="10" height="1" />
+			<text width="40" height="1" />
 		</field>
 		<field attribute="currency">
 			<selection style="list" />
@@ -43,8 +43,11 @@
 		<field attribute="undefined_quantity">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-		<field attribute="merchant_id">
-			<text width="60" height="1" />
+		<field attribute="paypal_account_id">
+			<assetid type_codes="paypal_business_account:I" />
+		</field>
+		<field attribute="paypal_config_id">
+			<assetid type_codes="paypal_configuration:I" />
 		</field>
 		<field attribute="custom_var">
 			<text width="60" height="1" />
@@ -58,9 +61,6 @@
 		<field attribute="cancel_return_url">
 			<text width="60" height="1" />
 		</field>
-		<field attribute="post_url">
-			<text width="60" height="1" />
-		</field>
 		<field attribute="image_url">
 			<text width="60" height="1" />
 		</field>
@@ -69,11 +69,6 @@
 				<paint_function   name="paintExtraVars"   />
 				<process_function name="processExtraVars" />
 			</function_call>
-		</field>
-	</section>
-	<section name="Testing Mode" write_access="write:attributes">
-		<field attribute="test_mode">
-			<boolean true_text="on" false_text="off" />
 		</field>
 	</section>
 </contents>

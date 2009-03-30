@@ -10,12 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_payment_button.inc,v 1.1 2009/03/05 18:33:12 ata Exp $
+* $Id: paypal_payment_button.inc,v 1.2 2009/03/30 18:11:23 ata Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
-require_once dirname(__FILE__).'/../include/paypal_config.inc';
 
 /**
 * Paypal_Payment_Button
@@ -24,13 +23,31 @@ require_once dirname(__FILE__).'/../include/paypal_config.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Paypal_Payment_Button extends Page
 {
 
+	/**
+	 * The string that is used to split the custom variables of this button asset
+	 * 
+	 * @var string
+	 */
+	public static $CUSTOM_PARAM_SPLIT_STR = '::';
+	
+	
+	/**
+	 * This array stores the POST URLs of the Paypal Buttons
+	 * 
+	 * @var array
+	 */
+	private static $_post_url = Array(
+										'live' 		=> 'https://www.paypal.com/cgi-bin/webscr',
+										'sandbox'	=> 'https://www.sandbox.paypal.com/cgi-bin/webscr',
+									 );
+	
 	/**
 	* Constructor
 	*
@@ -54,25 +71,37 @@ class Paypal_Payment_Button extends Page
 	*/
 	public function printBody()
 	{
-		require_once SQ_PAYPAL_LIB_PATH.'/PPCrypto.php';
-		
-		$data = $this->_concatButtonData();
-		
-		if ($this->attr('test_mode')) {
-			//test mode
-			$encryptedButton = PPCrypto::signAndEncrypt($data, TEST_SQ_PUBLIC_CERT_PATH, TEST_SQ_PRIVATE_KEY_PATH, TEST_SQ_PRIVATE_KEY_PASSWORD, TEST_SQ_PAYPAL_CERT_PATH);
-		} else {
-			//real mode
-			$encryptedButton = PPCrypto::signAndEncrypt($data, SQ_PUBLIC_CERT_PATH, SQ_PRIVATE_KEY_PATH, SQ_PRIVATE_KEY_PASSWORD, SQ_PAYPAL_CERT_PATH);
-		}
-		
-		if (!$encryptedButton['status']) {
-			trigger_error($encryptedButton['error_msg'], E_USER_WARNING);
+		$paypal_config_id = $this->attr('paypal_config_id');
+		if (empty($paypal_config_id)) {
+			trigger_error('Paypal Configuration is not specified for this asset.', E_USER_WARNING);
 			return;
 		}
 		
+		$paypal_config = $GLOBALS['SQ_SYSTEM']->am->getAsset($paypal_config_id);
+		require_once $paypal_config->attr('encryption_lib_path');
+		
+		$paypal_account_id = $this->attr('paypal_account_id');
+		if (empty($paypal_account_id)) {
+			trigger_error('Paypal Business Account is not specified for this asset.', E_USER_WARNING);
+			return;
+		}
+		
+		$paypal_account = $GLOBALS['SQ_SYSTEM']->am->getAsset($paypal_account_id);
+		
+		//gather button's data
+		$data = $this->_concatButtonData($paypal_config, $paypal_account);
+		
+		$encryptedButton = PPCrypto::signAndEncrypt($data, $paypal_account->attr('public_cert_path'), $paypal_account->attr('private_key_path'), '', $paypal_account->attr('paypal_cert_path'));
+		
+		if (!$encryptedButton['status']) {
+			trigger_error('FAIL TO ENCRYPT BUTTON. ERROR: '.$encryptedButton['error_msg'], E_USER_WARNING);
+			return;
+		}
+		
+		$post_url = self::$_post_url[$paypal_account->attr('account_type')];
+		
 		$content = <<<HEREDOC
-<form action="{$this->attr('post_url')}" method="post">
+<form action="{$post_url}" method="post">
 	<input type="hidden" name="cmd" value="_s-xclick">
 	<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----{$encryptedButton['encryptedData']}-----END PKCS7-----">
 	<input type="image" src="{$this->attr('image_url')}" border="0" name="submit" alt="Paypal payment button">
@@ -90,26 +119,28 @@ HEREDOC;
 	 * @return string	The concatenated string of all the button data
 	 * @access private
 	 */
-	private function _concatButtonData() {
+	private function _concatButtonData($paypal_config, $paypal_business_account)
+	{
 		//concat the content of this payment button
 		$data = 'cmd='.$this->attr('button_type')."\n";
-		$data .= 'business='.$this->attr('merchant_id')."\n";
 		
-		if ($this->attr('test_mode')) {
-			//test mode
-			$data .= 'cert_id='.TEST_SQ_PUBLIC_CERT_ID."\n";
-		} else {
-			//real mode
-			$data .= 'cert_id='.SQ_PUBLIC_CERT_ID."\n";
-		}
+		$data .= 'business='.$paypal_business_account->attr('account_id')."\n";
+		$data .= 'cert_id='.$paypal_business_account->attr('public_cert_id')."\n";
 		
-		$data .= 'item_name='.$this->attr('item_name')."\n";
+		$item_name = $this->attr('item_name');
+		//Replace keywords for item name
+		replace_global_keywords($item_name);
+		$data .= 'item_name='.$item_name."\n";
 		
 		if ($this->attr('item_id') != '') {
 			$data .= 'item_number='.$this->attr('item_id')."\n";
 		}
+
+		$price = $this->attr('price');
+		//Replace keywords for price
+		replace_global_keywords($price);
+		$data .= 'amount='.$price."\n";
 		
-		$data .= 'amount='.$this->attr('price')."\n";
 		$data .= 'currency_code='.$this->attr('currency')."\n";
 		
 		if ($this->attr('undefined_quantity')) {
@@ -126,18 +157,21 @@ HEREDOC;
 		}
 		
 		//Add this button id to custom variable so that IPN receiver asset will know which button triggered the payment
-		$custom_var = $this->id.SQ_PAYPAL_CUSTOM_SPLIT_CHARS.$custom;
+		$custom_var = $this->id.self::$CUSTOM_PARAM_SPLIT_STR.$custom;
 		
 		//Get the query string of Notify URL
 		$notify_url_query = parse_url($this->attr('notify_url'), PHP_URL_QUERY);
 		if (is_null($notify_url_query)) {
 			$notify_url_query = '';
 		}
-		//Hash the custom variable string and notify URL's query with our secret string to prevent malicious changes to 
-		//the custom parameter and notify URL in Replay attack
-		$custom_hash = md5(SQ_PAYPAL_CUSTOM_SECRET_STRING.$custom_var.SQ_PAYPAL_CUSTOM_SECRET_STRING.$notify_url_query);
 		
-		$data .= 'custom='.$custom_hash.SQ_PAYPAL_CUSTOM_SPLIT_CHARS.$custom_var."\n";
+		//Hash the custom variable string and notify URL's query with our secret string to prevent malicious changes to 
+		//the custom parameter and notify URL in Replay attack.
+		//Actually, the notify URL query should not be checked or used here but we might sometimes want to use the trigger
+		//condition URL matches to trigger an action and we do not want the query string to be changed.
+		$custom_hash = md5($paypal_config->attr('custom_param_secret_str').$custom_var.$paypal_config->attr('custom_param_secret_str').$notify_url_query);
+		
+		$data .= 'custom='.$custom_hash.self::$CUSTOM_PARAM_SPLIT_STR.$custom_var."\n";
 		
 		if ($this->attr('notify_url') != '') {
 			$data .= 'notify_url='.$this->attr('notify_url')."\n";
