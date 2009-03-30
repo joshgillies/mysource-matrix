@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
@@ -10,12 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_ipn_receiver.inc,v 1.1 2009/03/05 18:29:55 ata Exp $
+* $Id: paypal_ipn_receiver.inc,v 1.2 2009/03/30 18:05:21 ata Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
-require_once dirname(__FILE__).'/../include/paypal_config.inc';
+
+define('LOG_FILE_PREFIX', 'paypal_transactions');
+define('FAIL_LOG_FILE', LOG_FILE_PREFIX.'_failure');
 
 /**
 * Paypal_IPN_Receiver
@@ -24,7 +26,7 @@ require_once dirname(__FILE__).'/../include/paypal_config.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -53,11 +55,11 @@ class Paypal_IPN_Receiver extends Page
 	*/
 	public function _getAllowedLinks()
 	{
-		$allowed = parent::_getAllowedLinks();
+		$allowed_links = parent::_getAllowedLinks();
 
-		$allowed[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$allowed_links[SQ_LINK_NOTICE]['asset'] = Array('card' => 'M', 'exclusive' => FALSE);
 
-		return $allowed;
+		return $allowed_links;
 
 	}//end _getAllowedLinks()
 	
@@ -70,28 +72,55 @@ class Paypal_IPN_Receiver extends Page
 	*/
 	public function printFrontend()
 	{
-		$log_message = "There is a {$_SERVER['REQUEST_METHOD']} Request from {$_SERVER['REMOTE_ADDR']}\n";
+		$payment_info = Array();
+		$payment_info['request_server'] = "There is a {$_SERVER['REQUEST_METHOD']} Request from {$_SERVER['REMOTE_ADDR']}";
 		
 		//only process if the request method is POST
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-			$log_message .= "payment_status={$this->_getPOSTLogString('payment_status')}\n";
-			$log_message .= "txn_id={$this->_getPOSTLogString('txn_id')}\n";
+			$payment_info['txn_id'] = array_get_index($_POST, 'txn_id', '');
+			$payment_info['payment_status'] = array_get_index($_POST, 'payment_status', '');
 			
-			//do not proceed if payment_status is not Completed or there is no transaction ID
-			if (!isset($_POST['payment_status']) || ($_POST['payment_status'] != 'Completed') || empty($_POST['txn_id'])) {
-				$this->_returnPageNotFound($log_message);
+			//do not proceed if there is no transaction ID or payment_status
+			if (empty($payment_info['txn_id']) || empty($payment_info['payment_status'])) {
+				$payment_info['error'] = 'THERE IS NO TRANSACTION ID OR PAYMENT STATUS.';
+				$this->_returnPageNotFound($payment_info);
 			}
 			
+			if ($payment_info['payment_status'] == 'Pending') {
+				$payment_info['incomplete_reason'] = array_get_index($_POST, 'pending_reason', '');
+			} else {
+				$payment_info['incomplete_reason'] = array_get_index($_POST, 'reason_code', '');
+			}
+			
+			$payment_info['custom'] = array_get_index($_POST, 'custom', '');
 			//if there is no custom parameter, it must not be a Paypal POST request (our payment button always sends custom variable)
-			if (!isset($_POST['custom'])) {
-				$log_message .= "custom=[Not set]\n";
-				$this->_returnPageNotFound($log_message);;
+			if (empty($payment_info['custom'])) {
+				$payment_info['error'] = 'CUSTOM VARIABLE IS NOT SENT BACK FROM PAYPAL.';
+				$this->_returnPageNotFound($payment_info);
 			}
 			
-			list($custom_hash, $button_id, $custom) = explode(SQ_PAYPAL_CUSTOM_SPLIT_CHARS, $_POST['custom']);
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('paypal_payment_button');
+			
+			list($custom_hash, $button_id, $custom) = explode(Paypal_Payment_Button::$CUSTOM_PARAM_SPLIT_STR, $payment_info['custom']);
+			
+			$payment_info['button_id'] = $button_id;
+			if (empty($button_id)) {
+				$payment_info['error'] = 'BUTTON ID IS NOT SPECIFIED.';
+				$this->_returnPageNotFound($payment_info);
+			}
+			
+			$button = $GLOBALS['SQ_SYSTEM']->am->getAsset($button_id);
+			
+			$paypal_config_id = $button->attr('paypal_config_id');
+			if (empty($paypal_config_id)) {
+				$payment_info['error'] = "PAYPAL CONFIGURATION IS NOT SPECIFIED FOR THE BUTTON #$button_id.";
+				$this->_returnPageNotFound($payment_info);
+			}
+			
+			$paypal_config = $GLOBALS['SQ_SYSTEM']->am->getAsset($paypal_config_id);
 			
 			//check if there is any malicious changes to our custom parameter
-			$custom_var = $button_id.SQ_PAYPAL_CUSTOM_SPLIT_CHARS.$custom;
+			$custom_var = $button_id.Paypal_Payment_Button::$CUSTOM_PARAM_SPLIT_STR.$custom;
 			
 			if (!empty($custom)) {
 				$custom = urldecode($custom);
@@ -99,43 +128,39 @@ class Paypal_IPN_Receiver extends Page
 			
 			$notify_url_query = array_get_index($_SERVER, 'QUERY_STRING', '');
 			
-			$log_message .= "button_id=$button_id\n";
-			$log_message .= "custom=$custom\n";
-			$log_message .= "notify_url_query=$notify_url_query\n";
+			$payment_info['real_custom_var'] = $custom;
+			$payment_info['notify_url_query'] = $notify_url_query;
 			
-			if ($custom_hash != md5(SQ_PAYPAL_CUSTOM_SECRET_STRING.$custom_var.SQ_PAYPAL_CUSTOM_SECRET_STRING.$notify_url_query)) {
+			if ($custom_hash != md5($paypal_config->attr('custom_param_secret_str').$custom_var.$paypal_config->attr('custom_param_secret_str').$notify_url_query)) {
 				//someone tampered with the custom paramater
-				$log_message .= "WRONG CHECKSUM\n";
-				$this->_returnPageNotFound($log_message);;
+				$payment_info['error'] = 'THE CHECKSUM OF CUSTOM VARIABLES AND NOTIFY URL QUERY STRING IS INVALID.';
+				$this->_returnPageNotFound($payment_info);
 			}
 			
-			//get other information of this purchase
-			$merchant_id = array_get_index($_POST, 'business', '');
-			$item_name = array_get_index($_POST, 'item_name', '');
-			$item_id = array_get_index($_POST, 'item_number', '');
-			$currency = array_get_index($_POST, 'mc_currency', '');
-			$mc_gross = array_get_index($_POST, 'mc_gross', 0);
-			$quantity = array_get_index($_POST, 'quantity', 1);
-			$price = $mc_gross/$quantity;
-			
-			$log_message .= "business=$merchant_id\n";
-			$log_message .= "item_name=$item_name\n";
-			$log_message .= "item_number=$item_id\n";
-			$log_message .= "mc_currency=$currency\n";
-			$log_message .= "mc_gross=$mc_gross\n";
-			$log_message .= "quantity=$quantity\n";
-			$log_message .= "price=$price\n";
-			
-			$button = $GLOBALS['SQ_SYSTEM']->am->getAsset($button_id);
-			
-			//if there is no payment button or its attributes are different from Paypal parameters, there is something wrong
-			if (is_null($button) || ($merchant_id != $button->attr('merchant_id')) || ($item_name != $button->attr('item_name')) ||
-			($item_id != $button->attr('item_id')) || $currency != $button->attr('currency') || $price != $button->attr('price')) {
-				$log_message .= "INFORMATION DOES NOT MATCH\n";
-				$this->_returnPageNotFound($log_message);;
+			$paypal_account_id = $button->attr('paypal_account_id');
+			if (empty($paypal_account_id)) {
+				$payment_info['error'] = "PAYPAL BUSINESS ACCOUNT IS NOT SPECIFIED FOR THE BUTTON #$button_id.";
+				$this->_returnPageNotFound($payment_info);
 			}
 			
-			//THE PURCHASE IS VALIDATED, get assetid from custom parameter to broadcast IPN Completed event
+			$paypal_account = $GLOBALS['SQ_SYSTEM']->am->getAsset($paypal_account_id);
+			
+			$payment_info['business'] = array_get_index($_POST, 'business', '');
+			//check if the payment is made to correct merchant
+			if ($payment_info['business'] != $paypal_account->attr('account_id')) {
+				$payment_info['error'] = "THE PAYMENT'S MERCHANT ID ({$payment_info['business']}) DOES NOT MATCH THE MERCHANT ID ({$paypal_account->attr('account_id')}) OF THE PAYPAL ACCOUNT #$paypal_account_id.";
+				$this->_returnPageNotFound($payment_info);
+			}
+			
+			//THE PAYMENT IS VALID 
+			
+			//get other information of this payment to write to the log file
+			$payment_info['item_name'] = array_get_index($_POST, 'item_name', '');
+			$payment_info['item_number'] = array_get_index($_POST, 'item_number', '');
+			$payment_info['mc_currency'] = array_get_index($_POST, 'mc_currency', '');
+			$payment_info['mc_gross'] = array_get_index($_POST, 'mc_gross', 0);
+			$payment_info['quantity'] = array_get_index($_POST, 'quantity', 1);
+			$payment_info['price'] = $payment_info['mc_gross']/$payment_info['quantity'];
 			
 			//split custom parameters
 			$params = Array();
@@ -158,30 +183,38 @@ class Paypal_IPN_Receiver extends Page
 			}
 			
 			if (empty($assetid)) {
+				//get assetid from custom parameter
 				$assetid = array_get_index($_POST, $this->attr('assetid_param_name'), '');
 			}
 			
 			if (empty($assetid)) {
-				$log_message .= "No target asset ID specified.\n";
+				$payment_info['target_assetid'] = "No target asset ID specified.";
 			} else {
+				$payment_info['target_assetid'] = $assetid;
 				$target_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				
-				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_paypal_ipn_completed', $target_asset);
-				
-				if (empty($target_asset)) {
-					$log_message .= "There is no asset with ID #$assetid.\n";
+				//if payment is completed, broadcast IPN Completed event
+				if ($payment_info['payment_status'] == 'Completed') {
+					if (empty($target_asset)) {
+						$payment_info['ipn_event'] = "No IPN Completed event is broadcasted because there is no asset with ID #$assetid.";
+					} else {
+						$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_paypal_ipn_completed', $target_asset);
+						$payment_info['ipn_event'] = "An IPN Completed event was broadcasted to the asset #$assetid.";
+					}
 				} else {
-					$log_message .= "An IPN Completed event was broadcasted to the asset #$assetid.\n";
+						$payment_info['ipn_event'] = "No IPN Completed event is broadcasted because payment status is {$payment_info['payment_status']}.";
 				}
-				
 			}
 			
+			$paypal_account->addPaypalOrder($payment_info, $message);
+			$payment_info['paypal_order'] = $message;
+			
 			//log message
-			$this->_logIncomingRequestInfo($log_message);
+			$this->_logIncomingRequestInfo(LOG_FILE_PREFIX.'_account_'.$paypal_account_id, $payment_info);
 			
 		} else {
 			//trick that there is no asset at this URL because the URL of IPN Receiver should not be revealed
-			$this->_returnPageNotFound($log_message);;
+			$this->_returnPageNotFound($payment_info);
 		}
 
 	}//end printFrontend()
@@ -191,10 +224,12 @@ class Paypal_IPN_Receiver extends Page
 	 * This function sends an HTTP status code 404 (Page Not Found) to the client to trick it that there is no page at
 	 * this requested URL
 	 * 
+	 * @param string $payment_info	The message to write to log file
+	 * 
 	 * @return void
 	 * @access private
 	 */
-	private function _returnPageNotFound($log_message) {
+	private function _returnPageNotFound($payment_info) {
 		$protocol = current_protocol();
 		$url = strip_url(current_url(FALSE, TRUE));
 		if (!headers_sent()) {
@@ -202,8 +237,8 @@ class Paypal_IPN_Receiver extends Page
 		}
 
 		//log message before triggering an error
-		$log_message .= "A 404 status code was sent back to the client.\n";
-		$this->_logIncomingRequestInfo($log_message); 
+		$payment_info['status_code'] = "A 404 status code was sent back to the client.";
+		$this->_logIncomingRequestInfo(FAIL_LOG_FILE, $payment_info); 
 		
 		trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
 		
@@ -213,25 +248,23 @@ class Paypal_IPN_Receiver extends Page
 	
 	
 	/**
+	 * Log message to the $file_name
 	 * 
-	 * @return unknown_type
+	 * @param string $file_name		The name of the log file
+	 * @param string $payment_info	The data to write down
+	 * 
+	 * @return void
+	 * @access private
 	 */
-	private function _getPOSTLogString($var_name) {
-		if (empty($_POST[$var_name])) {
-			return '[Empty]';
+	private function _logIncomingRequestInfo($file_name, $payment_info) {
+		$data = '';
+		foreach ($payment_info as $name => $message) {
+			if ($message == '') {
+				$message = '[Empty]';
+			}
+			$data .= "$name=$message\n";
 		}
-		
-		return $_POST[$var_name];
-		
-	}//end _getPOSTLogString()
-	
-	
-	/**
-	 * 
-	 * @return unknown_type
-	 */
-	private function _logIncomingRequestInfo($data) {
-		log_write($data, SQ_PAYPAL_LOG_FILE_NAME, E_USER_NOTICE, FALSE);
+		log_write($data, $file_name, E_USER_NOTICE, FALSE);
 		
 	}//end _logIncomingRequest()
 	
