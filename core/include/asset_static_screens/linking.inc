@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.39.2.1 2008/12/16 22:31:06 ewang Exp $
+* $Id: linking.inc,v 1.39.2.2 2009/03/30 05:23:17 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.39.2.1 $
+* @version $Revision: 1.39.2.2 $
 * @package MySource_Matrix
 */
 
@@ -112,29 +112,18 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 	$output_lineages = Array();
 	$editing_linkids = Array();
 	foreach ($result as $treeid => $link_tree) {
-
 		// work out some values we are going to need
 		$parent_data = $link_tree[count($link_tree) -1];
 		$majorid = $parent_data['assetid'];
 
 		foreach ($link_info[$majorid] as $link_data) {
-			if ($link_data['link_type'] != SQ_LINK_NOTICE) {
-				$output = _printLine($owner, $majorid, $link_data, $parent_data, $link_tree, $editing_linkids);
-				if (!empty($output)) $output_lineages[] = $output;
-			}
+			$output = _printLine($owner, $majorid, $link_data, $parent_data, $link_tree, $editing_linkids);
+			if (!empty($output)) $output_lineages[] = $output;
 		}//end foreach
 
 	}//end foreach result
 
-	// For NOTICE Links
-	foreach ($asset_links as $link_data) {
-		$majorid = $link_data['majorid'];
-		if ($link_data['link_type'] == SQ_LINK_NOTICE) {
-			$output = _printLine($owner, $majorid, $link_data, Array(), Array(), $editing_linkids);
-			if (!empty($output)) $output_lineages[] = $output;
-		}
-	}
-
+ 
 	if (!count($output_lineages)) {
 		echo 'None';
 	} else {
@@ -482,10 +471,10 @@ function processLinking(&$owner, &$o, &$ei)
 	$fl_create = new Cron_Job_Future_Lineage();
 	$edit_fns_create = $fl_create->getEditFns();
 	$fl_create->setAssetInLink($owner, 'minor');
-
 	// we process the create new link
 	// if all the parameters are set properly we add to the cron manager the new job
 	if ($edit_fns_create->processInLineBackendCreate($fl_create, $o, $prefix.'_create')) {
+		
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if ($cron_mgr->addJob($fl_create, $GLOBALS['SQ_SYSTEM']->user)) {
@@ -501,6 +490,7 @@ function processLinking(&$owner, &$o, &$ei)
 	// we process the deletion of links
 	// if all the parameters for the cron are set properly
 	if ($edit_fns_create->processInLineBackendDelete($fl_create, $o, $prefix.'_delete')) {
+	
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		if ($cron_mgr->addJob($fl_create, $GLOBALS['SQ_SYSTEM']->user)) {
