@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layouts.inc,v 1.4 2008/11/28 03:47:14 bpearson Exp $
+* $Id: layouts.inc,v 1.5 2009/03/30 05:07:05 mbrydon Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Layouts Static Screen Functions
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -244,14 +244,21 @@ function processLayouts(&$owner, &$o, &$ei)
 
 	// Grab the info we need
 	$layouts = $owner->getLookupValues();
+	$urls = Array();
+
 	if (!empty($layouts)) {
-		$url = key($layouts);
+		$urls = array_keys($layouts);
 	} else {
-		$url = str_replace('http://', '', $owner->getURL());
+		$all_urls = $owner->getURLs();
+
+		// Grab the address innards of the URL and store this only
+		foreach ($all_urls as $url) {
+			$urls[] = $url['url'];
+		}
 	}
 
 	// If url is not warn user and stop
-	if (empty($url)) {
+	if (empty($urls)) {
 		trigger_localised_error('SYS0330', E_USER_WARNING);
 	}
 
@@ -280,8 +287,10 @@ function processLayouts(&$owner, &$o, &$ei)
 			// layouts::type_code::screen where is not defined screen will default to noscreen with asset of 0
 			if (!empty($type_code)) {
 				$layout_schema = 'layout::'.$type_code.'::noscreen';
-				$layouts[$url][$layout_schema] = Array();
-				$layouts[$url][$layout_schema]['value'] = 0;
+				foreach ($urls as $url) {
+					$layouts[$url][$layout_schema] = Array();
+					$layouts[$url][$layout_schema]['value'] = 0;
+				}
 			}
 		}//end foreach
 
@@ -313,15 +322,17 @@ function processLayouts(&$owner, &$o, &$ei)
 			$lookup = 'layout::'.$details[0].'::'.$details[1];
 
 			// If an asset is already set for here delete it so we can re add it later
-			if (in_array($lookup, $layouts[$url])) {
-				unset($layouts[$url][$lookup]);
-			}
+			foreach ($urls as $url) {
+				if (in_array($lookup, $layouts[$url])) {
+					unset($layouts[$url][$lookup]);
+				}
 
-			// Make out changes
-			if (!isset($layouts[$url][$lookup])) {
-				$layouts[$url][$lookup] = Array();
+				// Make out changes
+				if (!isset($layouts[$url][$lookup])) {
+					$layouts[$url][$lookup] = Array();
+				}
+				$layouts[$url][$lookup]['value'] = $assetid;
 			}
-			$layouts[$url][$lookup]['value'] = $assetid;
 		}//end foreach
 
 		if (!$owner->setLookupValues($layouts)) {
@@ -344,14 +355,16 @@ function processLayouts(&$owner, &$o, &$ei)
 			// Format the values for lookup values
 			$lookup = 'layout::'.$type_code.'::'.$screen;
 
-			// Check for duplication
-			if (in_array($lookup, $layouts[$url])) continue;
+			foreach ($urls as $url) {
+				// Check for duplication
+				if (in_array($lookup, $layouts[$url])) continue;
 
-			$layouts[$url][$lookup] = Array();
-			$layouts[$url][$lookup]['value'] = 0;
-			if (!empty($screen)) {
-				// Delete the no screen entry if setting a screen
-				unset($layouts[$url]['layout::'.$type_code.'::noscreen']);
+				$layouts[$url][$lookup] = Array();
+				$layouts[$url][$lookup]['value'] = 0;
+				if (!empty($screen)) {
+					// Delete the no screen entry if setting a screen
+					unset($layouts[$url]['layout::'.$type_code.'::noscreen']);
+				}
 			}
 		}
 
@@ -371,22 +384,24 @@ function processLayouts(&$owner, &$o, &$ei)
 		foreach ($_POST[$prefix.'_remove_screen'] as $key => $value) {
 			$details = explode('@', $key);
 
-			if ($value) {
-				unset($layouts[$url]['layout::'.$details[0].'::'.$details[1]]);
-			}
-
-			// Check for another entry, if none found we need to add a noscreen entry
-			// Otherwise we lose our type code
-			$another_entry = 0;
-			foreach ($layouts[$url] as $looking_key => $looking_value) {
-				$search_string = '/^layout::'.$details[0].'::/i';
-				if (preg_match($search_string, $looking_key)) {
-					$another_entry++;
+			foreach ($urls as $url) {
+				if ($value) {
+					unset($layouts[$url]['layout::'.$details[0].'::'.$details[1]]);
 				}
-			}
-			if (!$another_entry) {
-				$layouts[$url]['layout::'.$details[0].'::noscreen'] = Array();
-				$layouts[$url]['layout::'.$details[0].'::noscreen']['value'] = 0;
+
+				// Check for another entry, if none found we need to add a noscreen entry
+				// Otherwise we lose our type code
+				$another_entry = 0;
+				foreach ($layouts[$url] as $looking_key => $looking_value) {
+					$search_string = '/^layout::'.$details[0].'::/i';
+					if (preg_match($search_string, $looking_key)) {
+						$another_entry++;
+					}
+				}
+				if (!$another_entry) {
+					$layouts[$url]['layout::'.$details[0].'::noscreen'] = Array();
+					$layouts[$url]['layout::'.$details[0].'::noscreen']['value'] = 0;
+				}
 			}
 		}
 
@@ -406,10 +421,12 @@ function processLayouts(&$owner, &$o, &$ei)
 
 		foreach ($_POST[$prefix.'_remove'] as $type_code => $value) {
 			if ($value) {
-				foreach ($layouts[$url] as $lookup_key => $lookup_value) {
-					$search_string = '/^layout::'.$type_code.'::/i';
-					if (preg_match($search_string, $lookup_key)) {
-						unset($layouts[$url][$lookup_key]);
+				foreach ($urls as $url) {
+					foreach ($layouts[$url] as $lookup_key => $lookup_value) {
+						$search_string = '/^layout::'.$type_code.'::/i';
+						if (preg_match($search_string, $lookup_key)) {
+							unset($layouts[$url][$lookup_key]);
+						}
 					}
 				}
 			}
