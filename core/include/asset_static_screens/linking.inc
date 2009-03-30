@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.35.2.5 2008/12/16 22:32:59 ewang Exp $
+* $Id: linking.inc,v 1.35.2.6 2009/03/30 05:34:23 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35.2.5 $
+* @version $Revision: 1.35.2.6 $
 * @package MySource_Matrix
 */
 
@@ -118,22 +118,13 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 		$majorid = $parent_data['assetid'];
 
 		foreach ($link_info[$majorid] as $link_data) {
-			if ($link_data['link_type'] != SQ_LINK_NOTICE) {
-				$output = _printLine($owner, $majorid, $link_data, $parent_data, $link_tree, $editing_linkids);
-				if (!empty($output)) $output_lineages[] = $output;
-			}
+			$output = _printLine($owner, $majorid, $link_data, $parent_data, $link_tree, $editing_linkids);
+			if (!empty($output)) $output_lineages[] = $output;
 		}//end foreach
 
 	}//end foreach result
 
-	// For NOTICE Links
-	foreach ($asset_links as $link_data) {
-		$majorid = $link_data['majorid'];
-		if ($link_data['link_type'] == SQ_LINK_NOTICE) {
-			$output = _printLine($owner, $majorid, $link_data, Array(), Array(), $editing_linkids);
-			if (!empty($output)) $output_lineages[] = $output;
-		}
-	}
+	
 
 	if (!count($output_lineages)) {
 		echo 'None';
