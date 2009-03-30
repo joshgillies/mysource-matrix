@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paypal_ipn_receiver_management.inc,v 1.1 2009/03/05 18:29:55 ata Exp $
+* $Id: paypal_ipn_receiver_management.inc,v 1.2 2009/03/30 18:06:31 ata Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -37,12 +37,12 @@ class Paypal_IPN_Receiver_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-						'assetid_param_name'	=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'text',
-														'default'	=> '',
-												   ),
-						);
+								'assetid_param_name'	=> Array(
+																	'added'		=> '0.1',
+																	'type'		=> 'text',
+																	'default'	=> '',
+														   		),
+						   );
 
 	}//end constructor
 
