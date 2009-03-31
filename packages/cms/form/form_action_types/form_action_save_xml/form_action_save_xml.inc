@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.1 2009/02/25 03:39:13 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.2 2009/03/31 04:23:15 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,9 +177,7 @@ class Form_Action_Save_Xml extends Form_Action
 
 		// Double check
 		$check = self::isValid($form, $settings);
-		if (!$check) {
-			return FALSE;
-		}//end if
+		if (!$check) return FALSE;
 
 		// Some base variables
 		$location = $xml_settings['location'];
@@ -196,10 +194,11 @@ class Form_Action_Save_Xml extends Form_Action
 		if ($complete && !empty($answers)) {
 			// Process the submission and save as XML
 			$sxml = new SimpleXMLElement('<submission></submission>');
+			$sxml->addAttribute('id', $submission->id);
+			$sxml->addAttribute('form', $form->id);
+			$sxml->addAttribute('time', date('YmdHis', $submission->created));
 			// If detail selected, use the extra attributes
 			if ($detail) {
-				$sxml->addAttribute('assetid', $submission->id);
-				$sxml->addAttribute('time', date('YmdHis', $submission->created));
 				if (isset($attributes['misc']['ip'])) {
 					$sxml->addAttribute('ip', $attributes['misc']['ip']);
 				}//end if
@@ -263,7 +262,7 @@ class Form_Action_Save_Xml extends Form_Action
 									$list_options = @unserialize($questions[$question_id]['attributes']['options']);
 									if (isset($list_options[$value])) {
 											$value = $list_options[$value];
-									}//end if 
+									}//end if
 								}//end if
 							}//end if
 						break;
@@ -293,16 +292,21 @@ class Form_Action_Save_Xml extends Form_Action
 						break;
 						case 'file_upload':
 							$filename = $value;
+							$value = '';
 							if (isset($answer['extra_data']['new_file_assetid']) && !empty($answer['extra_data']['new_file_assetid'])) {
-/*								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($answer['extra_data']['new_file_assetid']);
+								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($answer['extra_data']['new_file_assetid']);
 								if (!is_null($asset)) {
-									$file = $asset->data_path.'/'.$filename;
+									$file_to_process = $asset->data_path.'/'.$filename;
+									if (file_exists($file_to_process)) {
+										$fhandle = fopen($file_to_process, 'r');
+										$file_content = fread($fhandle, filesize($file_to_process));
+										fclose($fhandle);
+										$value = chunk_split(base64_encode($file_content));
+									}//end if
 								}//end if
-*/
+
 								$fileid = $answer['extra_data']['new_file_assetid'];
 							}//end if
-
-							$value = base64_encode($filename);
 						break;
 						case 'datetime':
 							$timestamp = iso8601_ts($value);
@@ -323,6 +327,8 @@ class Form_Action_Save_Xml extends Form_Action
 				}//end if
 
 				// Compile the XML
+				$value = htmlspecialchars($value);
+				$question_name = htmlspecialchars($question_name);
 				$response = $sxml->addChild('response', $value);
 				if (!empty($question_name)) {
 					$response->addAttribute('name', $question_name);
