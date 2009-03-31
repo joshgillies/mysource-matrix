@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.258.2.15 2009/02/26 23:05:31 akarelia Exp $
+* $Id: mysource.inc,v 1.258.2.16 2009/03/31 01:04:25 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258.2.15 $
+* @version $Revision: 1.258.2.16 $
 * @package MySource_Matrix
 */
 class MySource
@@ -728,7 +728,7 @@ class MySource
 				if (!isset($additional_replacements[$word])) {
 					$replacement = $this->frontend_asset->getKeywordReplacement($word);
 					// still cannot replace it, blank it out
-				if (($replacement == "%$word%") && (strpos('0123456789', $word[0]) === FALSE)) {
+				if (($replacement == "%$word%") && (strpos('0123456789ABCDEF', $word[0]) === FALSE)) {
 						$additional_replacements[$word] = '';
 					} else {
 						$additional_replacements[$word] = $replacement;
