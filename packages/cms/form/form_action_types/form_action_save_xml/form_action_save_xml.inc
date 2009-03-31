@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.1.2.2 2009/02/25 03:42:43 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.1.2.3 2009/03/31 03:44:51 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -194,10 +194,11 @@ class Form_Action_Save_Xml extends Form_Action
 		if ($complete && !empty($answers)) {
 			// Process the submission and save as XML
 			$sxml = new SimpleXMLElement('<submission></submission>');
+			$sxml->addAttribute('id', $submission->id);
+			$sxml->addAttribute('form', $form->id);
+			$sxml->addAttribute('time', date('YmdHis', $submission->created));
 			// If detail selected, use the extra attributes
 			if ($detail) {
-				$sxml->addAttribute('assetid', $submission->id);
-				$sxml->addAttribute('time', date('YmdHis', $submission->created));
 				if (isset($attributes['misc']['ip'])) {
 					$sxml->addAttribute('ip', $attributes['misc']['ip']);
 				}//end if
@@ -326,6 +327,8 @@ class Form_Action_Save_Xml extends Form_Action
 				}//end if
 
 				// Compile the XML
+				$value = htmlspecialchars($value);
+				$question_name = htmlspecialchars($question_name);
 				$response = $sxml->addChild('response', $value);
 				if (!empty($question_name)) {
 					$response->addAttribute('name', $question_name);
