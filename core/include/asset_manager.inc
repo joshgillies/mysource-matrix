@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711.2.12 2009/03/25 21:52:56 csmith Exp $
+* $Id: asset_manager.inc,v 1.711.2.13 2009/04/01 23:03:39 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711.2.12 $
+* @version $Revision: 1.711.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3626,6 +3626,7 @@ class Asset_Manager extends MySource_Object
 		unset($result);
 
 		return $parents;
+
 	}//end getParents()
 
 
@@ -8685,45 +8686,122 @@ class Asset_Manager extends MySource_Object
 
 		$from .= $perm_join;
 
-		// TODO: Is this feasible in getParents?
 		if (!is_null($min_height) || !is_null($max_height)) {
 			$treeids = $this->getAssetTreeids($assetid);
 
 			$where_comps = Array();
 
+			/**
+			 * keep an array of id's we've already added to where clauses.
+			 * this is used so we don't duplicate looking for the same treeid's in the query
+			 * (though the db should be smart enough to do that itself)
+			*/
+			$_treeids_processed = array();
+
 			$i = 0;
 			foreach ($treeids as $treeid) {
 				$i++;
+
+				/**
+				 * if min_height is null, that means we specified a max_height.
+				 * this will do a like search:
+				 *
+				 * $treeid like t.treeid || '%'
+				 * and length(t.treeid) >= length
+				*/
+				if (is_null($min_height)) {
+					$where_comp = ':'.$bind_prefix.'treeid_'.$i.' LIKE t.treeid || \'%\'';
+					$where_comp .= ' AND LENGTH(t.treeid) >= :'.$bind_prefix.'treeid_height_'.$i;
+					$bind_vars[$bind_prefix.'treeid_'.$i] = $treeid;
+					$bind_vars[$bind_prefix.'treeid_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					$where_comps[] = $where_comp;
+					continue;
+				}
+
+				/**
+				 * if max_height is null, that means we specified a min_height
+				 *
+				 * this means we can look for specific treeid's rather than doing a like search,
+				 * and get rid of the length(treeid) check.
+				 *
+				 * ($treeid = t.treeid or $treeid2 = t.treeid or $treeid3 = t.treeid)
+				 *
+				 * it loops over the treeid and takes SQ_CONF_ASSET_TREE_SIZE chars off the end
+				 * until it ends up with the root tree node.
+				*/
+				if (is_null($max_height)) {
+					$_tree_length = strlen($treeid);
+
+					$where_comp = '(';
+					$j = 0;
+					while ($_tree_length > 0) {
+						$j++;
+						$where_comp .= ':' . $bind_prefix . 'treeid_' . $i . '_' . $j . ' = t.treeid OR ';
+						$bind_vars[$bind_prefix.'treeid_'.$i . '_' . $j] = $treeid;
+						$treeid = substr($treeid, 0, ($_tree_length - SQ_CONF_ASSET_TREE_SIZE));
+						$_tree_length = strlen($treeid);
+					}
+					$where_comp = rtrim($where_comp, ' OR ') . ')';
+
+					$where_comps[] = $where_comp;
+					continue;
+				}
+
+				/**
+				 * in the get children query function this section gets minor
+				 * links, but we want the major links in this case, so we have
+				 * to go one further link down - hence the '-1' in these queries
+				*/
+
+				/**
+				 * we've got this far - so we've specified a min & max heights.
+				 * if they are the same, we can look for specific treeid's.
+				 * we need to take off one SQ_CONF_ASSET_TREE_SIZE section to get the right id to search for
+				 *
+				 * also only add the treeid if we haven't done it already to save duplicate id's
+				 * being passed in.
+				 *
+				 * so we end up with this (which works much better performance wise):
+				 * $treeid = t.treeid
+				 */
+				if ($min_height == $max_height) {
+					$treeid = substr($treeid, 0, (($max_height - 1) * SQ_CONF_ASSET_TREE_SIZE));
+
+					/**
+					* if we've already processed this treeid, continue
+					* no need to put it in the query multiple times.
+					*/
+					if (in_array($treeid, $_treeids_processed)) {
+						continue;
+					}
+
+					$where_comp = ':' . $bind_prefix . 'treeid_' . $i . ' = t.treeid';
+					$bind_vars[$bind_prefix.'treeid_'.$i] = $treeid;
+
+					$where_comps[] = $where_comp;
+					continue;
+				}
+
+				/**
+				 * Here we have both min_height & max_height
+				 * and they are also different values
+				 * TODO: more work on optimizing this case.
+				*/
+
 				$where_comp = ':'.$bind_prefix.'treeid_'.$i.' LIKE t.treeid || \'%\'';
 				$bind_vars[$bind_prefix.'treeid_'.$i] = $treeid;
 
-				// in the get children query function this section gets minor
-				// links, but we want the major links in this case, so we have
-				// to go one further link down - hence the '-1' in these queries
-				if (!is_null($min_height) && !is_null($max_height)) {
-
-					if ($min_height < $max_height) {
-						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
-						$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-						$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-					} else if ($min_height > $max_height) {
-						$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
-						$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-						$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-					} else {
-						$where_comp .= ' AND LENGTH(t.treeid) = :'.$bind_prefix.'treeid_height_'.$i;
-						$bind_vars[$bind_prefix.'treeid_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-					}
-				} else if (!is_null($min_height)) {
-					$where_comp .= ' AND LENGTH(t.treeid) <= :'.$bind_prefix.'treeid_height_'.$i;
-					$bind_vars[$bind_prefix.'treeid_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-				} else if (!is_null($max_height)) {
-					$where_comp .= ' AND LENGTH(t.treeid) >= :'.$bind_prefix.'treeid_height_'.$i;
-					$bind_vars[$bind_prefix.'treeid_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+				if ($min_height < $max_height) {
+					$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
+					$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+				} else if ($min_height > $max_height) {
+					$where_comp .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_height_'.$i.' AND :'.$bind_prefix.'treeid_max_height_'.$i;
+					$bind_vars[$bind_prefix.'treeid_min_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+					$bind_vars[$bind_prefix.'treeid_max_height_'.$i] = (strlen($treeid) - ($min_height-1) * SQ_CONF_ASSET_TREE_SIZE);
 				}
 
 				$where_comps[] = $where_comp;
-
 			}
 
 			$where = '(('.implode(') OR (', $where_comps).'))';
@@ -8733,13 +8811,13 @@ class Asset_Manager extends MySource_Object
 			$in_sql = SQ_TABLE_RUNNING_PREFIX.'get_parent_treeids(:'.$bind_prefix.'treeids_assetid, :'.$bind_prefix.'treeids_tree_size)';
 
 			$bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
-                        $bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
+			$bind_vars[$bind_prefix.'treeids_tree_size'] = SQ_CONF_ASSET_TREE_SIZE;
 
-                        if (MatrixDAL::getDbType() === 'oci') {
-                                $in_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
-                        } else {
-                                $in_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$in_sql;
-						}
+			if (MatrixDAL::getDbType() === 'oci') {
+				$in_sql = 'SELECT DISTINCT(column_value) treeid FROM table(CAST('.$in_sql.' AS VARCHAR_2000_TABLE))';
+			} else {
+				$in_sql = 'SELECT sq_get_parent_treeids as treeid FROM '.$in_sql;
+			}
 
 			$from .= ', (' . $in_sql . ') tree_linkids';
 
