@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.12 2008/11/25 05:03:13 mbrydon Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.13 2009/04/02 00:27:47 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -454,6 +454,9 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		if (!is_dir($term_dir_path) && !create_directory($term_dir_path)) {
 			return FALSE;
 		}
+		// bug fix 3587 converting slashes in the search term (if any) to underscore
+		// so that file system doesnt take it as directory structure
+		$term = str_replace('/' , '_' , $term);
 		$term_path = $term_dir_path.'/'.$term.'.term';
 
 		// dump the into the file, serialising as we go
