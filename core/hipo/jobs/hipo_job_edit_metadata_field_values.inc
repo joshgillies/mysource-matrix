@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_field_values.inc,v 1.1 2008/01/25 00:36:15 mbrydon Exp $
+* $Id: hipo_job_edit_metadata_field_values.inc,v 1.1.4.1 2009/04/02 23:43:04 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit Metadata Field values
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -51,20 +51,8 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 	*/
 	public static function paintConfig(&$o, $class, $write_access)
 	{
-		// metadata regeneration threshhold HIPO config entry
-		$o->openField(translate('edit_metadata_threshold'));
-
-		if ($write_access) {
-			text_box($class.'[SQ_HIPO_METADATA_THRESHOLD]', SQ_HIPO_METADATA_THRESHOLD, 5);
-			echo ' '.translate('assets');
-			$o->note(translate('hipo_value_divided_by_schema'));
-		} else {
-			echo SQ_HIPO_METADATA_THRESHOLD;
-			echo ' '.translate('assets');
-		}
-
-		$o->closeField();
-
+		// hipo_job_edit_metadata_schemas.inc will handle this instead, so just do nothing 
+		return;	
 	}//end paintConfig()
 
 
