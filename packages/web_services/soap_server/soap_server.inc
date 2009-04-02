@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.6 2009/02/18 00:09:00 hnguyen Exp $
+* $Id: soap_server.inc,v 1.7 2009/04/02 22:16:00 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -485,7 +485,7 @@ class Soap_Server extends Page
 
 
 	/**
-	* This function print the complex types for the request or response
+	* This function print the complex types and simple types for the request or response
 	*
 	* @return void
 	* @access private
@@ -507,11 +507,17 @@ class Soap_Server extends Page
 						echo $this->_placeholder($arg_info);
 					}//end if
 				} else if (is_array($arg_info)) {
-					if (!in_array($arg_info['type'], $this->simple_types)) {
+					// We are not going in here, because we don't want to print out any restricted type details.
+					// It should be isset($this->simple_restricted_types[$arg_info['type']]) check instead
+					//if (in_array($arg_info['type'], $this->simple_restricted_types)) {
+					//	$this->printRequestResponseRecursive($this->simple_restricted_types[$arg_info['type']]);
+					//} else
+					if (isset($this->complex_elements[$arg_info['type']])) {
 						$this->printRequestResponseRecursive($this->complex_elements[$arg_info['type']]);
-					} else if (TRUE) {
+					} else {
 
-					}//end if
+					}//end else
+
 				}//end else
 			?>&lt;/<?php echo $key ?>&gt;
 			</div>
@@ -895,8 +901,19 @@ class Soap_Server extends Page
 
 									$subelement_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
 									$subelement_node->setAttribute('name', $sub_arg_name);
-
-									$subelement_node->setAttribute('type', (!in_array($info['type'], $this->simple_types) ? 'tns:' : 's:' ).$info['type']);
+									if (strtolower($info['type']) == 'any') {
+										$sub_complex_node	= $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'complexType');
+										$sub_sequence_node	= $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'sequence');
+										if ($info['mixed']) {
+											$sub_complex_node->setAttribute('mixed', $info['mixed'] ? "true" : "false");
+										}//end if
+										$any_node	= $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'any');
+										$sub_sequence_node->appendChild($any_node);
+										$sub_complex_node->appendChild($sub_sequence_node);
+										$subelement_node->appendChild($sub_complex_node);
+									} else {
+										$subelement_node->setAttribute('type', (!in_array($info['type'], $this->simple_types) ? 'tns:' : 's:' ).$info['type']);
+									}
 									$subelement_node->setAttribute('minOccurs', (!is_array($info)) ? '1': $info['min']);
 									$subelement_node->setAttribute('maxOccurs', (!is_array($info)) ? '1': $info['max']);
 									if ($info['nillable']) {
@@ -939,12 +956,20 @@ class Soap_Server extends Page
 						if ($sub_arg_name == 'arg_name') continue;
 							$subelement_node = $this->wsdl->createElementNS(self::SOAP_XML_SCHEMA_VERSION, 'element');
 							$subelement_node->setAttribute('name', $sub_arg_name);
-							$subelement_node->setAttribute('type', (!in_array($info['type'], $this->simple_types) ? 'tns:' : 's:' ).$info['type']);
+							// We only add type attribute for most complex type attribute, if the complex type does not have a type
+							// very likely that it has a mixed attribute and return 'any'
+							if (!empty($info['type'])) {
+									$subelement_node->setAttribute('type', (!in_array($info['type'], $this->simple_types) ? 'tns:' : 's:' ).$info['type']);
+							}//end if
 							$subelement_node->setAttribute('minOccurs', $info['min']);
 							$subelement_node->setAttribute('maxOccurs', $info['max']);
 							if ($info['nillable']) {
 								$subelement_node->setAttribute('nillable', strtolower((string) $info['nillable']));
 							}//end if
+							if ($info['mixed']) {
+								$subelement_node->setAttribute('mixed', strtolower((string) $info['mixed']));
+							}//end if
+
 							$sequence_node->appendChild($subelement_node);
 					}//end foreach
 				$complex_type_node->appendChild($sequence_node);
