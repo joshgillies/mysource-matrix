@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2008/07/02 04:02:28 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.4.2.1 2009/04/02 05:23:57 ewang Exp $
 *
 */
 -->
@@ -54,7 +54,7 @@
 				<process_function name="processCachableRootURLs" />
 			</function_call>
 			<display_name />
-			<note>Choose the system root URLs for which caching should be enabled.  If a root URL has caching disabled then content will be served via that URL as if the URL had the no-cache suffix applied.</note>
+			<note>Choose the system root URLs for which matrix caching should be enabled.  If a root URL has caching disabled then content will be served via that URL. However this will not affect sending cache header for browsers.</note>
 		</field>
 	</section>
 </contents>
