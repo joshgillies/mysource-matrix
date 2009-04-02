@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.28.2.1 2009/03/25 05:01:29 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.28.2.2 2009/04/02 23:26:39 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28.2.1 $
+* @version $Revision: 1.28.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,7 +195,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 						} else if (count($conditions) === 0) {
 							echo '<span class="sq-backend-warning">None selected</span>';
 						} else {
-							if (($step->attr('logic') === 'all') || ($step->attr('logic_num') == count($conditions))) {
+							if (($step_asset->attr('logic') === 'all') || ($step_asset->attr('logic_num') == count($conditions))) {
 								echo 'All '.count($conditions);
 							} else {
 								echo 'At least '.$step->attr('logic_num').' of '.count($conditions);
