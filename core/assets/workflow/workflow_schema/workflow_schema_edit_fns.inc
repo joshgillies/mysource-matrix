@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.28.2.2 2009/04/02 23:26:39 lwright Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.28.2.3 2009/04/02 23:32:25 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28.2.2 $
+* @version $Revision: 1.28.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,7 +198,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 							if (($step_asset->attr('logic') === 'all') || ($step_asset->attr('logic_num') == count($conditions))) {
 								echo 'All '.count($conditions);
 							} else {
-								echo 'At least '.$step->attr('logic_num').' of '.count($conditions);
+								echo 'At least '.$step_asset->attr('logic_num').' of '.count($conditions);
 							}
 						}
 					echo '</div>';
