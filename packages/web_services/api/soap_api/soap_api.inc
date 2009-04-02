@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.7 2009/04/02 22:19:16 hnguyen Exp $
+* $Id: soap_api.inc,v 1.8 2009/04/02 22:23:49 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -240,6 +240,7 @@ class SOAP_Api extends Asset
 	public static function getSimpleRestrictedTypes($simple_types=Array())
 	{
 		return Array();
+
 	}//end getSimpleRestrictedTypes()
 
 	/**
