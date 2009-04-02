@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.6 2009/02/18 00:06:32 hnguyen Exp $
+* $Id: soap_api.inc,v 1.7 2009/04/02 22:19:16 hnguyen Exp $
 *
 */
 
@@ -24,13 +24,63 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
 class SOAP_Api extends Asset
 {
 
+	public static $string_non_optional		= Array (
+												'type'      => 'string',
+						        				'min'		=> 1,
+						        				'max'		=> 1,
+						        				'nillable'	=> FALSE,
+						        				'mixed'		=> FALSE,
+											  );
+	public static $string_optional			= Array (
+												'type'      => 'string',
+						        				'min'		=> 0,
+						        				'max'		=> 1,
+						        				'nillable'	=> FALSE,
+						        				'mixed'		=> FALSE,
+											  );
+	public static $string_optional_unbounded= Array (
+												'type'      => 'string',
+						        				'min'		=> 0,
+						        				'max'		=> 'unbounded',
+						        				'nillable'	=> FALSE,
+						        				'mixed'		=> FALSE,
+											  );
+	public static $boolean_non_optional		= Array (
+												'type'      => 'boolean',
+						        				'min'		=> 1,
+						        				'max'		=> 1,
+						        				'nillable'	=> FALSE,
+						        				'mixed'		=> FALSE,
+											  );
+	public static $boolean_optional			= Array (
+												'type'      => 'boolean',
+						        				'min'		=> 0,
+						        				'max'		=> 1,
+						        				'nillable'	=> FALSE,
+						        				'mixed'		=> FALSE,
+											  );
+	public static $int_non_optional			= Array (
+												'type'      => 'int',
+						        				'min'		=> 1,
+						        				'max'		=> 1,
+						        				'nillable'	=> FALSE,
+						        				'mixed'		=> FALSE,
+											  );
+	public static $int_optional				= Array (
+												'type'      => 'int',
+						        				'min'		=> 0,
+						        				'max'		=> 1,
+						        				'nillable'	=> FALSE,
+						        				'mixed'		=> FALSE,
+											  );
+	private $simple_types	= NULL;
 
     /**
     * Constructor
@@ -64,7 +114,7 @@ class SOAP_Api extends Asset
 		$name = trim($this->attr('name'));
 		if (trim($this->attr('short_name')) == '') {
 			$this->setAttrValue('short_name', $name);
-		}
+		}//end if
 
 		return TRUE;
 
@@ -101,19 +151,39 @@ class SOAP_Api extends Asset
     }//end getFunctionList()
 
 
-	public static function getArgType($type, $min=0, $max=1, $nillable=FALSE)
+    /**
+     * This function will return an array about a particular input/output element for an operation
+     *
+     * @param $type
+     * @param $min
+     * @param $max
+     * @param $nillable
+     * @param $mixed
+     * @return array
+     * @access public
+     */
+	public static function getArgType($type, $min=0, $max=1, $nillable=FALSE, $mixed=FALSE)
 	{
         $arg_type	= Array (
 						'type'      => $type,
         				'min'		=> $min,
         				'max'		=> $max,
         				'nillable'	=> $nillable,
+        				'mixed'		=> $mixed,
 					  );
 		return $arg_type;
 
 	}//end getArgType()
 
 
+	/**
+	 * This function will return an array of all complex types for an API
+	 *
+	 * @param $complex_elements
+	 *
+	 * @return array
+	 * @access public
+	 */
 	public static function getComplexElements($complex_elements=Array())
 	{
         $complex_elements_available = Array();
@@ -135,9 +205,12 @@ class SOAP_Api extends Asset
 
 
 	/**
+	* This function take in a list of simpleTypes from each child asset and merge them
 	*
+	* @return array
+	* @access public
 	*/
-	public static function getSimpleRestrictedTypes($simple_types=Array())
+	public static function processSimpleRestrictedTypes($simple_types=Array())
 	{
         $simple_types_available = Array();
         if (empty($func_list)) {
@@ -151,11 +224,23 @@ class SOAP_Api extends Asset
                     }//end if
                 }//end if
             }//end foreach
-
 		return $simple_types_available;
 
 	}//end getSimpleRestrictedTypes()
 
+
+	/**
+	 * This function will return an array of all simple types for an API
+	 *
+	 * @param $simple_types
+	 *
+	 * @return array
+	 * @access public
+	 */
+	public static function getSimpleRestrictedTypes($simple_types=Array())
+	{
+		return Array();
+	}//end getSimpleRestrictedTypes()
 
 	/**
 	* getComplexTypes
@@ -166,7 +251,77 @@ class SOAP_Api extends Asset
 	public static function getComplexTypes($func_list=Array())
 	{
 		return Array();
+
 	}//end getComplexTypes()
+
+
+	/**
+	 * This function try to get an index from an array and cast it to boolean
+	 *
+	 * @param $array array			The array we are trying to access the index from
+	 * @param $index string			The index we are trying to get the data from
+	 * @param $default_val	mixed	The default value
+	 *
+	 * @return boolean
+	 */
+	public static function getBooleanIndex($array, $index, $default_val)
+	{
+		$val	= array_get_index($array, $index, $default_val);
+		if (empty($val)) {
+			$val	= FALSE;
+		} else if ($val == 1) {
+			$val 	= TRUE;
+		}//end else
+
+		return $val;
+
+	}//end getBooleanIndex()
+
+
+	/**
+	 * This function try to get an index from an array, if it is empty return NULL
+	 *
+	 * @param $array array			The array we are trying to access the index from
+	 * @param $index string			The index we are trying to get the data from
+	 * @param $default_val	mixed	The default value
+	 *
+	 * @return mixed
+	 */
+	public static function getNullIndex($array, $index, $default_val)
+	{
+		$val	= array_get_index($array, $index, $default_val);
+		if (empty($val)) {
+			$val	= NULL;
+		}//end if
+		return $val;
+
+	}//end getNullIndex()
+
+
+	/**
+	 * This function try to get an index from an array, this function will restrict the value being enter to the declared restricted values
+	 *
+	 * @param $array array			The array we are trying to access the index from
+	 * @param $index string			The index we are trying to get the data from
+	 * @param $default_val	mixed	The default value
+	 *
+	 * @return mixed
+	 */
+	public function array_get_index_restricted_value($array, $index, $default_val)
+	{
+		$val	= array_get_index($array, $index, $default_val);
+		if (empty($this->simple_types)) {
+			$this->simple_types	= $this->getSimpleRestrictedTypes();
+		}//end if
+
+		if (!empty($this->simple_types) && isset($this->simple_types[$index])) {
+			if (!in_array($val, $this->simple_types[$index]['enumeration'])) {
+				throw new SoapFault('Server', 'The input value is not a valid value for '.$index.'. Valid values include: '.implode(', ', $this->simple_types[$index]['enumeration']));
+			}//end if
+		}//end if
+		return $val;
+
+	}//end array_get_index_restricted_value()
 
 
 }//end class
