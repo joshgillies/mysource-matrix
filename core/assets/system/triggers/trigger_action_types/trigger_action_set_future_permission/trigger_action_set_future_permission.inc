@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_permission.inc,v 1.3 2009/03/23 10:08:35 ata Exp $
+* $Id: trigger_action_set_future_permission.inc,v 1.4 2009/04/03 00:53:18 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author  Anh Ta <ata@squiz.co.uk>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -410,11 +410,11 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		if ($write_access) {
 			echo '<br />';
 			check_box($prefix.'_cascade_to_new', '1', $settings['cascade_to_new']);
-			echo translate('cascade_schema_changes_to_new_children');
+			echo translate('cascade_permission_to_new_children');
 		} else {
 			echo '<br />';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_to_new'] ? 'tick' : 'cross').'.gif" alt="'.($settings['cascade_to_new'] ? translate('yes') : translate('no')).'" /> ';
-			echo translate('cascade_schema_changes_to_new_children');
+			echo translate('cascade_permission_to_new_children');
 		}
 
 		// print the parameter map
