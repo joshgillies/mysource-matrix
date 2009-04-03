@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.122.2.18 2009/01/15 22:15:09 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.122.2.19 2009/04/03 03:53:31 bshkara Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.122.2.18 $
+* @version $Revision: 1.122.2.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -622,7 +622,12 @@ class Page_Asset_Builder extends Page
 								}
 							}
 						}
+
+						// locks need to be acquired here in case any attribute values change above
+						// saveAttributes() is smart enough to only run queries if values have changed since creation, i.e. a value gets escaped above
+						$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_asset->id, 'attributes');
 						$new_asset->saveAttributes();
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_asset->id, 'attributes');
 
 						// process metadata
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
