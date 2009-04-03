@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.2 2009/03/31 04:23:15 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.3 2009/04/03 04:11:02 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -293,8 +293,16 @@ class Form_Action_Save_Xml extends Form_Action
 						case 'file_upload':
 							$filename = $value;
 							$value = '';
+							$assetid = 0;
 							if (isset($answer['extra_data']['new_file_assetid']) && !empty($answer['extra_data']['new_file_assetid'])) {
-								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($answer['extra_data']['new_file_assetid']);
+								$assetid = $answer['extra_data']['new_file_assetid'];
+							}//end if
+							if (isset($answer['extra_data']['existing_file_assetid']) && !empty($answer['extra_data']['existing_file_assetid'])) {
+								$assetid = $answer['extra_data']['existing_file_assetid'];
+							}//end if
+
+							if (!empty($assetid)) {
+								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								if (!is_null($asset)) {
 									$file_to_process = $asset->data_path.'/'.$filename;
 									if (file_exists($file_to_process)) {
@@ -305,7 +313,7 @@ class Form_Action_Save_Xml extends Form_Action
 									}//end if
 								}//end if
 
-								$fileid = $answer['extra_data']['new_file_assetid'];
+								$fileid = $assetid;
 							}//end if
 						break;
 						case 'datetime':
