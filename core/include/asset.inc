@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.668 2008/11/14 04:19:59 hnguyen Exp $
+* $Id: asset.inc,v 1.668.2.1 2009/04/05 22:53:07 bshkara Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.668 $
+* @version $Revision: 1.668.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3045,9 +3045,10 @@ class Asset extends MySource_Object
 			$value = unserialize($value);
 		}
 
-		// if the value being set is the same as the current value - dont do anything
-		if ($this->vars[$name]['value'] === $value) {
-
+		// if the value being set is the same as the current value - don't do anything
+		// take into consideration Oracle's treatment of empty strings - they are retrieved as NULL values
+		// this condition is satisfied when assigning an empty string in place of a pre-existing NULL value in the case of Oracle systems
+		if (($this->vars[$name]['value'] === $value) || (is_null($this->vars[$name]['value']) && $value === '')) {
 			return TRUE;
 		}
 
