@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.90.2.1 2009/04/01 03:59:41 lwright Exp $
+* $Id: internal_message.inc,v 1.90.2.2 2009/04/06 05:12:47 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90.2.1 $
+* @version $Revision: 1.90.2.2 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -341,6 +341,8 @@ class Internal_Message extends MySource_Object
 					$subject = $this->subject;
 					if (empty($subject)) {
 						$subject = $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale);
+					} else {
+						$subject = replace_keywords($log_body, $this->replacements);
 					}
 					$hdrs = Array(
 								'From'		=> $from_string,
@@ -364,6 +366,8 @@ class Internal_Message extends MySource_Object
 					$log_body = $this->body;
 					if (empty($log_body)) {
 						$log_body = $lm->getInternalMessageBody($this->type, $this->replacements, $user_locale);
+					} else {
+						$log_body = replace_keywords($log_body, $this->replacements);
 					}
 					$log_body = preg_replace('|<SQ_MSG_LINK ([^>]*?)>(.*?)</SQ_MSG_LINK>|', '<a \\1>\\2</a>', $log_body);
 
@@ -544,19 +548,28 @@ class Internal_Message extends MySource_Object
 		}
 
 		if (!($user instanceof User)) {
-			return $lm->getInternalMessageBody($this->type, $tmpReplacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			if (trim($this->body) === '') {
+				return $lm->getInternalMessageBody($this->type, $tmpReplacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
+			} else {
+				return replace_keywords($this->body, $tmpReplacements);
+			}
 		}
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
-
-		$replacements = Array();
+		
+		$replacements = $tmpReplacements;
 		$replacements['user_name'] = $user->name;
 
 		$user_locale = $user->attr('locale');
 		if (empty($user_locale)) {
 			$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
 		}
-		$body = $lm->getInternalMessageBody($this->type, $tmpReplacements, $user_locale);
+		if (trim($this->body) === '') {
+			return $lm->getInternalMessageBody($this->type, $replacements, $user_locale);
+		} else {
+			return replace_keywords($this->body, $replacements);
+		}
 		return replace_keywords($body, $replacements);
+
 
 	}//end formatBody()
 

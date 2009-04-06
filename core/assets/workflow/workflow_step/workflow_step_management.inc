@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_management.inc,v 1.14 2007/12/06 23:06:33 lwright Exp $
+* $Id: workflow_step_management.inc,v 1.14.4.1 2009/04/06 05:12:48 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,36 @@ class Workflow_Step_Management extends Asset_Management
 																	'parameters'	=> Array(
 																						'allow_empty'	=> FALSE,
 																					   ),
+																   ),
+						'message_invitation'					=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> '',
+																	'description'	=> 'Custom message to users when this workflow step begins',
+																   ),
+						'message_approve'						=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> '',
+																	'description'	=> 'Custom message to users when changes to an asset in workflow are approved by a user',
+																   ),
+						'message_reject'						=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> '',
+																	'description'	=> 'Custom message to users when changes to an asset in workflow are rejected by a user',
+																   ),
+						'message_stale'							=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> '',
+																	'description'	=> 'Custom message to users when the workflow passes the expiry time, but is not escalated',
+																   ),
+						'message_escalated'						=> Array(
+																	'added'			=> '0.4',
+																	'type'			=> 'text',
+																	'default'		=> '',
+																	'description'	=> 'Custom message to users when the workflow is escalated from this step',
 																   ),
 					  );
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.135 2008/07/02 06:37:53 lwright Exp $
+* $Id: workflow_manager.inc,v 1.135.2.1 2009/04/06 05:12:48 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.135.2.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -977,8 +977,11 @@ class Workflow_Manager extends MySource_Object
 
 		// we'll need these for later to check if any workflow has changed steps
 		if (!$this->silentWorkflowParty($asset->id)) {
+			$schema_publishers_before = Array();
 			$steps_before = $this->getWorkflowCurrentSteps($asset->id);
-			$publishers_before = $this->whoCanPublish($asset->id);
+			foreach ($running_schemas as $schemaid) {
+				$schema_publishers_before[$schemaid] = $this->whoCanPublish($asset->id, $schemaid);
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -1031,11 +1034,41 @@ class Workflow_Manager extends MySource_Object
 
 		if (!$this->silentWorkflowParty($asset->id)) {
 			// send internal messages to everyone who could approve before to let them know that someone did
-			$msg = $ms->newMessage($publishers_before);
-			$msg->type    = 'asset.workflow.announce.approve';
-			$msg->parameters['assetid'] = $asset->id;
-			$msg->replacements = $msg_reps;
-			$ms->enqueueMessage($msg);
+			$base_msg = $ms->newMessage();
+			$base_msg->type    = 'asset.workflow.announce.approve';
+			$base_msg->parameters['assetid'] = $asset->id;
+			$base_msg->replacements = $msg_reps;
+		
+			// Send custom messages to anything that the publisher is in the workflow of
+			$generic_publishers_before = Array();
+			foreach ($schema_publishers_before as $schemaid => $publishers_step) {
+				$workflow =& $schema_workflows[$schemaid];
+				$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+				if (in_array($publisher, $publishers_step)) {
+					// Does this step have a custom message?
+					$custom_message = trim($current_step['message_approve']);
+					if ($custom_message !== '') {
+						$msg = clone $base_msg;
+						$msg->to = $publishers_step;
+						$msg->body = $custom_message;
+						$ms->enqueueMessage($msg);
+					} else {
+						$generic_publishers_before = array_merge($generic_publishers_before, $publishers_step);
+					}
+				} else {
+					$generic_publishers_before = array_merge($generic_publishers_before, $publishers_step);
+				}
+			}
+
+			// Any other current publishers where the publisher is out of the workflow,
+			// or was in the workflow but there is no custom message?
+			// Send a generic workflow approval message  in this case.
+			if (count($generic_publishers_before) > 0) {
+				$msg = clone $base_msg;
+				$msg->to = $generic_publishers_before;
+				
+				$ms->enqueueMessage($msg);
+			}
 
 			// fire the 'Workflow Approval' event
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_approval', $asset);
@@ -1087,6 +1120,13 @@ class Workflow_Manager extends MySource_Object
 					$msg->type    = 'asset.workflow.invitation.progress';
 					$msg->parameters['assetid'] = $asset->id;
 					$msg->replacements = $msg_reps;
+
+					// Does this step have a custom message?
+					$custom_message = trim($current_step['message_invitation']);
+					if ($custom_message !== '') {
+						$msg->body = $custom_message;
+					}
+
 					$ms->enqueueMessage($msg);
 
 				}//end if step has advanced
@@ -1320,7 +1360,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function startWorkflow($assetid, $auto_approve=TRUE, $msg=NULL)
+	function startWorkflow($assetid, $auto_approve=TRUE, $base_msg=NULL)
 	{
 		$assetid  = (int) $assetid;
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1373,70 +1413,99 @@ class Workflow_Manager extends MySource_Object
 			}
 		}
 
-		// send internal messages to everyone who can now publish the asset
-		$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$publishers = $this->whoCanPublish($asset->id);
-
 		if (!$this->silentWorkflowParty($asset->id)) {
-			// we don't want to be sending asset.workflow.invitation emails to users who have admin
-			// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
-			if (is_null($msg)) {
-				if (empty($publishers)) {
-					return TRUE;
-				} else {
-					// create a new internal message if we have not been supplied with one
-					$msg = $ms->newMessage();
-				}
-			} else {
-				if (empty($msg->to) && empty($msg->type) && empty($publishers)) {
-					return TRUE;
-				}
-			}
+			// send internal messages to everyone who can now publish the asset
+			$generic_msg = NULL;
 
-			// added the publishers to the list of people that are to be notified
-			$msg->to = array_merge($msg->to, $publishers);
-			// complete any missing internal message fields that have not been supplied
-			if (empty($msg->replacements)) {
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-				// Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
-				$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
-				if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
-					$workflow_backend_href  = '/'.$workflow_backend_href;
+			$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$schema_workflows = $this->getSchemaWorkflows($asset->id);
+			foreach ($schema_workflows as $schemaid => $schema_workflow) {
+				$current_step = $this->getCurrentStep($schema_workflow);
+				$publishers = $this->whoCanPublish($asset->id, $schemaid);
+
+				// we don't want to be sending asset.workflow.invitation emails to users who have admin
+				// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
+				if (is_null($base_msg)) {
+					if (empty($publishers)) {
+						continue;
+					} else {
+						// create a new internal message if we have not been supplied with one
+						$msg = $ms->newMessage();
+					}
+				} else {
+					// Clone the base internal message
+					$msg = clone $base_msg;
+					if (empty($msg->to) && empty($msg->type) && empty($publishers)) {
+						continue;
+					}
+				}
+
+				// added the publishers to the list of people that are to be notified
+				$msg->to = array_merge($msg->to, $publishers);
+				// complete any missing internal message fields that have not been supplied
+				if (empty($msg->replacements)) {
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+					// Bug fix #2636, add the slash to the URL in case the trigger fire this chain of action.
+					$workflow_backend_href = $asset->getBackendHref('workflow', FALSE);
+					if (!empty($workflow_backend_href) && substr($workflow_backend_href, 0, 2) != './') {
+						$workflow_backend_href  = '/'.$workflow_backend_href;
+					}//end if
+	
+					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
+					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
+	
+					$msg_reps = Array(
+									'user_name'		=> $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+									'asset_name'	=> $asset->name,
+									'workflow_url'	=> current_url().$workflow_backend_href,
+									'accept_url'	=> current_url().$accept_url,
+									'reject_url'	=> current_url().$reject_url,
+									'previous_step_id'		=> '',
+									'previous_step_name'	=> '',
+									'current_step_id'		=> implode('.', $schema_workflow['current_step']),
+									'current_step_name'		=> $current_step['step_name'],
+								);
+					$asset_edt_fns = $asset->getEditFns();
+					if (isset($asset_edt_fns->static_screens['preview'])) {
+						$preview_backend_href = $asset->getBackendHref('preview', FALSE);
+						if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
+							$preview_backend_href   = '/'.$preview_backend_href;
+						}//end if
+						$msg_reps['preview_url'] = current_url().$preview_backend_href;
+					} else {
+						$details_backend_href = $asset->getBackendHref('preview', FALSE);
+						if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
+							$details_backend_href   = '/'.$details_backend_href;
+						}//end if
+						$msg_reps['preview_url'] = current_url().$details_backend_href;
+					}
+					$msg->replacements = $msg_reps;
+
+					// Does this step have a custom message?
+					$custom_message = trim($current_step['message_invitation']);
+					if ($custom_message !== '') {
+						// This message has a custom body. Just send it.
+						$msg->body = $custom_message;
+					} else {
+						// This is the generic message. Make sure only one of these are sent out,
+						// regardless of how many schemas trigger it.
+						if ($generic_msg === NULL) {
+							$generic_msg = $msg;
+						} else {
+							$generic_msg->to = array_merge($generic_msg->to, $msg->to);							
+							continue;
+						}
+					}
+
 				}//end if
-
-				$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
-				$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
-
-				$msg_reps = Array(
-								'user_name'		=> $user->name,
-								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-								'asset_name'	=> $asset->name,
-								'workflow_url'	=> current_url().$workflow_backend_href,
-								'accept_url'	=> current_url().$accept_url,
-								'reject_url'	=> current_url().$reject_url,
-							);
-				$asset_edt_fns = $asset->getEditFns();
-				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$preview_backend_href = $asset->getBackendHref('preview', FALSE);
-					if (!empty($preview_backend_href) && substr($preview_backend_href, 0, 2) != './') {
-						$preview_backend_href   = '/'.$preview_backend_href;
-					}//end if
-					$msg_reps['preview_url'] = current_url().$preview_backend_href;
-				} else {
-					$details_backend_href = $asset->getBackendHref('preview', FALSE);
-					if (!empty($details_backend_href) && substr($details_backend_href, 0, 2) != './') {
-						$details_backend_href   = '/'.$details_backend_href;
-					}//end if
-					$msg_reps['preview_url'] = current_url().$details_backend_href;
+				if (empty($msg->type)) {
+					$msg->type = 'asset.workflow.invitation';
 				}
-				$msg->replacements = $msg_reps;
-			}//end if
-			if (empty($msg->type)) {
-				$msg->type = 'asset.workflow.invitation';
-			}
 
-			$msg->parameters['assetid'] = $asset->id;
-			$ms->enqueueMessage($msg);
+				$msg->parameters['assetid'] = $asset->id;
+				$ms->enqueueMessage($msg);
+			}//end foreach
 		}//end if
 
 		return TRUE;
@@ -1470,7 +1539,7 @@ class Workflow_Manager extends MySource_Object
 
 
 	/**
-	* Starts workflow by writing out all workflow arrays to the workflow table for the passed assetID
+	* Get the currently running steps of the workflow array, keyed by schema ID
 	*
 	* @param int	$assetid	the ID of the asset to check workflow completness for
 	*
@@ -1505,7 +1574,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function cancelWorkflow($assetid, $msg=NULL)
+	function cancelWorkflow($assetid, $base_msg=NULL)
 	{
 		$assetid = (int) $assetid;
 		$asset   = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1518,9 +1587,10 @@ class Workflow_Manager extends MySource_Object
 		// this function depends on having a workflow running
 		$publishers = $this->whoCanPublish($asset->id);
 		$workflow_values = $this->getSchemaWorkflows($assetid);
-		$workflow = array_pop($workflow_values);
+		$workflow = reset($workflow_values);
 		$publishers = array_unique(array_merge($publishers, Array($workflow['started_by'])));
 
+		$current_steps = $this->getWorkflowCurrentSteps($assetid);
 		if (!$this->_clearWorkflow($assetid)) return FALSE;
 
 		// send internal messages to everyone who could approve before to let them know that someone cancelled
@@ -1529,51 +1599,74 @@ class Workflow_Manager extends MySource_Object
 
 			// fire the 'Workflow Rejection' event
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_rejection', $asset);
+			$generic_msg = NULL;
 
-			// we don't want to be sending asset.workflow.announce.reject emails to users who have admin
-			// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
-			if (is_null($msg)) {
-				if (empty($publishers)) {
-					return TRUE;
+			foreach ($current_steps as $schemaid => $current_step_num) {
+				// we don't want to be sending asset.workflow.announce.reject emails to users who have admin
+				// permissions on the asset in workflow, see expandUsersTo() in internal_message.inc
+				if (is_null($base_msg)) {
+					if (empty($publishers)) {
+						continue;
+					} else {
+						// create a new internal message if we have not been supplied with one
+						$msg = $ms->newMessage();
+					}
 				} else {
-					// create a new internal message if we have not been supplied with one
-					$msg = $ms->newMessage();
+					$msg = clone $base_msg;
+					if (empty($msg->to) && empty($msg->type) && empty($publishers)) {
+						continue;
+					}
 				}
-			} else {
-				if (empty($msg->to) && empty($msg->type) && empty($publishers)) {
-					return TRUE;
+
+				// added the publishers to the list of people that are to be notified
+				// (note: the publishers get emails from each workflow - they should be
+				// combined into one at the Messaging Service end)
+				$msg->to = array_merge($msg->to, $publishers);
+
+				// complete any missing internal message fields that have not been supplied
+				if (empty($msg->replacements)) {
+					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+					$msg_reps = Array(
+									'user_name'		=> $user->name,
+									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+									'asset_name'	=> $asset->name,
+									'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
+								);
+					$asset_edt_fns = $asset->getEditFns();
+					if (isset($asset_edt_fns->static_screens['preview'])) {
+						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
+					} else {
+						$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
+					}
+					$msg->replacements = $msg_reps;
 				}
-			}
-
-			// added the publishers to the list of people that are to be notified
-			$msg->to = array_merge($msg->to, $publishers);
-
-			// complete any missing internal message fields that have not been supplied
-			if (empty($msg->replacements)) {
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
-				$msg_reps = Array(
-								'user_name'		=> $user->name,
-								'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-								'asset_name'	=> $asset->name,
-								'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
-							);
-				$asset_edt_fns = $asset->getEditFns();
-				if (isset($asset_edt_fns->static_screens['preview'])) {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('preview', FALSE);
+				if (empty($msg->type)) {
+					$msg->type = 'asset.workflow.announce.reject';
+				}
+				
+				// Does this step have a custom message?
+				$current_step = $this->getCurrentStep($workflow_values[$schemaid], $current_step_num);
+				$custom_message = trim($current_step['message_reject']);
+				if ($custom_message !== '') {
+					$msg->body = $custom_message;
 				} else {
-					$msg_reps['preview_url'] = current_url().$asset->getBackendHref('details', FALSE);
+					// This is the generic message. Make sure only one of these are sent out,
+					// regardless of how many schemas trigger it.
+					if ($generic_msg === NULL) {
+						$generic_msg = $msg;
+					} else {
+						$generic_msg->to = array_merge($generic_msg->to, $msg->to);							
+						continue;
+					}
 				}
-				$msg->replacements = $msg_reps;
-			}
-			if (empty($msg->type)) {
-				$msg->type = 'asset.workflow.announce.reject';
-			}
 
-			$msg->parameters['assetid'] = $asset->id;
-			$ms->enqueueMessage($msg);
+				$msg->parameters['assetid'] = $asset->id;
+				$ms->enqueueMessage($msg);
 
+			}//end foreach
+	
 		}//end if
-
+	
 		return TRUE;
 
 	}//end cancelWorkflow()
@@ -1765,6 +1858,13 @@ class Workflow_Manager extends MySource_Object
 			if (empty($admins)) $admins = Array(0);
 
 			$msg = $ms->newMessage($admins, $type, $msg_reps);
+
+			// Does this step have a custom message for stale workflow?
+			$custom_message = trim($current_step['message_stale']);
+			if ($custom_message !== '') {
+				$msg->body = $custom_message;
+			}
+
 			$msg->send();
 
 			return TRUE;
@@ -1836,6 +1936,13 @@ class Workflow_Manager extends MySource_Object
 			$msg->type    = 'asset.workflow.announce.escalated';
 			$msg->parameters['assetid'] = $asset->id;
 			$msg->replacements = $msg_reps;
+
+			// Does this step have a custom message for escalation?
+			$custom_message = trim($step_before['message_escalated']);
+			if ($custom_message !== '') {
+				$msg->body = $custom_message;
+			}
+
 			$ms->enqueueMessage($msg);
 
 			// send messages to the new approvers if they have
@@ -1870,6 +1977,13 @@ class Workflow_Manager extends MySource_Object
 
 			$msg->type    = 'asset.workflow.invitation.progress';
 			$msg->parameters['assetid'] = $asset->id;
+					
+			// Does this step have a custom message (for inviting users to the next step)?
+			$custom_message = trim($current_step['message_invitation']);
+			if ($custom_message !== '') {
+				$msg->body = $custom_message;
+			}
+
 			$msg->replacements = $msg_reps;
 			$ms->enqueueMessage($msg);
 		}//end if

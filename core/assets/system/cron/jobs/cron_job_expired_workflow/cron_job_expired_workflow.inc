@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.29 2008/02/18 04:52:49 lwright Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.29.2.1 2009/04/06 05:12:48 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -243,6 +243,13 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		// If there are no admins, send it to system admins instead
 		if (empty($admins)) $admins = Array(0);
 		$msg = $ms->newMessage($admins, $type, $msg_reps);
+		
+		// Does this step have a custom message for stale workflow?
+		$custom_message = trim($step_data['message_stale']);
+		if ($custom_message !== '') {
+			$msg->body = $custom_message;
+		}
+
 		$msg->send();
 
 	}//end _processExpiredWorkflowStep()
