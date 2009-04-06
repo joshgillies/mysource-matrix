@@ -1,5 +1,65 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.18.12
+
+Featured Changes
+-----------------------------------
+
+Connections to Oracle databases from DB Data Source / Connector assets
+
+	An "oci:" prefix is now added from the separate fields and recognised when a DSN is manually entered for DB Data Source and DB Connector assets. The DSN supplied can be in simple PDO_OCI format, with a "dbname=" specification.
+
+It is now valid to provide an Oracle connection by one of the following methods:
+- From the separate fields: Hostname is optional if a tnsnames entry is to be used (in which case this is specified as the database name)
+- From the DSN field: As an "oci:"-prefixed specification as follows:
+	oci:dbname=hostname
+	oci:dbname=hostname/dbname
+	oci:dbname=tnsname
+
+Please note that the "oci:dbname=" notation is only supported to the point of providing access to an Oracle database and is not designed for or intended to emulate the full PDO_OCI DSN specification for Oracle connections
+
+
+Change to Permission structure for Pending User Accounts in Account Manager
+
+	Pending User accounts are now stripped of any permissions cascaded to them by the Pending Accounts folder. The only permission they will keep by default is its own Admin Permission, as is standard across all users.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3519: Form Question - Tickbox Table screen Incomplete
+Fixed Bug #3534: Asset Builder Dynamic create locations - assets not appearing in list when not at top level
+Fixed Bug #3555: "Fatal error" when running import_asset_csv_to_matrix.php under PHP 5
+Fixed Bug #3558: Cannot change WYSIWYG Metadata Field from default on backend
+Fixed Bug #3560: Multi text fields not saving all data
+Fixed Bug #3563: Set Paint Layout trigger action throws PHP Notice errors when optional items omitted
+Fixed Bug #3564: Workflow email does not contain a link to the preview screen 
+Fixed Bug #3565: Safe-Editing Metadata does not work
+Fixed Bug #3579: Hex URL encodings stripped
+Fixed Bug #3580: Lineage of NOTICE links in linking screen is missing
+Fixed Bug #3584: Asset builder creating assets fails if any Create screen attribute values are omitted - only affects Oracle systems
+Fixed Bug #3586: "Edit Metadata Threshold" appears twice on the HIPO Configuration screen
+Fixed Bug #3589: "Cascade schema" option shown on Set Permission and Set Future Permission Trigger Actions
+
+CMS
+Fixed Bug #3483: Search keyword group_total_child_asset_count always returns 0
+Fixed Bug #3498: Not caching all nested asset listings
+Fixed Bug #3523: %nested_asset_% keywords not working
+Fixed Bug #3525: When having Thesaurus terms tagged under a Form Asset, upgrading throws error "Undefined index: options"
+Fixed Bug #3552: Second-level grouping on a Metadata Field or Standard Field in Asset Listing causes listing to be blank
+Fixed Bug #3588: Asset builder will not create asset if attributes contain any HTML special characters
+
+Data
+Fixed Bug #3515: DB Data Source causes Matrix SQL Execution Error
+Fixed Bug #3539: Cannot connect to Oracle DB with DB data source
+
+Search
+Fixed Bug #3538: Multiple word keys search with select/multiselect on search issue
+Fixed Bug #3587: Search log Report breaks when user has searched for terms with slashes
+
+
+
 VERSION 3.18.11
 
 Featured Changes
