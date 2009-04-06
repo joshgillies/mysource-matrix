@@ -63,6 +63,10 @@ Change to Permission structure for Pending User Accounts in Account Manager
 	Pending User accounts are now stripped of any permissions cascaded to them by the Pending Accounts folder. The only permission they will keep by default is its own Admin Permission, as is standard across all users.
 
 
+Customisable Workflow Emails
+	Introduced a new "Custom Messages" screen to the Workflow Step asset for entering a custom Workflow message body for a Workflow Step. The following workflow messages can be customised: invitation, approval, rejection, stale workflow, and escalation.
+
+
 Additional Changes and Bug Fixes
 -----------------------------------
 
