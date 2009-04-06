@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.283 2009/02/09 06:01:30 akarelia Exp $
+* $Id: asset_map.inc,v 1.284 2009/04/06 05:20:21 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.283 $
+* @version $Revision: 1.284 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -406,6 +406,18 @@ class Asset_Map
 
 		<?php
 		ob_start();
+			if (isset($GLOBALS['SQ_SYSTEM']->user)) {
+				$user = $GLOBALS['SQ_SYSTEM']->user;
+			} else {
+				$user = NULL;
+			}//end if
+
+			// Check for at least simple edit access
+			if (is_null($user) || $user instanceof Public_User || !($user instanceof Simple_Edit_User || $user instanceof Backend_User || $user instanceof System_User)) {
+			?>
+				<b>You need Simple Edit access or higher to view the Asset Map</b>
+			<?php
+			} else {
 			?>
 			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo ($type == 'simple') ? $jarname : 'assetmap'; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
 
@@ -481,6 +493,7 @@ class Asset_Map
 			?>
 			</applet>
 			<?php
+			}//end if
 			$applet_tag = ob_get_contents();
 		ob_end_clean();
 
