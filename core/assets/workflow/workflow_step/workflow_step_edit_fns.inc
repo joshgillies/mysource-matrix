@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.36 2008/08/18 04:26:18 akarelia Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.37 2009/04/06 05:05:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -357,6 +357,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		$workflow_array['completed']							= 0;
 		$workflow_array['expired']								= 0;
 		$workflow_array['require_comment_from_unlisted_users']	= $asset->attr('require_comment_from_unlisted_users');
+
+		$workflow_array['message_invitation']					= $asset->attr('message_invitation');
+		$workflow_array['message_approve']						= $asset->attr('message_approve');
+		$workflow_array['message_reject']						= $asset->attr('message_reject');
+		$workflow_array['message_stale']						= $asset->attr('message_stale');
+		$workflow_array['message_escalated']					= $asset->attr('message_escalated');
 
 		// work out the logic expression
 		$logic = $asset->attr('logic');
