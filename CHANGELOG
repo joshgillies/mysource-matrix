@@ -1,276 +1,113 @@
 MYSOURCE MATRIX CHANGELOG
 
-VERSION 3.20.0 RC1
+VERSION 3.22.0 RC1
 
 Featured Changes
 -----------------------------------
 
-Selected Packages under GPL from 3.20.0
+Prevent Remaps from being deleted
+	A new column has been added to remap entries in Remap Manager to lock entries to prevent accidental deletion. Once locked, an entry cannot be deleted (via the "Delete" checkbox) until that entry is unlocked.
 
-	The Bulkmail, Calendar, E-Commerce and Search Packages are now included from 3.20.0 and distributed under the GPL. The licensing terms are available in licence.txt included in the Matrix System Root Directory or by contacting Squiz.
 
+Workflow emails suppressed for dependent assets if not linked in multiple locations
+	Workflow emails (eg; notification, approval etc.) are only sent for dependent assets (eg; Bodycopy DIVs under Standard Pages) when these assets are linked in multiple locations.
 
-Hipo Herder: Resume jobs in new window
 
-	The HIPO Herder screen now allows users the option to resume stalled HIPO Jobs in a new window, rather than in the main window as is previously. The original option to open in the main window still remains.
+Customised Caching by specific Root Node and/or Asset Type
+	This new feature allows caching to be configured for nominated parts of the system. Two new screens have been added to Cache Manager - "Root Node Specific" and "Type Code Specific" - the latter which replaces the "Cache Expiry" screen.
 
+Cache settings can be configured to propagate to child assets when specifying a root node to customised on the "Root Node Specific" screen.
 
-Filter by URL in Remap Manager
+Root Node and Type-Code Specific settings operate independently of the "Caching Status" as set on the "Details" screen of Cache Manager. "Type Code Specific" configuration options will take precedence over "Root Node Specific" configuration options where applicable.
 
-	This addition allows URLs on the Remap Manager's remapped URLs list to be filtered based on either their original or remapped URL (or both).
 
+"Add Web Path" Trigger Action: Lowercase webpath option
+	A new option has been added to the "Add Web Path" Trigger Action to transform the supplied web path to lowercase before creating the web path.
 
-Clear Matrix Cache: Multiple Root Nodes
 
-	This addition allows multiple non-dependant assets to be cleared in a single run of the Clear Matrix Cache tool.
+Recache Option operation dependent on presence / absence of trailing slash
+	The operation of the "_recache" suffix has been modified to re-cache only content with or without a trailing slash. For example, the URL http://example.com/page/_recache in the browser will re-cache the URL http://example.com/page (as the typed URL does not contain a trailing slash). The URL http://example.com/page/ (with trailing slash) will not be re-cached in this instance 
 
 
-Option to control remapping of Web Paths
+New Global Keywords for Random Number Generation
+	Two new Global Keywords, %globals_random% and %globals_random_MIN_MAX% have been added to allow generated random numbers to be used in content. The "MIN" and "MAX" in the %globals_random_MIN_MAX% keyword refer to whole numbers. For example to generate a standard dice roll, the appropriate keyword would be %globals_random_1_6%
 
-	This new feature allows users to override the previous default (and un-changeable) behaviour of creating entries in the Remap Manager whenever a web path is changed for an asset. The default setting is set in the Remap Manager asset, and can be overridden on a commit-by-commit basis on the Web Paths screen of an asset.
 
+Listing Engine: Asset Contents Paint Layout keyword modification
+	The %asset_contents_paint_[PAINT LAYOUT NAME]% keyword which paints the listed asset using the specified Paint Layout (functionality introduced in MySource Matrix 3.18.8) - has been expanded to allow the asset ID of a Paint Layout to be used instead of its name. 
 
-New re-cache suffix
 
-	MySource Matrix currently has a "no-cache" (by default, "_nocache") suffix that can be added to an asset, to bypass the Matrix cache system and view the most recent version of an asset on the front-end. This new recache suffix (by default, "_recache") will do this, and also clear and re-populate the cache.
+Set Cookie Trigger Action
+	A new Trigger Action has been added to allow a cookie to be set by name. Further attributes to restrict the cookie by domain, path and duration are available in this action.
 
-The new suffix will only work if a user has write access to an asset. This suffix is changeable from the System Configuration screen or the main.inc configuration file.
+The cookie "value" can be specified from the Parameter Map (ie; set from the value of a GET variable or Asset Keyword etc.)
 
 
-Exclude Assets from Asset Listing Page
+SOAP API: Simple Restricted Types in WSDL
+	Simple restricted types can now be added and passed in WSDL. Enumerations and restricted input value by pattern elements are supported. These data types can be nillable (empty without causing validation errors) and allow passing of multiple complex elements. Instructions on how to build or use a SOAP API for Matrix is provided in the "api_example.txt" file under the "api" directory.
 
-	This new feature allows one or more assets to be excluded from the Asset Listing Page, preventing them from being listed even when the usual criteria would see them listed.
 
+Set Files to "Unrestricted" Command-Line Script
+	A new command-line script "set_files_unrestricted.php" has been added to the "scripts" directory to allow the URL scheme of File-based assets to be set to "unrestricted" in a batch process.
 
-Metadata Value Cascading
+This script requires the Root User password and takes the Matrix Root Directory and a Root Node asset ID from which to process the assets as parameters.
 
-	This new feature allows default and/or custom values to be cascaded to child assets on a field-by-field, asset-by-asset basis. This can be set by ticking the "Cascade Value" checkbox(es) on the Metadata screen of the asset being edited.
 
+FLV File asset
+	Similar to the MP3 File asset, the FLV File asset provides storage for a media file and automatic metadata extraction by the getID3() third-party tool, as configured from the "External Tools Configuration" screen in System Configuration.
 
-CAPTCHA Field in Asset Builder Page
+Metadata is stored as FLV File asset attributes and can be manually overridden at any time. Extracting the metadata again from the "Details" screen will overwrite any previous manual changes made to this data.
 
-	This new feature allows you to add a CAPTCHA test to an Asset Builder Page asset. When the "Require CAPTCHA" option is turned ON on the Details screen, a number of CAPTCHA-related keywords will be made available to the Logged In bodycopy. A few options are also provided to control the look of the CAPTCHA, such as the number of characters displayed. 
 
+System Backup Script shell modification
+	The Matrix system backup script, "backup.sh" in the "scripts" directory now uses the /bin/sh shell instead of /bin/bash for increased portability.
 
-Image Content Type: Option to use DIVs
 
-	The Image Content Type would previously wrap the image to be inserted in TABLE tags, allowing advanced features such as floating. This has now been extended to allow the image to be wrapped in DIV tags instead. New user preferences have also been added.
+Remove Permission Types via Future Permission setting and Trigger Action
+	The Set Future Permission functionality, which allows permissions to be "Applied" or "Denied", now has the functionality to delete permission associations either from the associated Trigger Action or the asset "Permissions" screen.
 
+In order to remove a permission from the "Permissions" screen, select "Remove" from the "Add / Remove" drop-down list in the "Future Permissions" section, then select the relevant appropriate "Apply" or "Deny" rule and target asset to affect.
 
-Use HTML Tidy as accessibility checker
 
-	The Tidy binary, currently used to clean up invalid HTML, is now also used to conduct WCAG accessibility checks. Failed accessibility checks are available as a new icon mouse-over, located next to the current HTML Tidy on/off indicator at the top-right of each bodycopy container. 
+E-Commerce: PayPal Payment Gateway
+	Payments via PayPal are now supported in the E-Commerce package through the "Buy Now" one-click infrastructure. A simple PayPal-based storefront can be established through the configuration of the following asset types:
 
+	* PayPal Configuration
+	This asset stores information regarding encryption of PayPal transactions. The PPCrypto.php library file supplied by PayPal must be installed on the system and referenced from this asset in order to configure the PayPal Payment Gateway.
 
-TRIM Data Source Asset (SSV only)
+	* PayPal Business Account
+	PayPal Account information for the storefront is stored in this asset, which includes public and private certificates to encrypt transactions between Matrix and PayPal. PayPal Business Accounts may be set in "Sandbox" mode for testing purposes and then to "Live" via a single attribute switch.
 
-	This new data source allows you to make queries against an installation of the TRIM information management system, and return the results as Data Source Record shadow assets. 
+	* PayPal Payment Button
+	This asset provides a "Buy Now" PayPal Button for a product. Product details such as item name, price, currency, the associated PayPal Configuration and Business Account is configured from this asset. Custom variables can be configured within the Payment Button which are posted back to Matrix from successful transactions.
 
+	* PayPal IPN Receiver
+	Successful Instant Payment Notifications are posted back to this asset. The IPN Receiver is configured to post back to an asset of choice, which may be determined by one of the variables posted back from PayPal (ie; carried through the transaction) or a fixed asset. The notified asset generates a "PayPal IPN Received" Trigger Event.
 
-Send Workflow starter rejection email
+	* "PayPal IPN Received" Trigger Event
+	This Trigger Event is used in the "Condition" section of a Trigger to perform operations upon successful payment. This can include granting permissions to the "purchased" asset for a subscription-based system or sending an email to the user.
 
-	This change to the Workflow system will send an email to the user that initiated a workflow process on an asset, if that process is rejected. This notifies the user that they may need to review their edits, along with any notes provided in the workflow process. This change applies to all workflows and cannot be disabled.
 
+Matrix SOAP Server
+	A SOAP Server has been added to the Web Services package to enable core-level Matrix functions to be executed and queried by clients over the Simple Object Access Protocol.
 
-Asset Lineage Design Area: "Start at" level
+The SOAP Server comes with a handful of APIs, each which performs a distinct set of Matrix functionality. These APIs are as follows:
+	* Asset Service
+	* Designs and Lookups Service
+	* File Service
+	* Link Service
+	* Metadata Service
+	* Permissions and Roles Service
+	* Search Service
+	* Workflow Service
 
-	A new "start_at_level" variable has now been added to the Asset Lineage Design Area asset, that starts printing from a specified level. The top of the lineage (the Site asset, if coming from a forward direction) is Level 0, and increases from there. 
+Each API is an asset which is selected from the Asset Map and linked under a SOAP Server asset, which in turn is linked under the Web Services Folder.
 
-
-Backend unsaved changes warning
-
-	A warning message will now appear if you try to move away from a page on the Matrix backend while you are editing an asset. This allows users who try to accidentally navigate away from the backend to negate their action and not lose unsaved changes. 
-
-
-Auto-approve multiple Workflow Steps
-
-	MySource Matrix will now automatically approve as much workflow as possible when a user approves an asset's changes, spreading over multiple steps when necessary, until it finds a step that requires someone else's approval (or where that user's approval is not enough to approve that step).
-
-In the rare instance that a user is able to approve a multiple-step workflow all by him- or herself, the workflow will not be initiated and the status will jump to Approved to Go Live, which is the same setup as what happens for a single-step workflow. If a user is able to approve all remaining steps of a workflow already in progress, then all approval messages will be sent before the workflow is completed.
-
-
-Simple Edit Layouts applied by Root Node
-
-	MySource Matrix will now allow you to set Simple Edit Layouts by root node, similar to what happens now with Designs. This can be performed via a new Layouts screen.
-
-Existing global assignments of Simple Edit Layouts will be preserved and can still be set or modified in the Layout Manager, and will still take effect if no root node-level Simple Edit Layout is found for a given asset. 
-
-
-System Maintenance Screen
-
-	This new screen, accessible from a button to the right of the HIPO Herder link, allows you to view various types of information about your system (eg; Top 20 asset types). Rollback can be managed from this screen as recommended maintenance task.
-
-
-"Create Link" Trigger Action: Dynamic target
-
-	The Create Link trigger action now allows you to specify a dynamic target asset ID through a dynamic parameter. A fixed target must still be specified for the occasions that it is not. 
-
-
-Metadata Field values covered under "Safe Edit"
-
-	Changes to Metadata Field values can now be prepared in "Safe Edit" before setting an asset "Live". Previously such values would have immediate effect when applied to an asset. Metadata Field values are restored for remaining fields when "Safe Edit" is cancelled. 
-
-
-Multi-Page Forms
-
-	Multi-Page Forms can now be created from the "Details" screen of a Custom Form. Form Sections are used to determine pagination of questions.
-
-
-Form Confirmation Page
-
-	A confirmation page can now be added as an additional page at the end of a Custom Form.
-
-
-New Cron Job: Manage Incomplete Submissions
-
-	This Cron Job handles incomplete submissions from a multiple-page Custom Form, sending reminder emails to their owners and deleting them after a certain time period. An "Incomplete Submissions" screen has been added to Custom Form to configure the operation of this Cron Job.
-
-
-New File Upload handling in Custom Form
-
-	When completing a multiple-page form, File Upload answers (ie; files) are moved to a temporary location. These files are then created as a File asset when a Create Location is specified, or managed by the Form itself if a location is not specified. Files which are saved to a permanent location are available from the "Details" screen of the Form Submission.
-
-
-Custom Form Page List
-
-	The "Page List" is an unordered list of pages, styled with certain CSS classes depending on their location in the Custom Form. This can then be styled through a Design or Design CSS asset. The Page List is configured for display on the "Page Contents" bodycopy via the %page_list% keyword.
-
-
-New Overwrite Rule handling for Custom Form
-
-	The file Overwrite Rule no longer applies when a Create Location is not specified. Overwrite Rule handling only overwrites File assets and checking for clashes is done by comparing web paths, not asset names.
-
-
-Rollback Management Tool
-
-	A new web-based tool has been added to allow System Administrators to control rollback data. This tool provides the same management parameters as the existing "rollback_management.php" command-line script. Rollback data may be aligned to a particular date or purged based on age, and can be enabled or disabled within the tool.
-
-
-"Increment Version" Trigger Action: New failure condition
-
-	This trigger will now return a failure condition if the asset version number supplied is not of the expected format. 
-
-
-"Exclude Root Nodes" Asset Listing option
-
-	It is now possible to nominate one or more root nodes to be excluded from Asset Listing pages. This option is available on the "Details" screen of these asset types.
-
-
-Indication that a Division is linked elsewhere
-
-	A binoculars icon is shown near the top-right of each division if it is linked in multiple locations. Clicking this icon will show all lineages to which the division is linked and provide links to each of these assets. 
-
-
-Locating Nested Assets
-
-	A binoculars icon is shown below the Asset Picker in Nested Content cells which when clicked will show the lineages of all locations where the referred content is linked. 
-
-
-YouTube WYSIWYG Plugin
-
-	A new tool icon is available in the WYSIWYG editor which allows content hosted on YouTube to be easily added to bodycopies. A pop-up window is shown with content options when adding YouTube content.
-
-This tool can be enabled / disabled on a User Group basis in the same manner as other WYSIWYG tools.
-
-
-Quick Link WYSIWYG Plugin
-
-	A "Quick Link" tool has been added to the WYSIWYG editor which will turn a URL or email address into a link. The desired content (eg; email address) is highlighted and is turned into a link (in this case a "mailto:" link) once this tool is selected.
-
-
-Upload a new Image within "Insert Image" WYSIWYG Tool
-
-	The WYSIWYG "Insert Image" tool will now create an Image asset from a file uploaded within the pop-up window. This is accomplished by clicking the "Insert Image" button in the pop-up window then selecting the local file and a root node to be used as the destination for the Image asset.
-
-The process of uploading the image will immediately select this image for immediate insertion into the content.
-
-
-Simple Edit User
-
-	A new user type - Simple Edit User - has been created which will provide access only to the Simple Edit interface and not the Administration (backend) interface.
-
-
-Log In as another user (Troubleshooting Tool)
-
-	System Administrators (and the Root User) can now switch to another user account without a password for troubleshooting purposes. A key icon is shown to the left of the "Logout" icon for these users. Once clicked, a small form is shown in the header bar for entry of a username. When entered, the current user is logged out and the secondary user is logged in at the same URL.
-
-A modified "Logout" icon is shown once in the secondary account, which when clicked will log the originating user back in and restore their asset history lineage to minimise disruption. This feature cannot be used to change to the Root User, nor can System Administrators log in as other System Administrators.
-
-Use of user-switching is logged with the Messaging Service event codes given below. This is in addition to the normal login and logout messages which are still recorded when changing users.
-
-New Messaging Service event codes:
-
-	- system.security.login.secondary.manual  (upon successful user switching)
-	- system.security.login.secondary.failed  (upon user switching failure)
-	- system.security.logout.secondary.manual (after logout from the secondary user)
-
-
-Default Presentation Type for Bodycopy Containers
-
-	The Default Presentation Type for Bodycopy Containers (ie; Block-level, Inline, or Raw HTML) can now be configured from the "Global Preferences" screen of System Configuration. 
-
-
-Total page size on asset "Preview" screen
-
-	A summary of the byte size of images, CSS, Javascript and other content has been added to the "Preview" screen for assets. A "Calculate Size" button is shown next to the "Preview" button which will perform the calculations and return the summary.
-
-
-File Versioning System Integrity script
-
-	A new script "system_integrity_recover_file_versions.php" has been added to recover incorrect file versioning entries in MySource Matrix.
-The script takes three arguments, the System Root directory, running mode ("test" or "recover") and a Root Node asset ID from which to perform the recovery.
-
-The "test" mode summarises any conflicts between file versions stored in the file system and the database. It is recommended that a Matrix system backup is performed before running this script.
-
-
-Permission restrictions for creation / deletion of Bodycopy Containers
-
-	Creation and deletion of Bodycopy Containers can now be controlled at a Global or User Group level. When these restrictions are enforced, a warning message is shown above each Bodycopy Container and the green edit icon is hidden.
-
-
-Automatic population of "Select Form Questions" from CSV file
-
-	Existing "Select Form Questions" can be populated from a CSV file uploaded on the "Details" screen of the question.
-
-If the CSV file contains one column, these entries are used as the selection values. A key can be specified alongside a value in a two-column file - with the value as the second field. A third field can be specified to determine whether the options form part of the default selection (0 = no, 1 = yes).
-
-
-Safari Compatibility
-
-	Changes have been made to the WYSIWYG editor and the multi-text option list interfaces to provide increased compatibility with Safari.
+The availability of APIs and their associated functions is configurable for each SOAP Server instance. For example a SOAP Server instance may be set up to allow retrieval of asset information via the Asset Service, but not creation of new assets. Each API and required function must be explicitly enabled before they are available for use.
 
 
 Additional Changes and Bug Fixes
 -----------------------------------
 
-Core
-+ New Global Keyword %global_post_xx% for HTTP POST variable replacements
-+ Metadata Text fields now contain an option to constrain the number of characters that said field can contain
-+ The name of the user that committed each asset version is now shown on the asset "History" screen
-+ Colour-coding and line numbering on the Design "Edit Parse File" screen shen locks are released
-+ Assets can be renamed when cloning from the Asset Map
-+ Keywords Regular Expression Condition: Global Keywords can be used within the condition and can function within "show_if" Design Areas
-+ The Asset Finder widget now supports the manual entering of an asset ID in the smaller box to the right of the "Id: #" label
-+ Emails sent to users involved in the running workflow of an asset now have direct links to approve or reject the workflow
-+ The Asset Sorting Tool can now sort by Asset Attribute as well as by standard asset fields
-+ A new Trigger Event type "Before User Logout" has been added. This event can be used with Trigger Actions where user details are required to be preserved just before the logout process has completed (eg; for use with a "Send Email" Trigger Action to send an email to the user while they log out) 
-
-CMS
-Custom Form changes:
-	+ Form Sections can now be nested to delineate groups of questions on Multi-Page Forms
-	+ The "Submission Logs" screen only lists completed submissions
-	+ A new keyword %form_summary_semantic% has been added to clearly show form element relationships
-	+ A key can now be stored against values in a Select Form Question. The key is stored in the form submission when that form is submitted
-	+ Where a CAPTCHA is required, it only needs to be filled in once on any page, and this status will be stored in the submission
-	+ Submissions for logged-in users are stored as Form Submission assets under the "Incomplete Submissions" folder
-	+ "Previous" and "Next" page buttons have been added to navigate "Multi-Page" forms. "Save" and "Save and Exit" buttons are also available to save progress without validating values on the page
-	+ Further information can now be stored against answers to Form Questions in an "Extra Data" field
-	+ A "download" link is shown next to the file summary for File Upload questions without a specified Create Location to enable these files to be downloaded from the backend or when in Simple Edit
-+ Redirect Page: HTTP 301 "Moved Permanently" responses can be issued from these assets
-+ What's New Page: A dynamic parameter can be specified to assign a Root Node for this listing from sources such as GET, POST and SESSION variables
-
-Bulkmail
-+ Bulkmail Post Office: A "Test mode" can be enabled from the "Details" screen to verify the emails that would be sent in a live scenario
-
-Search
-+ Global Weightings of non-instantiable system assets such as "Users Folder" can now be specified on the "Global Weights" screen of Search Manager
+Web Services
++ SOAP Server error handling - an error handler has been added to log any SOAP Server errors to the Matrix Error Log
