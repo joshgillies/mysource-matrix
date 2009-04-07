@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #/**
 #* +--------------------------------------------------------------------+
 #* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.18 2009/04/07 00:12:04 csmith Exp $
+#* $Id: backup.sh,v 1.19 2009/04/07 06:08:37 csmith Exp $
 #*
 #*/
 #
@@ -48,21 +48,38 @@ EOF
 # Prints a message if the script isn't being run via cron.
 print_info()
 {
-	if [ ${CRON_RUN} -eq 0 ]; then
-		echo $1
+	if [ "${CRON_RUN}" -eq 0 ]; then
+		echo "$1"
 	fi
 }
 print_verbose()
 {
-	if [ ${VERBOSE} -eq 1 ]; then
-		echo $1
+	if [ "${VERBOSE}" -eq 1 ]; then
+		echo "$1"
 	fi
 }
 
 # print a message to stderr
 print_error()
 {
-	echo $1 >&2
+	echo "$1" >&2
+}
+
+# solaris 'which' is broken
+# it returns a 0 status regardless
+# of whether a file exists or not
+# so we have to make up our own
+# if the first word is 'no'
+# the file isn't there.
+file_exists()
+{
+	found=`which $1 | cut -d' ' -f1`
+	if [ "x$found" = "xno" ]; then
+		RET=1
+	else
+		RET=0
+	fi
+	return $RET
 }
 
 # Usage:
@@ -70,7 +87,6 @@ print_error()
 #
 # even if pass/host/port are empty.
 # If $schema_only is not supplied, a full database dump is created.
-
 pg_dbdump()
 {
 	db=$1
@@ -80,19 +96,25 @@ pg_dbdump()
 	port=$5
 
 	schema_only=1
-	if [ -z $6 ]; then
+	if [ "x$6" = "x" ]; then
 		schema_only=0
 	fi
 
-	if [ "${host}" = "" ]; then
+	# set a timeout for pg_dump
+	# just in case it's on a remote server and it's down
+	# or otherwise unavailable
+	PGCONNECT_TIMEOUT=10
+	export PGCONNECT_TIMEOUT
+
+	if [ "x${host}" = "x" ]; then
 		host='localhost'
 	fi
 
-	if [ "${port}" = "" ]; then
+	if [ "x${port}" = "x" ]; then
 		port=5432
 	fi
 
-	if [ ${username} = "" ]; then
+	if [ "x${username}" = "x" ]; then
 		print_verbose ""
 		print_error "You can't create a backup of database ${db} without a database username."
 		print_error "The database has not been included in the backup."
@@ -100,41 +122,47 @@ pg_dbdump()
 		return
 	fi
 
-	pgdump=$(which pg_dump)
+	file_exists "pg_dump"
 	if [ $? -gt 0 ]; then
 		print_verbose ""
 		print_error "Unable to create postgres dump."
 		print_error "Make sure 'pg_dump' is in your path."
 		print_error "The database has not been included in the backup."
 		print_verbose ""
+		exit
 		return
 	fi
+
+	# We know the file exists so grab the path.
+	pgdump=`which pg_dump`
 
 	pgpass_filename="${SYSTEM_ROOT}/.pgpass_${db}"
 
 	print_verbose "Creating pgpass file (${pgpass_filename})"
 
-	if [ -f ${pgpass_filename} ]; then
+	if [ -f "${pgpass_filename}" ]; then
 		print_info "pgpass file (${pgpass_filename}) already exists. Removing"
 		rm -f ${pgpass_filename}
 	fi
 
 	pgpass_string="${host}:${port}:${db}:${username}"
-	if [ "${pass}" != "" ]; then
+	if [ "x${pass}" != "x" ]; then
 		pgpass_string="${pgpass_string}:${pass}"
 	fi
 
 	print_verbose "Finished creating pgpass file."
 
 	args="-i "
-	if [ "${host}" != "localhost" ]; then
-		args="${args} -h ${host} "
+	if [ "x${host}" != "x" ]; then
+ 		if [ "x${host}" != "xlocalhost" ]; then
+			args="${args} -h ${host} "
+		fi
 	fi
 	args="${args} -p ${port} -U ${username}"
 
 	dumpfileprefix=${db}
 
-	if [ ${schema_only} -eq 1 ]; then
+	if [ "${schema_only}" -eq 1 ]; then
 		args="${args} -s";
 		dumpfileprefix="${dumpfileprefix}-schema"
 		print_verbose "Doing a schema only dump of ${db}"
@@ -149,19 +177,23 @@ pg_dbdump()
 	echo $pgpass_string > ${pgpass_filename}
 
 	chmod 600 ${pgpass_filename}
-	oldpassfile=$(echo $PGPASS)
-	export PGPASSFILE=${pgpass_filename}
+	oldpassfile=`echo $PGPASS`
+	PGPASSFILE=${pgpass_filename}
+	export PGPASSFILE
 
 	print_verbose "Dumping database out to ${dumpfile} .. "
 
 	outputfile="${SYSTEM_ROOT}/.pgdumpoutput"
-	${pgdump} ${args} "${db}" > ${dumpfile} 2>${outputfile}
+
+	${pgdump} ${args} ${db} -f ${dumpfile} 2> ${outputfile}
 
 	if [ $? -gt 0 ]; then
 		print_verbose ""
 		print_error "*** Unable to create dumpfile ${dumpfile}."
 		print_error ""
-		cat ${outputfile}
+		output=`cat ${outputfile}`
+		print_error "${output}"
+		print_error ""
 		print_verbose ""
 	else
 		print_verbose "Finished dumping database."
@@ -171,25 +203,25 @@ pg_dbdump()
 
 	print_verbose "Cleaning up temp pgpass file .. "
 
-	export PGPASSFILE=${oldpassfile}
+	PGPASSFILE=${oldpassfile}
+	export PGPASSFILE
+
 	rm -f ${pgpass_filename}
 
 	print_verbose "Finished cleaning up temp pgpass file."
 }
 
-if [ -z $1 ]; then
+if [ "x$1" = "x" ]; then
+	print_error "The directory you supplied is not a matrix system."
+	print_error ""
 	print_usage
 	exit 1
+else
+	SYSTEM_ROOT="$1"
+	shift 1
 fi
 
-# make sure we passed a directory in!
-if [ -e $1 ]; then
-	SYSTEM_ROOT=$(readlink -f "$1")
-fi
-
-shift 1
-
-if [ ! -f ${SYSTEM_ROOT}/data/private/conf/main.inc ]; then
+if [ ! -f "${SYSTEM_ROOT}/data/private/conf/main.inc" ]; then
 	print_error "The directory you supplied is not a matrix system."
 	print_error ""
 	print_usage
@@ -206,15 +238,17 @@ while true; do
 			VERBOSE=1
 		;;
 		--remotedb=*)
-			REMOTE_USER=$1
+			# /bin/sh doesnt expand *) and put it into $1
+			# so do it ourselves with cut
+			REMOTE_USER=`echo $1 | cut -d'=' -f2`
 		;;
 		*)
-			if [ "$1" != '' ]; then
+			if [ "x$1" != "x" ]; then
 				backupdir=$1
 			fi
 		;;
 	esac
-	if [ -z $2 ]; then
+	if [ "x$2" = "x" ]; then
 		break;
 	fi
 
@@ -230,7 +264,11 @@ if [ ! -d "${backupdir}" ]; then
 	fi
 fi
 
-BACKUPFILENAME_PREFIX=$(basename $SYSTEM_ROOT)
+if [ "$SYSTEM_ROOT" = "." ]; then
+	SYSTEM_ROOT=`pwd`
+fi
+
+BACKUPFILENAME_PREFIX=`basename $SYSTEM_ROOT`
 backupfilename="${BACKUPFILENAME_PREFIX}-`date +%Y-%m-%d_%H-%M`-backup.tar"
 
 CRON_RUN=0
@@ -245,11 +283,11 @@ fi
 
 touch "${SYSTEM_ROOT}/.extra_backup_files"
 
-if [ ! -z ${PHP} ] && [ -e ${PHP} ]; then
-	PHP=${PHP}
-elif $(which php-cli 2>/dev/null >/dev/null); then
+if [ "x${PHP}" != "x" ]; then
+	PHP="${PHP}"
+elif [ `which php-cli 2>/dev/null >/dev/null` ]; then
 	PHP="php-cli"
-elif $(which php 2>/dev/null >/dev/null); then
+elif [ `which php 2>/dev/null >/dev/null` ]; then
 	PHP="php"
 else
 	print_error "Cannot find the php binary please be sure to install it"
@@ -265,14 +303,23 @@ function splitdsn(\$input_dsn, \$prefix='DB_')
         \$dsn = preg_split('/[\s;]/', substr(\$input_dsn['DSN'], \$start_pos));
         foreach(\$dsn as \$dsn_v) {
                 list(\$k, \$v) = explode('=', \$dsn_v);
-                echo 'export ' . \$prefix .strtoupper(\$k).'=\"'.addslashes(\$v).'\";';
+		\$var = \$prefix . strtoupper(\$k);
+		echo \$var .  '=\"' . addslashes(\$v) . '\";';
+		echo 'export ' . \$var . ';';
         }
 
-        echo 'export ' . \$prefix . 'USERNAME=\"'.\$input_dsn['user'].'\";';
-        echo 'export ' . \$prefix . 'PASSWORD=\"'.\$input_dsn['password'].'\";';
+	\$var = \$prefix . 'USERNAME';
+	echo \$var . '=\"' . addslashes(\$input_dsn['user']) . '\";';
+	echo 'export ' . \$var.';';
+
+	\$var = \$prefix . 'PASSWORD';
+	echo \$var . '=\"' . addslashes(\$input_dsn['password']) . '\";';
+	echo 'export ' . \$var.';';
 }
 
-echo 'export DB_TYPE=\"'.\$db_conf['db']['type'].'\";';
+\$var = 'DB_TYPE';
+echo \$var . '=\"'.\$db_conf['db']['type'].'\";';
+echo 'export ' . \$var.';';
 
 if (\$db_conf['db']['type'] === 'pgsql') {
 	splitdsn(\$db_conf['db']);
@@ -286,23 +333,31 @@ if (\$db_conf['db']['type'] === 'pgsql') {
 	}
 
 } else {
-	echo 'export DB_HOST=\"'.\$db_conf['db']['DSN'].'\";';
-	echo 'export DB_USERNAME=\"'.\$db_conf['db']['user'].'\";';
-	echo 'export DB_PASSWORD=\"'.\$db_conf['db']['password'].'\";';
+	\$vars = array (
+		'HOST' => 'DSN',
+	   	'USERNAME' => 'user',
+	   	'PASSWORD' => 'password',
+	);
+
+	foreach (\$vars as \$var => \$dsn_var) {
+		echo 'DB_' . \$var . '=\"' . addslashes(\$db_conf['db'][\$dsn_var]) . '\";';
+		echo 'export ' . \$var.';';
+	}
 
 	if (\$db_conf['dbcache'] !== null) {
-		echo 'export CACHE_DB_HOST=\"'.\$db_conf['dbcache']['DSN'].'\";';
-		echo 'export CACHE_DB_USERNAME=\"'.\$db_conf['dbcache']['user'].'\";';
-		echo 'export CACHE_DB_PASSWORD=\"'.\$db_conf['dbcache']['password'].'\";';
+		foreach (\$vars as \$var => \$dsn_var) {
+			echo 'CACHE_DB_' . \$var . '=\"' . addslashes(\$db_conf['dbcache'][\$dsn_var]) . '\";';
+			echo 'export ' . \$var.';';
+		}
 	}
 
 	if (\$db_conf['dbsearch'] !== null) {
-		echo 'export SEARCH_DB_HOST=\"'.\$db_conf['dbsearch']['DSN'].'\";';
-		echo 'export SEARCH_DB_USERNAME=\"'.\$db_conf['dbsearch']['user'].'\";';
-		echo 'export SEARCH_DB_PASSWORD=\"'.\$db_conf['dbsearch']['password'].'\";';
+		foreach (\$vars as \$var => \$dsn_var) {
+			echo 'SEARCH_DB_' . \$var . '=\"' . addslashes(\$db_conf['dbsearch'][\$dsn_var]) . '\";';
+			echo 'export ' . \$var.';';
+		}
 	}
 }
-?>
 "
 
 matrix_316_php_code="<?php
@@ -319,27 +374,33 @@ function parsedsn(\$input_dsn, \$prefix='DB_')
 		\$dsn['phptype'] = 'oci';
 	}
 
-	echo \$prefix . 'TYPE=\"'.\$dsn['phptype'].'\";';
-	echo \$prefix . 'USERNAME=\"'.\$dsn['username'].'\";';
-	echo \$prefix . 'PASSWORD=\"'.\$dsn['password'].'\";';
-	echo \$prefix . 'HOST=\"'.\$dsn['hostspec'].'\";';
-	echo \$prefix . 'PORT=\"'.\$dsn['port'].'\";';
-	echo \$prefix . 'DBNAME=\"'.\$dsn['database'].'\";';
+	echo \$prefix . 'TYPE=\"'.\$dsn['phptype'].'\";
+	echo \$prefix . 'USERNAME=\"'.\$dsn['username'].'\";
+	echo \$prefix . 'PASSWORD=\"'.\$dsn['password'].'\";
+	echo \$prefix . 'HOST=\"'.\$dsn['hostspec'].'\";
+	echo \$prefix . 'PORT=\"'.\$dsn['port'].'\";
+	echo \$prefix . 'DBNAME=\"'.\$dsn['database'].'\";
+
+	echo 'export ' . \$prefix . 'TYPE;';
+	echo 'export ' . \$prefix . 'USERNAME;';
+	echo 'export ' . \$prefix . 'PASSWORD;';
+	echo 'export ' . \$prefix . 'HOST;';
+	echo 'export ' . \$prefix . 'PORT;';
+	echo 'export ' . \$prefix . 'DBNAME;';
 }
 
 parsedsn(SQ_CONF_DB_DSN);
 if (SQ_CONF_DB_DSN !== SQ_CONF_DBCACHE_DSN) {
 	parsedsn(SQ_CONF_DBCACHE_DSN, 'CACHE_DB_');
 }
-?>
 ";
 
 if [ -f ${SYSTEM_ROOT}/data/private/conf/db.inc ]; then
 	print_verbose "Found a 3.18/3.20 system"
-	eval $(echo "${matrix_318_php_code}" | $PHP)
+	eval `echo "${matrix_318_php_code}" | $PHP`
 else
 	print_verbose "Found a 3.16 system"
-	eval $(echo "${matrix_316_php_code}" | $PHP)
+	eval `echo "${matrix_316_php_code}" | $PHP`
 fi
 
 # Usage:
@@ -354,27 +415,28 @@ oracle_dbdump()
 	pass=$3
 	hostspec=$4
 
-	schema_only=0
-	if [ -n $5 ]; then
-		schema_only=1
+	schema_only=1
+	if [ "x$5" = "x" ]; then
+		schema_only=0
 	fi
+
 
 	# The oracle dsn is in the format of:
 	# //localhost|ip.addr/dbname
 	# Split it up so we just get the dbname, then set the oracle_sid to the right thing.
-	db=$(echo $hostspec | awk -F'/' '{ print $NF }')
-	old_oracle_sid=$(echo $ORACLE_SID)
-	if [ -z ${remote_user} ]; then
+	db=`echo $hostspec | awk -F'/' '{ print $NF }'`
+	old_oracle_sid=`echo $ORACLE_SID`
+	if [ "x${remote_user}" = "x" ]; then
 		export ORACLE_SID=$db
 	fi
 
 	# Also need the hostname to see if we need to do a remote dump
-	dbhost=$(echo $hostspec | awk -F'/' '{ print $1 }')
+	dbhost=`echo $hostspec | awk -F'/' '{ print $1 }'`
 	print_verbose ""
 	print_verbose "Found a dbhost of ${dbhost}"
 	print_verbose ""
 	if [ "$dbhost" != "localhost" ]; then
-		if [ -z $remote_user ]; then
+		if [ "x$remote_user" = "x" ]; then
 			print_verbose ""
 			print_error "To do remote oracle backups, please supply '--remotedb=username@hostname'"
 			print_error "The database has not been included in the backup."
@@ -383,10 +445,10 @@ oracle_dbdump()
 		fi
 	fi
 
-	if [ -z $remote_user ]; then
-		oracle_exp=$(which exp)
+	if [ "x$remote_user" = "x" ]; then
+		file_exists "exp"
 	else
-		oracle_exp=$(ssh "${remote_user}" 'which exp')
+		oracle_exp=`ssh "${remote_user}" 'which exp'`
 	fi
 
 	if [ $? -gt 0 ]; then
@@ -398,10 +460,10 @@ oracle_dbdump()
 		return
 	fi
 
-	if [ -z $remote_user ]; then
-		home=$(echo $ORACLE_HOME)
+	if [ "x${remote_user}" = "x" ]; then
+		home=`echo $ORACLE_HOME`
 	else
-		home=$(ssh "${remote_user}" 'echo $ORACLE_HOME')
+		home=`ssh "${remote_user}" 'echo $ORACLE_HOME'`
 	fi
 	if [ $? -gt 0 ] || [ "${home}" == "" ]; then
 		print_verbose ""
@@ -421,7 +483,7 @@ oracle_dbdump()
 		dumpfileprefix="${dumpfileprefix}-schema"
 	fi
 
-	if [ -z ${remote_user} ]; then
+	if [ "x${remote_user}" = "x" ]; then
 		dumpfilepath=${SYSTEM_ROOT}
 	else
 		dumpfilepath='.'
@@ -436,8 +498,8 @@ oracle_dbdump()
 	oracle_args="consistent=y"
 
 	outputfile="${SYSTEM_ROOT}/oracleoutput"
-	if [ -z $remote_user ]; then
-		$(${oracle_exp} ${dump_args} ${oracle_args} File=${dumpfile} 2> ${outputfile})
+	if [ "x${remote_user}" = "x" ]; then
+		`${oracle_exp} ${dump_args} ${oracle_args} File=${dumpfile} 2> ${outputfile}`
 	else
 		outputfile='./oracleoutput'
 		ssh "${remote_user}" "${oracle_exp} ${dump_args} ${oracle_args} File=${dumpfile} 2> ${outputfile}"
@@ -445,15 +507,15 @@ oracle_dbdump()
 
 	if [ $? -gt 0 ]; then
 		print_error "The oracle dump may have contained errors. Please check it's ok"
-		if [ -z $remote_user ]; then
-			output=$(cat ${outputfile})
+		if [ ! -e $remote_user ]; then
+			output=`cat ${outputfile}`
 		else
-			output=$(ssh "${remote_user}" cat ${outputfile})
+			output=`ssh "${remote_user}" cat ${outputfile}`
 		fi
 		print_error $output
 	fi
 
-	if [ -z $remote_user ]; then
+	if [ "x${remote_user}" = "x" ]; then
 		rm -f ${outputfile}
 	else
 		scp -q "${remote_user}:${dumpfile}" "${SYSTEM_ROOT}/${dumpfile}"
@@ -467,7 +529,7 @@ oracle_dbdump()
 		ssh "${remote_user}" 'rm -f ${outputfile} ${dumpfile}'
 	fi
 
-	if [ -z ${remote_user} ]; then
+	if [ "x${remote_user}" = "x" ]; then
 		export ORACLE_SID=$old_oracle_sid
 	fi
 
@@ -495,7 +557,7 @@ case "${DB_TYPE}" in
 	;;
 
 	*)
-		echo "ERROR: DATABASE TYPE '${DB_TYPE}' NOT KNOWN" >&2;
+		print_error "ERROR: DATABASE TYPE '${DB_TYPE}' NOT KNOWN"
 		exit 6
 esac
 
@@ -511,8 +573,8 @@ esac
 # Hence the --exclude....
 #
 
-sysroot_base=$(basename "${SYSTEM_ROOT}")
-sysroot_dir=$(dirname ${SYSTEM_ROOT})
+sysroot_base=`basename "${SYSTEM_ROOT}"`
+sysroot_dir=`dirname ${SYSTEM_ROOT}`
 
 # So we get the right relative paths for the exclude file,
 # so solaris tar excludes them properly:
@@ -523,52 +585,57 @@ sysroot_dir=$(dirname ${SYSTEM_ROOT})
 # folder/filename
 #
 
-mydir=$(pwd)
+mydir=`pwd`
 cd "${sysroot_dir}/"
 
 print_verbose "Creating an exclude file .. "
-echo "${sysroot_base}/${backupfilename}" > ${mydir}/tar_exclude_list
-echo "${sysroot_base}/${backupfilename}.gz" >> ${mydir}/tar_exclude_list
-echo "${sysroot_base}/.extra_backup_files" >> ${mydir}/tar_exclude_list
-echo "${backupdir}/${backupfilename}" >> ${mydir}/tar_exclude_list
-echo "${backupdir}/${backupfilename}.gz" >> ${mydir}/tar_exclude_list
+exclude_file="${sysroot_dir}/tar_exclude_file"
+echo "${sysroot_base}/${backupfilename}" > "${exclude_file}"
+echo "${sysroot_base}/${backupfilename}.gz" >> "${exclude_file}"
+echo "${sysroot_base}/.extra_backup_files" >> "${exclude_file}"
+echo "${backupdir}/${backupfilename}" >> "${exclude_file}"
+echo "${backupdir}/${backupfilename}.gz" >> "${exclude_file}"
 
-for file in $(find "${sysroot_base}" \( -path "${sysroot_base}/cache" -o -path "${sysroot_base}/data" \) -prune -o -type f -name '*-backup.tar*' -print); do
-	echo "${file}" >> ${mydir}/tar_exclude_list
+for file in `find "${sysroot_base}" -name cache -o -name data -prune -o -type f -name '*-backup.tar*' -print`; do
+	echo "${file}" >> "${exclude_file}"
 done
 
-echo "${sysroot_base}/cache/*" >> ${mydir}/tar_exclude_list
+echo "${sysroot_base}/cache/*" >> "${exclude_file}"
 print_verbose "Done"
 print_verbose ""
 
 cd "${mydir}"
 
 # Of course the tar syntax is slightly different for different os's
-os=$(uname)
+os=`uname`
 
 # if tar supports gzip itself, we will do everything in one step
 # if it doesn't (solaris tar for example does not)
 # it will be done in two steps
 # - 1) tar the system
 # - 2) gzip the tarball.
+
 tar_gzip=0
 case "${os}" in
 	"SunOS")
-		gtar=$(which gtar 2>/dev/null >/dev/null)
+		file_exists "gtar"
 		if [ $? -eq 0 ]; then
 			tar_gzip=1
+			tar_command=`which gtar`
 		fi
 	;;
 
 	*)
 		tar_gzip=1
+		tar_command=`which tar`
 esac
 
-if [ ${tar_gzip} -eq 0 ]; then
+if [ "${tar_gzip}" -eq 0 ]; then
 	# if gtar is not present, use the solaris tar & then gzip the tarball.
 	# solaris tar doesn't support gzipping in the same process.
 	print_verbose "Tar'ing up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
-	tar -cfX "${backupdir}/${backupfilename}" ${mydir}/tar_exclude_list -C $(dirname ${SYSTEM_ROOT}) "${sysroot_base}"
+
+	tar -cfX "${backupdir}/${backupfilename}" "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
 
 	print_verbose "Gzipping ${backupdir}/${backupfilename} .. "
 
@@ -582,19 +649,19 @@ if [ ${tar_gzip} -eq 0 ]; then
 	fi
 else
 	print_verbose "Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
-	tar -czf "${backupdir}/${backupfilename}.gz" -X ${mydir}/tar_exclude_list -C $(dirname ${SYSTEM_ROOT}) "${sysroot_base}"
+	"${tar_command}" -czf "${backupdir}/${backupfilename}.gz" -X "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
 	print_verbose "Finished Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}.gz."
 fi
 
 print_verbose ""
 print_verbose "Removing tar exclude list .. "
-rm -f ${mydir}/tar_exclude_list
+rm -f "${exclude_file}"
 print_verbose "Done"
 print_verbose ""
 
 print_verbose "Cleaning up .. "
 
-files=$(cat ${SYSTEM_ROOT}/.extra_backup_files)
+files=`cat ${SYSTEM_ROOT}/.extra_backup_files`
 for file in $files; do
 	rm -f "${file}"
 	if [ $? -gt 0 ]; then
