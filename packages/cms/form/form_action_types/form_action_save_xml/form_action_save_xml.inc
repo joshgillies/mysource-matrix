@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.3 2009/04/03 04:11:02 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.3.2.1 2009/04/07 05:09:20 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -335,8 +335,6 @@ class Form_Action_Save_Xml extends Form_Action
 				}//end if
 
 				// Compile the XML
-				$value = htmlspecialchars($value);
-				$question_name = htmlspecialchars($question_name);
 				$response = $sxml->addChild('response', $value);
 				if (!empty($question_name)) {
 					$response->addAttribute('name', $question_name);
