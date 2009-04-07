@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.211 2009/03/27 04:53:21 akarelia Exp $
+* $Id: general.inc,v 1.211.2.1 2009/04/07 00:45:37 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.211 $
+* @version $Revision: 1.211.2.1 $
 * @package MySource_Matrix
 */
 
@@ -289,7 +289,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 					implode(' ', $_SERVER['argv'])."\n";
 		} else {
 			$str  .= "*Current URL*\n".
-					current_protocol().'://'.array_get_index($_SERVER, 'HTTP_HOST', 'NO HOST').'/'.array_get_index($_SERVER, 'REQUEST_URI', 'NO REQUEST URI')."\n";
+					current_protocol().'://'.array_get_index($_SERVER, 'HTTP_HOST', 'NO HOST').array_get_index($_SERVER, 'REQUEST_URI', '/NO REQUEST URI')."\n";
 		}
 
 
