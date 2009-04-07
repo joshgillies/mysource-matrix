@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.17 2009/03/20 00:12:12 csmith Exp $
+#* $Id: backup.sh,v 1.18 2009/04/07 00:12:04 csmith Exp $
 #*
 #*/
 #
@@ -59,6 +59,12 @@ print_verbose()
 	fi
 }
 
+# print a message to stderr
+print_error()
+{
+	echo $1 >&2
+}
+
 # Usage:
 # pg_dbdump $dbname $username $pass $host $port [$schema_only]
 #
@@ -73,9 +79,9 @@ pg_dbdump()
 	host=$4
 	port=$5
 
-	schema_only=0
-	if [ -n $6 ]; then
-		schema_only=1
+	schema_only=1
+	if [ -z $6 ]; then
+		schema_only=0
 	fi
 
 	if [ "${host}" = "" ]; then
@@ -88,8 +94,8 @@ pg_dbdump()
 
 	if [ ${username} = "" ]; then
 		print_verbose ""
-		echo "You can't create a backup of database ${db} without a database username."
-		echo "The database has not been included in the backup."
+		print_error "You can't create a backup of database ${db} without a database username."
+		print_error "The database has not been included in the backup."
 		print_verbose ""
 		return
 	fi
@@ -97,9 +103,9 @@ pg_dbdump()
 	pgdump=$(which pg_dump)
 	if [ $? -gt 0 ]; then
 		print_verbose ""
-		echo "Unable to create postgres dump."
-		echo "Make sure 'pg_dump' is in your path."
-		echo "The database has not been included in the backup."
+		print_error "Unable to create postgres dump."
+		print_error "Make sure 'pg_dump' is in your path."
+		print_error "The database has not been included in the backup."
 		print_verbose ""
 		return
 	fi
@@ -148,13 +154,13 @@ pg_dbdump()
 
 	print_verbose "Dumping database out to ${dumpfile} .. "
 
-	outputfile="${SYSTEM_ROOT}/pgdumpoutput"
+	outputfile="${SYSTEM_ROOT}/.pgdumpoutput"
 	${pgdump} ${args} "${db}" > ${dumpfile} 2>${outputfile}
 
 	if [ $? -gt 0 ]; then
 		print_verbose ""
-		echo "*** Unable to create dumpfile ${dumpfile}."
-		echo ""
+		print_error "*** Unable to create dumpfile ${dumpfile}."
+		print_error ""
 		cat ${outputfile}
 		print_verbose ""
 	else
@@ -176,13 +182,16 @@ if [ -z $1 ]; then
 	exit 1
 fi
 
-SYSTEM_ROOT=$(readlink -f "$1")
+# make sure we passed a directory in!
+if [ -e $1 ]; then
+	SYSTEM_ROOT=$(readlink -f "$1")
+fi
 
 shift 1
 
 if [ ! -f ${SYSTEM_ROOT}/data/private/conf/main.inc ]; then
-	echo "The directory you supplied is not a matrix system."
-	echo ""
+	print_error "The directory you supplied is not a matrix system."
+	print_error ""
 	print_usage
 	exit 1
 fi
@@ -215,8 +224,8 @@ done
 if [ ! -d "${backupdir}" ]; then
 	mkdir -p "${backupdir}"
 	if [ $? -gt 0 ]; then
-		echo "Unable to create backup dir (${backupdir})."
-		echo "Aborting"
+		print_error "Unable to create backup dir (${backupdir})."
+		print_error "Aborting"
 		exit 1
 	fi
 fi
@@ -243,7 +252,7 @@ elif $(which php-cli 2>/dev/null >/dev/null); then
 elif $(which php 2>/dev/null >/dev/null); then
 	PHP="php"
 else
-	echo "Cannot find the php binary please be sure to install it"
+	print_error "Cannot find the php binary please be sure to install it"
 	exit 1
 fi
 
@@ -367,8 +376,8 @@ oracle_dbdump()
 	if [ "$dbhost" != "localhost" ]; then
 		if [ -z $remote_user ]; then
 			print_verbose ""
-			echo "To do remote oracle backups, please supply '--remotedb=username@hostname'"
-			echo "The database has not been included in the backup."
+			print_error "To do remote oracle backups, please supply '--remotedb=username@hostname'"
+			print_error "The database has not been included in the backup."
 			print_verbose ""
 			return
 		fi
@@ -382,9 +391,9 @@ oracle_dbdump()
 
 	if [ $? -gt 0 ]; then
 		print_verbose ""
-		echo "Unable to create oracle dump."
-		echo "Make sure 'exp' is in your path."
-		echo "The database has not been included in the backup."
+		print_error "Unable to create oracle dump."
+		print_error "Make sure 'exp' is in your path."
+		print_error "The database has not been included in the backup."
 		print_verbose ""
 		return
 	fi
@@ -394,11 +403,11 @@ oracle_dbdump()
 	else
 		home=$(ssh "${remote_user}" 'echo $ORACLE_HOME')
 	fi
-	if [ $? -gt 0 ] || [ "${home}" = "" ]; then
+	if [ $? -gt 0 ] || [ "${home}" == "" ]; then
 		print_verbose ""
-		echo "Unable to create oracle dump."
-		echo "Make sure the 'ORACLE_HOME' environment variable is set"
-		echo "The database has not been included in the backup."
+		print_error "Unable to create oracle dump."
+		print_error "Make sure the 'ORACLE_HOME' environment variable is set"
+		print_error "The database has not been included in the backup."
 		print_verbose ""
 		return
 	fi
@@ -435,13 +444,13 @@ oracle_dbdump()
 	fi
 
 	if [ $? -gt 0 ]; then
-		echo "The oracle dump may have contained errors. Please check it's ok"
+		print_error "The oracle dump may have contained errors. Please check it's ok"
 		if [ -z $remote_user ]; then
 			output=$(cat ${outputfile})
 		else
 			output=$(ssh "${remote_user}" cat ${outputfile})
 		fi
-		echo $output
+		print_error $output
 	fi
 
 	if [ -z $remote_user ]; then
@@ -449,10 +458,10 @@ oracle_dbdump()
 	else
 		scp -q "${remote_user}:${dumpfile}" "${SYSTEM_ROOT}/${dumpfile}"
 		if [ $? -gt 0 ]; then
-			echo "Unable to copy the oracle dump file back."
-			echo "Tried to run"
-			echo "scp ${remote_user}:${dumpfile} ${SYSTEM_ROOT}/${dumpfile}"
-			echo "The database has not been included in the backup."
+			print_error "Unable to copy the oracle dump file back."
+			print_error "Tried to run"
+			print_error "scp ${remote_user}:${dumpfile} ${SYSTEM_ROOT}/${dumpfile}"
+			print_error "The database has not been included in the backup."
 			return
 		fi
 		ssh "${remote_user}" 'rm -f ${outputfile} ${dumpfile}'
@@ -519,33 +528,63 @@ cd "${sysroot_dir}/"
 
 print_verbose "Creating an exclude file .. "
 echo "${sysroot_base}/${backupfilename}" > ${mydir}/tar_exclude_list
+echo "${sysroot_base}/${backupfilename}.gz" >> ${mydir}/tar_exclude_list
 echo "${sysroot_base}/.extra_backup_files" >> ${mydir}/tar_exclude_list
 echo "${backupdir}/${backupfilename}" >> ${mydir}/tar_exclude_list
+echo "${backupdir}/${backupfilename}.gz" >> ${mydir}/tar_exclude_list
 
 for file in $(find "${sysroot_base}" \( -path "${sysroot_base}/cache" -o -path "${sysroot_base}/data" \) -prune -o -type f -name '*-backup.tar*' -print); do
 	echo "${file}" >> ${mydir}/tar_exclude_list
 done
 
-echo "${sysroot_base}/cache" >> ${mydir}/tar_exclude_list
+echo "${sysroot_base}/cache/*" >> ${mydir}/tar_exclude_list
 print_verbose "Done"
 print_verbose ""
 
 cd "${mydir}"
 
-print_verbose "Tar'ing up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
-
 # Of course the tar syntax is slightly different for different os's
 os=$(uname)
+
+# if tar supports gzip itself, we will do everything in one step
+# if it doesn't (solaris tar for example does not)
+# it will be done in two steps
+# - 1) tar the system
+# - 2) gzip the tarball.
+tar_gzip=0
 case "${os}" in
 	"SunOS")
-		tar -cfX "${backupdir}/${backupfilename}" ${mydir}/tar_exclude_list -C $(dirname ${SYSTEM_ROOT}) "${sysroot_base}"
+		gtar=$(which gtar 2>/dev/null >/dev/null)
+		if [ $? -eq 0 ]; then
+			tar_gzip=1
+		fi
 	;;
 
 	*)
-		tar -cf "${backupdir}/${backupfilename}" -X ${mydir}/tar_exclude_list -C $(dirname ${SYSTEM_ROOT}) "${sysroot_base}"
+		tar_gzip=1
 esac
 
-print_verbose "Finished Tar'ing up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}."
+if [ ${tar_gzip} -eq 0 ]; then
+	# if gtar is not present, use the solaris tar & then gzip the tarball.
+	# solaris tar doesn't support gzipping in the same process.
+	print_verbose "Tar'ing up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
+	tar -cfX "${backupdir}/${backupfilename}" ${mydir}/tar_exclude_list -C $(dirname ${SYSTEM_ROOT}) "${sysroot_base}"
+
+	print_verbose "Gzipping ${backupdir}/${backupfilename} .. "
+
+	gzip -f ${backupdir}/${backupfilename}
+	if [ $? -gt 0 ]; then
+		print_verbose ""
+		print_error "*** Unable to gzip tarball ${backupdir}/${backupfilename}."
+		print_verbose ""
+	else
+		print_verbose "Finished gzipping up ${backupdir}/${backupfilename}."
+	fi
+else
+	print_verbose "Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
+	tar -czf "${backupdir}/${backupfilename}.gz" -X ${mydir}/tar_exclude_list -C $(dirname ${SYSTEM_ROOT}) "${sysroot_base}"
+	print_verbose "Finished Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}.gz."
+fi
 
 print_verbose ""
 print_verbose "Removing tar exclude list .. "
@@ -553,16 +592,6 @@ rm -f ${mydir}/tar_exclude_list
 print_verbose "Done"
 print_verbose ""
 
-print_verbose "Gzipping ${backupdir}/${backupfilename} .. "
-
-gzip -f ${backupdir}/${backupfilename}
-if [ $? -gt 0 ]; then
-	print_verbose ""
-	echo "*** Unable to gzip tarball ${backupdir}/${backupfilename}."
-	print_verbose ""
-fi
-
-print_verbose "Finished gzipping up ${backupdir}/${backupfilename}."
 print_verbose "Cleaning up .. "
 
 files=$(cat ${SYSTEM_ROOT}/.extra_backup_files)
@@ -570,7 +599,7 @@ for file in $files; do
 	rm -f "${file}"
 	if [ $? -gt 0 ]; then
 		print_verbose ""
-		echo "Unable to clean up file ${file}."
+		print_error "Unable to clean up file ${file}."
 		print_verbose ""
 	fi
 done
@@ -579,7 +608,7 @@ file="${SYSTEM_ROOT}/.extra_backup_files"
 rm -f "${file}"
 if [ $? -gt 0 ]; then
 	print_verbose ""
-	echo "Unable to clean up file ${file}."
+	print_error "Unable to clean up file ${file}."
 	print_verbose ""
 fi
 
