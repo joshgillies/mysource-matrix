@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.7 2009/04/02 22:16:00 hnguyen Exp $
+* $Id: soap_server.inc,v 1.8 2009/04/07 05:59:12 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -188,6 +188,7 @@ class Soap_Server extends Page
 	*/
 	function service($HTTP_RAW_POST_DATA)
 	{
+		ini_set("soap.wsdl_cache_enabled", "0");	
 		require_once dirname(__FILE__).'/soap_server_error_handler.inc';
 
 		// Set error handler
