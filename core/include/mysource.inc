@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.290 2009/03/31 01:05:51 akarelia Exp $
+* $Id: mysource.inc,v 1.290.2.1 2009/04/08 23:38:50 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290 $
+* @version $Revision: 1.290.2.1 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1307,6 +1307,31 @@ class MySource
 									$vars['include_uppercase'],
 									$vars['include_numbers']
 								  );
+				exit(1);
+			break;
+			case 'attribute_image' :
+				// grab the details we need to make this work 
+				$allowed_attributes = Array('email');
+				if (isset($_GET['attribute']) && !empty($_GET['attribute'])) {
+					$attribute = $_GET['attribute'];
+					if (!in_array($attribute, $allowed_attributes)) {
+						$attribute = '';
+					}//end if
+				}//end if
+				if (isset($_GET['id']) && !empty($_GET['id'])) {
+					$assetid = $_GET['id'];
+					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
+					if (is_null($asset) || !empty($attribute)) {
+						$text = $asset->attr($attribute);
+						if (empty($text)) {
+							$text = '';
+						}//end if
+					} else {
+						$text = $asset->attr($attribute);
+					}//end if
+				}
+
+				$this->_generateAttributeImage($text);
 				exit(1);
 			break;
 			case 'rollback_view_start' :
@@ -3308,6 +3333,80 @@ class MySource
 		return FALSE;
 
 	}//end authRedirect()
+
+
+	/**
+	* Generates a attribute image
+	*
+	* @param string	$text	The text of the image
+	*
+	* @return void
+	* @access public
+	*/
+	public function _generateAttributeImage($text)
+	{
+		// Default settings
+		putenv('GDFONTPATH=' . realpath(SQ_LIB_PATH.'/fonts'));
+		$default_fonts = Array( 1,2,3,4,5 );
+		$backup_font = 3;
+
+		// Load the user prefs
+		$image_prefs = $this->getUserPrefs('user', 'SQ_USER_ATTRIBUTE_IMAGE', TRUE);
+		$font = $image_prefs['face'];
+		$size = $image_prefs['size'];
+		$hpad = $image_prefs['hpad'];
+		$vpad = $image_prefs['vpad'];
+		$colour1 = ltrim($image_prefs['bgcol'], '#');
+		$colour2 = ltrim($image_prefs['fgcol'], '#');
+
+		// Calculate the sizes etc.
+		$width = ((in_array($font, $default_fonts)) ? (imagefontwidth($font) * strlen($text)) : ($size * strlen($text))) + ($hpad * 2);
+		$height = ((in_array($font, $default_fonts)) ? imagefontheight($font) : ($size + $size/2)) + ($vpad * 2);
+		$hh = $height / 2;
+		$x = 0 + $hpad;
+		$y = (in_array($font, $default_fonts)) ? (0 + $vpad) : (round($height - ($size / 2), 0) - $vpad);
+
+		// Create the image
+		$image = imagecreatetruecolor($width, $height) or die("Cannot initialise a new GD stream");
+
+		// Work out the colours
+		list($r1,$g1,$b1) = str_split($colour1, 2);
+		list($r2,$g2,$b2) = str_split($colour2, 2);
+		$bg_colour = imagecolorallocate($image, hexdec($r1), hexdec($g1), hexdec($b1));
+		$fg_colour = imagecolorallocate($image, hexdec($r2), hexdec($g2), hexdec($b2));
+
+		// Colour the background
+		imagefill($image, 0,0, $bg_colour);
+
+		// Write the text on the image
+		if (in_array($font, $default_fonts)) {
+			$text_created = imagestring($image, $font, $x, $y, $text, $fg_colour);
+		} else {
+			$text_created = @imagettftext($image, $size, 0, $x, $y, $fg_colour, $font, $text);
+		}//end if
+
+		// Getting image sizes correct the first time, is kind of tricky
+		// So creating the image putting the text on it, then resizing the image, seems to work
+		if ($text_created === FALSE) {
+			// An error occured with drawing the text, try using the default font
+			$width = (imagefontwidth * strlen($text)) + ($hpad * 2);
+			$height = imagefontheight + ($vpad * 2);
+			$image = imagecreatetruecolor($width, $height) or die("Cannot initialise a new GD stream");
+			imagefill($image, 0,0, $bg_colour);
+			$text_created = imagestring($image, $backup_font, $x, $y, $text, $fg_colour);
+		} else if (isset($text_created[2]) && !empty($text_created[2]) && $text_created[2] != $width) {
+			$width = $text_created[2]+1;
+			$height = $text_created[3];
+			$image = imagecreatetruecolor($width, $height) or die("Cannot initialise a new GD stream");
+			$bg_colour = imagecolorallocate($image, hexdec($r1), hexdec($g1), hexdec($b1));
+			$fg_colour = imagecolorallocate($image, hexdec($r2), hexdec($g2), hexdec($b2));
+			imagefill($image, 0,0, $bg_colour);
+			$text_created = @imagettftext($image, $size, 0, $x, $y, $fg_colour, $font, $text);
+		}//end if
+		header('Content-type: image/png');
+		imagepng($image);
+
+	}//end _generateAttributeImage()
 
 
 }//end class
