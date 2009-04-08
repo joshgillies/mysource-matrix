@@ -1,4 +1,3 @@
-
 <?php
 /**
 * +--------------------------------------------------------------------+
@@ -11,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.35 2009/03/02 22:10:03 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.36 2009/04/08 03:27:21 lwright Exp $
 *
 */
 
@@ -27,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -716,4 +715,3 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 }//end class
 ?>
-
