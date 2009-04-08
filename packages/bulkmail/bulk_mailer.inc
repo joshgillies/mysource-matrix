@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.82.2.5 2009/04/08 01:39:24 mbrydon Exp $
+* $Id: bulk_mailer.inc,v 1.82.2.6 2009/04/08 01:44:50 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.82.2.5 $
+* @version $Revision: 1.82.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -692,14 +692,14 @@ class Bulk_Mailer
 				try {
 					$bind_vars['recipient_list'] = $recipient_chunk;
 					$query_result = MatrixDAL::executeAssoc('bulkmail_package', 'getAllRecipients', $bind_vars);
-					$query_results += $query_result;					
+					$query_results = array_merge($query_results, $query_result); 
 				} catch (Exception $e) {
 					throw new Exception('Unable to get recipient list due to database error: '.$e->getMessage());
 				}
 			}
 		}
 
-		$recipients =array_merge($recipients, $query_results);
+		$recipients = array_merge($recipients, $query_results);
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
 
