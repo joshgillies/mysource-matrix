@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.189.2.5 2009/03/11 23:04:51 ewang Exp $
+* $Id: search_manager.inc,v 1.189.2.6 2009/04/08 06:56:41 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.189.2.5 $
+* @version $Revision: 1.189.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1088,6 +1088,31 @@ class Search_Manager extends Asset
 
 		foreach ($fieldids as $fieldid => $field_type) {
 
+			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($fieldid, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
+
+			foreach ($current_links as $link) {
+				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+				$restrictions = $section->attr('restrict');
+				if (!empty($restrictions)) {
+					foreach($restrictions as $type_code_restricted => $inherit_it) {
+						if ($inherit_it && !$flag_match_found) {
+							$asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(Array($asset->id));
+							foreach($asset_type_with_parents[$asset->id] as $index => $asset_type) {
+								if (array_key_exists($asset_type[0], $restrictions) && !$flag_match_found) {
+									$flag_match_found = TRUE;
+								}
+							}
+						} else {
+							if (array_key_exists($asset->type(), $restrictions)) {
+								$flag_match_found = TRUE;
+							}						
+						}
+					}
+				if (!$flag_match_found) return $index_content;
+				}
+			}
+
+
 			// dont index this fieldid if getMetadataWeighting return false
 			if (FALSE === ($weighting = $this->getMetadataWeighting($asset->id, $fieldid))) {
 				continue;
@@ -1101,6 +1126,8 @@ class Search_Manager extends Asset
 
 			if (isset($metadata[$field->id][0]['value'])) {
 				$value = $metadata[$field->id][0]['value'];
+			} else if ($field instanceof Metadata_Field_WYSIWYG) {
+				$value = $field->attr('default_html');
 			} else {
 				$value = $field->attr('default');
 			}
@@ -1152,6 +1179,12 @@ class Search_Manager extends Asset
 						$key_type = 'thesaurus';
 						// Replace comma with spaces so the values can be indexed correctly. This should be done here and not in get_word_counts/remove_silent_chars.
 						$value = str_replace(',',' ', $value);
+					break;
+
+					case 'metadata_field_wysiwyg':
+						$key_type = 'metadata_field_wysiwyg';
+						$plugin =& $this->_getDBPlugin();
+						$value = $plugin->handleMultipleMetadataSelect($value);
 					break;
 
 					default:
