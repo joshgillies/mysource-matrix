@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.82.2.4 2008/12/21 23:15:41 hnguyen Exp $
+* $Id: bulk_mailer.inc,v 1.82.2.5 2009/04/08 01:39:24 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.82.2.4 $
+* @version $Revision: 1.82.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -678,19 +678,28 @@ class Bulk_Mailer
 			}//end if
 		}//end for
 
-		$query_result = Array();
+		$query_results = Array();
 		if (!empty($recipients_query)) {
-			// Now, let's do one big query to get all the email addresses of REAL assets
+			// Eliminate any duplicate recipients before chunking to obtain optimal bite-sized portions
+			$recipients_query = array_unique($recipients_query);
+
+			// Chunkifise our query to get all the email addresses of REAL assets
 			// User assets without an email will be filtered out here
-			try {
-				$bind_vars['recipient_list'] = $recipients_query;
-				$query_result = MatrixDAL::executeAssoc('bulkmail_package', 'getAllRecipients', $bind_vars);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get recipient list due to database error: '.$e->getMessage());
+			$chunk_size = 1000;
+			$recipient_chunks = array_chunk($recipients_query, $chunk_size, TRUE);
+
+			foreach ($recipient_chunks as $recipient_chunk) {
+				try {
+					$bind_vars['recipient_list'] = $recipient_chunk;
+					$query_result = MatrixDAL::executeAssoc('bulkmail_package', 'getAllRecipients', $bind_vars);
+					$query_results += $query_result;					
+				} catch (Exception $e) {
+					throw new Exception('Unable to get recipient list due to database error: '.$e->getMessage());
+				}
 			}
 		}
 
-		$recipients =array_merge($recipients, $query_result);
+		$recipients =array_merge($recipients, $query_results);
 		$result['recipient'] = $recipients;
 		$result['problematic'] = $problematic_list;
 
