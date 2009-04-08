@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219 2009/03/16 05:59:23 mbrydon Exp $
+* $Id: form.inc,v 1.220 2009/04/08 05:40:07 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219 $
+* @version $Revision: 1.220 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3379,29 +3379,31 @@ class Form extends Asset implements Bridge
 		foreach ($this->current_answers as $assetid => $response) {
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-			// Save and stick the value
-			$question->saveValue($this);
+			// Save and stick the value - but only if the question still exists
+			if ($question instanceof Form_Question) {
+				$question->saveValue($this);
+			
+				// If the question is sticky, stick the value then
+				if ($question->attr('sticky')) {
+					$question->stickValue($question->getValue());
+				}
 
-			// If the question is sticky, stick the value then
-			if ($question->attr('sticky')) {
-				$question->stickValue($question->getValue());
-			}
+				// only re-set the answer if it has changed
+				$value = $question->getValue();
+				if (is_string($value)) {
+					$value = htmlentities($value, ENT_NOQUOTES);
+				}
+				if ($value !== $submission_asset->getAnswer($assetid)) {
+					$submission_asset->setAnswer($assetid, $value);
+				}
 
-			// only re-set the answer if it has changed
-			$value = $question->getValue();
-			if (is_string($value)) {
-				$value = htmlentities($value, ENT_NOQUOTES);
-			}
-			if ($value !== $submission_asset->getAnswer($assetid)) {
-				$submission_asset->setAnswer($assetid, $value);
-			}
+				// same with Extra Data
+				if ($question->getExtraData() !== $submission_asset->getExtraData($assetid)) {
+					$submission_asset->setExtraData($assetid, $question->getExtraData());
+				}
 
-			// same with Extra Data
-			if ($question->getExtraData() !== $submission_asset->getExtraData($assetid)) {
-				$submission_asset->setExtraData($assetid, $question->getExtraData());
+				$submission_asset->setSummary($assetid, $question->attr('name'), htmlentities($question->getSummary(), ENT_NOQUOTES));
 			}
-
-			$submission_asset->setSummary($assetid, $question->attr('name'), htmlentities($question->getSummary(), ENT_NOQUOTES));
 		}
 
 		$submission_asset->saveAttributes();
