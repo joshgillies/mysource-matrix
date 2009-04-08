@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.67.2.2 2009/03/30 05:43:06 lwright Exp $
+* $Id: page_account_manager.inc,v 1.67.2.3 2009/04/08 06:08:44 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.67.2.2 $
+* @version $Revision: 1.67.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -430,7 +430,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 									}
 								}
 								$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_asset->id, $permission, NULL, FALSE);
-								minibam($permissions, $permission_name.' AFTER DELETION');
 							}
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
