@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.33 2008/10/10 03:52:51 lwright Exp $
+* $Id: form_submission.inc,v 1.33.4.1 2009/04/08 03:29:21 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -337,12 +337,12 @@ class Form_Submission extends Asset
 
 
 	/**
-	* Called by the design to print the body of this asset
+	* Called to be printed before the design is finished
 	*
 	* @return void
 	* @access public
 	*/
-	function printBody()
+	function printFrontend()
 	{
 		if ($_GET['q'] && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 			// Download a file upload, but only if we are on the backend somewhere
@@ -368,6 +368,17 @@ class Form_Submission extends Asset
 			exit(0);
 		}
 
+	}//end printFrontend()
+	
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
 		$summary = $this->attr('attributes');
 		$summary = $summary['summary'];
 		?>
