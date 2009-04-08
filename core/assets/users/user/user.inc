@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.128 2008/10/28 22:21:08 lwright Exp $
+* $Id: user.inc,v 1.129 2009/04/08 23:37:40 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -883,6 +883,52 @@ class User extends Asset
 		}
 
 	}//end releaseUserLocks()
+
+
+	/**
+	* Return the keywords for this asset type.
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAvailableKeywords()
+	{
+
+		$keywords = Array();
+		$keywords['asset_attribute_email_image'] = translate('user_email_image');
+
+		return $keywords;
+
+	}//end getAvailableKeywords()
+
+
+	/**
+	* Get bodycopy keyword replacement
+	*
+	* @param string	$keyword	Keyword to find a replacement for
+	*
+	* @return string
+	* @access public
+	* @see _getKeywordReplacement
+	*/
+	public function getKeywordReplacement($keyword)
+	{
+		$replacement = '';
+		if ($keyword == 'asset_attribute_email_image') {
+			$email = $this->attr('email');
+			$email_image_link = '';
+			if (!empty($email)) {
+				$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=attribute_image&id='.$this->id.'&attribute=email';
+				$email_image_link = '<img id="email_'.$this->id.'" src="'.$img_url.'" />';
+			}//end if
+			$replacement = $email_image_link;
+		} else {
+			$replacement = parent::getKeywordReplacement($keyword);
+		}//end if
+
+		return $replacement;
+
+	}//end getKeywordReplacement()
 
 
 }//end class

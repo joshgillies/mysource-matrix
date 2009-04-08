@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.14 2009/01/13 22:27:51 bpearson Exp $
+* $Id: user_prefs.inc,v 1.15 2009/04/08 23:37:40 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -69,6 +69,12 @@ class User_Prefs extends Prefs
 														'name'			=> 'user_prefs_limbo_hide_frames',
 														'description'	=> 'This preference determines whether or not the default frames are painted in Simple Edit',
 														'default'		=> FALSE,
+														'protected'		=> FALSE,
+													   ),
+						'SQ_USER_ATTRIBUTE_IMAGE'		=> Array(
+														'name'			=> 'user_prefs_attribute_image',
+														'description'	=> 'This preference allows you to specify settings for the attribute images',
+														'default'		=> Array('face' => '3', 'size' => '12', 'hpad' => '0', 'vpad' => '0', 'fgcol' => '000000', 'bgcol' => 'FFFFFF'),
 														'protected'		=> FALSE,
 													   ),
 					 );
@@ -403,6 +409,110 @@ class User_Prefs extends Prefs
 
 		}//end if
 
+		if (is_null($pref) || $pref == 'SQ_USER_ATTRIBUTE_IMAGE') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['name']));
+			}
+			$attribute_settings = $this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['default'];
+			?>
+			<table class="sq-backend-table" style="width: 350px;">
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_face'); ?></td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
+						$font_files = list_files(SQ_LIB_PATH.'/fonts');
+						$fonts_installed = Array(
+											1	=> translate('default_gd_font_1'),
+											2	=> translate('default_gd_font_2'),
+											3	=> translate('default_gd_font_3'),
+											4	=> translate('default_gd_font_4'),
+											5	=> translate('default_gd_font_5'),
+										   );
+						foreach ($font_files as $font_file) {
+							$result = preg_match('/(.*)\.ttf$/i', $font_file, $matches);
+							if (isset($matches[1]) && !empty($matches[1])) {
+								$fonts_installed[$matches[1]] = ucwords($matches[1]);	
+							}//end if
+						}//end foreach
+						if ($have_lock && $is_admin) {
+							combo_box('prefs[SQ_USER_ATTRIBUTE_IMAGE][face]', $fonts_installed, FALSE, $attribute_settings['face'], 1, 'id="prefs_SQ_USER_ATTRIBUTE_IMAGE_face"');
+						} else {
+							if (isset($fonts_installed[$attribute_settings['face']])) {
+								echo $fonts_installed[$attribute_settings['face']];
+							} else {
+								echo translate('no_valid_font');
+							}//end if
+						}//end if
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_size'); ?></td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						$default_fonts = Array( 1,2,3,4,5 );
+						if ($have_lock && $is_admin && !in_array($attribute_settings['face'], $default_fonts)) {
+							text_box('prefs[SQ_USER_ATTRIBUTE_IMAGE][size]', $attribute_settings['size'], 'id="prefs_SQ_USER_ATTRIBUTE_IMAGE_size"');
+						} else {
+							if (in_array($attribute_settings['face'], $default_fonts)) {
+								echo translate('using_default_font');
+							} else {
+								echo $attribute_settings['size'];
+							}//end if
+						}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_hpad'); ?></td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						if ($have_lock && $is_admin) {
+							text_box('prefs[SQ_USER_ATTRIBUTE_IMAGE][hpad]', $attribute_settings['hpad'], 'id="prefs_SQ_USER_ATTRIBUTE_IMAGE_hpad"');
+						} else {
+							echo $attribute_settings['hpad'];
+						}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_vpad'); ?></td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						if ($have_lock && $is_admin) {
+							text_box('prefs[SQ_USER_ATTRIBUTE_IMAGE][vpad]', $attribute_settings['vpad'], 'id="prefs_SQ_USER_ATTRIBUTE_IMAGE_vpad"');
+						} else {
+							echo $attribute_settings['vpad'];
+						}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_fgcol'); ?></td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						require_once(SQ_ATTRIBUTES_PATH.'/colour/colour.inc');
+						$fg = new Asset_Attribute_Colour(0, $attribute_settings['fgcol']);
+						$fg->paint('prefs_image_fgcol_', !($have_lock && $is_admin));
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_bgcol'); ?></td>
+					<td class="sq-backend-table-cell" style="width: 100%;">
+						<?php
+						require_once(SQ_ATTRIBUTES_PATH.'/colour/colour.inc');
+						$bg = new Asset_Attribute_Colour(0, $attribute_settings['bgcol']);
+						$bg->paint('prefs_image_bgcol_', !($have_lock && $is_admin));
+						?>
+					</td>
+				</tr>
+			</table>
+			<?php
+			if (is_null($pref)) $o->closeField();
+		}//end if
+
 
 		return TRUE;
 
@@ -547,6 +657,36 @@ class User_Prefs extends Prefs
 				$this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'] = FALSE;
 			}
 		}
+		if (is_null($pref) || $pref == 'SQ_USER_ATTRIBUTE_IMAGE') {
+			$new_prefs = Array(
+							'face'	=> 'arial',
+							'size'	=> '12',
+							'hpad'	=> 0,
+							'vpad'	=> 0,
+							'fgcol'	=> '000000',
+							'bgcol'	=> 'FFFFFF',
+						 );
+			if (isset($_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['face'])) {
+				$new_prefs['face'] = $_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['face'];
+			}
+			if (isset($_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['size'])) {
+				$new_prefs['size'] = $_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['size'];
+			}
+			if (isset($_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['hpad'])) {
+				$new_prefs['hpad'] = $_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['hpad'];
+			}
+			if (isset($_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['vpad'])) {
+				$new_prefs['vpad'] = $_POST['prefs']['SQ_USER_ATTRIBUTE_IMAGE']['vpad'];
+			}
+			require_once(SQ_ATTRIBUTES_PATH.'/colour/colour.inc');
+			$fg = new Asset_Attribute_Colour();
+			$fg->process('prefs_image_fgcol_');
+			$new_prefs['fgcol'] = $fg->value;
+			$bg = new Asset_Attribute_Colour();
+			$bg->process('prefs_image_bgcol_');
+			$new_prefs['bgcol'] = $bg->value;
+			$this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['default'] = $new_prefs;
+		}//end if
 
 
 		return TRUE;
