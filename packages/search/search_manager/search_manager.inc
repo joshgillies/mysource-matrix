@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.194.2.1 2009/04/08 06:55:25 akarelia Exp $
+* $Id: search_manager.inc,v 1.194.2.2 2009/04/08 07:02:41 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.194.2.1 $
+* @version $Revision: 1.194.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1074,6 +1074,7 @@ class Search_Manager extends Asset
 	function getIndexableMetadataContent(&$asset, $fieldids=Array())
 	{
 		$index_content = Array();
+		$flag_match_found = FALSE;
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
 		$type_code = $asset->type();
