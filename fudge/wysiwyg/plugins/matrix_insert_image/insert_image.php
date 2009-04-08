@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.48 2008/11/03 21:41:50 bpearson Exp $
+* $Id: insert_image.php,v 1.48.4.1 2009/04/08 01:07:57 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.4.1 $
 * @package MySource_Matrix
 */
 
@@ -149,7 +149,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function setImageInfo() {
 				// put a random no in the url to overcome any caching
 				var assetid = document.getElementById("f_imageid[assetid]").value;
-				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(assetid) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
+				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(assetid) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
 				JsHttpConnector.submitRequest(url, populateImageInfo);
 			};
 
