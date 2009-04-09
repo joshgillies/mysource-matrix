@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.195 2009/04/08 06:54:51 akarelia Exp $
+* $Id: search_manager.inc,v 1.196 2009/04/09 06:57:46 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.195 $
+* @version $Revision: 1.196 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2714,17 +2714,23 @@ class Search_Manager extends Asset
 		 * No need to include this if we're not checking permissions.
 		*/
 		if (!empty($permission_check_query['where'])) {
-			if (!empty($subquery['where'])) {
-				$subquery_string .= ' AND ';
+			if (DAL::getDbType() == 'oci')	{
+				if (!empty($subquery['where'])) {
+					$subquery_string .= ' AND ';
+				} else {
+					$subquery_string .= ' WHERE ';
+				}
+				$subquery_string .= ' a.assetid IN (';
 			} else {
-				$subquery_string .= ' WHERE ';
+				 $subquery_string .= ' INTERSECT ';
 			}
-			$subquery_string .= ' a.assetid IN (';
 			$subquery_string .= 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
 			$subquery_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
 			$subquery_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
 			$subquery_string .= ' HAVING MIN(p.granted) <> \'0\'';
-			$subquery_string .= ')';
+			if (DAL::getDbType() == 'oci')	{
+				$subquery_string .= ')';
+			}
 		}
 
 		$query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
