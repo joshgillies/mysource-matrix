@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.290.2.1 2009/04/08 23:38:50 bpearson Exp $
+* $Id: mysource.inc,v 1.290.2.2 2009/04/09 00:03:18 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.290.2.1 $
+* @version $Revision: 1.290.2.2 $
 * @package MySource_Matrix
 */
 class MySource
@@ -3367,7 +3367,10 @@ class MySource
 		$y = (in_array($font, $default_fonts)) ? (0 + $vpad) : (round($height - ($size / 2), 0) - $vpad);
 
 		// Create the image
-		$image = imagecreatetruecolor($width, $height) or die("Cannot initialise a new GD stream");
+		if (!$image = imagecreatetruecolor($width, $height)) {
+			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+			exit();
+		}
 
 		// Work out the colours
 		list($r1,$g1,$b1) = str_split($colour1, 2);
@@ -3391,13 +3394,19 @@ class MySource
 			// An error occured with drawing the text, try using the default font
 			$width = (imagefontwidth * strlen($text)) + ($hpad * 2);
 			$height = imagefontheight + ($vpad * 2);
-			$image = imagecreatetruecolor($width, $height) or die("Cannot initialise a new GD stream");
+			if (!$image = imagecreatetruecolor($width, $height)) {
+				trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+				exit();
+			}
 			imagefill($image, 0,0, $bg_colour);
 			$text_created = imagestring($image, $backup_font, $x, $y, $text, $fg_colour);
 		} else if (isset($text_created[2]) && !empty($text_created[2]) && $text_created[2] != $width) {
 			$width = $text_created[2]+1;
 			$height = $text_created[3];
-			$image = imagecreatetruecolor($width, $height) or die("Cannot initialise a new GD stream");
+			if (!$image = imagecreatetruecolor($width, $height)) {
+				trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
+				exit();
+			}
 			$bg_colour = imagecolorallocate($image, hexdec($r1), hexdec($g1), hexdec($b1));
 			$fg_colour = imagecolorallocate($image, hexdec($r2), hexdec($g2), hexdec($b2));
 			imagefill($image, 0,0, $bg_colour);
