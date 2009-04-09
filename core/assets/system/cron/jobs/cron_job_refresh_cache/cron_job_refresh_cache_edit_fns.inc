@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.6 2007/11/28 21:53:59 lwright Exp $
+* $Id: cron_job_refresh_cache_edit_fns.inc,v 1.6.4.1 2009/04/09 06:03:07 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 			<tr>
 				<!-- Asset to Refresh -->
 				<th class="sq-backend-table-header">Asset</th>
-				<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_assetid', 0, Array('page' => 'D')); ?></td>
+				<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_assetid', 0, Array('asset' => 'D')); ?></td>
 			</tr>
 			<tr>
 				<!-- Cron Job Schedule -->
