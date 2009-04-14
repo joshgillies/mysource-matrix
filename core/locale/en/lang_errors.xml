@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.106.2.1 2009/02/11 23:16:32 bpearson Exp $
+* $Id: lang_errors.xml,v 1.106.2.2 2009/04/14 01:05:07 ewang Exp $
 *
 */
 
@@ -363,7 +363,7 @@
 		<!-- core/assets/system/cron/cron_job/cron_job.inc:151: -->
 		<!-- core/assets/system/cron/cron_manager/cron_manager.inc:187 -->
 
-	<error code="CRON0042">Unable to schedule a one-off %1$s to be run before the next job run is scheduled (which is at %2$s)</error>
+	<error code="CRON0042">Unable to schedule a one-off %1$s to be run before the last job run is scheduled (which is at %2$s)</error>
 		<!-- core/assets/system/cron/cron_job/cron_job.inc:265: -->
 
 	<error code="CRON0043">one_off type cron jobs MUST have their "when" attributes set to a "OO=" prefixed value</error>
