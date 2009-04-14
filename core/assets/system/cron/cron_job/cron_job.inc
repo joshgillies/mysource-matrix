@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.59 2007/12/11 00:22:30 rong Exp $
+* $Id: cron_job.inc,v 1.59.4.1 2009/04/14 01:04:38 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.59.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -278,13 +278,14 @@ class Cron_Job extends Asset
 				if ($this->attr('type') == 'repeating' && substr($value, 0, 2) == 'TI') {
 					$when_ts = $when['duration'];
 				}
+			
 
-				if ($when_ts < $cron_mgr->timeOfNextRun()) {
+				if ($when_ts < (int) $cron_mgr->attr('last_run')) {
 					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					trigger_localised_error('CRON0042', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime($cron_mgr->timeOfNextRun()));
+					trigger_localised_error('CRON0042', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), easy_datetime((int) $cron_mgr->attr('last_run')));
 					return FALSE;
 				}//end if
-
+			
 				$value = $when_str;
 
 			}//end if
