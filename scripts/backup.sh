@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.20 2009/04/07 06:09:37 csmith Exp $
+#* $Id: backup.sh,v 1.21 2009/04/16 07:16:13 csmith Exp $
 #*
 #*/
 #
@@ -177,7 +177,7 @@ pg_dbdump()
 	echo $pgpass_string > ${pgpass_filename}
 
 	chmod 600 ${pgpass_filename}
-	oldpassfile=`echo $PGPASS`
+	oldpassfile=`echo $PGPASSFILE`
 	PGPASSFILE=${pgpass_filename}
 	export PGPASSFILE
 
