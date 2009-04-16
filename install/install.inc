@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.84 2008/11/02 22:17:53 lwright Exp $
+* $Id: install.inc,v 1.85 2009/04/16 02:10:01 csmith Exp $
 *
 */
 
@@ -20,11 +20,10 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 * @subpackage install
 */
-
 
 /**
 * Regenerate all the configs used by Matrix
