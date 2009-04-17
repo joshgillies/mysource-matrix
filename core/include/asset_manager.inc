@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.723 2009/04/01 03:21:02 csmith Exp $
+* $Id: asset_manager.inc,v 1.724 2009/04/17 00:02:57 mbrydon Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.723 $
+* @version $Revision: 1.724 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3935,7 +3935,7 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-				$userids[] = MatrixDAL::quote($this->getSystemAssetid('public_user'));
+				$userids[] = $this->getSystemAssetid('public_user');
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 					$userids[$i] = MatrixDAL::quote((string)$userids[$i]);
 				}
