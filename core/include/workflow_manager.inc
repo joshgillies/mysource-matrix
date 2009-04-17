@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.136 2009/04/06 05:05:16 lwright Exp $
+* $Id: workflow_manager.inc,v 1.137 2009/04/17 01:36:08 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1223,6 +1223,7 @@ class Workflow_Manager extends MySource_Object
 		// safety code for blank workflows
 		if (empty($workflow['steps'])) {
 			$workflow_updated = TRUE;
+			$workflow['complete'] = TRUE;
 			$workflow['steps'] = Array();
 		} else {
 			$step_data =& $this->getCurrentStep($workflow);
