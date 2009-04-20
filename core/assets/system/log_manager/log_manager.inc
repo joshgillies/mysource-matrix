@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.27.4.1 2009/01/12 23:01:17 csmith Exp $
+* $Id: log_manager.inc,v 1.27.4.2 2009/04/20 03:11:46 bpearson Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.27.4.1 $
+* @version $Revision: 1.27.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -455,16 +455,27 @@ class Log_Manager extends Asset
 		$logs = $this->getLogs();
 		$status = FALSE;
 		$rotated_logs = Array();
-		foreach ($logs as $logname => $log_data) {
-			// determine whether we need to rotate the log
-			if (time() - $log_data['rotation']['last_timestamp'] > $log_data['rotation']['interval']) {
-				if ($this->rotateLog($logname, $log_data)) {
-					$logs[$logname] = $log_data;
-					$rotated_logs[] = $logname;
-				}
-			}
+		$rotate_hr = $this->attr('log_rotate_time');
+		$rotate_hr_fwd = ($rotate_hr > 22) ? '0' : ($rotate_hr + 1);
+		$time_to_rotate = mktime($rotate_hr, '0', '0');
+		$time_to_rotate_fwd = mktime($rotate_hr_fwd, '0', '0');
 
-		}
+		// Rotate the logs within the hour it should take place
+		if (time() >= $time_to_rotate && time() <= $time_to_rotate_fwd) {
+			foreach ($logs as $logname => $log_data) {
+				// determine whether we need to rotate the log
+				// this formula should calculate:
+				// [Time to Rotate] - [Last Rotation] >= [Within 24 Hours]
+				// interval is needed to make sure we do not rotate many times within the day
+				if ($time_to_rotate - $log_data['rotation']['last_timestamp'] >= ($log_data['rotation']['interval']-360)) {
+					if ($this->rotateLog($logname, $log_data)) {
+						$logs[$logname] = $log_data;
+						$rotated_logs[] = $logname;
+					}
+				}
+
+			}
+		}//end if
 
 		// turn on forced run level, as not everything has write privileges to log_manager's attributes
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -551,10 +562,12 @@ class Log_Manager extends Asset
 			$status = $this->_rotateLogFiles(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, '', '1');
 
 			if ($status) {
+				$rotate_hr = $this->attr('log_rotate_time');
+				$time_to_rotate = mktime($rotate_hr, '0', '0');
 				$log_data['rotation']['interval']       = $interval;
 				$log_data['rotation']['min_index']      = $min_index;
 				$log_data['rotation']['max_index']      = $max_index;
-				$log_data['rotation']['last_timestamp'] = time();
+				$log_data['rotation']['last_timestamp'] = $time_to_rotate;
 			} else {
 				$status = FALSE;
 			}

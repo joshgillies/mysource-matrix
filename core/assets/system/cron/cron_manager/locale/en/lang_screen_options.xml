@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_options.xml,v 1.3 2006/12/06 04:24:00 emcdonald Exp $
+* $Id: lang_screen_options.xml,v 1.3.10.1 2009/04/20 03:11:46 bpearson Exp $
 *
 */
 -->
@@ -43,6 +43,14 @@
 			<function_call>
 				<paint_function   name="paintExcludedTime" />
 				<process_function name="processExcludedTime" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Log Rotate Time</display_name>
+			<note>Rotate the logs at a specified time</note>
+			<function_call>
+				<paint_function   name="paintLogRotateTime" />
+				<process_function name="processLogRotateTime" />
 			</function_call>
 		</field>
 	</section>
