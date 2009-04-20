@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.10 2008/11/25 04:19:44 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.10.4.1 2009/04/20 03:46:33 bpearson Exp $
 *
 */
 -->
@@ -52,8 +52,7 @@
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
-			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.
-			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
+			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).&lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
 		</field>
 	</section>
 	<section name="List Position Settings">

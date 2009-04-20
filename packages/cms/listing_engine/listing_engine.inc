@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.277 2009/03/25 22:50:26 csmith Exp $
+* $Id: listing_engine.inc,v 1.277.2.1 2009/04/20 03:46:18 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.277 $
+* @version $Revision: 1.277.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -691,7 +691,7 @@ class Listing_Engine extends Page
 			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 		}
 
-		$num_per_page = $this->attr('num_per_page');
+		$num_per_page = $this->_getNumPerPage();
 
 		$asset_result_page_var   = $this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
@@ -706,7 +706,6 @@ class Listing_Engine extends Page
 		}
 
 		if ($result_page <= 0) $result_page = 1;
-
 
 		// get our page chunk here
 		$todo =& $this->getChunk($children, $replacements, $keywords, $result_page, $num_per_page);
@@ -857,11 +856,39 @@ class Listing_Engine extends Page
 			if (!empty($root_nodes)) {
 				$cache_key .= '-'.implode('-', $root_nodes);
 			}
+
+			$cache_key .= $this->_getNumPerPage();
 		}
 
 		return $cache_key;
 
 	}//end _getCacheKey()
+
+
+	/**
+	* Get the num of items per page 
+	*
+	* @return int
+	* @access protected
+	*/
+	function _getNumPerPage()
+	{
+		$num_per_page = $this->attr('num_per_page');
+
+		// Check for keywords in the num_per_page attribute
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		replace_global_keywords($num_per_page);
+		$num_per_page_keywords = retrieve_keywords_replacements($num_per_page);
+		$replacements = Array();
+		foreach ($num_per_page_keywords as $keyword) {
+			$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+		}//end foreach
+		replace_keywords($num_per_page, $replacements);
+		settype($num_per_page, 'integer');
+
+		return $num_per_page;
+
+	}//end _getNumPerPage()
 
 
 	/**
@@ -1466,8 +1493,6 @@ class Listing_Engine extends Page
 			$group_by = $this->attr('group_by');
 		}
 
-
-
 		$page_list_keywords = Array();
 		foreach ($keywords as $keyword) {
 			if (preg_match('/page_list_([0-9]+)/', $keyword, $matches)) {
@@ -1624,7 +1649,7 @@ class Listing_Engine extends Page
 				// random does things differently, as there is no pagination. But this is a good place
 				// to grab the random asset
 				$count = count($children);
-				$num_per_page = $this->attr('num_per_page');
+				$num_per_page = $this->_getNumPerPage();
 				$todo = Array();
 
 				if ($count == 1) {
@@ -2406,7 +2431,7 @@ class Listing_Engine extends Page
 		if ($this->attr('group_by') == 'letter') {
 			$keywords['asset_position'] = $list_position;
 		} else {
-			$keywords['asset_position']  = (array_get_index($this->_tmp, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
+			$keywords['asset_position']  = (array_get_index($this->_tmp, 'result_page', 1) - 1) * $this->_getNumPerPage() + $list_position;
 		}
 
 		if (($list_position % 2) == 0) {

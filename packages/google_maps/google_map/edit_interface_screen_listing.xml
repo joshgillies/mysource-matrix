@@ -65,7 +65,7 @@
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page">
-			<int width="5" />
+			<text width="30" />
 		</field>
 		<field attribute="prev_page_text">
 			<text width="30" />

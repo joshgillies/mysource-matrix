@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.76 2009/01/29 22:17:40 ewang Exp $
+* $Id: listing_engine_management.inc,v 1.76.2.1 2009/04/20 03:46:18 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.76.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -229,7 +229,7 @@ class Listing_Engine_Management extends Asset_Management
 
 		$this->vars['num_per_page'] = Array(
 										'added'		=> '0.1',
-										'type'		=> 'int',
+										'type'		=> 'text',
 										'default'	=> 0,
 									  );
 

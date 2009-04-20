@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.33 2008/11/06 00:18:24 ewang Exp $
+* $Id: page_online_quiz.inc,v 1.33.4.1 2009/04/20 03:46:19 bpearson Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1563,7 +1563,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 					}
 
 					$asset_count  = 1;
-					$num_per_page = $this->attr('num_per_page');
+					$num_per_page = $this->_getNumPerPage();
 					foreach ($page_assets as $assetid => $type) {
 						$question_pagination['questions_to_pages'][$assetid] = Array(
 																				'page'			=> $ii,
@@ -3028,7 +3028,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 		}
 
-		$num_per_page = $this->attr('num_per_page');
+		$num_per_page = $this->_getNumPerPage();
 
 		if (is_null($result_page) || $result_page <= 0) {
 			$result_page = $this->getCurrentPage();

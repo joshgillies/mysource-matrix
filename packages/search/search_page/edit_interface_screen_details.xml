@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.49 2009/02/13 01:41:43 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.49.2.1 2009/04/20 03:46:58 bpearson Exp $
 *
 */
 -->
@@ -52,7 +52,7 @@
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page" write_access="write:attributes">
-			<int width="5" />
+			<text width="30" />
 		</field>
 		<field write_access="write:links">
 			<function_call>

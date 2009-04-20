@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.233 2009/03/11 22:59:02 ewang Exp $
+* $Id: search_page.inc,v 1.233.2.1 2009/04/20 03:46:58 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233 $
+* @version $Revision: 1.233.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -357,7 +357,7 @@ class Search_Page extends Listing_Engine
 		} else {
 			$current_result_page = $listing_result_page;
 		}//end if
-		$results_per_page    = (int) array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
+		$results_per_page    = (int) array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage());
 		$submitted_category  = htmlentities(array_get_index($_REQUEST, 'search_category', array_get_index($_REQUEST, 'submitted_search_category')));
 
 		if (empty($_REQUEST['search_category']) && !empty($submitted_category)) {
@@ -1555,7 +1555,7 @@ class Search_Page extends Listing_Engine
 			break;
 
 			case 'results_per_page' :
-				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
+				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage());
 				$field_name = 'results_per_page_text_box';
 				$this->registerFormField($field_name);
 				$replacement = '<input type="text" name="'.$field_name.'" onchange="listing_form = document.getElementById(\''.$this->getPrefix().'\');
@@ -1741,7 +1741,7 @@ class Search_Page extends Listing_Engine
 		} else {
 			$current_result_page = $listing_result_page;
 		}//end if
-		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
+		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage());
 		$this->_tmp['start_element'] = ($current_result_page - 1) * $results_per_page;
 		$queries = '';
 		foreach ($_GET as $query_name => $query_value) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.29 2009/02/22 22:13:06 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.29.2.1 2009/04/20 03:46:58 bpearson Exp $
 *
 */
 -->
@@ -64,7 +64,7 @@
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
-			<note>Set to '0' (zero) to list all assets on the same page.</note>
+			<note>Set to '0' (zero) to list all assets on the same page. Keywords can be used to dynamically set the number of items on the page.</note>
 		</field>
 		<field>
 			<display_name>Search Forms</display_name>
