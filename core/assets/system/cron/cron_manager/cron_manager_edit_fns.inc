@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.45 2007/11/28 21:56:17 lwright Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.45.6.1 2009/04/20 03:14:08 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -820,6 +820,92 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end processExcludedTime()
+
+
+	/**
+	* Paints the 'log rotate time' field
+	*
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	public function paintLogRotateTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+		$hours_array = Array(
+						0	=> '00',
+						1	=> '01',
+						2	=> '02',
+						3	=> '03',
+						4	=> '04',
+						5	=> '05',
+						6	=> '06',
+						7	=> '07',
+						8	=> '08',
+						9	=> '09',
+						10	=> '10',
+						11	=> '11',
+						12	=> '12',
+						13	=> '13',
+						14	=> '14',
+						15	=> '15',
+						16	=> '16',
+						17	=> '17',
+						18	=> '18',
+						19	=> '19',
+						20	=> '20',
+						21	=> '21',
+						22	=> '22',
+						23	=> '23',
+					   );
+
+		$write_access = $asset->writeAccess('all') && $GLOBALS['SQ_SYSTEM']->userRoot();
+
+		$lm = $GLOBALS['SQ_SYSTEM']->getLogManager();
+		$log_rotate_time = $lm->attr('log_rotate_time');
+
+		if ($write_access) {
+			combo_box($prefix.'_log_rotate_time', $hours_array, FALSE, $log_rotate_time);
+		} else {
+			echo $hours_array[$log_rotate_time];
+		}//end if
+
+		echo translate('cron_log_rotate_time_desc2');
+
+		return $write_access;
+
+	}//end paintLogRotateTime()
+
+
+	/**
+	* Processes the 'log rotate time' field
+	*
+	* @param Cron_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the backend outputter object
+	* @param string				$prefix	prefix for form elements
+	*
+	* @return void
+	* @access private
+	*/
+	public function processLogRotateTime(Cron_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+		$lm = $GLOBALS['SQ_SYSTEM']->getLogManager();
+		if (isset($_POST[$prefix.'_log_rotate_time'])) {
+			$log_rotate_time = (int) $_POST[$prefix.'_log_rotate_time'];
+
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($lm->id, 'attributes');
+			$lm->setAttrValue('log_rotate_time', $log_rotate_time);
+			$lm->saveAttributes();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($lm->id, 'attributes');
+
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end processLogRotateTime()
 
 
 }//end class
