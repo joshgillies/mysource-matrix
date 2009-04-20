@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.188 2008/11/05 00:10:22 bshkara Exp $
+* $Id: metadata_manager.inc,v 1.188.2.1 2009/04/20 07:23:57 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.188 $
+* @version $Revision: 1.188.2.1 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -765,6 +765,7 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$flag_match_found = FALSE;
 
 		// Make sure all the fields exist and are editable
 		foreach (array_keys($metadata) as $fieldid) {
@@ -779,9 +780,24 @@ class Metadata_Manager extends MySource_Object
 					$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 					if (is_null($section)) continue;
 					$restrictions = $section->attr('restrict');
-					if (!empty($restrictions) && !array_key_exists($asset->type(), $restrictions)) {
-						unset($metadata[$fieldid]);
-					}
+					 if (!empty($restrictions)) {
+                        foreach ($restrictions as $type_code_restricted => $inherit_it) {
+                            if ($inherit_it && !$flag_match_found) {
+                                $asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(Array($asset->id));
+                                foreach($asset_type_with_parents[$asset->id] as $index => $asset_type) {
+                                    if (array_key_exists($asset_type[0], $restrictions) && !$flag_match_found) {
+                                        $flag_match_found = TRUE;
+                                    }
+                                }
+                            } else if (array_key_exists($asset->type(), $restrictions)){
+                                $flag_match_found = TRUE;
+                            }
+
+                        }
+                        if (!$flag_match_found) {
+                            unset($metadata[$fieldid]);
+                        }
+                    }
 				}//end foreach
 				continue;
 			}

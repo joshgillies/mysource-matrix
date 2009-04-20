@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.51 2008/10/15 03:09:09 bpearson Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.51.2.1 2009/04/20 07:23:36 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -294,7 +294,24 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	{
 		$restrictions = $asset->attr('restrict');
 		$res = FALSE;
-		if (empty($restrictions) || (!is_null($type_code) && array_key_exists($type_code, $restrictions))) {
+		$flag_match_found = FALSE;
+
+		if (!empty($restrictions)) {
+            foreach ($restrictions as $type_code_restricted => $inherit_it) {
+                if ($inherit_it && !$flag_match_found) {
+                    $asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+                    foreach($asset_type_with_parents as $index => $asset_type) {
+                        if (($type_code_restricted == $type_code || $asset_type ==  $type_code_restricted)&& !$flag_match_found) {
+                            $flag_match_found = TRUE;
+                        }
+                    }
+                } else if (array_key_exists($type_code, $restrictions)){
+                    $flag_match_found = TRUE;
+                }
+            }
+        }
+
+		if (empty($restrictions) || $flag_match_found ) {
 			$o->openSection($asset->name);
 			if ($write_access) {
 				if (isset($GLOBALS['painted_inline_value_interface'][$asset->id])) {
@@ -414,12 +431,28 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	function generateMetadata(Metadata_Section $asset, Array &$values, Array &$tag_values, Array &$keywords, $type_code=NULL)
 	{
 		$frontend_option = $asset->attr('frontend');
+		$flag_match_found = FALSE;
 		// if we aren't printing this on the frontend then don't print anything
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		$restrictions = $asset->attr('restrict');
-		if (empty($restrictions) || (!is_null($type_code) && array_key_exists($type_code, $restrictions))) {
+		if (!empty($restrictions)) {
+            foreach ($restrictions as $type_code_restricted => $inherit_it) {
+                if ($inherit_it && !$flag_match_found) {
+                    $asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+                    foreach($asset_type_with_parents as $index => $asset_type) {
+                        if (($type_code_restricted == $type_code || $asset_type ==  $type_code_restricted)&& !$flag_match_found) {
+                            $flag_match_found = TRUE;
+                        }
+                    }
+                } else if (array_key_exists($type_code, $restrictions)){
+                    $flag_match_found = TRUE;
+                }
+            }
+        }
+        if (empty($restrictions) || $flag_match_found ) {
+
 			// Buffer the contents of any META tags
 			ob_start();
 
