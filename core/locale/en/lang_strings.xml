@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311 2009/03/23 10:21:24 ata Exp $
+* $Id: lang_strings.xml,v 1.312 2009/04/20 03:15:57 bpearson Exp $
 *
 */
 
@@ -457,6 +457,9 @@
 	<string source="cron_job_regenerate_report_at">Regenerate this report at </string>
 	<string source="cron_job_regenerate_report_repeat"> and repeat this process every </string>
 	<string source="cron_job_refresh_cache_at">Refresh cache at </string>
+	<string source="cron_log_rotate_time">Log Rotate Time</string>
+	<string source="cron_log_rotate_time_desc1">Rotate the logs at this time: </string>
+	<string source="cron_log_rotate_time_desc2">:00</string>
 
 	<string source="scheduled_future_status_change">Scheduled Future Status Changes</string>
 	<string source="scheduled_future_permission_change">Scheduled Future Permission Changes</string>

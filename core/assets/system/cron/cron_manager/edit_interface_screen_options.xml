@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_options.xml,v 1.12 2006/12/06 04:24:00 emcdonald Exp $
+* $Id: edit_interface_screen_options.xml,v 1.13 2009/04/20 03:15:57 bpearson Exp $
 *
 */
 -->
@@ -36,6 +36,12 @@
 			<function_call>
 				<paint_function   name="paintExcludedTime" />
 				<process_function name="processExcludedTime" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintLogRotateTime" />
+				<process_function name="processLogRotateTime" />
 			</function_call>
 		</field>
 	</section>
