@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.39 2008/11/25 00:48:03 mbrydon Exp $
+* $Id: ecommerce_cart.inc,v 1.40 2009/04/20 03:41:59 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -279,7 +279,7 @@ class Ecommerce_Cart extends Listing_Engine
 			$replacements['cart_updated'] = '';
 		}
 
-		$num_per_page = $this->attr('num_per_page');
+		$num_per_page = $this->_getNumPerPage();
 
 		$asset_result_page_var   = $this->id.'_result_page';
 		$generic_result_page_var = 'result_page';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.18 2008/10/27 04:28:57 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.19 2009/04/20 03:41:44 bpearson Exp $
 *
 */
 -->
@@ -61,7 +61,7 @@
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page">
-			<int width="5" />
+			<text width="30" />
 		</field>
 	</section>
 	<section name="List Position Settings" write_access="write:attributes"  limbo_access="1">

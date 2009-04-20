@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_listing.xml,v 1.1.1.1 2008/07/04 05:19:54 hnguyen Exp $
+* $Id: lang_screen_listing.xml,v 1.2 2009/04/20 03:42:10 bpearson Exp $
 *
 */
 -->
@@ -105,8 +105,7 @@
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
-			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard or custom grouping list formats..
-			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
+			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard or custom grouping list formats..&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).&lt;br /&gt;Keywords can be used to dynamically set the number of items on the page.</note>
 		</field>
 		<field attribute="prev_page_text">
 			<display_name>Previous Link</display_name>

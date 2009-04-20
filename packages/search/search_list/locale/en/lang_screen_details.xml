@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.6 2009/04/20 03:42:24 bpearson Exp $
 *
 */
 -->
@@ -75,8 +75,7 @@
 	<section name="Sorting">
 		<field attribute="num_per_page">
 			<display_name>Words Per Page</display_name>
-			<note>Set to '0' (zero) to list all search terms on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.
-			&lt;br/&gt;If the listing type is Random, this defines how many search terms are randomly displayed ('0' displays a single search term).</note>
+			<note>Set to '0' (zero) to list all search terms on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.&lt;br/&gt;If the listing type is Random, this defines how many search terms are randomly displayed ('0' displays a single search term).&lt;br/&gt;Keywords can be used to dynamically set the number of items on the page.</note>
 		</field>
 	</section>
 </contents>

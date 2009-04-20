@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.25 2008/11/11 22:09:25 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.26 2009/04/20 03:41:44 bpearson Exp $
 *
 */
 -->
@@ -99,7 +99,7 @@
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
-			<int width="5" />
+			<text width="30" />
 		</field>
 		<field attribute="prev_page_text">
 			<text width="30" />

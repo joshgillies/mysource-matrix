@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2008/11/25 05:03:14 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2009/04/20 03:42:24 bpearson Exp $
 *
 */
 -->
@@ -56,7 +56,7 @@
 	</section>
 	<section name="Sorting" write_access="write:attributes">
 		<field attribute="num_per_page">
-			<int width="5" />
+			<text width="30" />
 		</field>
 	</section>
 	<section name="Customise Bodycopies" write_access="write:links">
