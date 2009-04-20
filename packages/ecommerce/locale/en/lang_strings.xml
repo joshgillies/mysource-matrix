@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2008/11/25 00:48:05 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.5 2009/04/20 09:40:28 ata Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -42,4 +42,8 @@
 
 	<!-- Ecommerce Order History Orders To Review Messages -->
 	<string source="ecom_order_history_review_insufficient_quantities">[Review Order] Insufficient product quantities but processed by Payment Gateway</string>
+	
+	<!-- Paypal Strings -->
+	<string source="paypal_configuration_encryption_lib_no_required_class">The Paypal Encryption Library file does not have the required class</string>
+	<string source="paypal_configuration_encryption_lib_no_required_method">The Paypal Encryption class PPCrypto does not contain the required method</string>
 </strings>
