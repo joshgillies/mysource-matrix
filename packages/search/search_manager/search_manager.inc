@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.196 2009/04/09 06:57:46 akarelia Exp $
+* $Id: search_manager.inc,v 1.197 2009/04/21 07:54:55 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.196 $
+* @version $Revision: 1.197 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2570,6 +2570,7 @@ class Search_Manager extends Asset
 
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
 		if ($user_restrictions) {
 			$no_roles = ((isset($search_info['no_roles_check']) && $search_info['no_roles_check'] == 1) || (SQ_CONF_ENABLE_ROLES_SYSTEM == '0')) ? TRUE : FALSE;
 			$no_group_access_check = (isset($search_info['no_group_access_check']) && $search_info['no_group_access_check'] == 1) ? TRUE : FALSE;
@@ -2597,6 +2598,8 @@ class Search_Manager extends Asset
 			}
 
 			$userids[] = $public_user->id;
+
+
 
 			$userids = array_unique($userids);
 
@@ -2714,26 +2717,24 @@ class Search_Manager extends Asset
 		 * No need to include this if we're not checking permissions.
 		*/
 		if (!empty($permission_check_query['where'])) {
-			if (DAL::getDbType() == 'oci')	{
-				if (!empty($subquery['where'])) {
-					$subquery_string .= ' AND ';
-				} else {
-					$subquery_string .= ' WHERE ';
-				}
-				$subquery_string .= ' a.assetid IN (';
+			if (!empty($subquery['where'])) {
+				$subquery_string .= ' AND ';
 			} else {
-				 $subquery_string .= ' INTERSECT ';
+				$subquery_string .= ' WHERE ';
 			}
+			$subquery_string .= ' a.assetid IN (';
 			$subquery_string .= 'SELECT ' . implode(',', $permission_check_query['select']) . ' FROM ' . implode(',', $permission_check_query['from']) . ' ' . implode(' ', $permission_check_query['join']);
 			$subquery_string .= ' WHERE ' . implode(' ' . $permission_check_query['where_joiner'] . ' ', $permission_check_query['where']);
 			$subquery_string .= ' GROUP BY ' . implode(',', $permission_check_query['select']);
 			$subquery_string .= ' HAVING MIN(p.granted) <> \'0\'';
-			if (DAL::getDbType() == 'oci')	{
-				$subquery_string .= ')';
-			}
+			$subquery_string .= ')';
 		}
 
-		$query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
+		$subquery_string = '(' . $subquery_string . ') asset_check';
+		$query['from'][] = $subquery_string;
+		$query['where'][] = 'ai.assetid=asset_check.assetid';
+
+		# $query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
 
 		return $query;
 
