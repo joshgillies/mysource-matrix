@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.188.4.1 2009/04/20 07:23:51 akarelia Exp $
+* $Id: metadata_manager.inc,v 1.188.4.2 2009/04/21 01:53:06 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.188.4.1 $
+* @version $Revision: 1.188.4.2 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -765,10 +765,10 @@ class Metadata_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = DAL::getDb();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$flag_match_found = FALSE;
 
 		// Make sure all the fields exist and are editable
 		foreach (array_keys($metadata) as $fieldid) {
+			$flag_match_found = FALSE;
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
 			if (is_null($field) || !$field->attr('editable')) {
 				unset($metadata[$fieldid]);
