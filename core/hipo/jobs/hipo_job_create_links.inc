@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.63.2.2 2009/04/07 03:50:02 akarelia Exp $
+* $Id: hipo_job_create_links.inc,v 1.63.2.3 2009/04/21 06:12:49 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.63.2.2 $
+* @version $Revision: 1.63.2.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -778,7 +778,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 				// At least one real URL exists, so ask if they want to remap URLs
 				$o->openField(translate('hipo_trash_url_remapping_title'), 'new_line');
 				echo '<p>'.translate('hipo_trash_url_remapping_msg').'</p>';
-				asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', FALSE);
+				asset_finder($prefix.'_remap_new_url', NULL, Array(), 'sq_sidenav', isset($_GET['SQ_BACKEND_PAGE'])? FALSE : TRUE);
 				$o->closeField();
 				break;
 			}
