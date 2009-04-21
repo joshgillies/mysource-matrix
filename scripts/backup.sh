@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.21 2009/04/16 07:16:13 csmith Exp $
+#* $Id: backup.sh,v 1.22 2009/04/21 06:00:58 csmith Exp $
 #*
 #*/
 #
@@ -31,8 +31,15 @@ $0 /path/to/matrix /path/to/backup/folder
 
 It defaults to the current dir.
 
+If you want to, you can also name your backup files a particular way.
+If you do this, you *must* specify where to put the file (even if it's the current directory)
+otherwise the backup filename will be mistaken for the backup directory.
+You must also specify the extension(s), eg 'filename.tar.gz' or 'filename.tgz'
+
+$0 /path/to/matrix /path/to/backup/folder filename.tar.gz
+
 You can view progress of the script by using --verbose:
-$0 /path/to/matrix [/path/to/backup/folder] --verbose
+$0 /path/to/matrix [/path/to/backup/folder] [filename] --verbose
 
 You can specify a user to ssh to a remote server and do a backup through.
 This is used for oracle backups since the 'exp' and 'expdb' utilities are server only (not in the oracle client package)
@@ -52,6 +59,7 @@ print_info()
 		echo "$1"
 	fi
 }
+
 print_verbose()
 {
 	if [ "${VERBOSE}" -eq 1 ]; then
@@ -73,13 +81,21 @@ print_error()
 # the file isn't there.
 file_exists()
 {
-	found=`which $1 | cut -d' ' -f1`
-	if [ "x$found" = "xno" ]; then
-		RET=1
-	else
-		RET=0
-	fi
-	return $RET
+	case "${os}" in
+		"SunOS")
+			found=`which $1 | cut -d' ' -f1`
+			if [ "x$found" = "xno" ]; then
+				RET=1
+			else
+				RET=0
+			fi
+			return $RET
+		;;
+		*)
+			found=`which $1`
+			return $?
+		;;
+	esac
 }
 
 # Usage:
@@ -228,9 +244,12 @@ if [ ! -f "${SYSTEM_ROOT}/data/private/conf/main.inc" ]; then
 	exit 1
 fi
 
-backupdir="."
+backupdir=""
 REMOTE_USER=""
 VERBOSE=0
+
+backupfilename_prefix=`basename $SYSTEM_ROOT`
+backupfilename="${backupfilename_prefix}-`date +%Y-%m-%d_%H-%M`-backup.tar.gz"
 
 while true; do
 	case "$1" in
@@ -243,8 +262,10 @@ while true; do
 			REMOTE_USER=`echo $1 | cut -d'=' -f2`
 		;;
 		*)
-			if [ "x$1" != "x" ]; then
+			if [ "x$backupdir" = "x" ]; then
 				backupdir=$1
+			else
+				backupfilename=$1
 			fi
 		;;
 	esac
@@ -254,6 +275,10 @@ while true; do
 
 	shift
 done
+
+if [ "x$backupdir" = "x" ]; then
+	backupdir="."
+fi
 
 if [ ! -d "${backupdir}" ]; then
 	mkdir -p "${backupdir}"
@@ -268,9 +293,6 @@ if [ "$SYSTEM_ROOT" = "." ]; then
 	SYSTEM_ROOT=`pwd`
 fi
 
-BACKUPFILENAME_PREFIX=`basename $SYSTEM_ROOT`
-backupfilename="${BACKUPFILENAME_PREFIX}-`date +%Y-%m-%d_%H-%M`-backup.tar"
-
 CRON_RUN=0
 tty -s
 if [ $? -gt 0 ]; then
@@ -281,18 +303,27 @@ if [ -f "${SYSTEM_ROOT}/.extra_backup_files" ]; then
 	rm -f "${SYSTEM_ROOT}/.extra_backup_files"
 fi
 
-touch "${SYSTEM_ROOT}/.extra_backup_files"
-
 if [ "x${PHP}" != "x" ]; then
 	PHP="${PHP}"
-elif [ `which php-cli 2>/dev/null >/dev/null` ]; then
-	PHP="php-cli"
-elif [ `which php 2>/dev/null >/dev/null` ]; then
-	PHP="php"
 else
+	PHP=""
+	file_exists "php-cli"
+	if [ $? -eq 0 ]; then
+		PHP=`which php-cli`
+	else
+		file_exists "php"
+		if [ $? -eq 0 ]; then
+			PHP=`which php`
+		fi
+	fi
+fi
+
+if [ "x${PHP}" = "x" ]; then
 	print_error "Cannot find the php binary please be sure to install it"
 	exit 1
 fi
+
+touch "${SYSTEM_ROOT}/.extra_backup_files"
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
 matrix_318_php_code="<?php
@@ -591,10 +622,8 @@ cd "${sysroot_dir}/"
 print_verbose "Creating an exclude file .. "
 exclude_file="${sysroot_dir}/tar_exclude_file"
 echo "${sysroot_base}/${backupfilename}" > "${exclude_file}"
-echo "${sysroot_base}/${backupfilename}.gz" >> "${exclude_file}"
 echo "${sysroot_base}/.extra_backup_files" >> "${exclude_file}"
 echo "${backupdir}/${backupfilename}" >> "${exclude_file}"
-echo "${backupdir}/${backupfilename}.gz" >> "${exclude_file}"
 
 for file in `find "${sysroot_base}" -name cache -o -name data -prune -o -type f -name '*-backup.tar*' -print`; do
 	echo "${file}" >> "${exclude_file}"
@@ -640,6 +669,10 @@ if [ "${tar_gzip}" -eq 0 ]; then
 	print_verbose "Gzipping ${backupdir}/${backupfilename} .. "
 
 	gzip -f ${backupdir}/${backupfilename}
+
+	# gzip *always* adds a .gz extension. You can't stop it.
+	backupfilename="${backupfilename}.gz"
+
 	if [ $? -gt 0 ]; then
 		print_verbose ""
 		print_error "*** Unable to gzip tarball ${backupdir}/${backupfilename}."
@@ -649,8 +682,8 @@ if [ "${tar_gzip}" -eq 0 ]; then
 	fi
 else
 	print_verbose "Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
-	"${tar_command}" -czf "${backupdir}/${backupfilename}.gz" -X "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
-	print_verbose "Finished Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}.gz."
+	"${tar_command}" -czf "${backupdir}/${backupfilename}" -X "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
+	print_verbose "Finished Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}."
 fi
 
 print_verbose ""
@@ -682,7 +715,7 @@ fi
 print_verbose "Finishing cleaning up."
 
 print_info ""
-print_info "Your system is backed up to ${backupdir}/${backupfilename}.gz"
+print_info "Your system is backed up to ${backupdir}/${backupfilename}"
 print_info ""
 
 exit 0
