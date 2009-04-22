@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.1 2009/04/20 03:14:08 bpearson Exp $
+* $Id: lang_strings.xml,v 1.311.2.2 2009/04/22 06:17:28 ewang Exp $
 *
 */
 
@@ -1073,6 +1073,7 @@
 	<string source="protocol_not_specified">One of the protocols must be specified</string>
 	<string source="both_protocols_specified">Both of the protocols specified</string>
 	<string source="add_web_path">Add the web path</string>
+	<string source="remove_web_path">Remove the web path</string>
 	<string source="web_path_not_specified">Web Path not specified</string>
 	<string source="triggers_advanced_user_options">Optional items for Advanced users</string>
 	<string source="use_link_value">Use the link value</string>
@@ -2402,6 +2403,13 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_add_web_path_remove_all">Delete all other webpaths</string>
 	<string source="trigger_add_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
 	<string source="trigger_add_web_path_make_lowercase">Make the new webpath in lowercase</string>
+	<string source="trigger_add_web_path_update_children">Update lookups for children</string>
+
+	<!-- Remove Web Path Trigger Actions -->
+	<string source="trigger_remove_web_path_remove_all">Delete all webpaths</string>
+	<string source="trigger_remove_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
+	<string source="trigger_remove_web_path_update_children">Update lookups for children</string>
+
 
 	<!-- Future Status Trigger Actions -->
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
