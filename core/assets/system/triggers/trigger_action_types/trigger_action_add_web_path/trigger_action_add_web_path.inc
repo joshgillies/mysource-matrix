@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_add_web_path.inc,v 1.13 2009/01/14 16:45:15 ata Exp $
+* $Id: trigger_action_add_web_path.inc,v 1.14 2009/04/22 06:22:16 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,6 +40,9 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 	* <PRE>
 	* Array(
 	*       'path' => string // the web path to add
+	*		'remove_all' => 1|0 // remove all other webpath?		
+	*		'make_lowercase' => 1|0 // make webpath lowercase?
+	*		'update_children' => 1|0 update lookups for children?
 	*       );
 	* </PRE>
 	*
@@ -97,6 +100,16 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 			// the greatest level of control over what occurs during things like imports
 
 			// probably need another trigger action to update lookups (run the HIPO job)
+		}
+
+		//update lookups for children
+		if(!empty($settings['update_children'])){
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();	
+			$vars = Array('assetids' => Array($state['asset']->id));
+			$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
+			if (!empty($lookup_errors)) {
+				return FALSE;
+			}
 		}
 
 		return Array(
@@ -165,7 +178,9 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		echo '<br />';
 		check_box($prefix.'[make_lowercase]', '1', array_get_index($settings, 'make_lowercase', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
 		echo '<label for='.$prefix.'[make_lowercase]'.'>'.translate('trigger_add_web_path_make_lowercase').'.</label>';
-		
+		echo '<br />';
+		check_box($prefix.'[update_children]', '1', array_get_index($settings, 'update_children', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+		echo '<label for='.$prefix.'[update_children]'.'>'.translate('trigger_add_web_path_update_children').'.</label>';	
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -192,7 +207,7 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		$settings['path'] = $web_path;
 		$settings['remove_all'] = array_get_index($request_data, 'remove_all', '');
 		$settings['make_lowercase'] = array_get_index($request_data, 'make_lowercase', '');
-		
+		$settings['update_children'] = array_get_index($request_data, 'update_children', '');
 		return FALSE;
 
 	}//end processInterface()
