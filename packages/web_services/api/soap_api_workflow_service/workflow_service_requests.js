@@ -12,7 +12,9 @@ function StartWorkflow(assetid)
 <ns1:StartWorkflow>\
 <AssetID>"+assetid+"</AssetID>\
 </ns1:StartWorkflow>";
+
 	return soapBody;
+
 }//end StartWorkflow
 
 
@@ -25,7 +27,9 @@ function CancelWorkflow(assetid)
 <ns1:CancelWorkflow>\
 <AssetID>"+assetid+"</AssetID>\
 </ns1:CancelWorkflow>";
+
 	return soapBody;
+
 }//end CancelWorkflow
 
 
@@ -38,20 +42,25 @@ function CompleteWorkflow(assetid)
 <ns1:CompleteWorkflow>\
 <AssetID>"+assetid+"</AssetID>\
 </ns1:CompleteWorkflow>";
+
 	return soapBody;
+
 }//end CompleteWorkflow
 
 
 /**
  * This operation will approve an asset in workflow
  */
-function ApproveAssetInWorkflow(assetid)
+function ApproveAssetInWorkflow(assetid, workflow_message)
 {
 	var soapBody	= "\
 <ns1:ApproveAssetInWorkflow>\
 <AssetID>"+assetid+"</AssetID>\
+<WorkflowMessage>"+workflow_message+"</WorkflowMessage>\
 </ns1:ApproveAssetInWorkflow>";
+
 	return soapBody;
+
 }//end ApproveAssetInWorkflow
 
 
@@ -66,5 +75,7 @@ function SetWorkflowSchema(assetid, schemaid, grant)
 <SchemaID>"+schemaid+"</SchemaID>\
 <Grant>"+grant+"</Grant>\
 </ns1:SetWorkflowSchema>";
+
 	return soapBody;
+
 }//end SetWorkflowSchema
