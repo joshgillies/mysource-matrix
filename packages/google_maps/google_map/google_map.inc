@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.15.2.1 2008/12/17 04:04:07 hnguyen Exp $
+* $Id: google_map.inc,v 1.15.2.2 2009/04/22 01:59:24 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.15.2.1 $
+* @version $Revision: 1.15.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -239,7 +239,26 @@ class Google_Map extends Page_Asset_Listing
 		$root_node_id			= $this->attr('root_assetid');
 
 		$res					= $this->getAssetList();
-		$children = $this->convertProxyAssetTypes($children);
+
+        $exclude_assets = $this->attr('exclude_assets');
+
+        // get children of exclude root nodes, add them to the exclude list
+        $exclude_root_nodes = $this->attr('exclude_root_nodes');
+        foreach($exclude_root_nodes as $key => $value) {
+            $exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);
+            $exclude_assets += array_keys($exclude_children);
+        }//end foreach
+
+        if (!empty($exclude_assets)) {
+            foreach ($exclude_assets as $index => $assetid) {
+                if (isset($res[$assetid])) {
+                    unset($res[$assetid]);
+                }//end if
+            }//end foreach
+        }//end if
+
+
+		$res = $this->convertProxyAssetTypes($res);
 		$this->filterAssetList($res);
 
 		$root_nodes				= $this->getRootNodes();
