@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_search_service.inc,v 1.1 2009/04/03 02:29:13 hnguyen Exp $
+* $Id: soap_api_search_service.inc,v 1.2 2009/04/22 01:51:48 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -462,7 +462,7 @@ class Soap_Api_Search_Service extends Soap_Api
     	$attribute_option	= self::getArgType('AttributeSearchOption', 0, 'unbounded');
     	$standard_option	= self::getArgType('StandardSearchOption', 0, 'unbounded');
     	$search_field_type	= self::getArgType('SearchFieldType', 1, 1);
-		$assetType_optional		= self::getArgType('AssetTypeValue', 0, 'unbounbed');
+		$assetType_optional		= self::getArgType('AssetType', 0, 'unbounbed');
 		$asset_type_inhr		= Array (
     								'AssetType'	=> $assetType_optional,
     								'Inherit'	=> self::$string_non_optional,
@@ -527,7 +527,7 @@ class Soap_Api_Search_Service extends Soap_Api
 
 		$simple_restricted_types	= Array (
 										'BasicSearch'	=> Array (
-															'AssetTypeValue'	=> Array (
+															'AssetType'			=> Array (
 																					'restriction_base'	=> 'EnumType',
 																					'enumeration'		=> $asset_types,
 																				   ),
@@ -559,7 +559,7 @@ class Soap_Api_Search_Service extends Soap_Api
 														   													'Metadata', 'Attribute', 'Standard'
 														   												   ),
 														   						   ),
-															'AssetTypeValue'	=> Array (
+															'AssetType'			=> Array (
 																					'restriction_base'	=> 'EnumType',
 																					'enumeration'		=> $asset_types,
 																				   ),
