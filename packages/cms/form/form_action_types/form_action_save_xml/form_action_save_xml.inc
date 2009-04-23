@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.3.2.1 2009/04/07 05:09:20 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.3.2.2 2009/04/23 01:29:34 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -220,7 +220,9 @@ class Form_Action_Save_Xml extends Form_Action
 
 				// Format the reponse
 				$value = $answer['answer'];
-				if (!empty($type) && !empty($value)) {
+
+				// Do not check for an empty value here, as types like an option list use '0' has a valid value
+				if (!empty($type)) {
 					switch ($type) {
 						case 'tickbox_table':
 							$repsonses = Array();
@@ -335,9 +337,9 @@ class Form_Action_Save_Xml extends Form_Action
 				}//end if
 
 				// Compile the XML
-				$response = $sxml->addChild('response', $value);
+				$response = $sxml->addChild('response', utf8_encode($value));
 				if (!empty($question_name)) {
-					$response->addAttribute('name', $question_name);
+					$response->addAttribute('name', utf8_encode($question_name));
 				}//end if
 				if (!empty($type)) {
 					$response->addAttribute('type', $type);
