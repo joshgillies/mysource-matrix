@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.197 2009/04/21 07:54:55 akarelia Exp $
+* $Id: search_manager.inc,v 1.198 2009/04/23 01:09:39 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.197 $
+* @version $Revision: 1.198 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1105,13 +1105,13 @@ class Search_Manager extends Asset
 						} else {
 							if (array_key_exists($asset->type(), $restrictions)) {
 								$flag_match_found = TRUE;
-							}						
+							}
 						}
 					}
 				if (!$flag_match_found) return $index_content;
 				}
 			}
-			
+
 
 			// dont index this fieldid if getMetadataWeighting return false
 			if (FALSE === ($weighting = $this->getMetadataWeighting($asset->id, $fieldid))) {
@@ -2599,8 +2599,6 @@ class Search_Manager extends Asset
 
 			$userids[] = $public_user->id;
 
-
-
 			$userids = array_unique($userids);
 
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
@@ -2730,11 +2728,24 @@ class Search_Manager extends Asset
 			$subquery_string .= ')';
 		}
 
-		$subquery_string = '(' . $subquery_string . ') asset_check';
-		$query['from'][] = $subquery_string;
-		$query['where'][] = 'ai.assetid=asset_check.assetid';
+		/**
+		 * If we're using oracle, then do an IN() query
+		 * We can't use the join trick below because it gives an error
+		 * about "inconsistent datatypes"
+		*/
+		if (DAL::getDbType() == 'oci')  {
+			$query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
+		}
 
-		# $query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
+		/**
+		 * If we're using postgres, do it as a JOIN instead
+		 * it gives much better performance
+		*/
+		if (DAL::getDbType() == 'pgsql')  {
+			$subquery_string = '(' . $subquery_string . ') asset_check';
+			$query['from'][] = $subquery_string;
+			$query['where'][] = 'ai.assetid=asset_check.assetid';
+		}
 
 		return $query;
 
