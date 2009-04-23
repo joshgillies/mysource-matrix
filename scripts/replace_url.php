@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_url.php,v 1.2 2008/03/26 01:18:21 lwright Exp $
+* $Id: replace_url.php,v 1.2.4.1 2009/04/23 22:58:06 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -50,7 +50,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
-$sql = 'SELECT urlid, url FROM sq_ast_url';
+$sql = 'SELECT urlid, url, assetid FROM sq_ast_url';
 $root_urls = MatrixDAL::executeSqlGroupedAssoc($sql);
 ksort($root_urls);
 
@@ -71,7 +71,36 @@ while (!in_array($chosen_url, array_keys($root_urls))) {
 
 $from_url   = $root_urls[$chosen_url][0]['url'];
 $from_urlid = $chosen_url;
+$from_site_assetid = $root_urls[$chosen_url][0]['assetid'];
 $to_url     = get_line('Please enter the url to change to: ');
+
+$root_ok = FALSE;
+while (!$root_ok) {
+	$system_root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
+	$matching_from_roots = Array();
+	$matching_roots = Array();
+
+	// We are matching system root URLs for two reasons:
+	// - Finding URLs that __data paths need to be changed to, and
+	// - Alerting the user that their new URL does not match a system root URL
+	//   (which is a problem and should be stopped before the query runs)
+	foreach ($system_root_urls as $root_url) {
+		if (substr($to_url.'/', 0, strlen($root_url) + 1) == $root_url.'/') {
+			$matching_roots[] = $root_url;
+		}
+
+		if (substr($from_url.'/', 0, strlen($root_url) + 1) == $root_url.'/') {
+			$matching_from_roots[] = $root_url;			
+		}
+	}
+
+	if (empty($matching_roots)) {
+		echo 'The new URL entered, "'.$to_url.'", is not based upon an existing System Root URL.'."\n";
+		$to_url = get_line('Please re-enter the new URL: ');
+	} else {
+		$root_ok = TRUE;
+	}
+}//end while root not OK
 
 $confirm = null;
 while ($confirm != 'y' && $confirm != 'n') {
@@ -82,19 +111,6 @@ while ($confirm != 'y' && $confirm != 'n') {
 		exit();
 	}
 }
-
-// update the root url in the asset url table to the new url
-$sql = 'UPDATE
-			sq_ast_url
-		SET
-			url = :url
-		WHERE
-			urlid = :urlid';
-
-$query = MatrixDAL::preparePdoQuery($sql);
-MatrixDAL::bindValueToPdo($query, 'url',   $to_url);
-MatrixDAL::bindValueToPdo($query, 'urlid', $from_urlid);
-MatrixDAL::execPdoQuery($query);
 
 // update any urls that use this url in the lookup and lookup value tables
 foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
@@ -127,7 +143,90 @@ foreach (Array('sq_ast_lookup_value', 'sq_ast_lookup') as $tablename) {
 	MatrixDAL::bindValueToPdo($query, 'from_url_length',   strlen($from_url));
 	MatrixDAL::bindValueToPdo($query, 'from_urlid',        $from_urlid);
 	MatrixDAL::execPdoQuery($query);
-}
+
+}//end foreach table
+
+
+// update the root url in the asset url table to the new url
+$sql = 'UPDATE
+			sq_ast_url
+		SET
+			url = :url
+		WHERE
+			urlid = :urlid';
+
+$query = MatrixDAL::preparePdoQuery($sql);
+MatrixDAL::bindValueToPdo($query, 'url',   $to_url);
+MatrixDAL::bindValueToPdo($query, 'urlid', $from_urlid);
+MatrixDAL::execPdoQuery($query);
+
+// If there is a static root URL, there is nothing to change for __data URLs.
+// Otherwise, try and update them to the closest root URL we can find
+if (trim(SQ_CONF_STATIC_ROOT_URL) == '') {
+	// First, work out the roots that have changed - if some have not changed
+	// there is no point to be processing them
+	$common_roots = array_intersect($matching_roots, $matching_from_roots);
+	$matching_roots = array_diff($matching_roots, $common_roots);
+	$matching_from_roots = array_diff($matching_from_roots, $common_roots);
+
+	$file_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($from_site_assetid, 'file', FALSE);
+	
+	// Update the roots up to the number that we can update
+	for ($x = 0; $x < min(count($matching_roots), count($matching_from_roots)); $x++) {
+		// Change the lookup values first
+		$sql = 'UPDATE sq_ast_lookup_value SET url = :to_url || SUBSTR(url, :from_url_length + 1) WHERE url IN (SELECT url FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+					 AND url LIKE :from_url || \'/__data/%\')';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
+		MatrixDAL::bindValueToPdo($query, 'from_url', $matching_from_roots[$x]);
+		MatrixDAL::bindValueToPdo($query, 'from_url_length', strlen($matching_from_roots[$x]));
+		MatrixDAL::bindValueToPdo($query, 'to_url', $matching_roots[$x]);
+		MatrixDAL::execPdoQuery($query);
+			
+		$sql = 'UPDATE sq_ast_lookup SET url = :to_url || SUBSTR(url, :from_url_length + 1) WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+					AND url LIKE :from_url || \'/__data/%\'';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
+		MatrixDAL::bindValueToPdo($query, 'from_url', $matching_from_roots[$x]);
+		MatrixDAL::bindValueToPdo($query, 'from_url_length', strlen($matching_from_roots[$x]));
+		MatrixDAL::bindValueToPdo($query, 'to_url', $matching_roots[$x]);
+		MatrixDAL::execPdoQuery($query);
+	}
+
+	// We have new URLs
+	// Going to pass on adding new lookups to this situation, because lookups are usually meant
+	// to be URL-based. How can we tell whether a lookup value is meant to be per-asset or per-URL?
+	for (; $x < count($matching_roots); $x++) {
+		$sql = 'INSERT INTO sq_ast_lookup (url, root_urlid, http, https, assetid) SELECT DISTINCT :to_url || SUBSTR(url, STRPOS(url, \'/__data/\')), 0, http, https, assetid FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))';
+		if (MatrixDAL::getDbType() == 'oci') {
+			// String position function is called INSTR() in Oracle
+			$sql = str_replace('STRPOS(', 'INSTR(', $sql);
+		}
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
+		MatrixDAL::bindValueToPdo($query, 'to_url', $matching_roots[$x]);
+		MatrixDAL::execPdoQuery($query);
+	}//end for - remaining to URLs
+		
+	// More URLs beforehand than what we have now = have to delete the rest
+	for (; $x < count($matching_from_roots); $x++) {
+		// Delete the lookup values first
+		$sql = 'DELETE FROM sq_ast_lookup_value WHERE url IN (SELECT url FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+					 AND url LIKE :from_url || \'/__data/%\')';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
+		MatrixDAL::bindValueToPdo($query, 'from_url', $matching_from_roots[$x]);
+		MatrixDAL::execPdoQuery($query);
+		
+		$sql = 'DELETE FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+					AND url LIKE :from_url || \'/__data/%\'';
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
+		MatrixDAL::bindValueToPdo($query, 'from_url', $matching_from_roots[$x]);
+		MatrixDAL::execPdoQuery($query);
+	}//end for - remaining from URLs
+
+}//end if - no static root set
 
 bam('LOOKUPS CHANGED FROM '.$from_url.' TO '.$to_url);
 
