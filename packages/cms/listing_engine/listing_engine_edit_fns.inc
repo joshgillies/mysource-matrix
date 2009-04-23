@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.93 2009/01/06 23:09:46 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.94 2009/04/23 04:40:15 cupreti Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3424,21 +3424,20 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function paintStatus(&$asset, &$o, $prefix)
-	{
+	{ 	
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('statuses');
-
+    
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 			$statuses = get_constant_values('SQ_STATUS');
-
-			$options = Array();
+    	$options = Array();
 			foreach ($statuses as $constant => $value) {
 				$options[$value] = get_status_description($value);
 			}
-
+      
 			combo_box($prefix.'_statuses', $options, TRUE, $current);
 		} else {
 			if (empty($current)) {
@@ -3470,20 +3469,23 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function processStatus(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
+	{ 		
+    // need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
-
+    
 		$statuses = Array();
+				
 		if (isset($_POST[$prefix.'_statuses'])) {
 			foreach ($_POST[$prefix.'_statuses'] as $status) {
 				$statuses[] = $status;
 			}
+			
 			$statuses = array_unique($statuses);
-		return $asset->setAttrValue('statuses', $statuses);
+			
 		}
-		return FALSE;
-
+		
+    return $asset->setAttrValue('statuses', $statuses);		
+    
 	}//end processStatus()
 
 
