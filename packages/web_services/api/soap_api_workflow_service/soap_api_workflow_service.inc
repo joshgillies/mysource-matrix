@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_workflow_service.inc,v 1.2 2009/04/22 01:50:08 hnguyen Exp $
+* $Id: soap_api_workflow_service.inc,v 1.3 2009/04/24 04:53:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -509,6 +509,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 	function SetWorkflowSchema($request)
 	{
 		$request_info		= (Array) $request;
+
 		$assetid			= array_get_index($request_info, 'AssetID', '');
 		$schemaid			= array_get_index($request_info, 'SchemaID', '');
 		$grant				= self::array_get_index_restricted_value($request_info, 'Grant', '');	// Apply, Deny, Revoke = 1, 0, -1
@@ -537,7 +538,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 															'assetids'			=> Array ( $assetid),
 															'granted'			=> $grant_val,
 															'schemaid'			=> $schemaid,
-															'cascades'			=> $auto_cascade,
+															'cascades'			=> $cascade,
 															'previous_access'	=> NULL,
 															'dependants_only'	=> !($cascade && $auto_cascade) && $has_dependants,
 														),
