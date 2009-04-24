@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.58 2009/03/04 02:38:21 akarelia Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.59 2009/04/24 02:08:15 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -450,10 +450,11 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						if (empty($arbitrary_paint_layout)) {
 							?>$nested_asset->printBody();<?php
 						} else {
+							// The is_null check below is to catch it, in case, we are in simple edit and do not have a frontend asset
 							?>
 							$arbitrary_paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $arbitrary_paint_layout->id ?>);
 							$switched_frontend = FALSE;
-							if ($GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $this->id) {
+							if (!is_null($GLOBALS['SQ_SYSTEM']->frontend_asset) && $GLOBALS['SQ_SYSTEM']->frontend_asset->id !== $nested_asset->id) {
 								$current_frontend_asset =& $GLOBALS['SQ_SYSTEM']->frontend_asset;
 								$GLOBALS['SQ_SYSTEM']->frontend_asset =& $nested_asset;
 								$switched_frontend = TRUE;
