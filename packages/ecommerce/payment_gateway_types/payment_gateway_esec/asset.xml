@@ -12,7 +12,7 @@
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* $Id: asset.xml,v 1.9.4.1 2009/04/24 06:06:46 lwright Exp $
+* $Id: asset.xml,v 1.9.4.2 2009/04/24 07:00:48 lwright Exp $
 *
 */
 -->
@@ -21,8 +21,8 @@
 	<package>ecommerce</package>
 	<type_code>payment_gateway_esec</type_code>
 	<version>0.4</version>
-	<name>SecurePay Payment Gateway</name>
-	<description>Payment Gateway for the SecurePay (formerly eSec) payments system</description>
+	<name>SecurePay eSec Payment Gateway</name>
+	<description>Payment Gateway for SecurePay's eSec payments system</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>payment_gateway</parent_type>
