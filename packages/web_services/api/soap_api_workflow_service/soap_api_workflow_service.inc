@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_workflow_service.inc,v 1.3 2009/04/24 04:53:09 hnguyen Exp $
+* $Id: soap_api_workflow_service.inc,v 1.4 2009/04/24 05:36:21 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -161,7 +161,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 							SQ_STATUS_EDITING				=> SQ_STATUS_LIVE,
 							SQ_STATUS_EDITING_APPROVAL		=> SQ_STATUS_EDITING
 						  );
-		if (isset($next_statuses)) {
+		if (isset($next_statuses[$status])) {
 			return ($next_statuses[$status]);
 		} else {
 			throw new SoapFault('Server', 'There are no status to advance to from status '.$status);
@@ -183,7 +183,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 							SQ_STATUS_LIVE_APPROVAL		=> SQ_STATUS_LIVE,
 							SQ_STATUS_EDITING_APPROVED	=> SQ_STATUS_LIVE,
 						  );
-		if (isset($next_statuses)) {
+		if (isset($next_statuses[$status])) {
 			return ($next_statuses[$status]);
 		} else {
 			throw new SoapFault('Server', 'There are no status to advance to from status '.$status);
@@ -206,7 +206,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 							SQ_STATUS_PENDING_APPROVAL	=> SQ_STATUS_APPROVED,
 							SQ_STATUS_LIVE_APPROVAL		=> SQ_STATUS_LIVE_APPROVAL,
 						  );
-		if (isset($next_statuses)) {
+		if (isset($next_statuses[$status])) {
 			return ($next_statuses[$status]);
 		} else {
 			throw new SoapFault('Server', 'There are no status to advance to from status '.$status);
