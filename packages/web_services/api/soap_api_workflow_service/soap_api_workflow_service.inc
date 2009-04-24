@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_workflow_service.inc,v 1.4 2009/04/24 05:36:21 hnguyen Exp $
+* $Id: soap_api_workflow_service.inc,v 1.5 2009/04/24 06:26:06 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -206,6 +206,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 							SQ_STATUS_PENDING_APPROVAL	=> SQ_STATUS_APPROVED,
 							SQ_STATUS_LIVE_APPROVAL		=> SQ_STATUS_LIVE_APPROVAL,
 						  );
+
 		if (isset($next_statuses[$status])) {
 			return ($next_statuses[$status]);
 		} else {
@@ -305,12 +306,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 				throw new SoapFault('Server', 'There is no workflow schemas applied on this asset');
 			}//end if
 
-			if ($asset_status == SQ_STATUS_PENDING_APPROVAL) {
-				// check whether we should go to pending approval next or pending approved next
-				$new_status	= SQ_STATUS_PENDING_APPROVED;
-			} else {
-				$new_status	= self::getNextStatusCompleteWorkflow($asset_status);
-			}//end else
+			$new_status	= self::getNextStatusCompleteWorkflow($asset_status);
 
 			// We are starting workflow by change the status of the asset
 			$running_vars	= Array (
@@ -403,7 +399,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
 
 			$available_statuses	= $asset->getAvailableStatii();
 			$asset_status	= $asset->status;
-			$step_statuses	= self::getNextStatusApproveAssetInWorkflow($asset_status);
+
 			if (!in_array($asset_status, Array (SQ_STATUS_EDITING, SQ_STATUS_UNDER_CONSTRUCTION, SQ_STATUS_APPROVED, SQ_STATUS_LIVE_APPROVAL, SQ_STATUS_PENDING_APPROVAL, SQ_STATUS_EDITING_APPROVAL))) {
 				throw new SoapFault('Server', 'Can Not Approve Workflow When Asset Is In '.get_status_description($asset_status).' Status');
 			}//end if
