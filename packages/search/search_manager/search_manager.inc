@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.189.2.7 2009/04/08 07:02:27 akarelia Exp $
+* $Id: search_manager.inc,v 1.189.2.8 2009/04/26 23:28:56 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.189.2.7 $
+* @version $Revision: 1.189.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2729,7 +2729,24 @@ class Search_Manager extends Asset
 			$subquery_string .= ')';
 		}
 
-		$query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
+		 /**
+         * If we're using oracle, then do an IN() query
+         * We can't use the join trick below because it gives an error
+         * about "inconsistent datatypes"
+        */
+        if (DAL::getDbType() == 'oci')  {
+            $query['where'][] = 'ai.assetid IN (' . $subquery_string . ')';
+        }
+
+        /**
+         * If we're using postgres, do it as a JOIN instead
+         * it gives much better performance
+        */
+        if (DAL::getDbType() == 'pgsql')  {
+            $subquery_string = '(' . $subquery_string . ') asset_check';
+            $query['from'][] = $subquery_string;
+            $query['where'][] = 'ai.assetid=asset_check.assetid';
+        }
 
 		return $query;
 
