@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.31 2009/02/11 23:20:45 bpearson Exp $
+* $Id: external_tools_config.inc,v 1.32 2009/04/28 00:13:27 mbrydon Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -220,7 +220,7 @@ class External_Tools_Config extends Config
 				echo (SQ_TOOL_MARKDOWNIFY_ENABLED) ? translate('yes') : translate('no');
 			}
 			
-			$o->openField('Enable MP3 ID3 Extraction');
+			$o->openField(translate('enable_getid3_extraction'));
 			if ($write_access && $is_root) {
 				combo_box($class.'[SQ_TOOL_GETID3_ENABLED]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_GETID3_ENABLED);
 			} else {
@@ -367,9 +367,9 @@ class External_Tools_Config extends Config
 			
 		$o->closeSection();
 		
-		$o->openSection('MP3 ID3 Extraction');
+		$o->openSection(translate('getid3_extraction'));
 
-			$o->openField('Path to getID3');
+			$o->openField(translate('path_to_getid3'));
 			if ($write_access) {
 				text_box($class.'[SQ_TOOL_GETID3_PATH]', SQ_TOOL_GETID3_PATH, 60);
 			} else {
