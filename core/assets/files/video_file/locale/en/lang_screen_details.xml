@@ -1,0 +1,73 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_details.xml,v 1.1.4.2 2009/04/28 06:37:04 mbrydon Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Video Metadata">
+		<field>
+			<function_call>
+				<paint_function   name="paintExtractID3"   />
+				<process_function name="processExtractID3" />
+			</function_call>
+			<display_name>Extract Video Metadata ?</display_name>
+			<note>If this option is checked, Video metadata will be re-extracted from the current file and applied to the asset, where such metadata exists. This will replace any data previously entered.</note>
+		</field>
+		<field attribute="file_format">
+			<display_name>File Format</display_name>
+			<note />
+		</field>
+		<field attribute="audio_codec">
+			<display_name>Audio Codec</display_name>
+			<note />
+		</field>
+		<field attribute="channels">
+			<display_name>Channels</display_name>
+			<note />
+		</field>
+		<field attribute="channel_mode">
+			<display_name>Channel Mode</display_name>
+			<note />
+		</field>
+		<field attribute="bitrate">
+			<display_name>Bitrate (kbps)</display_name>
+			<note />
+		</field>
+		<field attribute="sample_rate">
+			<display_name>Sample Rate (Hz)</display_name>
+			<note />
+		</field>
+		<field attribute="video_codec">
+			<display_name>Video Codec</display_name>
+			<note />
+		</field>
+		<field attribute="width">
+			<display_name>Video Width</display_name>
+			<note />
+		</field>
+		<field attribute="height">
+			<display_name>Video Height</display_name>
+			<note />
+		</field>
+		<field attribute="fps">
+			<display_name>Frames Per Second</display_name>
+			<note />
+		</field>
+		<field attribute="length">
+			<display_name>Duration of track</display_name>
+			<note />
+		</field>
+	</section>
+</contents>
