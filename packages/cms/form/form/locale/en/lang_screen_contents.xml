@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.16 2009/03/16 05:59:23 mbrydon Exp $
+* $Id: lang_screen_contents.xml,v 1.16.2.1 2009/04/28 23:55:55 cupreti Exp $
 *
 */
 -->
@@ -75,7 +75,7 @@
 		</field>
 		<field attribute="reset_button">
 			<display_name>Reset Button Text</display_name>
-			<note>If no custom text is entered here, &quot;Clear Form&quot; will be used.</note>
+			<note>If no custom text is entered here, &quot;Reset&quot; will be used.</note>
 		</field>
 		<field attribute="note_size">
 			<display_name>Note Text Size</display_name>
