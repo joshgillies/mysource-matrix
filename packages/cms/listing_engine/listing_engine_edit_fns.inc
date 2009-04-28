@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.97 2009/04/26 23:05:56 akarelia Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.98 2009/04/28 02:59:37 cupreti Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3439,6 +3439,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			}
       
 			combo_box($prefix.'_statuses', $options, TRUE, $current);
+			hidden_field($prefix.'_statuses_submitted', '1');
 		} else {
 			if (empty($current)) {
 				echo translate('cms_listing_no_status_selected');
@@ -3469,22 +3470,25 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 	* @access public
 	*/
 	function processStatus(&$asset, &$o, $prefix)
-	{ 		
-    // need to have write access to make any changes
+	{	
+		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return FALSE;
-    
+    	
+		// must make sure if the form 'statuses to list' was actually submitted
+		if (!isset($_POST[$prefix.'_statuses_submitted'])) return FALSE;
+
 		$statuses = Array();
-				
+
+		
 		if (isset($_POST[$prefix.'_statuses'])) {
 			foreach ($_POST[$prefix.'_statuses'] as $status) {
 				$statuses[] = $status;
 			}
 			
 			$statuses = array_unique($statuses);
-			return $asset->setAttrValue('statuses', $statuses);
-		}		
-		
-    return FALSE;
+		}
+
+		return $asset->setAttrValue('statuses', $statuses);
     
 	}//end processStatus()
 
