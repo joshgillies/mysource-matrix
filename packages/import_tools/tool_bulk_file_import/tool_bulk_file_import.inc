@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.11 2009/01/05 09:55:54 lwright Exp $
+* $Id: tool_bulk_file_import.inc,v 1.12 2009/04/28 00:15:13 mbrydon Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -204,6 +204,7 @@ class Tool_Bulk_File_Import extends Tool
 									this.ppt_exts = Array('ppt', 'pps', 'pot', 'pptx', 'ppsx', 'potx', 'pptm', 'potm', 'ppsm');
 									this.css_exts = Array('css');
 									this.mp3_exts = Array('mp3');
+									this.video_exts = Array('mov', 'avi', 'wmv', 'asf', 'flv', 'mp4', 'm4v', 'mpg', 'mpeg');
 
 									// Create the initial table for local imiport
 									this.init = function()
@@ -439,6 +440,8 @@ class Tool_Bulk_File_Import extends Tool
 											td_2.innerHTML = 'JS<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_js" id="bulk_file_upload_row_' + id + '_file_type_js" \>';
 										} else if (this._isFileTypeIn(this.mp3_exts, ext)) {
 											td_2.innerHTML = 'MP3<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_mp3" id="bulk_file_upload_row_' + id + '_file_type_mp3" \>';
+										} else if (this._isFileTypeIn(this.video_exts, ext)) {
+											td_2.innerHTML = 'Video<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_video" id="bulk_file_upload_row_' + id + '_file_type_video" \>';
 										} else {
 											td_2.innerHTML = 'Others<input type="hidden" value="1" name="bulk_file_upload_row_' + id + '_file_type_others" id="bulk_file_upload_row_' + id + '_file_type_others" \>';
 										}
@@ -478,7 +481,7 @@ class Tool_Bulk_File_Import extends Tool
 									// It also returns 'none' if the file has been chosen
 									this._currentFileType = function(id)
 									{
-										types = Array('image', 'pdf', 'word', 'powerpoint', 'excel', 'rtf', 'text', 'js' , 'css', 'mp3', 'others');
+										types = Array('image', 'pdf', 'word', 'powerpoint', 'excel', 'rtf', 'text', 'js' , 'css', 'mp3', 'video', 'others');
 										for (i = 0; i < types.length; i++) {
 											radio_button = document.getElementById('bulk_file_upload_row_' + id + '_file_type_' + types[i]);
 											if (radio_button != null) {
@@ -617,7 +620,7 @@ class Tool_Bulk_File_Import extends Tool
 			if (!empty($local_import_rootid) && !empty($_FILES)) {
 
 				$error = FALSE;
-				$file_types = Array('image', 'pdf', 'word','powerpoint', 'excel', 'rtf', 'text', 'js' , 'css', 'mp3', 'others');
+				$file_types = Array('image', 'pdf', 'word','powerpoint', 'excel', 'rtf', 'text', 'js' , 'css', 'mp3', 'video', 'others');
 				$uploaded_files = Array();
 				$tmp_dir_name = $type_code.'__tmp_file_upload__';
 
