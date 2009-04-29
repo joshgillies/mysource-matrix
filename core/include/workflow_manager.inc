@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.135.2.2 2009/04/17 01:37:13 ewang Exp $
+* $Id: workflow_manager.inc,v 1.135.2.3 2009/04/29 06:43:50 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135.2.2 $
+* @version $Revision: 1.135.2.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1022,6 +1022,7 @@ class Workflow_Manager extends MySource_Object
 		$log = $ms->newMessage();
 		$msg_reps = Array(
 						'user_name'		=> $user->name,
+						'workflow_user'	=> $user->name,
 						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'	=> $asset->name,
 						'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
@@ -1099,6 +1100,7 @@ class Workflow_Manager extends MySource_Object
 
 					$msg_reps = Array(
 									'user_name'				=> $user->name,
+									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'			=> $asset->name,
 									'previous_step_id'		=> implode('.', $steps_before[$schemaid]),
@@ -1455,12 +1457,13 @@ class Workflow_Manager extends MySource_Object
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 	
 					$msg_reps = Array(
-									'user_name'		=> $user->name,
-									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
-									'asset_name'	=> $asset->name,
-									'workflow_url'	=> current_url().$workflow_backend_href,
-									'accept_url'	=> current_url().$accept_url,
-									'reject_url'	=> current_url().$reject_url,
+									'user_name'				=> $user->name,
+									'workflow_user'			=> $user->name,
+									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
+									'asset_name'			=> $asset->name,
+									'workflow_url'			=> current_url().$workflow_backend_href,
+									'accept_url'			=> current_url().$accept_url,
+									'reject_url'			=> current_url().$reject_url,
 									'previous_step_id'		=> '',
 									'previous_step_name'	=> '',
 									'current_step_id'		=> implode('.', $schema_workflow['current_step']),
@@ -1628,6 +1631,7 @@ class Workflow_Manager extends MySource_Object
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
+									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 									'asset_name'	=> $asset->name,
 									'workflow_url'	=> current_url().$asset->getBackendHref('workflow', FALSE),
@@ -1908,6 +1912,7 @@ class Workflow_Manager extends MySource_Object
 
 		$msg_reps = Array(
 						'user_name'				=> $user->name,
+						'workflow_user'			=> $user->name,
 						'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'			=> $asset->name,
 						'workflow_url'			=> current_url().$asset->getBackendHref('workflow', FALSE),
@@ -1957,6 +1962,7 @@ class Workflow_Manager extends MySource_Object
 
 			$msg_reps = Array(
 							'user_name'				=> $user->name,
+							'workflow_user'			=> $user->name,
 							'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 							'asset_name'			=> $asset->name,
 							'previous_step_id'		=> implode('.',$step_before_id),
