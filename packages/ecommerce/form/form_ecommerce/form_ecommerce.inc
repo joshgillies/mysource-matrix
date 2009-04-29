@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.45 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: form_ecommerce.inc,v 1.45.2.1 2009/04/29 03:52:33 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -953,20 +953,26 @@ class Form_Ecommerce extends Form_Email
 
 			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'orders_folder', 'is_dependant' => 0, 'is_exclusive' => 1);
 
-			if (!$folder->create($folder_link)) {
+			// Create order folder
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$success = $folder->create($folder_link);
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			if (!$success) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 
 			// Deny public read access to the order folder by default
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($folder->id, 'permissions')) {
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$success = $GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE, TRUE);
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			if (!$success) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
-			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($folder->id, $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user'), SQ_PERMISSION_READ, 0, TRUE)) {
-				return FALSE;
-			}
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($folder->id, 'permissions');
+		
 
 		} else {
 			// folder already exists, get the reference
