@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.91 2009/04/06 05:05:16 lwright Exp $
+* $Id: internal_message.inc,v 1.92 2009/04/29 07:00:13 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -429,6 +429,7 @@ class Internal_Message extends MySource_Object
 						require_once SQ_FUDGE_PATH.'/general/www.inc';
 						$to_email = trim($user->attr('email'));
 						//reload the $body again, since it might be different from internal message.
+
 						$body = $this->formatBody($user);
 
 						// get the body with a header and a footer attached
