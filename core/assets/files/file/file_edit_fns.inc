@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.91.2.1 2009/02/11 23:16:31 bpearson Exp $
+* $Id: file_edit_fns.inc,v 1.91.2.2 2009/04/29 04:29:40 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91.2.1 $
+* @version $Revision: 1.91.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -251,11 +251,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @param string				$prefix				prefix for form elements
 	* @param array				$info				info about the uploaded file
 	* @param boolean			$redirect_in_limbo	redirect when the file name changes in limbo
+	* @param boolean			$asset_cloned		to check if we creating a new asset or just cloning
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function processFileUpload(File $asset, &$o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE)
+	public function processFileUpload(File $asset, &$o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {
@@ -368,7 +369,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}//end if
 		$asset->_tmp['uploading_file'] = FALSE;
 
-		if (!$asset->saveWebPaths(Array($name))) {
+		// bug fix for # 3625. If we cloning an asset then we need not call saveWebPaths now
+		// hipo_job_clone_asset will call saveWebPaths after it is sure the links have been established
+		if (!$asset_cloned && !$asset->saveWebPaths(Array($name))) {
 			trigger_localised_error('CORE0054', E_USER_WARNING);
 			return FALSE;
 		}//end if
