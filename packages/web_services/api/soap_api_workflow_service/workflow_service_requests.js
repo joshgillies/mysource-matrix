@@ -3,9 +3,20 @@
  * 
  */
 
+
 /**
- * This operation will start the workflow for the asset in query
- */
+* Description: This operation will start the workflow for the asset in query
+*
+* @param string  $request  The request information
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function StartWorkflow(assetid)
 {
 	var soapBody	= "\
@@ -19,8 +30,19 @@ function StartWorkflow(assetid)
 
 
 /**
- * This operation will cancel the current running workflow of an asset
- */
+* Description: This operation will cancel the current running workflow of an asset.
+* If the asset is in LIVE APPROVAL status, it will turn into SAFE EDIT status.
+*
+* @param string  $request  The request information
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function CancelWorkflow(assetid)
 {
 	var soapBody	= "\
@@ -34,8 +56,18 @@ function CancelWorkflow(assetid)
 
 
 /**
- * This operation will complete the current running workflow of an asset
- */
+* Description: This operation will complete the current running workflow of an asset
+*
+* @param array $asset_info the info array to find children of a specific asset
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function CompleteWorkflow(assetid)
 {
 	var soapBody	= "\
@@ -49,8 +81,18 @@ function CompleteWorkflow(assetid)
 
 
 /**
- * This operation will approve an asset in workflow
- */
+* Description: This operation will approve an asset in workflow
+*
+* @param array $asset_info the array contain the asset ID of the asset to be approved
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function ApproveAssetInWorkflow(assetid, workflow_message)
 {
 	var soapBody	= "\
@@ -62,6 +104,31 @@ function ApproveAssetInWorkflow(assetid, workflow_message)
 	return soapBody;
 
 }//end ApproveAssetInWorkflow
+
+
+/**
+* Description: This operation will bring a asset in live status to safe edit status
+*
+* @param array $asset_info the array contain the asset ID of the asset to be put in safe edit
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function SafeEditAsset(assetid)
+{
+	var soapBody	= "\
+<ns1:SafeEditAsset>\
+<AssetID>"+assetid+"</AssetID>\
+</ns1:SafeEditAsset>";
+
+	return soapBody;
+
+}//end SafeEditAsset
 
 
 /**
