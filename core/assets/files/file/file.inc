@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.174 2009/02/16 03:18:59 bpearson Exp $
+* $Id: file.inc,v 1.175 2009/04/29 04:12:36 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.174 $
+* @version $Revision: 1.175 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -243,7 +243,9 @@ class File extends Asset
 		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
 
 		$edit_fns = $clone->getEditFns();
-		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info)) {
+		// fix for bug 3625:
+		// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
+		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info,TRUE, TRUE)) {
 			trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
 			return FALSE;
 		}

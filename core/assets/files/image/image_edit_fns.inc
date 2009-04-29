@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.57 2009/01/22 01:08:44 bpearson Exp $
+* $Id: image_edit_fns.inc,v 1.58 2009/04/29 04:13:38 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,17 +123,19 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	*
-	* @param object	&$asset	the file asset
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for form elements
-	* @param array	$info	info about the uploaded file
+	* @param object		&$asset				the file asset
+	* @param object		&$o					the outputter class
+	* @param string		$prefix				prefix for form elements
+	* @param array		$info	info 		about the uploaded file
+	* @param boolean	$redirect_in_limbo	redirect when the file name changes in limbo
+	* @param boolean	$asset_cloned		to check if we creating a new asset or just cloning
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
+	function processFileUpload(&$asset, &$o, $prefix, $info=Array(),$redirect_in_limbo=TRUE, $asset_cloned=FALSE)
 	{
-		if (!parent::processFileUpload($asset, $o, $prefix, $info)) {
+		if (!parent::processFileUpload($asset, $o, $prefix, $info,$redirect_in_limbo, $asset_cloned)) {
 			return FALSE;
 		}
 
