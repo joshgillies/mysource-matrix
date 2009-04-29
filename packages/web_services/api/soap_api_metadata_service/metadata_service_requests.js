@@ -5,8 +5,20 @@
 
 
 /**
- * This operation will apply or revoke a metadata schema from an asset
- */
+* Description: This operation will apply or revoke a metadata schema from an asset
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'	 	=> [The asset to apply the schema on],
+*		 'SchemaID'		=> [The metadata scheme being applied],
+*		 'Grant'		=> [Apply, Deny, Revoke],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function SetMetadataSchema(assetid, schemaid, grant)
 {
 	var soapBody	= "\
@@ -20,8 +32,18 @@ function SetMetadataSchema(assetid, schemaid, grant)
 
 
 /**
- * This operation will regenerate metadata for all asset which has a metadata schema applied on
- */
+* Description: This operation will regenerate metadata for the specified asset
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'		=> [The asset to regenerate metadata for],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function RegenerateMetadataSchema(schemaid)
 {
 	var soapBody	= "\
@@ -33,8 +55,18 @@ function RegenerateMetadataSchema(schemaid)
 
 
 /**
- * This operation will regenerate metadata for the specified asset
- */
+* Description: This operation will regenerate metadata for the specified asset
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'		=> [The asset to regenerate metadata for],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function RegenerateMetadataAsset(assetid)
 {
 	var soapBody	= "\
@@ -46,8 +78,20 @@ function RegenerateMetadataAsset(assetid)
 
 
 /**
- * This operation will set the value for a metadata field of an asset
- */
+* Description: This operation will set the value for a metadata field of an asset
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'		=> [The asset to regenerate metadata for],
+*		 'FieldID'		=> [The metadata field id],
+*		 'NewValue'		=> [The new value for the field],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function SetAssetMetadata(assetid, field_id, new_value)
 {
 	var soapBody	= "\
@@ -61,8 +105,19 @@ function SetAssetMetadata(assetid, field_id, new_value)
 
 
 /**
- * This operation will set the default value for a metadata field
- */
+* Description: This operation will set the default value for a metadata field
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		 'FieldID'			=> [The metadata field id],
+*		 'NewDefaultValue'	=> [The new default value for the field],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function SetMetadataFieldDefaultValue(field_id, new_default_value)
 {
 	var soapBody	= "\
@@ -75,22 +130,45 @@ function SetMetadataFieldDefaultValue(field_id, new_default_value)
 
 
 /**
- * This operation will return the metadata value for a metadata field of an asset
- */
-function GetMetadataValueByAssetID(assetid, fieldid)
+* Description: This operation will return the metadata value for a metadata field of an asset
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'			=> [The Asset in query],
+*		 'FieldID'			=> [The metadata field ID],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetMetadataValueByIDs(assetid, fieldid)
 {
 	var soapBody	= "\
-<ns1:GetMetadataValueByAssetID>\
+<ns1:GetMetadataValueByIDs>\
 <AssetID>"+assetid+"</AssetID>\
 <FieldID>"+fieldid+"</FieldID>\
-</ns1:GetMetadataValueByAssetID>";
+</ns1:GetMetadataValueByIDs>";
+
 	return soapBody;
-}//end GetMetadataValueByAssetID
+
+}//end GetMetadataValueByIDs
 
 
 /**
- * This operation will return the metadata schemas applied on the asset
- */
+* Description: This operation will return the metadata schemas applied on the asset
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'			=> [The Asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetSchemasOnAsset(assetid)
 {
 	var soapBody	= "\
@@ -102,8 +180,18 @@ function GetSchemasOnAsset(assetid)
 
 
 /**
- * This operation will return the metadata fields which belong to a metadata schema
- */
+* Description: This operation will return the metadata fields ids which belong to a metadata schema
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		 'SchemaID'			=> [The metadata schema in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetMetadataFieldsOfSchema(schemaid)
 {
 	var soapBody	= "\
@@ -115,27 +203,27 @@ function GetMetadataFieldsOfSchema(schemaid)
 
 
 /**
- * This operation will return the metadata fields which belong to a metadata schema
- */
-function GetMetadataFieldsOfSchema(schemaid)
+* Description: This operation will return the values of the field names which belong to an asset
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		'AssetID'			=> [The asset which has the metadata field],
+*		'FieldNames'		=> [The metadata field names],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetMetadataFieldValues(assetid, field_names)
 {
 	var soapBody	= "\
-<ns1:GetMetadataFieldsOfSchema>\
-<SchemaID>"+schemaid+"</SchemaID>\
-</ns1:GetMetadataFieldsOfSchema>";
-	return soapBody;
-}//end GetMetadataFieldsOfSchema
-
-
-/**
- * This operation will return the values of the field names which belong to an asset
- */
-function GetMetadataFieldsOfSchema(assetid)
-{
-	var soapBody	= "\
-<ns1:GetMetadataFieldsOfSchema>\
+<ns1:GetMetadataFieldValues>\
 <AssetID>"+assetid+"</AssetID>\
 <FieldNames>"+field_names+"</FieldNames>\
-</ns1:GetMetadataFieldsOfSchema>";
+</ns1:GetMetadataFieldValues>";
+	
 	return soapBody;
-}//end GetMetadataFieldsOfSchema
+	
+}//end GetMetadataFieldValues
