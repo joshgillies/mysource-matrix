@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.8 2009/04/07 05:59:12 hnguyen Exp $
+* $Id: soap_server.inc,v 1.9 2009/04/29 03:53:04 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -188,7 +188,7 @@ class Soap_Server extends Page
 	*/
 	function service($HTTP_RAW_POST_DATA)
 	{
-		ini_set("soap.wsdl_cache_enabled", "0");	
+		ini_set("soap.wsdl_cache_enabled", "0");
 		require_once dirname(__FILE__).'/soap_server_error_handler.inc';
 
 		// Set error handler
@@ -427,7 +427,13 @@ class Soap_Server extends Page
 		if (!is_null($title)) {
 			$str = '<span style="font-size:12px;font-family:tahoma;font-weight:bold;'.$extra.'">'.$title.'</span>';
 		} else if (!is_null($content)) {
-			$str = '<span style="color:#006699;font-size:12px;font-family:tahoma;font-weight:bold;'.$extra.'">'.$content.'</span>';
+			$ele_notes	= '';
+			if (isset($this->simple_restricted_types[$content])) {
+				$restricted_values	= $this->simple_restricted_types[$content]['enumeration'];
+				sort($restricted_values);
+				$ele_notes	= implode(', ', $restricted_values);
+			}//end if
+			$str = '<span style="color:#006699;font-size:12px;font-family:tahoma;font-weight:bold;'.$extra.'" title="'.$ele_notes.'">'.$content.'</span>';
 		}//end if
 
 		return $str;
@@ -497,8 +503,15 @@ class Soap_Server extends Page
 			$io_type	= (is_array($arg_info)) ? $arg_info['type'] : '';
 			// We have a recursive complex type here
 			if ($io_type !== '' && isset($this->complex_elements[$io_type])) $io_type = '';
+			$ele_notes	= '';
+			if (isset($this->simple_restricted_types[$io_type])) {
+				$restricted_values	= $this->simple_restricted_types[$io_type]['enumeration'];
+				sort($restricted_values);
+
+				$ele_notes	= implode(', ', $restricted_values);
+			}//end if
 			?><div style="padding-left:10px">
-			&lt;<?php echo $key ?>&gt;<?php if (!empty($io_type)) echo $this->_placeholder($io_type);
+			&lt;<?php echo $key ?>&gt;<?php if (!empty($io_type)) echo $this->_placeholder($io_type, $ele_notes);
 
 				// If we have a complex type inside
 				if (!is_array($arg_info)) {
@@ -588,11 +601,11 @@ class Soap_Server extends Page
 	* @return string
 	* @access private
 	*/
-	private function _placeholder($name='')
+	private function _placeholder($name='', $title='')
 	{
 		if (empty($name)) $name=' ';
 
-		$placeholder_tag1 = '<span style="color:#003366;font-weight:bold;font-family:tahoma;font-size:12px;">';
+		$placeholder_tag1 = '<span style="color:#003366;font-weight:bold;font-family:tahoma;font-size:12px;" title="'.$title.'">';
 		$placeholder_tag2 = '</span>';
 
 		return $placeholder_tag1.$name.$placeholder_tag2;
