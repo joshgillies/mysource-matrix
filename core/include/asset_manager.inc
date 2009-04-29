@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711.2.14 2009/04/17 00:01:18 mbrydon Exp $
+* $Id: asset_manager.inc,v 1.711.2.15 2009/04/29 03:53:22 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711.2.14 $
+* @version $Revision: 1.711.2.15 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6554,6 +6554,7 @@ class Asset_Manager extends MySource_Object
 	* @param int		$userid		the id of the user or user_group to add the permission for
 	* @param string		$permission	the permission code you are adding
 	* @param boolean	$granted	whether this permission grants access or not
+	* @param boolean	$cascades	whether this permission cascades to children or not
 	* @param boolean	$force_set	if TRUE, existing permissions will be overridden even if the new permissions are found to conflict with them
 	*
 	* @return boolean
