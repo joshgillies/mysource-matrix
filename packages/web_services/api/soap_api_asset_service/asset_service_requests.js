@@ -3,9 +3,27 @@
  * 
  */
 
+
 /**
- * This operation will create an asset of a specific type under a specific location
- */
+* Description: This operation will create an asset of a specific type under a specific location
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*		 'TypeCode'		=> [type code of new asset],
+*		 'Name'			=> [name for new asset],
+*		 'ParentID'		=> [parentid of the new parent],
+*        'LinkType'		=> [LinkType],
+*        'LinkValue'	=> [link value],
+*        'SortOrder'	=> [link sort order],
+*        'IsDependant'	=> [0|1],
+*        'IsExclusive'	=> [0|1]
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function CreateAsset(parentid, type_code, name, link_type, link_value, sort_order, is_dependant, is_exclusive)
 {
 	var soapBody	= "\
@@ -19,26 +37,50 @@ function CreateAsset(parentid, type_code, name, link_type, link_value, sort_orde
 <IsDependant>"+is_dependant+"</IsDependant>\
 <IsExclusive>"+is_exclusive+"</IsExclusive>\
 </ns1:CreateAsset>";
+	
 	return soapBody;
+	
 }//end CreateAsset
 
 
 /**
- * This operation will return an asset object based on assetid
- */
+* Description: This operation will return an asset object based on assetid
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'		=> [Asset ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetAsset(assetid)
 {
 	var soapBody	= "\
 <ns1:GetAsset>\
 <AssetID>"+assetid+"</AssetID>\
 </ns1:GetAsset>";
+	
 	return soapBody;	
 }//end GetAsset
 
 
 /**
- * This operation will return all URLs associated with an asset
- */
+* Description: This operation will return all URLs associated with an asset
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		 'AssetID'	 => [The asset id we are trying to get url for],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetURLs(assetid)
 {
 	var soapBody	= "\
@@ -50,8 +92,19 @@ function GetURLs(assetid)
 
 
 /**
- * This operation will return an asset object based on a URL
- */
+* Description: This operation will return an asset object based on a URL
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		 'URL'	 => [The URL belongs to the asset being searched for],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetAssetFromURL(url)
 {
 	var soapBody	= "\
@@ -63,8 +116,19 @@ function GetAssetFromURL(url)
 
 
 /**
- * This operation will return all available statuses of an asset based on assetid
- */
+* Description: This operation will return all available statuses of an asset based on assetid
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		 'AssetID'	 => [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetAssetAvailableStatuses(assetid)
 {
 	var soapBody	= "\
@@ -74,9 +138,23 @@ function GetAssetAvailableStatuses(assetid)
 	return soapBody;	
 }//end GetAssetAvailableStatuses()
 
+
 /**
- * This operation will return all available statuses of an asset based on assetid
- */
+* Description: This operation will return set the attribute value of an asset based on assetid and attribute name
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+* 		'AttributeName'		=> [The name of the attribute],
+* 		'AttributeValue'	=> [The new value of the attribute],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function SetAttributeValue(assetid, attribute_name, attribute_value)
 {
 	var soapBody	= "\
@@ -89,30 +167,20 @@ function SetAttributeValue(assetid, attribute_name, attribute_value)
 }//end SetAttributeValue()
 
 
-
-
 /**
- * This operation will create link between two assets
- */
-function CreateLink(majorid, minorid, link_type, link_value, sort_order, is_dependant, is_exclusive)
-{
-	var soapBody	= "\
-<ns1:CreateLink>\	
-<MajorID>"+majorid+"</MajorID>\
-<MinorID>"+minorid+"</MinorID>\
-<LinkType>"+link_type+"</LinkType>\
-<LinkValue>"+link_value+"</LinkValue>\
-<SortOrder>"+sort_order+"</SortOrder>\
-<IsDependant>"+is_dependant+"</IsDependant>\
-<IsExclusive>"+is_exclusive+"</IsExclusive>\
-</ns1:CreateLink>";
-	return soapBody;
-}
-
-
-/**
- * This operation will send an asset to the trash
- */
+* Description: This operation will send an asset to the trash
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function TrashAsset(assetid)
 {
 	var soapBody	= "\
@@ -124,8 +192,22 @@ function TrashAsset(assetid)
 
 
 /**
- * This operation will clone an asset to a specified location
- */
+* Description: This operation will clone an asset to a specified location
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*		'NumberOfClone'		=> [How many new clone assets]
+*		'NewParentID'		=> [The new parent]
+*		'NumberOfClone'		=> [Number of asset to be cloned],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function CloneAsset(assetid, parentid, new_parentid, num_clone)
 {
 	var soapBody	= "\
@@ -139,9 +221,22 @@ function CloneAsset(assetid, parentid, new_parentid, num_clone)
 	
 }//end CloneAsset
 
+
 /**
- * This operation will return all attributes belong to an asset type
- */
+* Description: This operation will return all attributes belong to an asset type
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'TypeCode'	 		=> [The ID of the asset in query],
+*		'AttributeDetail'	=> [The Details of the attribute],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetAssetTypeAttribute(type_code, details)
 {
 	var soapBody	= "\
@@ -154,8 +249,19 @@ function GetAssetTypeAttribute(type_code, details)
 
 
 /**
- * This operation will return all webpaths belong to an asset type
- */
+* Description: This operation will return all webpaths belong to an asset type
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetAssetWebPaths(assetid)
 {
 	var soapBody	= "\
@@ -167,8 +273,19 @@ function GetAssetWebPaths(assetid)
 
 
 /**
- * This operation will return all available keywords of an asset
- */
+* Description: This operation will return all available keywords of an asset
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function GetAvailableKeywords(assetid)
 {
 	var soapBody	= "\
@@ -178,9 +295,23 @@ function GetAvailableKeywords(assetid)
 	return soapBody;
 }//end GetAvailableKeywords()
 
+
 /**
- * This operation will return all attributes belong to an asset type classified by attribute name
- */
+* Description: This operation will return all attributes belong to an asset type classified by attribute name
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetIDs'	 		=> [The ID of the asset in query],
+*		'AttributeName'		=> [The Name of the attribute in query],
+*		'TypeCode'			=> [The Type Code of the asset],
+*        )
+* </pre>
+*
+* @return array
+* @access public
+*/
 function GetAttributeValuesByName(assetids, attribute_name, type_code)
 {
 	var soapBody	= "\
@@ -194,8 +325,23 @@ function GetAttributeValuesByName(assetids, attribute_name, type_code)
 
 
 /**
- * This operation will set tag for an asset
- */
+* Description: This operation will set tag for an asset
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetIDs'	 		=> [The ID of the asset in query],
+*		'ThesaurusID'		=> [The ID of the thesaurus where the tag is from],
+*		'TagName'			=> [The tag name]
+*		'Weight'			=> [Weight of the tag on the asset]
+*		'CascadeTagChange	=> [Cascade the tag to all children]
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
 function SetTag(assetid, thesaurus_id, tag_name, weight, cascade_tag_change)
 {
 	var soapBody	= "\
@@ -211,8 +357,13 @@ function SetTag(assetid, thesaurus_id, tag_name, weight, cascade_tag_change)
 
 
 /**
- * Description: This operation will return all statuses in Matrix
- */
+* Description: This operation will return all statuses of the asset in Matrix
+*
+* @param string  $request  The request information
+*
+* @return void
+* @access public
+*/
 function GetAllStatuses()
 {
 	var soapBody	= "\
