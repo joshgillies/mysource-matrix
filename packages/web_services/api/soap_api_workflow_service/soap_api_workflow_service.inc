@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_workflow_service.inc,v 1.5 2009/04/24 06:26:06 hnguyen Exp $
+* $Id: soap_api_workflow_service.inc,v 1.6 2009/04/29 04:38:01 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -335,6 +335,13 @@ class Soap_Api_Workflow_Service extends Soap_Api
 	/**
 	* Description: This operation will bring a asset in live status to safe edit status
 	*
+	* @param array $asset_info the array contain the asset ID of the asset to be put in safe edit
+    * <pre>
+    * Array (
+	*		'AssetID'	 		=> [The ID of the asset in query],
+    *        )
+    * </pre>
+	*
 	* @return void
 	* @access public
 	*/
@@ -382,6 +389,13 @@ class Soap_Api_Workflow_Service extends Soap_Api
 
 	/**
 	* Description: This operation will approve an asset in workflow
+	*
+	* @param array $asset_info the array contain the asset ID of the asset to be approved
+    * <pre>
+    * Array (
+	*		'AssetID'	 		=> [The ID of the asset in query],
+    *        )
+    * </pre>
 	*
 	* @return void
 	* @access public
