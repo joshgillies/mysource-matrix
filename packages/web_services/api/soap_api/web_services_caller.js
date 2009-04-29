@@ -12,6 +12,12 @@ send(wsdl, soapRequest);
 */
 
 
+/**
+ * This function return the SOAP Envelopve used to encapsulate the SOAP message to be sent to the web services server
+ *
+ * @param soap_server_url	string	the URL of the SOAP Server
+ * @return string
+ */
 function getRequestParts(soap_server_url)
 {
 	var request_parts	= { head: '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="'+soap_server_url+'"><SOAP-ENV:Body>', 
@@ -21,6 +27,13 @@ function getRequestParts(soap_server_url)
 }//end getRequestParts()
 
 
+/**
+ * This function construct the SOAP Request to be sent to the SOAP Server
+ * 
+ * @param body				string	the body of the SOAP request
+ * @param soap_server_url	string	the URL of the SOAP Server
+ * @return string
+ */
 function constructSOAPRequest(body, soap_server_url)
 {
 	var request_parts	= getRequestParts(soap_server_url);
@@ -30,6 +43,11 @@ function constructSOAPRequest(body, soap_server_url)
 }//end constructSOAPRequest()
 
 
+/**
+ * This function construct the XMLHttp Ojbect
+ * 
+ * @return
+ */
 function constructXmlHttpObj()
 {
 	var xmlHttp;
@@ -54,6 +72,13 @@ function constructXmlHttpObj()
 }
 
 
+/**
+ * This function send the SOAP Request to the server to be processed
+ * 
+ * @param location
+ * @param soapRequest
+ * @return
+ */
 function send(location, soapRequest)
 {
 	var xmlHttpObj	= constructXmlHttpObj();
@@ -74,6 +99,13 @@ function send(location, soapRequest)
 }//end send()
 
 
+/**
+ * This function break an array of element down into a XML list of elements
+ * 
+ * @param array_elements array	An Array of elements to be break down into XML
+ * @param element_name	string	The name of the element in XML
+ * @return
+ */
 function multiple_elements_to_string(array_elements, element_name)
 {
 	var result_str	= '';
@@ -84,3 +116,16 @@ function multiple_elements_to_string(array_elements, element_name)
 	return result_str;
 	
 }//end multiple_elements_to_string()
+
+
+/**
+ * This function is used to include other JS library file from different services
+ * 
+ */
+function include_service_lib(service_name, system_root)
+{
+	var file_name	= service_name+'_service_requests.js';
+	var full_path	= system_root+'/__data/asset_types/soap_api_'+service_name+'_service/'+file_name;
+	document.write('<script type="text/javascript" src="'+ full_path + '"></script>'); 
+	
+}//end include_service_lib
