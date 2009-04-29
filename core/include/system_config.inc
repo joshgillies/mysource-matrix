@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.124 2008/12/29 01:13:18 lwright Exp $
+* $Id: system_config.inc,v 1.125 2009/04/29 02:16:46 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -90,12 +90,12 @@ class System_Config extends Config
 						'SQ_CONF_EDITING_TIME'					=> Array('editable' => 0, 'default' => 3600),
 						'SQ_CONF_NUM_DATA_DIRS'					=> Array('editable' => 0, 'default' => 20),
 						'SQ_CONF_FORCE_SECURE_LOGIN_URLS'		=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_WEB_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 16),
-						'SQ_CONF_CRON_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 16),
+						'SQ_CONF_WEB_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 64),
+						'SQ_CONF_CRON_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 64),
 						'SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_CUSTOM_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_ENABLE_ROLES_SYSTEM'		=> Array('editable' => 1, 'default' => TRUE),
-						'SQ_CONF_ENABLE_GLOBAL_ROLES'		=> Array('editable' => 1, 'default' => TRUE),
+						'SQ_CONF_ENABLE_ROLES_SYSTEM'		=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_ENABLE_GLOBAL_ROLES'		=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_TIMEZONE'					=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
 					   );
 
