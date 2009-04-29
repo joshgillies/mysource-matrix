@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.1 2009/04/06 05:06:26 lwright Exp $
+* $Id: lang_screen_messages.xml,v 1.1.4.1 2009/04/29 06:58:18 bpearson Exp $
 *
 */
 -->
@@ -23,7 +23,8 @@
 			<p>Keywords available to this message include:</p>
 			<ul>
 				<li><strong>%asset_name%, %type_code%</strong> - The name and type code of the asset whose workflow has been started.</li>
-				<li><strong>%user_name%</strong> - The name of the user that started the workflow.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that started the workflow.</li>
 				<li><strong>%previous_step_id%, %previous_step_name%</strong> - The step number and name of the previous workflow step. Blank if this is the first step.</li>
 				<li><strong>%current_step_id%, %current_step_name%</strong> - The step number and name of the newly current workflow step.</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
@@ -40,7 +41,8 @@
 			<p>Keywords available to this message include:</p>
 			<ul>
 				<li><strong>%asset_name%, %type_code%</strong> - The ID and name of the affected asset.</li>
-				<li><strong>%user_name%</strong> - The name of the user that approved the changes.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that approved the changes.</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
 			</ul>
 			</p>
@@ -53,7 +55,8 @@
 			<p>Keywords available to this message include:</p>
 			<ul>
 				<li><strong>%asset_name%, %type_code%</strong> - The ID and name of the affected asset.</li>
-				<li><strong>%user_name%</strong> - The name of the user that rejected the changes.</li>
+				<li><strong>%user_name%</strong> - The name of the message recipient</li>
+				<li><strong>%workflow_user%</strong> - The name of the user that rejected the changes.</li>
 				<li><strong>%workflow_url%</strong> - The URL of the Workflow screen of this asset.</li>
 				<li><strong>%preview_url%</strong> - The URL of the Preview screen of this asset (or the Details screen if the Preview screen does not exist)..</li>
 			</ul>
