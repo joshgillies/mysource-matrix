@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.3 2009/04/28 06:42:33 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.311.2.4 2009/04/29 02:03:37 mbrydon Exp $
 *
 */
 
@@ -370,9 +370,9 @@
 	<string source="wysiwyg_style">WYSIWYG Style</string>
 	<string source="wysiwyg_disable_image_resize">WYSIWYG Disable Image Resize</string>
 	<string source="wysiwyg_htmltidy_status_disabled">HTMLTidy is disabled</string>
-	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to validate this content</string>
-	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has validated this content</string>
-	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to validate this content</string>
+	<string source="wysiwyg_htmltidy_status_wait">HTMLTidy has not been used to clean this content</string>
+	<string source="wysiwyg_htmltidy_status_pass">HTMLTidy has cleaned this content</string>
+	<string source="wysiwyg_htmltidy_status_fail">HTMLTidy failed to clean this content</string>
 	<string source="wysiwyg_htmltidy_accessibility_no_warning">No warning for Accessibility check</string>
 	<string source="wysiwyg_pspell_not_installed">Pspell is not installed</string>
 	<string source="wysiwyg_spell_checker_pref_field">Spell Checker Language</string>
