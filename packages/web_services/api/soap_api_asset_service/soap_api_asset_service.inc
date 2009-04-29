@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.1 2009/04/02 23:27:33 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.1.2.1 2009/04/29 05:30:11 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -132,6 +132,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 			return Array (
 					'CreateMessage' => 'Asset was created successfully. Link id #'.$linkid,
 					'NewAssetID'	=> $asset->id,
+					'LinkID'		=> $linkid,
 				   );
 		}//end if
 
@@ -407,7 +408,8 @@ class Soap_Api_Asset_Service extends Soap_Api
     * Array (
 	*		'AssetID'	 		=> [The ID of the asset in query],
 	*		'NumberOfClone'		=> [How many new clone assets]
-	*		'PositionUnderNewParent]=> [explain itself, position as shown on asset map]
+	*		'NewParentID'		=> [The new parent]
+	*		'NumberOfClone'		=> [Number of asset to be cloned],
     *        )
     * </pre>
 	*
@@ -473,7 +475,7 @@ class Soap_Api_Asset_Service extends Soap_Api
     * <pre>
     * Array (
 	*		'TypeCode'	 		=> [The ID of the asset in query],
-	*		'Details'	 		=> [The Details of the attribute],
+	*		'AttributeDetail'	=> [The Details of the attribute],
     *        )
     * </pre>
 	*
@@ -492,39 +494,39 @@ class Soap_Api_Asset_Service extends Soap_Api
 			$final_attribute_results	= Array();
 			foreach ($attribute_details as $attribute_name	=> $attribute_type_info) {
 				$final_attribute_results[$i]['AttributeName']	= $attribute_name;
-				if (isset($attribute_type_info['attrid'])) {					
-					$final_attribute_results[$i]['AttributeID']	= $attribute_type_info['attrid'];	
-				}//end if					
+				if (isset($attribute_type_info['attrid'])) {
+					$final_attribute_results[$i]['AttributeID']	= $attribute_type_info['attrid'];
+				}//end if
 				if (isset($attribute_type_info['type_code'])) {
-					$final_attribute_results[$i]['AttributeTypeCode']	= $attribute_type_info['type_code'];	
-				}//end if								
+					$final_attribute_results[$i]['AttributeTypeCode']	= $attribute_type_info['type_code'];
+				}//end if
 				if (isset($attribute_type_info['type'])) {
-					$final_attribute_results[$i]['AttributeType']	= $attribute_type_info['type'];	
+					$final_attribute_results[$i]['AttributeType']	= $attribute_type_info['type'];
 				}//end if
 				if (isset($attribute_type_info['owning_type_code'])) {
-					$final_attribute_results[$i]['AttributeOwningTypeCode']	= $attribute_type_info['owning_type_code'];	
+					$final_attribute_results[$i]['AttributeOwningTypeCode']	= $attribute_type_info['owning_type_code'];
 				}//end if
 				if (isset($attribute_type_info['parameters_type_code'])) {
-					$final_attribute_results[$i]['AttributeParametersTypeCode']	= $attribute_type_info['parameters_type_code'];	
-				}//end if											
+					$final_attribute_results[$i]['AttributeParametersTypeCode']	= $attribute_type_info['parameters_type_code'];
+				}//end if
 				if (isset($attribute_type_info['parameters_val'])) {
-					$final_attribute_results[$i]['AttributeParametersValue']	= $attribute_type_info['parameters_val'];	
-				}//end if				
+					$final_attribute_results[$i]['AttributeParametersValue']	= $attribute_type_info['parameters_val'];
+				}//end if
 				if (isset($attribute_type_info['default_type_code'])) {
-					$final_attribute_results[$i]['AttributeDefaultTypeCode']	= $attribute_type_info['default_type_code'];	
-				}//end if	
+					$final_attribute_results[$i]['AttributeDefaultTypeCode']	= $attribute_type_info['default_type_code'];
+				}//end if
 				if (isset($attribute_type_info['default_val'])) {
-					$final_attribute_results[$i]['AttributeDefaultValue']	= $attribute_type_info['default_val'];	
-				}//end if	
+					$final_attribute_results[$i]['AttributeDefaultValue']	= $attribute_type_info['default_val'];
+				}//end if
 				if (isset($attribute_type_info['description'])) {
-					$final_attribute_results[$i]['AttributeDescription']	= $attribute_type_info['description'];	
-				}//end if	
+					$final_attribute_results[$i]['AttributeDescription']	= $attribute_type_info['description'];
+				}//end if
 				if (isset($attribute_type_info['is_admin'])) {
-					$final_attribute_results[$i]['AttributeIsAdmin']	= $attribute_type_info['is_admin'];	
-				}//end if	
+					$final_attribute_results[$i]['AttributeIsAdmin']	= $attribute_type_info['is_admin'];
+				}//end if
 				if (isset($attribute_type_info['uniq'])) {
-					$final_attribute_results[$i]['AttributeUnique']	= $attribute_type_info['uniq'];	
-				}//end if														
+					$final_attribute_results[$i]['AttributeUnique']	= $attribute_type_info['uniq'];
+				}//end if
 				$i++;
 			}//end foreach
 
@@ -719,7 +721,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 
 	/**
-	* Description: This operation will return all statuses in Matrix
+	* Description: This operation will return all statuses of the asset in Matrix
 	*
     * @param string  $request  The request information
     *
