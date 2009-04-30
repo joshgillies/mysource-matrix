@@ -10,15 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.8 2008/09/16 22:59:34 ewang Exp $
+* $Id: system_integrity_run_tidy.php,v 1.9 2009/04/30 23:59:48 bpearson Exp $
 *
 */
 
 /**
 * Go through all WYSIWYG content types and re-run HTML Tidy
 *
+* Syntax: system_integrity_run_tidy.php [Matrix_Root] [Root_Assetid]
+*
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -32,6 +34,8 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+$ROOT_PATH = SQ_FUDGE_PATH.'/wysiwyg/';
+require_once SQ_FUDGE_PATH.'/wysiwyg/plugins/html_tidy/html_tidy.inc';
 
 $ROOT_ASSETID = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '1';
 if ($ROOT_ASSETID == 1) {
@@ -85,38 +89,20 @@ foreach ($wysiwygids as $wysiwygid => $type_code_data) {
 	}
 
 	$old_html = $wysiwyg->attr('html');
+	$html = $old_html;
 
-			// If HTML Tidy is enabled, let's rock'n'roll
-		if (SQ_TOOL_HTML_TIDY_ENABLED) {
+	// Start Tidy up
+	$tidy = new HTML_Tidy();
+	$tidy->process($html);
 
-			// tidy the HTML produced using the libtidy for PHP5
-			$tidy = new tidy;
+	if ($tidy->htmltidy_status != 'pass' || !$wysiwyg->setAttrValue('html', $html) || !$wysiwyg->setAttrValue('htmltidy_status', $tidy->htmltidy_status) || !$wysiwyg->setAttrValue('htmltidy_errors', $tidy->htmltidy_errors) || !$wysiwyg->saveAttributes()) {
+		printUpdateStatus('TIDY FAIL');
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
+		unset($tidy);
+		continue;
+	}
 
-			$config = Array (
-						'output-xhtml'      => TRUE,
-						'preserve-entities' => TRUE,
-						'show-body-only'    => TRUE,
-						'wrap'              => FALSE,
-						'word-2000'         => TRUE,
-						'show-warnings'     => FALSE,
-						'show-errors'		=> 0,
-						'force-output'      => TRUE,
-						'quote-marks'       => TRUE,
-					  );
-
-			$tidy->parseString($old_html, $config);
-			$tidy->cleanRepair();
-
-			$new_html = $tidy;
-
-			unset($tidy);
-
-			if (!$wysiwyg->setAttrValue('html', $new_html) || !$wysiwyg->saveAttributes()) {
-				printUpdateStatus('TIDY FAIL');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
-				continue;
-			}
-		}
+	unset($tidy);
 
 	// try to unlock the WYSIWYG
 	if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($wysiwyg->id, 'attributes')) {
