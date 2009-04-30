@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.230.2.4 2009/04/30 03:17:46 cupreti Exp $
+* $Id: search_page.inc,v 1.230.2.5 2009/04/30 03:47:54 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.230.2.4 $
+* @version $Revision: 1.230.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -425,7 +425,7 @@ class Search_Page extends Listing_Engine
 		// only print if submit buttons are printed
 		if (!empty($this->_tmp['prints_submit'])) {
 			?>
-			<fieldset>				
+			<div>				
 			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
 			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
 			<?php
@@ -436,7 +436,7 @@ class Search_Page extends Listing_Engine
 			?>
 			<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
 			<input type="hidden" name="mode" value="" />
-			</fieldset>	
+			</div>	
 			<?php
 			$this->registerFormField('submitted_search_category');
 			$this->registerFormField('mode');
