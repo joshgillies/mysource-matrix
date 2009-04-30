@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.13 2009/04/08 05:39:00 lwright Exp $
+* $Id: form.inc,v 1.207.2.14 2009/04/30 07:09:51 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.13 $
+* @version $Revision: 1.207.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2427,7 +2427,14 @@ class Form extends Asset implements Bridge
 
 		if (!empty($keyword_list)) {
 			foreach ($keyword_list as $keyword) {
-				$replacements[$keyword] = $this->_getThankYouKeywordReplacement($keyword);
+				
+				$lookup_keyword = $keyword;	
+				// If form_info or form_summary, we need to make sure the
+				// HTML version gets printed
+				if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
+					$lookup_keyword = $keyword.'_html';
+				}
+				$replacements[$keyword] = $this->_getThankYouKeywordReplacement($lookup_keyword);
 			}
 		}
 
