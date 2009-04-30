@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.53.2.1 2009/03/16 00:46:39 ewang Exp $
+* $Id: form_section_edit_fns.inc,v 1.53.2.2 2009/04/30 05:36:29 bpearson Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.1 $
+* @version $Revision: 1.53.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -568,6 +568,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateContentFile(&$asset)
 	{
+		$output = '';
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
 		if(isset($form_link['majorid'])){
 			$output = '<'.'?php if(!isset($form_asset)) $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$form_link['majorid'].'); ?'.'>'."\n";
@@ -623,7 +624,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		// Do we have any questions of our own?
 		$sort_order = $asset->attr('sort_order');
 		$output = '';
-		
+
 		if (!empty($sort_order)) {
 
 			$asset_name = $asset->attr('name');
