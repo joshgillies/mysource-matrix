@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.234 2009/04/20 03:42:24 bpearson Exp $
+* $Id: search_page.inc,v 1.235 2009/04/30 03:55:15 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.234 $
+* @version $Revision: 1.235 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -425,6 +425,7 @@ class Search_Page extends Listing_Engine
 		// only print if submit buttons are printed
 		if (!empty($this->_tmp['prints_submit'])) {
 			?>
+			<div>
 			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
 			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
 			<?php
@@ -435,6 +436,7 @@ class Search_Page extends Listing_Engine
 			?>
 			<input type="hidden" name="submitted_search_category" value="<?php echo $submitted_category; ?>" />
 			<input type="hidden" name="mode" value="" />
+			</div>
 			<?php
 			$this->registerFormField('submitted_search_category');
 			$this->registerFormField('mode');
@@ -2797,7 +2799,7 @@ class Search_Page extends Listing_Engine
 	* @access private
 	*/
 	function populateBaseSearchInfo()
-	{
+	{ 	
 		$prefix = $this->getPrefix();
 
 		// first, see if a category has been supplied
@@ -2855,7 +2857,7 @@ class Search_Page extends Listing_Engine
 		$search_info['search_as_public_user'] = $this->attr('search_as_public_user');
 		$search_info['no_roles_check'] = $this->attr('no_roles_check');
 		$search_info['no_group_access_check'] = $this->attr('no_group_access_check');
-
+    $search_info=null;
 		return $search_info;
 
 	}//end populateBaseSearchInfo()
