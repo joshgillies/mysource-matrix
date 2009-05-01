@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.14 2009/04/30 07:09:51 ewang Exp $
+* $Id: form.inc,v 1.207.2.15 2009/05/01 01:21:37 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.14 $
+* @version $Revision: 1.207.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3215,15 +3215,20 @@ class Form extends Asset implements Bridge
 		}
 
 		if ($ok) {
-			// deny public read access by default - but may need to force it
+			// deny public read and write access by default - but may need to force it
 			// because usually setting permissions requires admin access
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+			
 			if (!$am->setPermission($folder->id, $public_userid, SQ_PERMISSION_WRITE, 0, TRUE, TRUE)) {
-				// couldn't deny it - we can't just return the
+				// couldn't deny it - we can't just return the folder with write permission to a public user
 				$ok = FALSE;
 			}
+
+			if (!$am->setPermission($folder->id, $public_userid, SQ_PERMISSION_READ, 0, TRUE, TRUE)) {
+				$ok = FALSE;
+        	}
 
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
