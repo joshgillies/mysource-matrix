@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_workflow_service.inc,v 1.6 2009/04/29 04:38:01 hnguyen Exp $
+* $Id: soap_api_workflow_service.inc,v 1.7 2009/05/01 05:40:41 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -57,7 +57,7 @@ class Soap_Api_Workflow_Service extends Soap_Api
         return Array(
 				'StartWorkflow'				=> '1',
 				'SafeEditAsset'				=> '1',
-				'CancelWorkflow'				=> '1',
+				'CancelWorkflow'			=> '1',
 				'CompleteWorkflow'			=> '1',
 				'SetWorkflowSchema'			=> '1',
 				'ApproveAssetInWorkflow'	=> '1',

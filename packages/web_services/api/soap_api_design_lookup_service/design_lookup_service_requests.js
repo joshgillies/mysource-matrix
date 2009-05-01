@@ -30,9 +30,9 @@ function ApplyDesign(designid, assetid, design_type, user_defined_design_name)
 <DesignType>"+design_type+"</DesignType>\
 <UserDefinedDesignName>"+user_defined_design_name+"</UserDefinedDesignName>\
 </ns1:ApplyDesign>";
-	
+
 	return soapBody;
-	
+
 }//end ApplyDesign
 
 
@@ -62,7 +62,7 @@ function RemoveDesign(designid, assetid, design_type, user_defined_design_name)
 <DesignType>"+design_type+"</DesignType>\
 <UserDefinedDesignName>"+user_defined_design_name+"</UserDefinedDesignName>\
 </ns1:RemoveDesign>";
-	
+
 	return soapBody;
 
 }//end RemoveDesign
@@ -91,7 +91,7 @@ function GetDesignFromURL(url, design_type, user_defined_design_name)
 <DesignType>"+design_type+"</DesignType>\
 <UserDefinedDesignName>"+user_defined_design_name+"</UserDefinedDesignName>\
 </ns1:GetDesignFromURL>";
-	
+
 	return soapBody;
 
 }//end GetDesignFromURL
@@ -120,7 +120,7 @@ function ApplyAssetPaintLayout(paint_layout_id, assetid, paint_layout_type)
 <AssetID>"+assetid+"</AssetID>\
 <PaintLayoutType>"+paint_layout_type+"</PaintLayoutType>\
 </ns1:ApplyAssetPaintLayout>";
-	
+
 	return soapBody;
 
 }//end ApplyAssetPaintLayout
@@ -149,7 +149,7 @@ function RemoveAssetPaintLayout(paint_layout_id, assetid, paint_layout_type)
 <AssetID>"+assetid+"</AssetID>\
 <PaintLayoutType>"+paint_layout_type+"</PaintLayoutType>\
 </ns1:RemoveAssetPaintLayout>";
-	
+
 	return soapBody;
 
 }//end RemoveAssetPaintLayout

@@ -23,9 +23,9 @@ function DeleteLink(linkid)
 <ns1:DeleteAssetLink>\
 <LinkID>"+linkid+"</LinkID>\
 </ns1:DeleteAssetLink>";
-	
+
 	return soapBody;
-	
+
 }//end DeleteLink
 
 
@@ -52,9 +52,9 @@ function GetAllChildLinks(assetid, link_type)
 <AssetID>"+assetid+"</AssetID>\
 <LinkType>"+link_type+"</LinkType>\
 </ns1:GetAllChildLinks>";
-	
+
 	return soapBody;
-	
+
 }//end GetAllChildLinks
 
 
@@ -81,9 +81,9 @@ function GetDependantChildren(assetid, type_code, strict_type_code)
 <TypeCode>"+type_code+"</TypeCode>\
 <StrictTypeCode>"+strict_type_code+"</StrictTypeCode>\
 </ns1:GetDependantChildren>";
-	
+
 	return soapBody;
-	
+
 }//end GetDependantChildren
 
 
@@ -112,9 +112,9 @@ function GetDependantParents(assetid, type_code, strict_type_code, include_all_d
 <StrictTypeCode>"+strict_type_code+"</StrictTypeCode>\
 <IncludeAllDependants>"+include_all_dependants+"</IncludeAllDependants>\
 </ns1:GetDependantParents>";
-	
+
 	return soapBody;
-	
+
 }//end GetDependantParents
 
 
@@ -157,9 +157,9 @@ function GetLinks(assetid, link_type, type_code, strict_type_code, side_of_link,
 <PermissionLevel>"+link_value+"</PermissionLevel>\
 <Effective>"+effective+"</Effective>\
 </ns1:GetLinks>";
-	
+
 	return soapBody;
-	
+
 }//end GetLinks
 
 
@@ -188,9 +188,9 @@ function MoveLink(assetid, link_type, to_parent_id, to_parent_position)
 <ToParentID>"+to_parent_id+"</ToParentID>\
 <ToParentPosition>"+to_parent_position+"</ToParentPosition>\
 </ns1:MoveLink>";
-	
+
 	return soapBody;
-	
+
 }//end MoveLink
 
 
@@ -219,9 +219,9 @@ function UpdateLink(linkid, link_type, link_value, sort_order)
 <LinkValue>"+link_value+"</LinkValue>\
 <SortOrder>"+sort_order+"</SortOrder>\
 </ns1:UpdateLink>";
-	
+
 	return soapBody;
-	
+
 }//end UpdateLink
 
 
@@ -264,9 +264,9 @@ function GetChildren(assetid, type_code, strict_type_code, dependant, sort_by, p
 <DirectShadowsOnly>"+direct_shadow_only+"</DirectShadowsOnly>\
 <LinkValueWanted>"+link_value_wanted+"</LinkValueWanted>\
 </ns1:GetChildren>";
-	
+
 	return soapBody;
-	
+
 }//end GetChildren
 
 
@@ -309,9 +309,9 @@ function GetParents(assetid, type_code, strict_type_code, dependant, sort_by, pe
 <DirectShadowsOnly>"+direct_shadow_only+"</DirectShadowsOnly>\
 <LinkValueWanted>"+link_value_wanted+"</LinkValueWanted>\
 </ns1:GetParents>";
-	
+
 	return soapBody;
-	
+
 }//end GetParents
 
 
@@ -346,9 +346,9 @@ function GetLinkByAsset(assetid, other_assetid, link_type, link_value, side_of_l
 <IsDependant>"+is_dependant+"</IsDependant>\
 <IsExclusive>"+is_exclusive+"</IsExclusive>\
 </ns1:GetLinkByAsset>";
-	
+
 	return soapBody;
-	
+
 }//end GetLinkByAsset
 
 

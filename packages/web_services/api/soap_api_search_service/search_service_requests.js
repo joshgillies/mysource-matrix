@@ -34,7 +34,7 @@ rootids_str+
 "<ResultFormat>"+result_format+"</ResultFormat>"+
 statuses_str+
 "</ns1:BasicSearch>";
-	
+
 	return soapBody;
 	
 }//end BasicSearch()
@@ -124,7 +124,7 @@ rootids_str+
 statuses_str+
 "<SearchFields>"+search_field_string+"</SearchFields>"+
 "</ns1:AdvancedSearch>";
-	
+
 	return soapBody;
 
 }//end AdvancedSearch()
@@ -153,7 +153,7 @@ function ReIndex(assetid, components)
 <AssetID>"+assetid+"</AssetID>\
 "+components_str+"\
 </ns1:ReIndex>";
-	
+
 	return soapBody;
 	
 }//end ReIndex()

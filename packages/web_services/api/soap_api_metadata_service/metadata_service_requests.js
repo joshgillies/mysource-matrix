@@ -150,7 +150,7 @@ function GetMetadataValueByIDs(assetid, fieldid)
 <AssetID>"+assetid+"</AssetID>\
 <FieldID>"+fieldid+"</FieldID>\
 </ns1:GetMetadataValueByIDs>";
-	
+
 	return soapBody;
 
 }//end GetMetadataValueByIDs

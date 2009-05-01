@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.3 2009/04/29 04:50:05 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.4 2009/05/01 05:40:41 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -64,12 +64,11 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'GetAttributeValuesByName'	=> '1',
         		'GetAvailableKeywords'		=> '1',
 				'GetAssetAvailableStatuses'	=> '1',
+        		'GetAssetWebPaths'			=> '1',
 				'GetURLs'					=> '1',
 				'SetAttributeValue'			=> '1',
         		'SetTag'					=> '1',
         		'TrashAsset'				=> '1',
-        		'GetLockTypes'				=> '1',
-        		'GetAssetWebPaths'			=> '1',
 			   );
 
     }//end getFunctionList()
@@ -424,12 +423,11 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 		$request_info		= (Array) $request;
 		$assetid			= array_get_index($request_info, 'AssetID', '');
-		$current_parent_id	= array_get_index($request_info, 'CurrentParentID', '');
 		$new_parent_id		= array_get_index($request_info, 'NewParentID', '');
 		$clone_num			= array_get_index($request_info, 'NumberOfClone', 1);
 		$new_position		= array_get_index($request_info, 'PositionUnderNewParent', -1);
 		$link_type			= array_get_index($request_info, 'LinkType', 1);
-		if (!empty($assetid) && !empty($current_parent_id) && !empty($new_parent_id)) {
+		if (!empty($assetid) && !empty($new_parent_id)) {
 			$hh	= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$running_vars	= Array (
 								'assets'		=> Array (
@@ -572,7 +570,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 
 	/**
-	* Description: This operation will return all webpaths belong to an asset type
+	* Description: This operation will return all webpaths belong to an asset
 	*
     * @param string  $request  The request information
     *
@@ -835,7 +833,6 @@ class Soap_Api_Asset_Service extends Soap_Api
 							'CloneAsset'				=> Array (
 														   	'CloneAsset'			=> Array (
 																						'AssetID'			=> self::$string_non_optional,
-														   								'CurrentParentID'	=> self::$string_non_optional,
 														   								'NewParentID'		=> self::$string_non_optional,
 														   								'NumberOfClone'		=> self::$int_optional,
 														   								'PositionUnderNewParent'=> self::$int_optional,

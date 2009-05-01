@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.2 2009/04/24 05:09:53 hnguyen Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.3 2009/05/01 05:40:41 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -420,7 +420,6 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 				throw new SoapFault('Server', 'The Asset Does Not Have A PaintLayout Applied With The Provided PaintLayoutID');
 			}//end if
 
-			//$result	= self::changePaintLayout($asset, 0, $paint_layout_type);
 			$paint_layout_end_name	= '::system::frontend';
 			$value_name				= $paint_layout_type == 'Frontend' ? 'paint_layout' : 'override::paint_layout';
 			$paint_layout_name		= $value_name.$paint_layout_end_name;

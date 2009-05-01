@@ -22,7 +22,7 @@ function Download(assetid)
 <ns1:Download>\
 <AssetID>"+assetid+"</AssetID>\
 </ns1:Download>";
-	
+
 	return soapBody;
 
 }//end Download
@@ -47,7 +47,7 @@ function GetFileInformation(assetid)
 <ns1:GetFileInformation>\
 <AssetID>"+assetid+"</AssetID>\
 </ns1:GetFileInformation>";
-	
+
 	return soapBody;
 
 }//end GetFileInformation
@@ -74,7 +74,7 @@ function Upload(assetid)
 <ns1:Upload>\
 <AssetID>"+assetid+"</AssetID>\
 </ns1:Upload>";
-	
+
 	return soapBody;
 
 }//end Upload
