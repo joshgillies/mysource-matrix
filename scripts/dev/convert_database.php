@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.4 2009/01/06 01:31:13 csmith Exp $
+* $Id: convert_database.php,v 1.5 2009/05/01 02:07:51 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -80,18 +80,19 @@ error_reporting(E_ALL);
  *   )
  * )';
  */
+
 $source_dsn = Array(
-				'DSN'      => '',
-				'user'     => '',
+				'DSN'      => 'pgsql:dbname=gipps',
+				'user'     => 'gipps_web',
 				'password' => '',
-				'type'     => '',
+				'type'     => 'pgsql',
 			 );
 
 $destination_dsn = Array(
-				'DSN'      => '',
-				'user'     => '',
-				'password' => '',
-				'type'     => '',
+				'DSN'      => '192.168.3.31/matrix',
+				'user'     => 'gippsland',
+				'password' => 'gippsland',
+				'type'     => 'oci',
 			);
 
 /**
@@ -158,199 +159,238 @@ if (!$dest_exists) {
 	exit;
 }
 
-$info = parse_tables_xml($SYSTEM_ROOT.'/core/assets/tables.xml', $dest_db);
+$xml_files = array (
+	$SYSTEM_ROOT . '/core/assets/tables.xml',
+);
 
 /**
- * get sequence values from the source db
+ * Look for packages that have a tables.xml file.
  */
-MatrixDAL::changeDb($source_db);
-foreach ($info['sequences'] as $sequence) {
-	$sequence_values[$sequence] = getSequenceValue($sequence);
+$packages = scandir($SYSTEM_ROOT . '/packages');
+foreach ($packages as $package) {
+	$xml_path = $SYSTEM_ROOT . '/packages/' . $package . '/tables.xml';
+	if (is_file($xml_path)) {
+		$xml_files[] = $xml_path;
+	}
 }
 
-bam('Dropping destination sequences');
-
-$del_seqs = getSequences();
-
 /**
- * Switch to the destination db to
+ * If it's the first run, we'll do some extra work
  * - drop sequences
  * - drop indexes
- * - truncate data tables
+ *
+ * They are rebuilt as xml files are processed
  */
-MatrixDAL::restoreDb();
+$first_run = true;
 
-foreach ($del_seqs as $sequence) {
-	printName('Dropping: '.strtolower($sequence));
-	$sql = 'DROP SEQUENCE ' . $sequence;
-	$ok = MatrixDAL::executeSql($sql);
-	if ($ok === false) {
-		printUpdateStatus('Failure, unable to run query: ' . $sql);
-		exit;
-	}
-	printUpdateStatus('OK');
-}
+foreach ($xml_files as $xml_filename) {
+	$info = parse_tables_xml($xml_filename, $dest_db);
 
-bam('Dropping destination indexes');
-
-$del_indexes = getIndexes();
-foreach($del_indexes as $index) {
-	if (substr($index, 0, 3) == 'sq_') {
-		printName('Dropping: '.$index);
-		$sql = 'DROP INDEX ' . $index;
-		$ok = MatrixDAL::executeSql($sql);
-		if ($ok === false) {
-			printUpdateStatus('Failure, unable to run query: ' . $sql);
-			exit;
-		}
-		printUpdateStatus('OK');
-	}//end if
-}//end foreach
-
-// Empty out the destination tables
-bam('Truncating destination tables');
-
-foreach ($info['tables'] as $tablename => $table_info) {
-	printName('Truncating: sq_'.$tablename);
-	$sql = 'TRUNCATE TABLE sq_'.$tablename;
-	$ok = MatrixDAL::executeSql($sql);
-	if ($ok === false) {
-		printUpdateStatus('Failure, unable to run query: ' . $sql);
-		exit;
-	}
-	printUpdateStatus('OK');
-}//end foreach
-
-/**
- * Go through each table,
- * grab the data from the source table
- * and put it in the destination table.
- */
-foreach ($info['tables'] as $tablename => $table_info) {
-
-	bam('Starting table: sq_'.$tablename);
-
-	$columns = array_keys($table_info['columns']);
-	$sql = generateSQL($tablename, $columns);
-
-	printName('Grabbing source data');
-
-	/**
-	 * Switch to the source db connector to get the data..
-	 */
-	MatrixDAL::changeDb($source_db);
-
-	$source_data = MatrixDAL::executeSqlAll('SELECT * FROM sq_' . $tablename);
-	printUpdateStatus('OK');
-
-	MatrixDAL::restoreDb();
-
-	if (empty($source_data)) {
-		printName('Table is empty');
-		printUpdateStatus('OK');
+	if (empty($info)) {
 		continue;
 	}
 
-	MatrixDAL::beginTransaction();
-
-	$trans_count = 0;
-
-	printName('Preparing SQL INSERT Query');
-
-	$prepared_sql = MatrixDAL::preparePdoQuery($sql);
-
-	printUpdateStatus('OK');
-
-	printName('Inserting Data ('.count($source_data).' rows)');
-
-	foreach($source_data as $key => $data) {
-		foreach ($data as $data_key => $data_value) {
-			// ignore 0 based indexes..
-			if (is_numeric($data_key)) {
-				continue;
-			}
-
-			// if the key isn't in the new tables columns, skip it.
-			// this causes a problem with the sq_thes_lnk table
-			// where the 'relation' column was renamed to 'relid'
-			// but this change is not in the upgrade guides anywhere.
-			if (!in_array($data_key, $columns)) {
-				continue;
-			}
-
-
-			/**
-			 * bytea fields from postgres are returned as resources
-			 * Convert them from resources into actual text content
-			 *
-			 * See http://www.php.net/manual/en/pdo.lobs.php
-			 */
-			if (is_resource($data_value)) {
-				$stream = $data_value;
-				$data_value = stream_get_contents($stream);
-				fclose($stream);
-			}
-
-			MatrixDAL::bindValueToPdo($prepared_sql, $data_key, $data_value);
-		}
-		MatrixDAL::execPdoQuery($prepared_sql);
-
-		$trans_count++;
-
-		if ($trans_count % 5000 == 0) {
-			MatrixDAL::commit();
-			MatrixDAL::beginTransaction();
-			$trans_count = 0;
-		}
+	/**
+	 * get sequence values from the source db
+	 */
+	MatrixDAL::changeDb($source_db);
+	foreach ($info['sequences'] as $sequence) {
+		$sequence_values[$sequence] = getSequenceValue($sequence);
 	}
 
-	printUpdateStatus('OK');
+	/**
+	 * Switch to the destination db to
+	 * - drop sequences
+	 * - drop indexes
+	 * - truncate data tables
+	 */
+	MatrixDAL::restoreDb();
 
-	MatrixDAL::commit();
+	if ($first_run) {
+		bam('Dropping destination sequences');
 
-}//end foreach
+		$del_seqs = getSequences();
 
-bam('Rebuilding Indexes');
-
-foreach($info['tables'] as $tablename => $table_info) {
-	if (!empty($table_info['indexes'])) {
-		foreach ($table_info['indexes'] as $index_col => $index_info) {
-			printName('Creating index sq_'.$tablename.'_'.$index_info['name']);
-			$sql = create_index_sql($tablename, $index_info['columns'], $index_info['name'], $index_info['type']);
+		foreach ($del_seqs as $sequence) {
+			printName('Dropping: '.strtolower($sequence));
+			$sql = 'DROP SEQUENCE ' . $sequence;
 			$ok = MatrixDAL::executeSql($sql);
 			if ($ok === false) {
 				printUpdateStatus('Failure, unable to run query: ' . $sql);
 				exit;
 			}
 			printUpdateStatus('OK');
+		}
 
-			if ($table_info['rollback']) {
-					printName('Creating index sq_rb_'.$tablename.'_'.$index_info['name']);
-					$sql = create_index_sql('rb_'.$tablename, $index_info['columns'], $index_info['name'], $index_info['type']);
-					$ok = MatrixDAL::executeSql($sql);
-					if ($ok === false) {
-						printUpdateStatus('Failure, unable to run query: ' . $sql);
-						exit;
-					}
-					printUpdateStatus('OK');
-			}
-		}// end foreach
-	}//end if
-}
+		bam('Dropping destination indexes');
 
-bam('Rebuilding Sequences');
-
-foreach ($info['sequences'] as $sequence) {
-	$new_seq_start = $sequence_values[$sequence];
-
-	printName('Creating sq_'.$sequence.'_seq ('.$new_seq_start.')');
-	$sql = 'CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start;
-	$ok = MatrixDAL::executeSql($sql);
-	if ($ok === false) {
-		printUpdateStatus('Failure, unable to run query: ' . $sql);
-		exit;
+		$del_indexes = getIndexes();
+		foreach($del_indexes as $index) {
+			if (substr($index, 0, 3) == 'sq_') {
+				printName('Dropping: '.$index);
+				$sql = 'DROP INDEX ' . $index;
+				$ok = MatrixDAL::executeSql($sql);
+				if ($ok === false) {
+					printUpdateStatus('Failure, unable to run query: ' . $sql);
+					exit;
+				}
+				printUpdateStatus('OK');
+			}//end if
+		}//end foreach
 	}
-	printUpdateStatus('OK');
+
+	// Empty out the destination tables
+	bam('Truncating destination tables');
+
+	foreach ($info['tables'] as $tablename => $table_info) {
+		printName('Truncating: sq_'.$tablename);
+		$sql = 'TRUNCATE TABLE sq_'.$tablename;
+		$ok = MatrixDAL::executeSql($sql);
+		if ($ok === false) {
+			printUpdateStatus('Failure, unable to run query: ' . $sql);
+			exit;
+		}
+		printUpdateStatus('OK');
+	}//end foreach
+
+	/**
+	 * Go through each table,
+	 * grab the data from the source table
+	 * and put it in the destination table.
+	 */
+	foreach ($info['tables'] as $tablename => $table_info) {
+		if ($tablename === 'sch_idx') {
+			bam('Skipping search table - you will need to re-index');
+			continue;
+		}
+
+		bam('Starting table: sq_'.$tablename);
+
+		$columns = array_keys($table_info['columns']);
+		$sql = generateSQL($tablename, $columns);
+
+		printName('Grabbing source data');
+
+		/**
+		 * Switch to the source db connector to get the data..
+		 */
+		MatrixDAL::changeDb($source_db);
+
+		$source_data = MatrixDAL::executeSqlAll('SELECT * FROM sq_' . $tablename);
+		printUpdateStatus('OK');
+
+		MatrixDAL::restoreDb();
+
+		if (empty($source_data)) {
+			printName('Table is empty');
+			printUpdateStatus('OK');
+			continue;
+		}
+
+		MatrixDAL::beginTransaction();
+
+		$trans_count = 0;
+
+		printName('Preparing SQL INSERT Query');
+
+		$prepared_sql = MatrixDAL::preparePdoQuery($sql);
+
+		printUpdateStatus('OK');
+
+		printName('Inserting Data ('.count($source_data).' rows)');
+
+		foreach($source_data as $key => $data) {
+			foreach ($data as $data_key => $data_value) {
+				// ignore 0 based indexes..
+				if (is_numeric($data_key)) {
+					continue;
+				}
+
+				/**
+				 * if the key isn't in the new tables columns, skip it.
+				 * this causes a problem with the sq_thes_lnk table
+				 * where the 'relation' column was renamed to 'relid'
+				 * but this change is not in the upgrade guides anywhere.
+				 */
+				if (!in_array($data_key, $columns)) {
+					continue;
+				}
+
+				/**
+				 * bytea fields from postgres are returned as resources
+				 * Convert them from resources into actual text content
+				 *
+				 * See http://www.php.net/manual/en/pdo.lobs.php
+				 */
+				if (is_resource($data_value)) {
+					$stream = $data_value;
+					$data_value = stream_get_contents($stream);
+					fclose($stream);
+				}
+
+				MatrixDAL::bindValueToPdo($prepared_sql, $data_key, $data_value);
+			}
+			MatrixDAL::execPdoQuery($prepared_sql);
+
+			$trans_count++;
+
+			if ($trans_count % 5000 == 0) {
+				MatrixDAL::commit();
+				MatrixDAL::beginTransaction();
+				$trans_count = 0;
+			}
+		}
+
+		printUpdateStatus('OK');
+
+		MatrixDAL::commit();
+
+	}//end foreach
+
+	bam('Rebuilding Indexes');
+
+	foreach($info['tables'] as $tablename => $table_info) {
+		if (!empty($table_info['indexes'])) {
+			foreach ($table_info['indexes'] as $index_col => $index_info) {
+				printName('Creating index sq_'.$tablename.'_'.$index_info['name']);
+				$sql = create_index_sql($tablename, $index_info['columns'], $index_info['name'], $index_info['type']);
+				$ok = MatrixDAL::executeSql($sql);
+				if ($ok === false) {
+					printUpdateStatus('Failure, unable to run query: ' . $sql);
+					exit;
+				}
+				printUpdateStatus('OK');
+
+				if ($table_info['rollback']) {
+						printName('Creating index sq_rb_'.$tablename.'_'.$index_info['name']);
+						$sql = create_index_sql('rb_'.$tablename, $index_info['columns'], $index_info['name'], $index_info['type']);
+						$ok = MatrixDAL::executeSql($sql);
+						if ($ok === false) {
+							printUpdateStatus('Failure, unable to run query: ' . $sql);
+							exit;
+						}
+						printUpdateStatus('OK');
+				}
+			}// end foreach
+		}//end if
+	}
+
+	bam('Rebuilding Sequences');
+
+	foreach ($info['sequences'] as $sequence) {
+		$new_seq_start = $sequence_values[$sequence];
+
+		printName('Creating sq_'.$sequence.'_seq ('.$new_seq_start.')');
+		$sql = 'CREATE SEQUENCE sq_'.$sequence.'_seq START WITH '.$new_seq_start;
+		$ok = MatrixDAL::executeSql($sql);
+		if ($ok === false) {
+			printUpdateStatus('Failure, unable to run query: ' . $sql);
+			exit;
+		}
+		printUpdateStatus('OK');
+	}
+
+	$first_run = false;
 }
 
 /**
