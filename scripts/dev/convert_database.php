@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.5 2009/05/01 02:07:51 csmith Exp $
+* $Id: convert_database.php,v 1.6 2009/05/01 02:12:39 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -82,17 +82,17 @@ error_reporting(E_ALL);
  */
 
 $source_dsn = Array(
-				'DSN'      => 'pgsql:dbname=gipps',
-				'user'     => 'gipps_web',
+				'DSN'      => '',
+				'user'     => '',
 				'password' => '',
-				'type'     => 'pgsql',
+				'type'     => '',
 			 );
 
 $destination_dsn = Array(
-				'DSN'      => '192.168.3.31/matrix',
-				'user'     => 'gippsland',
-				'password' => 'gippsland',
-				'type'     => 'oci',
+				'DSN'      => '',
+				'user'     => '',
+				'password' => '',
+				'type'     => '',
 			);
 
 /**
