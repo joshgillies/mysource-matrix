@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_permission_role_service.inc,v 1.1 2009/04/03 00:01:17 hnguyen Exp $
+* $Id: soap_api_permission_role_service.inc,v 1.2 2009/05/01 00:23:31 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -530,7 +530,7 @@ class Soap_Api_Permission_Role_Service extends Soap_Api
 														   ),
 										'SetPermission'	=> Array (
 															'PermissionLevel'	=> $access_level,
-															'GrantType'			=> Array (
+															'Grant'				=> Array (
 																					'restriction_base'	=> 'string',
 																					'enumeration'		=> Array (
 																											'Apply', 'Deny', 'Revoke',

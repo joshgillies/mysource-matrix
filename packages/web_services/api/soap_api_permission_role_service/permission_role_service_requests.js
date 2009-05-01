@@ -25,9 +25,9 @@ function HasAccess(assetid, permission_level)
 <AssetID>"+assetid+"</AssetID>\
 <PermissionLevel>"+permission_level+"</PermissionLevel>\
 </ns1:HasAccess>";
-	
+
 	return soapBody;
-	
+
 }//end HasAccess
 
 
@@ -57,9 +57,9 @@ function SetPermission(assetid, userid, permission_level, cascade)
 <PermissionLevel>"+permission_level+"</PermissionLevel>\
 <Cascade>"+cascade+"</Cascade>\
 </ns1:SetPermission>";
-	
+
 	return soapBody;
-	
+
 }//end SetPermission
 
 
@@ -92,9 +92,9 @@ function GetPermission(assetid, permission_level, granted, effective, expand_gro
 <ExpandGroups>"+expand_groups+"</ExpandGroups>\
 <AllInfo>"+all_info+"</AllInfo>\
 </ns1:GetPermission>";
-	
+
 	return soapBody;
-	
+
 }//end GetPermission
 
 
@@ -129,9 +129,9 @@ function GetRole(assetid, roleid, userid, include_assetid, include_globals, incl
 <IncludeDependants>"+include_dependants+"</IncludeDependants>\
 <ExpandGroups>"+expand_groups+"</ExpandGroups>\
 </ns1:GetRole>";
-	
+
 	return soapBody;
-	
+
 }//end GetRole
 
 
@@ -164,9 +164,9 @@ function SetRole(assetid, roleid, userid, action, global_role, cascade)
 <GlobalRole>"+global_role+"</GlobalRole>\
 <Cascade>"+cascade+"</Cascade>\
 </ns1:SetRole>";
-	
+
 	return soapBody;
-	
+
 }//end SetRole
 
 
