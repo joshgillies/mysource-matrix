@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.3.2.2 2009/04/23 01:29:34 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.3.2.3 2009/05/01 07:17:52 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3.2.2 $
+* @version $Revision: 1.3.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -239,7 +239,7 @@ class Form_Action_Save_Xml extends Form_Action
 							foreach ($value as $qid => $response) {
 								foreach ($response as $ra => $stuff) {
 									if (isset($ttable[$qid][$ra])) {
-										$responses[] = $ttable[$qid][$ra];
+										$responses[] = htmlspecialchars($ttable[$qid][$ra]);
 									} else {
 										$responses[] = $ra;
 									}//end if
@@ -255,7 +255,7 @@ class Form_Action_Save_Xml extends Form_Action
 									foreach ($value as $id => $name) {
 										if (isset($list_options[$name])) {
 											unset($value[$id]);
-											$value[$id] = $list_options[$name];
+											$value[$id] = htmlspecialchars($list_options[$name]);
 										}//end if
 									}//end foreach
 								}//end if
@@ -263,7 +263,7 @@ class Form_Action_Save_Xml extends Form_Action
 								if (isset($questions[$question_id]['attributes']['options']) && !$use_keys) {
 									$list_options = @unserialize($questions[$question_id]['attributes']['options']);
 									if (isset($list_options[$value])) {
-											$value = $list_options[$value];
+											$value = htmlspecialchars($list_options[$value]);
 									}//end if
 								}//end if
 							}//end if
@@ -275,12 +275,12 @@ class Form_Action_Save_Xml extends Form_Action
 								foreach ($value as $id => $name) {
 									if (isset($standards_lists_countries[$name]) && !$use_keys) {
 										unset($value[$id]);
-										$value[$id] = $standards_lists_countries[$name];
+										$value[$id] = htmlspecialchars($standards_lists_countries[$name]);
 									}//end if
 								}//end foreach
 							} else {
 								if (isset($standards_lists_countries[$value]) && !$use_keys) {
-									$value = $standards_lists_countries[$value];
+									$value = htmlspecialchars($standards_lists_countries[$value]);
 								}//end if
 							}//end if
 						break;
@@ -288,7 +288,7 @@ class Form_Action_Save_Xml extends Form_Action
 							if (isset($questions[$question_id]['attributes']['options']) && !$use_keys) {
 								$list_options = @unserialize($questions[$question_id]['attributes']['options']);
 								if (isset($list_options[$value])) {
-									$value = $list_options[$value];
+									$value = htmlspecialchars($list_options[$value]);
 								}//end if
 							}//end if
 						break;
