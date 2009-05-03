@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.54 2008/02/21 04:13:38 lwright Exp $
+* $Id: settings.inc,v 1.55 2009/05/03 23:15:24 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 
@@ -232,13 +232,20 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 					$current_langs = $owner->getLanguages();
 					// have to have admin access to set the force secure
+					$options = Array(
+								'0'	=> 'Allow all protocols',
+								'1'	=> 'Force secure protocol (HTTPS)',
+								'-'	=> 'Force insecure protocol (HTTP)',
+							   );
 					if ($owner->adminAccess('settings')) {
 						$created = TRUE;
-						check_box($prefix.'_force_secure', '1', ($owner->force_secure == '1'));
+						combo_box($prefix.'_force_secure', $options, FALSE, $owner->force_secure);
+						//check_box($prefix.'_force_secure', '1', ($owner->force_secure == '1'));
 					} else {
-					?>
+						echo $options[$owner->force_secure];
+					/* ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($owner->force_secure) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-					<?php
+					<?php */
 					}
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
@@ -739,7 +746,7 @@ function processSettings(&$owner, &$o, &$ei)
 
 	//// FORCE SECURE ////
 	if ($owner->adminAccess('settings')) {
-		if ($owner->setForceSecure(!empty($_POST[$prefix.'_force_secure']))) {
+		if ($owner->setForceSecure(array_get_index($_POST, $prefix.'_force_secure', 0))) {
 			$assets_affected_lookups[] = $owner->id;
 		}// end if
 	}// end if

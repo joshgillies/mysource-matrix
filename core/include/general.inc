@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.212 2009/04/07 00:45:05 lwright Exp $
+* $Id: general.inc,v 1.213 2009/05/03 23:15:24 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.212 $
+* @version $Revision: 1.213 $
 * @package MySource_Matrix
 */
 
@@ -681,9 +681,49 @@ function clean_url($url)
 */
 function current_protocol()
 {
+	if (is_ssl_accelerated()) return 'https';
 	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 
 }//end current_protocol()
+
+
+/**
+* Is the Matrix system (potentially) behind an SSL accelerator, as determined by
+* the settings on the SSL Accelerator section of the Proxy Auth config?
+*
+* @return boolean
+* @access public
+*/
+function is_ssl_accelerated()
+{
+	$enabled = FALSE;
+	if (SQ_SSLA_ENABLED) {
+		$enabled = TRUE;
+		
+		$match_method = SQ_SSLA_MATCH;
+		if ($match_method !== 'header') {
+			$host = $_SERVER['REMOTE_ADDR'];
+			if (trim($host) !== trim(SQ_SSLA_IP)) {
+				$enabled = FALSE;
+			}
+		}
+
+		if ($match_method !== 'ip') {
+			if (isset($_SERVER[SQ_SSLA_HEADER_NAME])) {
+				$header_value = $_SERVER[SQ_SSLA_HEADER_NAME];
+				if (trim($header_value) === trim(SQ_SSLA_HEADER_VALUE)) {
+					$enabled = FALSE;
+				}
+			} else {
+				$enabled = FALSE;
+			}
+		}
+
+	}
+
+	return $enabled;
+
+}//end is_ssl_accelerated()
 
 
 /**

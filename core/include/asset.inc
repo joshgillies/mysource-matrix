@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.669 2009/04/03 03:44:34 bshkara Exp $
+* $Id: asset.inc,v 1.670 2009/05/03 23:15:24 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.669 $
+* @version $Revision: 1.670 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -71,10 +71,13 @@ class Asset extends MySource_Object
 	public $charset = '';
 
 	/**
-	* Whether this asset should only have secure URL lookups
+	* Whether this asset is forced to only use one protocol:
+	*   '0' = not forced at all
+	*   '1' = force secure URLs
+	*   '-' = block secure URLs (think '-1')
 	* @var boolean
 	*/
-	public $force_secure = 0;
+	public $force_secure = '0';
 
 	/**
 	* Timestamp of when this asset was created
@@ -1533,7 +1536,19 @@ class Asset extends MySource_Object
 	/**
 	* Set the status of the Force Secure Flag
 	*
-	* @param boolean	$force_secure	whether to force the use of SSL on URLs
+	* Force Secure now takes on three possible options:
+	*  '0' => don't force any protocol.
+	*  '1' => force secure (HTTPS only)
+	*  '-' => force insecure (HTTP only)
+	*
+	* It will still also accept boolean TRUE|FALSE, which corresponds with
+	* '1' and '0' respectively.
+	*
+	* Returns TRUE if the setting is successfully changed, FALSE otherwise.
+	* It is NOT considered a successful change if the force secure setting
+	* wouldn't actually change (in which case this function does nothing).
+	*
+	* @param mixed	$force_secure	whether to force the use of SSL on URLs
 	*
 	* @return boolean
 	* @access public
@@ -1545,7 +1560,9 @@ class Asset extends MySource_Object
 			return FALSE;
 		}
 
-		$force_secure = ($force_secure) ? '1' : '0';
+		if ($force_secure !== '-') {
+			$force_secure = ($force_secure) ? '1' : '0';
+		}
 		if ($force_secure == $this->force_secure) return FALSE;
 		$old_force_secure = $this->force_secure;
 		$this->force_secure = $force_secure;
@@ -4149,7 +4166,12 @@ class Asset extends MySource_Object
 			$this->_tmp['valid_protocols'] = Array();
 			if (is_array($res)) {
 				foreach ($res as $protocol => $valid) {
-					if ($this->force_secure && ($protocol == 'http')) {
+					// Force secure
+					if (($this->force_secure === '1') && ($protocol == 'http')) {
+						continue;
+					}
+					// Force INsecure
+					if (($this->force_secure === '-') && ($protocol == 'https')) {
 						continue;
 					}
 					if ($valid) {
@@ -5217,8 +5239,8 @@ class Asset extends MySource_Object
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (isset($done_urls[$new_url])) continue;
 
-						$https = $parent_urls[$j]['https'];
-						$http  = ($this->force_secure) ? '0' : $parent_urls[$j]['http'];
+						$https = ($this->force_secure === '-') ? '0' : $parent_urls[$j]['https'];
+						$http  = ($this->force_secure === '1') ? '0' : $parent_urls[$j]['http'];
 						// if we have no protocol then we can just ignore this URL
 						if (!$http && !$https) {
 							continue;
