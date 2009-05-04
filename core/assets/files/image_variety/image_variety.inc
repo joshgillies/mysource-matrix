@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.46 2009/02/16 03:18:59 bpearson Exp $
+* $Id: image_variety.inc,v 1.46.2.1 2009/05/04 00:12:05 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -573,8 +573,8 @@ class Image_Variety extends Asset
 				$bind_vars = Array(
 								'url'			=> $url.'/'.$web_path,
 								'assetid'		=> $this->id,
-								'http'			=> ($this->force_secure) ? '0' : $url_data['http'],
-								'https'			=> $url_data['https'],
+								'http'			=> ($this->force_secure === '1') ? '0' : $url_data['http'],
+								'https'			=> ($this->force_secure === '-') ? '0' : $url_data['https'],
 								'root_urlid'	=> 0,
 							 );
 

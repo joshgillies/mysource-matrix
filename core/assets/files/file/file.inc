@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.174.2.1 2009/04/29 04:27:26 akarelia Exp $
+* $Id: file.inc,v 1.174.2.2 2009/05/04 00:12:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.174.2.1 $
+* @version $Revision: 1.174.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -700,7 +700,7 @@ class File extends Asset
 					$matching_roots = Array();
 
 					foreach ($root_urls as $tmp_url) {
-						if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
+						if (substr($data['url'].'/', 0, strlen($tmp_url) + 1) == $tmp_url.'/') {
 							$matching_roots[] = $tmp_url;
 						}
 					}
@@ -731,8 +731,8 @@ class File extends Asset
 				$bind_vars	= Array (
 								'url'			=> $url.'/'.$web_path,
 								'assetid'		=> $this->id,
-								'http'			=> ($this->force_secure) ? '0' : $url_data['http'],
-								'https'			=> $url_data['https'],
+								'http'			=> ($this->force_secure === '1') ? '0' : $url_data['http'],
+								'https'			=> ($this->force_secure === '-') ? '0' : $url_data['https'],
 								'root_urlid'	=> 0,
 							  );
 				$result = MatrixDAL::executeQuery('core', 'insertLookup', $bind_vars);
@@ -1087,6 +1087,7 @@ class File extends Asset
 		}
 
 		if (!empty($allowed_extensions)) {
+		bam($allowed_extensions);
 			$allowed_extensions_list = explode(',', $allowed_extensions);
 			if (!in_array($extension, $allowed_extensions_list)) {
 				trigger_localised_error('CORE0266', E_USER_WARNING, $filename);

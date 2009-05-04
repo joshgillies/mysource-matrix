@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.11 2008/11/18 02:22:47 lwright Exp $
+* $Id: proxy_authentication_config.inc,v 1.11.4.1 2009/05/04 00:12:05 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -37,6 +37,7 @@ class Proxy_Authentication_Config extends Config
 	* @var array
 	*/
 	var $config_vars = Array(
+						// Proxy Options
 						'SQ_PA_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_PA_HOSTNAME'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_PA_PORT'				=> Array('editable' => 1, 'default' => ''),
@@ -44,6 +45,13 @@ class Proxy_Authentication_Config extends Config
 						'SQ_PA_PASSWORD'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_PA_ALTERNATIVES'		=> Array('editable' => 1, 'default' => 'a:0:{}'),
 						'SQ_PROXY_URL_PORT_STRIP'	=> Array('editable' => 1, 'default' => FALSE),
+						// SSL Accelerator Options
+						'SQ_SSLA_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_SSLA_MATCH'				=> Array('editable' => 1, 'default' => 'ip'),
+						'SQ_SSLA_IP'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_SSLA_HEADER_NAME'		=> Array('editable' => 1, 'default' => ''),
+						'SQ_SSLA_HEADER_VALUE'		=> Array('editable' => 1, 'default' => ''),
+						'SQ_SSLA_FORCE_SECURE'		=> Array('editable' => 1, 'default' => FALSE),
 					   );
 
 
@@ -157,6 +165,69 @@ class Proxy_Authentication_Config extends Config
 		$o->closeField();
 		$o->sectionNote('Alternative proxies will be used if they are set to be Active, and their URL pattern matches the URL being requested through the proxy. Proxies are matched from top to bottom; only the first proxy that matches will be used.');
 		$o->closeSection('');
+
+		$o->openSection('SSL Accelerator Configuration');
+			$o->openField(translate('ssl_accelerator_handling_enabled'));
+				if ($write_access) {
+					combo_box($class.'[SQ_SSLA_ENABLED]', Array(translate('no'), translate('yes')), FALSE, SQ_SSLA_ENABLED);
+				} else {
+					echo (SQ_SSLA_ENABLED ? translate('yes') : translate('no'));
+				}
+				$o->note(translate('ssl_accelerator_handling_enabled_note'));
+			$o->closeField();
+
+			$o->openField(translate('ssl_accelerator_match_method'));
+				$options = Array(
+							'ip'		=> translate('ssl_accelerator_match_method_ip'),
+							'header'	=> translate('ssl_accelerator_match_method_header'),
+							'both'		=> translate('ssl_accelerator_match_method_both'),
+						   );
+				if ($write_access) {
+					combo_box($class.'[SQ_SSLA_MATCH]', $options, FALSE, SQ_SSLA_MATCH);
+				} else {
+					echo $options[SQ_SSLA_MATCH];
+				}
+				$o->note(translate('ssl_accelerator_match_method_note'));
+			$o->closeField();
+			
+			$o->openField(translate('ssl_accelerator_ip_address'));
+				if ($write_access) {
+					text_box($class.'[SQ_SSLA_IP]', SQ_SSLA_IP, 15);
+				} else {
+					echo SQ_SSLA_IP;
+				}
+				$o->note(translate('ssl_accelerator_ip_address_note'));
+			$o->closeField();
+			
+			$o->openField(translate('ssl_accelerator_header_name'));
+				if ($write_access) {
+					text_box($class.'[SQ_SSLA_HEADER_NAME]', SQ_SSLA_HEADER_NAME, 15);
+				} else {
+					echo SQ_SSLA_HEADER_NAME;
+				}
+				$o->note(translate('ssl_accelerator_header_name_note'));
+			$o->closeField();
+			
+			$o->openField(translate('ssl_accelerator_header_value'));
+				if ($write_access) {
+					text_box($class.'[SQ_SSLA_HEADER_VALUE]', SQ_SSLA_HEADER_VALUE, 15);
+				} else {
+					echo SQ_SSLA_HEADER_VALUE;
+				}
+				$o->note(translate('ssl_accelerator_header_value_note'));
+			$o->closeField();
+			
+			$o->openField(translate('ssl_accelerator_force_secure'));
+				if ($write_access) {
+					combo_box($class.'[SQ_SSLA_FORCE_SECURE]', Array(translate('no'), translate('yes')), FALSE, SQ_SSLA_FORCE_SECURE);
+				} else {
+					echo (SQ_SSLA_FORCE_SECURE ? translate('yes') : translate('no'));
+				}
+				$o->note(translate('ssl_accelerator_force_secure_note'));
+			$o->closeField();
+
+			$o->sectionNote(translate('ssl_accelerator_section_note'));
+		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);
 

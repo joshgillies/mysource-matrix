@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.4 2009/04/29 02:03:37 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.311.2.5 2009/05/04 00:12:06 lwright Exp $
 *
 */
 
@@ -2452,4 +2452,22 @@ Are you sure you want to proceed?</string>
 	<string source="comparison_not_ends">%1$s does not end with %2$s</string>
 	<string source="comparison_not_contains">%1$s does not contain %2$s</string>
 
+	<!-- Proxy Auth Config - SSL Accelerator strings -->
+	<string source="ssl_accelerator_section_name">SSL Accelerator Configuration</string>
+	<string source="ssl_accelerator_section_note">An SSL accelerator is a hardware or software proxy whose primary function is to handle the decoding of secure (HTTPS) requests. If MySource Matrix is located behind one of these, the SSL acclerator will handle the SSL layer of the request, and then send a plain (HTTP) request to the MySource Matrix system. This would normally mean that the system would use HTTP urls back, rather than the expected HTTPS. MySource Matrix is able to detect the presence of the SSL accelerator through the above settings, and send links using HTTPS protocol as expected.</string>
+	<string source="ssl_accelerator_handling_enabled">Handling Enabled ?</string>
+	<string source="ssl_accelerator_handling_enabled_note">The following settings will only apply if this setting is set to "Yes".</string>
+	<string source="ssl_accelerator_match_method">Match Method</string>
+	<string source="ssl_accelerator_match_method_note">MySource Matrix can use two methods to determine whether a request has been made through an SSL accelerator: by matching the IP address of the proxy, or through a header injected by the proxy into the request made to the MySource Matrix system. Either or both match methods can be used. If "Both" is selected, the system is not considered behind an accelerator unless both methods match.</string>
+	<string source="ssl_accelerator_match_method_ip">IP Address</string>
+	<string source="ssl_accelerator_match_method_header">Header</string>
+	<string source="ssl_accelerator_match_method_both">Both</string>
+	<string source="ssl_accelerator_ip_address">IP Address</string>
+	<string source="ssl_accelerator_ip_address_note">If IP address matching is turned on, MySource Matrix will only consider itself behind an SSL accelerator if the request (from the accelerator proxy) is made from the entered IP address. Remember that this the IP address that this system sees the accelerator as. This may be an internal network address, rather than any public-facing IP address.</string>
+	<string source="ssl_accelerator_header_name">Header Name</string>
+	<string source="ssl_accelerator_header_name_note"><![CDATA[ ]]></string>
+	<string source="ssl_accelerator_header_value">Header Value</string>
+	<string source="ssl_accelerator_header_value_note"><![CDATA[ ]]></string>
+	<string source="ssl_accelerator_force_secure">Force Secure ?</string>
+	<string source="ssl_accelerator_force_secure_note">When this is set to "Yes", and MySource Matrix detects that it is running behind an SSL accelerator, it will always produce secure (https://) URLs, except where an asset has been set to force standard http:// URLs.</string>
 </strings>
