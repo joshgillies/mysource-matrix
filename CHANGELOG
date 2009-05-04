@@ -1,5 +1,106 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.22.0
+
+Featured Changes
+-----------------------------------
+
+Default Memory Limit and Roles Settings changed for new installations
+	New installations beginning from 3.22.0 now have an increased memory limit default of 64Mb for Cron and Web processes. This will not modify any stored values for systems during upgrades - this is just for fresh installations.
+
+The Roles system is also disabled by default for increased performance. This can be enabled from System Configuration in the backend to provide Roles functionality.
+
+
+Image-based Keyword Replacement for User Email Address
+	A new keyword added to User asset types, %asset_attribute_email_image%, can be used to display the email address of users as an image.
+The font, colour and font size used for these images is configured under the "User Preferences" section of the "Global Preferences" screen (under System Configuration). User-specified fonts can be installed in "core/lib/fonts" which will then be available for selection.
+
+
+User-defined Matrix Log Rotation time
+	The rotation of Matrix log files, as performed by the Cron Manager, can now be configured to occur at a predetermined time. The Log Rotation time is configured from the "Options" screen of Cron Manager, the default setting of which is 1:00am. 
+
+
+Listing Engine: Dynamic number of results per page
+	Support for Matrix keywords has been added to the "Assets Per Page" option in Listing Engine-based assets such as Asset Listing and Search Page. This allows for control of the number of assets listed per page from other assets or from HTTP GET variables, for instance.
+
+
+Remove Web Paths Trigger Action
+	This new Trigger Action will remove a single Web Path from a specified asset when executed. Global and asset-level keywords may be used as the Web Path specified in the Trigger Action.
+
+Two options are available to control Web Path operations - both of which are disabled by default:
+  - Delete all Web Paths (for the specified asset)
+  - Update lookups for children
+
+
+"Update Child Lookups" option added to Add Web Paths Trigger Action
+	In order to unify the functionality of Add and Remove Web Paths Trigger Actions, an "Update lookups for children" option, as mentioned above, has been added to the Add Web Paths Trigger Action. 
+
+
+Video File asset
+	A new Video File asset, graciously contributed by Nic Hubbard, has been added to the Matrix core. Like the MP3 File asset, this asset uses the getID3 third-party application.
+
+The supported video extensions are:
+  - mov
+  - avi
+  - wmv
+  - asf
+  - flv
+  - mp4
+  - m4v
+  - mpg
+  - mpeg
+
+Video metadata is extracted by getID3 upon upload and these can be overridden and extracted again from the 'Details' screen.
+
+The Bulk File Import Tool has also been amended to automatically create Video File assets when uploading files manually or from the server which match any of the supported file extensions.
+
+
+SSL Accelerator Support
+	Matrix can now determine whether it is behind an SSL accelerator proxy, based on the origin IP address (whether they are being forwarded through the router), header matching (exact match on header name and value), or both. This is needed because SSL accelerators provide a standard HTTP connection with Matrix, and Matrix needs to ensure that it still sends HTTPS links regardless.
+
+SSL accelerator support can be configured through the "Proxy Configuration" screen of System Configuration. A "Force Insecure (HTTP)" option has been added to the SSL options on the asset "Settings" screen in order to instruct Matrix to provide only HTTP links or nothing for a certain asset.
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+Core
+Fixed Bug #3566: Fail to create cron job with set future status trigger
+Fixed Bug #3582: Unable to select asset to remap to when deleting asset using linking page
+Fixed Bug #3592: Email messages have an extra / in the asset URL
+Fixed Bug #3597: "Simple edit user" cannot preview image in the "Insert Image" screen in the WYSIWYG
+Fixed Bug #3599: Refresh Cache screen won't refresh all assets
+Fixed Bug #3601: replace_url.php doesn't replace __data URLs when host name of new URL is different
+Fixed Bug #3602: Site Map excludes assets with Public Read when viewed as a Backend User 
+Fixed Bug #3603: Workflow schema with no steps result in fatal error
+Fixed Bug #3625: When any of the File assets are cloned, it doesnt have webpath
+Fixed Bug #3637: Run Tidy Script not backported to binary Tidy
+Fixed Bug #3641: Tidy not enabled gives a status of pass 
++ Future Permissions Section relocated to bottom of the asset Permissions screen
+
+Bulkmail
+Fixed Bug #3540: Bulkmail cron job does not send bulkmails
+Fixed Bug #3593: Bulkmail Job cannot be scheduled for large recipient groups
+
+CMS
+Fixed Bug #3452: Asset Statuses to List field for listing engine will lose value when changing status
+Fixed Bug #3605: Nestings with paint layout set not working in simple edit
+Fixed Bug #3609: Cannot unselect asset status from Asset Statuses to List in Asset lisiting and Search page
+Fixed Bug #3610: Save XML does not work when using weird characters 
+Fixed Bug #3616: Form sections do not copy correctly between sections
+Fixed Bug #3620: Text wrong on the Form Contents screen of form contents asset
+Fixed Bug #3630: form_summary keyword does not work on confirmation screen
+Fixed Bug #3636: Adding multi level sections on a form causes PHP errors
+Fixed Bug #3642: Form Action Save XML doesn't handle all cases of &'s
+
+E-Commerce
+Fixed Bug #3626: Ecommerce form permission problem for placing first order
+
+Search
+Fixed Bug #3595: WYSIWYG metadata default values not indexed
+Fixed Bug #3596: Restricted metadata type default values indexed by search
+
+
+
 VERSION 3.22.0 RC1
 
 Featured Changes
