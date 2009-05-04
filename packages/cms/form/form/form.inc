@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219.2.3 2009/05/01 01:17:46 cupreti Exp $
+* $Id: form.inc,v 1.219.2.4 2009/05/04 22:23:49 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219.2.3 $
+* @version $Revision: 1.219.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4388,7 +4388,7 @@ class Form extends Asset implements Bridge
 		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
 
 		ob_start();
-			submit_button($this->getPrefix().'_reset', $button_name);
+			reset_button($this->getPrefix().'_reset', $button_name);
 		return ob_get_clean();
 
 	}//end getResetButtonKeywordReplacement()
