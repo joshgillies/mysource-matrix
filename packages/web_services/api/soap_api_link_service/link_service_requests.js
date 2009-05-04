@@ -375,7 +375,7 @@ function GetLinkByAsset(assetid, other_assetid, link_type, link_value, side_of_l
 function CreateLink(majorid, minorid, link_type, link_value, sort_order, is_dependant, is_exclusive)
 {
 	var soapBody	= "\
-<ns1:CreateLink>\	
+<ns1:CreateLink>\
 <MajorID>"+majorid+"</MajorID>\
 <MinorID>"+minorid+"</MinorID>\
 <LinkType>"+link_type+"</LinkType>\
