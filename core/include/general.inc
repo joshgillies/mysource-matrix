@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.213 2009/05/03 23:15:24 lwright Exp $
+* $Id: general.inc,v 1.214 2009/05/04 23:26:28 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix
 */
 
@@ -702,7 +702,9 @@ function is_ssl_accelerated()
 		
 		$match_method = SQ_SSLA_MATCH;
 		if ($match_method !== 'header') {
-			$host = $_SERVER['REMOTE_ADDR'];
+			$host = array_get_index($_SERVER, 'REMOTE_ADDR');
+			// If the host is not there, we'd be in CLI mode, so no acceleration
+			if ($host === NULL) $enabled = FALSE;
 			if (trim($host) !== trim(SQ_SSLA_IP)) {
 				$enabled = FALSE;
 			}
