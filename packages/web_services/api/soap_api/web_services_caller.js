@@ -74,28 +74,28 @@ function constructXmlHttpObj()
 
 /**
  * This function send the SOAP Request to the server to be processed
- * 
- * @param location
+ *
+ * @param host_location
  * @param soapRequest
  * @return
  */
-function send(location, soapRequest)
+function send(host_location, soapRequest, callback_fnc)
 {
 	var xmlHttpObj	= constructXmlHttpObj();
-	xmlHttpObj.open("POST", location, false);
+	xmlHttpObj.onreadystatechange=function()
+	{
+		if (xmlHttpObj.readyState == 4) {
+			var response	= xmlHttpObj.responseXML;
+			eval(callback_fnc+'(response)');
+		}
+	}
+
+	xmlHttpObj.open("POST", host_location, true);
 
 	xmlHttpObj.setRequestHeader("Content-Type", "text/xml");
 
 	xmlHttpObj.send(soapRequest);
 
-	xmlHttpObj.onreadystatechange=function()
-	{
-		if (xmlHttp.readyState == 4) {
-			var response	= xmlHttp.responseXML;
-			console.info(response);
-		}
-	}
-	
 }//end send()
 
 
