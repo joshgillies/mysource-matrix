@@ -129,3 +129,23 @@ function include_service_lib(service_name, system_root)
 	document.write('<script type="text/javascript" src="'+ full_path + '"></script>'); 
 	
 }//end include_service_lib
+
+
+function get_current_system_root(system_roots)
+{	
+	var host_location	= window.location.toString();
+	var re = new RegExp('^(?:f|ht)tp(?:s)?\://([^/]+)', 'im');
+	var hostname	= host_location.match(re)[1].toString();
+
+	var system_root	= '';
+	for (var root in system_roots) {
+		var host_match	= system_roots[root].match(hostname);
+		if (host_match !== null) {
+			system_root	= system_roots[root];
+			break;
+		}//end if
+	}//end for
+
+	return system_root;
+
+}//end get_current_system_root()
