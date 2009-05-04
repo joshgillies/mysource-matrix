@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.2 2009/04/29 04:43:51 hnguyen Exp $
+* $Id: soap_api_link_service.inc,v 1.3 2009/05/04 03:20:52 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -657,6 +657,7 @@ class Soap_Api_Link_Service extends Soap_Api
 		$obj_optional			= self::getArgType('AssetObject', 0, 1);
 		$link_details			= self::getArgType('LinkDetails', 0, 'unbounded', TRUE);
 		$link_info_summary		= self::getArgType('LinkInfoSummary', 0, 'unbounded', TRUE);
+		$children_info_summary	= self::getArgType('ChildrenInfoSummary', 0, 'unbounded', TRUE);
         $link_type				= self::getArgType('LinkTypeValue', 0, 1);
         $asset_types			= self::getArgType('AssetType', 0, 1);
 		$link_type				= self::getArgType('LinkTypeValue', 0, 1);
@@ -708,7 +709,7 @@ class Soap_Api_Link_Service extends Soap_Api
 																								'LinkValueWanted'	=> self::$string_optional,
 																							   ),
 															'GetChildrenResponse'			=> Array (
-																								'GetChildrenResult'	=> $link_info_summary,
+																								'GetChildrenResult'	=> $children_info_summary,
 																							   ),
 														   ),
 							'GetDependantChildren'		=> Array (
@@ -826,7 +827,7 @@ class Soap_Api_Link_Service extends Soap_Api
     	$link_details	= Array (
 							'LinkDetails'	=> Array (
 												'TreeID'			=> self::$string_optional,
-										   	'LinkID'			=> self::$string_non_optional,
+											   	'LinkID'			=> self::$string_non_optional,
 												'Level'				=> self::$string_optional,
 												'MinorID'			=> self::$string_optional,
 	        									'MajorID'			=> self::$string_optional,
@@ -851,6 +852,12 @@ class Soap_Api_Link_Service extends Soap_Api
                                            			     	'LinkInfoSummary'			=> Array (
 																							'AssetID'			=> self::$string_non_optional,
                                            			       									'TypeCode'			=> self::$string_optional,
+                                           			       								   ),
+                                           			   ),
+							'GetChildren'			=> Array (
+                                           			     	'ChildrenInfoSummary'		=> Array (
+																							'AssetID'			=> self::$string_non_optional,
+                                           			       									'TypeCode'			=> self::$string_non_optional,
                                            			       								   ),
                                            			   ),
                             'GetSchemasOnAsset'    => Array (
