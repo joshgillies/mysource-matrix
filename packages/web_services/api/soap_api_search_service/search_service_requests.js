@@ -98,12 +98,12 @@ function AdvancedSearch(asset_types, exclude_words, field_logic, limit, result_f
 	if (search_fields['DataSources']['StandardOption'] !== null) {
 		field_option	= 	'<StandardOption>'+
 								'<FieldName>'+search_fields['DataSources']['StandardOption']['FieldName']+'</FieldName>'+
-							'</StandardOption>'+
+							'</StandardOption>';
 	}//end if
 	if (search_fields['DataSources']['MetadataOption'] !== null) {
 		field_option	= 	'<MetadataOption>'+
 								'<MetadataFieldID>'+search_fields['DataSources']['MetadataOption']['MetadataFieldID']+'</MetadataFieldID>'+
-							'</MetadataOption>'+		
+							'</MetadataOption>';
 	}//end if
 	
 	var search_field_string	=	'<SearchTerm>'+search_fields['SearchTerm']+'</SearchTerm>'+
