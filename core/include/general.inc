@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.211.2.3 2009/05/04 23:27:41 lwright Exp $
+* $Id: general.inc,v 1.211.2.4 2009/05/05 01:23:15 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.211.2.3 $
+* @version $Revision: 1.211.2.4 $
 * @package MySource_Matrix
 */
 
@@ -696,6 +696,8 @@ function current_protocol()
 */
 function is_ssl_accelerated()
 {
+	if (SQ_PHP_CLI) return FALSE;
+
 	$enabled = FALSE;
 	if (SQ_SSLA_ENABLED) {
 		$enabled = TRUE;
