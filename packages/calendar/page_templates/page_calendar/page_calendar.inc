@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.222 2008/11/27 04:34:26 mbrydon Exp $
+* $Id: page_calendar.inc,v 1.223 2009/05/05 01:57:46 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.222 $
+* @version $Revision: 1.223 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -375,7 +375,8 @@ class Page_Calendar extends Page
 
 				// if there is no event and use_no_results_body_copy is true then we use the page_contents_no_results
 				$use_no_results_body_copy = $this->attr('use_no_results_body_copy');
-				if ( (!empty($use_no_results_body_copy)) && (($nb_events == 0) && !($cal_view))) {
+
+				if ( (!empty($use_no_results_body_copy)) && (($nb_events == 0) && !($event_view))) {
 				  $bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, 'page_contents_no_results');
 				  if (empty($bodycopy_link)) return FALSE;
 				  $contents_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
