@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.61 2008/05/18 23:58:20 lwright Exp $
+* $Id: thesaurus.inc,v 1.62 2009/05/05 06:32:12 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Elden McDonald <emcdonald@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 
 * @package MySource_Matrix_Packages
 * @subpackage __core__
@@ -553,6 +553,9 @@ class Thesaurus extends Asset implements Bridge
 		if (!isset($term) || $term == '') {
 			return NULL;
 		}
+		
+		// remove leading and trailing spaces	
+		$term = trim($term);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
@@ -833,6 +836,9 @@ class Thesaurus extends Asset implements Bridge
 	{
 
 		$term = $this->getTermById($termid);
+		
+		// remove leading and trailing spaces	
+		$name = trim($name);
 
 		// if nothing has changed, no need to do any work
 		if ($term['term'] == $name) return TRUE;
