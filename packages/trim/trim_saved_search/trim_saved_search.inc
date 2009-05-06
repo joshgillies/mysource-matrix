@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.9 2009/01/27 05:35:16 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.9.2.1 2009/05/06 06:56:38 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -187,6 +187,8 @@ class TRIM_Saved_Search extends Data_Source
 		// Check the cache
 		$result = $this->getCachedResults($hash);
 		if (!empty($result)) {
+			$ordered_result	= Array();	// A new result array with the new order if the order has been changed.
+
 			// Now we have cache. Lets get the records
 			$connection	= $this->getConnection();
 			if (!empty($connection['wsdl'])) {
@@ -204,7 +206,7 @@ class TRIM_Saved_Search extends Data_Source
 
 			$uris_to_delete	= array_diff($result_uris, $new_result_uris);
 			foreach ($result as $index	=> $record_info) {
-				if (in_array($record_info['Uri'], $uris_to_delete)) {
+				if (isset($record_info['Uri']) && in_array($record_info['Uri'], $uris_to_delete)) {
 					// Unlink file first
 					$dir_path	= $this->data_path.'/'.$record_info['Uri'];
 					$files_stored		= glob($dir_path.'/*');
@@ -233,12 +235,14 @@ class TRIM_Saved_Search extends Data_Source
 						// If Forced, dont even care about version number, update anyway.
 						if ($record_info['Version'] !== $new_record_info['Version'] || $forced) {
 							// UPDATE Check
-							$result[$index]	= $new_record_info;
+							$ordered_result[$new_index]	= $new_record_info;
 							if ($this->attr('download_files')) {
 								$this->storeDocumentList($connection, $new_record_info);
 							}//end if
-							$updated = TRUE;
 						} else {
+							// If this is the same version
+							$ordered_result[$new_index]	= $new_record_info;
+
 							// INTEGRITY Check
 							if (isset($new_record_info['recDocumentType']) && $new_record_info['recDocumentType'] != 'Record has no document attached.') {
 								// We have a file here, have to check whether it is still in the system
@@ -248,28 +252,29 @@ class TRIM_Saved_Search extends Data_Source
 								// If there is no file in there
 								if (empty($files_stored)) {
 									$this->storeDocumentList($connection, $new_record_info);
-									$updated = TRUE;
 								} else if (!isset($record_info['download_url'])) {
-									$result[$index]['document_url']		= $this->getURL().'?Uri='.$new_record_info['Uri'];
-									$updated = TRUE;
+									$ordered_result[$new_index]['document_url']		= $this->getURL().'?Uri='.$new_record_info['Uri'];
 								}//end else if
 							}//end if
 
 						}//end else
+						$updated	= TRUE;
 					}//end if
 				}//end foreach
 			}//end foreach
 
+			$ordered_result_uris		= $this->resultUris($result);
+
 			// New
-			if (count($new_object_list) > count($result)) {
-				$uris_to_add	= array_diff($new_result_uris, $result_uris);
+			if (count($new_object_list) > count($ordered_result)) {
+				$uris_to_add	= array_diff($new_result_uris, $ordered_result_uris);
 				foreach ($new_object_list as $index	=> $new_record_info) {
 					if (in_array($new_record_info['Uri'], $uris_to_add)) {
 						// We are taking it out again so we can modify it by reference
 						if ($this->attr('download_files')) {
 							$this->storeDocumentList($connection, $new_record_info);
 						}//end if
-						$result[]	=	$new_record_info;
+						$ordered_result[$index]	=	$new_record_info;
 						$updated = TRUE;
 					}//end if
 				}//end foreach
@@ -277,7 +282,7 @@ class TRIM_Saved_Search extends Data_Source
 
 			// Since we would have holes in our array keys as some entries is deleted, we need to reset the keys back to 0 onward.
 			// Data source expect the key values to be correctly sorted.
-			$result	= array_values($result);
+			$result	= array_values($ordered_result);
 			if ($updated) {
 				if (!empty($result)) {
 					$this->cacheResult($result, $hash);
