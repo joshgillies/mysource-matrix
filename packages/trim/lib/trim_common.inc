@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.6 2009/01/27 05:35:16 hnguyen Exp $
+* $Id: trim_common.inc,v 1.7 2009/05/06 06:56:16 hnguyen Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -120,9 +120,9 @@ class TRIM_Common
 	{
 		$recordSearch	= Array (
 							'Id'								=> 'recordsearch',
-							'Sort1Descending'					=> $record_search_options['sort_1_descending'],
-							'Sort2Descending'					=> $record_search_options['sort_2_descending'],
-							'Sort3Descending'					=> $record_search_options['sort_3_descending'],
+							'Sort1Descending'					=> (boolean) $record_search_options['sort_1_descending'],
+							'Sort2Descending'					=> (boolean) $record_search_options['sort_2_descending'],
+							'Sort3Descending'					=> (boolean) $record_search_options['sort_3_descending'],
 							'TargetForUpdate'					=> FALSE,
 							'IsForUpdate'						=> FALSE,
 							'Limit'								=> $record_search_options['limit'],
