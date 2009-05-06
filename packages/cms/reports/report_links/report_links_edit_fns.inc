@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.46 2009/03/26 23:36:05 bpearson Exp $
+* $Id: report_links_edit_fns.inc,v 1.46.2.1 2009/05/06 04:53:23 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -582,6 +582,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$description = translate('cms_report_links_server_timeout');
 			$valid = '0';
 		} else {
+			//remove non ascii chars from response
+			$response = preg_replace('/[^(\x20-\x7F)]*/','',$response);
 			$description = translate('cms_report_links_unknown_response', $response);
 			$valid = '0';
 		}
