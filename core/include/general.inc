@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.215 2009/05/05 01:22:35 lwright Exp $
+* $Id: general.inc,v 1.216 2009/05/06 16:14:12 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.215 $
+* @version $Revision: 1.216 $
 * @package MySource_Matrix
 */
 
@@ -1626,6 +1626,7 @@ function get_available_global_keywords()
 					'globals_get_' 		=> 'Global Keywords - Get Parameters',
 					'globals_post_' 	=> 'Global Keywords - Post Parameters',
 					'globals_session_' 	=> 'Global Keywords - Session',
+					'globals_cookie_' 	=> 'Global Keywords - Cookie',
 					'globals_server_' 	=> 'Global Keywords - Server',
 					'globals_date'	 	=> 'Global Keywords - Current Date and Time',
 					'globals_site_' 	=> 'Global Keywords - Current Site',
@@ -1675,6 +1676,10 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_session_')) {
 					$sub_keyword = substr($keyword, 16);
 					$replacements[$keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
+				}
+				if (0 === strpos($keyword, 'globals_cookie_')) {
+					$sub_keyword = substr($keyword, 15);
+					$replacements[$keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''));
 				}
 				if (0 === strpos($keyword, 'globals_server_')) {
 					$replacements[$keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
