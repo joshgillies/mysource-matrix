@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.122.2.1 2008/12/29 05:03:23 lwright Exp $
+* $Id: system_config.inc,v 1.122.2.2 2009/05/07 01:41:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.122.2.1 $
+* @version $Revision: 1.122.2.2 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -173,6 +173,10 @@ class System_Config extends Config
 				if (isset($vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'])) {
 					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = implode("\n", $vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS']);
 				}
+				else {
+					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = '';
+				}
+
 				if (isset($vars['SQ_CONF_STATIC_ROOT_URL']) && substr($vars['SQ_CONF_STATIC_ROOT_URL'], -1) == '/') {
 					$vars['SQ_CONF_STATIC_ROOT_URL'] = substr($vars['SQ_CONF_STATIC_ROOT_URL'], 0, strlen($vars['SQ_CONF_STATIC_ROOT_URL']) -1);
 				}
