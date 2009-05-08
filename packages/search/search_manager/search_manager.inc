@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.194.2.3 2009/04/26 23:25:49 akarelia Exp $
+* $Id: search_manager.inc,v 1.194.2.4 2009/05/08 01:21:36 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.194.2.3 $
+* @version $Revision: 1.194.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -632,7 +632,7 @@ class Search_Manager extends Asset
 		$param_data = Array();
 		$keys = array_keys($index_content);
 
-		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$sql = 'INSERT INTO
 					sq_sch_idx
 					(
@@ -707,6 +707,8 @@ class Search_Manager extends Asset
 			}
 
 		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		if (empty($param_data)) return FALSE;
 
