@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.216 2009/05/06 16:14:12 ata Exp $
+* $Id: general.inc,v 1.217 2009/05/08 09:36:06 ata Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix
 */
 
@@ -1677,7 +1677,7 @@ function replace_global_keywords(&$text)
 					$sub_keyword = substr($keyword, 16);
 					$replacements[$keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
 				}
-				if (0 === strpos($keyword, 'globals_cookie_')) {
+				if ((0 === strpos($keyword, 'globals_cookie_')) && (0 !== strpos($keyword, 'globals_cookie_SQ_'))) {
 					$sub_keyword = substr($keyword, 15);
 					$replacements[$keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''));
 				}
