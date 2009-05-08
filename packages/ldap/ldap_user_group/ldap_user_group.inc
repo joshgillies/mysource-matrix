@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.15 2009/01/19 00:16:18 mbrydon Exp $
+* $Id: ldap_user_group.inc,v 1.15.2.1 2009/05/08 00:21:03 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -106,96 +106,6 @@ class Ldap_User_Group extends User_Group
 
 	}//end _getAllowedLinks()
 
-
-	/**
-	* Prints a list of users for the passed group
-	*
-	* @param string	$groupid	the ID of the group that we are printing the user list for
-	*
-	* @return void
-	* @access public
-	*/
-	function printUserList($groupid)
-	{
-		if (!$this->_ldapid) return;
-
-		$ldap_bridge =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
-		if (is_null($ldap_bridge)) return;
-
-		$group =& $GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
-
-		$show = $ldap_bridge->attr('user_attributes');
-		if (!isset($show['show'])) {
-			$show = Array();
-		} else {
-			$show = $show['show'];
-		}
-
-		$special_attrs = $ldap_bridge->attr('attributes');
-
-		?>
-		<table class="sq_user_group">
-			<tr>
-				<td class="sq_user_group_heading" colspan="<?php echo count($show); ?>">
-					<?php
-					$url = $group->getURL();
-					if (!empty($url)) echo '<a href="'.$url.'">';
-					echo $group->name;
-					if (!empty($url)) echo '</a>';
-					?>
-				</td>
-			</tr>
-			<?php
-			$users = $GLOBALS['SQ_SYSTEM']->am->getLinks($groupid, SQ_LINK_TYPE_1, 'user');
-			if (!empty($users)) {
-				?>
-				<tr>
-					<?php
-					foreach ($show as $field_name => $display_name) {
-						?><td class="sq_user_group_display_name"><?php echo $display_name; ?></td><?php
-					}
-					?>
-				</tr>
-				<?php
-				foreach ($users as $link_data) {
-					$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
-
-					$info = $user->vars;
-					if (empty($info)) continue;
-
-					echo '<tr>';
-					foreach ($show as $field_name => $display_name) {
-						if (isset($info[$field_name])) {
-							$field_value = '';
-							$field_data = $info[$field_name];
-							$class = 'sq_user_group_user_data';
-
-							if ($special_attrs['email'] == $field_name) {
-								$class = 'sq_user_group_user_email';
-								foreach ($field_data as $email) {
-									if (!empty($field_value)) $field_value .= '<br />';
-									$field_value .= '<a href="mailto:'.$email.'">'.$email.'</a>';
-								}
-							} else {
-								if ($special_attrs['cn'] == $field_name) {
-									$class = 'sq_user_group_user_name';
-								}
-								$field_value = implode('<br />', $info[$field_name]);
-							}
-						} else {
-							$field_value = '&nbsp;';
-						}
-						?><td class="<?php echo $class; ?>"><?php echo $field_value; ?></td><?php
-					}
-					echo '</tr>';
-
-				}//end foreach
-
-			}//end if there are users
-
-		echo '</table>';
-
-	}//end printUserList()
 
 
 }//end class
