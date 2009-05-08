@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set_edit_fns.inc,v 1.7 2007/12/02 22:37:04 lwright Exp $
+* $Id: data_source_record_set_edit_fns.inc,v 1.8 2009/05/08 00:38:38 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -40,6 +40,19 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
+
+        unset($this->static_screens['workflow']);
+        unset($this->static_screens['metadataSchemas']);
+        unset($this->static_screens['permissions']);
+        unset($this->static_screens['roles']);
+        unset($this->static_screens['logs']);
+        unset($this->static_screens['dependants']);
+        unset($this->static_screens['metadata']);
+        unset($this->static_screens['settings']);
+        unset($this->static_screens['tagging']);
+        unset($this->static_screens['layouts']);
+        unset($this->static_screens['preview']);
+        unset($this->static_screens['history']);
 
 	}//end constructor
 
