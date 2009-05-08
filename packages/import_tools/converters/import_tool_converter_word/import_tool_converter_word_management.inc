@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_tool_converter_word_management.inc,v 1.4 2006/12/07 01:09:32 emcdonald Exp $
+* $Id: import_tool_converter_word_management.inc,v 1.5 2009/05/08 00:58:04 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -43,6 +43,10 @@ class Import_Tool_Converter_Word_Management extends Asset_Management
 	$this->vars['valid_file_types']['default'] = Array(
 													'doc',
 													'dot',
+													'docx',
+													'docm',
+													'dotx',
+													'dotm',
 												 );
 	$this->vars['create_asset_type']['default'] = 'Word_Doc';
 
