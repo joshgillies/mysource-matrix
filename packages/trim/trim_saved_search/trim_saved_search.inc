@@ -1,4 +1,5 @@
 <?php
+
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix Module file is Copyright (c) Squiz Pty Ltd    |
@@ -10,7 +11,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.10 2009/05/06 06:56:16 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.11 2009/05/11 04:11:48 hnguyen Exp $
 *
 */
 
@@ -27,7 +28,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -280,6 +281,9 @@ class TRIM_Saved_Search extends Data_Source
 				}//end foreach
 			}//end if
 
+			// We would have to sort the keys of the array first so array_values would not sort by pointer instead of index magnitude
+			ksort($ordered_result);
+
 			// Since we would have holes in our array keys as some entries is deleted, we need to reset the keys back to 0 onward.
 			// Data source expect the key values to be correctly sorted.
 			$result	= array_values($ordered_result);
@@ -322,6 +326,7 @@ class TRIM_Saved_Search extends Data_Source
 	public function getAttachedFile($uri)
 	{
 		$dir_path	= $this->data_path.'/'.$uri;
+		$path_parts	= Array();
 		if (file_exists($dir_path)) {
 			$dir	= new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path));
 			if (empty($dir)) return FALSE;
@@ -332,6 +337,10 @@ class TRIM_Saved_Search extends Data_Source
 		} else {
 			return FALSE;
 		}
+
+		if (empty($path_parts)) {
+			return FALSE;
+		}//end if
 
 		// Fix for IE caching
 		header("Pragma: public");
@@ -565,7 +574,10 @@ class TRIM_Saved_Search extends Data_Source
 		if ($this->readAccess()) {
 			$connection	= $this->getConnection();
 			if (isset($_GET['Uri']) && !empty($_GET['Uri'])) {
-				$this->getAttachedFile(($_GET['Uri']));
+				$download_result	= $this->getAttachedFile(($_GET['Uri']));
+				if (!$download_result) {
+					trigger_error('Unable to retrieve file', E_USER_WARNING);
+				}//end if
 			} else if (isset($_GET['check_update']) && !empty($_GET['check_update'])) {
 				if ($this->adminAccess()) {
 					echo 'var numUpdate = false;';
