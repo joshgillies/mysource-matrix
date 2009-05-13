@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.20 2008/05/19 05:18:57 bshkara Exp $
+* $Id: page_link_manager.inc,v 1.21 2009/05/13 05:27:11 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -423,7 +423,9 @@ class Page_Link_Manager extends Page_Asset_Listing
 		}//end if
 
 		// update the lookups of the managed asset
-		$managed_asset->updateLookups();
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array($managed_asset->id));
+		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
 		return TRUE;
 
