@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.44 2008/10/10 04:32:41 lwright Exp $
+* $Id: email_format.inc,v 1.44.4.1 2009/05/13 04:14:55 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.4.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -50,6 +50,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$this->_edit_params['show_from'] = TRUE;
 		$this->_edit_params['show_to'] = TRUE;
 		$this->_edit_params['show_inc_attachments'] = FALSE;
+		$this->_edit_params['show_asset_to_send'] = FALSE;
 
 	}//end constructor
 
@@ -116,6 +117,15 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 		if (!isset($current_value['attachments'])) {
 			$current_value['attachments'] = Array();
+		}
+		if (!isset($current_value['asset_to_send'])) {
+			$current_value['asset_to_send'] = '';
+		}
+		if (!isset($current_value['design_to_apply'])) {
+			$current_value['design_to_apply'] = '';
+		}
+		if (!isset($current_value['layout_to_apply'])) {
+			$current_value['layout_to_apply'] = '';
 		}
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/email_format.js"></script>
@@ -243,6 +253,29 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					</table>
 				</td>
 			</tr>
+			<?php if ($this->_edit_params['show_asset_to_send']) {?>
+				<tr>
+					<th><?php echo translate('asset_to_send'); ?></th>
+					<td>
+						<?php asset_finder($prefix.'_asset_to_send', $current_value['asset_to_send'], Array('page' => 'D')); ?><br/>
+						<?php echo translate('asset_to_send_desc'); ?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('design_to_apply'); ?></th>
+					<td>
+						<?php asset_finder($prefix.'_design_to_apply', $current_value['design_to_apply'], Array('design' => 'D')); ?><br/>
+						<?php echo translate('design_to_apply_desc'); ?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('layout_to_apply'); ?></th>
+					<td>
+						<?php asset_finder($prefix.'_layout_to_apply', $current_value['layout_to_apply'], Array('paint_layout_page' => 'D')); ?><br/>
+						<?php echo translate('layout_to_apply_desc'); ?>
+					</td>
+				</tr>
+			<?php } ?>
 		</table>
 		<?php
 
@@ -294,6 +327,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$value['from']    = (isset($_REQUEST[$prefix.'_from'])) ? $_REQUEST[$prefix.'_from'] : '';
 		$value['subject'] = (isset($_REQUEST[$prefix.'_subject'])) ? $_REQUEST[$prefix.'_subject'] : '';
 		$value['inc_attachments'] = (isset($_REQUEST[$prefix.'_inc_attachments'])) ? $_REQUEST[$prefix.'_inc_attachments'] : FALSE;
+		$value['asset_to_send'] = (isset($_REQUEST[$prefix.'_asset_to_send']['assetid'])) ? $_REQUEST[$prefix.'_asset_to_send']['assetid'] : '0';
+		$value['design_to_apply'] = (isset($_REQUEST[$prefix.'_design_to_apply']['assetid'])) ? $_REQUEST[$prefix.'_design_to_apply']['assetid'] : '0';
+		$value['layout_to_apply'] = (isset($_REQUEST[$prefix.'_layout_to_apply']['assetid'])) ? $_REQUEST[$prefix.'_layout_to_apply']['assetid'] : '0';
 
 		// from address is not specified, print a warning message
 		if (isset($value['to']) && !empty($value['to']) && empty($value['from'])) {
@@ -337,6 +373,17 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 		if (!isset($value['text_format'])) {
 			$test_value['text_format'] = '';
+		}
+		if (!isset($current_value['asset_to_send'])) {
+			$test_value['asset_to_send'] = '';
+		} /*else {
+			$test_value['subject'] = '';
+		}*/
+		if (!isset($current_value['design_to_apply'])) {
+			$test_value['design_to_apply'] = '';
+		}
+		if (!isset($current_value['layout_to_apply'])) {
+			$test_value['layout_to_apply'] = '';
 		}
 
 		$value = serialize($value);
@@ -396,7 +443,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			}
 		}
 
-		$to 	   = replace_keywords($current_value['to'], 		 $replacements);
+		$to 	   = replace_keywords($current_value['to'],	     $replacements);
 		$from      = replace_keywords($current_value['from'],        $replacements);
 		$subject   = replace_keywords($current_value['subject'],     $replacements);
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
@@ -404,6 +451,26 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		// Firefox fix for html body
 		if (trim($html_body) == '<br>') $html_body = '';
+		if (isset($current_value['asset_to_send']) && $current_value['asset_to_send'] != 0) {
+			$html_body = '';
+			$text_body = '';
+			// make an array of asset_id, design_id, and layout_id obtained from asset_picker in trigger and
+			// put then in an array to be passed to generateRawContent()
+			$details = Array(
+						'content_id'		=> $current_value['asset_to_send'],
+						'content_design'	=> $current_value['design_to_apply'],
+						'content_layout'	=> $current_value['layout_to_apply'],
+					   );
+			$html_body = $GLOBALS['SQ_SYSTEM']->am->generateRawContent($details);
+		} else {
+			// replace internal links to pages and images with their full URLs
+			$matches = Array();
+			preg_match_all('|\./\?a=([0-9]+)|', $html_body, $matches);
+			$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($matches[1]));
+			foreach ($urls as $assetid => $url) {
+				$html_body = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $html_body);
+			}
+		}
 
 		$to =  array_unique(array_merge($to, $assetid_emails));
 
@@ -415,14 +482,6 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		if (empty($from)) {
 			trigger_localised_error('SYS0315', E_USER_WARNING);
 			return;
-		}
-
-		// replace internal links to pages and images with their full URLs
-		$matches = Array();
-		preg_match_all('|\./\?a=([0-9]+)|', $html_body, $matches);
-		$urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($matches[1]));
-		foreach ($urls as $assetid => $url) {
-			$html_body = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $html_body);
 		}
 
 		require_once 'Mail.php';

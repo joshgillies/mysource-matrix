@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.86.2.1 2009/04/08 01:41:53 mbrydon Exp $
+* $Id: bulk_mailer.inc,v 1.86.2.2 2009/05/13 04:15:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.86.2.1 $
+* @version $Revision: 1.86.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -828,9 +828,7 @@ class Bulk_Mailer
 	/**
 	* Generate the raw content to be sent, ignoring user switching and recpient keyword replacement
 	*
-	* @param object	&$page	The asset whose content is to be sent
-	* @param int	$design_id	The ID of the design to use when generating the content
-	* @param int	$layout_id	The ID of the paint layout to use when generating the content
+	* @param array	$details	The details of the job
 	*
 	* @return string
 	* @access private
@@ -838,31 +836,8 @@ class Bulk_Mailer
 	*/
 	public static function generateRawContent($details)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$page = $am->getAsset($details['content_id']);
-		if (empty($page)) return '';
-
-		$design_id = array_get_index($details, 'content_design');
-		$layout_id = array_get_index($details, 'content_layout');
-
-		ob_start();
-			// generate content based on design and paint layout supplied
-			if ($design_id && $layout_id) {
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
-				$design = $am->getAsset($design_id);
-				$design->paint($page);
-			} else if ($design_id) {
-				$design = $am->getAsset($design_id);
-				$design->paint($page);
-			} else if ($layout_id) {
-				$layout = $am->getAsset($layout_id);
-				$layout->paint($page);
-			} else {
-				@$page->printFrontend();
-			}
-			$content = ob_get_contents();
-		ob_end_clean();
-		return $content;
+		// moved functionality to asset_manager.inc for reusing the codes in triggers
+		return $GLOBALS['SQ_SYSTEM']->am->generateRawContent($details);
 
 	}//end generateRawContent()
 

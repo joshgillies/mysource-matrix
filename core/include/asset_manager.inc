@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.723.2.2 2009/04/29 03:55:59 ewang Exp $
+* $Id: asset_manager.inc,v 1.723.2.3 2009/05/13 04:13:20 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.723.2.2 $
+* @version $Revision: 1.723.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9122,6 +9122,44 @@ class Asset_Manager extends MySource_Object
 		return $keywords;
 
 	}//end getSnippetKeywords()
+
+
+	/**
+	* Generate the raw content to be sent, ignoring user switching and recpient keyword replacement
+	*
+	* @param array	$details	The details of the job
+	*
+	* @return string
+	* @access public
+	*/
+	public function generateRawContent($details)
+	{
+		$page = $this->getAsset($details['content_id']);
+		if (empty($page)) return '';
+
+		$design_id = array_get_index($details, 'content_design');
+		$layout_id = array_get_index($details, 'content_layout');
+
+		ob_start();
+			// generate content based on design and paint layout supplied
+			if ($design_id && $layout_id) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
+				$design = $this->getAsset($design_id);
+				$design->paint($page);
+			} else if ($design_id) {
+				$design = $this->getAsset($design_id);
+				$design->paint($page);
+			} else if ($layout_id) {
+				$layout = $this->getAsset($layout_id);
+				$layout->paint($page);
+			} else {
+				$page->printFrontend();
+			}
+			$content = ob_get_contents();
+		ob_end_clean();
+		return $content;
+
+	}//end generateRawContent()
 
 
 }//end class

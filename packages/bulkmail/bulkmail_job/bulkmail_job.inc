@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.41 2008/12/12 02:03:12 akarelia Exp $
+* $Id: bulkmail_job.inc,v 1.41.2.1 2009/05/13 04:15:39 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -212,33 +212,10 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	* @return string
 	* @access public
 	*/
-	public function generateRawContent($details)
+	public static function generateRawContent($details)
 	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$page = $am->getAsset($details['content_id']);
-		if (empty($page)) return '';
-
-		$design_id = array_get_index($details, 'content_design');
-		$layout_id = array_get_index($details, 'content_layout');
-
-		ob_start();
-			// generate content based on design and paint layout supplied
-			if ($design_id && $layout_id) {
-				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
-				$design = $am->getAsset($design_id);
-				$design->paint($page);
-			} else if ($design_id) {
-				$design = $am->getAsset($design_id);
-				$design->paint($page);
-			} else if ($layout_id) {
-				$layout = $am->getAsset($layout_id);
-				$layout->paint($page);
-			} else {
-				@$page->printFrontend();
-			}
-			$content = ob_get_contents();
-		ob_end_clean();
-		return $content;
+		// moved functionality to asset_manager.inc for reusing the codes in triggers
+		return $GLOBALS['SQ_SYSTEM']->am->generateRawContent($details);
 
 	}//end generateRawContent()
 

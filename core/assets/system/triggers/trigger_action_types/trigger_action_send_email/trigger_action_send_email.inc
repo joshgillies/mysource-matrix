@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.21 2008/07/21 23:53:00 mbrydon Exp $
+* $Id: trigger_action_send_email.inc,v 1.21.4.1 2009/05/13 04:14:24 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,6 +201,8 @@ class Trigger_Action_Send_Email extends Trigger_Action
 		$email_format_value = array_get_index($settings, 'email_format_value', Array());
 		$atr_email_format = new Asset_Attribute_Email_Format(0, $email_format_value);
 		$atr_email_format->setEditParam('with_asset_finder', TRUE);
+		// set attr value for show_asset_to_send to true so that we have an option to send as asset in email instead
+		$atr_email_format->setEditParam('show_asset_to_send', TRUE);
 
 		$parameter_map_value = array_get_index($settings, 'email_recipient_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);

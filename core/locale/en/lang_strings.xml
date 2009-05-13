@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.5 2009/05/04 00:12:06 lwright Exp $
+* $Id: lang_strings.xml,v 1.311.2.6 2009/05/13 04:13:48 akarelia Exp $
 *
 */
 
@@ -73,7 +73,8 @@
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="cannot_make_live_metadata_incomplete">This asset cannot be made live because some mandatory %s fields are empty</string>
 	<string source="cannot_approve_metadata_incomplete">This asset cannot be approved to go live because some mandatory %s fields are empty</string>
-
+	<string source="asset_to_send">Asset To Send</string>
+    <string source="asset_to_send_desc">The content you would like sent in the emails&lt;br /&gt;Note : If asset is selected to send, then Body of the email will not be sent</string>
 	<string source="asset_type_counts">Asset Type Counts</string>
 	<string source="asset_types">Asset Types</string>
 	<string source="asset_type">Asset Type</string>
@@ -139,6 +140,8 @@
 	<string source="description">Description</string>
 	<string source="design_code">Design Code</string>
 	<string source="design">Design</string>
+	<string source="design_to_apply">Design to Apply</string>
+	<string source="design_to_apply_desc">Design to apply to the content</string>
 	<string source="details_of_original_patch">Details of Original Patch</string>
 	<string source="disallow_user_info">Disallow User Info</string>
 	<string source="disallow_user_info_note">If yes, then prevent users having their username or other user information as their password.</string>
@@ -199,6 +202,8 @@
 	<string source="keyword_extraction_tools">Keyword Extraction Tools</string>
 	<string source="keyword_name">Keyword Name</string>
 	<string source="layout_code">Layout Code</string>
+	<string source="layout_to_apply">Layout to Apply</string>
+	<string source="layout_to_apply_desc">Paint layout to apply to the content</string>
 	<string source="level">Level</string>
 	<string source="links">Links</string>
 	<string source="lineage">Lineage</string>
@@ -296,6 +301,7 @@
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
+	<string source="send_an_asset">Send An Asset</string>
 	<string source="show_diff">Show Diff</string>
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
