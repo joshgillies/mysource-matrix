@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.725 2009/04/29 03:51:22 ewang Exp $
+* $Id: asset_manager.inc,v 1.726 2009/05/13 04:16:19 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.725 $
+* @version $Revision: 1.726 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1908,7 +1908,6 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-
 		//// clone links ////
 
 		// we've created the asset, now link it to its new parent
@@ -3050,7 +3049,6 @@ class Asset_Manager extends MySource_Object
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE)
 	{
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
-
 		$force_array = FALSE;
 
 		if (!is_array($assetid)) {
@@ -3140,7 +3138,7 @@ class Asset_Manager extends MySource_Object
 				continue;
 
 			}//end if shadow asset
-
+;
 			// we are not getting links for a shadow asset, so if we are getting child links of
 			// an asset that handles shadow assets, palm the request off to it
 			if ($side_of_link == 'major') {
@@ -9122,6 +9120,44 @@ class Asset_Manager extends MySource_Object
 		return $keywords;
 
 	}//end getSnippetKeywords()
+
+
+	/**
+	* Generate the raw content to be sent, ignoring user switching and recpient keyword replacement
+	*
+	* @param array	$details	The details of the job
+	*
+	* @return string
+	* @access public
+	*/
+	public function generateRawContent($details)
+	{
+		$page = $this->getAsset($details['content_id']);
+		if (empty($page)) return '';
+
+		$design_id = array_get_index($details, 'content_design');
+		$layout_id = array_get_index($details, 'content_layout');
+
+		ob_start();
+			// generate content based on design and paint layout supplied
+			if ($design_id && $layout_id) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
+				$design = $this->getAsset($design_id);
+				$design->paint($page);
+			} else if ($design_id) {
+				$design = $this->getAsset($design_id);
+				$design->paint($page);
+			} else if ($layout_id) {
+				$layout = $this->getAsset($layout_id);
+				$layout->paint($page);
+			} else {
+				$page->printFrontend();
+			}
+			$content = ob_get_contents();
+		ob_end_clean();
+		return $content;
+
+	}//end generateRawContent()
 
 
 }//end class

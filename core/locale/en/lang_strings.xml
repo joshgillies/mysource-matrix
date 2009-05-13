@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.316 2009/05/03 23:15:24 lwright Exp $
+* $Id: lang_strings.xml,v 1.317 2009/05/13 04:16:37 akarelia Exp $
 *
 */
 
@@ -138,6 +138,8 @@
 	<string source="delete_link">Delete Link</string>
 	<string source="description">Description</string>
 	<string source="design_code">Design Code</string>
+	<string source="design_to_apply">Design to Apply</string>
+	<string source="design_to_apply_desc">Design to apply to the content</string>
 	<string source="design">Design</string>
 	<string source="details_of_original_patch">Details of Original Patch</string>
 	<string source="disallow_user_info">Disallow User Info</string>
@@ -199,6 +201,8 @@
 	<string source="keyword_extraction_tools">Keyword Extraction Tools</string>
 	<string source="keyword_name">Keyword Name</string>
 	<string source="layout_code">Layout Code</string>
+	<string source="layout_to_apply">Layout to Apply</string>
+	<string source="layout_to_apply_desc">Paint layout to apply to the content</string>
 	<string source="level">Level</string>
 	<string source="links">Links</string>
 	<string source="lineage">Lineage</string>
@@ -1567,6 +1571,7 @@
 	<string source="roles_system_disabled">The Roles System is disabled</string>
 	<string source="select_a_role">Select a role:</string>
 	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
+	<string source="send_an_asset">Send An Asset</string>
 	<string source="roles">Roles</string>
 	<string source="role">Role</string>
 	<string source="users">Users</string>
@@ -1705,6 +1710,8 @@
 	<string source="delete_row_question">Delete row %s ?</string>
 	<string source="delete_row">Delete Row</string>
 	<string source="add_row">Add Row</string>
+	<string source="asset_to_send">Asset To Send</string>
+	<string source="asset_to_send_desc">The content you would like sent in the emails&lt;br /&gt;Note : If asset is selected to send, then Body of the email will not be sent</string>
 	<string source="edit_row_question">Edit row %s Properties</string>
 	<string source="edit_row">Edit Row Properties</string>
 	<string source="reorder_rows_question">Reorder %s's Rows ?</string>
