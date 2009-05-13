@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.144 2009/03/16 05:59:18 mbrydon Exp $
+* $Id: html_form.inc,v 1.145 2009/05/13 06:56:23 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1411,6 +1411,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 	$asset_info_ids = Array();
 
 	$invalid = Array();
+	$invalid_type = Array();
 
 	// weed out any unwanted entries
 	foreach ($all_child_links as $treeid => $data) {
