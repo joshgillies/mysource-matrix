@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.266.2.9 2009/03/25 23:19:09 csmith Exp $
+* $Id: listing_engine.inc,v 1.266.2.10 2009/05/14 06:55:35 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.266.2.9 $
+* @version $Revision: 1.266.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -695,7 +695,7 @@ class Listing_Engine extends Page
 
 		$num_per_page = $this->attr('num_per_page');
 
-		$asset_result_page_var   = $this->id.'_result_page';
+		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		// have [assetid]_result_page take precedence over result_page
@@ -807,7 +807,7 @@ class Listing_Engine extends Page
 		// note that we never cache the results of a random asset listing for obvious reasons
 		$cache_key = '';
 
-		$asset_result_page_var   = $this->id.'_result_page';
+		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		switch ($group_by) {
@@ -1479,7 +1479,7 @@ class Listing_Engine extends Page
 
 		$this->_tmp['result_page'] = 1;
 
-		$asset_result_page_var   = $this->id.'_result_page';
+		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		switch ($group_by) {
@@ -1744,7 +1744,7 @@ class Listing_Engine extends Page
 			$start_page = max(1, min(($current_page - floor($window_size / 2)), $total_pages - $window_size + 1));
 			$end_page = min($total_pages, $start_page + $window_size - 1);
 		}
-		$asset_result_page_var = $this->id.'_result_page';
+		$asset_result_page_var = 'result_'.$this->id.'_result_page';
 		$page_list = '';
 		for ($i = $start_page; $i <= $end_page; $i++) {
 			if ($i == $current_page) {
@@ -1881,7 +1881,7 @@ class Listing_Engine extends Page
 			// get the group bodycopy relative to this level
 			$remaining_groups = array_shift($group_info);
 			$format_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($remaining_groups['format_assetid']);
-			$format_keywords = $format_bodycopy ->getKeywords();
+			$format_keywords = $format_bodycopy->getKeywords();
 			foreach ($todo as $group_level => $value) {
 					// lets buffer whatever contents we need
 					$replacements = Array();
