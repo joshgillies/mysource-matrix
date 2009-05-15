@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: antivirus.inc,v 1.1.1.1 2009/02/11 22:52:19 bpearson Exp $
+* $Id: antivirus.inc,v 1.2 2009/05/15 06:36:41 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Antivirus functions
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage Antivirus
 */
@@ -43,9 +43,9 @@ class Antivirus
 	*/
 	public static function scan_file($path='', &$report, $recursive=FALSE)
 	{
+
 		// Default to OK
 		$status = TRUE;
-
 		// The check we are using a valid virus scanner
 		$using_av = FALSE;
 		$scanned = FALSE;
@@ -86,7 +86,7 @@ class Antivirus
 					foreach($options as $option) {
 						$path_to_av .= ' '.$option;
 					}//end foreach
-					$command = $path_to_av.' '.$file.' 2>&1';
+					$command = $path_to_av.' '.escapeshellarg($file).' 2>&1';
 
 					// Run the command
 					exec($command, $av, $return);
@@ -115,8 +115,8 @@ class Antivirus
 				}//end if
 			}//end if
 		}//end if
-
 		// Return
+
 		return $status;
 
 	}//end scan_file()

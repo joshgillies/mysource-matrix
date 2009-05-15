@@ -10,13 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.7 2007/12/20 22:06:04 bshkara Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.8 2009/05/15 06:28:57 ewang Exp $
 *
 */
 
 
 require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc';
-
 /**
 * Form_Question_Rule_Type_File_Type
 *
@@ -24,7 +23,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,6 +82,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	*/
 	function valueTest($answer, $operator, &$comparison)
 	{
+	
 		if (strrpos($answer, '.') === false) {
 			$extension = '';
 		} else {
@@ -116,23 +116,45 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	* @access public
 	* @return boolean true only if rule succeeds
 	*/
-	function evaluate($answer, $rule_data)
+	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		if (empty($answer) || $answer == 'No file uploaded') return true;
+		require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+		//get all data we need
+		$answer = $_FILES['q'.$q_asset->id];
+		$temp_file = $answer['tmp_name'];
+		$answer_name = $answer['name'];
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$comparison = array_get_index($rule_data, 'value', '');
-
-		if (strrpos($answer, '.') === false) {
+		$check_mime = array_get_index($rule_data, 'check_mime', TRUE);
+		
+		if (strrpos($answer_name, '.') === false) {
 			$extension = '';
 		} else {
-			$extension = substr($answer, strrpos($answer, '.') + 1);
+			$extension = substr($answer_name, strrpos($answer_name, '.') + 1);
 		}
+
+
+		//skip test if no file is uploaded
+		if ((empty($answer_name) || $answer_name == 'No file uploaded') && empty($temp_file)) return TRUE;
+		
+
+		//check MIME type conistency for the temp uploaded file
+		//file MIME, extension MIME should be consistent, we can't rely on browser MIME type
+		if ($check_mime){
+			$MIME_type = mime_content_type($temp_file);
+			$MIME_type_extension = isset($standards_lists_mime_types[strtolower($extension)]) ? $standards_lists_mime_types[strtolower($extension)] : '';
+
+			if(empty($MIME_type)) return FALSE;
+			if(empty($MIME_type_extension)|| $MIME_type_extension != $MIME_type) return FALSE;
+		}
+		
+				
 
 		// If the extension is empty, return as invalid, otherwise strpos will not take empty argument. 
 		if (empty($extension) && !empty($comparison)) {
 			$valid = 0;
 		} else {
-			$valid = (strpos(strtolower($comparison), strtolower($extension)) !== false) ? 1 : 0;
+			$valid = (strpos(strtolower($comparison), strtolower($extension)) !== FALSE) ? 1 : 0;
 		}
 
 		return ($valid == $operator);

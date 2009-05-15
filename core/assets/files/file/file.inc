@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.176 2009/05/03 23:15:24 lwright Exp $
+* $Id: file.inc,v 1.177 2009/05/15 06:42:09 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,7 @@ class File extends Asset
 	public function create(Array &$link, $info=Array())
 	{
 		$this->_tmp['file_create_data'] =& $info;
-
+	
 		if (empty($info)) {
 			// Try getting the uploaded file details
 			$info = get_file_upload_info($this->getPrefix());
@@ -117,16 +117,6 @@ class File extends Asset
 		if (!isset($info['filename'])) {
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
-
-		// Check for a virus
-		if (isset($info['path']) && !empty($info['path'])) {
-			$status = $this->scanFile($info['path']);
-			// If infected, remove and warn the user
-			if (!$status) {
-				trigger_localised_error('CORE0300', E_USER_WARNING, $info['filename']);
-				return FALSE;
-			}//end if
-		}//end if
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			if (!$this->validFile($info)) return FALSE;
@@ -1411,7 +1401,6 @@ class File extends Asset
 	{
 		// Default to not scanned
 		$status = TRUE;
-
 		// Load the virus checker
 		require_once SQ_FUDGE_PATH.'/antivirus/antivirus.inc';
 

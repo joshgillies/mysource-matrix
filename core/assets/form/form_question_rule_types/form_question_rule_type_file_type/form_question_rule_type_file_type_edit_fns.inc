@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.5 2007/11/06 06:12:58 rong Exp $
+* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.6 2009/05/15 06:29:26 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,7 +52,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 			$o->openField(translate('core_form_rule_details'));
 			echo translate('core_form_rule_file_type_edit_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $rule_data['value']);
 			$o->closeField();
-
+			
 		} else {
 
 			$o->openField(translate('operator'));
@@ -65,6 +65,10 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 			$option_list = new Asset_Attribute_Option_List(0, array_get_index($rule_data, 'value', ''));
 			$option_list->paint($prefix.'_value');
 
+			$o->closeField();
+			// check mime type?	
+			$o->openField(translate('core_form_rule_file_type_enforce_check_mime'));
+			check_box($prefix.'[check_mime]', TRUE, array_get_index($rule_data, 'check_mime', TRUE));
 			$o->closeField();
 
 			$o->sectionNote(translate('core_form_rule_file_type_note'));
@@ -87,9 +91,11 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 
 		$operator = array_get_index($_POST[$prefix], 'operator', null);
 		$comparison = trim(implode("\r\n", array_get_index($_POST, str_replace(':', '_', $prefix).'_value_options', Array())));
+		$check_mime = array_get_index($_POST[$prefix], 'check_mime', FALSE);
 
 		$rule_data['operator'] = $operator;
 		$rule_data['value'] = $comparison;
+		$rule_data['check_mime'] = $check_mime;
 
 		return true;
 

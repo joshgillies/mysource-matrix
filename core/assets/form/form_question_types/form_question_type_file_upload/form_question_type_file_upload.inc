@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.36 2009/04/08 03:27:21 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.37 2009/05/15 06:36:09 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,7 +220,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function getAllowedRules()
 	{
-		return Array('file_size', 'file_type');
+		return Array('file_size', 'file_type', 'file_virus_check');
 
 	}//end getAllowedRules()
 
@@ -472,6 +472,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 			// We are all good, so create the file
 			if ($ok) {
+				
 				if ($existing_asset) {
 					// update the existing file asset
 					$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($existing_asset->id, 'attributes');
@@ -616,6 +617,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$file_info = $this->_tmp['file_info'];
 
 		if ($file_info['error'] === UPLOAD_ERR_OK) {
+
 			$submission_path = $this->getTempFileUploadPath($parent);
 			create_directory($submission_path);
 
@@ -629,7 +631,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 			}
 
 			$submission_file_name = $submission_path.'/'.$file_info['name'];
-
 			move_uploaded_file($file_info['tmp_name'], $submission_file_name);
 			$this->setValue(basename($submission_file_name));
 		}
