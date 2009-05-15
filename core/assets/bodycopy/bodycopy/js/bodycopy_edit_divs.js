@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.11 2007/10/25 23:23:03 rong Exp $
+* $Id: bodycopy_edit_divs.js,v 1.12 2009/05/15 04:10:00 wszymanski Exp $
 *
 */
 
@@ -46,7 +46,7 @@ function bodycopy_edit_div_properties(bodycopy_name, divid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_div_props.php", 320, 440);
+	bodycopy_show_popup("edit_div_props.php", 320, 460);
 }// end bodycopy_edit_div_properties()
 
 function bodycopy_save_div_properties(attributes) {

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_tables.js,v 1.11 2007/10/25 23:23:03 rong Exp $
+* $Id: bodycopy_edit_tables.js,v 1.12 2009/05/15 04:10:00 wszymanski Exp $
 *
 */
 
@@ -47,7 +47,7 @@ function bodycopy_edit_table_properties(bodycopy_name, tableid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_table_props.php", 380, 500);
+	bodycopy_show_popup("edit_table_props.php", 380, 540);
 }// end bodycopy_edit_table_properties()
 
 function bodycopy_save_table_properties(attributes) {
@@ -99,7 +99,7 @@ function bodycopy_edit_table_row_properties(bodycopy_name, tableid, rowid) {
 	bodycopy_current_edit["data"]["rowid"]   = rowid;
 	var data = get_bodycopy_current_table_data(bodycopy_name, tableid, rowid);
 	bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
-	bodycopy_show_popup("edit_table_row_props.php", 270, 170);
+	bodycopy_show_popup("edit_table_row_props.php", 270, 220);
 }// end bodycopy_edit_table_row_properties()
 
 function bodycopy_save_table_row_properties(attributes) {
@@ -159,7 +159,7 @@ function bodycopy_edit_table_cell_properties(bodycopy_name, tableid, rowid, cell
 	bodycopy_current_edit["data"]["available_types"] = get_bodycopy_available_content_types();
 	var data = get_bodycopy_current_table_data(bodycopy_name, tableid, rowid, cellid);
 	bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
-	bodycopy_show_popup("edit_table_cell_props.php", 310, 350);
+	bodycopy_show_popup("edit_table_cell_props.php", 310, 380);
 }// end bodycopy_edit_table_cell_properties()
 
 function bodycopy_save_table_cell_properties(attributes) {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.317 2009/05/13 04:16:37 akarelia Exp $
+* $Id: lang_strings.xml,v 1.318 2009/05/15 04:10:00 wszymanski Exp $
 *
 */
 
@@ -890,6 +890,10 @@
 	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode</string>
 	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference</string>
 	<string source="bodycopy_insert_table">Insert Table</string>
+	<string source="text_direction">Text direction settings</string>	
+	<string source="bodycopy_direction">Direction:</string>
+	<string source="bodycopy_right_to_left">Rigth to left</string>
+	<string source="bodycopy_left_to_right">Left to right</string>	
 	<string source="table_styles-colours">Table Styles / Colours</string>
 	<string source="style_information">Style Information</string>
 	<string source="presentation">Presentation</string>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_props.php,v 1.13 2007/10/25 23:23:03 rong Exp $
+* $Id: edit_table_props.php,v 1.14 2009/05/15 04:10:00 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -53,6 +53,7 @@ include(dirname(__FILE__).'/header.php');
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
 
 		f.disable_keywords.checked = (data["disable_keywords"] == "1");
+		f.dir.value  = (data['dir']  == null) ? "" : data['dir'];
 
 	}// end popup_init()
 
@@ -70,6 +71,7 @@ include(dirname(__FILE__).'/header.php');
 		data["cellspacing"]		 = owner.form_element_value(f.cellspacing);
 		data["cellpadding"]		 = owner.form_element_value(f.cellpadding);
 		data["disable_keywords"] = owner.form_element_value(f.disable_keywords);
+		data["dir"] = owner.form_element_value(f.dir);
 		owner.bodycopy_save_table_properties(data);
 	}
 
@@ -181,6 +183,25 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					</td>
 				</tr>
 			</table>
+		</td>
+	</tr>
+	<tr>
+		<td width="100%">
+			<fieldset>
+				<legend><b><?php echo translate('text_direction'); ?></b></legend>
+				<table style="width:100%">
+					<tr>
+						<td class="bodycopy-popup-heading"><?php echo translate('bodycopy_direction'); ?></td>
+						<td>
+							<select name="dir">
+								<option value=""><?php echo translate('content_type_no_change'); ?></option>
+								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
+								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+							</select>
+						</td> 
+					</tr>				
+				</table>
+			</fieldset>
 		</td>
 	</tr>
 	<tr>
