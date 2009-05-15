@@ -1,0 +1,32 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.2.2 2009/05/15 06:49:21 ewang Exp $
+*
+* Localised Strings File for Uploaded File Type Form Question Rule Asset
+*/
+-->
+
+<strings>
+<string source="core_form_rule_file_virus_check_enable">Enable Virus Checking?</string>
+<string source="core_form_rule_file_virus_check_indicator_content_customise">Custom Progress Indicator Text</string>
+<string source="core_form_rule_file_virus_check_indicator_content_default">Virus scanning is underway, please wait...</string>
+<string source="core_form_rule_file_virus_check_indicator_class_customise">Custom Progress Indicator Class</string>
+<string source="core_form_rule_file_virus_check_indicator_class_default">virus_scan_indicator</string>
+<string source="core_form_rule_file_virus_check_warning">Virus Checker has to be configured and enabled in External Tool Configuration first.</string>
+<string source="core_form_rule_file_virus_check_true">Yes</string>
+<string source="core_form_rule_file_virus_check_false">No</string>
+
+<string source="core_form_rule_file_virus_check_note">Virus scanning progress indicator can only be displayed and customised when client side validation is turned on.</string>
+<string source="core_form_rule_file_virus_check_error_true">Name of uploaded file "%1$s" at question "%2$s" is invalid - Virus was detected</string>
+
+</strings>

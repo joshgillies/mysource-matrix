@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.35.2.1 2009/04/08 03:29:04 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.35.2.2 2009/05/15 06:53:03 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,7 +220,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	*/
 	function getAllowedRules()
 	{
-		return Array('file_size', 'file_type');
+		return Array('file_size', 'file_type', 'file_virus_check');
 
 	}//end getAllowedRules()
 
