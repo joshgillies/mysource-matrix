@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_cell_props.php,v 1.8 2006/12/05 05:34:15 emcdonald Exp $
+* $Id: edit_table_cell_props.php,v 1.8.12.1 2009/05/15 07:17:11 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,10 @@ include(dirname(__FILE__).'/header.php');
 		available_types = owner.bodycopy_current_edit["data"]["available_types"];
 
 		var f = document.main_form;
-		f.width.value   = (data['width']  == null) ? "" : data['width'];
+		f.width.value	= (data['width']  == null) ? "" : data['width'];
 		f.height.value  = (data['height'] == null) ? "" : data['height'];
 		f.colspan.value = (data['colspan'] == null) ? "" : data['colspan'];
+		f.dir.value 	= (data['dir'] == null) ? "" : data['dir'];
 		f.bgcolor.value = (data['bgcolor'] == null) ? "" : data['bgcolor'];
 
 		owner.highlight_combo_value(f.align,  data['align']);
@@ -67,14 +68,15 @@ include(dirname(__FILE__).'/header.php');
 	function save_props(f) {
 
 		var data = new Object();
-		data["width"]    = owner.form_element_value(f.width);
+		data["width"]	 = owner.form_element_value(f.width);
 		data["height"]   = owner.form_element_value(f.height);
 		data["colspan"]  = owner.form_element_value(f.colspan);
+		data["dir"]		 = owner.form_element_value(f.dir);
 		data["bgcolor"]  = owner.form_element_value(f.bgcolor);
 		data["align"]    = owner.form_element_value(f.align);
 		data["valign"]   = owner.form_element_value(f.valign);
 		data["nowrap"]   = owner.form_element_value(f.nowrap);
-		data["type"]     = owner.form_element_value(f.type);
+		data["type"] 	 = owner.form_element_value(f.type);
 		owner.bodycopy_save_table_cell_properties(data);
 	}
 </script>
@@ -102,7 +104,7 @@ include(dirname(__FILE__).'/header.php');
 							<tr>
 								<td class="label"><?php echo translate('colspan'); ?>:</td>
 								<td><input type="text" name="colspan" value="" size="5"></td>
-							</tr>
+							</tr>							
 						</table>
 						</fieldset>
 					</td>
@@ -138,6 +140,25 @@ include(dirname(__FILE__).'/header.php');
 					</td>
 				</tr>
 			</table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<fieldset>
+			<legend><b><?php echo translate('text_direction'); ?></b></legend>
+				<table style="width:100%">
+					<tr>
+						<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
+						<td>
+							<select name="dir">
+								<option value=""><?php echo translate('content_type_no_change'); ?></option>
+								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
+								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+							</select>
+						</td> 
+					</tr>
+				</table>
+			</fieldset>
 		</td>
 	</tr>
 	<tr>

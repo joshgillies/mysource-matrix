@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.23 2008/11/14 00:43:43 akarelia Exp $
+* $Id: edit_div_props.php,v 1.23.4.1 2009/05/15 07:17:11 wszymanski Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,8 +41,9 @@ include(dirname(__FILE__).'/header.php');
 		var f = document.main_form;
 
 		f.identifier.value = (data['identifier'] == null) ? "" : data['identifier'];
-		f.desc.value       = (data['desc']       == null) ? "" : data['desc'];
+		f.desc.value  	   = (data['desc']       == null) ? "" : data['desc'];
 		f.css_class.value  = (data['css_class']  == null) ? "" : data['css_class'];
+		f.dir.value		   = (data['dir']  		 == null) ? "" : data['dir'];
 
 		f.divid.value = owner.bodycopy_current_edit["data"]["divid"];
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
@@ -80,6 +81,7 @@ include(dirname(__FILE__).'/header.php');
 		data["layout_type"]      = owner.form_element_value(f.layout_type);
 		data["content_type"]     = owner.form_element_value(f.content_type);
 		data["disable_keywords"] = owner.form_element_value(f.disable_keywords);
+		data["dir"] 			 = owner.form_element_value(f.dir);
 		owner.bodycopy_save_div_properties(data);
 	}
 
@@ -126,7 +128,26 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				<tr>
 					<td class="label"><?php echo translate('class'); ?>:</td>
 					<td><input type="text" name="css_class" value="" size="15"></td>
-				</tr>
+				</tr>				
+			</table>
+		</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td>
+		<fieldset>
+			<legend><b><?php echo translate('text_direction'); ?></b></legend>
+			<table style="width:100%">
+				<tr>
+					<td class="bodycopy-popup-heading"><?php echo translate('bodycopy_direction'); ?></td>
+					<td>
+						<select name="dir">
+							<option value=""><?php echo translate('content_type_no_change'); ?></option>
+							<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
+							<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+						</select>
+					</td> 
+				</tr>				
 			</table>
 		</fieldset>
 		</td>

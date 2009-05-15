@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_row_props.php,v 1.8 2006/12/05 05:39:48 emcdonald Exp $
+* $Id: edit_table_row_props.php,v 1.8.12.1 2009/05/15 07:17:11 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,6 +39,7 @@ include(dirname(__FILE__).'/header.php');
 
 		f.height.value  = (data['height'] == null)  ? "" : data['height'];
 		f.bgcolor.value = (data['bgcolor'] == null) ? "" : data['bgcolor'];
+		f.dir.value = (data['dir'] == null) ? "" : data['dir'];
 
 	}// end popup_init()
 
@@ -46,6 +47,7 @@ include(dirname(__FILE__).'/header.php');
 		var data = new Object();
 		data["height"]  = owner.form_element_value(f.height);
 		data["bgcolor"] = owner.form_element_value(f.bgcolor);
+		data["dir"] = owner.form_element_value(f.dir);
 		owner.bodycopy_save_table_row_properties(data);
 	}
 </script>
@@ -66,6 +68,25 @@ include(dirname(__FILE__).'/header.php');
 				<tr>
 					<td class="label"><?php echo translate('background_colour'); ?>:</td>
 					<td><?php colour_box('bgcolor', '', TRUE, '*',TRUE, FALSE, FALSE);?></td>
+				</tr>
+			</table>
+			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<fieldset>
+			<legend><?php echo translate('text_direction'); ?></legend>
+			<table border="0" cellpadding="0" cellspacing="4">
+				<tr>
+					<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
+					<td>
+						<select name="dir">
+							<option value=""><?php echo translate('content_type_no_change'); ?></option>
+							<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
+							<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+						</select>
+					</td> 
 				</tr>
 			</table>
 			</fieldset>
