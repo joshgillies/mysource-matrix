@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_link_manager.inc,v 1.21 2009/05/13 05:27:11 bpearson Exp $
+* $Id: page_link_manager.inc,v 1.22 2009/05/17 22:21:59 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_PAGE_LINK_MGR_PRESET_LINKED', 'Linked');
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -380,7 +380,7 @@ class Page_Link_Manager extends Page_Asset_Listing
 					$this->sortGroups($this->attr('asset_grouping'), $children, $children);
 				}
 
-				$asset_result_page_var   = $this->id.'_result_page';
+				$asset_result_page_var   = 'result_'.$this->id.'_result_page';
 				$generic_result_page_var = 'result_page';
 
 				// have [assetid]_result_page take precedence over result_page
