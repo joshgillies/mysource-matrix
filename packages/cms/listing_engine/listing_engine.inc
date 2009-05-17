@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.277.2.1 2009/04/20 03:46:18 bpearson Exp $
+* $Id: listing_engine.inc,v 1.277.2.2 2009/05/17 22:12:40 bpearson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.277.2.1 $
+* @version $Revision: 1.277.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,6 +50,7 @@ class Listing_Engine extends Page
 	* @var boolean
 	*/
 	var $requires_form = FALSE;
+
 
 	function __construct($assetid=0)
 	{
@@ -693,7 +694,7 @@ class Listing_Engine extends Page
 
 		$num_per_page = $this->_getNumPerPage();
 
-		$asset_result_page_var   = $this->id.'_result_page';
+		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		// have [assetid]_result_page take precedence over result_page
@@ -804,7 +805,7 @@ class Listing_Engine extends Page
 		// note that we never cache the results of a random asset listing for obvious reasons
 		$cache_key = '';
 
-		$asset_result_page_var   = $this->id.'_result_page';
+		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		switch ($group_by) {
@@ -1502,7 +1503,7 @@ class Listing_Engine extends Page
 
 		$this->_tmp['result_page'] = 1;
 
-		$asset_result_page_var   = $this->id.'_result_page';
+		$asset_result_page_var   = 'result_'.$this->id.'_result_page';
 		$generic_result_page_var = 'result_page';
 
 		switch ($group_by) {
@@ -1767,7 +1768,7 @@ class Listing_Engine extends Page
 			$start_page = max(1, min(($current_page - floor($window_size / 2)), $total_pages - $window_size + 1));
 			$end_page = min($total_pages, $start_page + $window_size - 1);
 		}
-		$asset_result_page_var = $this->id.'_result_page';
+		$asset_result_page_var = 'result_'.$this->id.'_result_page';
 		$page_list = '';
 		for ($i = $start_page; $i <= $end_page; $i++) {
 			if ($i == $current_page) {

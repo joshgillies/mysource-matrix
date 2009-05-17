@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.233.2.2 2009/04/30 03:41:43 cupreti Exp $
+* $Id: search_page.inc,v 1.233.2.3 2009/05/17 22:16:01 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233.2.2 $
+* @version $Revision: 1.233.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -350,7 +350,7 @@ class Search_Page extends Listing_Engine
 		// get the corresponding bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-		$listing_result_page = (int) array_get_index($_REQUEST, $this->id.'_result_page', 0);
+		$listing_result_page = (int) array_get_index($_REQUEST, 'result_'.$this->id.'_result_page', 0);
 		$search_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 1);
 		if ($listing_result_page === 0) {
 			$current_result_page = $search_result_page;
@@ -1736,7 +1736,7 @@ class Search_Page extends Listing_Engine
 
 		$replaces = Array();
 
-		$listing_result_page = (int) array_get_index($_REQUEST, $this->id.'_result_page', 0);
+		$listing_result_page = (int) array_get_index($_REQUEST, 'result_'.$this->id.'_result_page', 0);
 		$search_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 1);
 		if ($listing_result_page === 0) {
 			$current_result_page = $search_result_page;
@@ -1748,7 +1748,7 @@ class Search_Page extends Listing_Engine
 		$queries = '';
 		foreach ($_GET as $query_name => $query_value) {
 			// skip some get vars that will be added later by the keyword replacements
-			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page', $this->id.'_result_page'))) {
+			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page', 'result_'.$this->id.'_result_page'))) {
 				if (is_array($query_value)) {
 					foreach ($query_value as $value_index => $value_contents) {
 						$queries .= '&'.urlencode($query_name).'['.urlencode($value_index).']='.urlencode($value_contents);
