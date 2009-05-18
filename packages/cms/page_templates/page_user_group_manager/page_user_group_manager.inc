@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_user_group_manager.inc,v 1.21 2008/07/29 09:00:26 gnoel Exp $
+* $Id: page_user_group_manager.inc,v 1.21.4.1 2009/05/18 04:05:58 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Darren McKee <dmckee@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -218,11 +218,12 @@ class Page_User_Group_Manager extends Page
 	* @param array	$old_links	The current assets we are linked to
 	* @param array	$new_links	The new selections we wish to be linked to
 	* @param int	$link_type	type of link to use
+	* @param string $link_value value associated with the link
 	*
 	* @return void
 	* @access public
 	*/
-	function processMinorLinks($minor_id, $old_links=Array(), $new_links=Array(), $link_type)
+	function processMinorLinks($minor_id, $old_links=Array(), $new_links=Array(), $link_type, $link_value=NULL)
 	{
 		$cannot_create = Array();
 		$cannot_delete = Array();
@@ -246,7 +247,7 @@ class Page_User_Group_Manager extends Page
 
 		// handle links marked to be removed
 		foreach ($to_delete as $majorid) {
-			$curr_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minor_id, $link_type);
+			$curr_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minor_id, $link_type, $link_value);
 			if (!empty($curr_link)) {
 				$link_id = $curr_link['linkid'];
 
