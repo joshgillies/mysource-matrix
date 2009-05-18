@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.42 2008/05/02 01:57:10 bpearson Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.42.4.1 2009/05/18 04:24:19 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,19 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			$on_complete = $_SERVER['REQUEST_URI'].'&'.$prefix.'_purge_complete=1';
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
-			$purge_root_linkid = $_POST[$prefix.'_purge_root']['linkid'];
+			$purge_root_linkid  = $_POST[$prefix.'_purge_root']['linkid'];
+			$purge_root_assetid = $_POST[$prefix.'_purge_root']['assetid'];
+
+			// Bug #3663 - If the assetid is typed in, try and pick it up
+			if (empty($purge_root_linkid) && !empty($purge_root_assetid)) {
+				$purge_root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($purge_root_assetid, '', TRUE);
+				if (!is_null($purge_root_asset)) {
+					$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $purge_root_asset->id);
+					$purge_root_linkid = array_get_index($link_info, 'linkid', '');
+				}//end if
+			}//end if
+
+			// Let's go trashing!
 			$hh->queueHipo('hipo_job_purge_trash', Array('purge_root_linkid' => $purge_root_linkid), $on_complete);
 
 			////  END HIPO PROCESSING  ////
