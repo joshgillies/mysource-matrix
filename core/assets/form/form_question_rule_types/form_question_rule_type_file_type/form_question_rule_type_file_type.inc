@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.7 2007/12/20 22:06:04 bshkara Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.7.4.1 2009/05/19 05:14:23 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,16 +116,20 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	* @access public
 	* @return boolean true only if rule succeeds
 	*/
-	function evaluate($answer, $rule_data)
+	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		if (empty($answer) || $answer == 'No file uploaded') return true;
+		$answer = $_FILES['q'.$q_asset->id];
+		$temp_file = $answer['tmp_name'];
+		$answer_name = $answer['name'];
+
+		if ((empty($answer_name) || $answer_name == 'No file uploaded') && empty($temp_file)) return true;
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$comparison = array_get_index($rule_data, 'value', '');
 
-		if (strrpos($answer, '.') === false) {
+		if (strrpos($answer_name, '.') === false) {
 			$extension = '';
 		} else {
-			$extension = substr($answer, strrpos($answer, '.') + 1);
+			$extension = substr($answer_name, strrpos($answer_name, '.') + 1);
 		}
 
 		// If the extension is empty, return as invalid, otherwise strpos will not take empty argument. 
