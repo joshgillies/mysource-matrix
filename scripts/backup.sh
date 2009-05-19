@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.22 2009/04/21 06:00:58 csmith Exp $
+#* $Id: backup.sh,v 1.23 2009/05/19 05:10:58 csmith Exp $
 #*
 #*/
 #
@@ -248,6 +248,10 @@ backupdir=""
 REMOTE_USER=""
 VERBOSE=0
 
+if [ "$SYSTEM_ROOT" = "." ]; then
+	SYSTEM_ROOT=`pwd`
+fi
+
 backupfilename_prefix=`basename $SYSTEM_ROOT`
 backupfilename="${backupfilename_prefix}-`date +%Y-%m-%d_%H-%M`-backup.tar.gz"
 
@@ -287,10 +291,6 @@ if [ ! -d "${backupdir}" ]; then
 		print_error "Aborting"
 		exit 1
 	fi
-fi
-
-if [ "$SYSTEM_ROOT" = "." ]; then
-	SYSTEM_ROOT=`pwd`
 fi
 
 CRON_RUN=0
