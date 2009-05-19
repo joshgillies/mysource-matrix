@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.23 2009/05/19 05:10:58 csmith Exp $
+#* $Id: backup.sh,v 1.24 2009/05/19 07:05:07 csmith Exp $
 #*
 #*/
 #
@@ -682,7 +682,8 @@ if [ "${tar_gzip}" -eq 0 ]; then
 	fi
 else
 	print_verbose "Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
-	"${tar_command}" -czf "${backupdir}/${backupfilename}" -X "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
+	# dereference is in case there is a symlink either to matrix or inside the matrix folder
+	"${tar_command}" --dereference -czf "${backupdir}/${backupfilename}" -X "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
 	print_verbose "Finished Tar'ing & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}."
 fi
 
