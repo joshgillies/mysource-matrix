@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.170.2.4 2009/04/29 04:29:40 akarelia Exp $
+* $Id: file.inc,v 1.170.2.5 2009/05/19 04:11:59 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.170.2.4 $
+* @version $Revision: 1.170.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,16 +118,7 @@ class File extends Asset
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
 
-		// Check for a virus
-		if (isset($info['path']) && !empty($info['path'])) {
-			$status = $this->scanFile($info['path']);
-			// If infected, remove and warn the user
-			if (!$status) {
-				trigger_localised_error('CORE0300', E_USER_WARNING, $info['filename']);
-				return FALSE;
-			}//end if
-		}//end if
-
+		
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			if (!$this->validFile($info)) return FALSE;
 		}
