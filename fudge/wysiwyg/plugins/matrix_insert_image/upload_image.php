@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upload_image.php,v 1.1 2008/11/03 21:41:51 bpearson Exp $
+* $Id: upload_image.php,v 1.1.2.1 2009/05/19 04:21:58 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Upload Image Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 */
 
@@ -86,7 +86,7 @@ if (!is_null($root_node)) {
 		echo $success_return;
 		exit();
 	} else {
-		echo return_upload_error('Unable to create file, web path already exists? [CORE0086]');
+		echo return_upload_error('Unable to create file, web path already exists[CORE0086] or file is infected[CORE0300]');
 		exit();
 	}//end if
 } else {
