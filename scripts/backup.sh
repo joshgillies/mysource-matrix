@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.24 2009/05/19 07:05:07 csmith Exp $
+#* $Id: backup.sh,v 1.25 2009/05/19 08:22:13 csmith Exp $
 #*
 #*/
 #
@@ -81,6 +81,7 @@ print_error()
 # the file isn't there.
 file_exists()
 {
+	os=`uname`
 	case "${os}" in
 		"SunOS")
 			found=`which $1 | cut -d' ' -f1`
@@ -662,6 +663,10 @@ esac
 if [ "${tar_gzip}" -eq 0 ]; then
 	# if gtar is not present, use the solaris tar & then gzip the tarball.
 	# solaris tar doesn't support gzipping in the same process.
+
+	# get rid of the .gz extension
+	backupfilename=`echo ${backupfilename} | sed -e 's/\.gz$//'`
+
 	print_verbose "Tar'ing up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename} .. "
 
 	tar -cfX "${backupdir}/${backupfilename}" "${exclude_file}" -C `dirname ${SYSTEM_ROOT}` "${sysroot_base}"
