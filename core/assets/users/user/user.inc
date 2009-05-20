@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.128.4.1 2009/04/08 23:38:50 bpearson Exp $
+* $Id: user.inc,v 1.128.4.2 2009/05/20 01:21:21 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128.4.1 $
+* @version $Revision: 1.128.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -894,8 +894,11 @@ class User extends Asset
 	public function getAvailableKeywords()
 	{
 
-		$keywords = Array();
+		$keywords = parent::getAvailableKeywords();
 		$keywords['asset_attribute_email_image'] = translate('user_email_image');
+		// right now we have totaly of 56 keywords that are being returned by this function
+        // if we have more keywords added later , assertion in will need to be changed for
+        // unit_tests/by_file/core/assets/users/user/user.inc/test_get_user_locks.test
 
 		return $keywords;
 
