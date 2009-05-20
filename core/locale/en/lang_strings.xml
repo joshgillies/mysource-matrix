@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.7 2009/05/15 07:17:11 wszymanski Exp $
+* $Id: lang_strings.xml,v 1.311.2.8 2009/05/20 23:17:25 wszymanski Exp $
 *
 */
 
@@ -894,7 +894,7 @@
 	<string source="bodycopy_insert_table">Insert Table</string>
 	<string source="text_direction">Text direction settings</string>	
 	<string source="bodycopy_direction">Direction:</string>
-	<string source="bodycopy_right_to_left">Rigth to left</string>
+	<string source="bodycopy_right_to_left">Right to left</string>
 	<string source="bodycopy_left_to_right">Left to right</string>	
 	<string source="table_styles-colours">Table Styles / Colours</string>
 	<string source="style_information">Style Information</string>
