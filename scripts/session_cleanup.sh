@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.5 2008/10/30 07:13:25 csmith Exp $
+#* $Id: session_cleanup.sh,v 1.5.4.1 2009/05/21 02:32:31 csmith Exp $
 #*
 #*/
 
@@ -39,6 +39,32 @@ if [ ! -r $1/data/private/conf/main.inc ] || [ ! -r $1/core/include/mysource.inc
 	echo "The directory '$1' doesn't seem to contain a valid MySource Matrix installation.";
 	exit 1;
 fi;
+
+# solaris 'which' is broken
+# it returns a 0 status regardless
+# of whether a file exists or not
+# so we have to make up our own
+# if the first word is 'no'
+# the file isn't there.
+file_exists()
+{
+	os=`uname`
+	case "${os}" in
+		"SunOS")
+			found=`which $1 | cut -d' ' -f1`
+			if [ "x$found" = "xno" ]; then
+				RET=1
+			else
+				RET=0
+			fi
+			return $RET
+		;;
+		*)
+			found=`which $1`
+			return $?
+		;;
+	esac
+}
 
 SYSTEM_TAG=`echo $1 | sed -e 's/\//_/g'`
 TMPFILE="/tmp/${SYSTEM_TAG}-sessionclean.filelist"
@@ -94,12 +120,79 @@ if [ ! -x $FIND ]; then
 	exit 1;
 fi;
 
+if [ "x${PHP}" != "x" ]; then
+	PHP="${PHP}"
+else
+	PHP=""
+	file_exists "php-cli"
+	if [ $? -eq 0 ]; then
+		PHP=`which php-cli`
+	else
+		file_exists "php"
+		if [ $? -eq 0 ]; then
+			PHP=`which php`
+		fi
+	fi
+fi
+
+if [ "x${PHP}" = "x" ]; then
+	echo "Cannot find the php binary please be sure to install it or export the path: export PHP=/path/to/bin/php"
+	exit 1
+fi
+
 SYSTEM_ROOT=$1;
 
 SESSION_MATRIXLIFE=`$GREP -E "SQ_CONF_SESSION_GC_MAXLIFETIME',[ ]?[0-9]+" ${SYSTEM_ROOT}/data/private/conf/main.inc | $HEAD -n 1 | $SED -e 's/[^0-9]//g'`;
-SESSION_LOCATION=`$GREP -E "session_save_path\(.*\);" ${SYSTEM_ROOT}/core/include/mysource.inc | $HEAD -n 1 | $SED -e 's/session_save_path(//' -e 's/[\W]//g' -e "s,SQ_SYSTEM_ROOT,$SYSTEM_ROOT," -e "s,');\$,," -e "s,.',,"`;
+
+# main.inc now stores whether the session save path is the default for php or not.
+# if it's set to 1, then it's using the php default
+# if it's set to 0, it's using a custom setting.
+# it's easier to do it all in php code mainly for the extra session_save_path checks
+# (to make sure it's not empty).
+#
+# we'll just export the bits we need to use.
+#
+php_code="<?php
+require_once '${SYSTEM_ROOT}/data/private/conf/main.inc';
+\$var = 'SESSION_USING_DEFAULT_LOCATION';
+echo \$var . '=\"' . (int)SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH . '\";';
+echo 'export ' . \$var . ';';
+
+\$session_path = session_save_path();
+
+\$var = 'SESSION_TYPE';
+if (SQ_CONF_SESSION_HANDLER !== '') {
+	echo \$var . '=\"' . strtolower(SQ_CONF_SESSION_HANDLER) . '\";';
+} else {
+	echo \$var . '=\"file\";';
+}
+echo 'export ' . \$var . ';';
+
+\$var = 'SESSION_LOCATION';
+
+if (SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH == true || SQ_CONF_CUSTOM_SESSION_SAVE_PATH === '') {
+	# if no save path is set, use the cache dir.
+	if (\$session_path === '') {
+		\$session_path = '${SYSTEM_ROOT}/cache';
+	}
+} else {
+	\$session_path = SQ_CONF_CUSTOM_SESSION_SAVE_PATH;
+}
+echo \$var . '=\"' . \$session_path . '\";';
+echo 'export ' . \$var . ';';
+";
+
+eval `echo "${php_code}" | $PHP`
+
+if [ $SESSION_TYPE != "file" ]; then
+	if [ $DEBUG -ne 0 ]; then
+		echo "session handler is set to not files. Nothing to do"
+	fi;
+	exit
+fi
 
 SESSION_LIFETIME=`expr $SESSION_MATRIXLIFE / $FIND_TIMEOFFSET`;
+
 if [ $SESSION_LIFETIME -le 0 ]; then
 	#this way, we don't just destroy every single session file we find, regardless of how stupid our operating environment is....
 	echo "Session lifetime is less than $FIND_TIMEOFFSET seconds, falling back onto $FIND_TIMEOFFSET seconds as the duration of session files";
