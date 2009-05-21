@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.670 2009/05/03 23:15:24 lwright Exp $
+* $Id: asset.inc,v 1.671 2009/05/21 01:25:20 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.670 $
+* @version $Revision: 1.671 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5096,7 +5096,7 @@ class Asset extends MySource_Object
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
 			$current_urls[] = $url;
-			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid'])) {
+			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid']) && !empty($paths)) {
 				// get the asset lineage and use that as the basis for indexing old URLs
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
 				$url_assetids = Array();
