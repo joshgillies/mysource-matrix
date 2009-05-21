@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.189.2.9 2009/05/08 01:22:35 lwright Exp $
+* $Id: search_manager.inc,v 1.189.2.10 2009/05/21 05:06:50 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.189.2.9 $
+* @version $Revision: 1.189.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -482,7 +482,7 @@ class Search_Manager extends Asset
 
 		if (isset($weightings['__assetid__'])) {
 
-			if (in_array('__assetid__', $changed_vars) || $reindex_all) {
+			if (in_array('assetid', $changed_vars) || $reindex_all) {
 
 				$index_content[] = Array(
 									'value'		=> $asset->id,
