@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: session_cleanup.sh,v 1.5.4.1 2009/05/21 02:32:31 csmith Exp $
+#* $Id: session_cleanup.sh,v 1.5.4.2 2009/05/21 03:32:53 csmith Exp $
 #*
 #*/
 
@@ -161,8 +161,9 @@ echo 'export ' . \$var . ';';
 \$session_path = session_save_path();
 
 \$var = 'SESSION_TYPE';
-if (SQ_CONF_SESSION_HANDLER !== '') {
-	echo \$var . '=\"' . strtolower(SQ_CONF_SESSION_HANDLER) . '\";';
+\$handler = strtolower(SQ_CONF_SESSION_HANDLER);
+if (\$handler != '' && \$handler != 'default') {
+	echo \$var . '=\"' . \$handler . '\";';
 } else {
 	echo \$var . '=\"file\";';
 }
