@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.32 2009/04/28 00:13:27 mbrydon Exp $
+* $Id: external_tools_config.inc,v 1.33 2009/05/21 23:23:54 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -410,7 +410,7 @@ class External_Tools_Config extends Config
 
 				if (!is_file(SQ_TOOL_VIRUS_CHECKER_PATH)) {
 					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Virus Checker'); ?></span><?php
-				} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
+				} else if (!is_executable(SQ_TOOL_VIRUS_CHECKER_PATH)) {
 					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_executable', 'Virus Checker'); ?></span><?php
 				}//end if
 
