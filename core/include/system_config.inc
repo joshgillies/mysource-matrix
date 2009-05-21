@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.126 2009/05/07 01:40:17 ewang Exp $
+* $Id: system_config.inc,v 1.127 2009/05/21 23:49:18 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -72,7 +72,7 @@ class System_Config extends Config
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
-						'SQ_CONF_DEFAULT_CHARACTER_SET'			=> Array('editable' => 1, 'default' => 'iso-8859-1'),
+						'SQ_CONF_DEFAULT_CHARACTER_SET'			=> Array('editable' => 1, 'default' => 'utf-8'),
 						'SQ_CONF_ALLOW_IP_CHANGE'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ALLOW_HTTP_LOGIN'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ENABLE_HTTP_LOGIN'				=> Array('editable' => 1, 'default' => '0'),
