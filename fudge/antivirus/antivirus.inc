@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: antivirus.inc,v 1.2 2009/05/15 06:36:41 ewang Exp $
+* $Id: antivirus.inc,v 1.3 2009/05/22 03:55:54 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Antivirus functions
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 * @subpackage Antivirus
 */
@@ -90,15 +90,13 @@ class Antivirus
 
 					// Run the command
 					exec($command, $av, $return);
+					
 
 					// Check the result was correct
 					// That is, we are using a virus scanner
 					// This is so we don't get false positives
 					foreach ($av as $line_no => $line) {
 						// Scan each line
-						if (preg_match('/'.SQ_TOOL_VIRUS_CHECKER_TYPE.'/i', $line)) {
-							$using_av = TRUE;
-						}//end if
 						if (preg_match('/scanned/', $line)) {
 							$scanned = TRUE;
 						}//end if
@@ -109,7 +107,7 @@ class Antivirus
 
 					// Sift through the results
 					// Flag if infected
-					if ($return && $using_av && $scanned) {
+					if ($return && $scanned) {
 						$status = FALSE;
 					}//end if
 				}//end if
