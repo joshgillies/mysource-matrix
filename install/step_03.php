@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.73 2008/04/02 23:29:09 lwright Exp $
+* $Id: step_03.php,v 1.74 2009/05/22 03:12:01 wszymanski Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -140,6 +140,7 @@ if (is_array($deferred)) {
 
 install_authentication_types();
 generate_global_preferences();
+generate_lang_char_map();
 install_event_listeners();
 cache_asset_types();
 

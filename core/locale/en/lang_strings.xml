@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.319 2009/05/20 23:13:12 wszymanski Exp $
+* $Id: lang_strings.xml,v 1.320 2009/05/22 03:12:01 wszymanski Exp $
 *
 */
 
@@ -195,6 +195,7 @@
 	<string source="installed_patches">Installed Patches</string>
 	<string source="internal_links">Internal Links</string>
 	<string source="internationalisation_settings">Internationalisation Settings</string>
+	<string source="use_lang_character_map">Use language character map</string>
 	<string source="intervals">Intervals</string>
 	<string source="keyword">Keyword</string>
 	<string source="custom_keyword">Custom Keyword</string>
