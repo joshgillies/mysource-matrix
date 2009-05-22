@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.178 2009/05/22 05:48:05 hnguyen Exp $
+* $Id: file.inc,v 1.179 2009/05/22 05:49:28 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1080,7 +1080,6 @@ class File extends Asset
 		}
 
 		if (!empty($allowed_extensions)) {
-		bam($allowed_extensions);
 			$allowed_extensions_list = explode(',', $allowed_extensions);
 			if (!in_array($extension, $allowed_extensions_list)) {
 				trigger_localised_error('CORE0266', E_USER_WARNING, $filename);
