@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.8 2009/05/15 06:28:57 ewang Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.9 2009/05/22 01:27:32 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,7 +118,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	*/
 	function evaluate($answer, $rule_data, &$q_asset)
 	{
-		require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+		include (SQ_FUDGE_PATH.'/standards_lists/mime_types.inc');
 		//get all data we need
 		$answer = $_FILES['q'.$q_asset->id];
 		$temp_file = $answer['tmp_name'];
