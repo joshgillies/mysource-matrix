@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.84 2008/11/02 22:17:53 lwright Exp $
+* $Id: install.inc,v 1.84.4.1 2009/05/22 03:16:31 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.84 $
+* @version $Revision: 1.84.4.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -607,6 +607,47 @@ function generate_global_preferences()
 	return TRUE;
 
 }//end generate_global_preferences()
+
+
+/**
+* Generate language characters map file
+*
+* @return boolean
+* @access public
+*/
+function generate_lang_char_map()
+{
+	$lang_char_map = Array(
+						'pl'	=>  Array(
+										'ą' => 'a',
+										'ć' => 'c',
+										'ę' => 'e',
+										'ł' => 'l',
+										'ń' => 'n',
+										'ó' => 'o',
+										'ś' => 's',
+										'ż' => 'z',
+										'ź' => 'z',
+										'Ą' => 'a',
+										'Ć' => 'c',
+										'Ę' => 'e',
+										'Ł' => 'l',
+										'Ń' => 'n',
+										'Ó' => 'o',
+										'Ś' => 's',
+										'Ż' => 'z',
+										'Ź' => 'z',	
+									),
+				     );
+				     
+	$str = '<'.'?php $lang_char_map = '.var_export($lang_char_map, TRUE).'; ?'.'>';
+	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/lang_char_map.inc')) {
+		return FALSE;
+	}
+	
+	return TRUE;
+	
+}//end generate_lang_char_map()
 
 
 /**

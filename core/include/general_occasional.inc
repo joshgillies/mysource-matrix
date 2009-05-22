@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.88 2009/03/26 23:36:22 bpearson Exp $
+* $Id: general_occasional.inc,v 1.88.2.1 2009/05/22 03:16:16 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.88.2.1 $
 * @package MySource_Matrix
 */
 
@@ -211,7 +211,6 @@ function get_status_value($description)
 }//end get_status_value()
 
 
-
 /**
 * Returns a colour representing the passed status
 *
@@ -355,8 +354,18 @@ function make_valid_web_paths($paths, $fallback_path='')
 {
 	$valid_paths = Array();
 
+	// get replacement array if config settings are true
+	$lang_char_map = Array();
+	if (SQ_CONF_USE_LANG_CHAR_MAP) {
+		$lang_char_map = getLangCharMap();
+	}
+
 	foreach ($paths as $path) {
 		$path = trim($path);
+		// replace language characters if replacement array is specified
+		if (!empty($lang_char_map)) {
+			$path = str_replace(array_keys($lang_char_map), array_values($lang_char_map), $path);
+		}
 
 		// get rid of paths that are the same as the backend suffix
 		if ($path == SQ_CONF_BACKEND_SUFFIX || $path == SQ_CONF_LIMBO_SUFFIX || $path == SQ_CONF_LOGIN_SUFFIX || $path == SQ_CONF_NOCACHE_SUFFIX) {
@@ -402,6 +411,7 @@ function make_valid_web_paths($paths, $fallback_path='')
 		if ($path !== '' && !in_array($path, $valid_paths)) {
 			$valid_paths[] = $path;
 		}
+
 	}//end foreach
 
 	// Fallback: only if there is no valid path at all AND at least one non blank path has been provided
@@ -637,5 +647,32 @@ function get_proxy_info_for_url($page_url)
 		   );
 
 }//end get_proxy_info_for_url()
+
+
+/**
+* Gets language characters map replacements array from lang_char_map.inc file
+*
+* @param string $lang_code the string with language code
+*
+* @return array
+* @access public
+*/
+function getLangCharMap($lang_code='')
+{
+	$character_map = Array();
+	if (empty($lang_code)) {
+		$lang_code = SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
+	}
+
+	include SQ_DATA_PATH.'/private/conf/lang_char_map.inc';
+
+	if (isset($lang_char_map[$lang_code]) && is_array($lang_char_map[$lang_code])) {
+		$character_map = $lang_char_map[$lang_code];
+	}
+
+	return $character_map;
+
+}//end getLangCharMap()
+
 
 ?>

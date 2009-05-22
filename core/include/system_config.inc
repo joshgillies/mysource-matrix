@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.124.2.3 2009/05/21 23:55:45 mbrydon Exp $
+* $Id: system_config.inc,v 1.124.2.4 2009/05/22 03:16:16 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.124.2.3 $
+* @version $Revision: 1.124.2.4 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -73,6 +73,7 @@ class System_Config extends Config
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
 						'SQ_CONF_DEFAULT_CHARACTER_SET'			=> Array('editable' => 1, 'default' => 'utf-8'),
+						'SQ_CONF_USE_LANG_CHAR_MAP'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ALLOW_IP_CHANGE'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ALLOW_HTTP_LOGIN'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ENABLE_HTTP_LOGIN'				=> Array('editable' => 1, 'default' => '0'),
@@ -93,10 +94,10 @@ class System_Config extends Config
 						'SQ_CONF_WEB_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 64),
 						'SQ_CONF_CRON_MEMORY_LIMIT'				=> Array('editable' => 1, 'default' => 64),
 						'SQ_CONF_USE_DEFAULT_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_CONF_CUSTOM_SESSION_SAVE_PATH'	=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_ENABLE_ROLES_SYSTEM'		=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_CONF_ENABLE_GLOBAL_ROLES'		=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_CONF_TIMEZONE'					=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
+						'SQ_CONF_CUSTOM_SESSION_SAVE_PATH'		=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONF_ENABLE_ROLES_SYSTEM'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_ENABLE_GLOBAL_ROLES'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_TIMEZONE'						=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
 					   );
 
 	/**
@@ -176,6 +177,7 @@ class System_Config extends Config
 				else {
 					$vars['SQ_CONF_FORCE_SECURE_LOGIN_URLS'] = '';
 				}
+
 				if (isset($vars['SQ_CONF_STATIC_ROOT_URL']) && substr($vars['SQ_CONF_STATIC_ROOT_URL'], -1) == '/') {
 					$vars['SQ_CONF_STATIC_ROOT_URL'] = substr($vars['SQ_CONF_STATIC_ROOT_URL'], 0, strlen($vars['SQ_CONF_STATIC_ROOT_URL']) -1);
 				}
@@ -792,6 +794,17 @@ class System_Config extends Config
 			} else {
 				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
 			}
+	
+			$o->openField(translate('use_lang_character_map'));
+			if ($write_access) {
+				$options = Array(
+							'0'	=> translate('no'),
+							'1'	=> translate('yes'),
+						   );
+				combo_box($class.'[SQ_CONF_USE_LANG_CHAR_MAP]', $options, FALSE, !defined('SQ_CONF_USE_LANG_CHAR_MAP') ? '0' : SQ_CONF_USE_LANG_CHAR_MAP);
+			} else {
+				echo (SQ_CONF_USE_LANG_CHAR_MAP) ? translate('yes') : translate('no');
+			}
 
 		$o->closeSection();
 
@@ -960,8 +973,8 @@ class System_Config extends Config
 		$enable_global_roles_setting = SQ_CONF_ENABLE_GLOBAL_ROLES;
 
 		if ($roles_changed) {
-			$enable_roles_system_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM']))?$_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM']:$enable_roles_system_setting;
-			$enable_global_roles_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']))?$_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES']:$enable_global_roles_setting;
+			$enable_roles_system_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM'])) ? $_POST['system_config']['SQ_CONF_ENABLE_ROLES_SYSTEM'] : $enable_roles_system_setting;
+			$enable_global_roles_setting = (isset($_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES'])) ? $_POST['system_config']['SQ_CONF_ENABLE_GLOBAL_ROLES'] : $enable_global_roles_setting;
 		}
 
 		if (($enable_global_roles_setting != SQ_CONF_ENABLE_GLOBAL_ROLES) || ($enable_roles_system_setting != SQ_CONF_ENABLE_ROLES_SYSTEM)) {
@@ -1149,7 +1162,7 @@ class System_Config extends Config
 		return $string;
 
 	}//end _xml_entity_decode()
-
+		
 
 }//end class
 
