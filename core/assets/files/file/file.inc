@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.170.2.5 2009/05/19 04:11:59 ewang Exp $
+* $Id: file.inc,v 1.170.2.6 2009/05/22 05:52:53 hnguyen Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.170.2.5 $
+* @version $Revision: 1.170.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -585,7 +585,10 @@ class File extends Asset
 					trigger_localised_error('CORE0032', E_USER_WARNING);
 					return FALSE;
 				}
-			}
+			} else {
+				// Because we are live, and we might be be escalated from EDITING_APPROVED, so lets update lookup to get the public url back
+				$changed	= TRUE;
+			}//end else
 		} else {
 			// need to make sure our file is NOT in the public data directory
 			if (is_file($unrestricted)) {
