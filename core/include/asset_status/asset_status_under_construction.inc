@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.49 2008/02/18 04:10:10 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.50 2009/05/25 05:16:12 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -203,6 +203,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$log = $ms->newMessage();
 					$msg_reps     = Array(
 										'user_name'		=> $user->name,
+										'workflow_user' => $user->name,
 										'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 										'asset_name'	=> $this->owner->name,
 										'status'		=> $this->getDescription(),
