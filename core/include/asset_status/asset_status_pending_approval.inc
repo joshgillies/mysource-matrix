@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.45 2008/03/09 23:35:04 hnguyen Exp $
+* $Id: asset_status_pending_approval.inc,v 1.45.4.1 2009/05/25 05:06:44 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -161,6 +161,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 					$log = $ms->newMessage();
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
+									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
 									'status'		=> get_status_description($new_status),
