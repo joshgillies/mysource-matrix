@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.35 2007/11/30 01:24:52 bshkara Exp $
+* $Id: asset_status_live.inc,v 1.35.4.1 2009/05/25 04:41:48 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -135,6 +135,7 @@ class Asset_Status_Live extends Asset_Status
 
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
+									'workflow_user'	=> $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
@@ -158,6 +159,7 @@ class Asset_Status_Live extends Asset_Status
 					$log->type = 'asset.workflow.log.review';
 					$msg_reps = Array(
 									'user_name'		=> $user->name,
+									'workflow_user' => $user->name,
 									'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name'),
 									'asset_name'	=> $this->owner->name,
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),

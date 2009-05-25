@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.135.2.3 2009/04/29 06:43:50 bpearson Exp $
+* $Id: workflow_manager.inc,v 1.135.2.4 2009/05/25 04:44:15 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.135.2.3 $
+* @version $Revision: 1.135.2.4 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1022,6 +1022,7 @@ class Workflow_Manager extends MySource_Object
 		$log = $ms->newMessage();
 		$msg_reps = Array(
 						'user_name'		=> $user->name,
+						'workflow_user' => $user->name,
 						'workflow_user'	=> $user->name,
 						'type_code'		=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
 						'asset_name'	=> $asset->name,
