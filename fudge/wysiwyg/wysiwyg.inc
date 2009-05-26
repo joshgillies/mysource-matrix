@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.75 2008/10/20 04:46:07 mbrydon Exp $
+* $Id: wysiwyg.inc,v 1.76 2009/05/26 23:52:37 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -164,6 +164,14 @@ class wysiwyg
 	* @see paint()
 	*/
 	var $init = FALSE;
+	
+	/**
+	* Dir attribute to be added while in wysiwyg mode
+	*
+	* @var string
+	* @see paint()
+	*/
+	var $dir_attribute = '';
 
 
 	/**
@@ -191,6 +199,7 @@ class wysiwyg
 	*/
 	function paint()
 	{
+
 		global $WYSIWYG_INIT;
 		if (!$WYSIWYG_INIT) {
 			?>
@@ -747,6 +756,11 @@ HTMLArea.prototype.inArray = function(val, arr) {
 	for (var i=0; i < arr.length; i++)
 		if (val == arr[i]) return true;
 	return false;
+};
+
+// Sets dir attribute value 
+HTMLArea.prototype.set_dir_attr = function(val) {
+	this._dir_attr = val;
 };
 
 // Internal function for recursively itterating over a all nodes in a fragment
@@ -1400,6 +1414,7 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 				editor_<?php echo $this->name?>._createToolbar();
 				editor_<?php echo $this->name?>._createStatusBar();
 				editor_<?php echo $this->name?>.updateToolbar(false);
+				editor_<?php echo $this->name?>.set_dir_attr('<?php echo $this->dir_attribute?>');
 		<?php
 		if ($this->init_onload) {
 		?>
@@ -2007,6 +2022,20 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 		$this->stylesheet = $stylesheet;
 
 	}//end set_stylesheet()
+	
+	
+	/**
+	* Sets the dir attribute for the body in WYSIWYG editor
+	*
+	* @param string	$dir_attribute	value of dir attribute
+	*
+	* @return void
+	* @access public
+	*/
+	function set_dir_attr($dir_attribute)
+	{
+		$this->dir_attribute = $dir_attribute;
+	}//end set_dir_attr()
 
 
 	/**
