@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.50 2008/10/31 03:50:26 bpearson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.50.4.1 2009/05/26 23:54:15 wszymanski Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.50.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -248,6 +248,10 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		// contents must be set AFTER all plugins are loaded
 		$this->_tmp['wysiwg_object']->set_contents($html);
 
+		// set dir attribute to include in wysiwyg iframe
+		if(!empty($this->_tmp['dir_attr']))
+			$this->_tmp['wysiwg_object']->set_dir_attr($this->_tmp['dir_attr']);
+
 		return $this->_tmp['wysiwg_object'];
 
 	}//end _createEditor()
@@ -393,7 +397,22 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		return $asset->setAttrValue('html', $html);
 
 	}//end processBackend()
-
+	
+	
+	/**
+	* Sets the tmp var for dir attribute
+	*
+	* @param string					$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDirAttr($dir_attribute)
+	{
+		$this->_tmp['dir_attr'] = $dir_attribute;
+		
+	}//end setDirAttr()
+	
 
 }//end class
 

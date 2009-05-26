@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.42 2008/11/06 00:28:19 bshkara Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.42.4.1 2009/05/26 23:54:15 wszymanski Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -255,11 +255,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		$attribute_list = '';
 		$popup_attribute_list = '';
+		$dir_attribute = '';
 
 		if (!empty($div_attributes)) {
 			for (reset($div_attributes); $name = key($div_attributes); next($div_attributes)) {
 				$val = $div_attributes[$name];
 				if ($val == '') continue;
+				if ($name == 'dir') $dir_attribute = $div_attributes[$name];
 				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
@@ -360,6 +362,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				<?php
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();
+					if (method_exists($content_edit,'setDirAttr')) {
+						$content_edit->setDirAttr($dir_attribute);
+					}					
 					$content_edit->paintBackend($content_type, $content_prefix);
 				}
 				?>
