@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.25.2.1 2009/05/18 03:57:42 cupreti Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.25.2.2 2009/05/26 07:01:01 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.25.2.1 $
+* @version $Revision: 1.25.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -378,13 +378,15 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		// Flag to check if the subscription request is made
 		$subscription_request = FALSE;
 
+		if (!empty($subscriptions))
+				$subscription_request = TRUE;
+				
 		// if the values are not passed as an array, force it into an array
 		if (!is_array($subscriptions)) {
 			if (empty($subscriptions)) {
 				$subscriptions = Array();
 			} else {
-				$subscriptions = Array($subscriptions);
-				$subscription_request = TRUE;
+				$subscriptions = Array($subscriptions);				
 			}
 		}
 		if (!is_array($unsubscriptions)) {
@@ -426,7 +428,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		
 		// If exists in system, check if user is trying to subscribe to a already subscribed group.
 		if ($bulk_userid) {
-			$currently_subscribed_groups = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulk_userid, 'user_group', FALSE));
+			$available_user_groups = $this->getAvailableLocations();
+		 	$user_parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($bulk_userid, 'user_group', FALSE));
+		 	$currently_subscribed_groups = array_intersect($available_user_groups, $user_parents);
+
 			
 			// If user has subscribed to this group previously, don't process further
 			if (array_intersect($subscriptions, $currently_subscribed_groups)) {	
