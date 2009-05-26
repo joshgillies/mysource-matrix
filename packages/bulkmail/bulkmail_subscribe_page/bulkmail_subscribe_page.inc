@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.26 2009/05/18 03:56:07 cupreti Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.27 2009/05/26 06:58:15 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -377,14 +377,15 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 
 		// Flag to check if the subscription request is made
 		$subscription_request = FALSE;
-		
+
+		if (!empty($subscriptions))
+				$subscription_request = TRUE;
 		// if the values are not passed as an array, force it into an array
 		if (!is_array($subscriptions)) {
 			if (empty($subscriptions)) {
 				$subscriptions = Array();
 			} else {
-				$subscriptions = Array($subscriptions);
-				$subscription_request = TRUE;
+				$subscriptions = Array($subscriptions);		
 			}
 		}
 		if (!is_array($unsubscriptions)) {
