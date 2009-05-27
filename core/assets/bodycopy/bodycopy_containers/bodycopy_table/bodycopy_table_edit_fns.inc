@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.35 2008/11/06 00:28:19 bshkara Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.36 2009/05/27 03:46:37 wszymanski Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -324,6 +324,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$attribute_list = '';
 		$popup_attribute_list = '';
 		$bgimage = '';
+		$dir_attribute = '';
 
 		if (!empty($table_attributes)) {
 			for (reset($table_attributes); $name = key($table_attributes); next($table_attributes)) {
@@ -343,8 +344,14 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				if ($name == 'width' && !strstr($val, '%')) {
 					$val = (int) $val + 20;
 				}
+				if ($name == 'dir') $dir_attribute = $val;
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
+		}
+
+		// set the tmp variable storing dir attribute of whole table
+		if (!empty($dir_attribute)) {
+			$this->_tmp['dir_attr'] = $dir_attribute;
 		}
 
 		// need to find out if there's any colspans used at all. We can't handle
@@ -438,13 +445,21 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	{
 		$attribute_list = '';
 		$table_rows = $asset->attr('rows');
+		$dir_attribute = '';
 
 		foreach ($table_rows[$i]['attributes'] as $name => $val) {
 			if ($val == '') continue;
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+			if ($name == 'dir' && !empty($val)) {
+				$dir_attribute = $val;
+			}
 		}
 
-
+		// set the dir attribute to one inherited from the whole table if there is no specified for row
+		if (empty($dir_attribute) && isset($this->_tmp['dir_attr'])) {
+			$dir_attribute = $this->_tmp['dir_attr'];
+		}
+		
 		?>
 		<table cellspacing="0" cellpadding="0" width="100%" height="100%">
 		<tbody valign="top">
@@ -517,6 +532,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if ($i==0) {
 			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", translate('insert_new_column_on_left'), '', 'add', '[<< '.translate('add_column').']');
 		}
+		$cell->setDirAttr($dir_attribute);
 		$cell->paintCell($asset, $prefix, $asset->id, $i, $x);
 
 		?>
