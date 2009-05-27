@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.35 2009/01/15 23:49:23 mbrydon Exp $
+* $Id: core.js,v 1.35.2.1 2009/05/27 00:12:37 wszymanski Exp $
 *
 */
 
@@ -132,7 +132,8 @@ HTMLArea.prototype.generate = function () {
 		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
 		html += "</style>\n";
 		html += "</head>\n";
-		html += "<body>\n";
+		if (editor._dir_attr != undefined && editor._dir_attr != '') { html += "<body dir=\"" + editor._dir_attr + "\">\n"; }
+		else { html += "<body>\n"; }
 		html += editor._textArea.value;
 		html += "</body>\n";
 		html += "</html>";
