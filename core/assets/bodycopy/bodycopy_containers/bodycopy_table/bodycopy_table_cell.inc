@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.24 2007/12/14 06:04:22 rong Exp $
+* $Id: bodycopy_table_cell.inc,v 1.24.6.1 2009/05/27 03:46:54 wszymanski Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -262,6 +262,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	{
 		$attribute_list = '';
 		$colspaning = 0;
+		$dir_attribute = '';
 		foreach ($this->attributes as $name => $val) {
 			if ($val == '') continue;
 			if (strtolower($name) == 'nowrap') {
@@ -272,6 +273,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 				}
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
+			if ($name == 'dir') $dir_attribute = $val;
 		}
 
 		// print out the edit buttons
@@ -285,9 +287,17 @@ class BodyCopy_Table_Cell extends MySource_Object
 			$content_type = NULL;
 		}
 
+		// set the dir attribute to one inherited from above if there is no specified for cell
+		if (empty($dir_attribute) && isset($this->_tmp['dir_attr'])) {
+			$dir_attribute = $this->_tmp['dir_attr'];
+		}
+
 		if (!is_null($content_type)) {
 			$content_edit = $content_type->getEditFns();
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
+			if (method_exists($content_edit,'setDirAttr') && !empty($dir_attribute)) {
+				$content_edit->setDirAttr($dir_attribute);
+			}
 			$content_edit->paintBackendIcons($content_type, $content_prefix);
 		}
 
@@ -434,6 +444,21 @@ class BodyCopy_Table_Cell extends MySource_Object
 		<?php
 
 	}//end printBackendJsData()
+
+
+	/**
+	* Sets the tmp var for dir attribute
+	*
+	* @param string					$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function setDirAttr($dir_attribute)
+	{
+		$this->_tmp['dir_attr'] = $dir_attribute;
+
+	}//end setDirAttr()
 
 
 }//end class
