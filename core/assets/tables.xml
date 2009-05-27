@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.57 2009/01/07 05:41:47 akarelia Exp $
+* $Id: tables.xml,v 1.57.2.1 2009/05/27 06:25:18 ewang Exp $
 *
 */
 -->
@@ -1873,6 +1873,45 @@
 					<column name="expires" />
 				</index>
 			</indexes>
+		</table>
+		<table name="design_area_access_history" require_rollback="0">
+			<columns>
+				<column name="userid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="areaid" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="history" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="history_hash" allow_null="0">
+					<type>TEXT</type>
+					<type_variations>
+						<oci>CLOB</oci>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="userid" />
+					<column name="areaid" />
+				</primary_key>
+			</keys>
+			<indexes />
 		</table>
 	</tables>
 	<sequences>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history_management.inc,v 1.6 2007/12/06 04:28:48 lwright Exp $
+* $Id: design_area_access_history_management.inc,v 1.6.6.1 2009/05/27 06:24:06 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -129,6 +129,13 @@ class Design_Area_Access_History_Management extends Asset_Management
 															'type'			=> 'assetid',
 															'default'		=> '',
 															'description'	=> 'Selected asset will be used as the Add to History Button',
+														   ),
+						'store_permanent'			=> Array(
+															'added'			=> '0.2',
+															'type'			=> 'boolean',
+															'default'		=> FALSE,
+															'description'	=> 'If enabled then access history will be stored in database permanently for logged in users. This will decrease performance slightly.',
+															'parameters'	=> Array( 'allow_empty' => FALSE,),
 														   ),
 					  );
 
