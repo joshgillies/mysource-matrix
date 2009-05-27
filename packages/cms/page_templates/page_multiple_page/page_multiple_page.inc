@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.26 2007/12/06 04:50:15 rong Exp $
+* $Id: page_multiple_page.inc,v 1.26.6.1 2009/05/27 05:01:47 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -307,7 +307,17 @@ class Page_Multiple_Page extends Page
 
 		parent::linksUpdated();
 
-		if (!empty($this->_tmp['no_sort_order_paths'])) {
+		if($this->getURL() == '') {
+			// Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
+			// force assign the url to the newly cloned asset as next block will try to 
+			// assign webpath to child pages, but if there is no URL on the parent asset
+			// then child assets wont have current URL.
+			$valid_paths = make_valid_web_paths(Array(strtolower($this->name)));
+			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($this, $valid_paths, $this->id, TRUE);
+			$this->saveWebPaths($good_paths, FALSE);
+		}
+
+		if (!empty($this->_tmp['no_sort_order_paths']) || !empty($new_paths)) {
 			foreach ($new_paths as $pageid => $new_webpaths) {
 				$page = $am->getAsset($pageid, '', TRUE);
 				if (!empty($page)) {
@@ -813,6 +823,62 @@ class Page_Multiple_Page extends Page
 
 	}//end sortOrder()
 
+
+	/**
+	* Clones certain specified components of the asset
+	*
+	* @param object     &$clone     the clone asset shell
+	* @param array      $components the wanted components to clone eg.
+	* <pre>
+	*                               Array(
+	*                                   'attributes',
+	*                                   'metadata_schemas',
+	*                                   'metadata',
+	*                                   'workflow',
+	*                                   'permissions',
+	*                                   'data',
+	*                                   'content_tags',
+	*                                   'roles',
+	*                               );
+	*                               or alternately
+	*                               Array('all');
+	* </pre>
+	* @param boolean    $override   whether or not to override the existing permission, metadata schemas, workflow schemas with the new ones.
+	*
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components, $override=FALSE)
+	{
+	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+	if (!parent::cloneComponents($clone, $components, $override)) {
+	    $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+	    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	    return FALSE;
+	}
+
+	if (in_array('attributes', $components) || in_array('all', $components)) {
+	    $current_ids = Array();
+	    // save the information
+	    // Bug fix #3659 'Multiple Page' cloning loses 'Multiple Page Page' web paths
+	    // do this because, page_multiple_page saves its current child page asset ids 
+	    // is the attributes, if we dont make it empty, newly cloned asset takes 
+	    // child pages from the sorce as its own child
+	    $clone->setAttrValue('current_page_ids', $current_ids);
+	    $clone->saveAttributes();
+
+	    // Change the content of the content type to replace question id.
+
+	}
+
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	return TRUE;
+
+	}//end cloneComponents()
 
 }//end class
 
