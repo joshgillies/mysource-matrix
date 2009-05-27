@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.11 2008/09/04 02:35:05 ewang Exp $
+* $Id: design_area_access_history.inc,v 1.12 2009/05/27 06:15:46 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -286,13 +286,28 @@ class Design_Area_Access_History extends Design_Area
 		$max_count = $this->attr('asset_count');
 		$time_format = $this->attr('time_format');
 		$auto_access_history = $this->attr('auto_access_history');
-
+		$store_permanent = $this->attr('store_permanent');
+		
 		echo '
 			<?php
 				$exclude_assets = '.var_export($exclude_assets,TRUE).';
 				$allowed_asset_types = '.var_export($this_types,TRUE).';
 				$max_asset_count = '.$max_count.';
+				$current_user = $GLOBALS["SQ_SYSTEM"]->user;
 				//// Access History Design Area
+
+				';
+				
+				// if it is stored permanently, we will try to fetch it from db for the first access
+				if ($store_permanent) {
+						echo '
+						// if current user is logged in and the access history has not been fetched yet
+						if(!isset($_SESSION["design_areas"]["'.$area_id.'"]["fetched"]) &&  $current_user && !($current_user instanceof Public_User)) {
+							$_SESSION["design_areas"]["'.$area_id.'"] = _getPermanentAccessHistory("'.$area_id.'");
+						}								
+						';
+					}
+				echo '
 
 				// initialise the history data
 				if (!isset($_SESSION["design_areas"]["'.$area_id.'"])) {
@@ -404,8 +419,18 @@ class Design_Area_Access_History extends Design_Area
 
 					$_SESSION["design_areas"]["'.$area_id.'"]["history"] = $history;
 					$_SESSION["design_areas"]["'.$area_id.'"]["history_hash"] = $new_history_hash;
+					
 					';
-
+					// if store permanently, we have to save the access history data to db
+					if ($store_permanent) {
+						echo '
+						// if current user logged in
+						if ($current_user && !($current_user instanceof Public_User)) {
+							_savePermanentAccessHistory("'.$area_id.'",$_SESSION["design_areas"]["'.$area_id.'"]);
+						}		
+						';
+					}
+		
 					if ($auto_access_history) {
 						echo '
 						// now that the session is saved, we want to remove the first item because
@@ -416,6 +441,122 @@ class Design_Area_Access_History extends Design_Area
 					echo '
 				$history = array_slice($history, 0, $max_asset_count);
 				$history_count = count($history);
+				
+				
+				/**
+				* Get the access history data from database, if required
+				* This is only for logged in user
+				*
+				* @param string	$area_id	area id of the design area
+				* @return array
+				* @access private
+				*/
+				function _getPermanentAccessHistory ($area_id){
+				
+					$user_id = $GLOBALS["SQ_SYSTEM"]->user->id;
+					$db = MatrixDAL::getDb();
+					$sql = "SELECT history, history_hash FROM sq_design_area_access_history where userid = :userid AND areaid = :areaid";
+					
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, "userid", $user_id, PDO::PARAM_STR);
+						MatrixDAL::bindValueToPdo($query, "areaid", $area_id, PDO::PARAM_STR);
+						$results = MatrixDAL::executePdoAll($query);
+					} catch (Exception $e) {
+						throw new Exception("Unable to retrieve access history data from database, due to database error: ".$e->getMessage());
+					}
+					if (!isset($results[0])) return Array();
+					
+					$history = unserialize($results[0]["history"]);
+					$history_hash = unserialize($results[0]["history_hash"]);
+					$access_data = Array (
+										"history"	=>	$history,
+										"history_hash"	=>	$history_hash,
+										"fetched"	=>	TRUE,
+									);
+					
+					return ($access_data);
+					
+				}
+				
+				
+				/**
+				* Save the access history data to database, if required
+				* This is only for logged in user
+				*
+				* @param string	$area_id	area id of the design area
+				* @param string	$access_data	access history data to save
+				* @return void
+				* @access private
+				*/
+				function _savePermanentAccessHistory ($area_id, $access_data){
+					
+					
+					$user_id = $GLOBALS["SQ_SYSTEM"]->user->id;
+					$history = serialize($access_data["history"]);
+					$history_hash = serialize($access_data["history_hash"]);
+					
+					
+					$db = MatrixDAL::getDb();
+					
+					
+					if(!isset($access_data["fetched"])){
+						$db_action = "insert";
+					}
+					else {
+						$db_action = "update";
+					}
+					
+					$GLOBALS["SQ_SYSTEM"]->changeDatabaseConnection("db2");
+					$GLOBALS["SQ_SYSTEM"]->doTransaction("BEGIN");
+					
+					switch ($db_action) {
+						case "insert":
+							$sql = "INSERT INTO
+										sq_design_area_access_history
+										(
+											userid,
+											areaid,
+											history,
+											history_hash
+										)
+										VALUES
+										(
+											:userid,
+											:areaid,
+											:history,
+											:history_hash
+										)";
+			
+						break;
+						case "update":
+							$sql = "UPDATE
+										sq_design_area_access_history
+									SET
+										history  = :history,
+										history_hash = :history_hash
+									WHERE
+										userid        = :userid
+										AND areaid = :areaid";
+			
+						break;
+					}//end switch				
+			
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, "userid", $user_id);
+						MatrixDAL::bindValueToPdo($query, "areaid", $area_id);
+						MatrixDAL::bindValueToPdo($query, "history", $history);
+						MatrixDAL::bindValueToPdo($query, "history_hash", $history_hash);
+						$result = MatrixDAL::execPdoQuery($query);
+					} catch (Exception $e) {
+						throw new Exception("Unable to save access history to database, due to the following database error:".$e->getMessage());
+					}//end try catch
+			
+					$GLOBALS["SQ_SYSTEM"]->doTransaction("COMMIT");
+					$GLOBALS["SQ_SYSTEM"]->restoreDatabaseConnection();
+				
+				}
 			?>
 		';
 
