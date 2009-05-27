@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2006/12/05 22:42:11 emcdonald Exp $
+* $Id: lang_screen_details.xml,v 1.6 2009/05/27 06:13:29 ewang Exp $
 *
 */
 -->
@@ -55,6 +55,10 @@
 			<display_name>Auto Add to History</display_name>
 			<note>If enabled assets will be added to access history automatically.</note>
 		</field>
+		<field attribute="store_permanent">
+			<display_name>Store Permanently</display_name>
+			<note>If enabled then access history will be stored in database permanently for logged in users. This will decrease performance slightly.</note>
+		</field>
 	</section>
 	<section name="Display Options" write_access="write:attributes">
 		<field attribute="add_history_button_image">
@@ -93,5 +97,6 @@
 				<process_function name="processAddHistoryAssetTypes" />
 			</function_call>
 		</field>
+
 	</section>
 </contents>
