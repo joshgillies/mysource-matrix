@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.207.2.17 2009/05/14 01:11:17 akarelia Exp $
+* $Id: form.inc,v 1.207.2.18 2009/05/28 06:38:45 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.207.2.17 $
+* @version $Revision: 1.207.2.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2753,7 +2753,7 @@ class Form extends Asset implements Bridge
 					echo $question->attr('name');
 					echo ($html) ? ': </li></ul></td><td>' : ' : ';
 					if ($html) {
-						echo nl2br(htmlentities($question->getSummary(), ENT_NOQUOTES));
+						echo htmlentities($question->getSummary(), ENT_NOQUOTES);
 					} else {
 						echo $question->getSummary();
 					}
