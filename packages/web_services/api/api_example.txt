@@ -27,7 +27,7 @@ $assetobj_optional		= self::getArgType('AssetObject', 0, 'unbounded', TRUE);		(s
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: api_example.txt,v 1.1 2009/02/18 00:10:13 hnguyen Exp $
+* $Id: api_example.txt,v 1.2 2009/05/28 22:46:05 hnguyen Exp $
 *
 */
 
@@ -41,7 +41,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -321,7 +321,7 @@ class Soap_Api_Core extends Soap_Api
 		$simple_restricted_types	= Array (
 							'createAsset'	=> Array (
 												'AssetType'	=> Array (
-																'restriction_base'	=> 'EnumType',
+																'restriction_base'	=> 'string',
 																'enumeration'		=> Array (
 																						'StandardPage', 'CustomForm', 'Folder',
 																					   ),

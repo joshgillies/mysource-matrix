@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.4 2009/05/01 05:40:41 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.5 2009/05/28 22:46:05 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -62,10 +62,10 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'GetAssetFromURL'			=> '1',
         		'GetAssetTypeAttribute'		=> '1',
 				'GetAttributeValuesByName'	=> '1',
-        		'GetAvailableKeywords'		=> '1',
+        		'GetAssetAvailableKeywords'	=> '1',
 				'GetAssetAvailableStatuses'	=> '1',
         		'GetAssetWebPaths'			=> '1',
-				'GetURLs'					=> '1',
+				'GetAssetURLs'				=> '1',
 				'SetAttributeValue'			=> '1',
         		'SetTag'					=> '1',
         		'TrashAsset'				=> '1',
@@ -221,7 +221,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 	* @return void
 	* @access public
 	*/
-	function GetURLs($request)
+	function GetAssetURLs($request)
 	{
 		$request_info 	= (Array) $request;
 		$assetid		= array_get_index($request_info, 'AssetID', '');
@@ -238,13 +238,13 @@ class Soap_Api_Asset_Service extends Soap_Api
 				}//end if
 			}//end foreach
 			return Array (
-					'GetURLsResult'	=> $urls,
+					'GetAssetURLsResult'	=> $urls,
 				   );
 		} else {
 			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
 		}//end else
 
-	}//end GetURLs()
+	}//end GetAssetURLs()
 
 
 	/**
@@ -282,7 +282,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 			throw new SoapFault('Server', 'The URL must not be empty');
 		}//end else
 
-	}//end GetURLs()
+	}//end GetAssetFromURL()
 
 
 	/**
@@ -306,8 +306,16 @@ class Soap_Api_Asset_Service extends Soap_Api
 		if (!empty($assetid)) {
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$statuses	= $asset->getAvailableStatii();
+			$return_statuses	= Array();
+			$i  = 0;
+			foreach ($statuses as $status_val => $description) {
+				$return_statuses[$i]['StatusValue']			= $status_val;
+				$return_statuses[$i]['StatusDescription']	= $description;
+				$i++;
+			}//end foreach
+
 			return Array (
-					'GetAssetAvailableStatusesResult'	=> array_keys($statuses),
+					'GetAssetAvailableStatusesResult'	=> $return_statuses,
 				   );
 		} else {
 			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
@@ -552,7 +560,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 	* @return void
 	* @access public
 	*/
-	function GetAvailableKeywords($request)
+	function GetAssetAvailableKeywords($request)
 	{
 		$request_info 	= (Array) $request;
 		$assetid			= array_get_index($request_info, 'AssetID', '');
@@ -560,13 +568,13 @@ class Soap_Api_Asset_Service extends Soap_Api
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$keywords	= $asset->getAvailableKeywords();
 			return Array (
-					'GetAvailableKeywordsResult'	=> array_keys($keywords),
+					'GetAssetAvailableKeywordsResult'	=> array_keys($keywords),
 				   );
 		} else {
 			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
 		}//end else
 
-	}//end GetAvailableKeywords()
+	}//end GetAssetAvailableKeywords()
 
 
 	/**
@@ -753,12 +761,11 @@ class Soap_Api_Asset_Service extends Soap_Api
 	*/
 	public static function getComplexElements($func_list=Array())
 	{
-		$asset_type							= self::getArgType('AssetType', 0, 1);
+		$asset_type							= self::getArgType('AssetType', 1, 1);
 		$attribute_detail					= self::getArgType('AttributeDetail', 0, 'unbounded', TRUE);
 		$attribute_properties				= self::getArgType('AttributeProperty', 0, 'unbounded', TRUE);
 		$attribute_values_by_name_result	= self::getArgType('AttributeValueInfo', 0, 'unbounded', TRUE);
 		$keywords							= self::$string_optional_unbounded;
-		$status_optional					= self::getArgType('Status', 0, 'unbounded', TRUE);
 		$statuses_des_val					= self::getArgType('StatusDescription', 0, 'unbounded', TRUE);
 		$urls								= self::$string_optional_unbounded;
 		$link_type							= self::getArgType('LinkType', 0, 1);
@@ -788,12 +795,12 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'GetAssetResult'	=> self::$string_optional,
 																					   ),
 														   ),
-							'GetURLs'					=> Array (
-															'GetURLs'				=> Array (
+							'GetAssetURLs'				=> Array (
+															'GetAssetURLs'				=> Array (
 																						'AssetID'		=> self::$string_non_optional,
 																					   ),
-															'GetURLsResponse'		=> Array (
-																						'GetURLsResult'			=> $urls,
+															'GetAssetURLsResponse'		=> Array (
+																						'GetAssetURLsResult'=> $urls,
 																					   ),
 														   ),
 							'GetAssetFromURL'			=> Array (
@@ -809,7 +816,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'AssetID'			=> self::$string_non_optional,
 														   							   ),
 														   	'GetAssetAvailableStatusesResponse'=> Array (
-																						'GetAssetAvailableStatusesResult'	=> $status_optional,
+																						'GetAssetAvailableStatusesResult'	=> $statuses_des_val,
 														   							   ),
 														   ),
 							'SetAttributeValue'			=> Array (
@@ -819,7 +826,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 														   								'AttributeValue'	=> self::$string_non_optional,
 														   							   ),
 														   	'SetAttributeValueResponse'=> Array (
-																						'SetAttributeValueResult'	=> $status_optional,
+																						'SetAttributeValueResult'	=> self::$string_optional,
 														   							   ),
 														   ),
 							'TrashAsset'				=> Array (
@@ -851,12 +858,12 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'GetAssetTypeAttributeResult'		=> $attribute_properties,
 														   							   ),
 														   ),
-							'GetAvailableKeywords'		=> Array (
-															'GetAvailableKeywords'	=> Array (
+							'GetAssetAvailableKeywords'	=> Array (
+															'GetAssetAvailableKeywords'	=> Array (
 														   								'AssetID'			=> self::$string_non_optional,
 														   							   ),
-														   	'GetAvailableKeywordsResponse'=> Array (
-																						'GetAvailableKeywordsResult'	=> $keywords,
+														   	'GetAssetAvailableKeywordsResponse'=> Array (
+																						'GetAssetAvailableKeywordsResult'	=> $keywords,
 														   							   ),
 														   ),
 							'GetAttributeValuesByName'	=> Array (

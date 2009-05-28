@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_search_service.inc,v 1.2 2009/04/22 01:51:48 hnguyen Exp $
+* $Id: soap_api_search_service.inc,v 1.3 2009/05/28 22:46:05 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -118,6 +118,7 @@ class Soap_Api_Search_Service extends Soap_Api
 							'statuses'		=> $search_restrict_statuses,
 							'roots'			=> $search_roots,
 						   );
+log_dump($search_info);
 			$results = $sm->processBasicSearch($search_info, TRUE);
 			$final_result	= Array();
 			if (!empty($search_result_format) && !empty($results)) {
@@ -389,7 +390,7 @@ class Soap_Api_Search_Service extends Soap_Api
 	public static function getComplexElements($func_list=Array())
 	{
 		$obj_optional			= self::getArgType('AssetObject', 0, 1);
-		$statuses				= self::getArgType('AssetStatus', 0, 'unbounded', TRUE);
+		$statuses				= self::getArgType('AssetStatus', 0, 'unbounded');
 		$search_logic			= self::getArgType('SearchLogicValue', 0, 1, TRUE);
 		$search_fields			= self::getArgType('SearchField', 0, 'unbounded', TRUE);
 		$asset_types			= self::getArgType('AssetTypes', 0, 'unbounded');
@@ -462,7 +463,7 @@ class Soap_Api_Search_Service extends Soap_Api
     	$attribute_option	= self::getArgType('AttributeSearchOption', 0, 'unbounded');
     	$standard_option	= self::getArgType('StandardSearchOption', 0, 'unbounded');
     	$search_field_type	= self::getArgType('SearchFieldType', 1, 1);
-		$assetType_optional		= self::getArgType('AssetType', 0, 'unbounbed');
+		$assetType_optional		= self::getArgType('AssetType', 0, 'unbounded');
 		$asset_type_inhr		= Array (
     								'AssetType'	=> $assetType_optional,
     								'Inherit'	=> self::$string_non_optional,
@@ -528,11 +529,11 @@ class Soap_Api_Search_Service extends Soap_Api
 		$simple_restricted_types	= Array (
 										'BasicSearch'	=> Array (
 															'AssetType'			=> Array (
-																					'restriction_base'	=> 'EnumType',
+																					'restriction_base'	=> 'string',
 																					'enumeration'		=> $asset_types,
 																				   ),
 															'AssetStatus'		=> Array (
-																				   	'restriction_base'	=> 'EnumType',
+																				   	'restriction_base'	=> 'string',
 																					'enumeration'		=> Array (
 																											'1','2','4','8','16','32','64','128','256',
 																				   						   ),
@@ -560,7 +561,7 @@ class Soap_Api_Search_Service extends Soap_Api
 														   												   ),
 														   						   ),
 															'AssetType'			=> Array (
-																					'restriction_base'	=> 'EnumType',
+																					'restriction_base'	=> 'string',
 																					'enumeration'		=> $asset_types,
 																				   ),
 														   ),

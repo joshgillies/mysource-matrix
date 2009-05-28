@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_permission_role_service.inc,v 1.2 2009/05/01 00:23:31 hnguyen Exp $
+* $Id: soap_api_permission_role_service.inc,v 1.3 2009/05/28 22:46:05 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -401,7 +401,7 @@ class Soap_Api_Permission_Role_Service extends Soap_Api
 	{
 		$role_details				= self::getArgType('RoleDetail', 0, 'unbounded');
 		$permission_type			= self::getArgType('PermissionLevel', 1, 1);
-		$grant_type					= self::getArgType('GrantType', 1, 1);
+		$grant_type					= self::getArgType('Grant', 1, 1);
 		$role_action				= self::getArgType('RoleActionType', 1, 1);
 		$permission_detail			= self::getArgType('PermissionDetail', 0, 'unbounded');
 
