@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.2 2009/03/22 21:51:03 akarelia Exp $
+* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.2.2.1 2009/05/28 00:58:28 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,7 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($write_access) {
 			echo '<div style="float:left">';
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			check_box($prefix.'_default', '1', $is_default, 'handleMetadataWYSIWYGDefaultClick()');
+			check_box($prefix.'_default', '1', $is_default, 'handleMetadataWYSIWYGDefaultClickFor'.$prefix.'()');
 			label(translate('use_default'), $prefix.'_default');
 
 			if ($print_cascade_values_option) {
@@ -106,7 +106,7 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		?>
 			<script type="text/javascript"><!--
 			//<![CDATA[
-				function handleMetadataWYSIWYGDefaultClick() {
+				function handleMetadataWYSIWYGDefaultClickFor<?php echo $prefix; ?>() {
 					var wysiwyg_container = document.getElementById('<?php echo $prefix.'_wysiwyg_container'; ?>');
 					var default_html_container = document.getElementById('<?php echo $prefix.'_default_html_container'; ?>');
 					if (wysiwyg_container.style.display == 'block') {
