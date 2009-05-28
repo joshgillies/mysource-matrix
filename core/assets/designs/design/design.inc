@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.147 2008/10/28 00:39:00 bpearson Exp $
+* $Id: design.inc,v 1.147.2.1 2009/05/28 06:47:08 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.147.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,7 +140,9 @@ class Design extends Design_Area
 					trigger_localised_error('CORE0158', E_USER_WARNING);
 					return FALSE;
 				}
-
+				if (!$clone->generateDesignFile()){
+					return FALSE;
+				}
 			}//end if
 		}//end if
 
@@ -992,6 +994,7 @@ echo '/*
 
 		// Now we just include the design file to get it to print
 		// else
+
 		require_once $file_path;
 
 	}//end paint()
