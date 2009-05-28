@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.12 2009/05/27 06:15:46 ewang Exp $
+* $Id: design_area_access_history.inc,v 1.13 2009/05/28 01:58:11 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,6 +201,19 @@ class Design_Area_Access_History extends Design_Area
 					}
 					echo '<img name="'.$area_id.'_remove_from_history_button" src="<?php echo $img_url ?>" onclick="document.getElementById(\''.$area_id.'_form\').submit();" onmouseover="this.style.cursor=\'pointer\'" />';
 				}
+			break;
+			
+			//looking for asset keyword
+			case (preg_match('/keyword_/',$var, $matches)? $var : !$var) :
+				$keyword = substr($var, 8);
+				echo '<?php
+					$assetid = array_get_index($asset_info, "assetid");
+					if (!empty($assetid)) {
+					$asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset($assetid);
+					$replacement = $asset->getKeywordReplacement("'.$keyword.'");
+					echo $replacement;
+					}
+				?>';	
 			break;
 
 			default :
