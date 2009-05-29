@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.46 2009/03/25 03:49:51 akarelia Exp $
+* $Id: metadata.inc,v 1.46.2.1 2009/05/29 00:30:15 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.2.1 $
 * @package MySource_Matrix
 */
 
@@ -29,16 +29,15 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Paint the interface for managing metadata values
 *
 * @param object		&$owner			the asset whose interface we are painting
-* @param object		&$o			the outputter class
+* @param object		&$o				the outputter class
 * @param object		&$ei			the edit interface
 * @param boolean	$keywords		the keywords to replace
-* @param Array		$layout_options		the Simple Edit layout options
-* @param boolean	$full_screen		if TRUE the entire screen will be captured into a replacement
+* @param Array		$layout_options	the Simple Edit layout options
 *
 * @return boolean
 * @access public
 */
-function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options=Array(), $full_screen=TRUE)
+function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options=Array())
 {
 	$root = $ei->findScreen('static_screen_metadata');
 	if (is_null($root)) return FALSE;
@@ -59,8 +58,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 	}
 
 	foreach ($root->section as $section) {
-		// only do this if we are not painting a layout
-		if (is_null($keywords) || !$full_screen) {
+		// do this if keywords are set
+		if (is_null($keywords)) {
 			// if we are in limbo and this section is not to be printed in limbo - dont print it
 			if (SQ_IN_LIMBO && (!isset($section->attributes()->limbo_access) || (int)$section->attributes()->limbo_access == 0)) {
 				continue;
@@ -182,16 +181,24 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
 							ob_start();
 						}
-
+						
 						$values = $mm->getMetadata($owner->id);
 						foreach ($schemas as $schemaid) {
 							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
 							$edit_fns = $schema->getEditFns();
-							if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, $print_cascade_values_option, $owner->type())) {
+
+							// Paint only if user is not in limbo or if keywords for metadata fields are set
+							if ((!is_null($keywords) && isset($keywords['fields']['metadata_values'])) || !SQ_IN_LIMBO) {
+								if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, $print_cascade_values_option, $owner->type())) {
+									$print_commit_button = TRUE;
+								}
+							}
+							else {	
 								$print_commit_button = TRUE;
 							}
-						}
+
+						}	
 
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
