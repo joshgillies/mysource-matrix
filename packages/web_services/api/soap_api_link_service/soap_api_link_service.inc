@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.1.2.1 2009/04/29 05:49:46 hnguyen Exp $
+* $Id: soap_api_link_service.inc,v 1.1.2.2 2009/05/29 01:02:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -55,8 +55,8 @@ class Soap_Api_Link_Service extends Soap_Api
     public function getFunctionList()
     {
         return Array(
-				'CreateLink'			=> '1',
-				'DeleteLink'			=> '1',
+				'CreateAssetLink'		=> '1',
+				'DeleteAssetLink'		=> '1',
 				'GetAllChildLinks'		=> '1',
 				'GetChildren'			=> '1',
 				'GetDependantChildren'	=> '1',
@@ -91,7 +91,7 @@ class Soap_Api_Link_Service extends Soap_Api
 	* @return void
 	* @access public
 	*/
-	function CreateLink($request)
+	function CreateAssetLink($request)
 	{
 		$request_info 	= (Array) $request;
 		$majorid		= array_get_index($request_info, 'MajorID', '');
@@ -110,13 +110,13 @@ class Soap_Api_Link_Service extends Soap_Api
 				throw new SoapFault('Server', 'Unable to create link');
 			}//end if
 			return Array (
-					'CreateLinkResult'	=> $new_link_id,
+					'CreateAssetLinkResult'	=> $new_link_id,
 				   );
 		} else {
 			throw new SoapFault('Server', 'Missing information to create link. Make sure MajorID, MinorID and LinkType is provided');
 		}//end else
 
-	}//end CreateLink()
+	}//end CreateAssetLink()
 
 
 	/**
@@ -132,7 +132,7 @@ class Soap_Api_Link_Service extends Soap_Api
 	* @return void
 	* @access public
 	*/
-	function DeleteLink($request)
+	function DeleteAssetLink($request)
 	{
 		$request_info = (Array) $request;
 		$linkid = array_get_index($request_info, 'LinkID', '');
@@ -156,7 +156,7 @@ class Soap_Api_Link_Service extends Soap_Api
 
 				if ($result) {
 					return Array (
-							'DeleteLinkResult'	=> $result,
+							'DeleteAssetLinkResult'	=> $result,
 						   );
 				} else {
 					throw new SoapFault('Server', 'Unable To Delete Link');
@@ -169,7 +169,7 @@ class Soap_Api_Link_Service extends Soap_Api
 			throw new SoapFault('Server', 'The Link ID Provided Is Empty');
 		}//end else
 
-	}//end DeleteLink()
+	}//end DeleteAssetLink()
 
 
 	/**
@@ -657,13 +657,14 @@ class Soap_Api_Link_Service extends Soap_Api
 		$obj_optional			= self::getArgType('AssetObject', 0, 1);
 		$link_details			= self::getArgType('LinkDetails', 0, 'unbounded', TRUE);
 		$link_info_summary		= self::getArgType('LinkInfoSummary', 0, 'unbounded', TRUE);
+		$children_info_summary	= self::getArgType('ChildrenInfoSummary', 0, 'unbounded', TRUE);
         $link_type				= self::getArgType('LinkTypeValue', 0, 1);
         $asset_types			= self::getArgType('AssetType', 0, 1);
 		$link_type				= self::getArgType('LinkTypeValue', 0, 1);
 
 		$complex_types	= Array (
-							'CreateLink'				=> Array (
-															'CreateLink'			=> Array (
+							'CreateAssetLink'			=> Array (
+															'CreateAssetLink'		=> Array (
 																						'MajorID'		=> self::$string_non_optional,
 														   								'MinorID'		=> self::$string_non_optional,
 														   								'LinkType'		=> $link_type,
@@ -672,16 +673,16 @@ class Soap_Api_Link_Service extends Soap_Api
 														   								'IsDependant'	=> self::$string_optional,
 														   								'IsExclusive'	=> self::$string_optional,
 														   							   ),
-														   	'CreateLinkResponse'	=> Array (
-																						'CreateLinkResult'	=> self::$string_optional,
+														   	'CreateAssetLinkResponse'	=> Array (
+																						'CreateAssetLinkResult'	=> self::$string_optional,
 														   							   ),
 														   ),
-							'DeleteLink'				=> Array (
-															'DeleteLink'				=> Array (
+							'DeleteAssetLink'			=> Array (
+															'DeleteAssetLink'			=> Array (
 																								'LinkID'				=> self::$string_non_optional,
 																							  ),
-															'DeleteLinkResponse'		=> Array (
-																								'DeleteLinkResult'	=> self::$boolean_optional,
+															'DeleteAssetLinkResponse'	=> Array (
+																								'DeleteAssetLinkResult'	=> self::$boolean_optional,
 																							   ),
 														   ),
 							'GetAllChildLinks'			=> Array (
@@ -708,7 +709,7 @@ class Soap_Api_Link_Service extends Soap_Api
 																								'LinkValueWanted'	=> self::$string_optional,
 																							   ),
 															'GetChildrenResponse'			=> Array (
-																								'GetChildrenResult'	=> $link_info_summary,
+																								'GetChildrenResult'	=> $children_info_summary,
 																							   ),
 														   ),
 							'GetDependantChildren'		=> Array (
@@ -826,7 +827,7 @@ class Soap_Api_Link_Service extends Soap_Api
     	$link_details	= Array (
 							'LinkDetails'	=> Array (
 												'TreeID'			=> self::$string_optional,
-										   	'LinkID'			=> self::$string_non_optional,
+											   	'LinkID'			=> self::$string_non_optional,
 												'Level'				=> self::$string_optional,
 												'MinorID'			=> self::$string_optional,
 	        									'MajorID'			=> self::$string_optional,
@@ -851,6 +852,12 @@ class Soap_Api_Link_Service extends Soap_Api
                                            			     	'LinkInfoSummary'			=> Array (
 																							'AssetID'			=> self::$string_non_optional,
                                            			       									'TypeCode'			=> self::$string_optional,
+                                           			       								   ),
+                                           			   ),
+							'GetChildren'			=> Array (
+                                           			     	'ChildrenInfoSummary'		=> Array (
+																							'AssetID'			=> self::$string_non_optional,
+                                           			       									'TypeCode'			=> self::$string_non_optional,
                                            			       								   ),
                                            			   ),
                             'GetSchemasOnAsset'    => Array (
@@ -893,7 +900,7 @@ class Soap_Api_Link_Service extends Soap_Api
 
 
 		$simple_restricted_types	= Array (
-										'CreateLink'				=> Array (
+										'CreateAssetLink'		=> Array (
 																	'LinkTypeValue'	=> $common_types['LinkTypeValue'],
 																   ),
 										'GetLinks'				=> Array (

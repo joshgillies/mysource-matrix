@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.1.2.1 2009/04/29 05:38:21 hnguyen Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.1.2.2 2009/05/29 01:02:37 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.1 $
+* @version $Revision: 1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -736,7 +736,7 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 	public static function getSimpleRestrictedTypes($func_list=Array())
 	{
 		$design_type	= Array (
-							'restriction_base'	=> 'EnumType',
+							'restriction_base'	=> 'string',
 							'enumeration'		=> Array (
 													'Frontend', 'OverrideFrontend', 'Login', 'OverrideLogin', 'UserDefined', 'OverrideUserDefined',
 												   ),
