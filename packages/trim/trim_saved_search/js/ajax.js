@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ajax.js,v 1.2 2009/01/09 05:08:54 hnguyen Exp $
+* $Id: ajax.js,v 1.2.2.1 2009/05/29 06:39:23 hnguyen Exp $
 *
 */
 
@@ -45,9 +45,13 @@ function sendRequest(url, call_back_func)
 	{
 		if (xmlHttp.readyState == 4) {
 			response	= xmlHttp.responseText;
+			var loader_img	= document.getElementById('trim_saved_search_loader');
+			loader_img.style.display = 'none';
 			eval(call_back_func+'(response)');
 		}
 	}
+	var loader_img	= document.getElementById('trim_saved_search_loader');
+	loader_img.style.display = 'block';
 	xmlHttp.open("GET", url, true);
 	xmlHttp.send(null);
 

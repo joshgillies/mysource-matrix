@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.9.2.2 2009/05/11 04:16:45 hnguyen Exp $
+* $Id: trim_saved_search.inc,v 1.9.2.3 2009/05/29 06:39:23 hnguyen Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.9.2.2 $
+* @version $Revision: 1.9.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -324,6 +324,10 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	public function getAttachedFile($uri)
 	{
+		require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
+		
 		$dir_path	= $this->data_path.'/'.$uri;
 		$path_parts	= Array();
 		if (file_exists($dir_path)) {
@@ -335,11 +339,14 @@ class TRIM_Saved_Search extends Data_Source
 			}//end foreach
 		} else {
 			return FALSE;
-		}
+		}//end else
 
 		if (empty($path_parts)) {
 			return FALSE;
 		}//end if
+
+		$ext	= strtolower($path_parts['extension']);
+		$type	= (empty($standards_lists_mime_types[$ext])) ? 'text/plain' : $standards_lists_mime_types[$ext];
 
 		// Fix for IE caching
 		header("Pragma: public");
@@ -348,7 +355,7 @@ class TRIM_Saved_Search extends Data_Source
 		header("Cache-Control: private",false);
 
 		// We'll be outputting a file
-		header('Content-type: application/'.strtolower($path_parts['extension']));
+		header('Content-Type: '.$type);
 
 		// Set the name of the file
 		header('Content-Disposition: attachment; filename="'.$path_parts['basename'].'";');
@@ -358,6 +365,7 @@ class TRIM_Saved_Search extends Data_Source
 		readfile($file_path);
 
 		return TRUE;
+		@ob_flush();
 
 	}//end getAttachment()
 
@@ -456,8 +464,8 @@ class TRIM_Saved_Search extends Data_Source
 		$connection['authentication']	= Array (
 											'login'		=> $connector->attr('username'),
 											'password'	=> $connector->attr('password'),
-											'trace'		=> '1',
-											'exception'	=> '1',
+											'trace'		=> TRUE,
+											'exception'	=> TRUE,
 										  );
 
 		return $connection;
