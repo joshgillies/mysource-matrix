@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.5 2009/05/28 22:46:05 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.6 2009/05/29 06:47:16 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -282,7 +282,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 			throw new SoapFault('Server', 'The URL must not be empty');
 		}//end else
 
-	}//end GetAssetFromURL()
+	}//end GetAssetURLs()
 
 
 	/**
