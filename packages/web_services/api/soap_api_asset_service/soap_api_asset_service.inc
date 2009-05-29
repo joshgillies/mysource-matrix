@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.1.2.3 2009/05/29 01:02:37 hnguyen Exp $
+* $Id: soap_api_asset_service.inc,v 1.1.2.4 2009/05/29 06:48:09 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -766,7 +766,6 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$attribute_properties				= self::getArgType('AttributeProperty', 0, 'unbounded', TRUE);
 		$attribute_values_by_name_result	= self::getArgType('AttributeValueInfo', 0, 'unbounded', TRUE);
 		$keywords							= self::$string_optional_unbounded;
-		$status_optional					= self::getArgType('Status', 0, 'unbounded', TRUE);
 		$statuses_des_val					= self::getArgType('StatusDescription', 0, 'unbounded', TRUE);
 		$urls								= self::$string_optional_unbounded;
 		$link_type							= self::getArgType('LinkType', 0, 1);
