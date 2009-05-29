@@ -10,11 +10,18 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1.6.1 2009/05/29 01:59:21 wszymanski Exp $
+* $Id: edit_interface_screen_view_records.xml,v 1.1.2.1 2009/05/29 01:59:21 wszymanski Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="view_records"	display_name="View Records"	icon="create"	force_unlock="0"	lock_type="attributes" />
-</screens>
+<contents>
+	<section name="View Records" write_access="write:attributes" limbo_access="1">
+		<field>
+			<function_call>
+				<paint_function   name="paintViewRecords"   />
+				<process_function name="processViewRecords" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv_edit_fns.inc,v 1.3 2007/12/21 23:46:03 gsherwood Exp $
+* $Id: data_source_csv_edit_fns.inc,v 1.3.6.1 2009/05/29 01:59:21 wszymanski Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -97,7 +97,7 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
-	* Paints the current records and allows them to be edited
+	* Paints the current records
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
@@ -106,15 +106,13 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintEditRecords(&$asset, &$o, $prefix)
+	function paintViewRecords(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) {
-			echo '<pre>';
-			echo(print_r($asset->getItems(), TRUE));
-			echo '</pre>';
-		}
+		echo '<pre>';
+		echo(print_r($asset->getItems(), TRUE));
+		echo '</pre>';
 
-	}//end paintEditRecords()
+	}//end paintViewRecords()
 
 
 	/**
@@ -127,12 +125,12 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processEditRecords(&$asset, &$o, $prefix)
+	function processViewRecords(&$asset, &$o, $prefix)
 	{
 		return TRUE;
 
-	}//end processEditRecords()
-
+	}//end processViewRecords()
+	
 
 }//end class
 
