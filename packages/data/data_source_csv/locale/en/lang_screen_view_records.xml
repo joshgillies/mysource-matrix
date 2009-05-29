@@ -10,11 +10,11 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2009/05/29 02:04:52 wszymanski Exp $
+* $Id: lang_screen_view_records.xml,v 1.2 2009/05/29 02:04:52 wszymanski Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="view_records"	display_name="View Records"	icon="create"	force_unlock="0"	lock_type="attributes" />
-</screens>
+<contents>
+	<section name="View Records" />
+</contents>
