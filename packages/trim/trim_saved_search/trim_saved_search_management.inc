@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.3 2008/12/17 22:35:42 hnguyen Exp $
+* $Id: trim_saved_search_management.inc,v 1.4 2009/05/29 06:33:29 hnguyen Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -179,6 +179,7 @@ class TRIM_Saved_Search_Management extends Asset_Management
     {
         return Array(
                 'js/ajax.js',
+                'images/loader.gif',
                );
 
     }//end _getFileList()
