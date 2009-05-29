@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.				   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_search_service.inc,v 1.3 2009/05/28 22:46:05 hnguyen Exp $
+* $Id: soap_api_search_service.inc,v 1.4 2009/05/29 00:30:12 hnguyen Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -118,7 +118,7 @@ class Soap_Api_Search_Service extends Soap_Api
 							'statuses'		=> $search_restrict_statuses,
 							'roots'			=> $search_roots,
 						   );
-log_dump($search_info);
+
 			$results = $sm->processBasicSearch($search_info, TRUE);
 			$final_result	= Array();
 			if (!empty($search_result_format) && !empty($results)) {
