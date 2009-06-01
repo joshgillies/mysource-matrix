@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_safe_trash_edit_fns.inc,v 1.7 2007/12/03 05:01:31 lwright Exp $
+* $Id: report_safe_trash_edit_fns.inc,v 1.8 2009/06/01 23:28:47 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,6 +78,7 @@ class Report_Safe_Trash_Edit_Fns extends Report_Edit_Fns
 				trigger_localised_error('CORE0201', E_USER_WARNING);
 				return FALSE;
 			}
+			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
 			fwrite($temp_file, "<assets>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');

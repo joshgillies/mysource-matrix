@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.15 2007/12/03 05:01:30 lwright Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.16 2009/06/01 23:28:47 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,7 +122,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			// and save the report
 
 			$step_data['message'] = translate('core_get_readable_asset_descriptions');
-
+			
+			$report_contents .= '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n";
 			// generate the report
 			$report_contents .= '<asset_types>';
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: structured_asset_info_edit_fns.inc,v 1.15 2008/02/29 05:59:45 lwright Exp $
+* $Id: structured_asset_info_edit_fns.inc,v 1.16 2009/06/01 23:28:47 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Elden McDonald <emcdonald@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -550,6 +550,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 				trigger_localised_error('CORE0017', E_USER_WARNING);
 				return FALSE;
 			}
+			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
 			fwrite($temp_file, '<assets root_treeid="'.$root_treeid.'">'."\n");
 		} else {
 
