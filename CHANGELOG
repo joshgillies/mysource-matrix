@@ -1,5 +1,93 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.22.1
+
+Featured Changes
+-----------------------------------
+
+New Default System Encoding for new installations
+	New installations beginning from 3.22.1 have a default System Encoding of "utf-8" instead of "iso-8859-1" which was the case in previous releases. The System Encoding can be configured from the main.inc file during installation.
+
+
+Send Email Trigger Action: Support for sending assets
+	The frontend contents of an asset, along with a selected design or Paint Layout, can now be sent via email from this Trigger Action instead of the supplied bodycopy.
+
+
+Text Direction option for Bodycopy DIV and Table elements
+	An option has been added to the "DIV Properties" and "Table Properties" bodycopy icons (at table, row and cell level) to control the text direction HTML attribute for these elements. This feature provides support for both left-to-right and right-to-left languages on the same page. 
+
+
+MIME Type and Virus Check Rule modifications for File Upload Form Questions
+	A new File Question rule "Uploaded File Virus Check" has been added to scan the uploaded file via the ClamAV third-party utility as configured in "External Tools Configuration". This rule will prevent the file from being uploaded to the form should a virus be detected by the scanner. Custom text may be supplied to indicate the progress of virus scanning and to report scanning failure to the page.
+
+A MIME Type check option has also been added to the "Uploaded File Type" question rule to ensure that the file data supplied matches that expected by the file extension.
+
+
+Language Character Mapping for Web Paths
+	A new option, "Use Language Character Map", has been added to System Configuration to provide character conversion for Web Paths for languages other than English. A set of Polish characters and closest English equivalents has been included and is installed by running step_03. This generates a new configuration file named lang_char_map.inc.
+
+When enabled, the "Use Language Character Map" option will perform a character conversion for the current System Country (as set in System Configuration) which will affect the Web Paths of newly-created assets.
+
+
+Access History persistence across sessions and Asset Keyword extraction
+	The Access History Design Area can now store asset visits by a user in the database for persistence across sessions. This is done by configuring a new attribute "store_permanent" as follows.
+
+	<MySource_AREA id_name="back_to_pages" design_area="access_history">
+		...
+		<MySource_SET name="store_permanent" value="true" />
+		...
+	</MySource_AREA>
+
+Furthermore, all asset-level keywords can now be printed within the <MySource_AREA>. For example, the following structure would be used to print the Email Address of User assets:
+
+	<MySource_PRINT var="keyword_asset_attribute_email" /> 
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+Core
+Fixed Bug #3629: Turning off Require Secure Login doesn't turn it off
+Fixed Bug #3635: 2 CCS File assets in the list on asset is of type trigger condition
+Fixed Bug #3643: Thesaurus Term with trailing space doesn't display in Metadata selection interface
+Fixed Bug #3661: Custom form rule (check file type) can be skipped
+Fixed Bug #3662: File virus check in creating a file will get errors if the file has a path which contains space
+Fixed Bug #3663: Selecting asset id for purge trash root node not working
+Fixed Bug #3664: backup.sh script fails under Solaris 10
+Fixed Bug #3665: session_cleanup.sh script fails under Solaris 10
+Fixed Bug #3667: In wysiwyg upload image popup, incorrect error message for uploading a virus infected file
+Fixed Bug #3669: Set Future Lineage Trigger issue
+Fixed Bug #3673: backup.sh creates schema-only db backup
+Fixed Bug #3674: Keywords in the email sent by page_password_reset not replaced in emails
+Fixed Bug #3683: External tool config virus check path can not be set if HTML tidy is not turned on
+Fixed Bug #3685: File type check question rule in custom file will incorrectly check file type for second file upload
+Fixed Bug #3686: Antivirus external tool doesn't even report virus on a properly setup Clam AV
+Fixed Bug #3687: File assets fails to reacquire public URL after return from safe edit successfully
+Fixed Bug #3691: %workflow_user% keyword not replaced in workflow screen
+
+Bulkmail
+Fixed Bug #3660: Bulkmail user linked under unsubscribed users when already subscribed
+
+CMS
+Fixed Bug #3619: Reset button on custom form does not work
+Fixed Bug #3648: sq-form-field XHTML validation error
+Fixed Bug #3656: Link Manager page doesn't recursively update lookups
+Fixed Bug #3659: 'Multiple Page' cloning loses 'Multiple Page Page' web paths
+Fixed Bug #3675: Tagging screen for Multiple Page Pages
+Fixed Bug #3693: Account Manager Page Errors
+Fixed Bug #3699: Save XML form action: where multiple optional file uploads, asset ID incorrect
+Fixed Bug #3700: Save XML form action: File Upload's file content dump fails when filename is not webpath safe
+
+Calendar
+Fixed Bug #3639: A no results bodycopy of a calendar page doesn't display on a page when there is no events to list
+
+Search
+Fixed Bug #3679: Asset ID of newly created asset is not indexed
+
+Web Services
+Fixed Bug #3650: Web paths screen of SOAP API Asset Service throws fatal PHP error
+
+
+
 VERSION 3.22.0
 
 Featured Changes
