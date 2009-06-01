@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.148 2009/05/28 06:41:57 ewang Exp $
+* $Id: design.inc,v 1.149 2009/06/01 03:58:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,6 +119,9 @@ class Design extends Design_Area
 				}
 			}
 
+		
+				
+				
 			// Copy the parse file across first, then process it, to make sure
 			if (copy($orig_parse, $clone_parse)) {
 				$edit_fns = $clone->getEditFns();
@@ -140,9 +143,7 @@ class Design extends Design_Area
 					trigger_localised_error('CORE0158', E_USER_WARNING);
 					return FALSE;
 				}
-				if (!$clone->generateDesignFile()){
-					return FALSE;
-				}
+								
 			}//end if
 		}//end if
 
