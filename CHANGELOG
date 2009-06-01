@@ -1,5 +1,44 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.20.5
+
+Complete Changelog
+-----------------------------------
+Core
+Fixed Bug #3629: Turning off Require Secure Login doesn't turn it off
+Fixed Bug #3635: 2 CCS File assets in the list on asset is of type trigger condition
+Fixed Bug #3643: Thesaurus Term with trailing space doesn't display in Metadata selection interface 
+Fixed Bug #3661: Custom form rule (check file type) can be skipped
+Fixed Bug #3662: File virus check in creating a file will get errors if the file has a path which contains space
+Fixed Bug #3663: Selecting asset id for purge trash root node not working
+Fixed Bug #3667: In wysiwyg upload image popup, incorrect error message for uploading a virus infected file
+Fixed Bug #3669: Set Future Lineage Trigger issue
+Fixed Bug #3683: External tool config virus check path can not be set if HTML tidy is not turned on
+Fixed Bug #3686: Antivirus external tool doesn't even report virus on a properly setup Clam AV
+Fixed Bug #3687: File assets fails to reacquire public URL after return from safe edit successfully
+Fixed Bug #3691: %workflow_user% keyword not replaced in workflow screen
+
+Bulkmail
+Fixed Bug #3660: Bulkmail user linked under unsubscribed users when already subscribed
+
+CMS
+Fixed Bug #3619: Reset button on custom form does not work
+Fixed Bug #3648: sq-form-field XHTML validation error
+Fixed Bug #3656: Link Manager page doesn't recursively update lookups
+Fixed Bug #3659: 'Multiple Page' cloning loses 'Multiple Page Page' web paths
+Fixed Bug #3675: Tagging screen for Multiple Page Pages
+Fixed Bug #3693: Account Manager Page Errors
+Fixed Bug #3699: Save XML form action: where multiple optional file uploads, asset ID incorrect
+Fixed Bug #3700: Save XML form action: File Upload's file content dump fails when filename is not webpath safe
+
+Calendar
+Fixed Bug #3639: A no results bodycopy of a calendar page doesn't display on a page when there is no events to list
+
+Search
+Fixed Bug #3679: Asset ID of newly created asset is not indexed
+
+
+
 VERSION 3.20.4
 
 Featured Changes
