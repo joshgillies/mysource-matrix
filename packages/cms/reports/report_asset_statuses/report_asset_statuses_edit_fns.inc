@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.13 2008/02/18 05:26:28 lwright Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.14 2009/06/01 23:41:22 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -128,7 +128,8 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		}
 
 		// generate XML contents
-		$contents = '<asset_list>'."\n";
+		$contents = '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n";
+		$contents .= '<asset_list>'."\n";
 		foreach ($result as $values) {
 			$contents .= '<asset assetid="'.htmlSpecialChars($values['assetid']).'" name="'.htmlSpecialChars($values['name']).'" type_code="'.$values['type_code'].'">'."\n";
 			$contents .= '	<status value="'.$values['status'].'" changed="'.$values['status_changed'].'" changed_userid="'.htmlSpecialChars($values['status_changed_userid']).'" changed_user_name="'.htmlSpecialChars($values['user_name']).'"/>'."\n";
@@ -248,12 +249,12 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('cms_reports_asset_statuses_asset_icon'); ?></td>
-				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('assetid'); ?></td>
-				<th class="sq-backend-table-header"><?php echo translate('name'); ?></td>
-				<th class="sq-backend-table-header"><?php echo translate('status'); ?></td>
-				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_change'); ?></td>
-				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_changer'); ?></td>
+				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('cms_reports_asset_statuses_asset_icon'); ?></th>
+				<th class="sq-backend-table-header" style="width: 10ex"><?php echo translate('assetid'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('name'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('status'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_change'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('cms_reports_asset_statuses_last_status_changer'); ?></th>
 			</tr>
 		<?php
 
