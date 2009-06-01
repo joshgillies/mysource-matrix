@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.147 2009/04/03 03:47:28 bshkara Exp $
+* $Id: page_asset_builder.inc,v 1.148 2009/06/01 01:30:12 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -471,12 +471,14 @@ class Page_Asset_Builder extends Page
 
 				case 'create' :
 
+					$required_error = FALSE;
+					
 					// verify captcha
 					if ($this->attr('require_captcha')) {
 						if (!validate_security_key()) {
 							$error_text = translate('security_key_incorrect');
 							trigger_error($error_text, E_USER_NOTICE);
-							break;
+							$required_error = TRUE;
 						}
 					}
 
@@ -493,7 +495,6 @@ class Page_Asset_Builder extends Page
 					 //  REQUIRED FIELDS  //
 					///////////////////////
 
-					$required_error = FALSE;
 					$required_fields = $this->attr('required_fields');
 					if (!empty($required_fields[$new_asset->type()])) {
 
