@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.1.2.7 2009/05/01 07:16:04 bpearson Exp $
+* $Id: form_action_save_xml.inc,v 1.1.2.8 2009/06/01 01:47:54 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.2.7 $
+* @version $Revision: 1.1.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -296,6 +296,7 @@ class Form_Action_Save_Xml extends Form_Action
 							$filename = $value;
 							$value = '';
 							$assetid = 0;
+							$fileid = 0;
 							if (isset($answer['extra_data']['new_file_assetid']) && !empty($answer['extra_data']['new_file_assetid'])) {
 								$assetid = $answer['extra_data']['new_file_assetid'];
 							}//end if
@@ -306,7 +307,8 @@ class Form_Action_Save_Xml extends Form_Action
 							if (!empty($assetid)) {
 								$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 								if (!is_null($asset)) {
-									$file_to_process = $asset->data_path.'/'.$filename;
+									$file_details = $asset->getExistingFile();
+									$file_to_process = $file_details['path'];
 									if (file_exists($file_to_process)) {
 										$fhandle = fopen($file_to_process, 'r');
 										$file_content = fread($fhandle, filesize($file_to_process));
