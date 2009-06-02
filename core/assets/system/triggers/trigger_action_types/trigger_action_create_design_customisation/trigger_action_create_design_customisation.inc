@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,6 +64,8 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// This clone will be morphed to customisation later, so it will NOT clone the parse file.
+		$asset->_tmp['custom'] = TRUE;
 		$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

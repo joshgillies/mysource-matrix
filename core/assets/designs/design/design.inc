@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.147.2.2 2009/06/01 03:57:14 ewang Exp $
+* $Id: design.inc,v 1.147.2.3 2009/06/02 04:36:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.147.2.2 $
+* @version $Revision: 1.147.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,6 +138,10 @@ class Design extends Design_Area
 				// make sure we have the latest version of our file
 				if (!$fv->checkOut($clone->data_path_suffix.'/parse.txt', $clone->data_path)) {
 					trigger_localised_error('CORE0158', E_USER_WARNING);
+					return FALSE;
+				}
+				
+				if (!$clone->generateDesignFile()){
 					return FALSE;
 				}
 				
