@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.284.2.1 2009/04/07 00:00:20 bpearson Exp $
+* $Id: asset_map.inc,v 1.284.2.2 2009/06/02 04:56:45 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.284.2.1 $
+* @version $Revision: 1.284.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -2179,7 +2179,7 @@ class Asset_Map
 		$response_count = 0;
 
 		// ensure no url friendly values exists for assetids
-		$input->attributes()->to_parent_assetid = urlencode((string)$input->attributes()->to_parent_assetid);
+		$input->attributes()->to_parent_assetid = urldecode((string)$input->attributes()->to_parent_assetid);
 		foreach($input->asset as $asset) {
 			$asset->attributes()->assetid = urldecode((string)$asset->attributes()->assetid);
 		}
