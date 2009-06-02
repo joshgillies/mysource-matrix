@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.45.2.2 2009/05/06 04:52:26 ewang Exp $
+* $Id: report_links_edit_fns.inc,v 1.45.2.3 2009/06/02 00:56:30 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45.2.2 $
+* @version $Revision: 1.45.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -79,6 +79,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				trigger_localised_error('RPRT0000', E_USER_WARNING);
 				return FALSE;
 			}
+			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
 			fwrite($temp_file, "<links>\n");
 		} else {
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'a');
@@ -653,9 +654,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						?>
 						<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 							<tr>
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></td>
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></td>
-								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in') ?></th>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('linking_to') ?></th>
+								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></th>
 							</tr>
 						<?php
 						foreach ($reported_links['internal'] as $assetid => $links) {
@@ -757,9 +758,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('url'); ?></td>
-								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></th>
+								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('url'); ?></th>
+								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></th>
 							</tr>
 						<?php
 						foreach ($reported_links['external'] as $assetid => $links) {
@@ -830,9 +831,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						?>
 						<table class="sq-backend-table">
 							<tr>
-								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></td>
-								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('email'); ?></td>
-								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></td>
+								<th colspan="3" class="sq-backend-table-header" style="width: 226px;"><?php echo translate('found_in'); ?></th>
+								<th class="sq-backend-table-header" style="width: 274px;"><?php echo translate('email'); ?></th>
+								<th class="sq-backend-table-header"><?php echo translate('comments'); ?></th>
 							</tr>
 						<?php
 						foreach ($reported_links['mailto'] as $assetid => $links) {
@@ -1005,7 +1006,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		<table class="sq-backend-table" style="width: 300px;">
 			<tr>
-				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_internal_links'); ?></td>
+				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_internal_links'); ?></th>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'Internal'); ?></td>
@@ -1053,7 +1054,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_external_links'); ?></td>
+				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_external_links'); ?></th>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'External'); ?></td>
@@ -1101,7 +1102,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_email_links'); ?></td>
+				<th class="sq-backend-table-header" colspan="2"><?php echo translate('cms_report_links_email_links'); ?></th>
 			</tr>
 			<tr>
 				<td class="sq-backend-table-cell" style="padding-left: 30px;"><?php echo translate('cms_report_links_display_section', 'Email'); ?></td>
