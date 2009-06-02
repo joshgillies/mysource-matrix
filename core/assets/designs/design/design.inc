@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.149 2009/06/01 03:58:21 ewang Exp $
+* $Id: design.inc,v 1.150 2009/06/02 04:38:32 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,11 @@ class Design extends Design_Area
 					trigger_localised_error('CORE0158', E_USER_WARNING);
 					return FALSE;
 				}
-								
+
+				if (!$clone->generateDesignFile()){
+					return FALSE;
+				}
+				
 			}//end if
 		}//end if
 
@@ -596,10 +600,12 @@ class Design extends Design_Area
 			case 'edit' :
 				$this->_tmp['update_customisations'] = FALSE;
 				if (parent::processBackend($o, $link)) {
+					
 					// regenerate the design (if necessary),
 					// but don't do the customisations if they have yet to be updated
 					// (they will be regenerated during the update process anyway)
 					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {
+						
 						$this->generateDesignFile(!$this->_tmp['update_customisations']);
 						if ($this->_tmp['update_customisations']) {
 							$this->updateCustomisations();
