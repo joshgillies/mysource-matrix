@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_send_email.inc,v 1.21.4.1 2009/05/13 04:14:24 akarelia Exp $
+* $Id: trigger_action_send_email.inc,v 1.21.4.2 2009/06/03 22:46:03 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.21.4.1 $
+* @version $Revision: 1.21.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,7 +44,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 	* @access public
 	*/
 	public static function execute($settings, &$state)
-	{
+	{	
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
@@ -116,8 +116,18 @@ class Trigger_Action_Send_Email extends Trigger_Action
 			foreach ($settings['roles'] as $role) {
 				$role_result = $GLOBALS['SQ_SYSTEM']->am->getRole($state['assetid'], $role, NULL, FALSE, $fetch_global_roles);
 				if (!empty($role_result)) {
+				
 					foreach ($role_result[$role] as $role_member) {
-						$role_members[] = $role_member;
+						
+						// Get the role_member asset to check if its of type User
+						$role_member_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($role_member);
+						
+						// If asset does not belongs to User class then there is no point in sending email to it
+						if (get_class($role_member_asset) === 'User' || get_parent_class($role_member_asset) === 'User') {						
+							$role_members[] = $role_member;
+						}
+
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($role_memeber_asset);
 					}
 				}
 			}
