@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.33.2.4 2009/04/08 03:26:27 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.33.2.5 2009/06/03 22:58:42 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33.2.4 $
+* @version $Revision: 1.33.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -474,7 +474,6 @@ class Form_Question_Type_File_Upload extends Form_Question
 			if ($ok) {
 				if ($existing_asset) {
 					// update the existing file asset
-					$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($existing_asset->id, 'attributes');
 					$edit_fns = $existing_asset->getEditFns();
 
 					$file_info = Array(
@@ -484,15 +483,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 								 );
 
 					$o = NULL;
+					//force to update the file
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					if (!$edit_fns->processFileUpload($existing_asset, $o, $existing_asset->getPrefix(), $file_info)) {
-						if ($lock_status === 1) {
-							$GLOBALS['SQ_SYSTEM']->am->releaseLock($existing_asset->id, 'attributes');
-						}
 						return FALSE;
 					}
-					if ($lock_status === 1) {
-						$GLOBALS['SQ_SYSTEM']->am->releaseLock($existing_asset->id, 'attributes');
-					}
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 					$this->extra_data = Array(
 											'existing_file_assetid'	=> $existing_asset->id,
