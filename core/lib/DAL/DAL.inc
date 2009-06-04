@@ -583,7 +583,15 @@ class DAL
 	 */
 	public static function execPdoQuery($query)
 	{
-		self::_startQueryTimer('unknown query');
+		$query_log = 'unknown query';
+		/**
+		 * We can get the queryString from a pdo statement
+		 * but not an oracle statement unfortunately.
+		 */
+		if ($query instanceof PDOStatement) {
+			$query_log = $query->queryString;
+		}
+		self::_startQueryTimer($query_log);
 
 		$dbh = self::getDb();
 
