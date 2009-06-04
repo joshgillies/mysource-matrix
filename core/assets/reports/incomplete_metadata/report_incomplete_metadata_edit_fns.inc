@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.19 2009/06/01 23:28:47 ewang Exp $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.20 2009/06/04 00:17:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,8 +79,6 @@ class Report_Incomplete_Metadata_Edit_Fns extends Report_Edit_Fns
 				return FALSE;
 			}
 			
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-			$field_values = $mm->getMetadataFieldValues($asset->id);
 			
 			fwrite($temp_file, '<?xml version="1.0" encoding="'.SQ_CONF_DEFAULT_CHARACTER_SET.'"?>'."\n");
 			fwrite($temp_file, "<assets>\n");
