@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.352.2.3 2009/05/28 05:06:34 cupreti Exp $
+* $Id: asset_edit_interface.inc,v 1.352.2.4 2009/06/04 05:42:30 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.352.2.3 $
+* @version $Revision: 1.352.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1273,114 +1273,131 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// let the backend outputter know that we want buffering turned off
 		$o->setBuffering(FALSE);
+		
+		// Get the order in which keywords are placed in the raw content in container.
+		// This order is required to deciede which keyword to evaluate first. Say a metadata keyword is placed
+		// after custom keyword in a container, if it is evaluted before custom keyword, the the js code for wysiwyg (i.e.
+		// if metadata contains wysiwyg field) is placed with metadata keyword. In this case, custom key will only have 
+		// function call to wysiwyg (as the wysiwyg js code printed only once in a page), but since it is defined later in page, 
+		// its will give 'undefined function call' js error.
+		//
+		// See bug #3698
 
-		// loop over the screens and get the xml file for each screen
-		// generate some keywords for each screen
-		foreach ($screens as $screen) {
-			// check to see if we want the entire screen
-			$entire_screen = FALSE;
-			if (in_array($screen, array_keys($keywords['entire_screens']))) {
-				$entire_screen = TRUE;
-			}
-
-			// there is a problem with metadataSchemas and lookup settings
-			// a quick fix was to add in the "if" statement a condition for
-			// metadataschema and lookupSetting
-
-			// if we have a static screen on our hands, then we want to
-			// call the function to paint it
-			if (isset($this->_edit_fns->static_screens[$screen]) || (($screen == 'metadataschemas') && (isset($this->_edit_fns->static_screens['metadataSchemas']))) || (($screen == 'lookupvalues') && (isset($this->_edit_fns->static_screens['lookupValues']))) ) {
-				$static_keywords = (isset($keywords['screens'][$screen])) ? $keywords['screens'][$screen] : NULL;
-				// for situations where there are keywords from a static screen like 'metadata' and the commit_button keyword is used
-				if (!is_null($static_keywords)) {
-					$print_commit_button = TRUE;
-				}
-				if (!is_null($static_keywords) || $entire_screen) {
-					if (is_null($static_keywords)) {
-						$static_keywords = Array();
+		$layout_keywords_order = $this->_getLayoutKeywordsOrder($layout);
+		
+		foreach ($layout_keywords_order as $order_keyword) {
+			// loop over the screens and get the xml file for each screen
+			// generate some keywords for each screen
+			if ($order_keyword == 'screen') {
+				foreach ($screens as $screen) {
+					// check to see if we want the entire screen
+					$entire_screen = FALSE;
+					if (in_array($screen, array_keys($keywords['entire_screens']))) {
+						$entire_screen = TRUE;
 					}
-					if ($screen == 'metadataschemas') {
-						if ($this->_getStaticScreenKeywordReplacements($owner, $o, 'metadataSchemas', $static_keywords, $entire_screen)) {
+
+					// there is a problem with metadataSchemas and lookup settings
+					// a quick fix was to add in the "if" statement a condition for
+					// metadataschema and lookupSetting
+
+					// if we have a static screen on our hands, then we want to
+					// call the function to paint it
+					if (isset($this->_edit_fns->static_screens[$screen]) || (($screen == 'metadataschemas') && (isset($this->_edit_fns->static_screens['metadataSchemas']))) || (($screen == 'lookupvalues') && (isset($this->_edit_fns->static_screens['lookupValues']))) ) {
+						$static_keywords = (isset($keywords['screens'][$screen])) ? $keywords['screens'][$screen] : NULL;
+						// for situations where there are keywords from a static screen like 'metadata' and the commit_button keyword is used
+						if (!is_null($static_keywords)) {
 							$print_commit_button = TRUE;
 						}
-					} else if ($screen == 'lookupvalues') {
-						if ($this->_getStaticScreenKeywordReplacements($owner, $o, 'lookupValues', $static_keywords, $entire_screen)) {
+						if (!is_null($static_keywords) || $entire_screen) {
+							if (is_null($static_keywords)) {
+								$static_keywords = Array();
+							}
+							if ($screen == 'metadataschemas') {
+								if ($this->_getStaticScreenKeywordReplacements($owner, $o, 'metadataSchemas', $static_keywords, $entire_screen)) {
+									$print_commit_button = TRUE;
+								}
+							} else if ($screen == 'lookupvalues') {
+								if ($this->_getStaticScreenKeywordReplacements($owner, $o, 'lookupValues', $static_keywords, $entire_screen)) {
+									$print_commit_button = TRUE;
+								}
+							} else if ($screen == 'metadata') {
+								$layout_options = $layout->attr('options');
+								if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen, $layout_options)) {
+									$print_commit_button = TRUE;
+								}
+							} else if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen)) {
+								$print_commit_button = TRUE;
+							}
+						}
+					}//end if
+	
+					// Metadata & workflow don't have an xml file defined, so move onto the next screen.
+					if ($screen == 'metadata') continue;
+					if ($screen == 'workflow') continue;
+					if ($screen == 'tagging') continue;
+					if ($screen == 'settings') continue;
+					if ($screen == 'permissions')	continue;
+					if ($screen == 'roles') continue;
+					if ($screen == 'metadataschemas') continue;
+					if ($screen == 'dependants') continue;
+					if ($screen == 'linking') continue;
+					if ($screen == 'history') continue;
+					if ($screen == 'logs') continue;
+					if ($screen == 'preview') continue;
+					if ($screen == 'tagging') continue;
+					if ($screen == 'lookupvalues') continue;
+					if ($screen == 'layouts') continue;
+		
+					// its not a static screen, so get the xml file and parse it for
+					// the keywords that we want, if the xml file exists
+					$file = $this->findLanguageFile('screen_'.$screen);
+					if (empty($file)) {
+						$file  = $this->findFile('screen_'.$screen);
+		
+						try {
+							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+						} catch (Exception $e) {
+							throw new Exception('Unable to parse localised screen "'.$screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
+						}
+		
+					} else {
+						$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+					}
+		
+					if ($root) {
+						// get the layout replacements for this NON-static screen
+						if ($this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen)) {
 							$print_commit_button = TRUE;
 						}
-					} else if ($screen == 'metadata') {
-						$layout_options = $layout->attr('options');
-						if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen, $layout_options)) {
-							$print_commit_button = TRUE;
-						}
-					} else if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen)) {
+					}//end if
+	
+				}//end foreach
+
+			}// End if screen
+
+			// if there are some custom keywords, get some replacements from the owner
+			if (isset($keywords['custom']) && !empty($keywords['custom']) && $order_keyword == 'custom') {
+				$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
+
+				if (!empty($custom_replacements)) {
+					assert_isset_array_index($custom_replacements, 'replacements');
+					assert_isset_array_index($custom_replacements, 'print_commit_button');
+					$replacements = Array();
+
+					// rebuild the keyword so the bodycopy can properly replace it
+					foreach ($custom_replacements['replacements'] as $keyword => $replacement) {
+						$replacements['__custom-'.$keyword] = $replacement;
+					}
+					$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
+					if ($custom_replacements['print_commit_button']) {
 						$print_commit_button = TRUE;
 					}
-				}
-			}//end if
-
-			// Metadata & workflow don't have an xml file defined, so move onto the next screen.
-			if ($screen == 'metadata') continue;
-			if ($screen == 'workflow') continue;
-			if ($screen == 'tagging') continue;
-			if ($screen == 'settings') continue;
-			if ($screen == 'permissions')	continue;
-			if ($screen == 'roles') continue;
-			if ($screen == 'metadataschemas') continue;
-			if ($screen == 'dependants') continue;
-			if ($screen == 'linking') continue;
-			if ($screen == 'history') continue;
-			if ($screen == 'logs') continue;
-			if ($screen == 'preview') continue;
-			if ($screen == 'tagging') continue;
-			if ($screen == 'lookupvalues') continue;
-			if ($screen == 'layouts') continue;
-
-			// its not a static screen, so get the xml file and parse it for
-			// the keywords that we want, if the xml file exists
-			$file = $this->findLanguageFile('screen_'.$screen);
-			if (empty($file)) {
-				$file  = $this->findFile('screen_'.$screen);
-
-				try {
-					$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
-				} catch (Exception $e) {
-					throw new Exception('Unable to parse localised screen "'.$screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
-				}
-
-			} else {
-				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
-			}
-
-			if ($root) {
-				// get the layout replacements for this NON-static screen
-				if ($this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen)) {
-					$print_commit_button = TRUE;
-				}
-			}//end if
-
-		}//end foreach
-
-		// if there are some custom keywords, get some replacements from the owner
-		if (isset($keywords['custom']) && !empty($keywords['custom'])) {
-			$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
-
-			if (!empty($custom_replacements)) {
-				assert_isset_array_index($custom_replacements, 'replacements');
-				assert_isset_array_index($custom_replacements, 'print_commit_button');
-				$replacements = Array();
-
-				// rebuild the keyword so the bodycopy can properly replace it
-				foreach ($custom_replacements['replacements'] as $keyword => $replacement) {
-					$replacements['__custom-'.$keyword] = $replacement;
-				}
-				$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
-				if ($custom_replacements['print_commit_button']) {
-					$print_commit_button = TRUE;
-				}
+	
+				}//end if
 
 			}//end if
-
-		}//end if
+		
+		}// End foreach layout_keywords_order
 
 		if (!isset($keywords['layout'])) {
 			$keywords['layout'] = Array();
@@ -2741,6 +2758,66 @@ class Asset_Edit_Interface extends MySource_Object
 
 	}//end getSimpleEditKeywords()
 
+
+	/**
+	* Checkes the raw content within the layout to find the order in which keywords are placed
+	* See bug#3698
+	*
+	* @param object	$layout		the layout of which keyword's order is evaluated
+	*
+	* @return array
+	* @access private
+	*/
+	function _getLayoutKeywordsOrder($layout)
+	{
+		// Check which of screen or custom keywords are placed before in raw content
+		$custom_pos = 0;
+		$screen_pos = 0;
+
+		// Defaut order 
+		$layout_keywords_order = Array(
+				0 => 'screen',
+				1 => 'custom'
+			);
+		
+		$containers = $layout->getContainers();
+
+		foreach (array_keys($containers) as $key) {
+
+			$container = $containers[$key];
+			ob_start();
+				$container->getEditFns()->paint($container, FALSE, FALSE);
+				$raw_content = ob_get_contents();
+			ob_end_clean();
+
+			$custom_pos = strpos($raw_content, '%__custom');
+			
+			$screen_pos_metadata = strpos($raw_content, '%metadata');
+			$screen_pos_lookups = strpos($raw_content, '%lookupvalues-');
+
+			if ($screen_pos_metadata !== FALSE)
+				$screen_pos = $screen_pos_metadata;
+
+			if (($screen_pos_lookups !== FALSE) && ($sceen_pos_metadata > $screen_pos_loopups))
+				$screen_pos = $screen_pos_lookups;
+			
+			// If any of the keywords are found then exit, as we are checking their first occurance only
+			if ($custom_pos || $screen_pos) {
+				break;
+			}
+		}
+
+		// Check which of screen or custom keywords are placed before in raw content
+		if ($screen_pos > $custom_pos) {
+			$layout_keywords_order = Array(
+					0 => 'custom',
+				 	1 => 'screen'
+				);
+		}
+	
+		return $layout_keywords_order;
+
+	}// end function
 
 }//end class
 
