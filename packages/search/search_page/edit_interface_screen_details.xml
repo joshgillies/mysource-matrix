@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.46.2.2 2009/02/13 01:45:10 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.46.2.3 2009/06/05 01:50:19 wszymanski Exp $
 *
 */
 -->
@@ -66,10 +66,10 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="no_roles_check" write_access="write:attributes">
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="no" false_text="yes" />
 		</field>
 		<field attribute="no_group_access_check" write_access="write:attributes">
-			<boolean true_text="yes" false_text="no" />
+			<boolean true_text="no" false_text="yes" />
 		</field>
 		<field attribute="root_in_lineage" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />

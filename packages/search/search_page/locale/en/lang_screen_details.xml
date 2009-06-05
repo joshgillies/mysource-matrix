@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.26.2.3 2009/02/22 22:13:26 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.26.2.4 2009/06/05 01:50:19 wszymanski Exp $
 *
 */
 -->
@@ -83,12 +83,12 @@
 			<note>If selected, only assets which are granted public access (and not denied) will be returned as results.</note>
 		</field>
 		<field attribute="no_roles_check">
-			<display_name>No Roles Check</display_name>
-			<note>If selected, Search performance will be increased substantially, however no roles check will be performed.</note>
+			<display_name>Perform Roles Check</display_name>
+			<note>When set to 'No', Search performance will be increased substantially, however no roles check will be performed.</note>
 		</field>
 		<field attribute="no_group_access_check">
-			<display_name>No Group Access Check</display_name>
-			<note>If selected, Search performance will be increased substantially, however no group access priviledge check will be performed.</note>
+			<display_name>Perform Group Access Check</display_name>
+			<note>When set to 'No', Search performance will be increased substantially, however no group access priviledge check will be performed.</note>
 		</field>
 		<field attribute="root_in_lineage">
 			<display_name>Show root node in lineage</display_name>
