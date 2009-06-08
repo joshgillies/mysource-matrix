@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.140.2.5 2009/05/13 06:55:07 cupreti Exp $
+* $Id: html_form.inc,v 1.140.2.6 2009/06/08 23:40:15 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140.2.5 $
+* @version $Revision: 1.140.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -953,7 +953,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 		<tr>
 		<?php
 			ob_start();
-				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1&t=' + new Date().getTime(); return false;"><?php echo translate('security_key_link'); ?></a><?php
+				?><a href="#" onclick="var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&amp;regen_key=1&amp;t=' + new Date().getTime(); return false;"><?php echo translate('security_key_link'); ?></a><?php
 				$replacements_link = ob_get_contents();
 			ob_end_clean()
 		?>
