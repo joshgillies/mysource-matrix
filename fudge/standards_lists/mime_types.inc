@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.10 2008/09/29 02:02:12 hnguyen Exp $
+* $Id: mime_types.inc,v 1.10.2.1 2009/06/08 23:58:59 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -115,6 +115,7 @@ $standards_lists_mime_types = Array('hqx'		=> 'application/mac-binhex40',
 									'png'		=> 'image/png',
 									'tiff'		=> 'image/tiff',
 									'tif'		=> 'image/tiff',
+									'bmp'		=> 'image/x-ms-bmp',
 									'ras'		=> 'image/x-cmu-raster',
 									'pnm'		=> 'image/x-portable-anymap',
 									'pbm'		=> 'image/x-portable-bitmap',
