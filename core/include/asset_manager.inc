@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.711.2.15 2009/04/29 03:53:22 ewang Exp $
+* $Id: asset_manager.inc,v 1.711.2.16 2009/06/09 23:39:39 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.711.2.15 $
+* @version $Revision: 1.711.2.16 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -966,14 +966,53 @@ class Asset_Manager extends MySource_Object
 		if ($asset_type != 'asset') {
 			$sub_sql .= ' AND (type_code = :asset_type OR owning_type_code = :asset_type)';
 		}
-		$sql = 'SELECT assetid, custom_val
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
-		$where = 'attrid IN ('.$sub_sql.') AND '.$in;
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$dbtype = MatrixDAL::getDbType();
+		if ($dbtype === 'pgsql') {
+			/**
+			* We make two parts of a query here
+			* This is for performance reasons
+			* If we get lots of asset id's in the where clause,
+			* performance isn't great
+			* so use an intersect query to break it down
+			* (this lets the db use different indexes)
+			*
+			* The first part of the query gets the asset id's with the right attribute id's
+			* the second part gets the right asset id's
+			* then intersect
+			*/
+
+			$sql1 = 'SELECT assetid, custom_val
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
+			$where1 = 'attrid IN ('.$sub_sql.') ';
+			$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1);
+
+			$sql2 = 'SELECT assetid, custom_val
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
+			$where2 = $in;
+			$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2);
+
+			$sql = $sql1 . $where1 . ' INTERSECT ' . $sql2 . $where2;
+		}
+
+		/**
+		* If it's an oracle db we're talking to,
+		* we can't do an intersect query as above because
+		* oracle won't let you use intersect queries where a nvarchar
+		* field is included in the query (custom_val)
+		*
+		* so we're going to have to take the performance hit
+		* if there are lots of asset id's to filter through.
+		*/
+		if ($dbtype === 'oci') {
+			$sql = 'SELECT assetid, custom_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
+			$where = 'attrid IN ('.$sub_sql.') AND '.$in;
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql .= $where;
+		}
 
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'attr_name', $attr_name);
 			if ($asset_type != 'asset') {
 				MatrixDAL::bindValueToPdo($query, 'asset_type', $asset_type);
@@ -997,6 +1036,7 @@ class Asset_Manager extends MySource_Object
 		return $res;
 
 	}//end getAttributeValuesByName()
+
 
 
 //--        ASSETS        --//
