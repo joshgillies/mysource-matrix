@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.37 2007/11/29 04:26:05 hnguyen Exp $
+* $Id: limbo_outputter.inc,v 1.38 2009/06/09 01:19:09 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -221,7 +221,8 @@ class Limbo_Outputter extends Backend_Outputter
 	*/
 	function _paintInlineHeader()
 	{
-		// CSS includes, inline style
+		// CSS includes (if not empty), inline style
+		if (!empty($this->_css_includes)) {
 		?>
 		<style type="text/css">
 			<?php
@@ -231,6 +232,7 @@ class Limbo_Outputter extends Backend_Outputter
 			?>
 		</style>
 		<?php
+		} // End if
 
 		// JS includes, including some defaults
 		$this->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
