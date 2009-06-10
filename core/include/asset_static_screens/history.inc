@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.17 2008/01/15 03:17:47 hnguyen Exp $
+* $Id: history.inc,v 1.17.2.1 2009/06/10 04:36:41 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix
 */
 
@@ -48,10 +48,25 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 
 	// note that we dont prep this query for rollback select
 	// because we are selecting directly from the rollback table
+	$sql = 'SELECT sq_rb_ast.sq_eff_from as efrom, sq_rb_ast.sq_eff_to as eto, sq_rb_ast.version, sq_ast.name as updated_username, sq_rb_ast.updated_userid as updated_userid
+			FROM
+			    sq_rb_ast
+			
+			LEFT JOIN sq_ast ON sq_rb_ast.updated_userid = sq_ast.assetid
+			WHERE
+			(
+			    sq_rb_ast.assetid = (:assetid)
+			)
+			
+			ORDER BY sq_rb_ast.sq_eff_from  DESC
+			';
+	
 	try {
 		$assetid = $owner->id;
-		$bind_vars['assetid'] = $assetid;
-		$result = MatrixDAL::executeAll('core', 'selectHistoryForPainting', $bind_vars);
+		$query = MatrixDAL::preparePdoQuery($sql);
+		MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
+		$result = MatrixDAL::executePdoAll($query);
+			
 	} catch (Exception $e) {
 		throw new Exception('Failed to get asset history due to database error: '.$e->getMessage());
 	}
@@ -87,7 +102,8 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 					$from = $data['efrom'];
 					$to   = $data['eto'];
 					$updated_username = $data['updated_username'];
-
+					$updated_userid = $data['updated_userid'];
+					
 					$class = 'sq-backend-table-cell';
 					$show_view_btn = TRUE;
 					if (SQ_ROLLBACK_VIEW) {
@@ -118,7 +134,7 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 					<tr>
 						<td class="<?php echo $class; ?>"><?php echo date('d/m/Y H:i:s', strtotime($from)); ?> - <?php echo $to; ?></td>
 						<td class="<?php echo $class; ?>"><?php echo $ago; ?></td>
-						<td class="<?php echo $class; ?>"><?php echo $updated_username; ?></td>
+						<td class="<?php echo $class; ?>"><?php echo empty($updated_username) ? $updated_userid : $updated_username; ?></td>
 						<td class="<?php echo $class; ?>" align="center"><?php echo $data['version']; ?></td>
 
 						<?php
