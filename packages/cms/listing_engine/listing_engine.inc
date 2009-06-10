@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.279 2009/05/17 22:21:59 bpearson Exp $
+* $Id: listing_engine.inc,v 1.280 2009/06/10 04:04:39 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.279 $
+* @version $Revision: 1.280 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -625,7 +625,6 @@ class Listing_Engine extends Page
 
 
 		$children = $this->getAssetList();
-
 		$exclude_assets = $this->attr('exclude_assets');
 
 		// get children of exclude root nodes, add them to the exclude list
@@ -643,6 +642,17 @@ class Listing_Engine extends Page
 			}//end foreach
 		}//end if
 
+		if($this->attr('exclude_current_asset')) {
+			foreach ($children as $assetid => $data) {
+				$result_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$url = $result_asset->getURL();
+				$requester = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+				$result_url_parts = parse_url($url);
+				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
+					unset($children[$assetid]);
+				}		
+			}		
+		}
 
 
 		$children =& $this->convertProxyAssetTypes($children);

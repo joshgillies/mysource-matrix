@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.26 2009/04/20 03:41:44 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.27 2009/06/10 04:04:39 akarelia Exp $
 *
 */
 -->
@@ -71,6 +71,9 @@
 				<paint_function   name="paintAssetExclusion"   />
 				<process_function name="processAssetExclusion" />
 			</function_call>
+		</field>
+		<field attribute="exclude_current_asset" write_access="write:attributes">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Asset Locations" write_access="write:content">

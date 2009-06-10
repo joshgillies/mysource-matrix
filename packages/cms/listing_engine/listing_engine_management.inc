@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.77 2009/04/20 03:41:44 bpearson Exp $
+* $Id: listing_engine_management.inc,v 1.78 2009/06/10 04:04:39 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -54,6 +54,13 @@ class Listing_Engine_Management extends Asset_Management
 											'type'			=> 'serialise',
 											'default'		=> Array(),
 										  );
+		$this->vars['exclude_current_asset']	= Array (
+													'added'			=> '0.18',
+													'type'			=> 'boolean',
+													'default'		=> 'false',
+													'parameters'    => Array( 'allow_empty' => FALSE,),
+													'description'	=> 'Can now exclude the current asset from the results.',
+												   );
 		$this->vars['statuses'] = Array(
 									'added'			=> '0.8',
 									'type'			=> 'serialise',
