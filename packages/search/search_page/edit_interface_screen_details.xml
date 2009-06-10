@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.49.2.2 2009/06/05 01:50:54 wszymanski Exp $
+* $Id: edit_interface_screen_details.xml,v 1.49.2.3 2009/06/10 03:58:58 akarelia Exp $
 *
 */
 -->
@@ -45,6 +45,9 @@
 				<paint_function   name="paintStatus" />
 				<process_function name="processStatus" />
 			</function_call>
+		</field>
+		<field attribute="exclude_current_asset" write_access="write:attributes">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Display Options">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2008/11/11 22:09:26 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.11.4.1 2009/06/10 03:58:46 akarelia Exp $
 *
 */
 -->
@@ -28,6 +28,12 @@
 		<field attribute="date_range_to">
 			<display_name>Newest Date</display_name>
 			<note>Show assets that are older than this date</note>
+		</field>
+	</section>
+	<section name="Asset Selection">
+		<field attribute="exclude_current_asset">
+			<display_name>Exclude This Asset</display_name>
+			<note>If set to 'Yes', this asset will not list the Asset thats been currently been accessed.</note>
 		</field>
 	</section>
 	<section name="Asset Locations">

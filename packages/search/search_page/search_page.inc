@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.233.2.3 2009/05/17 22:16:01 bpearson Exp $
+* $Id: search_page.inc,v 1.233.2.4 2009/06/10 03:58:58 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233.2.3 $
+* @version $Revision: 1.233.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -466,7 +466,19 @@ class Search_Page extends Listing_Engine
 				}
 			} 
 		}
-		
+
+		if($this->attr('exclude_current_asset')) {
+			foreach ($results as $assetid => $data) {
+				$result_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$url = $result_asset->getURL();
+				$requester = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+				$result_url_parts = parse_url($url);
+				if (!(strpos($requester, $result_url_parts['host'].$result_url_parts['path']) === FALSE)) {
+					unset($results[$assetid]);
+				}
+			}		
+		}
+
 		$this->_tmp['initial_results'] = $results;
 		$results =& $this->convertProxyAssetTypes($results);
 		$this->_tmp['search_results'] =& $results;
