@@ -1094,36 +1094,7 @@
 	<!-- //		ASSET STATIC SCREENS		// -->
 
 
-	<!-- //		history.inc		// -->
-	<query id="selectHistoryForPainting">
-		<!-- Return the history info of an asset from the rollback table -->
-		<primary>
-			<select>
-				<fields>
-					<field table="sq_rb_ast" column="sq_eff_from">efrom</field>
-					<field table="sq_rb_ast" column="sq_eff_to">eto</field>
-					<field table="sq_rb_ast" column="version" />
-					<field table="sq_ast"	 column="name">updated_username</field>
-				</fields>
-				<from>
-					<table>sq_rb_ast</table>
-					<table>sq_ast</table>
-				</from>
-				<where>
-					<equal table="sq_rb_ast" column="assetid">:assetid</equal>
-				</where>
-				<joins>
-					<join>
-						<field table="sq_rb_ast" column="updated_userid" />
-						<field table="sq_ast" column="assetid" />
-					</join>
-				</joins>
-				<order-by direction="DESC">
-					<field table="sq_rb_ast" column="sq_eff_from" />
-				</order-by>
-			</select>
-		</primary>
-	</query>
+	
 
 	<!-- //		logs.inc		// -->
 	<query id="getLogs">
