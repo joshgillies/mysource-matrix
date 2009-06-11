@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job.inc,v 1.41.2.1 2009/05/13 04:15:39 akarelia Exp $
+* $Id: bulkmail_job.inc,v 1.41.2.2 2009/06/11 06:17:54 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.41.2.1 $
+* @version $Revision: 1.41.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -212,7 +212,7 @@ class Bulkmail_Job extends Bulkmail_Post_Office
 	* @return string
 	* @access public
 	*/
-	public static function generateRawContent($details)
+	public function generateRawContent($details)
 	{
 		// moved functionality to asset_manager.inc for reusing the codes in triggers
 		return $GLOBALS['SQ_SYSTEM']->am->generateRawContent($details);
