@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.8 2008/10/09 03:52:06 ewang Exp $
+* $Id: trigger_edit_fns.inc,v 1.8.4.1 2009/06/11 06:53:09 wszymanski Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -399,10 +399,12 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				$type_instance_count[$type]++;
 
 				$data = $condition['data'];
+				$inverse_condition = array_get_index($condition, 'inverse_condition', FALSE);
 
 				$data_prefix   = $condition_prefix.'['.$i.'][data]';
 				$type_prefix   = $condition_prefix.'['.$i.'][type]';
 				$delete_prefix = $condition_prefix.'['.$i.'][delete]';
+				$inverse_condition_prefix = $condition_prefix.'['.$i.'][inverse_condition]';
 
 				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access);
 				$type_name = $tm->_getComponentName($type);
@@ -427,6 +429,18 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 						}
 						?>
 						</div>
+					</div>
+					<div class="sq-backend-triggers-component-global-options">
+ 						<?php
+							if (!$write_access) {
+								$extras = 'disabled="disabled"';
+							} else {
+								$extras = '';
+							}
+
+							check_box($inverse_condition_prefix, 1, $inverse_condition, NULL, $extras);
+							label(translate('inverse_condition'), $inverse_condition_prefix);
+						?>
 					</div>
 					<div class="sq-backend-triggers-component-body">
 						<input type="hidden" name="<?php echo $type_prefix; ?>" value="<?php echo $type; ?>" />
@@ -561,8 +575,9 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 			}
 
 			$processed_components[] = Array(
-										'type'	=> $type,
-										'data'	=> $settings,
+										'type'					=> $type,
+										'data'					=> $settings,
+										'inverse_condition'		=> isset($component['inverse_condition']),
 									  );
 
 			$i++;
