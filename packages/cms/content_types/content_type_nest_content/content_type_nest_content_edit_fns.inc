@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.59 2009/04/24 02:08:15 bpearson Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.60 2009/06/11 06:52:09 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -371,7 +371,12 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		?>
 
 		$nested_assetid = '<?php echo $nested_asset->id; ?>';
+		$nesting_assetid = '<?php echo $asset->id; ?>';
 		$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid);
+		$temp_parent_array = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($nesting_assetid, 'page' , FALSE));
+        $parents_nesting_asset_id = $temp_parent_array[0];
+        $parents_nesting_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents_nesting_asset_id);
+
 		$asset_cache_key = $nested_assetid.'-<?php echo $get_var_cache_key; ?>';
 		if (method_exists($nested_asset, '_getCacheKey')) {
 			$asset_cache_key .= $nested_asset->_getCacheKey();
@@ -390,16 +395,23 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$found = preg_match_all('/%(asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
 				$asset_matches = $set_matches[1];
 
+				foreach ($asset_matches as $asset_keyword) {
+                    $replacement =  $parents_nesting_asset->getKeywordReplacement($asset_keyword);
+                    if (!is_null($replacement)) {
+                        $get_value = str_replace('%'.$asset_keyword.'%', $replacement, $get_value);
+                    }
+                }
+
 				$found = preg_match_all('/%(nested\_asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
 				$nested_asset_matches = $set_matches[1];
 
 				foreach ($nested_asset_matches as $nested_asset_keyword) {
 					if (0 === strpos($nested_asset_keyword, 'nested_')) {
 						$nested_asset_keyword = str_replace('nested_','',$nested_asset_keyword);
-						$get_value = str_replace('nested_','',$get_value);
 					}
 					$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
 					if (!is_null($replacement)) {
+						$get_value = str_replace('nested_','',$get_value);
 						$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
 					}
 				}
@@ -499,12 +511,21 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		} else {
 			return $processed_get_vars;
 		}
+		$temp_parent_array = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'page' , FALSE));
+        $parents_nesting_asset_id = $temp_parent_array[0];
+        $parents_nesting_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents_nesting_asset_id);
 		foreach ($additional_get_vars as $get_var) {
 			$get_name = $get_var['name'];
 			$get_value = $get_var['value'];
 			$found = preg_match_all('/%(asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
 			$asset_matches = $set_matches[1];
-
+			foreach ($asset_matches as $asset_keyword) {
+				$replacement =  $parents_nesting_asset->getKeywordReplacement($asset_keyword);
+				if (!is_null($replacement)) {
+					$get_value = str_replace('%'.$asset_keyword.'%', $replacement, $get_value);
+				}
+			}
+			
 			$found = preg_match_all('/%(nested\_(asset\_.*))%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
 			$nested_asset_orig_matches = $set_matches[1];
 			$nested_asset_matches = $set_matches[2];
