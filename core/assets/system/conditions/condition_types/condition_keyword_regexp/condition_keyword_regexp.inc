@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_keyword_regexp.inc,v 1.7 2008/12/19 02:46:44 ewang Exp $
+* $Id: condition_keyword_regexp.inc,v 1.8 2009/06/11 06:40:43 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *     This condition compares a keyword against a specified regular expression
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,10 +60,21 @@ class Condition_Keyword_Regexp extends Condition
 		}
 
 		if (isset($condition_data['keyword_value'])) {
-			$keyword_replacement = $condition_data['keyword_value'];
+
+			if (!preg_match('/^%globals_/', $condition_data['keyword_value'])) {
+				$keyword_replacement = $condition_data['keyword_value'];
+			}
+			else {
+				// If keyword is a global then its value is set as %global_%, which is evaluate only after bodycopy 
+				// is created. But for processing global keyword here, its value needs to be evaluated right here. 
+				// See bug #3716
+
+				$keyword_replacement = replace_global_keywords($condition_data['keyword_value']);
+			}
 		} else {
 			$keyword_replacement = self::getRegExpKeywordReplacement($asset, $condition_data);
 		}
+		
 		$keyword_match = $condition_data['keyword_match'];
 		$matches = preg_match('/'.str_replace('/', '\\'.'/', $keyword_match).'/i', $keyword_replacement);
 		return ($matches > 0);
