@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.63 2008/12/07 23:16:02 ewang Exp $
+* $Id: trigger_manager.inc,v 1.64 2009/06/11 06:54:16 wszymanski Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1364,6 +1364,7 @@ class Trigger_Manager extends Asset implements Bridge
 					AND ('.$parent_type_sql.')
 					AND ('.$child_id_sql.')
 					AND ('.$child_type_sql.')';
+
 		$result = NULL;
 		 try {
 			$query = MatrixDAL::preparePdoQuery($sql);
@@ -1408,7 +1409,6 @@ class Trigger_Manager extends Asset implements Bridge
 
 		// check each condition
 		foreach ($conditions as $condition) {
-
 			// include condition code
 			if (!$this->_loadComponent($condition['type'])) {
 				return SQ_TRIG_RESULT_INVALID;
@@ -1420,7 +1420,9 @@ class Trigger_Manager extends Asset implements Bridge
 
 			// if condition fails return with Success
 			// (trigger does not need execution, false alarm but trigger did not fail)
-			if (!$condition_success) return SQ_TRIG_RESULT_FALSE;
+			if ($condition_success == $condition['inverse_condition']) {
+				return SQ_TRIG_RESULT_FALSE;
+			}
 		}
 
 
@@ -1664,7 +1666,11 @@ class Trigger_Manager extends Asset implements Bridge
 							if ($GLOBALS['SQ_SYSTEM']->am->installed(array_get_index($condition, 'type', ''))) {
 								if ($this->_loadComponent($condition['type'])) {
 									if (isset($condition['data'])) {
-										$settings =& $condition['data'];
+										if (!$condition['inverse_condition']) {
+											$settings =& $condition['data'];
+										} else {
+											$settings = Array(); 
+										}
 										call_user_func_array(Array($condition['type'], 'setHash'), Array($settings, &$hash));
 									}
 								}
@@ -1980,6 +1986,7 @@ class Trigger_Manager extends Asset implements Bridge
 			foreach ($trigger['data']['conditions'] as $condition) {
 				$s = $s && isset($condition['type']) && $am->installed($condition['type']);
 				$s = $s && isset($condition['data']);
+				$s = $s && isset($condition['inverse_condition']);
 			}
 		}
 

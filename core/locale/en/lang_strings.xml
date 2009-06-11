@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.320 2009/05/22 03:12:01 wszymanski Exp $
+* $Id: lang_strings.xml,v 1.321 2009/06/11 06:55:18 wszymanski Exp $
 *
 */
 
@@ -1146,6 +1146,7 @@
 	<string source="some_conditions_can_only_be_added_once">Some conditions can only be added once.</string>
 	<string source="no_conditions_specified">No Conditions Specified</string>
 	<string source="ignore_permissions">Ignore Permissions</string>
+	<string source="inverse_condition">Inverse this condition (&lt;strong&gt;Note:&lt;/strong&gt; this can decrease system performance as probably more assets will be affected)</string>
 	<string source="not_required">Non-Critical</string>
 	<string source="no_action_specified">No Actions Specified</string>
 	<string source="trigger_finish_editing">Finish Editing (save and display the trigger list)</string>
