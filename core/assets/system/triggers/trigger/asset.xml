@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.3 2008/10/13 02:28:06 ewang Exp $
+* $Id: asset.xml,v 1.3.4.1 2009/06/11 07:05:30 wszymanski Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<package>__core__</package>
 	<type_code>trigger</type_code>
-	<version>0.2</version>
+	<version>0.3</version>
 	<name>Trigger</name>
 	<description>Trigger</description>
 	<instantiable>yes</instantiable>
