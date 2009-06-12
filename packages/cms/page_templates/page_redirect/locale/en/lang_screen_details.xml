@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2008/11/04 04:22:40 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.6 2009/06/12 05:58:18 bpearson Exp $
 *
 */
 -->
@@ -71,6 +71,20 @@
 			a message through a paint layout or design and implement a 'redirecting you in XX
 			seconds' feature. If this is set to 0 (zero, default), then it will redirect immediately. Note that this has no effect
 			when the &lt;strong&gt;New Window&lt;/strong&gt; option is turned on and a design is applied</note>
+		</field>
+	</section>
+	<section name="Session Variables" write_access="write:attributes" limbo_access="1">
+		<field attribute="session_vars">
+			<display_name>Session Variable Names</display_name>
+			<note>The names of the session variables</note>
+		</field>
+		<field keyword="session_variables">
+			<function_call>
+				<paint_function		name="paintSessionVariables" />
+				<process_function	name="processSessionVariables" />
+			</function_call>
+			<display_name>Session Variables</display_name>
+			<note>This section allows for content to be set from the redirect page into the current session. For example, if you have a web campaign and make this page the target link, then by using the session data, you can change content on the redirected asset based on the campaign.</note>
 		</field>
 	</section>
 	<section name="New Window">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_edit_fns.inc,v 1.19 2007/12/03 23:31:29 bshkara Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.20 2009/06/12 05:58:18 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -98,6 +98,67 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 		return $asset->setRedirectAsset($redirect_asset);
 
 	}//end processRedirectAssetid()
+
+
+	/**
+	* Paint the interface for selecting the session variables 
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSessionVariables(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$pmap = $asset->getAttribute('session_variables');
+		$current_params = $pmap->_params;
+		// Add in the variable names
+		$fields = $asset->attr('session_vars');
+		if (!empty($fields)) {
+			$vars = explode("\n", $fields);
+			foreach ($vars as $value) {
+				$index = str_replace(' ', '_', $value);
+				$index = rtrim($index, "\r");
+				$current_params['parameters'][$index] = 'Session Variable: '.$value;
+			}//end foreach
+		}//end if
+		$pmap->_params = $current_params;
+		if ($wa) {
+			$pmap->paint($prefix);
+		} else {
+			$pmap->paint($prefix, TRUE);
+		}
+		return TRUE;
+
+	}//end paintSessionVariables()
+
+
+	/**
+	* Process the interface for selecting the session variables
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSessionVariables(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$pmap = $asset->getAttribute('session_variables');
+		if ($wa) {
+			$pmap->process($prefix);
+			$asset->setAttrValue('session_variables', $pmap->value);
+			$asset->saveAttributes();
+		}//end if
+
+		return TRUE;
+
+	}//end processSessionVariables()
 
 
 }//end class

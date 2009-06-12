@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.37 2008/11/04 04:20:12 ewang Exp $
+* $Id: page_redirect.inc,v 1.38 2009/06/12 05:58:18 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -164,17 +164,35 @@ class Page_Redirect extends Page
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', translate('cannot_access_asset', $this->name));
 			return;
-		}
+		}//end if
 
 		if (SQ_IN_LIMBO) {
 			// if we are in LIMBO then do not redirect
 			$this->printFrontendAsset($this);
 			return;
-		}
+		}//end if
 
 		$url = $this->_getRedirectURL();
 		if (empty($url)) return;
 
+		// Set the Session variables
+		$pmap = $this->getAttribute('session_variables');
+		$pmap_value = $pmap->getParameters();
+		$return_value = '';
+		foreach ($pmap_value as $index => $value) {
+			if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$value])) {
+				unset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$value]);
+			}//end if
+
+			// Get the value
+			$return_value = $pmap->getParameterValue($value);
+
+			// Replace global keywords if required
+			replace_global_keywords($return_value);
+
+			// Set the SESSION
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX][$value] = $return_value;
+		}//end foreach
 
 		//if redirect permanently, change location now
 		if($this->attr('permanent_redirect') && !headers_sent()) {

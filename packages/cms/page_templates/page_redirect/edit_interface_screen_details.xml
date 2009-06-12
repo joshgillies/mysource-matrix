@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2008/11/04 04:21:41 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.18 2009/06/12 05:58:18 bpearson Exp $
 *
 */
 -->
@@ -52,6 +52,17 @@
  		</field>
 		<field attribute="timeout">
 			<float width="5" height="1" />
+		</field>
+	</section>
+	<section name="Session Variables" write_access="write:attributes" limbo_access="1">
+		<field attribute="session_vars">
+			<option_list allow_reorder="no"/>
+		</field>
+		<field keyword="session_variables">
+			<function_call>
+				<paint_function		name="paintSessionVariables" />
+				<process_function	name="processSessionVariables" />
+			</function_call>
 		</field>
 	</section>
 	<section name="New Window" write_access="write:attributes" limbo_access="1">
