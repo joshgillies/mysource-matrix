@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.41 2009/03/18 03:22:19 bpearson Exp $
+* $Id: option_list.inc,v 1.41.2.1 2009/06/12 05:06:29 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.41.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -70,6 +70,29 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 
 
 	/**
+	* Takes an XML_Tree_Node from an edit interface XML file and creates the params array from it
+	*
+	* @param object XML_Tree_Node	$node
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setEditParams(&$node)
+	{
+		if (!parent::setEditParams($node)) return FALSE;
+		if (isset($node->attributes()->allow_reorder)) {
+			if (strtolower($node->attributes()->allow_reorder) == 'no') {
+				$this->_edit_params['allow_reorder'] = FALSE;
+			} else {
+				$this->_edit_params['allow_reorder'] = TRUE;
+			}//end if
+		}//end if
+		return TRUE;
+
+	}//end setEditParams()
+
+
+	/**
 	* Print the interface for filling in a value
 	*
 	* @param string		$prefix			prefix for the form elements
@@ -81,6 +104,8 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=FALSE, $use_delimiter=TRUE)
 	{
+		$allow_reorder = array_get_index($this->_edit_params, 'allow_reorder', TRUE);
+
 		$prefix = str_replace(':','_',$prefix); // handle shadow assets
 		if (!$use_delimiter) {
 			$value = @unserialize($this->value);
@@ -114,10 +139,12 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					?>
 					<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $v; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
-						if ($order !=0) {
-							$this->_printMoveUpButton($order, $prefix);
-						}
-						$this->_printMoveDownButton($order, $prefix);
+						if ($allow_reorder) {
+							if ($order !=0) {
+								$this->_printMoveUpButton($order, $prefix);
+							}
+							$this->_printMoveDownButton($order, $prefix);
+						}//end if
 					?><br />
 					<?php
 					$order++;
@@ -126,10 +153,12 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					?>
 					<input type="text" name="<?php echo $prefix; ?>_options[]" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" <?php echo ($this->_edit_params['width'] ? 'size="'.$this->_edit_params['width'].'"' : ''); ?> /><button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 					<?php
-						$this->_printMoveUpButton($order, $prefix);
-						if ($i < ($next_number + 1)) {
-							$this->_printMoveDownButton($order, $prefix);
-						}
+						if ($allow_reorder) {
+							$this->_printMoveUpButton($order, $prefix);
+							if ($i < ($next_number + 1)) {
+								$this->_printMoveDownButton($order, $prefix);
+							}
+						}//end if
 					?>
 					<br />
 					<?php
@@ -168,11 +197,19 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				var optionList = document.getElementById('option-list-<?php echo $prefix; ?>');
 				var	inputs = optionList.getElementsByTagName('INPUT');
 				for (var j=0; j < inputs.length; j++) {
-					inputs[j].onfocus = expandListFn;
+					<?php if ($allow_reorder) { ?>
+						inputs[j].onfocus = expandListFn;
+					<?php } else { ?>
+						inputs[j].onfocus = noreorderExpandListFn;
+					<?php } ?>
 				}
 				var buttons = optionList.getElementsByTagName('BUTTON');
 				for (var j=0; j < buttons.length; j++) {
-					buttons[j].onclick = deleteRowFn;
+					<?php if ($allow_reorder) { ?>
+						buttons[j].onclick = deleteRowFn;
+					<?php } else { ?>
+						buttons[j].onclick = noreorderDeleteRowFn;
+					<?php } ?>
 				}
 
 				lastOrder = <?php echo $order; ?>;

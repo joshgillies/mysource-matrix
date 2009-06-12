@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.54 2009/03/18 03:22:19 bpearson Exp $
+* $Id: edit.js,v 1.54.2.1 2009/06/12 05:07:49 bpearson Exp $
 *
 */
 
@@ -221,12 +221,14 @@ function textboxReplaceSelect(input, text)
 
 // Functions for option list attribute
 
-var expandListFn = new Function('expandOptionList(this)');
-var deleteRowFn = new Function('deleteOptionListRow(this); return false;');
+var expandListFn = new Function('expandOptionList(this, true)');
+var noreorderExpandListFn = new Function('expandOptionList(this, false)');
+var deleteRowFn = new Function('deleteOptionListRow(this, true); return false;');
+var noreorderDeleteRowFn = new Function('deleteOptionListRow(this, false); return false;');
 
-function expandOptionList(input)
+function expandOptionList(input, reorder)
 {
-	// abort if we are not the last input in the lit
+	// abort if we are not the last input in the list
 	var nextInput = input.nextSibling;
 	while (nextInput !== null) {
 		if (nextInput.tagName == 'INPUT') {
@@ -251,33 +253,39 @@ function expandOptionList(input)
 
 	var inputs = optionList.getElementsByTagName('INPUT');
 
-	// add move down button to the previous input
-	var moveDownButton = lastInput.nextSibling;
-	while (moveDownButton != null) {
-		moveDownButton = moveDownButton.nextSibling;
-		if (moveDownButton.tagName == 'A' && moveDownButton.name == "movedown") {
-			break;
+	if (reorder) {
+		// add move down button to the previous input
+		var moveDownButton = lastInput.nextSibling;
+		while (moveDownButton != null) {
+			moveDownButton = moveDownButton.nextSibling;
+			if (moveDownButton.tagName == 'A' && moveDownButton.name == "movedown") {
+				break;
+			}
 		}
-	}
-	moveDownButton = moveDownButton.cloneNode(true);
-	// Cloned button, so we *must* give it a different id
-	moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
+		moveDownButton = moveDownButton.cloneNode(true);
+		// Cloned button, so we *must* give it a different id
+		moveDownButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 
-	//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
-	var buttonScript =  moveDownButton.getElementsByTagName("script")[0]; 
-	var browserAgent = navigator.userAgent.toLowerCase();
-	if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
-		moveDownButton.removeChild(buttonScript);
-	}
+		//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+		var buttonScript =  moveDownButton.getElementsByTagName("script")[0]; 
+		var browserAgent = navigator.userAgent.toLowerCase();
+		if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
+			moveDownButton.removeChild(buttonScript);
+		}
 
-	var brElements = lastInput.parentNode.getElementsByTagName('BR');
-	lastInput.parentNode.removeChild(brElements[brElements.length-1]);
-	input.parentNode.appendChild(moveDownButton);
-	input.parentNode.appendChild(document.createElement('BR'));
+		var brElements = lastInput.parentNode.getElementsByTagName('BR');
+		lastInput.parentNode.removeChild(brElements[brElements.length-1]);
+		input.parentNode.appendChild(moveDownButton);
+		input.parentNode.appendChild(document.createElement('BR'));
+	}
 
 	// add the extra field
 	var newInput = input.cloneNode(true);
-	newInput.onfocus = expandListFn;
+	if (reorder) {
+		newInput.onfocus = expandListFn;
+	} else {
+		newInput.onfocus = noreorderExpandListFn;
+	}
 	newInput.value = '';
 	newInput.id = optionItemPrefix+'_options['+inputs.length+']';
 	input.parentNode.appendChild(newInput);
@@ -286,27 +294,33 @@ function expandOptionList(input)
 		delButton = delButton.nextSibling;
 	}
 	delButton = delButton.cloneNode(true);
-	delButton.onclick = deleteRowFn;
+	if (reorder) {
+		delButton.onclick = deleteRowFn;
+	} else {
+		delButton.onclick = noreorderDeleteRowFn;
+	}
 	input.parentNode.appendChild(delButton);
 
-	// add the move up button to the new input
-	var moveUpButton = input.nextSibling;
-	while (moveUpButton != null) {
-		if (moveUpButton.tagName == 'A' && moveUpButton.name == 'moveup') {
-			break;
+	if (reorder) {
+		// add the move up button to the new input
+		var moveUpButton = input.nextSibling;
+		while (moveUpButton != null) {
+			if (moveUpButton.tagName == 'A' && moveUpButton.name == 'moveup') {
+				break;
+			}
+			moveUpButton = moveUpButton.nextSibling;
 		}
-		moveUpButton = moveUpButton.nextSibling;
-	}
-	moveUpButton = moveUpButton.cloneNode(true);
-	moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
+		moveUpButton = moveUpButton.cloneNode(true);
+		moveUpButton.id = optionItemPrefix+'_options['+(inputs.length-1)+']';
 
-	//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
-	var buttonScript =  moveUpButton.getElementsByTagName("script")[0]; 
-	var browserAgent = navigator.userAgent.toLowerCase();
-	if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
-			moveUpButton.removeChild(buttonScript);
+		//If safari, we will remove the script for printing move up/down icon, it's causing document.write to overwrite the page in safari
+		var buttonScript =  moveUpButton.getElementsByTagName("script")[0]; 
+		var browserAgent = navigator.userAgent.toLowerCase();
+		if ((browserAgent.indexOf("safari") != -1) && buttonScript != null) {
+				moveUpButton.removeChild(buttonScript);
+		}
+		input.parentNode.appendChild(moveUpButton);
 	}
-	input.parentNode.appendChild(moveUpButton);
 	input.parentNode.appendChild(document.createElement('BR'));
 
 }
@@ -354,7 +368,7 @@ function listMoveDown(obj, optionList) {
 	inputs[currentOrder].value = temp;
 }
 
-function deleteOptionListRow(button)
+function deleteOptionListRow(button, reorder)
 {
 	var input = button.previousSibling;
 	while (input.tagName != 'INPUT') {
@@ -374,25 +388,27 @@ function deleteOptionListRow(button)
 		return;
 	}
 
-	var moveUpBut = button.nextSibling;
-	while (moveUpBut != null) {
-		if (moveUpBut.tagName == 'A' && moveUpBut.name == 'moveup') {
-			break;
+	if (reorder) {
+		var moveUpBut = button.nextSibling;
+		while (moveUpBut != null) {
+			if (moveUpBut.tagName == 'A' && moveUpBut.name == 'moveup') {
+				break;
+			}
+			moveUpBut = moveUpBut.nextSibling;
 		}
-		moveUpBut = moveUpBut.nextSibling;
-	}
 
-	var moveDownBut = button.nextSibling;
-	while (moveDownBut != null) {
-		if (moveDownBut.tagName == 'A' && moveDownBut.name == 'movedown') {
-			break;
+		var moveDownBut = button.nextSibling;
+		while (moveDownBut != null) {
+			if (moveDownBut.tagName == 'A' && moveDownBut.name == 'movedown') {
+				break;
+			}
+			moveDownBut = moveDownBut.nextSibling;
 		}
-		moveDownBut = moveDownBut.nextSibling;
-	}
 
-	if(moveUpBut == null || moveDownBut == null) return;
-	button.parentNode.removeChild(moveUpBut);
-	button.parentNode.removeChild(moveDownBut);
+		if(moveUpBut == null || moveDownBut == null) return;
+		button.parentNode.removeChild(moveUpBut);
+		button.parentNode.removeChild(moveDownBut);
+	}
 
 
 	var brTag = button.nextSibling;
