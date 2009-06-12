@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.20 2008/11/04 04:21:07 ewang Exp $
+* $Id: page_redirect_management.inc,v 1.20.4.1 2009/06/12 05:51:42 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -118,6 +118,21 @@ class Page_Redirect_Management extends Asset_Management
 														'type'			=> 'text',
 														'default'		=> '',
 														'description'	=> 'Query string parameter name whose value is to be used as the redirect destination',
+													   ),
+						'session_variables'			=> Array(
+														'added'			=> '0.4',
+														'type'			=> 'parameter_map',
+														'default'		=> Array(),
+														'description'	=> 'Use saved variables to pass to the redirect page',
+														'parameters'	=> Array(
+																			'parameters'	=> Array(),
+																		   ),
+													   ),
+						'session_vars'				=> Array(
+														'added'			=> '0.4',
+														'type'			=> 'option_list',
+														'default'		=> '',
+														'description'	=> 'Use saved variables to pass to the redirect page',
 													   ),
 					  );
 
