@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.10 2009/06/11 06:53:33 wszymanski Exp $
+* $Id: lang_strings.xml,v 1.311.2.11 2009/06/12 05:11:39 bpearson Exp $
 *
 */
 
@@ -73,8 +73,7 @@
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="cannot_make_live_metadata_incomplete">This asset cannot be made live because some mandatory %s fields are empty</string>
 	<string source="cannot_approve_metadata_incomplete">This asset cannot be approved to go live because some mandatory %s fields are empty</string>
-	<string source="asset_to_send">Asset To Send</string>
-    <string source="asset_to_send_desc">The content you would like sent in the emails&lt;br /&gt;Note : If asset is selected to send, then Body of the email will not be sent</string>
+
 	<string source="asset_type_counts">Asset Type Counts</string>
 	<string source="asset_types">Asset Types</string>
 	<string source="asset_type">Asset Type</string>
@@ -302,7 +301,6 @@
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
-	<string source="send_an_asset">Send An Asset</string>
 	<string source="show_diff">Show Diff</string>
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
@@ -1579,6 +1577,7 @@
 	<string source="roles_system_disabled">The Roles System is disabled</string>
 	<string source="select_a_role">Select a role:</string>
 	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
+	<string source="send_an_asset">Send An Asset</string>
 	<string source="roles">Roles</string>
 	<string source="role">Role</string>
 	<string source="users">Users</string>
@@ -1717,6 +1716,8 @@
 	<string source="delete_row_question">Delete row %s ?</string>
 	<string source="delete_row">Delete Row</string>
 	<string source="add_row">Add Row</string>
+	<string source="asset_to_send">Asset To Send</string>
+	<string source="asset_to_send_desc">The content you would like sent in the emails&lt;br /&gt;Note : If asset is selected to send, then Body of the email will not be sent</string>
 	<string source="edit_row_question">Edit row %s Properties</string>
 	<string source="edit_row">Edit Row Properties</string>
 	<string source="reorder_rows_question">Reorder %s's Rows ?</string>
@@ -2283,6 +2284,7 @@ Are you sure you want to proceed?</string>
 
 	<!-- Parameter Map -->
 	<string source="current_site">Current Site</string>
+	<string source="set_value">Set Value</string>
 
 	<!-- Linking errors -->
 	<string source="cannot_create_notice_link_permission_denied">Cannot create notice link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - No write access to "%1$s")</string>
@@ -2424,7 +2426,6 @@ Are you sure you want to proceed?</string>
 	<string source="trigger_remove_web_path_remove_all">Delete all webpaths</string>
 	<string source="trigger_remove_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
 	<string source="trigger_remove_web_path_update_children">Update lookups for children</string>
-
 
 	<!-- Future Status Trigger Actions -->
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
