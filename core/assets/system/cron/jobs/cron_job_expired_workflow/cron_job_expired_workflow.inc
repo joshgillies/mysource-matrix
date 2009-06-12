@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.30 2009/04/06 05:05:16 lwright Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.30.2.1 2009/06/12 05:57:10 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,7 +149,23 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 	protected function _exec(&$msg)
 	{
 		try {
-			$rows = MatrixDAL::executeAll('cron_job_expired_workflow', 'getAllRunningWorkflows');
+			if (MatrixDAL::getDbType() === 'oci') {
+                $sql = 'SELECT
+                            aw.assetid, aw.schemaid, aw.wflow , aw.granted , a.name
+                        FROM
+                            sq_ast_wflow aw, sq_ast a
+                        WHERE
+                            aw.assetid = a.assetid
+                        AND
+                            TO_CHAR(aw.wflow) is not null
+                        AND
+                            aw.granted = 1';
+
+                $query = MatrixDAL::preparePdoQuery($sql);
+                $rows  = MatrixDAL::executePdoAll($query);
+            } else {
+                $rows = MatrixDAL::executeAll('cron_job_expired_workflow', 'getAllRunningWorkflows');
+            }
 		} catch (DALException $e) {
 			throw new Exception ('Unable to get running workflows due to database error: '.$e->getMessage());
 		}
