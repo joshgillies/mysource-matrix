@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.25 2007/12/20 22:36:30 colivar Exp $
+* $Id: parameter_map.inc,v 1.26 2009/06/12 05:15:27 bpearson Exp $
 *
 */
 
@@ -44,8 +44,10 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 * 			 'keyword'		=> the asset keyword // only relevant if 'attribute' = SQ_PARAM_MAP_ATTR_OPTION_KEYWORD
 * 			)
 *
+*		*SET VALUE: A value or global keyword
+*
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -271,6 +273,19 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				}
 			break;
 
+			case 'SET_VALUE':
+				$value = array_get_index($data, 'value');
+				if ($read_only) {
+					if (is_null($value)) {
+						echo translate('not_configured');
+					} else {
+						echo htmlspecialchars($value);
+					}//end if
+				} else {
+					text_box($prefix.'[value]', $value);
+				}//end if
+			break;
+
 			default:
 				$value = array_get_index($data, 'index');
 				if ($read_only) {
@@ -397,6 +412,12 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					}
 				break;
 
+				case 'SET_VALUE':
+					if (!empty($rule['value'])) {
+						return replace_global_keywords($rule['value']);
+					}//end if
+				break;
+
 				case 'ASSET':
 				case 'USER':
 				case 'CURRENT_SITE':
@@ -501,6 +522,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				'ASSET'			=> translate('current_asset'),
 				'USER'			=> translate('current_user'),
 				'CURRENT_SITE'	=> translate('current_site'),
+				'SET_VALUE'		=> translate('set_value'),
 			   );
 
 	}//end _getSourceTypes()
