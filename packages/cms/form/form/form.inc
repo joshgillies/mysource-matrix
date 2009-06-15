@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219.2.7 2009/06/15 04:52:33 ewang Exp $
+* $Id: form.inc,v 1.219.2.8 2009/06/15 23:10:02 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219.2.7 $
+* @version $Revision: 1.219.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1773,8 +1773,8 @@ class Form extends Asset implements Bridge
 			echo $this->getFormHeader();
 
 			if (!$finished) {
-				// Print the current page or the Confirmation Page if we're confirming things
-				echo $this->getPageContents($current_page);
+				// Print the current page
+				 $this->printPageContentsBodycopy();
 			} else {
 				$ok = $this->completeSubmission();
 				if ($ok) {
@@ -2468,7 +2468,6 @@ class Form extends Asset implements Bridge
 			<?php
 		}
 		?>
-		%submit_button% %previous_page_button%
 		<?php
 		$contents = ob_get_clean();
 
