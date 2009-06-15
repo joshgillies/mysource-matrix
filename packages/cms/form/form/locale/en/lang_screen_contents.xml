@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.16.2.1 2009/04/28 23:55:55 cupreti Exp $
+* $Id: lang_screen_contents.xml,v 1.16.2.2 2009/06/15 04:53:38 ewang Exp $
 *
 */
 -->
@@ -188,6 +188,14 @@
 		<field attribute="captcha_include_numbers">
 			<display_name>Include Numbers in CAPTCHA Text</display_name>
 			<note>If this option is enabled, the generated CAPTCHA will contain at least one number.</note>
+		</field>
+		<field attribute="captcha_invalid_error_message">
+			<display_name>Captcha Invalid Error Message</display_name>
+			<note>Custom error message if CAPTCHA entered at current page is incorrect.</note>
+		</field>
+		<field attribute="captcha_form_invalid_error_message">
+			<display_name>Captcha Required Form Error Message</display_name>
+			<note>Custom error message if valid CAPTCHA is not found for entire form submission.</note>
 		</field>
 	</section>
 
