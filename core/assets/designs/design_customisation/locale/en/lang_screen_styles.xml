@@ -10,14 +10,16 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.18 2009/06/15 06:39:13 wszymanski Exp $
+* $Id: lang_screen_styles.xml,v 1.1 2009/06/15 06:39:13 wszymanski Exp $
 *
 */
 -->
 
-<screens>
-<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
-	<screen code_name="customisations"  display_name="Customisations"  icon="page"   lock_type="all" />
-	<screen code_name="usage"           display_name="Usage"                         lock_type="none" />
-	<screen code_name="styles"          display_name="Styles"  icon="page"    lock_type="all" />
-</screens>
+<contents>
+	<section name="Classes definitions" write_access="none">
+		<field attribute="classes">
+			<display_name>Classes</display_name>
+			<note>Classes specified in this list will be available in WYSIWYG drop-down list for styles. If the list is empty, css file wil be parsed and all class definitions available.</note>
+		</field>
+	</section>
+</contents>

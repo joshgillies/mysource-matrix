@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.18 2007/12/06 04:28:47 lwright Exp $
+* $Id: design_management.inc,v 1.19 2009/06/15 06:39:13 wszymanski Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,11 +39,19 @@ class Design_Management extends Asset_Management
 	{
 		Asset_Management::__construct($pm);
 
-		$this->vars['id_name'] = Array(
-									'added'		=> '0.0.1',
-									'type'		=> 'text',
-									'default'	=> '',
-								 );
+		$this->vars = Array(
+						'id_name' 	=> Array(
+											'added'		=> '0.0.1',
+											'type'		=> 'text',
+											'default'	=> '',
+								 		   ),
+						'classes'	=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'option_list',
+											'default'		=> '',
+											'description'	=> 'Use saved classes in the wysiwyg dropdown list',
+										   ),
+					  );								 
 
 	}//end constructor
 
