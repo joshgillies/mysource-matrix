@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.669.2.2 2009/05/21 01:27:13 cupreti Exp $
+* $Id: asset.inc,v 1.669.2.3 2009/06/15 07:33:26 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.669.2.2 $
+* @version $Revision: 1.669.2.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3471,11 +3471,13 @@ class Asset extends MySource_Object
 	* @access private
 	*/
 	protected function _getKeywordReplacement($keyword)
-	{
+	{	
 		if (empty($keyword)) return '';
+				
 		if (0 === strpos($keyword, 'globals_')) {
 			return "%$keyword%";
 		}
+
 		$replacement = NULL;
 		$tmp_keyword = strtr($keyword, '_', ' ');
 		$tmp_keyword = ucwords($tmp_keyword);
@@ -3525,6 +3527,13 @@ class Asset extends MySource_Object
 			} else if (isset($this->_tmp['mm_replacements'][$spaced_metadata_keyword])) {
 				$replacement = $this->_tmp['mm_replacements'][$spaced_metadata_keyword];
 			}
+
+		} else if (0 === strpos($keyword, 'asset_charset')) {
+			return ($this->charset) ? $this->charset : SQ_CONF_DEFAULT_CHARACTER_SET;
+			
+		} else if (0 === strpos($keyword, 'asset_languages')) {
+			return ($this->languages) ? $this->languages : SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
+
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
