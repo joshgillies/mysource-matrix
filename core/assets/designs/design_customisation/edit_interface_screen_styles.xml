@@ -10,14 +10,15 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.17.10.1 2009/06/15 06:43:44 wszymanski Exp $
+* $Id: edit_interface_screen_styles.xml,v 1.1.2.2 2009/06/15 06:43:44 wszymanski Exp $
 *
 */
 -->
 
-<screens>
-<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
-	<screen code_name="customisations"  display_name="Customisations"  icon="page"   lock_type="all" />
-	<screen code_name="usage"           display_name="Usage"                         lock_type="none" />
-	<screen code_name="styles"          display_name="Styles"  icon="page"    lock_type="all" />
-</screens>
+<contents>
+	<section name="Classes definitions" write_access="write:all" read_access="write:">
+		<field attribute="classes">
+			<option_list allow_reorder="no"/>
+		</field>
+	</section>
+</contents>

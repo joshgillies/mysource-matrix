@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.20 2007/01/18 03:13:01 lwright Exp $
+* $Id: edit_interface_screens.xml,v 1.20.10.1 2009/06/15 06:43:44 wszymanski Exp $
 *
 */
 -->
@@ -21,4 +21,5 @@
 	<screen code_name="customisations"  display_name="Customisations"  icon="page"   lock_type="all" />
 	<screen code_name="usage"           display_name="Usage"                         lock_type="none" />
 	<screen code_name="export"          display_name="Import/Export"  icon="page"    lock_type="all" />
+	<screen code_name="styles"          display_name="Styles"  icon="page"    lock_type="all" />
 </screens>

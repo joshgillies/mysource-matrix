@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.20 2008/05/21 23:47:33 lwright Exp $
+* $Id: matrix_apply_style.inc,v 1.20.4.1 2009/06/15 06:44:19 wszymanski Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.4.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -53,8 +53,17 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		///////////////////////////////
 		require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 
-		if (isset($GLOBALS['sq_bodycopy_cssids'])) {
-			foreach ($GLOBALS['sq_bodycopy_cssids'] as $css_assetid) {
+		// check for any classes declared for current design
+		$classes = $this->getDesignClasses();
+		if (!empty($classes)) {
+			foreach ($classes as $css_class) {
+				$this->_css_classes[$css_class] = $css_class;
+			}
+		}
+
+		// if there weren't any classes defined for design, we are getting some out from ccs file 
+		if (empty($this->_css_classes) && isset($GLOBALS['sq_bodycopy_cssids'])) {
+					foreach ($GLOBALS['sq_bodycopy_cssids'] as $css_assetid) {
 				$css = $GLOBALS['SQ_SYSTEM']->am->getAsset($css_assetid);
 				$css_file = $css->getExistingFile();
 				$stylesheet_src = '';
@@ -451,7 +460,67 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		$html = preg_replace('|class\="?no_style?"|i', '', $html);
 
 	}//end process();
+	
+	
+	/**
+	* Gets current classes from applied design
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getDesignClasses()
+	{
+		$classes = Array();
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
+		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
+			$url = $GLOBALS['sq_preview_url'];
+			$url = preg_replace('|^http[s]?://|', '', $url);
+
+			$db = MatrixDAL::getDb();
+
+			$sql = 'SELECT value
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
+
+			$where = 'name LIKE :lookup_name AND
+						((:url = url)
+						OR ((:url_1 LIKE url || \'/%\')
+						AND (:url_2 NOT LIKE url || \'%/$\'))
+						OR ((:url_slash = url)))';
+
+			$order_by = ' ORDER BY depth DESC';
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			try {
+				$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
+				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%frontend%');
+				MatrixDAL::bindValueToPdo($query, 'url', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_1', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_2', $url);
+				MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
+				$designid = MatrixDAL::executePdoOne($query);
+			} catch (Exception $e) {
+				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
+			}//end try catch
+
+			if ($designid) {
+				$design = $am->getAsset($designid);
+				$classes_list = $design->attr('classes');
+				if (!empty($classes_list)) {
+					log_dump($classes_list);
+					$vars = explode("\n", $classes_list);
+					foreach ($vars as $value) {						
+						$classes[] = trim($value);
+					}
+				}
+			}
+		}
+
+		return $classes;
+
+	}//end getDesignClasses();	
+	
 
 }//end class()
 
