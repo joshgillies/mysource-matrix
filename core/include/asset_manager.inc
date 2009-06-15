@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.729 2009/06/09 23:27:32 csmith Exp $
+* $Id: asset_manager.inc,v 1.730 2009/06/15 09:36:04 ata Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.729 $
+* @version $Revision: 1.730 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3212,7 +3212,12 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 
-		return (count($links) == 1 && !$force_array) ? array_shift($links) : $links;
+		if (count($links) == 1 && !$force_array) {
+			$keys = array_keys($links);
+			$links = $links[$keys[0]];
+		}
+		
+		return $links;
 
 	}//end getLinks()
 
