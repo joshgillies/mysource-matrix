@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.61 2009/03/16 05:59:23 mbrydon Exp $
+* $Id: form_management.inc,v 1.62 2009/06/15 04:31:20 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -385,7 +385,18 @@ class Form_Management extends Asset_Management
 																				'allow_empty'	=> FALSE,
 																			   ),
 														   ),
-
+						
+						'captcha_invalid_error_message'	=> Array(
+														'added'		=> '0.15',
+														'type'		=> 'text',
+														'default'	=> 'Security Key Incorrect',
+														   ),
+						'captcha_form_invalid_error_message'	=> Array(
+														'added'		=> '0.15',
+														'type'		=> 'text',
+														'default'	=> 'Valid CAPTCHA is required, but none is found in this form submission',
+														   ),								   
+														   
 					  );
 
 	}//end constructor
