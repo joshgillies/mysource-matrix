@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.3 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.4 2009/06/16 01:30:42 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    file_info				-	the text file info
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage bulkmail
 */
@@ -166,9 +166,98 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 			// find the existing bmail user, and link here
 			$user = $this->_getExistingBmailUser($email);
 			if ($user != NULL) {
-				$this->_deleteAsset($user->id);
-				$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
-			}
+				if (empty($this->_running_vars['root_nodes'])) {
+					// If no root node specified big delete
+					$this->_deleteAsset($user->id);
+					$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
+				} else {
+					// Otherwise delete by root node
+					$root_nodes = $this->_running_vars['root_nodes'];
+					$treeid_sql = 'SELECT rt.treeid AS treeid FROM sq_ast_lnk rl INNER JOIN sq_ast_lnk_tree rt ON rl.linkid=rt.linkid WHERE rl.minorid IN ('.implode(',', $root_nodes).')';
+					$treeid_result = NULL;
+					try {
+						$treeid_query  = MatrixDAL::preparePdoQuery($treeid_sql);
+						$treeid_result = MatrixDAL::executePdoAssoc($treeid_query);
+					} catch (Exception $e) {
+						throw new Exception($e->getMessage());
+					}//end try-catch
+
+					$under_tree = '';
+					if (!empty($treeid_result)) {
+						$under_tree .= '(';
+						$bind_vars = Array();
+						foreach ($treeid_result as $treeid_index => $each_treeid) {
+							if (!empty($each_treeid['treeid'])) {
+								$bind_vars['treeid_'.$treeid_index] = $each_treeid['treeid'].'%';
+								if (!empty($treeid_index)) $under_tree .= ' OR ';
+								$under_tree .= 't.treeid LIKE :treeid_'.$treeid_index;
+							}//end if
+						}//end foreach
+						$under_tree .= ')';
+					}//end if
+
+					// Something went wrong :(
+					if (!empty($under_tree)) {
+						$db = MatrixDAL::getDb();
+						$sql = Array(
+								'select'	=> 'SELECT l.linkid',
+								'from'		=> 'FROM sq_ast_lnk l',
+								'join'		=> 'INNER JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid',
+								'where'		=> 'WHERE l.minorid=:bulkmail_user_id',
+							   );
+						$sql2 = Array(
+									'select'	=> 'SELECT l.linkid',
+									'from'		=> 'FROM sq_ast_lnk l',
+									'join'		=> 'INNER JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid',
+									'where'		=> 'WHERE l.minorid=:bulkmail_user_id AND '.$under_tree,
+								);
+						$result_all_links = NULL;
+						$result_wanted_links = NULL;
+						try {
+							$query  = MatrixDAL::preparePdoQuery(implode(' ', $sql));
+							$query2 = MatrixDAL::preparePdoQuery(implode(' ', $sql2));
+							MatrixDAL::bindValueToPdo($query, 'bulkmail_user_id', $user->id);
+							MatrixDAL::bindValueToPdo($query2, 'bulkmail_user_id', $user->id);
+							foreach ($bind_vars as $bind_name => $bind_value) {
+								MatrixDAL::bindValueToPdo($query2, $bind_name, $bind_value);
+							}//end foreach
+							$result_all_links = MatrixDAL::executePdoAssoc($query);
+							$result_wanted_links = MatrixDAL::executePdoAssoc($query2);
+						} catch (Exception $e) {
+							throw new Exception($e->getMessage());
+						}//end try-catch
+
+						if (!empty($result_all_links) && !empty($result_wanted_links)) {
+							// Cleaning up the array to make easier to work with
+							$all_links = Array();
+							foreach ($result_all_links as $link_info) {
+								if (!empty($link_info['linkid'])) {
+									$all_links[] = $link_info['linkid'];
+								}//end if
+							}//end foreach
+							$wanted_links = Array();
+							foreach ($result_wanted_links as $wanted_link_info) {
+								if (!empty($wanted_link_info['linkid'])) {
+									$wanted_links[] = $wanted_link_info['linkid'];
+								}//end if
+							}//end foreach
+
+							// Check if this is the last link or going to be
+							if ((count($all_links) == 1) || (count($wanted_links) == count($all_links))) {
+								// Last link, so delete
+								$this->_deleteAsset($user->id);
+								$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
+							} else {
+								// Otherwise just delete the requested linkids
+								foreach ($wanted_links as $linkid) {
+									$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);	
+								}//end foreach
+								$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
+							}//end if
+						}//end if
+					}//end if
+				}//end if
+			}//end if
 
 			$step_data['message'] = translate('bm_deleting_bmail_user', $email);
 
@@ -280,6 +369,39 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 				array_push($links_array, $value['linkid']);
 			}
 			$links_set = '('.implode(', ', $links_array).')';
+
+			// Be nice and cleanup the sq_ast_lnk and sq_ast_lnk_tree as well before deleting
+			foreach ($links_array as $linkids_to_delete) {
+				$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkids_to_delete);
+				$majorid_delete = array_get_index($link_info, 'majorid', 0);
+				$sort_order_delete = array_get_index($link_info, 'sort_order', 0);
+				$lnk_tree_sql = 'UPDATE sq_ast_lnk_tree SET num_kids = num_kids - 1 WHERE treeid IN (SELECT CASE WHEN LENGTH(SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.')) != 0 THEN SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.') ELSE \'-\'END FROM sq_ast_lnk_tree t WHERE t.linkid = :linkid)';
+
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				try {
+					$lnk_tree_query = MatrixDAL::preparePdoQuery($lnk_tree_sql);
+					MatrixDAL::bindValueToPdo($lnk_tree_query, 'linkid', $linkids_to_delete);
+					MatrixDAL::execPdoQuery($lnk_tree_query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to update the link tree for linkid: '.$linkids_to_delete.' due to database error: '.$e->getMessage());
+				}//end try-catch
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+				if (!empty($sort_order_delete) && !empty($majorid_delete)) {
+					$lnk_sql = 'UPDATE sq_ast_lnk SET sort_order = sort_order - 1 WHERE majorid = :majorid AND sort_order > :sort_order';
+
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					try {
+						$lnk_query = MatrixDAL::preparePdoQuery($lnk_sql);
+						MatrixDAL::bindValueToPdo($lnk_query, 'majorid', $majorid_delete);
+						MatrixDAL::bindValueToPdo($lnk_query, 'sort_order', $sort_order_delete);
+						MatrixDAL::execPdoQuery($lnk_query);
+					} catch (Exception $e) {
+						throw new Exception('Unable to update sort orders for majorid: '.$majorid_delete.' due to database error: '.$e->getMessage());
+					}//end try-catch
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				}//end if
+			}//end foreach
 
 			// Delete links
 			$sql = 'DELETE FROM sq_ast_lnk WHERE linkid IN '.$links_set;
