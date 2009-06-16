@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.33 2009/01/19 23:43:16 akarelia Exp $
+* $Id: config.inc,v 1.34 2009/06/16 01:26:11 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -197,8 +197,9 @@ class Config extends MySource_Object
 	/**
 	* Attempt to acquire the lock for this config
 	*
-	* @return true on success or the error message on failure
-	* @access public
+	* Returns true on success or the error message on failure
+
+	* @return mixed boolean|string
 	* @see MySource::acquireLock()
 	*/
 	public function acquireLock()
@@ -215,7 +216,6 @@ class Config extends MySource_Object
 	* Whether the current user can acquire the lock
 	*
 	* @return boolean
-	* @access public
 	* @see MySource::acquireLock()
 	*/
 	public function canAcquireLock()
@@ -228,8 +228,9 @@ class Config extends MySource_Object
 	/**
 	* Attempt to release the lock for this config
 	*
-	* @return true on success or the error message on failure
-	* @access public
+	* Returns true on success or the error message on failure
+	*
+	* @return mixed boolean|string
 	* @see MySource::releaseLock()
 	*/
 	public function releaseLock()
@@ -237,6 +238,21 @@ class Config extends MySource_Object
 		return $GLOBALS['SQ_SYSTEM']->releaseLock(get_class_lower($this));
 
 	}//end releaseLock()
+
+
+	/**
+	* Refreshes the lock on a config screen
+	*
+	* Returns true on success or error message on fail
+	*
+	* @return mixed boolean|string
+	* @see MySource::updateLock();
+	*/
+	public function updateLock()
+	{
+		return $GLOBALS['SQ_SYSTEM']->updateLock(get_class_lower($this));
+
+	}//end updateLock()
 
 
 	/**
@@ -289,7 +305,9 @@ class Config extends MySource_Object
 	*/
 	public function paintBackend(&$o)
 	{
-		require_once $this->config_file;
+		if (is_null($this->config_file) === FALSE) {
+			require_once $this->config_file;
+		}
 
 		$map_array = Array (
 						'system_config'					=> 'system_configuration',
@@ -300,6 +318,7 @@ class Config extends MySource_Object
 						'password_rules_config'			=> 'password_rules_configuration',
 						'messaging_service_config'		=> 'messaging_service_configuration',
 						'proxy_authentication_config'	=> 'proxy_configuration',
+						'context_config'				=> 'context_configuration',
 					 );
 
 		if ($o->_persistant_get_vars['config_screen'] = $map_array[$o->_persistant_get_vars['config_screen']]) {
