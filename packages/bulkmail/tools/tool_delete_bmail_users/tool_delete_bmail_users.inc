@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_delete_bmail_users.inc,v 1.3 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: tool_delete_bmail_users.inc,v 1.3.4.1 2009/06/16 01:28:04 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *	matching those in the supplied text file
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -65,6 +65,11 @@ class Tool_Delete_Bmail_Users extends Tool
 			$o->note(translate('bm_tool_delete_bmail_users_file_upload_note'));
 		$o->closeField();
 
+		$o->openField(translate('bm_tool_delete_bmail_users_root_node'));
+			multiple_asset_finder($type_code.'_root_node');
+			$o->note(translate('bm_tool_delete_bmail_users_root_node_note'));
+		$o->closeField();
+
 		$o->openField(translate('bm_tool_delete_bmail_users_confirm'));
 			combo_box($type_code.'_confirm', Array(0=>translate('no'), 1=>translate('yes')));
 			$o->note(translate('bm_tool_delete_bmail_users_confirm_note'));
@@ -92,12 +97,28 @@ class Tool_Delete_Bmail_Users extends Tool
 			trigger_localised_error('BML0011', E_USER_NOTICE);
 			return FALSE;
 		}
+
+		$selected_root_nodes = array_get_index($_POST, $type_code.'_root_node', Array());
+		$root_nodes = Array();
+		if (!empty($selected_root_nodes)) {
+			foreach ($selected_root_nodes as $root_node) {
+				$assetid = array_get_index($root_node, 'assetid', 0);
+				if (!empty($assetid)) {
+					$root_nodes[] = $assetid;
+				}//end if
+			}//end foreach
+		}//end if
+
+		// set HIPO running_vars
+		$vars = Array(
+					'file_info'		=> $file_info,
+					'root_nodes'	=> $root_nodes,
+				);
+
+		// OK to continue?
 		if ((!isset($_POST[$type_code.'_confirm'])) || ($_POST[$type_code.'_confirm'] == 0)) {
 			return FALSE;
 		}
-
-		// set HIPO running_vars
-		$vars['file_info'] = $file_info;
 
 		// run HIPO job
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();

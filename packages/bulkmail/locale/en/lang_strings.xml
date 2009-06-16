@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.37 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.37.4.1 2009/06/16 01:28:03 bpearson Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -131,9 +131,10 @@ Please click on the following link if you would like to proceed:
 	
 	<string source="bm_tool_delete_bmail_users_file_upload">Text File of Email Addresses to remove</string>
 	<string source="bm_tool_delete_bmail_users_file_upload_note">Each line must contain one email address only</string>
-
-	<string source="bm_tool_delete_bmail_users_confirm">Remove all matching Bulkmail Users system-wide</string>
-	<string source="bm_tool_delete_bmail_users_confirm_note">All matching Bulkmail Users will be deleted from the system</string>
+	<string source="bm_tool_delete_bmail_users_root_node">Root Node</string>
+	<string source="bm_tool_delete_bmail_users_root_node_note">Select a root node(s) to delete the bulkmail users from only the specified root node(s). Leave blank to delete bulkmail users from the whole system</string>
+	<string source="bm_tool_delete_bmail_users_confirm">Confirm deletion of bulkmail users</string>
+	<string source="bm_tool_delete_bmail_users_confirm_note">All matching bulkmail users will be deleted, when Yes is selected</string>
 
 	<string source="bm_hipo_name_delete_bmail_user">Delete Bulkmail User</string>
 	<string source="bm_hipo_deleting_bmail_users">Deleting Bulkmail Users</string>	
