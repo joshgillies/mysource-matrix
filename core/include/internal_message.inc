@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.91.2.2 2009/06/12 03:28:54 wszymanski Exp $
+* $Id: internal_message.inc,v 1.91.2.3 2009/06/16 04:07:07 wszymanski Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.91.2.2 $
+* @version $Revision: 1.91.2.3 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -552,7 +552,8 @@ class Internal_Message extends MySource_Object
 			if (trim($this->body) === '') {
 				return $lm->getInternalMessageBody($this->type, $tmpReplacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
 			} else {
-				return replace_keywords($this->body, $tmpReplacements);
+				$body = $this->body;
+				return replace_keywords($body, $tmpReplacements);
 			}
 		}
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -567,7 +568,8 @@ class Internal_Message extends MySource_Object
 		if (trim($this->body) === '') {
 			return $lm->getInternalMessageBody($this->type, $replacements, $user_locale);
 		} else {
-			return replace_keywords($this->body, $replacements);
+			$body = $this->body;
+			return replace_keywords($body, $tmpReplacements);
 		}
 		return replace_keywords($body, $replacements);
 
