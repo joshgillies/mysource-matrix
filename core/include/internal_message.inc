@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.93 2009/06/12 03:27:40 wszymanski Exp $
+* $Id: internal_message.inc,v 1.94 2009/06/16 04:06:39 wszymanski Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -441,6 +441,7 @@ class Internal_Message extends MySource_Object
 							$log_body = preg_replace($tagline_reg, $asset->name.' (#'.$asset->id.')', $log_body);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						}
+
 						$ms->queueEmail($this->from, $userid, $subject, $log_body);
 						if (!$ms->sending_queue) $ms->sendQueuedEmails();
 					}
@@ -552,7 +553,8 @@ class Internal_Message extends MySource_Object
 			if (trim($this->body) === '') {
 				return $lm->getInternalMessageBody($this->type, $tmpReplacements, SQ_CONF_DEFAULT_BACKEND_LOCALE);
 			} else {
-				return replace_keywords($this->body, $tmpReplacements);
+				$body = $this->body;
+				return replace_keywords($body, $tmpReplacements);
 			}
 		}
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -567,7 +569,8 @@ class Internal_Message extends MySource_Object
 		if (trim($this->body) === '') {
 			return $lm->getInternalMessageBody($this->type, $replacements, $user_locale);
 		} else {
-			return replace_keywords($this->body, $replacements);
+			$body = $this->body;
+			return replace_keywords($body, $replacements);
 		}
 		return replace_keywords($body, $replacements);
 
