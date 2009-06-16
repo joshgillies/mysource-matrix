@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.21 2009/06/15 06:40:03 wszymanski Exp $
+* $Id: matrix_apply_style.inc,v 1.22 2009/06/16 00:14:38 wszymanski Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -508,9 +508,8 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 				$design = $am->getAsset($designid);
 				$classes_list = $design->attr('classes');
 				if (!empty($classes_list)) {
-					log_dump($classes_list);
 					$vars = explode("\n", $classes_list);
-					foreach ($vars as $value) {						
+					foreach ($vars as $value) {
 						$classes[] = trim($value);
 					}
 				}
