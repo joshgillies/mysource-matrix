@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.57.2.2 2009/04/24 01:35:27 bpearson Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.57.2.3 2009/06/16 00:01:06 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57.2.2 $
+* @version $Revision: 1.57.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -494,9 +494,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	function _processAdditionalGetVars(&$asset, &$nested_asset)
 	{
 		$processed_get_vars = Array();
-		if (isset($asset->vars['additional_get'])) {
-			$additional_get_vars = $asset->attr('additional_get');
-		} else {
+		$additional_get_vars = $asset->attr('additional_get');
+		if (!isset($additional_vars) || empty($additional_vars)) {
 			return $processed_get_vars;
 		}
 		foreach ($additional_get_vars as $get_var) {
