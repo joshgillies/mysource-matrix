@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.86.2.1 2009/03/26 23:32:52 bpearson Exp $
+* $Id: general_occasional.inc,v 1.86.2.2 2009/06/17 04:44:50 wszymanski Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86.2.1 $
+* @version $Revision: 1.86.2.2 $
 * @package MySource_Matrix
 */
 
@@ -371,13 +371,16 @@ function make_valid_web_paths($paths, $fallback_path='')
 		}
 
 		// no ampersands in web paths
-		$path = str_replace('&amp;', '-and-', $path);
+		$path = str_replace('&amp;', SQ_CONF_WEB_PATH_SEPARATOR.translate('web_path_ampersand_replacement').SQ_CONF_WEB_PATH_SEPARATOR, $path);
 		$path = preg_replace('|&[^;]+;|', '', $path);
 		$path = preg_replace('|&#[0-9]+;|', '', $path);
-		$path = str_replace('&', '-and-', $path);
+		$path = str_replace('&', SQ_CONF_WEB_PATH_SEPARATOR.translate('web_path_ampersand_replacement').SQ_CONF_WEB_PATH_SEPARATOR, $path);
 
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
+
+		// replace more than one web path separator with just one
+		$path = preg_replace('/'.SQ_CONF_WEB_PATH_SEPARATOR.'+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
 
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
