@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.58 2009/04/29 04:13:38 akarelia Exp $
+* $Id: image_edit_fns.inc,v 1.59 2009/06/17 23:15:38 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -530,6 +530,21 @@ class Image_Edit_Fns extends File_Edit_Fns
 		?>
 
 		<script type="text/javascript"><!--
+
+			function getAppletName()
+			{
+				var applet = document.getElementById('<?php echo $prefix; ?>_image_editor');
+				if (applet.parentNode.parentNode.style.display != 'none') {
+					var tempNameFile = applet.getFilename();
+					if (tempNameFile.length < 5 ){
+						return false ;
+					}
+					return true;
+				} else {
+					return true;
+				}
+			}
+
 			function getAppletResult()
 			{
 				var applet = document.getElementById('<?php echo $prefix; ?>_image_editor');
@@ -549,8 +564,18 @@ class Image_Edit_Fns extends File_Edit_Fns
 			forms = document.getElementsByTagName('FORM');
 			if (forms[0].onsubmit) {
 				var otherOnSubmit = forms[0].onsubmit;
-				forms[0].onsubmit = function() { otherOnSubmit(); return getAppletResult(); }
+				forms[0].onsubmit = 
+				function() 
+				{
+					if (getAppletName()) {
+						otherOnSubmit();
+						return getAppletResult();
+					} else  {
+						window.alert("You must give a filename before committing");
+					}
+				}
 			} else {
+				window.alert('2');
 				forms[0].onsubmit = function() { return getAppletResult(); }
 			}
 			// -->
