@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.311.2.11 2009/06/12 05:11:39 bpearson Exp $
+* $Id: lang_strings.xml,v 1.311.2.12 2009/06/17 04:48:36 wszymanski Exp $
 *
 */
 
@@ -1085,6 +1085,7 @@
 	<string source="protocol_not_specified">One of the protocols must be specified</string>
 	<string source="both_protocols_specified">Both of the protocols specified</string>
 	<string source="add_web_path">Add the web path</string>
+	<string source="web_path_ampersand_replacement">and</string>
 	<string source="remove_web_path">Remove the web path</string>
 	<string source="web_path_not_specified">Web Path not specified</string>
 	<string source="triggers_advanced_user_options">Optional items for Advanced users</string>
