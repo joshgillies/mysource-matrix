@@ -889,7 +889,11 @@ class DAL
 
 			}
 		} else {
-			$rows = $dbh->exec($sql);
+			try {
+				$rows = $dbh->exec($sql);
+			} catch (PDOException $e) {
+				throw new DALException('DBError!:'.$e->getMessage());
+			}
 		}
 
 		self::_endQueryTimer();
