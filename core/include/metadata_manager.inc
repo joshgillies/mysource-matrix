@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.190 2009/04/21 01:53:51 akarelia Exp $
+* $Id: metadata_manager.inc,v 1.191 2009/06/17 23:16:31 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.190 $
+* @version $Revision: 1.191 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -792,7 +792,7 @@ class Metadata_Manager extends MySource_Object
 							} else if (array_key_exists($asset->type(), $restrictions)){
 								$flag_match_found = TRUE;
 							}
-							
+
 						}
 						if (!$flag_match_found) {
 							unset($metadata[$fieldid]);
@@ -1130,6 +1130,15 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// Content regenerated, so clear the _tmp vars for metadata
+		// Otherwise old values will stay in effect until the asset is reloaded
+		if (isset($asset->_tmp['mm_replacements'])) {
+			unset($asset->_tmp['mm_replacements']);
+		}//end if
+
+		// Content regenerated fire in the hole!
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_after_metadata_updated', $asset);
+
 		$result = FALSE;
 		if (!$regenerate) {
 			$result = TRUE;
@@ -1147,15 +1156,15 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-        * Generate a PHP file that can be included to reassign Metadata Field values for an asset.
+    * Generate a PHP file that can be included to reassign Metadata Field values for an asset.
 	* This is used before Metadata Field values are placed under Safe Edit and for
 	* restoring values when Safe Edit is cancelled.
-        *
+    *
 	* @param Asset	&$metadata_asset	the asset to generate the file for
-        *
-        * @return boolean
-        * @access private
-        */
+    *
+    * @return boolean
+    * @access private
+    */
 	private function _generateMetadataFieldFile(Asset &$metadata_asset)
 	{
 		$schemas = $this->getSchemas($metadata_asset->id, TRUE);
