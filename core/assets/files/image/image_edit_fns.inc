@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.59 2009/06/17 23:15:38 akarelia Exp $
+* $Id: image_edit_fns.inc,v 1.60 2009/06/17 23:19:31 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -575,7 +575,6 @@ class Image_Edit_Fns extends File_Edit_Fns
 					}
 				}
 			} else {
-				window.alert('2');
 				forms[0].onsubmit = function() { return getAppletResult(); }
 			}
 			// -->
