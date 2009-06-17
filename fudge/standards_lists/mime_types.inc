@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.10.4.1 2009/06/08 23:55:16 ewang Exp $
+* $Id: mime_types.inc,v 1.10.4.2 2009/06/17 06:18:50 bpearson Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10.4.1 $
+* @version $Revision: 1.10.4.2 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -158,6 +158,8 @@ $standards_lists_mime_types = Array('hqx'		=> 'application/mac-binhex40',
 									'wmz'		=> 'application/x-ms-wmz',
 									'wmd'		=> 'application/x-ms-wmd',
 									'ico'		=> 'image/x-icon',
+									'trf'		=> 'application/octet-stream',
+									'tr5'		=> 'application/octet-stream',
 									);
 
 ?>
