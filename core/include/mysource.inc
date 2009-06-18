@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.292 2009/04/09 00:02:52 bpearson Exp $
+* $Id: mysource.inc,v 1.293 2009/06/18 05:56:17 bpearson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.292 $
+* @version $Revision: 1.293 $
 * @package MySource_Matrix
 */
 class MySource
@@ -536,6 +536,8 @@ class MySource
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 					}//end if
+					
+					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
 
 					// Finally recache
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && current_protocol() != 'https') {
