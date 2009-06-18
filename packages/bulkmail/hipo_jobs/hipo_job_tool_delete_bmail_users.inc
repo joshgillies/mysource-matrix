@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.3.4.1 2009/06/16 01:28:03 bpearson Exp $
+* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.3.4.2 2009/06/18 03:34:53 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    file_info				-	the text file info
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3.4.1 $
+* @version $Revision: 1.3.4.2 $
 * @package MySource_Matrix
 * @subpackage bulkmail
 */
@@ -173,6 +173,9 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 				} else {
 					// Otherwise delete by root node
 					$root_nodes = $this->_running_vars['root_nodes'];
+					for (reset($root_nodes); NULL !== ($k = key($root_nodes)); next($root_nodes)) {
+						$root_nodes[$k] = MatrixDAL::quote((string) $root_nodes[$k]);
+					}//end for
 					$treeid_sql = 'SELECT rt.treeid AS treeid FROM sq_ast_lnk rl INNER JOIN sq_ast_lnk_tree rt ON rl.linkid=rt.linkid WHERE rl.minorid IN ('.implode(',', $root_nodes).')';
 					$treeid_result = NULL;
 					try {
