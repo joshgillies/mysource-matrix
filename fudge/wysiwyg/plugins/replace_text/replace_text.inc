@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.6 2008/08/18 04:56:14 bpearson Exp $
+* $Id: replace_text.inc,v 1.7 2009/06/18 03:11:22 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -141,7 +141,7 @@ class Replace_Text extends WYSIWYG_Plugin
 									break;
 								}
 								case 11	: {
-									reg = new RegExp('<([^\/ >]+)([^>]*?( (src|href)="?[^>"]*"?)*)*>', "gi");
+									reg = new RegExp('<([^/ >]+)[^>]*?([^>]*?( (src|href)="?[^>"]*"?)[^>]*?)*[^>]*?>', "gi");
 									rep = "<$1$3>";
 									break;
 								}
@@ -156,7 +156,7 @@ class Replace_Text extends WYSIWYG_Plugin
 									rep2 = "$1matrix_anchor_tmp$3"
 									curHTML = curHTML.replace(reg2, rep2);
 							}
-							curHTML = curHTML.replace(reg, rep);
+							curHTML = curHTML.replace(reg, rep); 							
 							if (i == 10) {
 									reg3 = new RegExp("(<A NAME[^>]*?>)matrix_anchor_tmp(</A>)", "gi");
 									rep3 = "$1$2"
