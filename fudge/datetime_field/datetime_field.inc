@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.50 2008/07/23 01:57:13 ewang Exp $
+* $Id: datetime_field.inc,v 1.51 2009/06/18 07:05:55 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -392,8 +392,12 @@ class DateTime_Field
 
 		// print which ever form of input is desired
 		if (($u == 'a') || ($input_style[$u] == 's')) {
-			// select box
-			combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, $extras[$u]);
+			if (!isset($extras[$u]) && !stristr($extras[$u], 'id=')){
+				combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, ' id="'.$prefix.'_'.$u.'" ');
+			} else {
+				// select box
+				combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, $extras[$u]);
+			}
 			return;
 		} else {
 			// plain text
@@ -403,8 +407,11 @@ class DateTime_Field
 			if (($value !== '') && ($u == 'i')) {
 				$value = sprintf('%02d', $value);
 			}
-
-			$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()"';
+			if (!isset($extras[$u]) && !stristr($extras[$u], 'id=')) {
+				$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()" id="'.$prefix.'_'.$u.'" ';
+			} else {
+				$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()"';
+			}
 			int_text_box($prefix.'['.$u.']', $value, FALSE, $size, $min, $max, $size, FALSE, $allow_null, $extras[$u].' '.$adjustExtra);
 			return;
 		}
