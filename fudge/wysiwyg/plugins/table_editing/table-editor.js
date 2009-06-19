@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.26 2008/02/12 22:56:53 bshkara Exp $
+* $Id: table-editor.js,v 1.26.4.1 2009/06/19 01:00:37 cupreti Exp $
 *
 */
 
@@ -134,14 +134,34 @@ TCell = function(parent)
 				out += name + '_td' + this.headers[i].r + '_' + this.headers[i].c + ' ';
 			out +='"';
 		}
+
 		var style = ' style="';
-		if (this.borderColor != null) style += 'border-color:' + this.borderColor + ';';
-		if (this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
-		if (this.borderWidth != null) style += 'border-width:' + this.borderWidth + ';';
-		if (this.bg != null) style += 'background-color:' + this.bg + ';';
-		if (this.cellWidth != null) style += 'width:' + this.cellWidth + ';';
-		if (this.cellHeight != null) style += 'height:' + this.cellHeight + ';';
-		if (this.style != null) style += this.style;
+		if (this.borderColor != null) {
+			style += 'border-color:' + this.borderColor + ';';
+			this.style = this.style.replace(new RegExp('border\-color:.*?;', 'gi'), '');
+		}
+		if (this.borderStyle != null) {
+			style += 'border-style:' + this.borderStyle + ';';
+			this.style = this.style.replace(new RegExp('border\-style:.*?;', 'gi'), '');
+		}
+		if (this.borderWidth != null) {
+			style += 'border-width:' + this.borderWidth + ';';
+			this.style = this.style.replace(new RegExp('border\-width:.*?;', 'gi'), '');
+		}	
+		if (this.bg != null) {
+			style += 'background-color:' + this.bg + ';';
+			this.style = this.style.replace(new RegExp('background\-color:.*?;', 'gi'), '');
+		}
+		
+		if (this.cellWidth != null) {			
+			style += 'width:' + this.cellWidth + ';'; 
+			this.style = this.style.replace(new RegExp('width:.*?;', 'gi'), '');
+		}
+
+		if (this.cellHeight != null) {
+			style += 'height:' + this.cellHeight + ';';
+			this.style = this.style.replace(new RegExp('height:.*?;', 'gi'), '');
+		}
 
 		if (style != ' style="') out += style + '"';
 		out += this.extra + '>' + this.content;
