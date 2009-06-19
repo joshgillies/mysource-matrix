@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.12 2008/10/31 05:16:40 lwright Exp $
+* $Id: lang_strings.xml,v 1.13 2009/06/19 04:35:56 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -64,6 +64,7 @@
 
 <!-- Form Keyword Names -->
 <string source="cms_form_contents">Form Contents</string>
+<string source="cms_current_page_contents">Current Page Contents</string>
 <string source="cms_form_errors">List of Submission Errors</string>
 <string source="cms_form_captcha">CAPTCHA</string>
 <string source="cms_form_captcha_image">CAPTCHA image</string>
