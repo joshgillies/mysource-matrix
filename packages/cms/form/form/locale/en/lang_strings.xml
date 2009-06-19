@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.12 2008/10/31 05:16:40 lwright Exp $
+* $Id: lang_strings.xml,v 1.12.4.1 2009/06/19 04:36:49 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -57,6 +57,7 @@
 
 <!-- Form Bodycopy Names -->
 <string source="cms_form_bodycopy_main">Page Contents</string>
+<string source="cms_current_page_contents">Current Page Contents</string>
 <string source="cms_form_bodycopy_thank_you">Thank You</string>
 <string source="cms_form_bodycopy_confirmation">Confirmation Page Contents</string>
 <string source="cms_form_bodycopy_unattached">Unattached Questions Format</string>
