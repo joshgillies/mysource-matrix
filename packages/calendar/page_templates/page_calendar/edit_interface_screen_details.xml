@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.35 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.35.4.1 2009/06/22 06:43:38 wszymanski Exp $
 *
 */
 -->
@@ -83,6 +83,12 @@
 				<process_function name="processYearTitleFormat" />
 			</function_call>
 		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintYearNaviLimit" />
+				<process_function name="processYearNaviLimit" />
+			</function_call>
+		</field>
 	</section>
 
 	<section name="Settings for Month View" write_access="write:attributes">
@@ -110,6 +116,12 @@
 		<field attribute="month_links_to_week">
 			<boolean true_text="enabled" false_text="disabled" />
 		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintMonthNaviLimit" />
+				<process_function name="processMonthNaviLimit" />
+			</function_call>
+		</field>		
 	</section>
 
 	<section name="Settings for Week View" write_access="write:attributes">
@@ -136,6 +148,12 @@
 		</field>
 		<field attribute="table_column_width">
 			<int width="6" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintWeekNaviLimit" />
+				<process_function name="processWeekNaviLimit" />
+			</function_call>
 		</field>
 	</section>
 
@@ -191,6 +209,12 @@
 		<field attribute="day_column_width">
 			<int width="6" />
 		</field>
+		<field>
+			<function_call>
+				<paint_function name="paintDayNaviLimit" />
+				<process_function name="processDayNaviLimit" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Look and Feel">
 		<field>
@@ -201,4 +225,3 @@
 		</field>
 	</section>
 </contents>
-

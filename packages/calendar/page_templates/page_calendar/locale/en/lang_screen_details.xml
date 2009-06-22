@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.13 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.13.4.1 2009/06/22 06:43:38 wszymanski Exp $
 *
 */
 -->
@@ -92,7 +92,6 @@
 			<display_name>Use No Results Bodycopy</display_name>
 			<note>If this option is set to "Yes", a "No Results" bodycopy will be created, that will be used in place of the normal calendar view when there are no events within the current time period.</note>
 		</field>
-
 	</section>
 
 	<section name="Settings for Year View">
@@ -102,6 +101,14 @@
 			<function_call>
 				<paint_function name="paintYearTitleFormat" />
 				<process_function name="processYearTitleFormat" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in year view</note>
+			<function_call>
+				<paint_function name="paintYearNaviLimit" />
+				<process_function name="processYearNaviLimit" />
 			</function_call>
 		</field>
 	</section>
@@ -139,6 +146,14 @@
 			<display_name>Week Links</display_name>
 			<note>If you enable week links, the calendar-format month view will display a link to the relevant week view at the start of each row</note>
 		</field>
+		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in month view</note>
+			<function_call>
+				<paint_function name="paintMonthNaviLimit" />
+				<process_function name="processMonthNaviLimit" />
+			</function_call>
+		</field>
 	</section>
 
 	<section name="Settings for Week View">
@@ -173,6 +188,14 @@
 		<field attribute="table_column_width">
 			<display_name>Width of columns (px)</display_name>
 			<note />
+		</field>
+		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in week view</note>
+			<function_call>
+				<paint_function name="paintWeekNaviLimit" />
+				<process_function name="processWeekNaviLimit" />
+			</function_call>
 		</field>
 	</section>
 
@@ -243,6 +266,14 @@
 		<field attribute="day_column_width">
 			<display_name>Width of columns (px)</display_name>
 			<note />
+		</field>
+		<field>
+			<display_name>Navigation Limit</display_name>
+			<note>These values specify the limit for navigation in day view</note>
+			<function_call>
+				<paint_function name="paintDayNaviLimit" />
+				<process_function name="processDayNaviLimit" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Look and Feel">

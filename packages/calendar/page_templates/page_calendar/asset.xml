@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.16 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: asset.xml,v 1.16.4.1 2009/06/22 06:43:38 wszymanski Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>calendar</package>
 	<type_code>page_calendar</type_code>
-	<version>0.8</version>
+	<version>0.9</version>
 	<name>Calendar Page</name>
 	<description>Calendar Page, users can display Calendar Event type assets in the form of a daily, weekly, monthly or annual calendar (in traditional or listing formats) using this asset.</description>
 	<instantiable>yes</instantiable>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.10 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.10.4.1 2009/06/22 06:43:38 wszymanski Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -66,5 +66,8 @@
 	<string source="cal_page_today_link">Link to jump to today's date in the current view</string>
 	<string source="cal_page_error_bodycopy_link_cannot_delete">You are now allow to delete this page contents</string>
 	<string source="cal_page_error_bodycopy_no_results_link_cannot_delete">You are now allow to delete this page contents (no results)</string>
+	<string source="cal_page_navi_limit_year">years</string>
+	<string source="cal_page_navi_limit_month">months</string>
+	<string source="cal_page_navi_limit_week">weeks</string>
+	<string source="cal_page_navi_limit_day">days</string>
 </strings>
-
