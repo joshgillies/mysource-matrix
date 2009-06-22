@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.42 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.43 2009/06/22 06:43:00 wszymanski Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -869,6 +869,63 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Generic function to paint the interface for specifying limit range
+	*
+	* @param string	$view		view of navigation limit attribute
+	* @param object	&$asset		the asset whose interface we are painting
+	* @param object	&$o			the outputter class
+	* @param string	$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintNavigationLimit($view, &$asset, &$o, $prefix)
+	{
+		$navi_limit = $asset->attr($view.'_navi_limit');
+		if ($asset->writeAccess('attributes')) {
+			text_box($prefix.$view.'_limit_backward', $navi_limit['backward'],2,2);
+			label('&nbsp;'.translate('cal_page_navi_limit_'.$view).' backward&nbsp;',$prefix.$view.'_limit_backward');
+			text_box($prefix.$view.'_limit_forward', $navi_limit['forward'],2,2);
+			label('&nbsp;'.translate('cal_page_navi_limit_'.$view).' forward&nbsp;',$prefix.$view.'_limit_forward');
+		} else {
+			echo $navi_limit['forward'].' '.translate('cal_page_navi_limit_'.$view).' forward&nbsp;, '.$navi_limit['backward'].' '.translate('cal_page_navi_limit_'.$view).' backward';
+		}
+		return TRUE;
+
+	}//end _paintNavigationLimit()
+
+
+	/**
+	* Generic function to process the interface for specifying limit range
+	*
+	* @param string	$view			view of navigation limit attribute
+	* @param object	&$asset			the asset whose interface we are painting
+	* @param object	&$o				the outputter class
+	* @param string	$prefix			prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processNavigationLimit($view, &$asset, &$o, $prefix)
+	{
+		$navi_limit = $asset->attr($view.'_navi_limit');
+		if (($_POST[$prefix.$view.'_limit_forward'] == $navi_limit['forward']) && ($_POST[$prefix.$view.'_limit_backward'] == $navi_limit['backward'])) {
+			return FALSE;
+		} else {
+			if (isset($_POST[$prefix.$view.'_limit_forward'])) {
+				$navi_limit['forward'] = $_POST[$prefix.$view.'_limit_forward'];
+			}
+			if (isset($_POST[$prefix.$view.'_limit_backward'])) {
+				$navi_limit['backward'] = $_POST[$prefix.$view.'_limit_backward'];
+			}
+			$asset->setAttrValue($view.'_navi_limit', $navi_limit);
+			return TRUE;
+		}
+
+	}//end _processNavigationLimit()
+
+
+	/**
 	* Paint the interface that lets you choose which root nodes to columnise by in day view
 	*
 	* @param object	&$asset	the asset whose interface we are painting
@@ -953,6 +1010,142 @@ class Page_Calendar_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('columnise_day_view_by_root_node', $val);
 
 	}//end processColumnNodes()
+
+
+	/**
+	* Paint the interface that lets you specify the year limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintYearNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_paintNavigationLimit('year', $asset, $o, $prefix);
+
+	}//end paintYearNaviLimit()
+
+
+	/**
+	* Process the interface that lets you specify the year limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processYearNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_processNavigationLimit('year', $asset, $o, $prefix);
+
+	}//end processYearNaviLimit()
+
+
+	/**
+	* Paint the interface that lets you specify the month limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMonthNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_paintNavigationLimit('month', $asset, $o, $prefix);
+
+	}//end paintMonthNaviLimit()
+
+
+	/**
+	* Process the interface that lets you specify the month limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMonthNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_processNavigationLimit('month', $asset, $o, $prefix);
+
+	}//end processMonthNaviLimit()
+
+
+	/**
+	* Paint the interface that lets you specify the week limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintWeekNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_paintNavigationLimit('week', $asset, $o, $prefix);
+
+	}//end paintWeekNaviLimit()
+
+
+	/**
+	* Process the interface that lets you specify the week limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWeekNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_processNavigationLimit('week', $asset, $o, $prefix);
+
+	}//end processWeekNaviLimit()
+
+
+	/**
+	* Paint the interface that lets you specify the day limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDayNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_paintNavigationLimit('day', $asset, $o, $prefix);
+
+	}//end paintDayNaviLimit()
+
+
+	/**
+	* Process the interface that lets you specify the day limit for navigating calendar page
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDayNaviLimit(&$asset, &$o, $prefix)
+	{
+		return $this->_processNavigationLimit('day', $asset, $o, $prefix);
+
+	}//end processDayNaviLimit()
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.59 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: page_calendar_management.inc,v 1.60 2009/06/22 06:43:00 wszymanski Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -340,6 +340,39 @@ class Page_Calendar_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> '%asset_name%',
 													 );
+
+		$this->vars['year_navi_limit'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'serialise',
+											'default'	=> Array(
+															'forward'	=> '',
+															'backward'	=> '',
+													       ),
+										 );
+		$this->vars['month_navi_limit'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'serialise',
+											'default'	=> Array(
+															'forward'	=> '',
+															'backward'	=> '',
+													       ),
+										 );
+		$this->vars['week_navi_limit'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'serialise',
+											'default'	=> Array(
+															'forward'	=> '',
+															'backward'	=> '',
+													       ),
+										 );
+		$this->vars['day_navi_limit'] = Array(
+											'added'		=> '0.9',
+											'type'		=> 'serialise',
+											'default'	=> Array(
+															'forward'	=> '',
+															'backward'	=> '',
+													       ),
+										 );
 
 	}//end constructor
 

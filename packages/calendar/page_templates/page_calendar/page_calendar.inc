@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.223 2009/05/05 01:57:46 akarelia Exp $
+* $Id: page_calendar.inc,v 1.224 2009/06/22 06:43:00 wszymanski Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.223 $
+* @version $Revision: 1.224 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -570,8 +570,24 @@ class Page_Calendar extends Page
 		$prev_date = date($date_format, strtotime('-1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
 		$next_date = date($date_format, strtotime('+1 '.$cal_view, strtotime(date($date_format, strtotime($cal_date)))));
 
-		$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('prev_link_text')))).'</a>';
-		$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('next_link_text')))).'</a>';
+		list ($forward_limit,$forward_date) = $this->formatDatesToCompare($cal_view,$next_date,'forward','+');
+		list ($backward_limit,$backward_date) = $this->formatDatesToCompare($cal_view,$prev_date,'backward','-');
+
+		if ($forward_limit == '' OR $forward_limit >= $forward_date) {
+			$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('next_link_text')))).'</a>';
+		} else {
+			$replacements['next_link'] = '';
+		}
+		if ($backward_limit == '' OR $backward_date >= $backward_limit) {
+			$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('prev_link_text')))).'</a>';
+		} else {
+			$replacements['prev_link'] = '';
+		}
+		if ($backward_date > $forward_limit OR $forward_date < $backward_limit) {
+			$replacements['prev_link'] = '';
+			$replacements['next_link'] = '';
+		}
+
 		$enabled_views = $this->attr('enabled_views');
 		$replacements['today_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink calendarTodayLink" href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'">'.htmlentities($this->attr('today_link_text')).'</a>';
 
@@ -3304,6 +3320,65 @@ class Page_Calendar extends Page
 		return parent::saveAttributes($dont_run_updated);
 
 	}//end saveAttributes()
+
+
+	/**
+	* Formats the limit and current dates for comparison and returns them in Array($limit_date,$compared_date)
+	*
+	* @param string		$view			the current view
+	* #param string		$date			date to compare (next or prev)
+	* @param string		$direction		the direction - forward or backward 
+	* @param string		$operator		+ or - 	* 
+	* 
+	* @return Array
+	* @access public
+	*/
+	function formatDatesToCompare($view,$date,$direction, $operator)
+	{
+		$navi_limit = $this->attr($view.'_navi_limit');
+		$curr_date = date('Y-m-d');
+
+		// return true if no limit specified
+		if ($navi_limit[$direction] == '') {
+			return Array('','');
+		}
+
+		// depepnding on current view, we set limit date and date to compare
+		switch ($view) {
+			case 'year':
+				$limit_date = date('Y',strtotime($operator.$navi_limit[$direction].' year',strtotime($curr_date)));
+				$compared_date = date('Y',strtotime($date));
+			break;
+			case 'month':
+				$limit_date = date('Y-m',strtotime($operator.$navi_limit[$direction].' month',strtotime($curr_date)));
+				$compared_date = date('Y-m',strtotime($date));
+			break;
+			case 'week':
+				$offset = 0;
+				$day_in_seconds = 24 * 60 * 60;
+				$week_start_index	= $this->attr('week_starts_on');
+				$curr_day_index		= array_search(date('l', iso8601_ts($curr_date)), $this->day_names);
+				if ($week_start_index != $curr_day_index) {
+					if ($week_start_index < $curr_day_index) {
+						$offset = $curr_day_index - $week_start_index;
+					} else {
+						$offset = $curr_day_index + (7 - $week_start_index);
+					}
+				}
+				$limit_date = date('Y-m-d',strtotime($operator.$navi_limit[$direction].' week',strtotime($curr_date)));
+				$limit_date = strtotime($limit_date) - ($offset * $day_in_seconds);
+				$limit_date = date('Y-m-d',$limit_date);
+				$compared_date = $date;
+			break;
+			case 'day':
+				$limit_date = date('Y-m-d',strtotime($operator.$navi_limit[$direction].' day',strtotime($curr_date)));
+				$compared_date = $date;
+			break;
+		}
+
+		return Array($limit_date,$compared_date);
+
+	}//end formatDatesToCompare()
 
 
 }//end class
