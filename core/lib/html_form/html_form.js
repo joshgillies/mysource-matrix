@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.51 2009/01/20 05:42:51 ewang Exp $
+* $Id: html_form.js,v 1.51.2.1 2009/06/22 00:10:39 akarelia Exp $
 *
 */
 
@@ -481,7 +481,7 @@ function datetime_set_date(d, m, y, prefix)
 	var units = new Array('d', 'm', 'y');
 	for (u in units) {
 		eval('var value = ' + units[u] + ';');
-		var id = prefix + 'value[' + units[u] + ']';
+		var id = prefix + 'value_' + units[u];
 		var unit = document.getElementById(id);
 
 		if (unit.type == 'text') {
