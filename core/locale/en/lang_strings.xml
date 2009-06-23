@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.323 2009/06/17 04:49:10 wszymanski Exp $
+* $Id: lang_strings.xml,v 1.324 2009/06/23 09:25:59 ata Exp $
 *
 */
 
@@ -1016,6 +1016,8 @@
 	<string source="condition_logical_false">The following combination of keywords evaluates to False</string>
 	<string source="condition_asset_status_true">The current asset is in the following status</string>
 	<string source="condition_asset_status_false">The current asset is not in the following status</string>
+	<string source="condition_asset_type_true">The current asset has the following types</string>
+	<string source="condition_asset_type_false">The current asset does not have the following types</string>
 
 	<!-- User IP Condition -->
 	<string source="network_ip_address">Network IP Address</string>
