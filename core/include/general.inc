@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.211.2.5 2009/06/23 03:11:42 bpearson Exp $
+* $Id: general.inc,v 1.211.2.6 2009/06/23 06:04:49 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.211.2.5 $
+* @version $Revision: 1.211.2.6 $
 * @package MySource_Matrix
 */
 
@@ -659,7 +659,7 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 			$url = preg_replace('/'.SQ_CONF_LOGIN_SUFFIX.'\/?$/', '', $url);
 		}
 		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
-		$url = preg_replace('/\/'.SQ_CONF_RECACHE_SUFFIX.'\/?$/', '', $url);
+		$url = preg_replace('/'.SQ_CONF_RECACHE_SUFFIX.'\/?$/', '', $url);
 	}
 
 	if (empty($url)) {	// url empty, just use the first system root url
@@ -1663,6 +1663,8 @@ function get_available_global_keywords()
 					'globals_site_' 	=> 'Global Keywords - Current Site',
 					'globals_asset_' 	=> 'Global Keywords - Front End Asset',
 					'globals_snippet_' 	=> 'Global Keywords - Snippet',
+					'globals_charset'	=> 'Global Keywords - Default Characterset',
+					'globals_languages'	=> 'Global Keywords - Default Frontend Language',
 				);
 
 	return $ret;
@@ -1819,6 +1821,15 @@ function replace_global_keywords(&$text)
 						}
 					}
 				}//end if
+
+				if (0 === strpos($keyword, 'globals_charset')) {
+					$replacements[$keyword] = SQ_CONF_DEFAULT_CHARACTER_SET;
+				}
+
+				if (0 === strpos($keyword, 'globals_languages')) {					
+	            	$replacements[$keyword] = SQ_CONF_DEFAULT_FRONTEND_LANGUAGE;
+				}
+
 			}//end if is global keyword
 		}//end foreach keyword
 		replace_keywords($text, $replacements);
