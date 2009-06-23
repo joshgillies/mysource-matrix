@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.107 2008/06/16 06:42:44 lwright Exp $
+* $Id: init.inc,v 1.107.4.1 2009/06/23 03:11:42 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.107.4.1 $
 * @package MySource_Matrix
 */
 
@@ -210,7 +210,7 @@ ini_set('display_errors', 1); // we'll manage whether to display the errors or n
 set_error_handler('sq_error_handler');
 
 // turn off error reporting on the front end (errors are still caught and displayed/hidden by the error handler)
-if (!(SQ_IN_BACKEND | SQ_IN_LIMBO | SQ_IN_CRON) & SQ_CONF_ERRORS_HIDE_FRONTEND) {
+if (!(SQ_IN_BACKEND | SQ_IN_LIMBO | SQ_IN_CRON) & hide_frontend_errors()) {
 	ini_set('display_errors', 0);
 }
 

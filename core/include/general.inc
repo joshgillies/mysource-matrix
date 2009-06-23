@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.211.2.4 2009/05/05 01:23:15 lwright Exp $
+* $Id: general.inc,v 1.211.2.5 2009/06/23 03:11:42 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.211.2.4 $
+* @version $Revision: 1.211.2.5 $
 * @package MySource_Matrix
 */
 
@@ -162,7 +162,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		default :
 
 			// if we are in the frontend and we're not supposed to see the errors
-			if (SQ_CONF_ERRORS_HIDE_FRONTEND && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+			if (hide_frontend_errors() && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 				break;
 			}
 
@@ -308,6 +308,38 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	}//end if ($terminate)
 
 }//end sq_error_handler()
+
+
+/**
+ * Get the current 'Hide frontend errors' status
+ *
+ * @return boolean
+ * @access public
+ */
+function hide_frontend_errors()
+{
+	$query = array_get_index($_SERVER, 'QUERY_STRING', '');
+
+	// Config hard set
+	if (SQ_CONF_ERRORS_HIDE_FRONTEND) {
+		// Also check for an override by a query string var and a valid user
+		if (isset($GLOBALS['SQ_SYSTEM']->user)) {
+			$user = $GLOBALS['SQ_SYSTEM']->user;
+		} else {
+			$user = NULL;
+		}//end if
+
+		// Check for at least system administrator access
+		if ((preg_match('/SQ_SHOW_ERRORS=1/', $query) != 0) && (!is_null($user) && $user instanceof System_User)) {
+			return FALSE;
+		} else {
+			return TRUE;
+		}//end if
+	} else {
+		return FALSE;
+	}//end if
+
+}//end hide_front_errors
 
 
 /**
