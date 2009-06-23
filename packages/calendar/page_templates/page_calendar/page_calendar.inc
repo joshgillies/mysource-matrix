@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.222.4.2 2009/06/22 06:43:38 wszymanski Exp $
+* $Id: page_calendar.inc,v 1.222.4.3 2009/06/23 04:52:29 wszymanski Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.222.4.2 $
+* @version $Revision: 1.222.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -572,17 +572,17 @@ class Page_Calendar extends Page
 		list ($forward_limit,$forward_date) = $this->formatDatesToCompare($cal_view,$next_date,'forward','+');
 		list ($backward_limit,$backward_date) = $this->formatDatesToCompare($cal_view,$prev_date,'backward','-');
 
-		if ($forward_limit == '' OR $forward_limit >= $forward_date) {
+		if ($forward_limit == '' || $forward_limit >= $forward_date) {
 			$replacements['next_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$next_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('next_link_text')))).'</a>';
 		} else {
 			$replacements['next_link'] = '';
 		}
-		if ($backward_limit == '' OR $backward_date >= $backward_limit) {
+		if ($backward_limit == '' || $backward_date >= $backward_limit) {
 			$replacements['prev_link'] = ($cal_view == 'event') ? '' : '<a class="calendarNavLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$cal_view.'&amp;SQ_CALENDAR_DATE='.$prev_date.'">'.(str_replace('%v%', ucfirst($cal_view), htmlentities($this->attr('prev_link_text')))).'</a>';
 		} else {
 			$replacements['prev_link'] = '';
 		}
-		if ($backward_date > $forward_limit OR $forward_date < $backward_limit) {
+		if ($backward_date > $forward_limit || $forward_date < $backward_limit) {
 			$replacements['prev_link'] = '';
 			$replacements['next_link'] = '';
 		}
@@ -3338,7 +3338,7 @@ class Page_Calendar extends Page
 		$curr_date = date('Y-m-d');
 
 		// return true if no limit specified
-		if ($navi_limit[$direction] == '') {
+		if ($navi_limit[$direction] == '' || $view == 'event') {
 			return Array('','');
 		}
 
@@ -3367,7 +3367,18 @@ class Page_Calendar extends Page
 				$limit_date = date('Y-m-d',strtotime($operator.$navi_limit[$direction].' week',strtotime($curr_date)));
 				$limit_date = strtotime($limit_date) - ($offset * $day_in_seconds);
 				$limit_date = date('Y-m-d',$limit_date);
-				$compared_date = $date;
+
+				$offset = 0;
+				$compared_day_index	= array_search(date('l', iso8601_ts($date)), $this->day_names);
+				if ($week_start_index != $compared_day_index) {
+					if ($week_start_index < $compared_day_index) {
+						$offset = $compared_day_index - $week_start_index;
+					} else {
+						$offset = $compared_day_index + (7 - $week_start_index);
+					}
+				}
+				$compared_date = strtotime($date) - ($offset * $day_in_seconds);
+				$compared_date = date('Y-m-d',$compared_date);
 			break;
 			case 'day':
 				$limit_date = date('Y-m-d',strtotime($operator.$navi_limit[$direction].' day',strtotime($curr_date)));
