@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_structured_file_import.inc,v 1.12 2007/12/27 05:46:04 hnguyen Exp $
+* $Id: tool_structured_file_import.inc,v 1.12.4.1 2009/06/24 03:59:50 wszymanski Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    searching.
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -110,7 +110,7 @@ class Tool_Structured_File_Import extends Tool
 						for (reset($files_array); $key = key($files_array); next($files_array)) {
 							$strrpos_files_array = strrpos($files_array[$key], '/') + 1;
 							$stripped_fname = substr($files_array[$key], $strrpos_files_array);
-							$tmp .= '"'.str_replace('.', '_', $stripped_fname).'",';
+							$tmp .= '"'.str_replace(Array('.',' '), '_', $stripped_fname).'",';
 						}
 						echo substr($tmp, 0, -1).'];';
 						?>
@@ -150,7 +150,7 @@ class Tool_Structured_File_Import extends Tool
 							foreach ($files_array as $file_name) {
 								$strrpos_file_name = strrpos($file_name, '/') + 1;
 								$stripped_fname = substr($file_name, $strrpos_file_name);
-								$replaced_fname = str_replace('.', '_', $stripped_fname);
+								$replaced_fname = str_replace(Array('.',' '), '_', $stripped_fname);
 								?>
 								<tr>
 									<td class="sq-backend-table-cell"><?php echo $stripped_fname; ?></td>
@@ -313,7 +313,7 @@ class Tool_Structured_File_Import extends Tool
 		foreach ($files_array as $id => $file_name) {
 			$strrpos_files_name = strrpos($file_name, '/') + 1;
 			$stripped_fname = substr($file_name, $strrpos_files_name);
-			$replaced_fname = str_replace('.', '_', $stripped_fname);
+			$replaced_fname = str_replace(Array('.',' '), '_', $stripped_fname);
 			if (isset($_POST['structured_file_remove_'.$replaced_fname])) {
 				$remove_list[] = $stripped_fname;
 			}
