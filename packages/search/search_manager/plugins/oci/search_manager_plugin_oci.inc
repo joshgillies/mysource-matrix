@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.17 2008/12/01 01:10:51 mbrydon Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.18 2009/06/24 00:36:16 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -337,13 +337,17 @@ class Search_Manager_Plugin_OCI
 			$words = array_merge($words, $this->generateWordList($exclude_value));
 		}
 		$words = array_unique($words);
+		foreach($words as $key => $val) {
+	    	$words[$key] = strtolower($val);
+		}
+
 		$new_base = $base_query;
 		$contains_str = $this->_buildContainsQuery($sm, 'ai.value', implode(' or ', $words));
 
 		if ($contains_str) {
 			$new_base['where'][] = $contains_str;
-			$new_base['select'] = Array('a.assetid');
-			$new_base['group_by'] = Array('a.assetid');
+			$new_base['select'] = Array('ai.assetid');
+			$new_base['group_by'] = Array('ai.assetid');
 			$sql = implode_sql($new_base);
 			$result = MatrixDAL::executeSqlAssoc($sql, 0);
 		} else {
@@ -351,6 +355,26 @@ class Search_Manager_Plugin_OCI
 		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// Result returned above is in following format:
+		// Array(
+	 	// 	'0' => ASSETID1,....
+		// )
+		//
+		// However, the search manager expects the result in following format:
+		// Which is same as that returned by posgre
+		// Array(
+		// 	ASSETID => Array(), ...
+		// )
+		//
+		// Hence, changing the result format to make it readable by search manager.
+		if (!empty($result)) {
+			$new_result_format = Array();
+			foreach($result as $key => $val) {
+				$new_result_format[$val] = Array();
+			}
+			$result = $new_result_format;
+		}
 
 		return $result;
 
