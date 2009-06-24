@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.31 2008/11/26 06:20:01 csmith Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.31.4.1 2009/06/24 00:40:39 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -375,10 +375,14 @@ class Search_Manager_Plugin_PgSQL
 			$words = array_merge($words, $this->generateWordList($exclude_value));
 		}
 		$words = array_unique($words);
+		foreach($words as $key => $val) {
+			$words[$key] = strtolower($val);
+		}
+		
 		$new_base = $base_query;
 		$new_base['where'][] = 'ai.value LIKE \''.($sm->attr('enable_begins_with') ? '%' : '').implode("%' OR ai.value LIKE '".($sm->attr('enable_begins_with') ? '%' : ''), $words).'%\'';
-		$new_base['select'] = Array('a.assetid');
-		$new_base['group_by'] = Array('a.assetid');
+		$new_base['select'] = Array('asset_check.assetid');
+		$new_base['group_by'] = Array('asset_check.assetid');
 		$sql = implode_sql($new_base);
 
 		try {
