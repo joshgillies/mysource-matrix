@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.222.4.3 2009/06/23 04:52:29 wszymanski Exp $
+* $Id: page_calendar.inc,v 1.222.4.4 2009/06/24 00:12:46 wszymanski Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.222.4.3 $
+* @version $Revision: 1.222.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -3334,11 +3334,15 @@ class Page_Calendar extends Page
 	*/
 	function formatDatesToCompare($view,$date,$direction, $operator)
 	{
+		if ($view == 'event') {
+			return Array('','');	
+		}
+
 		$navi_limit = $this->attr($view.'_navi_limit');
 		$curr_date = date('Y-m-d');
 
 		// return true if no limit specified
-		if ($navi_limit[$direction] == '' || $view == 'event') {
+		if ($navi_limit[$direction] == '') {
 			return Array('','');
 		}
 
