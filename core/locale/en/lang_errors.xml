@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.108 2009/04/14 01:00:20 ewang Exp $
+* $Id: lang_errors.xml,v 1.109 2009/06/25 06:59:54 bpearson Exp $
 *
 */
 
@@ -217,6 +217,8 @@
 	<error code="HIPO0072">Unable to initialise "Export Thesaurus XML" HIPO, thesaurus asset ID not specified</error>
 	<error code="HIPO0073">Unable to initialise "Export Thesaurus XML" HIPO, invalid thesaurus asset ID specified (%s)</error>
 	<error code="HIPO0074">Unable to open XML file "%1$s" for writing</error>
+	<error code="HIPO0085">Unable to initialise "Rename Thesaurus Term" HIPO, thesaurus asset ID not specified</error>
+	<error code="HIPO0086">Unable to initialise "Rename Thesaurus Term" HIPO, invalid thesaurus asset specified</error>
 
 	<!-- Role Edit HIPO Job -->
 	<error code="HIPO0075">Unable to initialise "Role Edit" HIPO, no asset(s) specified</error>
@@ -238,6 +240,8 @@
 	<!-- core/hipo/jobs/hipo_job_purge_trash.inc: -->
 
 	<error code="HIPO0084">Unable to clone asset "%1$s", shadow asset can not be cloned.</error>
+	<!--- HIPO0085 - core/hipo/jobs/hipo_job_rename_thesaurus_term.inc -->
+	<!--- HIPO0086 - core/hipo/jobs/hipo_job_rename_thesaurus_term.inc -->
 
 	<!-- CRON MANAGER -->
 

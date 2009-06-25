@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.324 2009/06/23 09:25:59 ata Exp $
+* $Id: lang_strings.xml,v 1.325 2009/06/25 06:59:54 bpearson Exp $
 *
 */
 
@@ -845,6 +845,7 @@
 	<string source="hipo_herder_job_type">Job Type</string>
 	<string source="hipo_herder_parent_job_type">Parent Job Type</string>
 	<string source="hipo_herder_continue">Resume this HIPO Job</string>
+	<string source="hipo_rename_thesaurus_term">Update Thesaurus Term</string>
 
 	<string source="inbox_lock">Please lock the Inbox to send messages</string>
 	<string source="inbox_trash_empty">Your trash is empty.</string>
@@ -1417,6 +1418,7 @@
 	<string source="set">Set</string>
 	<string source="has">has</string>
 	<string source="does_not_have">does not have</string>
+	<string source="terms">terms</string>
 
 	<!-- priority level strings -->
 
@@ -2346,6 +2348,15 @@ Are you sure you want to proceed?</string>
 	<string source="tool_matrix_cache_populate_question">Repopulate ?</string>
 	<string source="tool_matrix_cache_populate_note">Request the asset after clearing the cache so that Matrix can recache it.</string>
 	<string source="tool_matrix_cache_note">Note: Level, Asset Types and Repopulate option will also be applied to the cron job if you schedule one.</string>
+	<string source="tool_rename_thesaurus_term">Change Thesaurus Term Tool</string>
+	<string source="tool_thesaurus_term">Thesaurus Term</string>
+	<string source="tool_thesaurus_term_empty">No Thesaurus Term set</string>
+	<string source="tool_thesaurus_term_old">Original Thesaurus Term Value</string>
+	<string source="tool_thesaurus_term_old_empty">No Original Thesaurus Term value set</string>
+	<string source="tool_thesaurus_term_root_node">Root Node</string>
+	<string source="tool_thesaurus_term_cascade">Cascade</string>
+	<string source="tool_rename_thesaurus_term_note">This tool will update the metadata value on multiple assets with the new thesaurus term. You can specify a root node to restrict the running of this tool, or if no root node is set, the operation will run system wide.</string>
+
 	<string source="matrix_cache_schedule_section">Schedule Clear Cache Cron Job (Matrix)</string>
 	<string source="matrix_cache_scheduled_job_field">Scheduled Jobs</string>
 	<string source="matrix_cache_one_off_field">Schedule a One Off Job</string>
