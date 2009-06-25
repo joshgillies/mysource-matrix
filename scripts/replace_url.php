@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_url.php,v 1.3 2009/04/17 04:02:31 lwright Exp $
+* $Id: replace_url.php,v 1.4 2009/06/25 05:52:32 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -168,14 +168,14 @@ if (trim(SQ_CONF_STATIC_ROOT_URL) == '') {
 	$common_roots = array_intersect($matching_roots, $matching_from_roots);
 	$matching_roots = array_diff($matching_roots, $common_roots);
 	$matching_from_roots = array_diff($matching_from_roots, $common_roots);
-
 	$file_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($from_site_assetid, 'file', FALSE);
 	
 	// Update the roots up to the number that we can update
 	for ($x = 0; $x < min(count($matching_roots), count($matching_from_roots)); $x++) {
 		// Change the lookup values first
-		$sql = 'UPDATE sq_ast_lookup_value SET url = :to_url || SUBSTR(url, :from_url_length + 1) WHERE url IN (SELECT url FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+		$sql = 'UPDATE sq_ast_lookup_value SET url = :to_url || SUBSTR(url, :from_url_length + 1) WHERE url IN (SELECT url FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'_%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = :site_assetid) LIMIT 1)))
 					 AND url LIKE :from_url || \'/__data/%\')';
+		
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
 		MatrixDAL::bindValueToPdo($query, 'from_url', $matching_from_roots[$x]);
@@ -183,7 +183,7 @@ if (trim(SQ_CONF_STATIC_ROOT_URL) == '') {
 		MatrixDAL::bindValueToPdo($query, 'to_url', $matching_roots[$x]);
 		MatrixDAL::execPdoQuery($query);
 			
-		$sql = 'UPDATE sq_ast_lookup SET url = :to_url || SUBSTR(url, :from_url_length + 1) WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+		$sql = 'UPDATE sq_ast_lookup SET url = :to_url || SUBSTR(url, :from_url_length + 1) WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'_%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = :site_assetid) LIMIT 1)))
 					AND url LIKE :from_url || \'/__data/%\'';
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
@@ -197,7 +197,7 @@ if (trim(SQ_CONF_STATIC_ROOT_URL) == '') {
 	// Going to pass on adding new lookups to this situation, because lookups are usually meant
 	// to be URL-based. How can we tell whether a lookup value is meant to be per-asset or per-URL?
 	for (; $x < count($matching_roots); $x++) {
-		$sql = 'INSERT INTO sq_ast_lookup (url, root_urlid, http, https, assetid) SELECT DISTINCT :to_url || SUBSTR(url, STRPOS(url, \'/__data/\')), 0, http, https, assetid FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))';
+		$sql = 'INSERT INTO sq_ast_lookup (url, root_urlid, http, https, assetid) SELECT DISTINCT :to_url || SUBSTR(url, STRPOS(url, \'/__data/\')), 0, http, https, assetid FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'_%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = :site_assetid) LIMIT 1)))';
 		if (MatrixDAL::getDbType() == 'oci') {
 			// String position function is called INSTR() in Oracle
 			$sql = str_replace('STRPOS(', 'INSTR(', $sql);
@@ -211,14 +211,14 @@ if (trim(SQ_CONF_STATIC_ROOT_URL) == '') {
 	// More URLs beforehand than what we have now = have to delete the rest
 	for (; $x < count($matching_from_roots); $x++) {
 		// Delete the lookup values first
-		$sql = 'DELETE FROM sq_ast_lookup_value WHERE url IN (SELECT url FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+		$sql = 'DELETE FROM sq_ast_lookup_value WHERE url IN (SELECT url FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'_%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = :site_assetid) LIMIT 1)))
 					 AND url LIKE :from_url || \'/__data/%\')';
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
 		MatrixDAL::bindValueToPdo($query, 'from_url', $matching_from_roots[$x]);
 		MatrixDAL::execPdoQuery($query);
 		
-		$sql = 'DELETE FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE majorid = :site_assetid))))
+		$sql = 'DELETE FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'_%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = :site_assetid) LIMIT 1)))
 					AND url LIKE :from_url || \'/__data/%\'';
 		$query = MatrixDAL::preparePdoQuery($sql);
 		MatrixDAL::bindValueToPdo($query, 'site_assetid', $from_site_assetid);
