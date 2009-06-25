@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term_edit_fns.inc,v 1.11 2007/12/18 05:38:43 hnguyen Exp $
+* $Id: thesaurus_term_edit_fns.inc,v 1.12 2009/06/25 06:58:53 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *	Container of a thesaurus term
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,6 +48,72 @@ class Thesaurus_Term_Edit_Fns extends Asset_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = FALSE;
 
 	}//end constructor
+
+
+	/**
+	* interface for editing name
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintName(&$asset, &$o, $prefix)
+	{
+		$write = $asset->writeAccess('attributes');
+
+		// Paint the name
+		if ($write) {
+			text_box($prefix.'_name', $asset->attr('name'));
+			echo ' ';
+			check_box($prefix.'_rename', '1');
+			label(translate('rename_thesaurus_term_sys_wide'), $prefix.'_rename');
+		} else {
+			echo $asset->attr('name');
+		}//end if
+
+		return TRUE;
+
+	}//end paintName()
+
+
+	/**
+	* Process interface for editing name
+	*
+	* @param object	&$asset	asset to paint
+	* @param object	&$o		outputter object
+	* @param string	$prefix	prefix
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processName(&$asset, &$o, $prefix)
+	{
+		$old_name = $asset->attr('name');
+		$name = array_get_index($_POST, $prefix.'_name', '');
+		$rename = array_get_index($_POST, $prefix.'_rename', 0);
+
+		// Save the name
+		if (!empty($name)) {
+			$asset->setAttrValue('name', $name);
+			if (!$asset->saveAttributes()) {
+				$asset->setAttrValue('name', $old_name);
+				return FALSE;
+			} else {
+				// Attributes saved, if the user wants to rename metadata... do it!
+				if (!empty($rename) && !empty($asset->_thesaurus->id)) {
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$vars = Array('thesaurusid' => $asset->_thesaurus->id, 'terms' => Array($old_name => $name));
+					$hh->queueHipo('hipo_job_rename_thesaurus_term', $vars);
+				}//end if
+			}//end if
+		}//end if
+
+		return TRUE;
+
+	}//end processName()
 
 
 	/**
