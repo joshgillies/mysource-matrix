@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.219.2.9 2009/06/18 23:00:03 mbrydon Exp $
+* $Id: form.inc,v 1.219.2.10 2009/06/25 00:00:02 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.219.2.9 $
+* @version $Revision: 1.219.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1774,7 +1774,14 @@ class Form extends Asset implements Bridge
 
 			if (!$finished) {
 				// Print the current page or the Confirmation Page if we're confirming things
-				echo $this->getPageContents($current_page);
+				$total_pages = $this->getTotalPages();
+				
+				if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
+					echo $this->getConfirmationPageContents();
+				}
+				else {				   	
+					$this->printPageContentsBodycopy();
+				}
 			} else {
 				$ok = $this->completeSubmission();
 				if ($ok) {
