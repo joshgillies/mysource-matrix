@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.43 2008/11/28 02:45:53 bpearson Exp $
+* $Id: insert_link.php,v 1.44 2009/06/26 06:35:53 bpearson Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 
@@ -57,6 +57,12 @@ if (!isset($_GET['link_title'])) {
 if (!isset($_GET['target']))     $_GET['target'] = '';
 if (!isset($_GET['new_window'])) {
 	$_GET['new_window'] = 0;
+}
+if (!isset($_GET['class_name'])) {
+	$_GET['class_name'] = '';
+}
+if (!isset($_GET['id_name'])) {
+	$_GET['id_name'] = '';
 }
 
 if (strpos($_GET['assetid'], '#') !== FALSE) {
@@ -188,6 +194,8 @@ if (!isset($_GET['new_window'])) {
 				param["link_title"] = form_element_value(f.link_title);
 				param["target"]      = form_element_value(f.target);
 				param["new_window"]  = form_element_value(f.new_window);
+				param["class_name"]  = form_element_value(f.class_name);
+				param["id_name"]  = form_element_value(f.id_name);
 
 				param["new_window_options"] = new Object();
 				param["new_window_options"]["width"]  = form_element_value(f.width);
@@ -524,12 +532,14 @@ if (!isset($_GET['new_window'])) {
 														<legend><?php echo translate('options'); ?></legend>
 														<table style="width:100%">
 															<tr>
-																<td class="label"><?php echo translate('status_bar_text'); ?>:</td>
-																<td><?php text_box('status_text', $_GET['status_text'], 50); ?></td>
+																<td class="label"><?php echo translate('id_name_text'); ?>:</td>
+																<td><?php text_box('id_name', $_GET['id_name'], 15); ?></td>
+																<td class="label"><?php echo translate('class_name_text'); ?>:</td>
+																<td><?php text_box('class_name', $_GET['class_name'], 15); ?></td>
 															</tr>
 															<tr>
 																<td class="label"><?php echo translate('title'); ?>:</td>
-																<td><?php text_box('link_title', $_GET['link_title'], 50); ?></td>
+																<td colspan="3"><?php text_box('link_title', $_GET['link_title'], 50); ?></td>
 															</tr>
 														</table>
 													</fieldset>

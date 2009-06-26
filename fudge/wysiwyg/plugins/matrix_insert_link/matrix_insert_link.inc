@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.45 2009/01/27 04:41:28 mbrydon Exp $
+* $Id: matrix_insert_link.inc,v 1.46 2009/06/26 06:35:53 bpearson Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -129,6 +129,8 @@ class matrix_insert_link extends wysiwyg_plugin
 				var currArgs = new Object();
 				currArgs["assetid"] = "0";
 				currArgs["url"] = "http://";
+				currArgs["class_name"] = "";
+				currArgs["id_name"] = "";
 				currArgs["anchor"] = "";
 				currArgs["status_text"] = "";
 				currArgs["link_title"] = "";
@@ -226,6 +228,20 @@ class matrix_insert_link extends wysiwyg_plugin
 					}
 					if (currArgs["target"] == "_blank") { currArgs["new_window"] = 1; }
 
+					// let's try and get the class if any
+					re = new RegExp('class="([^"]+)"', "gi");
+					results = re.exec(tag_html);
+					if (results != null) {
+						currArgs["class_name"] = rev_htmlspecialchars(results[1]).replace(/\\\'/gi, "\'");
+					}
+
+					// let's try and get the class if any
+					re = new RegExp('id="([^"]+)"', "gi");
+					results = re.exec(tag_html);
+					if (results != null) {
+						currArgs["id_name"] = rev_htmlspecialchars(results[1]).replace(/\\\'/gi, "\'");
+					}
+
 					// it seems that the make_relative_hrefs() fn will take out the hash and think that a lone
 					// anchor is actually the url link. Work out here whether it might need to be added on...
 					var needsHash = false;
@@ -291,7 +307,7 @@ class matrix_insert_link extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				var strPage = "<?php echo $this->get_popup_href('insert_link_frames.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&link_title=" + escape(currArgs["link_title"])+ "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				var strPage = "<?php echo $this->get_popup_href('insert_link_frames.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&link_title=" + escape(currArgs["link_title"])+ "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup) + "&class_name=" + escape(currArgs["class_name"]) + "&id_name=" + escape(currArgs["id_name"]);;
 
 				var popup_height = 440;
 
@@ -332,6 +348,12 @@ class matrix_insert_link extends wysiwyg_plugin
 							var end_new = lower_range.substring(lower_range.lastIndexOf('<'));
 							var new_middle = lower_range.substring(start_new.length, lower_range.length - end_new.length);
 							html = '<a href="' + param["url"] + '"';
+							if (param["class_name"] != "") {
+								html += ' class="' + htmlspecialchars(param["class_name"]).replace(/\'/gi, "\\'") + '"';
+							}
+							if (param["id_name"] != "") {
+								html += ' id="' + htmlspecialchars(param["id_name"]).replace(/\'/gi, "\\'") + '"';
+							}
 							if (param["target"] != "") {
 								html += ' target="' + htmlspecialchars(param["target"]).replace(/\'/gi, "\\'") + '"';
 							}
@@ -351,6 +373,12 @@ class matrix_insert_link extends wysiwyg_plugin
 						} else {
 							//We don't have IE, or there is no paragraph present to warrant different handling
 							html += '<a href="' + param["url"] + '"';
+							if (param["class_name"] != "") {
+								html += ' class="' + htmlspecialchars(param["class_name"]).replace(/\'/gi, "\\'") + '"';
+							}
+							if (param["id_name"] != "") {
+								html += ' id="' + htmlspecialchars(param["id_name"]).replace(/\'/gi, "\\'") + '"';
+							}
 							if (param["target"] != "") {
 								html += ' target="' + htmlspecialchars(param["target"]).replace(/\'/gi, "\\'") + '"';
 							}
