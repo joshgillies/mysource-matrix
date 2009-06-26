@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.191 2009/06/17 23:16:31 bpearson Exp $
+* $Id: metadata_manager.inc,v 1.192 2009/06/26 06:57:17 bpearson Exp $
 *
 */
 
@@ -20,10 +20,10 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * Metadata_Manager
 *
 * Purpose
-*    Manages the editing of metadata in the system
+*	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.191 $
+* @version $Revision: 1.192 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -98,7 +98,7 @@ class Metadata_Manager extends MySource_Object
 	}//end allowsMetadata()
 
 
-//--        SCHEMAS        --//
+//--		SCHEMAS		   --//
 
 
 	/**
@@ -276,7 +276,7 @@ class Metadata_Manager extends MySource_Object
 					$db_action = 'update';
 				} else {
 					// schema is set but with the opposite access level
-					$new_access     = ($granted) ? 'apply'  : 'deny';
+					$new_access		= ($granted) ? 'apply'	: 'deny';
 					$current_access = ($granted) ? 'denied' : 'applied';
 
 					trigger_localised_error('SYS0032', E_USER_WARNING, $new_access, $schema->name, $asset->name, $current_access);
@@ -485,7 +485,7 @@ class Metadata_Manager extends MySource_Object
 	}//end getMetadataFields()
 
 
-//--        METADATA VALUES        --//
+//--		METADATA VALUES		   --//
 
 
 	/**
@@ -584,7 +584,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 		$fieldid_conds = Array('assetid = \''.((string) $assetid).'\'');
-		$bind_vars     = Array();
+		$bind_vars	   = Array();
 
 		foreach ($this->getSchemas($assetid, TRUE) as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'metadata_schema');
@@ -925,7 +925,7 @@ class Metadata_Manager extends MySource_Object
 	}//end setMetadata()
 
 
-//--        (RE)GENERATE METADATA        --//
+//--		(RE)GENERATE METADATA		 --//
 
 
 	/**
@@ -1156,15 +1156,15 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
-    * Generate a PHP file that can be included to reassign Metadata Field values for an asset.
+	* Generate a PHP file that can be included to reassign Metadata Field values for an asset.
 	* This is used before Metadata Field values are placed under Safe Edit and for
 	* restoring values when Safe Edit is cancelled.
-    *
+	*
 	* @param Asset	&$metadata_asset	the asset to generate the file for
-    *
-    * @return boolean
-    * @access private
-    */
+	*
+	* @return boolean
+	* @access private
+	*/
 	private function _generateMetadataFieldFile(Asset &$metadata_asset)
 	{
 		$schemas = $this->getSchemas($metadata_asset->id, TRUE);
@@ -1282,28 +1282,42 @@ class Metadata_Manager extends MySource_Object
 					case 'asset_assetid' :
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->id;'."\n";
 					break;
-					case 'asset_name'       :
+					case 'asset_name'		:
 					case 'asset_short_name' :
-					case 'asset_version'    :
+					case 'asset_version'	:
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->'.substr($keyword,6).';'."\n";
 					break;
 
 					// version cases: if the version is undefined (eg. shadow assets), then make it expand
 					// something that would result in all version components returning a blank
-					case 'asset_version_major'    :
+					case 'asset_version_major'	  :
 						echo 'list($metadata_replacements['.var_export($keyword, 1).'],,) = explode(\'.\',empty($metadata_asset->version) ? \'..\' : $metadata_asset->version);'."\n";
 					break;
 
-					case 'asset_version_minor'    :
+					case 'asset_version_minor'	  :
 						echo 'list(,$metadata_replacements['.var_export($keyword, 1).'],) = explode(\'.\',empty($metadata_asset->version) ? \'..\' : $metadata_asset->version);'."\n";
 					break;
 
-					case 'asset_version_micro'    :
+					case 'asset_version_micro'	  :
 						echo 'list(,,$metadata_replacements['.var_export($keyword, 1).']) = explode(\'.\',empty($metadata_asset->version) ? \'..\' : $metadata_asset->version);'."\n";
 					break;
 
 					case 'asset_url' :
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getURL();'."\n";
+					break;
+
+					case 'asset_name_linked' :
+						echo '$url = $metadata_asset->getURL();'."\n";
+						echo '$keyword = "";'."\n";
+						echo 'if (!empty($url)) $keyword = "<a href=\"".$url."\">".$metadata_asset->name."</a>";'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $keyword;'."\n";
+					break;
+
+					case 'asset_short_name_linked' :
+						echo '$url = $metadata_asset->getURL();'."\n";
+						echo '$keyword = "";'."\n";
+						echo 'if (!empty($url) && isset($metadata_asset->short_name)) $keyword = "<a href=\"".$url."\">".$metadata_asset->short_name."</a>";'."\n";
+						echo '$metadata_replacements['.var_export($keyword, 1).'] = $keyword;'."\n";
 					break;
 
 					case 'asset_href' :
@@ -1319,10 +1333,10 @@ class Metadata_Manager extends MySource_Object
 						if (!$thumbnail_generated) {
 							echo '$thumbnail = null;';
 							echo 'if ($metadata_asset->id) {';
-							echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-							echo '    if (!empty($link)) {'."\n";
-							echo '        $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
-							echo '    }'."\n";
+							echo '	  $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+							echo '	  if (!empty($link)) {'."\n";
+							echo '		  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+							echo '	  }'."\n";
 							echo '}'."\n";
 						}
 						switch ($keyword) {
@@ -1371,10 +1385,10 @@ class Metadata_Manager extends MySource_Object
 
 					case 'asset_created_by_first_name' :
 					case 'asset_created_by_last_name'  :
-					case 'asset_created_by_email'      :
+					case 'asset_created_by_email'	   :
 					case 'asset_updated_by_first_name' :
 					case 'asset_updated_by_last_name'  :
-					case 'asset_updated_by_email'      :
+					case 'asset_updated_by_email'	   :
 						echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user) && !empty($metadata_asset->'.substr($keyword,6,7).'_userid)) {
 						$metadata_'.substr($keyword,6,7).'_by_user = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', TRUE);'."\n}\n";
 						echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
@@ -1401,7 +1415,7 @@ class Metadata_Manager extends MySource_Object
 
 					case 'asset_published_by_first_name' :
 					case 'asset_published_by_last_name'  :
-					case 'asset_published_by_email'      :
+					case 'asset_published_by_email'		 :
 						echo 'if (empty($metadata_asset->published_userid)) {'."\n";
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 						echo '} else { if (!isset($metadata_published_by_user)) {
@@ -1417,7 +1431,7 @@ class Metadata_Manager extends MySource_Object
 					case 'asset_read_permission'  :
 					case 'asset_write_permission' :
 					case 'asset_admin_permission' :
-					case 'asset_read_permission_email'  :
+					case 'asset_read_permission_email'	:
 					case 'asset_write_permission_email' :
 					case 'asset_admin_permission_email' :
 					case 'asset_read_permission_email_linked'  :
@@ -1443,10 +1457,10 @@ class Metadata_Manager extends MySource_Object
 						echo '}'."\n";
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = implode(\', \', $metadata_'.$perm_type.'_perm_info);'."\n";
 					break;
-					case 'system_name'   :
+					case 'system_name'	 :
 					case 'system_owner'  :
 					case 'default_email' :
-					case 'tech_email'    :
+					case 'tech_email'	 :
 						echo '$metadata_replacements['.var_export($keyword, 1).'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
 					break;
 
@@ -1489,10 +1503,10 @@ class Metadata_Manager extends MySource_Object
 							if (!$thumbnail_generated) {
 								echo '$thumbnail = null;'."\n";
 								echo 'if ($metadata_asset->id) {'."\n";
-								echo '    $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
-								echo '    if (!empty($link)) {'."\n";
-								echo '        $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
-								echo '    }'."\n";
+								echo '	  $link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'image\', FALSE, \'thumbnail\');'."\n";
+								echo '	  if (!empty($link)) {'."\n";
+								echo '		  $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\'], $link[\'minor_type_code\']);'."\n";
+								echo '	  }'."\n";
 								echo '}'."\n";
 							}
 
@@ -1502,7 +1516,7 @@ class Metadata_Manager extends MySource_Object
 							// searching for special date format keywords
 							$original = $keyword;
 							$keyword = substr($keyword, 6);
-							$key     = substr($keyword, 0, strpos($keyword, '_'));
+							$key	 = substr($keyword, 0, strpos($keyword, '_'));
 							$extras  = substr($keyword, strpos($keyword, '_') +1);
 
 							if (strpos($extras, '_') === FALSE) {
@@ -1902,9 +1916,9 @@ class Metadata_Manager extends MySource_Object
 		for ($i = 0; $i < strlen($value); ++$i) {
 			$ord = ord($value[$i]);
 			// if default character set is utf-8 we dont wanna mess around the characters
-            // we are for now just checking for it not to be utf-8 but can append other encoding
-            // we might want to skip later on
-            if ($ord > 126 && strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+			// we are for now just checking for it not to be utf-8 but can append other encoding
+			// we might want to skip later on
+			if ($ord > 126 && strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
 				$result .= '&#'.$ord.';';
 			} else {
 				$result .= $value[$i];
