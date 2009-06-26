@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_rename_thesaurus_term.inc,v 1.2 2009/06/25 06:58:19 bpearson Exp $
+* $Id: hipo_job_rename_thesaurus_term.inc,v 1.3 2009/06/26 00:38:40 bpearson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -330,7 +330,11 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 				}//end foreach
 				
 				// Run the Query against the current assetid
-				$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_term WHERE value=:old_term AND fieldid IN ('.implode(',', $field_chunk).')';
+				if (MatrixDAL::getDbType() === 'oci') {
+					$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_term WHERE TO_CHAR(value)=:old_term AND fieldid IN ('.implode(',', $field_chunk).')';
+				} else {
+					$sql  = 'UPDATE sq_ast_mdata_val SET value=:new_term WHERE value=:old_term AND fieldid IN ('.implode(',', $field_chunk).')';
+				}//end if
 				if (!empty($this->_running_vars['assetids'])) {
 					// Update by asset
 					$sql .= ' AND assetid=:assetid';
