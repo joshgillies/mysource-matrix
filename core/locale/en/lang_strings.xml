@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.325 2009/06/25 06:59:54 bpearson Exp $
+* $Id: lang_strings.xml,v 1.326 2009/06/26 06:49:34 bpearson Exp $
 *
 */
 
@@ -1771,6 +1771,8 @@
 	<string source="select_asset">Select Asset</string>
 	<string source="anchor_name">Anchor Name</string>
 	<string source="status_bar_text">Status Bar Text</string>
+	<string source="id_name_text">ID</string>
+	<string source="class_name_text">Class</string>
 	<string source="title">Title</string>
 	<string source="new_window_options">New Window Options</string>
 	<string source="target">Target</string>
