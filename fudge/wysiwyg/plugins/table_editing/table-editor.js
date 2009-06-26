@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.27 2009/06/19 00:59:05 cupreti Exp $
+* $Id: table-editor.js,v 1.28 2009/06/26 03:14:48 cupreti Exp $
 *
 */
 
@@ -77,6 +77,7 @@ TCell = function(parent)
 			style += 'border-width:' + this.borderWidth + ';';
 			if (this.borderColor != null) {
 				style += 'border-color:' + this.borderColor + ';';
+
 			} else {
 				style += 'border-color:' + 'black' + ';';
 			}
@@ -85,6 +86,7 @@ TCell = function(parent)
 			} else {
 				style += 'border-style:' + 'solid' + ';';
 			}
+			
 		} else {
 			if (parent.parent.htmlborder == null) {
 				style += 'border-width:' + '1px' + ';';
@@ -93,10 +95,37 @@ TCell = function(parent)
 			}
 		}
 
-		if (this.cellWidth != null) style += 'width:' + this.cellWidth + ';';
-		if (this.cellHeight != null) style += 'height:' + this.cellHeight + ';';
-		if (this.bg != null) style += 'background-color:' + this.bg + ';';
-		if (this.style != null) style += this.style;
+		this.style = this.style.replace(new RegExp('border\-width:.*?;', 'gi'), '');
+		this.style = this.style.replace(new RegExp('background\-color:.*?;', 'gi'), '');
+		this.style = this.style.replace(new RegExp('border\-style:.*?;', 'gi'), '');
+		
+		if (this.borderColor != null) {
+			style += 'border-color:' + this.borderColor + ';';
+			this.style = this.style.replace(new RegExp('border\-color:.*?;', 'gi'), '');
+		}
+		if (this.borderStyle != null) {
+			style += 'border-style:' + this.borderStyle + ';';
+			this.style = this.style.replace(new RegExp('border\-style:.*?;', 'gi'), '');
+		}
+		if (this.borderWidth != null) {
+			style += 'border-width:' + this.borderWidth + ';';
+			this.style = this.style.replace(new RegExp('border\-width:.*?;', 'gi'), '');
+		}	
+		if (this.bg != null) {
+			style += 'background-color:' + this.bg + ';';
+			this.style = this.style.replace(new RegExp('background\-color:.*?;', 'gi'), '');
+		}
+		
+		if (this.cellWidth != null) {			
+			style += 'width:' + this.cellWidth + ';'; 
+			this.style = this.style.replace(new RegExp('width:.*?;', 'gi'), '');
+		}
+
+		if (this.cellHeight != null) {
+			style += 'height:' + this.cellHeight + ';';
+			this.style = this.style.replace(new RegExp('height:.*?;', 'gi'), '');
+		}
+
 		if (this.selected) style += 'background-image:url(' + this.parent.parent.semigray + ');';
 
 		if (style != ' style="') out += style + '"';
@@ -262,19 +291,38 @@ TRow = function(parent, row)
 
 	this.toString = function()
 	{
-		var out = "";
+		var out = '';
 		out += '<tr';
 		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.align != "left") out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
 		var style = 'style="';
-		if (this.borderColor != null) style += 'border-color:' + this.borderColor + ';';
-		if (this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
-		if (this.borderWidth != null) style += 'border-width:' + this.borderWidth + ';';
-		if (this.height != null) style += 'height:' + this.height + ';';
-		if (this.bg != null) style += 'background-color:' + this.bg + ';';
+		
+		if (this.borderColor != null) {
+			style += 'border-color:' + this.borderColor + ';';
+			this.style = this.style.replace(new RegExp('border\-color:.*?;', 'gi'), '');
+		}		
+		if (this.borderStyle != null) {
+			style += 'border-style:' + this.borderStyle + ';';
+			this.style = this.style.replace(new RegExp('border\-style:.*?;', 'gi'), '');
+		}
+		if (this.borderWidth != null) {
+			style += 'border-width:' + this.borderWidth + ';';
+			this.style = this.style.replace(new RegExp('border\-width:.*?;', 'gi'), '');
+		}
+		if (this.height != null) {
+			style += 'height:' + this.height + ';';
+			this.style = this.style.replace(new RegExp('height:.*?;', 'gi'), '');
+		}
+		if (this.bg != null) {
+			style += 'background-color:' + this.bg + ';';
+			this.style = this.style.replace(new RegExp('background\-color:.*?;', 'gi'), '');
+		}
+		
 		if (this.style != null) style += this.style;
+		
 		if (this.selected) style += 'background-image:url(' + this.parent.semigray + ');';
+
 		if (style != 'style="') out += " " + style + '"';
 
 		out += '>';
@@ -288,17 +336,34 @@ TRow = function(parent, row)
 
 	this.Export = function()
 	{
-		var out = "";
+		var out = '';
 		out += '<tr';
 		if (this.className != null && this.className != "") out += ' class="' + this.className + '"';
 		if (this.align != "left") out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
 		var style = 'style="';
-		if (this.borderColor != null) style += 'border-color:' + this.borderColor + ';';
-		if (this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
-		if (this.borderWidth != null) style += 'border-width:' + this.borderWidth + ';';
-		if (this.height != null) style += 'height:' + this.height + ';';
-		if (this.bg != null) style += 'background-color:' + this.bg + ';';
+		
+		if (this.borderColor != null) {
+			style += 'border-color:' + this.borderColor + ';';
+			this.style = this.style.replace(new RegExp('border\-color:.*?;', 'gi'), '');
+		}		
+		if (this.borderStyle != null) {
+			style += 'border-style:' + this.borderStyle + ';';
+			this.style = this.style.replace(new RegExp('border\-style:.*?;', 'gi'), '');
+		}
+		if (this.borderWidth != null) {
+			style += 'border-width:' + this.borderWidth + ';';
+			this.style = this.style.replace(new RegExp('border\-width:.*?;', 'gi'), '');
+		}
+		if (this.height != null) {
+			style += 'height:' + this.height + ';';
+			this.style = this.style.replace(new RegExp('height:.*?;', 'gi'), '');
+		}
+		if (this.bg != null) {
+			style += 'background-color:' + this.bg + ';';
+			this.style = this.style.replace(new RegExp('background\-color:.*?;', 'gi'), '');
+		}
+		
 		if (this.style != null) style += this.style;
 		if (style != 'style="') out += " " + style + '"';
 
@@ -315,6 +380,7 @@ TRow = function(parent, row)
 			out = '<THEAD>' + out;
 			out += '</THEAD>';
 		}
+	
 		return out;
 	}
 
