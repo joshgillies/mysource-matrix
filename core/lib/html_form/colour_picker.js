@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.js,v 1.7 2006/12/05 05:11:15 bcaldwell Exp $
+* $Id: colour_picker.js,v 1.8 2009/06/26 06:55:04 bpearson Exp $
 *
 */
 
@@ -37,7 +37,7 @@ function show_colour_change(name) {
 		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.gif'; }
 		var changed_span = document.getElementById('colour_span_' + name);
 		if (changed_span) {
-			colour_box = document.getElementById(name);
+			colour_box = document.getElementById('colour_box_' + name);
 			changed_span.style.backgroundColor = colour_box.value;
 		}
 	} else {
