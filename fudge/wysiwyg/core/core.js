@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.34.6.1 2009/01/15 23:45:48 mbrydon Exp $
+* $Id: core.js,v 1.34.6.2 2009/06/29 03:49:47 akarelia Exp $
 *
 */
 
@@ -286,7 +286,8 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted, range) {
 				range.insertNode(toBeInserted);
 			break;
 		}
-		sel.addRange(range);
+		sel.addRange(range);		
+		this.deleteEmpty();
 	} else {
 		return null; // this function not yet used for IE <FIXME>
 	}
@@ -431,4 +432,18 @@ HTMLArea.prototype._resizeIframe = function(ev) {
 	this._iframe.style.height = height + "px";
 	width = (this.config.width == "auto" ? (width + "px") : this.config.width);
 	this._iframe.style.width = width;
+};
+
+
+HTMLArea.prototype.deleteEmpty = function() {
+	if (HTMLArea.is_gecko) {
+		var str = this._iframe.contentWindow.document.body.innerHTML;
+		replace = new RegExp("<([a-zA-Z][a-zA-Z0-9]*)( [^>]*)?>(&nbsp;| |\n|\t)*<\/\\1>", "gi");
+		this._iframe.contentWindow.document.body.innerHTML = str.replace(replace, "");
+	} else if (HTMLArea.is_ie) {
+		var str = this._docContent.innerText;
+		replace = new RegExp("<([a-zA-Z][a-zA-Z0-9]*)( [^>]*)?>(&nbsp;| |\n|\t)*<\/\\1>", "gi");
+		this._docContent.innerText = str.replace(replace, "");
+	}
+	
 };
