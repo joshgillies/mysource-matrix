@@ -10,7 +10,7 @@
 * | Module if you have the written consent of Squiz.                   |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.16.2.1 2009/04/22 01:58:16 hnguyen Exp $
+* $Id: google_map.inc,v 1.16.2.2 2009/06/29 05:10:13 bpearson Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.16.2.1 $
+* @version $Revision: 1.16.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -316,7 +316,10 @@ class Google_Map extends Page_Asset_Listing
 				}//end if
 
 				$loc_index	= $child_assetid;
-				if ($address_keyword && !is_int($child_assetid)) {
+				$ldap_user = ($child_asset->type() instanceof Ldap_User || $child_asset->type() instanceof Ldap_User_Group);
+
+				// Override if ldap user
+				if ($address_keyword && !is_int($child_assetid) && $ldap_user) {
 					$loc_index	= $child_asset->getKeywordReplacement('asset_attribute_uid');
 				}//end if
 
@@ -1015,6 +1018,7 @@ class Google_Map extends Page_Asset_Listing
 
 		$lat	= NULL;
 		$lng	= NULL;
+		$steps  = 0;
 		while ($geocode_pending) {
 			$delay	= 0;
 			$status = $xml->Response->Status->code;
@@ -1025,11 +1029,17 @@ class Google_Map extends Page_Asset_Listing
 				$lat = $coordinates_array[1];
 				$lng = $coordinates_array[0];
 			} else if (strcmp($status, "620") == 0) {
-				// slow down
-				$delay += 100000;
+				// GeoCoder returns this status on 2 conditions: 1. sending addresses too fast 2. exceeding 15000 addresses per 24Hr
+				// slow down, and bail if steps is too great (to prevent an infinite loop, by exceeding 15000 addresses) 
+				if ($steps < 100) {
+					$delay += 100000;
+					$steps++;
+				} else {
+					$geocode_pending = FALSE;
+				}//end if
 			} else {
 				// failure to geocode
-				$geocode_pending = false;
+				$geocode_pending = FALSE;
 			}//end else
 			usleep($delay);
 		}//end while
