@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.35 2007/11/06 22:36:47 rong Exp $
+* $Id: user_edit_fns.inc,v 1.36 2009/06/29 05:24:42 bpearson Exp $
 *
 */
 
@@ -21,14 +21,14 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * User_Edit_Fns
 *
 * Purpose
-*     Editing interfaces for the (standard) user asset - one that can log in
-*     but has no backend editing privileges. This also defines the baseline
-*     interface for all user assets in the system (whether they be standard,
-*     backend, system admin, etc).
+*	  Editing interfaces for the (standard) user asset - one that can log in
+*	  but has no backend editing privileges. This also defines the baseline
+*	  interface for all user assets in the system (whether they be standard,
+*	  backend, system admin, etc).
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -362,9 +362,65 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function paintLockDetails(&$asset, &$o, $prefix)
 	{
 		$current_locks = $asset->getUserLocks();
+		$num_locks = count($current_locks);
 		$write_access = $asset->writeAccess('attributes');
 		$o->openField(translate('current_locks'));
-			echo translate('user_held_locks', $asset->name, count($current_locks));
+			echo translate('user_held_locks', $asset->name, $num_locks);
+			?>
+			<script type="text/javascript">
+			function sq_user_held_locks_info()
+			{
+				var userLockInfo = document.getElementById('sq_user_held_locks_details');
+				var userLockToggle = document.getElementById('sq_user_held_locks_toggle');
+				if (userLockInfo.style.display == 'none') {
+					userLockInfo.style.display = 'block';
+					userLockToggle.innerHTML = '<?php echo translate('hide_user_held_locks_details'); ?>';
+				} else {
+					userLockInfo.style.display = 'none';
+					userLockToggle.innerHTML = '<?php echo translate('show_user_held_locks_details'); ?>';
+				}
+			}
+			</script>
+			<?php
+			// Restrict to the top 100 other the page will take forever to load up
+			$restricted_locks = array_slice($current_locks, 0, 100);
+			echo '<br /><b class="clickable" onclick="sq_user_held_locks_info();" id="sq_user_held_locks_toggle">'.translate('show_user_held_locks_details').'</b><br />';
+			echo '<div id="sq_user_held_locks_details" style="display:none;">';
+			echo translate('showing_first', count($restricted_locks), $num_locks);
+			echo '<table class="sq-backend-table">';
+			echo '<tr>';
+			echo '<td class="sq-backend-table-header">Asset</td>';
+			echo '<td class="sq-backend-table-header">Screen</td>';
+			echo '</tr>';
+			foreach ($restricted_locks as $current_lock) {
+				if (isset($current_lock['lockid'])) {
+					$shown = FALSE;
+					if (strpos($current_lock['lockid'], 'asset') === 0) {
+						$asset_details = explode('.', $current_lock['lockid']);
+						if (isset($asset_details[1]) && isset($asset_details[2])) {
+							$locked_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_details[1], '', TRUE);
+							if (!is_null($locked_asset)) {
+								echo '<tr><td>';
+								echo get_asset_tag_line($locked_asset->id);
+								echo '</td><td>';
+								echo ucwords($asset_details[2]);
+								echo '</td></tr>';
+								$shown = TRUE;
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($locked_asset);
+							}//end if
+						}//end if
+					}//end if
+
+					if (!$shown) {
+						$unknown_lock_id = ucwords(str_replace('_', ' ', $current_lock['lockid']));
+						echo '<tr>';
+						echo '<td colspan="2">'.$unknown_lock_id.'</td>';
+						echo '</tr>';
+					}//end if
+				}//end if
+			}//end foreach
+			echo '</table></div>';
+
 		$o->closeField();
 		$o->openField(translate('release_locks'));
 			if (!$write_access) {
