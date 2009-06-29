@@ -1,16 +1,16 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
+* | ACN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
 * | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
+* | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.221 2009/06/24 01:07:20 cupreti Exp $
+* $Id: general.inc,v 1.222 2009/06/29 03:13:26 bpearson Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.221 $
+* @version $Revision: 1.222 $
 * @package MySource_Matrix
 */
 
@@ -43,7 +43,7 @@
 function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
-	// NOTE: changes to this function should also be considered for the Cron_Job::_errorHandler()     //
+	// NOTE: changes to this function should also be considered for the Cron_Job::_errorHandler()	  //
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	$current_level = error_reporting();
@@ -74,8 +74,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		while (($real_bt_index < count($bt)-1) && ((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'locale_manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager')) )) {
 			$real_bt_index++;
 		}
-		$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
-		$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?  hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
+		$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
+		$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
 		$err_msg  = hide_system_root($err_msg);
 	}
 
@@ -505,7 +505,7 @@ function sq_web_path($path='base')
 			$paths[$path] = current_protocol().'://'.preg_replace('/\/index.php$/', '', $tmp);
 		break;
 
-		case 'lib'  :
+		case 'lib'	:
 			$paths[$path] = sq_web_path('root_url').'/__lib';
 		break;
 
@@ -836,7 +836,7 @@ function replace_query_string_vars($replacements, $base_url=NULL, $query_string=
 * Takes an integer and returns an array of numbers representing the active
 * bits in the integer
 * eg. for 5 is 101 in binary
-*     and Array(0 => 1, 1 => 4); will be returned
+*	  and Array(0 => 1, 1 => 4); will be returned
 *
 * @param int	$num	the integer to use
 *
@@ -1011,7 +1011,7 @@ function array_get_index($array, $index, $default=NULL)
 }//end array_get_index()
 
 
-//--        INTERFACES (IMPLENTATION) FNS        --//
+//--		INTERFACES (IMPLENTATION) FNS		 --//
 
 
 /**
@@ -1097,7 +1097,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	$chars_to_escape = Array('[',']',':',"\n","\r");
 	$replacements = Array('&#91;','&#93;','&#58;','&#10;','&#13;');
 
-	$username   = str_replace($chars_to_escape, $replacements, $username);
+	$username	= str_replace($chars_to_escape, $replacements, $username);
 	$level_name = strtolower(get_error_name($level));
 
 	// mark the data as 'R' (raw), 'S' (serialised) or ' ' (unserialised)
@@ -1117,7 +1117,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	}
 
 	$date = date('Y-m-d H:i:s');
-	$log_entry  = "[$date][$userid:$username][$level:$level_name][$flag] $data\n";
+	$log_entry	= "[$date][$userid:$username][$level:$level_name][$flag] $data\n";
 
 	if (!$log_entry) return FALSE;
 
@@ -1466,7 +1466,7 @@ function get_asset_tag_line($assetid, $screen='')
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.$assetid.'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 
 		if (count($lineages) > 0) {
-			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"  onclick="'.$lineages_onclick.'"');
+			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"	onclick="'.$lineages_onclick.'"');
 		}
 
 		// Screen parameter now supports javascript code to be added to the
@@ -1509,13 +1509,13 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 {
 	// Logic:
 	// 1. Invoking from a WYSIWYG popup itself (WYSIWYG search results)
-	//    => target is the popup, to target the simple asset map
+	//	  => target is the popup, to target the simple asset map
 	// 2. Invoking from main window when a WYSIWYG popup is active
-	//    => target is the popup (simple asset map), BUT need to focus it
+	//	  => target is the popup (simple asset map), BUT need to focus it
 	// 3. Invoking from a popup which is not a sq_wysiwyg_dialog, e.g. keywords page popup
-	//    => target is the main window (opener) and no need to focus it
+	//	  => target is the main window (opener) and no need to focus it
 	// 4. Invoking from main window, no WYSWIYG popup
-	//    => target is the sidenav window, to target the main asset map
+	//	  => target is the sidenav window, to target the main asset map
 	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
 					am = self;
 				} else if (self.name == \'hipo_job\') {
@@ -1654,16 +1654,17 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 function get_available_global_keywords()
 {
 	$ret = Array(
-					'globals_user_' 	=> 'Global Keywords - Current User',
-					'globals_get_' 		=> 'Global Keywords - Get Parameters',
-					'globals_post_' 	=> 'Global Keywords - Post Parameters',
-					'globals_session_' 	=> 'Global Keywords - Session',
-					'globals_cookie_' 	=> 'Global Keywords - Cookie',
-					'globals_server_' 	=> 'Global Keywords - Server',
-					'globals_date'	 	=> 'Global Keywords - Current Date and Time',
-					'globals_site_' 	=> 'Global Keywords - Current Site',
-					'globals_asset_' 	=> 'Global Keywords - Front End Asset',
-					'globals_snippet_' 	=> 'Global Keywords - Snippet',
+					'globals_user_'		=> 'Global Keywords - Current User',
+					'globals_get_'		=> 'Global Keywords - Get Parameters',
+					'globals_post_'		=> 'Global Keywords - Post Parameters',
+					'globals_session_'	=> 'Global Keywords - Session',
+					'globals_cookie_'	=> 'Global Keywords - Cookie',
+					'globals_server_'	=> 'Global Keywords - Server',
+					'globals_date'		=> 'Global Keywords - Current Date and Time',
+					'globals_site_'		=> 'Global Keywords - Current Site',
+					'globals_asset_'	=> 'Global Keywords - Front End Asset',
+					'globals_snippet_'	=> 'Global Keywords - Snippet',
+					'globals_icon_'		=> 'Global Keywords - Type Icon',
 				);
 
 	return $ret;
@@ -1733,6 +1734,18 @@ function replace_global_keywords(&$text)
 					}//end if
 					$replacements[$keyword] = $date_keyword;
 				}
+				if (0 === strpos($keyword, 'globals_icon')) {
+					$type = substr($keyword, 12);
+					$type = ltrim($type, '_');
+					$type_icon_replace = '';
+					$type_icon_url = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type);
+					list($base_url, $type_icon_loc) = explode('__data/', $type_icon_url);
+					if (file_exists(SQ_DATA_PATH.'/public/'.$type_icon_loc)) {
+						$type_icon_replace = sq_get_icon($type_icon_url, 16, 16, $type);
+					}//end if
+					$replacements[$keyword] = $type_icon_replace;
+				}//end if
+
 				if (0 === strpos($keyword, 'globals_site_')) {
 					// We must find the site before we can replace these keywords
 					$asset_url = current_url(FALSE, TRUE);

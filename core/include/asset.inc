@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.672 2009/06/15 07:34:52 cupreti Exp $
+* $Id: asset.inc,v 1.673 2009/06/29 03:13:26 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.672 $
+* @version $Revision: 1.673 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3493,6 +3493,8 @@ class Asset extends MySource_Object
 			$replacement = str_replace('&', '&amp;', $replacement);
 		} else if (strcmp('asset_type', $keyword) == 0) {
 			$replacement = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
+		} else if (strcmp('asset_type_icon', $keyword) == 0) {
+			$replacement = sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->type()), 16, 16, '');
 		} else if (0 === strpos($keyword, 'asset_attribute_')) {
 			$attr_name = substr($keyword, strlen('asset_attribute_'));
 			if (array_key_exists($attr_name, $this->vars)) {
