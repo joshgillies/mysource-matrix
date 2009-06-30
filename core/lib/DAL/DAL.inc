@@ -159,6 +159,15 @@ class DAL
 	 */
 	private static $_currentQueryLog = NULL;
 
+	/**
+	 * If this flag is on, 
+	 * oci_execute will execute oci queries and commit it immediately
+	 * to fix oracle + fork in bulkmail = end of communication issue
+	 *
+	 * @var   boolean $_oci_commit_on_success
+	 * @since 4.0.0
+	*/
+	private static $_oci_commit_on_success = FALSE;
 
 	/**
 	 * DAL constructor.
@@ -601,7 +610,12 @@ class DAL
 
 		if (self::getDbType() === 'oci') {
 			// OCI:
-			$result = oci_execute($query, OCI_DEFAULT);
+			if(self::$_oci_commit_on_success){
+				$result = oci_execute($query, OCI_COMMIT_ON_SUCCESS);
+			}
+			else {
+				$result = oci_execute($query, OCI_DEFAULT);
+			}
 			if ($result === FALSE) {
 				$oci_error = oci_error($query);
 				throw new DALException('Unable to execute query: '.$oci_error['message']);
@@ -1195,12 +1209,13 @@ class DAL
 	 *
 	 * @param array  $dsn	   DSN array.
 	 * @param string $conn_id  Unique connection ID
+	 * @param boolean $oci_force_new  force a new connection for oci
 	 *
 	 * @since  4.0.0
 	 * @return object
 	 * @throws DALException If db connection fails.
 	 */
-	public static function dbConnect(array $dsn=NULL, $conn_id='db')
+	public static function dbConnect(array $dsn=NULL, $conn_id='db', $oci_force_new = FALSE)
 	{
 		try {
 			if ($dsn === NULL) {
@@ -1234,7 +1249,9 @@ class DAL
 				if ($persistent) {
 					$oci_connect_fn = 'oci_pconnect';
 				}
-
+				if($oci_force_new){
+						$oci_connect_fn = 'oci_new_connect';
+				}
 				// Connect to the database with the specified character encoding (if supplied).
 				$new_dbh = FALSE;
 				if (isset($dsn['encoding'])) {
@@ -1793,6 +1810,20 @@ class DAL
 
 	}//end getLoggedQueries()
 
+
+	/**
+	 * Switch on/off oci_commit_on_success flag for executing oci queires
+	 * Mainly used to avoid oracle + bulkmail fork end-of-communication issue
+	 * In this mode, oci queries will be executed immediately
+	 *
+	 * @param boolean switch on/off oci commit on success mode
+	 *
+	 * @since  4.0.0
+	 * @return void
+	 */
+	public static function set_oci_commit_on_success ($switch) {
+		self::$_oci_commit_on_success = $switch;
+	}
 
 }//end class
 
