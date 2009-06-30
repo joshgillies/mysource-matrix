@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.673 2009/06/29 03:13:26 bpearson Exp $
+* $Id: asset.inc,v 1.674 2009/06/30 01:58:17 bpearson Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.673 $
+* @version $Revision: 1.674 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2854,7 +2854,7 @@ class Asset extends MySource_Object
 					MatrixDAL::bindValueToPdo($query, 'type_code', $this->type());
 					$owning_attributeid = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
-					throw new Exception('Cannot check for attribute value "'.$name.'" of type code "'.$this->type().'" due to atabase error: '.$e->getMessage());
+					throw new Exception('Cannot check for attribute value "'.$name.'" of type code "'.$this->type().'" due to database error: '.$e->getMessage());
 				}
 
 			}// end if
@@ -3962,7 +3962,6 @@ class Asset extends MySource_Object
 	protected function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if (empty($assetids)) {
-
 			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
 				// if we are the root user, we can do anything
 				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
