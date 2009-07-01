@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.128.4.2 2009/05/20 01:21:21 akarelia Exp $
+* $Id: user.inc,v 1.128.4.3 2009/07/01 00:45:47 bpearson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128.4.2 $
+* @version $Revision: 1.128.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,6 +210,104 @@ class User extends Asset
 
 
 	/**
+	* Provides extra checking and disable invalid status change on errors 
+	*
+	* @param int		$new_status		the new status to set for this asset
+	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status, $update_parents=TRUE)
+	{
+		// Get the assetid of the root user sucka!
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user');
+
+		// Do not do this procedure if root user or a shadow asset (LDAP user etc.)
+		if ($this->id != $root_user && strpos($this->id, ':') === FALSE) {	
+			// Ok to proceed
+			switch ($new_status) {
+				case SQ_STATUS_UNDER_CONSTRUCTION:
+					// If the current status is archived, try putting in the unique value again
+					if ($this->status == SQ_STATUS_ARCHIVED) {
+						// Connect four!
+						$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+						$db = MatrixDAL::getDb();
+						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+						// Get the attribute id
+						try {
+							$sql = 'SELECT oa.attrid as owning_attrid, a.attrid as attrid FROM sq_ast_attr a INNER JOIN sq_ast_attr oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name) WHERE a.name = :name AND a.type_code = :type_code';
+							$query = MatrixDAL::preparePdoQuery($sql);
+							MatrixDAL::bindValueToPdo($query, 'name', 'username');
+							MatrixDAL::bindValueToPdo($query, 'type_code', $this->type());
+							$attributes = MatrixDAL::executePdoAssoc($query);
+						} catch (Exception $e) {
+							throw new Exception('Cannot check for attribute value "'.$this->name.'" of type code "'.$this->type().'" due to database error: '.$e->getMessage());
+							return FALSE;
+						}
+
+						// Set the attributes
+						$owning_attributeid = $attributes[0]['owning_attrid'];
+						$attributeid = $attributes[0]['attrid'];
+
+						// Check if another user has the same username
+						$name = $this->getValidUsername($owning_attributeid, $this->attr('username'));
+
+						// Name has changed better change it
+						if ($name != $this->attr('username')) {
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+							$this->setAttrValue('username', $name);
+							$this->saveAttributes();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						}//end if
+
+						// Ok to contine, add the unique value back into the database
+						try {
+							$prepared = MatrixDAL::preparePdoQuery('INSERT INTO sq_ast_attr_uniq_val (custom_val, owning_attrid, assetid) VALUES (:custom_val, :owning_attrid, :assetid)');
+							MatrixDAL::bindValueToPdo($prepared, 'custom_val', $name);
+							MatrixDAL::bindValueToPdo($prepared, 'owning_attrid', $owning_attributeid);
+							MatrixDAL::bindValueToPdo($prepared, 'assetid',	$this->id);
+							MatrixDAL::execPdoQuery($prepared);
+						} catch (Exception $e) {
+							throw new Exception('Unable to add the unique attribute value for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							return FALSE;
+						}
+
+						// Everything ok here save changes
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					}//end if
+				break;
+				case SQ_STATUS_ARCHIVED:
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+					$db = MatrixDAL::getDb();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					try {
+						$prepared = MatrixDAL::preparePdoQuery('DELETE FROM sq_ast_attr_uniq_val WHERE custom_val=:custom_val AND assetid=:assetid');
+						MatrixDAL::bindValueToPdo($prepared, 'custom_val', $this->attr('username'));
+						MatrixDAL::bindValueToPdo($prepared, 'assetid',	$this->id);
+						MatrixDAL::execPdoQuery($prepared);
+					} catch (Exception $e) {
+						throw new Exception('Unable to delete unique attribute value for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
+					}
+					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				break;
+			}//end switch
+		}//end if
+
+		return parent::processStatusChange($new_status, $update_parents);
+
+	}//end processStatusChange()
+
+
+	/**
 	* Returns whether the passed password matches this users' password
 	*
 	* @param string	$entered_password	the password sent to us
@@ -226,6 +324,44 @@ class User extends Asset
 		return (crypt($entered_password,$password) == $password);
 
 	}//end comparePassword()
+
+
+	/**
+	* Returns next available username 
+	*
+	* @param string	$owning_attrid		The attribute id of the owning attribute
+	* @param string	$current_username	The current username
+	*
+	* @return string|FALSE (on error)
+	* @access public
+	*/
+	function getValidUsername($owning_attrid, $current_username)
+	{
+		$valid_username = $current_username;
+		$found_one = FALSE;
+		while (!$found_one) {
+			$current_values = Array();
+			try {
+				$prepared = MatrixDAL::preparePdoQuery('SELECT custom_val FROM sq_ast_attr_uniq_val WHERE owning_attrid=:owning_attrid AND custom_val LIKE :custom_val');
+				MatrixDAL::bindValueToPdo($prepared, 'custom_val', $valid_username);
+				MatrixDAL::bindValueToPdo($prepared, 'owning_attrid', $owning_attrid);
+				$current_values = MatrixDAL::executePdoAssoc($prepared);
+			} catch (Exception $e) {
+				throw new Exception('Unable to open database due to database error: '.$e->getMessage());
+				return FALSE;
+			}
+
+			if (empty($current_values)) {
+				$found_one = TRUE;
+			} else {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				$valid_username = increment_filename($valid_username);
+			}//end if
+		}//end while
+
+		return $valid_username;
+
+	}//end getValidUsername()
 
 
 	/**
@@ -897,8 +1033,8 @@ class User extends Asset
 		$keywords = parent::getAvailableKeywords();
 		$keywords['asset_attribute_email_image'] = translate('user_email_image');
 		// right now we have totaly of 56 keywords that are being returned by this function
-        // if we have more keywords added later , assertion in will need to be changed for
-        // unit_tests/by_file/core/assets/users/user/user.inc/test_get_user_locks.test
+		// if we have more keywords added later , assertion in will need to be changed for
+		// unit_tests/by_file/core/assets/users/user/user.inc/test_get_user_locks.test
 
 		return $keywords;
 
