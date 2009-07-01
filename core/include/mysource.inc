@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.279.2.10 2009/07/01 04:04:52 ewang Exp $
+* $Id: mysource.inc,v 1.279.2.11 2009/07/01 04:43:38 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.279.2.10 $
+* @version $Revision: 1.279.2.11 $
 * @package MySource_Matrix
 */
 class MySource
@@ -2531,12 +2531,11 @@ class MySource
 	* Alter's which DB connection to use
 	*
 	* @param string	$conn	[db|db2] which DB connection to use
-	* @param string $oci_force_new   force a new connection for oci
-	* 
+	*
 	* @return void
 	* @access public
 	*/
-	function changeDatabaseConnection($conn, $oci_force_new = FALSE)
+	function changeDatabaseConnection($conn)
 	{
 		$dsn = NULL;
 		$db_conf = require(SQ_DATA_PATH.'/private/conf/db.inc');
@@ -2581,7 +2580,7 @@ class MySource
 
 			try {
 				// TODO: parse DSN
-				$this->_db_conns[$conn] = MatrixDAL::dbConnect($dsn_array, $conn, $oci_force_new);
+				$this->_db_conns[$conn] = MatrixDAL::dbConnect($dsn_array, $conn);
 				$db = MatrixDAL::getDb($conn);
 
 				if ($dsn_array['type'] === 'oci') {
