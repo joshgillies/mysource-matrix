@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.33.2.5 2009/06/03 22:58:42 ewang Exp $
+* $Id: form_question_type_file_upload.inc,v 1.33.2.6 2009/07/01 06:48:00 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33.2.5 $
+* @version $Revision: 1.33.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -493,6 +493,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					$this->extra_data = Array(
 											'existing_file_assetid'	=> $existing_asset->id,
 											'mime_type'				=> $mime_type,
+											'temp_filesystem_path'	=> $temp_path,
 										);
 
 				} else {
@@ -563,8 +564,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 					unset($file_asset->_tmp['uploading_file']);
 
 					$this->extra_data = Array(
-											'new_file_assetid'	=> $file_asset->id,
-											'mime_type'			=> $mime_type,
+											'new_file_assetid'		=> $file_asset->id,
+											'mime_type'				=> $mime_type,
+											'temp_filesystem_path'	=> $temp_path,
 										);
 
 				}//end if existing file
