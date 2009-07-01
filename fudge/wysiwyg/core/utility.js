@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: utility.js,v 1.26 2009/01/15 23:49:23 mbrydon Exp $
+* $Id: utility.js,v 1.26.2.1 2009/07/01 06:08:21 bpearson Exp $
 *
 */
 
@@ -24,16 +24,17 @@
 //
 
 // browser identification
-HTMLArea.agt = navigator.userAgent.toLowerCase();
-HTMLArea.is_ie     = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
-HTMLArea.is_ie7    = ((HTMLArea.agt.indexOf("msie 7") != -1) && HTMLArea.is_ie);
-HTMLArea.is_ie8    = ((HTMLArea.agt.indexOf("msie 8") != -1) && HTMLArea.is_ie);
-HTMLArea.is_opera  = (HTMLArea.agt.indexOf("opera") != -1);
-HTMLArea.is_mac    = (HTMLArea.agt.indexOf("mac") != -1);
-HTMLArea.is_mac_ie = (HTMLArea.is_ie && HTMLArea.is_mac);
-HTMLArea.is_win_ie = (HTMLArea.is_ie && !HTMLArea.is_mac);
-HTMLArea.is_gecko  = (navigator.product == "Gecko");
-HTMLArea.is_safari = (HTMLArea.agt.indexOf("safari") != -1);
+HTMLArea.agt        = navigator.userAgent.toLowerCase();
+HTMLArea.is_ie      = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
+HTMLArea.is_ie7     = ((HTMLArea.agt.indexOf("msie 7") != -1) && HTMLArea.is_ie);
+HTMLArea.is_ie8     = ((HTMLArea.agt.indexOf("msie 8") != -1) && HTMLArea.is_ie);
+HTMLArea.is_opera   = (HTMLArea.agt.indexOf("opera") != -1);
+HTMLArea.is_mac     = (HTMLArea.agt.indexOf("mac") != -1);
+HTMLArea.is_mac_ie  = (HTMLArea.is_ie && HTMLArea.is_mac);
+HTMLArea.is_win_ie  = (HTMLArea.is_ie && !HTMLArea.is_mac);
+HTMLArea.is_gecko   = (navigator.product == "Gecko");
+HTMLArea.is_safari  = (HTMLArea.agt.indexOf("safari") != -1);
+HTMLArea.is_safari4 = ((HTMLArea.agt.indexOf("version/4") != -1) && HTMLArea.is_safari);
 
 
 // variable used to pass the object to the popup editor window.
@@ -67,7 +68,12 @@ HTMLArea.prototype._createRange = function(sel) {
 	} else {
 		this.focusEditor();
 		if (typeof sel != "undefined") {
-			return sel.getRangeAt(0);
+			if ((sel.rangeCount == 0 && HTMLArea.is_safari4)) {
+				// Safari 4 does not like a range of 0 and gettting the range at 0
+				return this._doc.createRange();
+			} else {
+				return sel.getRangeAt(0);
+			}
 		} else {
 			return this._doc.createRange();
 		}
