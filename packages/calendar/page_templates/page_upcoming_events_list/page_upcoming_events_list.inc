@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.21 2008/12/04 23:16:21 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.22 2009/07/01 04:12:57 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -160,6 +160,8 @@ class Page_Upcoming_Events_List extends Page
 	{
 		$cache_key = $this->_getCacheKey();
 		$cached_contents = '';
+
+		$_REQUEST['SQ_CALENDAR_DATE'] = date('Y-m-d');
 
 		if (!empty($cache_key)) {
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
@@ -416,10 +418,14 @@ class Page_Upcoming_Events_List extends Page
 		}
 
 		$recurring_event_descendants = $am->getTypeDescendants('calendar_event_recurring', TRUE);
+		
+		// Flag to know that $_REQUEST['SQ_CALENDAR_DATE'] contains current set from the main page
+		$first_current_date = TRUE;
+
 		foreach ($events as $id => $event) {
 			$id = strtok($id, ':');
 			$replacements = Array();
-
+			
 			// Use the Display Format of the asset type if it has been defined, otherwise use the
 			// Display Format of the parent of the asset type. This means that custom Calendar Event
 			// assets will be displayed using their own format if one is defined
@@ -432,17 +438,34 @@ class Page_Upcoming_Events_List extends Page
 					$format_type = 'calendar_event_recurring';
 				}
 			}
+			
+			$asset = $am->getAsset($id);		
+			
+			if ($asset && $asset->type() == 'calendar_event_recurring') {
+						
+				$current_date = $_REQUEST['SQ_CALENDAR_DATE'];
+				
+				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
+				if ($asset->hasOccurrenceOnDate($current_date) && !$first_current_date)	{
+					$current_date = add_days_to_iso($current_date, 1);
+				}
 
+				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);				
+				$_REQUEST['SQ_CALENDAR_DATE'] = $next_occurance;
+				
+				$first_current_date = FALSE;
+			}
+						
 			// get asset keywords
-			if ($needs_asset[$format_type]) {
-				$asset = $am->getAsset($id);
+			if ($asset && $needs_asset[$format_type] ) {
+		
 				foreach ($required_keywords[$format_type] as $keyword) {
 					if ($keyword == 'asset_contents') {
 						ob_start();
 							$asset->printBody();
 							$replacements[$keyword] = ob_get_contents();
 						ob_end_clean();
-					} else {
+					} else {						
 						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
 					}
 				}
@@ -453,6 +476,7 @@ class Page_Upcoming_Events_List extends Page
 				}
 				$replacements['asset_assetid'] = $id;
 			}
+
 
 			// get metadata keywords
 			if (!empty($metadata_keywords[$event['type_code']])) {
