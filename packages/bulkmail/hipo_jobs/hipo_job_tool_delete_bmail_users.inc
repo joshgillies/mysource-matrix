@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.5 2009/06/18 03:35:15 bpearson Exp $
+* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.6 2009/07/02 00:32:51 mbrydon Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    file_info				-	the text file info
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage bulkmail
 */
@@ -159,16 +159,18 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 		if (!empty($this->_running_vars['todo_asset_users'])) {
 
 			// import one bmail user
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bulkmail_user');
+			$am = $GLOBALS['SQ_SYSTEM']->am;
+			$am->includeAsset('bulkmail_user');
 			$index = array_shift(array_keys($this->_running_vars['todo_asset_users']));
 			$email = $this->_running_vars['todo_asset_users'][$index]['email'];
+
 
 			// find the existing bmail user, and link here
 			$user = $this->_getExistingBmailUser($email);
 			if ($user != NULL) {
 				if (empty($this->_running_vars['root_nodes'])) {
 					// If no root node specified big delete
-					$this->_deleteAsset($user->id);
+					$am->purgeAsset($user->id);
 					$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
 				} else {
 					// Otherwise delete by root node
@@ -248,7 +250,7 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 							// Check if this is the last link or going to be
 							if ((count($all_links) == 1) || (count($wanted_links) == count($all_links))) {
 								// Last link, so delete
-								$this->_deleteAsset($user->id);
+								$am->purgeAsset($user->id);
 								$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
 							} else {
 								// Otherwise just delete the requested linkids
@@ -315,112 +317,6 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 		return $user;
 
 	}//end _getExistingBmailUser()
-
-
-	/**
-	* Deletes an asset for good - bypassing the trash
-	*
-	* @param int	$asset_id	the asset ID of the asset to delete
-	*
-	* @return void
-	* @access private
-	*/
-	function _deleteAsset($asset_id)
-	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// Delete the attribute values
-		$sql = 'DELETE FROM sq_ast_attr_val WHERE assetid = :assetid';
-		$query = MatrixDAL::preparePdoQuery($sql);
-		MatrixDAL::bindValueToPdo($query, 'assetid', $asset_id);
-		MatrixDAL::execPdoQuery($query);
-
-		// Delete the unique attribute values for this asset
-		$sql = 'DELETE FROM sq_ast_attr_uniq_val WHERE assetid = :assetid';
-		$query = MatrixDAL::preparePdoQuery($sql);
-		MatrixDAL::bindValueToPdo($query, 'assetid', $asset_id);
-		MatrixDAL::execPdoQuery($query);
-
-		// Delete the asset itself
-		$sql = 'DELETE FROM sq_ast WHERE assetid = :assetid';
-		$query = MatrixDAL::preparePdoQuery($sql);
-		MatrixDAL::bindValueToPdo($query, 'assetid', $asset_id);
-		MatrixDAL::execPdoQuery($query);
-
-		// Find all existing links for the asset...
-		$db = MatrixDAL::getDb();
-		$sql = 'SELECT linkid
-				FROM sq_ast_lnk
-				WHERE minorid = :minorid
-				OR majorid = :majorid';
-
-		$result = NULL;
-		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'minorid', $asset_id);
-			MatrixDAL::bindValueToPdo($query, 'majorid', $asset_id);
-			$result = MatrixDAL::executePdoAssoc($query);
-		} catch (Exception $e) {
-			throw new Exception($e->getMessage());
-		}
-
-		// ...and delete them too
-		if ($result != NULL) {
-			$links_array = Array();
-			foreach ($result as $value) {
-				array_push($links_array, $value['linkid']);
-			}
-			$links_set = '('.implode(', ', $links_array).')';
-
-			// Be nice and cleanup the sq_ast_lnk and sq_ast_lnk_tree as well before deleting
-			foreach ($links_array as $linkids_to_delete) {
-				$link_info = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkids_to_delete);
-				$majorid_delete = array_get_index($link_info, 'majorid', 0);
-				$sort_order_delete = array_get_index($link_info, 'sort_order', 0);
-				$lnk_tree_sql = 'UPDATE sq_ast_lnk_tree SET num_kids = num_kids - 1 WHERE treeid IN (SELECT CASE WHEN LENGTH(SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.')) != 0 THEN SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.') ELSE \'-\'END FROM sq_ast_lnk_tree t WHERE t.linkid = :linkid)';
-
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				try {
-					$lnk_tree_query = MatrixDAL::preparePdoQuery($lnk_tree_sql);
-					MatrixDAL::bindValueToPdo($lnk_tree_query, 'linkid', $linkids_to_delete);
-					MatrixDAL::execPdoQuery($lnk_tree_query);
-				} catch (Exception $e) {
-					throw new Exception('Unable to update the link tree for linkid: '.$linkids_to_delete.' due to database error: '.$e->getMessage());
-				}//end try-catch
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-				if (!empty($sort_order_delete) && !empty($majorid_delete)) {
-					$lnk_sql = 'UPDATE sq_ast_lnk SET sort_order = sort_order - 1 WHERE majorid = :majorid AND sort_order > :sort_order';
-
-					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-					try {
-						$lnk_query = MatrixDAL::preparePdoQuery($lnk_sql);
-						MatrixDAL::bindValueToPdo($lnk_query, 'majorid', $majorid_delete);
-						MatrixDAL::bindValueToPdo($lnk_query, 'sort_order', $sort_order_delete);
-						MatrixDAL::execPdoQuery($lnk_query);
-					} catch (Exception $e) {
-						throw new Exception('Unable to update sort orders for majorid: '.$majorid_delete.' due to database error: '.$e->getMessage());
-					}//end try-catch
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				}//end if
-			}//end foreach
-
-			// Delete links
-			$sql = 'DELETE FROM sq_ast_lnk WHERE linkid IN '.$links_set;
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::execPdoQuery($query);
-
-			// Delete link tree entry
-			$sql = 'DELETE FROM sq_ast_lnk_tree WHERE linkid IN '.$links_set;
-			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::execPdoQuery($query);
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-	}//end _deleteAsset()
 
 
 }//end class
