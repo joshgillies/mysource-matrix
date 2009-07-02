@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_delete_bmail_users.inc,v 1.5 2009/07/02 04:38:10 wszymanski Exp $
+* $Id: tool_delete_bmail_users.inc,v 1.6 2009/07/02 04:44:25 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *	matching those in the supplied text file
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -122,7 +122,6 @@ class Tool_Delete_Bmail_Users extends Tool
 
 		// run HIPO job
 		$hh =& $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		log_dump($vars);
 		$hh->queueHipo('hipo_job_tool_delete_bmail_users', $vars, '', SQ_PACKAGES_PATH.'/bulkmail/hipo_jobs');
 		$url = $hh->runQueuedJobs();
 		if (!empty($url)) $o->setRedirect($url);
