@@ -1,0 +1,5 @@
+<strings>
+	<string source="trigger_delete_bmail_user_asset">Delete bulkmail users under the root node %1$s</string>
+	<string source="trigger_delete_bmail_user_email">that match the following emails %1$s</string>
+	<string source="trigger_delete_bmail_user_link">Move them under the specified asset %1$s using a %2$s link</string>
+</strings>
