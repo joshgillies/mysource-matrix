@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.674 2009/06/30 01:58:17 bpearson Exp $
+* $Id: asset.inc,v 1.675 2009/07/02 06:13:23 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.674 $
+* @version $Revision: 1.675 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3551,21 +3551,52 @@ class Asset extends MySource_Object
 
 
 	/**
+	* Gets replacements for asset_web_path keyword this asset
+	* If the asset has multiple webpath, shortest one (alphabetically) is returned 
+	*
+	* @return null|string
+	* @access public
+	*/
+	public function getAssetWebPathKeywordReplacement()
+	{	
+		$webpaths = $this->getWebPaths();
+
+		if (empty($webpaths)) {
+			return NULL;
+		}
+		
+		$shortest_wp = $webpaths[0];
+		
+		foreach($webpaths as $webpath) {
+			
+			$wp_len = strlen($webpath);
+			$shortest_wp_len = strlen($shortest_wp);
+
+			if ($wp_len <= $shortest_wp_len) {
+				$shortest_wp = ($wp_len == $shortest_wp_len) ?  min($shortest_wp, $webpath) : $webpath;
+			}					
+		}
+
+		return $shortest_wp;
+
+	}//end getAssetWebPathKeywordReplacement()
+
+
+	/**
 	* Gets replacements for keywords that are specific to this asset for LIMBO
 	*
-	* @param array	$keywords	the keywords to get replacements for
+	* @param array  $keywords   the keywords to get replacements for
 	*
 	* @return array
 	* @access public
 	*/
 	public function getCustomKeywordReplacements($keywords=Array())
 	{
-
 		return Array();
-
+	
 	}//end getCustomKeywordReplacements()
 
-
+	
 	/**
 	* Processes anything that was previously printed for a custom keyword for LIMBO
 	*
