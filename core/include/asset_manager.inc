@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.731 2009/07/02 00:35:02 mbrydon Exp $
+* $Id: asset_manager.inc,v 1.732 2009/07/02 06:25:07 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.731 $
+* @version $Revision: 1.732 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8456,6 +8456,13 @@ class Asset_Manager extends MySource_Object
 			$select = 'SELECT a.assetid'.(($inc_type_code) ? ', a.type_code' : '');
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
+
+			$group_by = '';
+			$having = '';
+			$union_select = '';
+			$union_from = '';
+			$union_where = '';
+
 		} else {
 			// OK, normal asset, let's find a reference to them in the tree and go from there
 			$where = 'l.minorid = :minorid';
@@ -8527,98 +8534,100 @@ class Asset_Manager extends MySource_Object
 
 			// now merge the bind vars into the master array
 			$bind_vars = array_merge($bind_vars, $where_bind_vars);
-		}//end else
+		
 
-		// if direct shadow asset children should be returned
-		$union_select = ' UNION ALL SELECT sl.minorid';
-		if ($inc_type_code) {
-			$union_select .= ', null AS type_code';
-		}
-		if (!is_null($sort_by)) {
-			$union_select .= ', null AS sort_value';
-		}
-		$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
-		// if all shadow asset children should be returned
-		$union_where = 'sl.majorid = :'.$bind_prefix.'union_majorid';
-		$bind_vars[$bind_prefix.'union_majorid'] = $asset->id;
-		if (!$direct_shadows_only) {
-			// need to dupe where bind vars here, because we're trying to include
-			// the "where" section of the query again.
-			foreach ($where_bind_vars as $bind_var => $bind_value) {
-				$new_bind_var = str_replace($bind_prefix, $bind_prefix.'ds_', $bind_var);
-				$bind_vars[$new_bind_var] = $bind_value;
+			// if direct shadow asset children should be returned
+			$union_select = ' UNION ALL SELECT sl.minorid';
+			if ($inc_type_code) {
+				$union_select .= ', null AS type_code';
+			}
+			if (!is_null($sort_by)) {
+				$union_select .= ', null AS sort_value';
+			}
+			$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
+			// if all shadow asset children should be returned
+			$union_where = 'sl.majorid = :'.$bind_prefix.'union_majorid';
+			$bind_vars[$bind_prefix.'union_majorid'] = $asset->id;
+			if (!$direct_shadows_only) {
+				// need to dupe where bind vars here, because we're trying to include
+				// the "where" section of the query again.
+				foreach ($where_bind_vars as $bind_var => $bind_value) {
+					$new_bind_var = str_replace($bind_prefix, $bind_prefix.'ds_', $bind_var);
+					$bind_vars[$new_bind_var] = $bind_value;
+				}
+
+				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
+				$union_where = '(('.$union_where.") or (sl.majorid IN (SELECT DISTINCT l.minorid $from $ds_where)))";
 			}
 
-			$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
-			$union_where = '(('.$union_where.") or (sl.majorid IN (SELECT DISTINCT l.minorid $from $ds_where)))";
-		}
+			$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
-		$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
-
-		if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
-			$where .= ' AND ';
-		}
-
-		if (!is_null($dependant)) {
-			$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
-			$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
-			if (!empty($type_code) || !is_null($access)) {
+			if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
 				$where .= ' AND ';
 			}
-		}
 
-		$group_by = '';
-		$having = '';
-		if (!is_null($access)) {
-			$access = (String)$access;
-			$userid_cond = '';
-			$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
-				$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
-
-				$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
-				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
-				$public_userid = (String)$this->getSystemAssetid('public_user');
-				$userids[] = $public_userid;
-
-				$p_userids_str = Array();
-				$r_userids_str = Array();
-				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$p_userids_str[$i] = ':'.$bind_prefix.'p_userids_'.$i;
-					$r_userids_str[$i] = ':'.$bind_prefix.'r_userids_'.$i;
-					$bind_vars[$bind_prefix.'p_userids_'.$i] = (string)$userids[$i];
-					$bind_vars[$bind_prefix.'r_userids_'.$i] = (string)$userids[$i];
+			if (!is_null($dependant)) {
+				$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
+				$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
+				if (!empty($type_code) || !is_null($access)) {
+					$where .= ' AND ';
 				}
-
-				$p_userids_str = implode(',', $p_userids_str);
-				$r_userids_str = implode(',', $r_userids_str);
-				$userid_cond = ' (p.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
-				$where .= $userid_cond.'
-					AND (
-							(p.permission = :'.$bind_prefix.'_access AND (
-									p.userid <> :'.$bind_prefix.'_public_userid
-									OR r.userid <> :'.$bind_prefix.'_public_userid_1
-									OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = \'1\')
-									OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = \'1\')
-								)
-							)';
-
-				$bind_vars[$bind_prefix.'_access'] = $access;
-				$bind_vars[$bind_prefix.'_public_userid'] = $public_userid;
-				$bind_vars[$bind_prefix.'_public_userid_1'] = $public_userid;
-				$bind_vars[$bind_prefix.'_public_userid_2'] = $public_userid;
-				$bind_vars[$bind_prefix.'_public_userid_3'] = $public_userid;
-
-				if ($effective) {
-					$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = \'1\')';
-					$bind_vars[$bind_prefix.'_access_effective'] = $access;
-				}
-				$where .= ') AND ';
-				$having .= 'HAVING MIN(p.granted) <> \'0\'';
-				$group_by .= ', p.assetid';
 			}
-		}//end if access is not null
+
+			$group_by = '';
+			$having = '';
+			if (!is_null($access)) {
+				$access = (String)$access;
+				$userid_cond = '';
+				$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
+					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON p.userid = r.roleid ';
+
+					$userids = array_keys($this->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+					$public_userid = (String)$this->getSystemAssetid('public_user');
+					$userids[] = $public_userid;
+
+					$p_userids_str = Array();
+					$r_userids_str = Array();
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$p_userids_str[$i] = ':'.$bind_prefix.'p_userids_'.$i;
+						$r_userids_str[$i] = ':'.$bind_prefix.'r_userids_'.$i;
+						$bind_vars[$bind_prefix.'p_userids_'.$i] = (string)$userids[$i];
+						$bind_vars[$bind_prefix.'r_userids_'.$i] = (string)$userids[$i];
+					}
+
+					$p_userids_str = implode(',', $p_userids_str);
+					$r_userids_str = implode(',', $r_userids_str);
+					$userid_cond = ' (p.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
+					$where .= $userid_cond.'
+						AND (
+								(p.permission = :'.$bind_prefix.'_access AND (
+										p.userid <> :'.$bind_prefix.'_public_userid
+										OR r.userid <> :'.$bind_prefix.'_public_userid_1
+										OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = \'1\')
+										OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = \'1\')
+									)
+								)';
+
+					$bind_vars[$bind_prefix.'_access'] = $access;
+					$bind_vars[$bind_prefix.'_public_userid'] = $public_userid;
+					$bind_vars[$bind_prefix.'_public_userid_1'] = $public_userid;
+					$bind_vars[$bind_prefix.'_public_userid_2'] = $public_userid;
+					$bind_vars[$bind_prefix.'_public_userid_3'] = $public_userid;
+
+					if ($effective) {
+						$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = \'1\')';
+						$bind_vars[$bind_prefix.'_access_effective'] = $access;
+					}
+					$where .= ') AND ';
+					$having .= 'HAVING MIN(p.granted) <> \'0\'';
+					$group_by .= ', p.assetid';
+				}
+			}//end if access is not null
+
+		}// End else
 
 		if (!empty($type_code)) {
 
@@ -8670,7 +8679,7 @@ class Asset_Manager extends MySource_Object
 					'sql_array'	=> $sql_array,
 					'bind_vars'	=> $bind_vars,
 				   );
-
+		
 		return $ret_val;
 
 	}//end generateGetChildrenQuery()
