@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.6 2009/07/02 00:32:51 mbrydon Exp $
+* $Id: hipo_job_tool_delete_bmail_users.inc,v 1.7 2009/07/02 04:38:10 wszymanski Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    file_info				-	the text file info
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage bulkmail
 */
@@ -128,16 +128,26 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 	*/
 	function prepare()
 	{
-		// import the csv file
-		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
-		$csv = new CSV($this->_running_vars['file_info']['tmp_name']);
-		$csv->import();
+		// check if email list supplied, if not look for file
+		if (!isset($this->_running_vars['email_list'])) {
+			// import the csv file
+			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
+			$csv = new CSV($this->_running_vars['file_info']['tmp_name']);
+			$csv->import();
 
-		// add users into the 'todo' array
-		$i = 0;
-		foreach ($csv->values as $line_value) {
-			$this->_running_vars['todo_asset_users'][$i]['email'] = trim($line_value[0]);
-			$i++;
+			// add users into the 'todo' array
+			$i = 0;
+			foreach ($csv->values as $line_value) {
+				$this->_running_vars['todo_asset_users'][$i]['email'] = trim($line_value[0]);
+				$i++;
+			}
+		} else {
+			$emails = $this->_running_vars['email_list'];
+			$i = 0;
+			foreach ($emails as $email) {
+				$this->_running_vars['todo_asset_users'][$i]['email'] = $email;
+				$i++;
+			}
 		}
 		$this->_running_vars['done_asset_users'] = Array();
 		return parent::prepare();
@@ -163,7 +173,6 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 			$am->includeAsset('bulkmail_user');
 			$index = array_shift(array_keys($this->_running_vars['todo_asset_users']));
 			$email = $this->_running_vars['todo_asset_users'][$index]['email'];
-
 
 			// find the existing bmail user, and link here
 			$user = $this->_getExistingBmailUser($email);
@@ -247,21 +256,31 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 								}//end if
 							}//end foreach
 
-							// Check if this is the last link or going to be
-							if ((count($all_links) == 1) || (count($wanted_links) == count($all_links))) {
-								// Last link, so delete
-								$am->purgeAsset($user->id);
-								$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
-							} else {
-								// Otherwise just delete the requested linkids
+							// check if we are going to link in diffrent place or delete
+							if (!empty($this->_running_vars['link_asset']['assetid'])) {
+								$to_parentid = $this->_running_vars['link_asset']['assetid'];
+								$link_type = $this->_running_vars['link_asset']['link_type'];
 								foreach ($wanted_links as $linkid) {
-									$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);	
-								}//end foreach
-								$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
-							}//end if
+									$am->moveLink($linkid, $to_parentid, $link_type, -1);
+								}
+								$step_data['message'] = "Moving Bulkmail User \"$user->name\" (#$user->id)";
+							} else {
+								// Check if this is the last link or going to be
+								if ((count($all_links) == 1) || (count($wanted_links) == count($all_links))) {
+									// Last link, so delete
+									$am->purgeAsset($user->id);
+									$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
+								} else {
+									// Otherwise just delete the requested linkids
+									foreach ($wanted_links as $linkid) {
+										$am->deleteAssetLink($linkid);
+									}//end foreach
+									$step_data['message'] = "Deleting Bulkmail User \"$user->name\" (#$user->id)";
+								}//end if
+							}//end else
 						}//end if
 					}//end if
-				}//end if
+				}//end else
 			}//end if
 
 			$step_data['message'] = translate('bm_deleting_bmail_user', $email);
@@ -271,7 +290,7 @@ class HIPO_Job_Tool_Delete_Bmail_Users extends HIPO_Job
 
 			// clean up
 			unset($this->_running_vars['todo_asset_users'][$index]);
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+			$am->forgetAsset($user);
 
 		}//end if not empty todo
 
