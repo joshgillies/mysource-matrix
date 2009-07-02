@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.669.2.3 2009/06/15 07:33:26 cupreti Exp $
+* $Id: asset.inc,v 1.669.2.4 2009/07/02 06:13:57 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.669.2.3 $
+* @version $Revision: 1.669.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3548,6 +3548,37 @@ class Asset extends MySource_Object
 		return $replacement;
 
 	}//end _getKeywordReplacement()
+
+
+	/**
+	* Gets replacements for asset_web_path keyword for this asset
+	* If the asset has multiple webpath, alphabetically the shortest one is returned 
+	*
+	* @return null|string
+	* @access public
+	*/	public function getAssetWebPathKeywordReplacement()
+	{	
+		$webpaths = $this->getWebPaths();
+
+		if (empty($webpaths)) {
+			return NULL;
+		}
+		
+		$shortest_wp = $webpaths[0];
+		
+		foreach($webpaths as $webpath) {
+			
+			$wp_len = strlen($webpath);
+			$shortest_wp_len = strlen($shortest_wp);
+
+			if ($wp_len <= $shortest_wp_len) {
+				$shortest_wp = ($wp_len == $shortest_wp_len) ?  min($shortest_wp, $webpath) : $webpath;
+			}					
+		}
+
+		return $shortest_wp;
+
+	}//end getAssetWebPathKeywordReplacement()
 
 
 	/**
