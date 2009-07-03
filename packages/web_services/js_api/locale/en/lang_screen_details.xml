@@ -1,0 +1,69 @@
+<!--
+/**
+* +--------------------------------------------------------------------+
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +--------------------------------------------------------------------+
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +--------------------------------------------------------------------+
+*
+* $Id: lang_screen_details.xml,v 1.1 2009/07/03 04:43:49 bpearson Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+        <field attribute="name">
+            <display_name>Javascript API Name</display_name>
+            <note />
+        </field>
+        <field attribute="short_name">
+            <display_name>Javascript API Short Name</display_name>
+            <note />
+        </field>
+	</section>
+    <section name="Restrictions" write_access="write:attributes">
+        <field attribute="root_node">
+            <display_name>Root Node</display_name>
+            <note />
+        </field>
+    </section>
+    <section name="API Settings" write_access="write:attributes">
+        <field attribute="api_key">
+            <display_name>API Key</display_name>
+            <note />
+        </field>
+    </section>
+    <section name="Core Functions" write_access="write:attributes">
+        <field attribute="get_general">
+            <display_name>Get General Info Function</display_name>
+            <note />
+        </field>
+        <field attribute="get_attributes">
+            <display_name>Get Attributes Function</display_name>
+            <note />
+        </field>
+        <field attribute="set_attribute">
+            <display_name>Set Attribute Function</display_name>
+            <note />
+        </field>
+        <field attribute="trash_asset">
+            <display_name>Trash Asset Function</display_name>
+            <note />
+        </field>
+    </section>
+    <section name="Metadata Functions" write_access="write:attributes">
+        <field attribute="get_metadata">
+            <display_name>Get Metadata Function</display_name>
+            <note />
+        </field>
+        <field attribute="set_metadata">
+            <display_name>Set Metadata Function</display_name>
+            <note />
+        </field>
+    </section>
+</contents>
