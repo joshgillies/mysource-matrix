@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_datacash.inc,v 1.1 2009/06/22 09:27:23 ata Exp $
+* $Id: payment_gateway_datacash.inc,v 1.2 2009/07/06 10:34:58 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/datacash_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -146,6 +146,7 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		$keywords['card_expiry_year'] = 'Card Expiry Year';
 		$keywords['card_issue_number'] = 'Card Issue Number';
 		$keywords['transaction_amount'] = 'Transaction Amount';
+		$keywords['transaction_currency'] = 'Transaction Currency';
 		$keywords['processing_error'] = 'Processing Error (empty if no error)';
 		$keywords['submit_button'] = 'Submit Button';
 		$keywords['cancel_button'] = 'Cancel Button';
@@ -208,6 +209,7 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 	
 			} else if (empty($amount)) {
 				unset($_SESSION['SQ_ECOM_AMOUNT']);
+				$this->_unsetCurrency();
 				$this->returnToCaller('SUCCESS');
 	
 			} else if ($card_info) {
@@ -241,6 +243,7 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		//if transaction is accepted, redirect the user to the success page
 		if ($success === 1) {
 			unset($_SESSION['SQ_ECOM_AMOUNT']);
+			$this->_unsetCurrency();
 			$this->returnToCaller('SUCCESS', $is_in_frame);
 		}
 		
@@ -332,7 +335,7 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		if (empty($amount)) {
 			$this->_setError(translate('datacash_amount_not_specified'));
 		} else {
-			$processor->setAmount($amount, $this->attr('currency'));
+			$processor->setAmount($amount, $this->_getCurrency());
 		}
 		
 		//SET MERCHANT REFERENCE
@@ -457,6 +460,7 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 
 			$response['CARDNO'] = $this->_formatted_card_no;
 			$response['AMOUNT'] = $_SESSION['SQ_ECOM_AMOUNT'];
+			$response['CURRENCY'] = $this->_getCurrency();
 			
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
@@ -680,6 +684,19 @@ HEREDOC;
 
 
 	/**
+	* Transaction Currency keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getTransactionCurrencyKeywordReplacement()
+	{
+		return $this->_getCurrency();
+
+	}//end getTransactionAmountKeywordReplacement()
+	
+	
+	/**
 	* Processing Error keyword replacement
 	*
 	* @return string
@@ -839,6 +856,34 @@ HEREDOC;
 		return $valid;
 		
 	}//end _isValidIssueNumber()
+	
+	
+	/**
+	 * Get the currency of this transaction
+	 * 
+	 * @return string
+	 * @access private
+	 */
+	private function _getCurrency()
+	{
+		return isset($_SESSION['SQ_ECOM_CURRENCY'])? $_SESSION['SQ_ECOM_CURRENCY'] : $this->attr('currency');
+		
+	}//end _getCurrency()
+	
+	
+	/**
+	 * Unset the currency in the Session variable if it exists
+	 * 
+	 * @return void
+	 * @access private
+	 */
+	private function _unsetCurrency()
+	{
+		if (isset($_SESSION['SQ_ECOM_CURRENCY'])) {
+			unset($_SESSION['SQ_ECOM_CURRENCY']);
+		}
+		
+	}//end _unsetCurrency()
 	
 	
 	/**
