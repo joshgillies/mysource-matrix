@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.92.2.1 2009/04/29 04:27:26 akarelia Exp $
+* $Id: file_edit_fns.inc,v 1.92.2.2 2009/07/06 06:21:40 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92.2.1 $
+* @version $Revision: 1.92.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -526,6 +526,13 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
 				return FALSE;
 			}//end if
+		} else if (isset($info['created_file']) && $info['created_file'] === TRUE) {
+             // when empty file is created by matrix when no file is uploaded
+             if (!rename($info['tmp_name'].'/'.$name, $asset->data_path.'/'.$name)) {
+                 trigger_localised_error('CORE0036', E_USER_WARNING, $info['tmp_name'], $asset->data_path.'/'.$name);
+                 return FALSE;
+             }//end if
+		
 		} else {
 			trigger_localised_error('CORE0067', E_USER_ERROR);
 			return FALSE;
