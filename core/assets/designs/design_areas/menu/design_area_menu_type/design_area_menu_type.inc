@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.101 2009/02/15 22:47:32 bpearson Exp $
+* $Id: design_area_menu_type.inc,v 1.102 2009/07/06 06:27:50 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -130,14 +130,28 @@ class Design_Area_Menu_Type extends Design_Area
 				$smenu->saveAttributes();
 			}//end foreach
 
+		} else if (($name == 'wanted_asset_types') && is_scalar($value)) {
+			$sub_menu_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', FALSE, 'sub_menu');
+			// Update sub menu attributes too
+			if (!empty($sub_menu_link)) {
+				$smenu = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_menu_link['minorid'], $sub_menu_link['minor_type_code'], TRUE);
+				$smenu->setAttrValue('wanted_asset_types', $value);
+				$smenu->saveAttributes();
+			}//end foreach
+
+		}// end if
+		
+		if (($name == 'unwanted_asset_types' || $name == 'wanted_asset_types')  && is_scalar($value)) {
+		
 			$value = preg_split('/[ ,]+/', (string)$value);
 			foreach ($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
 					trigger_localised_error('CORE0145', E_USER_WARNING, $type_code);
 					return FALSE;
-				}//end if
-			}//end foreach
-		}// end if
+				}
+			}// end foreach
+		}
+
 
 		return parent::setAttrValue($name, $value);
 
@@ -746,7 +760,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @access private
 	*/
 	protected function _printContentItemCode(Array $element)
-	{
+	{	log_dump("HERE");
 		switch (array_get_index($element, 'operation')) {
 			case 'asset' :
 				if ($divider_contents = $this->attr('divider_contents')) {
@@ -820,6 +834,20 @@ class Design_Area_Menu_Type extends Design_Area
 					echo '<?php  if (in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$unwanted_types_literal_array.')) continue ;?>';
 				}//end if
 
+				$wanted_types = $this->attr('wanted_asset_types');
+				$all_type_codes = Array();
+				foreach ($wanted_types as $type) {
+					if (!empty($type)) {
+						$all_type_codes = array_merge($all_type_codes, $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type, TRUE));
+					}
+				}
+				$wanted_types = $all_type_codes;
+
+				if (!empty($wanted_types)) {
+					$wanted_types_literal_array = 'Array("'.implode('", "', $wanted_types).'")';
+					echo '<?php  if (!in_array($'.$this->attr('id_name').'_row[\'type_code\'], '.$wanted_types_literal_array.')) continue ;?>';
+				}
+
 				if ($this_contents = $this->attr('asset_contents')) {
 					$this->_tmp['outputting_asset_section'] = TRUE;
 					foreach ($this_contents as $item) {
@@ -881,11 +909,15 @@ class Design_Area_Menu_Type extends Design_Area
 							if ($custom_da['minorid'] != $sub->id) {
 								$new_da = $am->getAsset($custom_da['minorid'], $custom_da['minor_type_code']);
 								if (is_null($new_da)) continue;
-								if ($new_da->name == $sub->name) {
+								if ($new_da->name == $sub->name) { log_dump($new_da); log_dump($sub);
 									foreach ($new_da->vars as $name => $details) {
 										if (in_array($name, Array('unwanted_asset_types', 'self_link'))) {
 											$sub->vars[$name] = $new_da->vars[$name];
 										}
+										if (!in_array($name, Array('wanted_asset_types', 'self_link'))) {
+											$sub->vars[$name] = $new_da->vars[$name];
+										}
+
 									}
 								}//end if
 							}//end if

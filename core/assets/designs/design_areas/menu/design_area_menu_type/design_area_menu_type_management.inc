@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.24 2008/06/23 00:12:27 hnguyen Exp $
+* $Id: design_area_menu_type_management.inc,v 1.25 2009/07/06 06:28:12 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,6 +110,13 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 													'default'		=> Array(),
 													'description'	=> 'List of asset types to exclude from the lineage',
 												   ),
+						'wanted_asset_types'	=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'serialise',
+													'default'		=> Array(),
+													'description'	=> 'List of asset types to include in the lineage',
+												   ),
+
 					  );
 
 	}//end constructor

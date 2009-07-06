@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.56 2008/07/04 06:13:09 hnguyen Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.57 2009/07/06 06:27:22 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -296,6 +296,18 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		$asset->saveAttributes();
+		
+		$wanted_asset_types_parents = $asset->attr('wanted_asset_types');
+		if (!empty($wanted_asset_types_parents)) {
+			$sub->setAttrValue('wanted_asset_types', $wanted_asset_types_parents);
+		}
+		
+		if (!$sub->saveAttributes()) {
+			return FALSE;
+		}
+
+		$asset->saveAttributes();
+
 
 		return TRUE;
 
@@ -423,6 +435,67 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
     }//end processExcludedTypes()
 
+
+    /**
+    * Paint the interface for choosing asset types to include in the lineage
+    *
+    * @param Design_Area_Asset_Lineage  $asset  the asset whose interface we are painting
+    * @param Backend_Outputter          $o      the Backend Outputter object
+    * @param string                     $prefix prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    public function paintIncludedTypes(Design_Area_Menu_Type $asset, Backend_Outputter $o, $prefix)
+    {
+        $included_types = $asset->attr('wanted_asset_types');
+        if ($asset->writeAccess('attributes')) {
+            asset_type_chooser($prefix.'_included_types', TRUE, $included_types);
+        } else {
+            if (empty($included_types)) {
+                echo 'All types are included';
+            } else {
+                ?>
+                <ul>
+                <?php
+                foreach ($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($included_types, 'name') as $type_name) {
+                    ?>
+                    <li><?php echo $type_name; ?></li>
+                    <?php
+                }
+                ?>
+                </ul>
+                <?php
+            }
+        }
+
+    }//end paintIncludedTypes()
+
+
+    /**
+    * Paint the interface for choosing asset types to include in the lineage
+    *
+    * @param Design_Area_Asset_Lineage  $asset  the asset whose interface we are painting
+    * @param Backend_Outputter          $o      the Backend Outputter object
+    * @param string                     $prefix prefix for the form elements
+    *
+    * @return boolean
+    * @access public
+    */
+    public function processIncludedTypes(Design_Area_Menu_Type $asset, Backend_Outputter $o, $prefix)
+    {
+        if ($asset->writeAccess('attributes')) {
+
+            $include_list = Array();
+            foreach ($_POST[$prefix.'_included_types'] as $type) {
+                if ($type != '') $include_list[] = $type;
+            }
+            return $asset->setAttrValue('wanted_asset_types', $include_list);
+        } else {
+            return FALSE;
+        }
+
+    }//end processIncludedTypes()
 
 }//end class
 ?>

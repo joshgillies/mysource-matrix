@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2008/07/04 06:13:09 hnguyen Exp $
+* $Id: lang_screen_details.xml,v 1.3 2009/07/06 06:30:35 cupreti Exp $
 *
 */
 -->
@@ -51,5 +51,13 @@
             <display_name>Excluded Asset Types</display_name>
             <note>Assets of these types and their inherited types will be omitted from the lineage</note>
         </field>
+		<field>
+			<function_call>
+		    	<paint_function   name="paintIncludedTypes" />
+		   		<process_function name="processIncludedTypes" />
+		    </function_call>
+			<display_name>Included Asset Types</display_name>
+			<note>Only assets of these types and their inherited types will be included in the lineage</note>
+		</field>   
 	</section>
 </contents>
