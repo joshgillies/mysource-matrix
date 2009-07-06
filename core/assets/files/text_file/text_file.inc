@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_file.inc,v 1.6 2009/07/06 06:19:37 cupreti Exp $
+* $Id: text_file.inc,v 1.7 2009/07/06 23:52:25 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 * Text_File
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,8 +75,7 @@ class Text_File extends File
 				$file_title = $this->attr('title');
 				$file_title = preg_replace('/[^A-Za-z0-9]/', '_', $file_title);
 								
-				// Take first name from the allowed extension names array for this file
-				$extension = $this->allowed_extensions[0];
+				$extension = 'txt';
 				
 				$file_name = $file_title . '.' . $extension;						
 
