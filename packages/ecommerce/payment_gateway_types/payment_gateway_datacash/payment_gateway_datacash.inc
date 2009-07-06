@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_datacash.inc,v 1.2 2009/07/06 10:34:58 ata Exp $
+* $Id: payment_gateway_datacash.inc,v 1.3 2009/07/06 14:28:47 ata Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/datacash_processor.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -244,6 +244,23 @@ class Payment_Gateway_Datacash extends Payment_Gateway
 		if ($success === 1) {
 			unset($_SESSION['SQ_ECOM_AMOUNT']);
 			$this->_unsetCurrency();
+			//broadcast payment completed trigger event before return
+			if (isset($_SESSION['SQ_ECOM_PAYMENT_COMPLETED_BROADCASTER_ASSETID'])) {
+				$broadcaster = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_ECOM_PAYMENT_COMPLETED_BROADCASTER_ASSETID']);
+				if (!empty($broadcaster)) {
+					//put all returned variables in $_SESSION['SQ_ECOM_RESPONSE'] to $_POST array so that the listening trigger can use them
+					$response = array_get_index($_SESSION, 'SQ_ECOM_RESPONSE', FALSE);
+					if ($response) {
+						$_POST['transaction_reference'] = $response['TRANSACTION'];
+						$_POST['transaction_time'] = $response['TIME'];
+						$_POST['transaction_status'] = $response['STATUS'];
+						$_POST['transaction_card_number'] = $response['CARDNO'];
+						$_POST['transaction_amount'] = $response['AMOUNT'];
+						$_POST['transaction_currency'] = $response['CURRENCY'];
+					}
+					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_payment_completed', $broadcaster);
+				}
+			}
 			$this->returnToCaller('SUCCESS', $is_in_frame);
 		}
 		
