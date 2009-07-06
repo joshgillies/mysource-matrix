@@ -1,5 +1,73 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.20.6
+
+Featured Changes
+-----------------------------------
+
+Global Keywords for Asset Character Set and supported languages
+	Two new Global Keywords, %globals_asset_charset% and %globals_asset_languages% have been added to expose these values as provided on the "Settings" screen.
+
+
+Localisation of ampersand replacement in Web Paths
+	Web Paths that contain the ampersand (&) character or its HTML entity (&amp;) were converted to "-and-" by default. The word "and" and the web path separator (-) are now obtained from a language localisation "web_path_ampersand_replacement" and the SQ_CONF_WEB_PATH_SEPARATOR value specified in the main.inc configuration file.
+
+This allows greater flexibility in the format chosen for this replacement as it ensures consistency with the system web path separator and current translations for the system.
+
+A further modification has been made to prevent multiple contiguous 'and' strings from being added (eg; as would happen for "http://example.com/site&&page"). These are now reduced to one instance (ie; site&&page -> site-and-page).
+
+
+Support for editing and deleting existing assets from the CSV to Matrix Importer script
+	Modifications have been made to the CSV to Matrix Importer script, "import_assets_to_csv.php" in the scripts directory, to enable editing and deleting existing assets which match a primary column in the source CSV file. Additional options are available which allow the primary column and a flag column to be specified on the command line. The flag column must contain either "A", "E", or "D" to indicate whether the record is to be (A)dded, (E)dited or (D)eleted.
+
+Please note that deletion performed by this script is permanent and bypasses the trash. Any requests to Edit an asset that does not exist is turned into an Add request. Requests to Add assets that already exist are turned into Edit requests. Requests to Delete an asset that does not exist will be ignored and the script will continue.
+
+A further "ignore" file can be provided with single column list of items to ignore when performing an "Edit" operation. For example, if user passwords are supplied in the CSV import file in order to create User assets, these can be ignored if supplied again in an "Edit" context. In this example it would ensure that the password is not set again from the import file.
+
+As with the previous revision of this script, a CSV file is provided on STDOUT to monitor the assets affected. In this revision an additional column is given in this output to indicate the actual operation performed on the asset (eg; [primary identifier],[asset id],E).
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3668: Error when previewing asset after design change
+Fixed Bug #3698: Wysiwyg for %__custom_contents% keyword not working properly in simple edit layout.
+Fixed Bug #3705: Custom form file uploading will not update existing uploaded file if the user doesn't have write permission
+Fixed Bug #3707: Image editor crashes browser
+Fixed Bug #3709: Replace text button in WYSIWYG removing href attributes
+Fixed Bug #3712: BMP file not be able to be uploaded in custom form file upload if enforced MIME check is on
+Fixed Bug #3715: History screen of an asset will not display ldap user's editing history
+Fixed Bug #3716: Global keyword in paint layout regexp condition doesn't evaluate to true
+Fixed Bug #3718: Wrong name in "forcibly removed lock" email
+Fixed Bug #3722: In Rollback mode, only root user can view assets
+Fixed Bug #3724: Errors in cron_errors.log and system.log from workflow when on Oracle
+Fixed Bug #3728: urls in customized workflow emails don't work
+Fixed Bug #3732: Metadata textarea fields don't allow input - Safari 4
+Fixed Bug #3734: Asset Listing Date Picker Fields are not XHTML valid
+Fixed Bug #3735: Table Editor column widths unchangable
+Fixed Bug #3736: Online Quiz Question Groups Simple Edit Layout details-F_name 
+Fixed Bug #3738: Replace Text not working properly in Wysiwyg when text is selected
+Fixed Bug #3743: Paint layout javascript issue
+Fixed Bug #3745: Replace url script does not replace paths on live public file assets
+Fixed Bug #3746: Preview screen doesn't refreshes in table properties when value is changed
+Fixed Bug #3752: Embed YouTube Fails
+
+CMS
+Fixed Bug #3689: Incomplete metadata report will give error message when parsing non unicode metadata field name
+Fixed Bug #3692: Confirmation page not working for a single page custom form
+
+Calendar
+Fixed Bug #3751: Recurring event's keywords not working in event list asset
+
+Import Tools
+Fixed Bug #3744: Unable to delete files from structured file import
+
+Search
+Fixed Bug #3737: Search: exclude field broken
+
+
+
 VERSION 3.20.5
 
 Complete Changelog
