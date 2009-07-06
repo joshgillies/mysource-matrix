@@ -1,5 +1,165 @@
 MYSOURCE MATRIX CHANGELOG
 
+VERSION 3.22.2
+
+Asset Keywords of Nesting Asset as GET variable values in Nest Content Type
+	Asset keywords for the nesting asset can now be passed as HTTP GET variables to the nested page in the Nest Content Type. The keywords of the surrounding page are passed in by using the %asset_*% keyword format.
+
+
+Inverse Logic for Trigger Conditions
+	Trigger Conditions now have an additional checkbox which when checked will evaluate the condition as having passed when the inverse logic of the condition specification is met. For example, an "Asset is of Type" Trigger Condition set to match on "Image" types would pass when the triggering asset is not an "Image" type if inverse logic was enabled.
+
+Please note that as the inverse logic of any condition will likely be met in a large number of scenarios, so it is recommended to use this functionality carefully and sparingly for performance reasons.
+
+
+Session Variable value assignment from Redirect Pages
+	A new section, "Session Variables", has been added to the Details screen of the Redirect Page asset to provide dynamic assignment of session variable values. This functionality uses the Parameter Map to assign either a static value, which can also comprise Asset and Global Keywords, and values sourced from other GET, POST or SESSION variables.
+
+As a result of this development, a "Set Value" option has been added to the Parameter Map to support the assignment of static values.
+
+
+Option List attribute "No Arrows" option
+	The up and down arrows displayed to transpose values in Option List attributes is now optional when this type is rendered from an XML definition of an asset.
+
+In order to display an Option List attribute without arrows, please use the following XML structure:
+
+           <option_list allow_reorder="no" /> 
+
+
+Customisation of styles shown in WYSIWYG Style drop-down
+	The WYSIWYG Style drop-down list displays a list of styles obtained from CSS files associated with the current Design. A new "Styles" screen is now available for Design assets and customisations which can be configured to determine which of these styles is to be shown in this list.
+
+
+Delete Bulkmail Users by Root Node
+	The "Delete Bulkmail Users" tool now allows Bulkmail Users to be deleted from underneath specified Root Nodes, rather than just system-wide.
+
+
+Localisation of ampersand replacement in Web Paths
+	Web Paths that contain the ampersand (&) character or its HTML entity (&amp;) were converted to "-and-" by default. The word "and" and the web path separator (-) are now obtained from a language localisation "web_path_ampersand_replacement" and the SQ_CONF_WEB_PATH_SEPARATOR value specified in the main.inc configuration file.
+
+This allows greater flexibility in the format chosen for this replacement as it ensures consistency with the system web path separator and current translations for the system.
+
+A further modification has been made to prevent multiple contiguous 'and' strings from being added (eg; as would happen for "http://example.com/site&&page"). These are now reduced to one instance (ie; site&&page -> site-and-page).
+
+
+After Metadata Updated Trigger Event
+	This new Trigger Event will fire just after metadata has been set and regenerated for the firing asset. This contrasts with the existing Metadata Updated event which is also fired after metadata has been set, but *before* regeneration. 
+
+
+Asset Recached Trigger Event
+	A Trigger Event is now fired when an asset is recached using the "_recache" suffix. This can be captured by Triggers and used for automation purposes.
+
+
+Calendar Page date range limiting while browsing
+	A lower and upper bound has been added to the "Details" screen of the Calendar Page asset to restrict navigation between time period views using the "Next" and "Previous" links.
+
+This restriction is be disabled by default, but when enabled will be based on the current system date. Manually entered dates in the address bar outside the relevant range for the view will show no "Next" and "Previous" navigation.
+
+Each view can be configured independently and asymmetrically. For example, the Month view can have no restriction while the Year view is restricted to between 2 years in the past to 4 years in the future.
+
+
+Control of frontend error display via URL
+	System Administrators can now append a query string variable 'SQ_SHOW_ERRORS' to view the frontend errors if they are hidden, as specified on the "System Configuration" screen.
+
+
+Thesaurus Metadata Field Update Tool
+	The "Details" screen of Thesaurus Term assets has a new option to update related Thesaurus Term metdadata fields in the system when the name of the term is changed.
+
+An accompanying Matrix Tool, "Change Thesaurus Term", may also be used to affect the same set of changes either by root node or system-wide.
+
+
+Set Session Variable Form Action
+	This Form Action can be configured to set one or more PHP session variables upon form submission. The session variables used are user-defined and can be used in other areas of Matrix via the %globals_session_xx% Global Keyword.
+
+The values that can be stored by this Form Action are obtained from the related Form Submission asset, such as the IP address used, the submission date and the responses given.
+
+
+Form Posted Condition modification
+	The "Form Posted" Condition, available in Design Areas and Paint Layouts, has been modified to evaluate to TRUE only when the form submission is triggered via a POST submission instead of only when the POST itself is empty.
+
+
+JavaScript API to Matrix
+	A new asset "JavaScript API" has been graciously contributed by Nic Hubbard to the Web Services package. Unlike the Web Services package itself, this new asset will be released on Monday under the GPL.
+
+The JavaScript API asset returns JSON objects in response to general asset queries. Currently this asset supports the following function calls:
+
+  - getGeneral    (asset information such as name and path)
+  - getAttributes (asset attributes)
+  - setAttribute
+  - getMetadata   (returns all metadata from all assigned schemas)
+  - setMetadata   (sets a single metadata field value)
+  - trashAsset
+
+Access to call these functions is controlled by an API Key value set on the "Details" screen of the JavaScript API asset. The function setApiKey() must be called in JavaScript before the first call to one of the above functions.
+
+Each function can be independently enabled or disabled from the asset in order to limit the dynamic capabilities provided via JavaScript calls.
+
+
+Support for editing and deleting existing assets from the CSV to Matrix Importer script
+	Modifications have been made to the CSV to Matrix Importer script, "import_assets_to_csv.php" in the scripts directory, to enable editing and deleting existing assets which match a primary column in the source CSV file. Additional options are available which allow the primary column and a flag column to be specified on the command line. The flag column must contain either "A", "E", or "D" to indicate whether the record is to be (A)dded, (E)dited or (D)eleted.
+
+Please note that deletion performed by this script is permanent and bypasses the trash. Any requests to Edit an asset that does not exist is turned into an Add request. Requests to Add assets that already exist are turned into Edit requests. Requests to Delete an asset that does not exist will be ignored and the script will continue.
+
+A further "ignore" file can be provided with single column list of items to ignore when performing an "Edit" operation. For example, if user passwords are supplied in the CSV import file in order to create User assets, these can be ignored if supplied again in an "Edit" context. In this example it would ensure that the password is not set again from the import file.
+
+As with the previous revision of this script, a CSV file is provided on STDOUT to monitor the assets affected. In this revision an additional column is given in this output to indicate the actual operation performed on the asset (eg; [primary identifier],[asset id],E).
+
+
+
+Additional Changes and Bug Fixes
+-----------------------------------
+
+Core
+Fixed Bug #3668: Error when previewing asset after design change
+Fixed Bug #3698: Wysiwyg for %__custom_contents% keyword not working properly in simple edit layout.
+Fixed Bug #3701: Error when Thesaurus Terms in Asset Map
+Fixed Bug #3705: Custom form file uploading will not update existing uploaded file if the user doesn't have write permission
+Fixed Bug #3707: Image editor crashes browser
+Fixed Bug #3709: Replace text button in WYSIWYG removing href attributes
+Fixed Bug #3712: BMP file not be able to be uploaded in custom form file upload if enforced MIME check is on
+Fixed Bug #3713: Some video files and ms office files will not be able to be uplloaded in custom form if enforced mime check is on
+Fixed Bug #3715: History screen of an asset will not display ldap user's editing history
+Fixed Bug #3716: Global keyword in paint layout regexp condition doesn't evaluate to true
+Fixed Bug #3718: Wrong name in "forcibly removed lock" email
+Fixed Bug #3722: In Rollback mode, only root user can view assets
+Fixed Bug #3724: Errors in cron_errors.log and system.log from workflow when on Oracle
+Fixed Bug #3728: urls in customized workflow emails don't work
+Fixed Bug #3732: Metadata textarea fields don't allow input - Safari 4
+Fixed Bug #3734: Asset Listing Date Picker Fields are not XHTML valid
+Fixed Bug #3735: Table Editor column widths unchangable
+Fixed Bug #3736: Online Quiz Question Groups Simple Edit Layout details-F_name 
+Fixed Bug #3738: Replace Text not working properly in Wysiwyg when text is selected
+Fixed Bug #3740: asset_lnk variable in parse file not returning correct URL
+Fixed Bug #3743: Paint layout javascript issue
+Fixed Bug #3745: Replace url script does not replace paths on live public file assets
+Fixed Bug #3746: Preview screen doesn't refreshes in table properties when value is changed
+Fixed Bug #3752: Embed YouTube Fails
+Fixed Bug #3755: Editing a table window doesn't close under Safari 4
++ Addition of TRIM file extensions TRF and TR5 to the supported MIME Types list, served with the "application/octet-stream" type
++ Exclude current asset from Listings, specified on the Details screen of Asset Listing, Search Page and What's New assets
++ Global Keywords for Asset Character Set and supported languages: %globals_asset_charset% and %globals_asset_languages%
++ New keyword %asset_web_path%, which returns the shortest Web Path assigned to the current asset
+
+CMS
+Fixed Bug #3689: Incomplete metadata report will give error message when parsing non unicode metadata field name
+Fixed Bug #3692: Confirmation page not working for a single page custom form
++ Configurable CAPTCHA Error Message for Forms, specified on the Details screen of Form assets
+
+Calendar
+Fixed Bug #3751: Recurring event's keywords not working in event list asset
++ Calendar Event asset types may now be created and moved under Standard Page assets
+
+Google Maps
+Fixed Bug #3750: Google map hangs when http code 620 is received
+
+Import Tools
+Fixed Bug #3744: Unable to delete files from structured file import
+
+Search
+Fixed Bug #3737: Search: exclude field broken
+
+
+
 VERSION 3.22.1
 
 Featured Changes
