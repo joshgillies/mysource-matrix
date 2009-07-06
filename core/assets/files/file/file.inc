@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.179 2009/05/22 05:49:28 hnguyen Exp $
+* $Id: file.inc,v 1.180 2009/07/06 23:51:28 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -922,6 +922,7 @@ class File extends Asset
 	public function setAttrValue($name, $value)
 	{
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? TRUE : FALSE;
+		$created_file = isset($this->_tmp['file_create_data']['created_file']) ? $this->_tmp['file_create_data']['created_file'] : FALSE; 
 
 		if ($name == 'name' && !$uploading_file) {
 			// check that we are not going to have web path conflicts
@@ -945,7 +946,8 @@ class File extends Asset
 				$value = $old_filename;
 				return FALSE;
 			}
-			if (!is_file($data_path.'/'.$old_filename)) {
+			// Should be able to set attribute of file before if its created by matrix
+			if (!is_file($data_path.'/'.$old_filename) && !$created_file) {
 				trigger_localised_error('CORE0023', E_USER_WARNING);
 				$value = $old_filename;
 				return FALSE;
