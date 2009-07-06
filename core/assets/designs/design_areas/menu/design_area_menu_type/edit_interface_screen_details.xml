@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2008/07/04 06:13:09 hnguyen Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8.4.1 2009/07/06 07:46:59 cupreti Exp $
 *
 */
 -->
@@ -40,5 +40,11 @@
                 <process_function name="processExcludedTypes" />
             </function_call>
         </field>
+		<field>
+			<function_call>
+		  		<paint_function   name="paintIncludedTypes" />
+		   		<process_function name="processIncludedTypes" />
+			</function_call>
+		</field>        
 	</section>
 </contents>
