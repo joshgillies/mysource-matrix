@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.128 2009/05/22 03:12:01 wszymanski Exp $
+* $Id: system_config.inc,v 1.129 2009/07/07 00:35:39 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -1130,7 +1130,7 @@ class System_Config extends Config
 
 				$display_names[] = isset($sql_element->attributes()->{'display_name'}) ? $sql_element->attributes()->{'display_name'} : '<Unknown Element>';
 				if ($sql_element->attributes()->{'display_name'} == $display_name) {
-					$sql = trim($this->_xml_entity_decode((string)$sql_element));
+					$sql = trim(xml_entity_decode((string)$sql_element));
 				}
 			}
 		}
@@ -1139,30 +1139,6 @@ class System_Config extends Config
 
 	}//end _getCommonViewDefinition()
 
-
-	/**
-	* Replaces elements that are considered XML elements, but not html elements.
-	*
-	* @param string $string the string that needs cleaning
-	*
-	* @return string
-	* @access private
-	*/
-	private function _xml_entity_decode($string)
-	{
-		$string = html_entity_decode($string);
-		$string = str_replace('&#124;', '|', $string);
-		$string = str_replace('&apos;', "'", $string);
-		$string = str_replace('&#42;', '*', $string);
-		$string = str_replace('&#92;', '\\', $string);
-		$string = str_replace('&#126;', '~', $string);
-		$string = str_replace('&#96;', '`', $string);
-		$string = str_replace('&#94;', '^', $string);
-
-		return $string;
-
-	}//end _xml_entity_decode()
-		
 
 }//end class
 
