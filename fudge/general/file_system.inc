@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.44 2007/06/14 05:00:01 rong Exp $
+* $Id: file_system.inc,v 1.45 2009/07/07 06:01:12 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions for the file system
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package Fudge
 * @subpackage General
 */
@@ -308,18 +308,15 @@ function create_directory($path)
 	if ((!is_string($path) &&(!is_int($path))) || empty($path)) {
 		return FALSE;
 	}
-	$branches = explode('/', $path);
-	$trunk = '';
+	if (is_dir($path)) return TRUE;
+
 	$old_umask = umask(0);
-	for ($i = 0, $count = count($branches); $i < $count; $i++) {
-		$trunk .= $branches[$i].'/';
-		if (file_exists($trunk)) continue;
-		if (!mkdir(substr($trunk,0,-1), 0775)) {
-			trigger_error('Unable to create directory: '.$trunk, E_USER_WARNING);
-			clearstatcache();
-			return FALSE;
-		}
+	if (!mkdir($path, 0775, TRUE)) {
+		trigger_error('Unable to create directory: '.$path, E_USER_WARNING);
+		clearstatcache();
+		return FALSE;
 	}
+
 	umask($old_umask);
 	clearstatcache();
 	return TRUE;
